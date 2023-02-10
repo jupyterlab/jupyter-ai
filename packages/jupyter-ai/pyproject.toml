@@ -39,7 +39,7 @@ dependencies = [
 gpt3 = "jupyter_ai:GPT3ModelEngine"
 
 [project.urls]
-Homepage = "https://gitlab.aws.dev/jupyter-core/jupyter-ai"
+Homepage = "https://github.com/jupyterlab/jupyter-ai"
 
 [project.optional-dependencies]
 test = [

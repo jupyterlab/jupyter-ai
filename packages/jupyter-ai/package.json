@@ -7,9 +7,9 @@
     "jupyterlab",
     "jupyterlab-extension"
   ],
-  "homepage": "https://github.com/github_username/jupyter_ai",
+  "homepage": "https://github.com/jupyterlab/jupyter_ai",
   "bugs": {
-    "url": "https://github.com/github_username/jupyter_ai/issues"
+    "url": "https://github.com/jupyterlab/jupyter_ai/issues"
   },
   "license": "BSD-3-Clause",
   "author": {
@@ -25,7 +25,7 @@
   "style": "style/index.css",
   "repository": {
     "type": "git",
-    "url": "https://github.com/github_username/jupyter_ai.git"
+    "url": "https://github.com/jupyterlab/jupyter_ai.git"
   },
   "scripts": {
     "build": "jlpm build:lib && jlpm build:labextension:dev",
