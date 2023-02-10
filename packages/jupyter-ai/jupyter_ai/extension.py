@@ -4,27 +4,27 @@ from importlib_metadata import entry_points
 import inspect
 from .engine import BaseModelEngine
 
-class GaiExtension(ExtensionApp):
-    name = "jupyter_gai"
+class AiExtension(ExtensionApp):
+    name = "jupyter_ai"
     handlers = [
-        ("api/gai/prompt", PromptAPIHandler),
-        (r"api/gai/tasks/?", TaskAPIHandler),
-        (r"api/gai/tasks/([\w\-:]*)", TaskAPIHandler)
+        ("api/ai/prompt", PromptAPIHandler),
+        (r"api/ai/tasks/?", TaskAPIHandler),
+        (r"api/ai/tasks/([\w\-:]*)", TaskAPIHandler)
     ]
 
     @property
-    def gai_engines(self): 
-        if "gai_engines" not in self.settings:
-            self.settings["gai_engines"] = {}
+    def ai_engines(self): 
+        if "ai_engines" not in self.settings:
+            self.settings["ai_engines"] = {}
 
-        return self.settings["gai_engines"]
+        return self.settings["ai_engines"]
 
     def initialize_settings(self):
         eps = entry_points()
-        model_engine_class_eps = eps.select(group="jupyter_gai.model_engine_class")
+        model_engine_class_eps = eps.select(group="jupyter_ai.model_engine_class")
         
         if not model_engine_class_eps:
-            self.log.error("No model engines found for jupyter_gai.model_engine_class group. One or more model engines are required for GAI extension to work.")
+            self.log.error("No model engines found for jupyter_ai.model_engine_class group. One or more model engines are required for AI extension to work.")
             return
 
         for model_engine_class_ep in model_engine_class_eps:
@@ -39,7 +39,7 @@ class GaiExtension(ExtensionApp):
                 continue
 
             try:
-                self.gai_engines[Engine.name] = Engine(config=self.config, log=self.log)
+                self.ai_engines[Engine.name] = Engine(config=self.config, log=self.log)
             except:
                 self.log.error(f"Unable to instantiate model engine class from entry point `{model_engine_class_ep.name}`.")
                 continue

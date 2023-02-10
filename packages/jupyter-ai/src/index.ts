@@ -22,27 +22,27 @@ export enum NotebookTasks {
 }
 
 export namespace CommandIDs {
-  export const explainCodeCell = 'gai:explain-code-cell';
-  export const codifyMdCell = 'gai:codify-md-cell';
-  export const explainOrCodifyCell = 'gai:explain-or-codify-cell';
+  export const explainCodeCell = 'ai:explain-code-cell';
+  export const codifyMdCell = 'ai:codify-md-cell';
+  export const explainOrCodifyCell = 'ai:explain-or-codify-cell';
   export const generateFromNotebookSelection =
-    'gai:generate-from-notebook-selection';
+    'ai:generate-from-notebook-selection';
   export const generateFromEditorSelection =
-    'gai:generate-from-editor-selection';
-  export const insertAbove = 'gai:insert-above';
-  export const insertBelow = 'gai:insert-below';
-  export const insertReplace = 'gai:insert-replace';
-  export const insertAboveInCells = 'gai:insert-above-in-cells';
-  export const insertBelowInCells = 'gai:insert-below-in-cells';
+    'ai:generate-from-editor-selection';
+  export const insertAbove = 'ai:insert-above';
+  export const insertBelow = 'ai:insert-below';
+  export const insertReplace = 'ai:insert-replace';
+  export const insertAboveInCells = 'ai:insert-above-in-cells';
+  export const insertBelowInCells = 'ai:insert-below-in-cells';
 }
 
 export type DocumentTracker = IWidgetTracker<IDocumentWidget>;
 
 /**
- * Initialization data for the jupyter_gai extension.
+ * Initialization data for the jupyter_ai extension.
  */
 const plugin: JupyterFrontEndPlugin<void> = {
-  id: 'jupyter_gai:plugin',
+  id: 'jupyter_ai:plugin',
   autoStart: true,
   requires: [INotebookTracker, IEditorTracker],
   activate: (
@@ -57,7 +57,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
      */
     commands.addCommand(CommandIDs.generateFromNotebookSelection, {
       execute: buildOpenTaskDialog(notebookTracker, app),
-      label: 'Generate output from selection with GAI...',
+      label: 'Generate output from selection with AI...',
       icon: psychologyIcon,
       isEnabled: () => {
         const editorWidget = notebookTracker?.currentWidget?.content;
@@ -66,7 +66,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
     });
     commands.addCommand(CommandIDs.generateFromEditorSelection, {
       execute: buildOpenTaskDialog(editorTracker, app),
-      label: 'Generate output from selection with GAI...',
+      label: 'Generate output from selection with AI...',
       icon: psychologyIcon,
       isEnabled: () => {
         const editorWidget = editorTracker?.currentWidget?.content;
@@ -100,17 +100,17 @@ const plugin: JupyterFrontEndPlugin<void> = {
      */
     commands.addCommand(CommandIDs.explainCodeCell, {
       execute: buildNotebookShortcutCommand(notebookTracker, app),
-      label: 'Explain cell with GAI',
+      label: 'Explain cell with AI',
       icon: psychologyIcon
     });
     commands.addCommand(CommandIDs.codifyMdCell, {
       execute: buildNotebookShortcutCommand(notebookTracker, app),
-      label: 'Codify cell with GAI',
+      label: 'Codify cell with AI',
       icon: psychologyIcon
     });
     commands.addCommand(CommandIDs.explainOrCodifyCell, {
       execute: buildNotebookShortcutCommand(notebookTracker, app),
-      label: 'Explain or codify cell with GAI',
+      label: 'Explain or codify cell with AI',
       icon: psychologyIcon
     });
   }

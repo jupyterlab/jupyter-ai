@@ -36,12 +36,12 @@ jobs:
         set -eux
         python -m pip install .[test]
 
-        pytest -vv -r ap --cov jupyter_gai
+        pytest -vv -r ap --cov jupyter_ai
         jupyter server extension list
-        jupyter server extension list 2>&1 | grep -ie "jupyter_gai.*OK"
+        jupyter server extension list 2>&1 | grep -ie "jupyter_ai.*OK"
 
         jupyter labextension list
-        jupyter labextension list 2>&1 | grep -ie "jupyter_gai.*OK"
+        jupyter labextension list 2>&1 | grep -ie "jupyter_ai.*OK"
         python -m jupyterlab.browser_check
 
     - name: Package the extension
@@ -50,13 +50,13 @@ jobs:
 
         pip install build
         python -m build
-        pip uninstall -y "jupyter_gai" jupyterlab
+        pip uninstall -y "jupyter_ai" jupyterlab
 
     - name: Upload extension packages
       uses: actions/upload-artifact@v2
       with:
         name: extension-artifacts
-        path: dist/jupyter_gai*
+        path: dist/jupyter_ai*
         if-no-files-found: error
 
   test_isolated:
@@ -81,14 +81,14 @@ jobs:
         sudo rm -rf $(which node)
         sudo rm -rf $(which node)
 
-        pip install "jupyterlab~=3.1" jupyter_gai*.whl
+        pip install "jupyterlab~=3.1" jupyter_ai*.whl
 
 
         jupyter server extension list
-        jupyter server extension list 2>&1 | grep -ie "jupyter_gai.*OK"
+        jupyter server extension list 2>&1 | grep -ie "jupyter_ai.*OK"
 
         jupyter labextension list
-        jupyter labextension list 2>&1 | grep -ie "jupyter_gai.*OK"
+        jupyter labextension list 2>&1 | grep -ie "jupyter_ai.*OK"
         python -m jupyterlab.browser_check --no-chrome-test
 
   integration-tests:
@@ -114,7 +114,7 @@ jobs:
     - name: Install the extension
       run: |
         set -eux
-        python -m pip install "jupyterlab~=3.1" jupyter_gai*.whl
+        python -m pip install "jupyterlab~=3.1" jupyter_ai*.whl
 
     - name: Install dependencies
       working-directory: ui-tests
@@ -142,7 +142,7 @@ jobs:
       if: always()
       uses: actions/upload-artifact@v2
       with:
-        name: jupyter_gai-playwright-tests
+        name: jupyter_ai-playwright-tests
         path: |
           ui-tests/test-results
           ui-tests/playwright-report

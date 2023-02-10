@@ -7,10 +7,10 @@ from jupyter_core.paths import jupyter_data_dir
 from .models import ListTasksResponse, ListTasksEntry, DescribeTaskResponse
 
 class TaskManager:
-    db_path = os.path.join(jupyter_data_dir(), "gai_task_manager.db")
+    db_path = os.path.join(jupyter_data_dir(), "ai_task_manager.db")
 
-    def __init__(self, gai_engines):
-        self.gai_engines = gai_engines
+    def __init__(self, ai_engines):
+        self.ai_engines = ai_engines
         self.db_initialized = asyncio.create_task(self.init_db())
  
     async def init_db(self):
@@ -29,8 +29,8 @@ class TaskManager:
             # delete and recreate all default tasks. this ensures the default
             # tasks exposed by model engines are all up-to-date.
             await con.execute("DELETE FROM tasks WHERE is_default = 1")
-            for engine_name in self.gai_engines:
-                engine = self.gai_engines[engine_name]
+            for engine_name in self.ai_engines:
+                engine = self.ai_engines[engine_name]
                 for task in engine.list_default_tasks():
                     id = engine.name + ":" + task["id"]
                     await con.execute(

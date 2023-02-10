@@ -1,15 +1,15 @@
 from ._version import __version__
-from .extension import GaiExtension
+from .extension import AiExtension
 from .engine import GPT3ModelEngine
 
 def _jupyter_labextension_paths():
     return [{
         "src": "labextension",
-        "dest": "jupyter_gai"
+        "dest": "jupyter_ai"
     }]
 
 def _jupyter_server_extension_points():
     return [{
-        "module": "jupyter_gai",
-        "app": GaiExtension
+        "module": "jupyter_ai",
+        "app": AiExtension
     }]

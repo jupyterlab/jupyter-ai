@@ -2,7 +2,7 @@ import { URLExt } from '@jupyterlab/coreutils';
 
 import { ServerConnection } from '@jupyterlab/services';
 
-const API_NAMESPACE = 'api/gai';
+const API_NAMESPACE = 'api/ai';
 
 /**
  * Call the API extension
@@ -43,7 +43,7 @@ export async function requestAPI<T>(
   return data;
 }
 
-export namespace GaiService {
+export namespace AiService {
   /**
    * The instantiation options for a data registry handler.
    */

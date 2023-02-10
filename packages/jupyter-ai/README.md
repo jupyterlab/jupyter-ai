@@ -1,10 +1,10 @@
-# jupyter_gai
+# jupyter_ai
 
-[![Github Actions Status](https://github.com/github_username/jupyter_gai/workflows/Build/badge.svg)](https://github.com/github_username/jupyter_gai/actions/workflows/build.yml)
+[![Github Actions Status](https://github.com/github_username/jupyter_ai/workflows/Build/badge.svg)](https://github.com/github_username/jupyter_ai/actions/workflows/build.yml)
 A generative AI extension for JupyterLab
 
-This extension is composed of a Python package named `jupyter_gai`
-for the server extension and a NPM package named `jupyter_gai`
+This extension is composed of a Python package named `jupyter_ai`
+for the server extension and a NPM package named `jupyter_ai`
 for the frontend extension.
 
 ## Requirements
@@ -16,7 +16,7 @@ for the frontend extension.
 To install the extension, execute:
 
 ```bash
-pip install jupyter_gai
+pip install jupyter_ai
 ```
 
 ## Uninstall
@@ -24,12 +24,12 @@ pip install jupyter_gai
 To remove the extension, execute:
 
 ```bash
-pip uninstall jupyter_gai
+pip uninstall jupyter_ai
 ```
 
 ## Usage with GPT-3
 
-To use the `GPT3ModelEngine` in `jupyter_gai`, you will need an OpenAI API key.
+To use the `GPT3ModelEngine` in `jupyter_ai`, you will need an OpenAI API key.
 Copy the API key and then create a Jupyter config file locally at `config.py` to
 store the API key.
 
@@ -80,13 +80,13 @@ The `jlpm` command is JupyterLab's pinned version of
 
 ```bash
 # Clone the repo to your local environment
-# Change directory to the jupyter_gai directory
+# Change directory to the jupyter_ai directory
 # Install package in development mode
 pip install -e .
 # Link your development version of the extension with JupyterLab
 jupyter labextension develop . --overwrite
 # Server extension must be manually installed in develop mode
-jupyter server extension enable jupyter_gai
+jupyter server extension enable jupyter_ai
 # Rebuild extension Typescript source after making changes
 jlpm build
 ```
@@ -112,13 +112,13 @@ jupyter lab build --minimize=False
 
 ```bash
 # Server extension must be manually disabled in develop mode
-jupyter server extension disable jupyter_gai
-pip uninstall jupyter_gai
+jupyter server extension disable jupyter_ai
+pip uninstall jupyter_ai
 ```
 
 In development mode, you will also need to remove the symlink created by `jupyter labextension develop`
 command. To find its location, you can run `jupyter labextension list` to figure out where the `labextensions`
-folder is located. Then you can remove the symlink named `jupyter_gai` within that folder.
+folder is located. Then you can remove the symlink named `jupyter_ai` within that folder.
 
 ### Testing the extension
 
@@ -135,7 +135,7 @@ pip install -e ".[test]"
 To execute them, run:
 
 ```sh
-pytest -vv -r ap --cov jupyter_gai
+pytest -vv -r ap --cov jupyter_ai
 ```
 
 #### Frontend tests

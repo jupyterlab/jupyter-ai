@@ -38,7 +38,7 @@ export function ExpandableTextField(
         ...style
       }}
     >
-      <span className="jp-gai-ExpandableTextField-label">{label}</span>
+      <span className="jp-ai-ExpandableTextField-label">{label}</span>
       <div style={{ display: 'flex', flexDirection: 'column' }}>
         <div
           style={{
@@ -49,10 +49,10 @@ export function ExpandableTextField(
         >
           {InputProps?.startAdornment}
           <span
-            className={`jp-gai-ExpandableTextField-value ${
+            className={`jp-ai-ExpandableTextField-value ${
               expanded
-                ? 'jp-gai-ExpandableTextField-value-expanded'
-                : 'jp-gai-ExpandableTextField-value-collapsed'
+                ? 'jp-ai-ExpandableTextField-value-expanded'
+                : 'jp-ai-ExpandableTextField-value-collapsed'
             }`}
             ref={textContainerRef}
           >
@@ -63,13 +63,13 @@ export function ExpandableTextField(
           <div
             style={{ textDecoration: 'underline' }}
             onClick={() => setExpanded(!expanded)}
-            className="jp-gai-ExpandableTextField-value"
+            className="jp-ai-ExpandableTextField-value"
           >
             {expanded ? 'Show Less' : 'Show More'}
           </div>
         )}
         <span
-          className="jp-gai-ExpandableTextField-label"
+          className="jp-ai-ExpandableTextField-label"
           style={{ maxWidth: 'fit-content' }}
         >
           {helperText}

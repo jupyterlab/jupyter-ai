@@ -16,18 +16,18 @@ import {
 import { ExpandableTextField } from './expandable-text-field';
 
 import { insertOutput } from '../inserter';
-import { GaiService } from '../handler';
+import { AiService } from '../handler';
 import { getJupyterLabTheme } from '../theme-provider';
 
 /**
  * Map of human-readable descriptions per insertion mode.
  */
 const TASK_DESCS: Record<string, string> = {
-  above: 'GAI output will be inserted above the selected text',
-  replace: 'GAI output will replace the selected text',
-  below: 'GAI output will be inserted below the selected text',
-  'above-in-cells': 'GAI output will be inserted above in new notebook cells',
-  'below-in-cells': 'GAI output will be inserted below in new notebook cells'
+  above: 'AI output will be inserted above the selected text',
+  replace: 'AI output will replace the selected text',
+  below: 'AI output will be inserted below the selected text',
+  'above-in-cells': 'AI output will be inserted above in new notebook cells',
+  'below-in-cells': 'AI output will be inserted below in new notebook cells'
 };
 
 export interface IOpenTaskDialogProps {
@@ -39,24 +39,24 @@ export interface IOpenTaskDialogProps {
 
 export function OpenTaskDialog(props: IOpenTaskDialogProps): JSX.Element {
   // response from ListTasks endpoint
-  const [taskList, setTaskList] = useState<GaiService.ListTasksEntry[]>([]);
+  const [taskList, setTaskList] = useState<AiService.ListTasksEntry[]>([]);
   // ID of the selected task, set on selection
   const [taskId, setTaskId] = useState<string>('');
   // response from DescribeTask endpoint, called after selection
-  const [taskDesc, setTaskDesc] = useState<GaiService.DescribeTaskResponse>();
+  const [taskDesc, setTaskDesc] = useState<AiService.DescribeTaskResponse>();
   const [loading, setLoading] = useState<boolean>(false);
 
   const onSubmitClick = async () => {
     setLoading(true);
 
     try {
-      const request: GaiService.IPromptRequest = {
+      const request: AiService.IPromptRequest = {
         task_id: taskId,
         prompt_variables: {
           body: props.selectedText
         }
       };
-      const response = await GaiService.sendPrompt(request);
+      const response = await AiService.sendPrompt(request);
       insertOutput(props.app, {
         widget: props.editorWidget,
         request,
@@ -76,7 +76,7 @@ export function OpenTaskDialog(props: IOpenTaskDialogProps): JSX.Element {
    */
   useEffect(() => {
     async function listTasks() {
-      const listTasksResponse = await GaiService.listTasks();
+      const listTasksResponse = await AiService.listTasks();
       setTaskList(listTasksResponse.tasks);
       if (!listTasksResponse.tasks.length) {
         console.error('No tasks returned via the backend');
@@ -84,7 +84,7 @@ export function OpenTaskDialog(props: IOpenTaskDialogProps): JSX.Element {
       }
       const taskId = listTasksResponse.tasks[0].id;
       setTaskId(taskId);
-      const describeTaskResponse = await GaiService.describeTask(taskId);
+      const describeTaskResponse = await AiService.describeTask(taskId);
       setTaskDesc(describeTaskResponse);
     }
     listTasks();
@@ -92,7 +92,7 @@ export function OpenTaskDialog(props: IOpenTaskDialogProps): JSX.Element {
 
   const handleChange = async (event: SelectChangeEvent) => {
     setTaskId(event.target.value);
-    const describeTaskResponse = await GaiService.describeTask(
+    const describeTaskResponse = await AiService.describeTask(
       event.target.value
     );
     setTaskDesc(describeTaskResponse);

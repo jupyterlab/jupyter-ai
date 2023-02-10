@@ -11,15 +11,15 @@ from .models import PromptRequest
 
 class PromptAPIHandler(APIHandler):
     @property
-    def gai_engines(self): 
-        return self.settings["gai_engines"]
+    def ai_engines(self): 
+        return self.settings["ai_engines"]
 
     @property
     def task_manager(self):
         # we have to create the TaskManager lazily, since no event loop is
         # running in ServerApp.initialize_settings().
         if "task_manager" not in self.settings:
-            self.settings["task_manager"] = TaskManager(gai_engines=self.settings["gai_engines"])
+            self.settings["task_manager"] = TaskManager(ai_engines=self.settings["ai_engines"])
         return self.settings["task_manager"]
     
     @tornado.web.authenticated
@@ -33,10 +33,10 @@ class PromptAPIHandler(APIHandler):
         task = await self.task_manager.describe_task(request.task_id)
         if not task:
             raise HTTPError(404, f"Task not found with ID: {request.task_id}")
-        if task.engine not in self.gai_engines:
+        if task.engine not in self.ai_engines:
             raise HTTPError(500, f"Model engine not registered: {task.engine}")
         
-        engine = self.gai_engines[task.engine]
+        engine = self.ai_engines[task.engine]
         output = await ensure_async(engine.execute(task, request.prompt_variables))
 
         self.finish(json.dumps({
@@ -50,7 +50,7 @@ class TaskAPIHandler(APIHandler):
         # we have to create the TaskManager lazily, since no event loop is
         # running in ServerApp.initialize_settings().
         if "task_manager" not in self.settings:
-            self.settings["task_manager"] = TaskManager(gai_engines=self.settings["gai_engines"])
+            self.settings["task_manager"] = TaskManager(ai_engines=self.settings["ai_engines"])
         return self.settings["task_manager"]
     
     @tornado.web.authenticated

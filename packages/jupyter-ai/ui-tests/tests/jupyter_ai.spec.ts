@@ -16,6 +16,6 @@ test('should emit an activation console message', async ({ page }) => {
   await page.goto();
 
   expect(
-    logs.filter(s => s === 'JupyterLab extension jupyter_gai is activated!')
+    logs.filter(s => s === 'JupyterLab extension jupyter_ai is activated!')
   ).toHaveLength(1);
 });

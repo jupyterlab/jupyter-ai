@@ -1,5 +1,5 @@
 {
-  "name": "jupyter_gai",
+  "name": "jupyter_ai",
   "version": "0.1.0",
   "description": "A generative AI extension for JupyterLab",
   "keywords": [
@@ -7,9 +7,9 @@
     "jupyterlab",
     "jupyterlab-extension"
   ],
-  "homepage": "https://github.com/github_username/jupyter_gai",
+  "homepage": "https://github.com/github_username/jupyter_ai",
   "bugs": {
-    "url": "https://github.com/github_username/jupyter_gai/issues"
+    "url": "https://github.com/github_username/jupyter_ai/issues"
   },
   "license": "BSD-3-Clause",
   "author": {
@@ -25,7 +25,7 @@
   "style": "style/index.css",
   "repository": {
     "type": "git",
-    "url": "https://github.com/github_username/jupyter_gai.git"
+    "url": "https://github.com/github_username/jupyter_ai.git"
   },
   "scripts": {
     "build": "jlpm build:lib && jlpm build:labextension:dev",
@@ -36,7 +36,7 @@
     "clean": "jlpm clean:lib",
     "clean:lib": "rimraf lib tsconfig.tsbuildinfo",
     "clean:lintcache": "rimraf .eslintcache .stylelintcache",
-    "clean:labextension": "rimraf jupyter_gai/labextension",
+    "clean:labextension": "rimraf jupyter_ai/labextension",
     "clean:all": "jlpm clean:lib && jlpm clean:labextension && jlpm clean:lintcache",
     "eslint": "jlpm eslint:check --fix",
     "eslint:check": "eslint . --cache --ext .ts,.tsx",
@@ -107,12 +107,12 @@
           "pip"
         ],
         "base": {
-          "name": "jupyter_gai"
+          "name": "jupyter_ai"
         }
       }
     },
     "extension": true,
-    "outputDir": "jupyter_gai/labextension",
+    "outputDir": "jupyter_ai/labextension",
     "schemaDir": "schema"
   },
   "jupyter-releaser": {

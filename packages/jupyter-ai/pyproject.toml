@@ -3,7 +3,7 @@ requires = ["hatchling>=1.4.0", "jupyterlab>=3.4.7,<4.0.0", "hatch-nodejs-versio
 build-backend = "hatchling.build"
 
 [project]
-name = "jupyter_gai"
+name = "jupyter_ai"
 version = "0.1.0"
 description = "Jupyter extension for Generative AI"
 readme = "README.md"
@@ -35,11 +35,11 @@ dependencies = [
     "importlib_metadata~=5.2.0"
 ]
 
-[project.entry-points."jupyter_gai.model_engine_class"]
-gpt3 = "jupyter_gai:GPT3ModelEngine"
+[project.entry-points."jupyter_ai.model_engine_class"]
+gpt3 = "jupyter_ai:GPT3ModelEngine"
 
 [project.urls]
-Homepage = "https://gitlab.aws.dev/jupyter-core/jupyter-gai"
+Homepage = "https://gitlab.aws.dev/jupyter-core/jupyter-ai"
 
 [project.optional-dependencies]
 test = [
@@ -57,26 +57,26 @@ source = "nodejs"
 fields = ["description", "authors", "urls"]
 
 [tool.hatch.build.targets.sdist]
-artifacts = ["jupyter_gai/labextension"]
+artifacts = ["jupyter_ai/labextension"]
 exclude = [".github", "binder"]
 
 [tool.hatch.build.targets.wheel.shared-data]
-"jupyter_gai/labextension" = "share/jupyter/labextensions/jupyter_gai"
-"install.json" = "share/jupyter/labextensions/jupyter_gai/install.json"
+"jupyter_ai/labextension" = "share/jupyter/labextensions/jupyter_ai"
+"install.json" = "share/jupyter/labextensions/jupyter_ai/install.json"
 "jupyter-config/server-config" = "etc/jupyter/jupyter_server_config.d"
 "jupyter-config/nb-config" = "etc/jupyter/jupyter_notebook_config.d"
 
 [tool.hatch.build.hooks.version]
-path = "jupyter_gai/_version.py"
+path = "jupyter_ai/_version.py"
 
 [tool.hatch.build.hooks.jupyter-builder]
 dependencies = ["hatch-jupyter-builder>=0.5"]
 build-function = "hatch_jupyter_builder.npm_builder"
 ensured-targets = [
-    "jupyter_gai/labextension/static/style.js",
-    "jupyter_gai/labextension/package.json",
+    "jupyter_ai/labextension/static/style.js",
+    "jupyter_ai/labextension/package.json",
 ]
-skip-if-exists = ["jupyter_gai/labextension/static/style.js"]
+skip-if-exists = ["jupyter_ai/labextension/static/style.js"]
 
 [tool.hatch.build.hooks.jupyter-builder.build-kwargs]
 build_cmd = "build:prod"
@@ -86,7 +86,7 @@ npm = ["jlpm"]
 build_cmd = "install:extension"
 npm = ["jlpm"]
 source_dir = "src"
-build_dir = "jupyter_gai/labextension"
+build_dir = "jupyter_ai/labextension"
 
 [tool.jupyter-releaser.options]
 version_cmd = "hatch version"

@@ -5,8 +5,8 @@
   "jupyter.lab.toolbars": {
     "Cell": [
       {
-        "name": "gai:explain-or-codify-cell",
-        "command": "gai:explain-or-codify-cell",
+        "name": "ai:explain-or-codify-cell",
+        "command": "ai:explain-or-codify-cell",
         "rank": 10
       }
     ]
@@ -14,26 +14,26 @@
   "jupyter.lab.menus": {
     "context": [
       {
-        "name": "gai:explain-code-cell",
-        "command": "gai:explain-code-cell",
+        "name": "ai:explain-code-cell",
+        "command": "ai:explain-code-cell",
         "selector": ".jp-CodeCell",
         "rank": 500
       },
       {
-        "name": "gai:codify-md-cell",
-        "command": "gai:codify-md-cell",
+        "name": "ai:codify-md-cell",
+        "command": "ai:codify-md-cell",
         "selector": ".jp-MarkdownCell",
         "rank": 510
       },
       {
-        "name": "gai:generate-from-notebook-selection",
-        "command": "gai:generate-from-notebook-selection",
+        "name": "ai:generate-from-notebook-selection",
+        "command": "ai:generate-from-notebook-selection",
         "selector": ".jp-NotebookPanel",
         "rank": 520
       },
       {
-        "name": "gai:generate-from-editor-selection",
-        "command": "gai:generate-from-editor-selection",
+        "name": "ai:generate-from-editor-selection",
+        "command": "ai:generate-from-editor-selection",
         "selector": ".jp-FileEditor",
         "rank": 520
       }

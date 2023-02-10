@@ -1,5 +1,5 @@
 /**
- * Implementation of commands registered by the jupyter_gai extension.
+ * Implementation of commands registered by the jupyter_ai extension.
  */
 import {
   Notebook,
@@ -9,7 +9,7 @@ import {
 import { JupyterFrontEnd } from '@jupyterlab/application';
 
 import { NotebookTasks, DocumentTracker } from './index';
-import { GaiService } from './handler';
+import { AiService } from './handler';
 import { OpenTaskDialog } from './components/open-task-dialog';
 import { ClosableDialog } from './widgets/closable-dialog';
 import { InsertionContext, insertOutput } from './inserter';
@@ -128,7 +128,7 @@ export function splitMarkdown(results: string): CellToInsert[] {
 }
 
 /**
- * Builds commands used by GAI notebook shortcuts, e.g. in the context menu or
+ * Builds commands used by AI notebook shortcuts, e.g. in the context menu or
  * in the cell toolbar.
  */
 export function buildNotebookShortcutCommand(
@@ -170,15 +170,15 @@ export function buildNotebookShortcutCommand(
     );
 
     // make request, then delete placeholder cell
-    const request: GaiService.IPromptRequest = {
+    const request: AiService.IPromptRequest = {
       task_id,
       prompt_variables: {
         body: cellContents
       }
     };
-    let response: GaiService.IPromptResponse;
+    let response: AiService.IPromptResponse;
     try {
-      response = await GaiService.sendPrompt(request);
+      response = await AiService.sendPrompt(request);
     } catch (e: unknown) {
       // if excepted, replace placeholder cell with error message and return
       replaceWithMarkdown(
