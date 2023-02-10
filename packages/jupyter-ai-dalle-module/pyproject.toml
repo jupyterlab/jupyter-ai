@@ -35,7 +35,7 @@ test = [
     "pytest-cov"
 ]
 
-[project.entry-points."jupyter_gai.model_engine_class"]
+[project.entry-points."jupyter_ai.model_engine_class"]
 test = "jupyter_ai_dalle:DalleModelEngine"
 
 [tool.hatch.version]

@@ -2,8 +2,8 @@ from typing import List, Dict
 from traitlets.config import Unicode
 import openai
 
-from jupyter_gai.engine import BaseModelEngine, DefaultTaskDefinition
-from jupyter_gai.models import DescribeTaskResponse
+from jupyter_ai.engine import BaseModelEngine, DefaultTaskDefinition
+from jupyter_ai.models import DescribeTaskResponse
 
 class DalleModelEngine(BaseModelEngine):
     name = "dalle"
