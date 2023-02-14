@@ -1,0 +1,54 @@
+[build-system]
+requires = ["hatchling>=1.4.0", "jupyterlab>=3.4.7,<4.0.0", "hatch-nodejs-version"]
+build-backend = "hatchling.build"
+
+[project]
+name = "jupyter-ai-top"
+description = "A collection of jupyter extensions and models for Generative AI"
+keywords = ["jupyter", "server", "extension"]
+dynamic = ["version"]
+requires-python = ">=3.7"
+dependencies = []
+
+[project.optional-dependencies]
+build = []
+
+[[project.authors]]
+name = "Jupyter Development Team"
+email = "jupyter@googlegroups.com"
+
+[project.readme]
+file = "README.md"
+content-type = "text/markdown"
+
+[project.license]
+text = "BSD 3-Clause License"
+
+[project.urls]
+Homepage = "https://jupyter.org"
+
+[tool.hatch.envs.default]
+pre-install-commands = [
+    "pip install jupyterlab",
+    "jlpm install"
+]
+post-install-commands = [
+    "scripts/install.sh"
+]
+dependencies = ["jupyterlab>=3.4.7,<4.0.0"]
+
+[tool.hatch.version]
+source = "nodejs"
+path = "packages/jupyter-ai/package.json"
+
+[tool.check-manifest]
+ignore = [ ".*",]
+
+[tool.jupyter-releaser]
+skip = [ "check-links", "check-manifest",]
+
+[tool.jupyter-releaser.options]
+python_packages = [
+    "packages/jupyter-ai:jupyter-ai",
+    "packages/jupyter-ai-dalle:jupyter-ai-dalle"
+]

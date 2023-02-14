@@ -28,6 +28,7 @@
     "url": "https://github.com/jupyterlab/jupyter-ai.git"
   },
   "scripts": {
+    "setup:dev": "jupyter labextension develop . --overwrite && jupyter server extension enable jupyter_ai_dalle",
     "build": "jlpm build:lib && jlpm build:labextension:dev",
     "build:prod": "jlpm clean && jlpm build:lib && jlpm build:labextension",
     "build:labextension": "jupyter labextension build .",
