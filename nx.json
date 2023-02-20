@@ -1,4 +1,9 @@
 {
+  "targetDefaults": {
+    "setup:dev": {
+      "dependsOn": ["build"]
+    }
+  },
   "tasksRunnerOptions": {
     "default": {
       "runner": "nx/tasks-runners/default",
