@@ -118,5 +118,5 @@ dmypy.json
 # OSX files
 .DS_Store
 
-# notebooks folder
-notebooks/
+# playground folder
+playground/
