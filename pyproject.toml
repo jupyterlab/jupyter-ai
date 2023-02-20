@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling>=1.4.0", "jupyterlab>=3.4.7,<4.0.0", "hatch-nodejs-version"]
+requires = ["hatchling>=1.4.0", "jupyterlab~=3.4", "hatch-nodejs-version"]
 build-backend = "hatchling.build"
 
 [project]
@@ -28,14 +28,11 @@ text = "BSD 3-Clause License"
 Homepage = "https://jupyter.org"
 
 [tool.hatch.envs.default]
-pre-install-commands = [
-    "pip install jupyterlab",
-    "jlpm install"
-]
+dependencies = ["jupyterlab~=3.4"]
 post-install-commands = [
-    "scripts/install.sh"
+    "jlpm install",       # install JS dependencies
+    "scripts/install.sh", # install Jupyter server extensions and their Python dependencies
 ]
-dependencies = ["jupyterlab>=3.4.7,<4.0.0"]
 
 [tool.hatch.version]
 source = "nodejs"
