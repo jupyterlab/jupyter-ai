@@ -29,7 +29,8 @@ Homepage = "https://jupyter.org"
 
 [tool.hatch.envs.default]
 pre-install-commands = [
-    "pip install jupyterlab~=3.4"
+    "pip install jupyterlab~=3.4",
+    "cp playground/config.example.py playground/config.py"
 ]
 post-install-commands = [
     "jlpm install",       # install JS dependencies

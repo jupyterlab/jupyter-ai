@@ -9,7 +9,7 @@
     "build": "lerna run build --stream --concurrency=1",
     "clean": "lerna run clean",
     "clean:all": "lerna run clean:all",
-    "dev": "jupyter lab --config playground/config.example.py",
+    "dev": "jupyter lab --config playground/config.py",
     "lint": "jlpm && lerna run prettier && lerna run eslint",
     "lint:check": "lerna run prettier:check && lerna run eslint:check",
     "watch": "lerna run watch --parallel --stream"
