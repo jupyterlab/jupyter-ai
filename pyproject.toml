@@ -28,7 +28,9 @@ text = "BSD 3-Clause License"
 Homepage = "https://jupyter.org"
 
 [tool.hatch.envs.default]
-dependencies = ["jupyterlab~=3.4"]
+pre-install-commands = [
+    "pip install jupyterlab~=3.4"
+]
 post-install-commands = [
     "jlpm install",       # install JS dependencies
     "scripts/install.sh", # install Jupyter server extensions and their Python dependencies
