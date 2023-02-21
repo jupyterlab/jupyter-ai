@@ -25,6 +25,7 @@ classifiers = [
 dependencies = [
     "openai~=0.26",
 ]
+
 dynamic = ["version", "description", "authors", "urls", "keywords"]
 
 [project.optional-dependencies]

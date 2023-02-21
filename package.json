@@ -1,20 +1,21 @@
 {
-    "name": "root",
-    "private": true,
-    "workspaces": [
-      "packages/*"
-    ],
-    "scripts": {
-      "setup": "lerna run setup:dev --stream --concurrency=1",
-      "build": "lerna run build --stream --concurrency=1",
-      "lint": "jlpm && lerna run prettier && lerna run eslint",
-      "lint:check": "lerna run prettier:check && lerna run eslint:check",
-      "clean": "lerna run clean",
-      "watch": "lerna run watch --parallel --stream"
-    },
-    "devDependencies": {
-      "lerna": "^6.4.1",
-      "@jupyterlab/builder": "^3.1.0"
-    }
+  "name": "root",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "setup:dev": "lerna run setup:dev --stream --concurrency=1",
+    "build": "lerna run build --stream --concurrency=1",
+    "clean": "lerna run clean",
+    "clean:all": "lerna run clean:all",
+    "dev": "jupyter lab --config playground/config.py",
+    "lint": "jlpm && lerna run prettier && lerna run eslint",
+    "lint:check": "lerna run prettier:check && lerna run eslint:check",
+    "watch": "lerna run watch --parallel --stream"
+  },
+  "devDependencies": {
+    "lerna": "^6.4.1",
+    "@jupyterlab/builder": "^3.1.0"
   }
-  
+}
