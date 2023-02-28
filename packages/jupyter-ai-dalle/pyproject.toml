@@ -74,13 +74,3 @@ build_cmd = "install:extension"
 npm = ["jlpm"]
 source_dir = "src"
 build_dir = "jupyter_ai_dalle/labextension"
-
-[tool.jupyter-releaser.options]
-version_cmd = "hatch version"
-
-[tool.jupyter-releaser.hooks]
-before-build-npm = ["python -m pip install jupyterlab~=3.1", "jlpm", "jlpm build:prod"]
-before-build-python = ["jlpm clean:all"]
-
-[tool.check-wheel-contents]
-ignore = ["W002"]
