@@ -1,3 +1,10 @@
+[hooks]
+before-build-npm = [
+    "python -m pip install jupyterlab",
+    "jlpm",
+    "jlpm build:prod"
+]
+
 [options]
 python_packages = [
     "packages/jupyter-ai:jupyter-ai",

@@ -43,3 +43,6 @@ path = "package.json"
 
 [tool.check-manifest]
 ignore = [".*"]
+
+[tool.check-wheel-contents]
+ignore = ["W002"]
