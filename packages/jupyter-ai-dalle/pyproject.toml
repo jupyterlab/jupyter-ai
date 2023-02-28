@@ -50,8 +50,8 @@ artifacts = ["jupyter_ai_dalle/labextension"]
 exclude = [".github", "binder"]
 
 [tool.hatch.build.targets.wheel.shared-data]
-"jupyter_ai_dalle/labextension" = "share/jupyter/labextensions/jupyter_ai_dalle"
-"install.json" = "share/jupyter/labextensions/jupyter_ai_dalle/install.json"
+"jupyter_ai_dalle/labextension" = "share/jupyter/labextensions/@jupyter/ai-dalle"
+"install.json" = "share/jupyter/labextensions/@jupyter/ai-dalle/install.json"
 
 [tool.hatch.build.hooks.version]
 path = "jupyter_ai_dalle/_version.py"
