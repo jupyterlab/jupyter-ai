@@ -120,3 +120,6 @@ dmypy.json
 
 # playground folder
 playground/
+
+# jupyter releaser checkout
+.jupyter_releaser_checkout

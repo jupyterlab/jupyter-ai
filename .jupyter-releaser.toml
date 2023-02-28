@@ -1,0 +1,5 @@
+[options]
+python_packages = [
+    "packages/jupyter-ai:jupyter-ai",
+    "packages/jupyter-ai-dalle:jupyter-ai-dalle"
+]
