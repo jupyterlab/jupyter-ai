@@ -4,6 +4,9 @@ before-build-npm = [
     "jlpm",
     "jlpm build:prod"
 ]
+before-build-python = [
+    "jlpm clean:all"
+]
 
 [options]
 python_packages = [
