@@ -1,0 +1,15 @@
+[hooks]
+before-build-npm = [
+    "python -m pip install jupyterlab",
+    "jlpm",
+    "jlpm build:prod"
+]
+before-build-python = [
+    "jlpm clean:all"
+]
+
+[options]
+python_packages = [
+    "packages/jupyter-ai:jupyter-ai",
+    "packages/jupyter-ai-dalle:jupyter-ai-dalle"
+]

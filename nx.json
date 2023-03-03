@@ -2,6 +2,12 @@
   "targetDefaults": {
     "setup:dev": {
       "dependsOn": ["build"]
+    },
+    "build": {
+      "dependsOn": ["^build"]
+    },
+    "build:prod": {
+      "dependsOn": ["^build:prod"]
     }
   },
   "tasksRunnerOptions": {

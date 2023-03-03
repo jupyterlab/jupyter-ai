@@ -3,7 +3,7 @@ requires = ["hatchling>=1.4.0", "jupyterlab~=3.4", "hatch-nodejs-version"]
 build-backend = "hatchling.build"
 
 [project]
-name = "jupyter-ai-top"
+name = "jupyter_ai_monorepo"
 description = "A collection of jupyter extensions and models for Generative AI"
 keywords = ["jupyter", "server", "extension"]
 dynamic = ["version"]
@@ -39,16 +39,10 @@ post-install-commands = [
 
 [tool.hatch.version]
 source = "nodejs"
-path = "packages/jupyter-ai/package.json"
+path = "package.json"
 
 [tool.check-manifest]
-ignore = [ ".*",]
+ignore = [".*"]
 
-[tool.jupyter-releaser]
-skip = [ "check-links", "check-manifest",]
-
-[tool.jupyter-releaser.options]
-python_packages = [
-    "packages/jupyter-ai:jupyter-ai",
-    "packages/jupyter-ai-dalle:jupyter-ai-dalle"
-]
+[tool.check-wheel-contents]
+ignore = ["W002"]

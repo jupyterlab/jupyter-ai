@@ -4,14 +4,9 @@ build-backend = "hatchling.build"
 
 [project]
 name = "jupyter_ai"
-version = "0.1.0"
-description = "Jupyter extension for Generative AI"
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.7"
-authors = [
-    { name = "Project Jupyter" },
-]
 classifiers = [
     "Framework :: Jupyter",
     "Framework :: Jupyter :: JupyterLab",
@@ -35,11 +30,10 @@ dependencies = [
     "importlib_metadata~=5.2.0"
 ]
 
+dynamic = ["version", "description", "authors", "urls", "keywords"]
+
 [project.entry-points."jupyter_ai.model_engine_class"]
 gpt3 = "jupyter_ai:GPT3ModelEngine"
-
-[project.urls]
-Homepage = "https://github.com/jupyterlab/jupyter-ai"
 
 [project.optional-dependencies]
 test = [
@@ -61,8 +55,8 @@ artifacts = ["jupyter_ai/labextension"]
 exclude = [".github", "binder"]
 
 [tool.hatch.build.targets.wheel.shared-data]
-"jupyter_ai/labextension" = "share/jupyter/labextensions/jupyter_ai"
-"install.json" = "share/jupyter/labextensions/jupyter_ai/install.json"
+"jupyter_ai/labextension" = "share/jupyter/labextensions/@jupyter/ai"
+"install.json" = "share/jupyter/labextensions/@jupyter/ai/install.json"
 "jupyter-config/server-config" = "etc/jupyter/jupyter_server_config.d"
 "jupyter-config/nb-config" = "etc/jupyter/jupyter_notebook_config.d"
 
@@ -87,6 +81,3 @@ build_cmd = "install:extension"
 npm = ["jlpm"]
 source_dir = "src"
 build_dir = "jupyter_ai/labextension"
-
-[tool.jupyter-releaser.options]
-version_cmd = "hatch version"

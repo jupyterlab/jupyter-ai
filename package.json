@@ -1,5 +1,6 @@
 {
-  "name": "root",
+  "name": "@jupyter/ai-monorepo",
+  "version": "0.0.1",
   "private": true,
   "workspaces": [
     "packages/*"
@@ -7,6 +8,7 @@
   "scripts": {
     "setup:dev": "lerna run setup:dev --stream --concurrency=1",
     "build": "lerna run build --stream --concurrency=1",
+    "build:prod": "lerna run build:prod",
     "clean": "lerna run clean",
     "clean:all": "lerna run clean:all",
     "dev": "jupyter lab --config playground/config.py",

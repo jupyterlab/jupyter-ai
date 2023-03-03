@@ -1,6 +1,6 @@
 {
-  "name": "jupyter_ai_dalle",
-  "version": "0.1.0",
+  "name": "@jupyter/ai-dalle",
+  "version": "0.0.1",
   "description": "A JupyterLab extension that adds a DALL-E model engine and image insertion modes.",
   "keywords": [
     "jupyter",
@@ -79,7 +79,7 @@
     "stylelint-prettier": "^2.0.0",
     "typescript": "~4.1.3",
     "ts-jest": "^26.0.0",
-    "jupyter_ai": "^0.1.0"
+    "@jupyter/ai": "^0.0.1"
   },
   "sideEffects": [
     "style/*.css",
