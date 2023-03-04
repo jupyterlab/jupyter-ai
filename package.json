@@ -1,6 +1,6 @@
 {
   "name": "@jupyter-ai/monorepo",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "private": true,
   "workspaces": [
     ".",
@@ -18,8 +18,8 @@
     "watch": "lerna run watch --parallel --stream"
   },
   "devDependencies": {
-    "lerna": "^6.4.1",
-    "@jupyterlab/builder": "^3.1.0"
+    "@jupyterlab/builder": "^3.1.0",
+    "lerna": "^6.4.1"
   },
   "nx": {
     "includedScripts": []
