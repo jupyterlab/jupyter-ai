@@ -9,6 +9,7 @@ before-build-python = [
 ]
 
 [options]
+version-cmd = "npx -p lerna -y lerna version --no-git-tag-version --no-push -y"
 python_packages = [
     "packages/jupyter-ai:jupyter-ai",
     "packages/jupyter-ai-dalle:jupyter-ai-dalle"
