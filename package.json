@@ -1,5 +1,5 @@
 {
-  "name": "@jupyter/ai-monorepo",
+  "name": "@jupyter-ai/monorepo",
   "version": "0.0.1",
   "private": true,
   "workspaces": [
