@@ -15,7 +15,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
     console.log('JupyterLab extension jupyter_ai_dalle is activated!');
 
     // handle below-in-image insertion mode for notebooks
-    app.commands.addCommand('gai:insert-below-in-image', {
+    app.commands.addCommand('ai:insert-below-in-image', {
       // context has type InsertionContext, but cannot be typed as the frontend
       // package is not yet published to NPM
       execute: (context: any) => {
