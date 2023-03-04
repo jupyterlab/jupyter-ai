@@ -20,5 +20,8 @@
   "devDependencies": {
     "lerna": "^6.4.1",
     "@jupyterlab/builder": "^3.1.0"
+  },
+  "nx": {
+    "includedScripts": []
   }
 }
