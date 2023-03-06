@@ -1,6 +1,6 @@
 {
   "name": "{{ cookiecutter.labextension_name }}",
-  "version": "0.1.0",
+  "version": "{{ cookiecutter.version }}",
   "description": "{{ cookiecutter.project_short_description }}",
   "keywords": [
     "jupyter",
@@ -62,6 +62,7 @@
   "devDependencies": {
     {% if cookiecutter.test.lower().startswith('y') %}"@babel/core": "^7.0.0",
     "@babel/preset-env": "^7.0.0",
+    "@jupyter-ai/core": "^{{ cookiecutter.version }}",
     {% endif %}"@jupyterlab/builder": "^3.1.0",{% if cookiecutter.test.lower().startswith('y') %}
     "@jupyterlab/testutils": "^3.0.0",
     "@types/jest": "^26.0.0",{% endif %}

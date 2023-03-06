@@ -1,7 +1,9 @@
 import {
   JupyterFrontEnd,
   JupyterFrontEndPlugin
-} from '@jupyterlab/application';{% if cookiecutter.has_settings.lower().startswith('y') %}
+} from '@jupyterlab/application';
+
+import type { InsertionContext } from '@jupyter-ai/core';{% if cookiecutter.has_settings.lower().startswith('y') %}
 
 import { ISettingRegistry } from '@jupyterlab/settingregistry';{% endif %}
 
@@ -29,9 +31,9 @@ const plugin: JupyterFrontEndPlugin<void> = {
     // handles "test" insertion mode, which just shows output in a native
     // browser alert.
     app.commands.addCommand('ai:insert-test', {
-      execute: (context: any) => {
+      execute: ((context: InsertionContext) => {
         alert(context.response.output)
-      }
+      }) as any
     })
   }
 };

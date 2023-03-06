@@ -117,3 +117,4 @@ const plugin: JupyterFrontEndPlugin<void> = {
 };
 
 export default plugin;
+export type { InsertionContext } from './inserter';

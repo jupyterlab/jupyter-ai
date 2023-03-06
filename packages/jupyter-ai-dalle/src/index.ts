@@ -3,7 +3,7 @@ import {
   JupyterFrontEndPlugin
 } from '@jupyterlab/application';
 import { Notebook, NotebookActions } from '@jupyterlab/notebook';
-import { Widget } from '@lumino/widgets';
+import type { InsertionContext } from '@jupyter-ai/core';
 
 /**
  * Initialization data for the jupyter_ai_dalle extension.
@@ -16,10 +16,8 @@ const plugin: JupyterFrontEndPlugin<void> = {
 
     // handle below-in-image insertion mode for notebooks
     app.commands.addCommand('ai:insert-below-in-image', {
-      // context has type InsertionContext, but cannot be typed as the frontend
-      // package is not yet published to NPM
-      execute: (context: any) => {
-        const notebook = context.widget as Widget;
+      execute: ((context: InsertionContext) => {
+        const notebook = context.widget;
         if (!(notebook instanceof Notebook)) {
           console.error('Editor widget is not of type "Notebook".');
           return false;
@@ -31,7 +29,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
           .get(notebook.activeCellIndex)
           ?.sharedModel.setSource(`![](${context.response.output})`);
         NotebookActions.run(notebook);
-      }
+      }) as any
     });
   }
 };
