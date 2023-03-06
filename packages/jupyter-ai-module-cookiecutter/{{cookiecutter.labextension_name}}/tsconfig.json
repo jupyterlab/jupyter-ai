@@ -17,6 +17,7 @@
     "rootDir": "src",
     "strict": true,
     "strictNullChecks": true,
+    "skipLibCheck": true,
     "target": "es2017",
     "types": [{% if cookiecutter.test.lower().startswith('y') %}"jest"{% endif %}]
   },
