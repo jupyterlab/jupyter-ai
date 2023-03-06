@@ -1,7 +1,7 @@
 from typing import List, Dict
 
-from jupyter_gai.engine import BaseModelEngine, DefaultTaskDefinition
-from jupyter_gai.models import DescribeTaskResponse
+from jupyter_ai.engine import BaseModelEngine, DefaultTaskDefinition
+from jupyter_ai.models import DescribeTaskResponse
 
 class TestModelEngine(BaseModelEngine):
     name = "test"

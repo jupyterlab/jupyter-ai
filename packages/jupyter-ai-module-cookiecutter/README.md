@@ -1,7 +1,7 @@
-# Jupyter GAI Module Cookiecutter
+# Jupyter AI Module Cookiecutter
 
 A [cookiecutter](https://github.com/audreyr/cookiecutter) template for creating
-a GAI module.
+a AI module.
     
 ## Use the template to create package
 
@@ -11,15 +11,16 @@ Install cookiecutter.
 pip install cookiecutter
 ```
 
-Clone the repo locally into `jupyter_gai_module_cookiecutter`. Then run:
+Then run, from the project root:
 
 ```
-cookiecutter jupyter_gai_module_cookiecutter
+cd packages/
+cookiecutter jupyter-ai-module-cookiecutter
 ```
 
-Follow the prompts to create a new GAI module in your current directory.
+Follow the prompts to create a new AI module under `packages/`.
 
 ## A simple example
 
-Your new extension includes a very simple example of a working GAI module. Use
-this example as a guide to build your own GAI module.
+Your new extension includes a very simple example of a working AI module. Use
+this example as a guide to build your own AI module.

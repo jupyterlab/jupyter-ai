@@ -1,7 +1,7 @@
 # {{ cookiecutter.python_name }}
 
 This extension is composed of a Python package named `{{ cookiecutter.python_name }}`
-that exposes the model engines to the Jupyter GAI server extension,
+that exposes the model engines to the Jupyter AI server extension,
 and an NPM package named `{{ cookiecutter.labextension_name }}`
 that provides a frontend labextension registering inserters.
 
@@ -84,7 +84,7 @@ folder is located. Then you can remove the symlink named `{{ cookiecutter.labext
 
 #### Backend tests
 
-This GAI module is using [Pytest](https://docs.pytest.org/) for Python code testing.
+This AI module is using [Pytest](https://docs.pytest.org/) for Python code testing.
 
 Install test dependencies (needed only once):
 

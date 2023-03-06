@@ -33,7 +33,7 @@ test = [
     "pytest-cov"
 ]
 {% endif %}
-[project.entry-points."jupyter_gai.model_engine_class"]
+[project.entry-points."jupyter_ai.model_engine_class"]
 test = "{{ cookiecutter.python_name }}:TestModelEngine"
 
 [tool.hatch.version]

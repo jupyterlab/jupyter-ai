@@ -28,7 +28,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
 
     // handles "test" insertion mode, which just shows output in a native
     // browser alert.
-    app.commands.addCommand('gai:insert-test', {
+    app.commands.addCommand('ai:insert-test', {
       execute: (context: any) => {
         alert(context.response.output)
       }

@@ -1,7 +1,7 @@
 # jupyter_ai_dalle
 
 This extension is composed of a Python package named `jupyter_ai_dalle`
-that exposes the model engines to the Jupyter GAI server extension,
+that exposes the model engines to the Jupyter AI server extension,
 and an NPM package named `jupyter_ai_dalle`
 that provides a frontend labextension registering inserters.
 
@@ -84,7 +84,7 @@ folder is located. Then you can remove the symlink named `jupyter_ai_dalle` with
 
 #### Backend tests
 
-This GAI module is using [Pytest](https://docs.pytest.org/) for Python code testing.
+This AI module is using [Pytest](https://docs.pytest.org/) for Python code testing.
 
 Install test dependencies (needed only once):
 
