@@ -21,5 +21,14 @@ cookiecutter jupyter-ai-module-cookiecutter
 
 Follow the prompts to create a new AI module under `packages/`.
 
-To register the new AI module as part of this monorepo, add the package to the
-`options.python_packages` field in `.jupyter-releaser.toml`.
+# Usage (monorepo integration)
+
+To integrate the new AI module into this monorepo, execute this command
+manually from the AI module root:
+
+```
+rm -r .github/ binder/ CHANGELOG.md RELEASE.md
+```
+
+Then, add the package to the `options.python_packages` field in
+`.jupyter-releaser.toml`.
