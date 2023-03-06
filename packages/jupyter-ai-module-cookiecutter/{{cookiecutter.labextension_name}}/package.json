@@ -9,7 +9,8 @@
   ],
   "homepage": "{{ cookiecutter.repository }}",
   "bugs": {
-    "url": "{{ cookiecutter.repository }}/issues"
+    "url": "{{ cookiecutter.repository }}/issues",
+    "email": "{{ cookiecutter.author_email }}"
   },
   "license": "BSD-3-Clause",
   "author": {
