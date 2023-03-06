@@ -19,7 +19,9 @@ cd packages/
 cookiecutter jupyter-ai-module-cookiecutter
 ```
 
-Follow the prompts to create a new AI module under `packages/`.
+Follow the prompts to create a new AI module under `packages/`. Your
+labextension name should use hyphens, whereas your Python name should use
+underscores.
 
 # Usage (monorepo integration)
 
@@ -30,5 +32,7 @@ manually from the AI module root:
 rm -r .github/ binder/ CHANGELOG.md RELEASE.md
 ```
 
-Then, add the package to the `options.python_packages` field in
+Rename the JS package to be scoped under `@jupyter-ai/`.
+
+Finally, add the Python package to the `options.python_packages` field in
 `.jupyter-releaser.toml`.
