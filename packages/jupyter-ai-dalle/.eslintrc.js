@@ -7,8 +7,7 @@ module.exports = {
   ],
   parser: '@typescript-eslint/parser',
   parserOptions: {
-    project: 'tsconfig.json',
-    sourceType: 'module'
+    project: './tsconfig.json'
   },
   plugins: ['@typescript-eslint'],
   rules: {
@@ -24,7 +23,7 @@ module.exports = {
       }
     ],
     '@typescript-eslint/no-unused-vars': ['warn', { args: 'none' }],
-    '@typescript-eslint/no-explicit-any': 'off',
+    '@typescript-eslint/no-explicit-any': 'error',
     '@typescript-eslint/no-namespace': 'off',
     '@typescript-eslint/no-use-before-define': 'off',
     '@typescript-eslint/quotes': [
@@ -35,5 +34,8 @@ module.exports = {
     curly: ['error', 'all'],
     eqeqeq: 'error',
     'prefer-arrow-callback': 'error'
+  },
+  overrides: {
+    files: ['./src/**/*']
   }
 };
