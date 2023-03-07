@@ -1,7 +1,7 @@
 {
-  "name": "@jupyter-ai/dalle",
+  "name": "@jupyter-ai/chatgpt",
   "version": "0.1.1",
-  "description": "A JupyterLab extension that adds a DALL-E model engine and image insertion modes.",
+  "description": "Jupyter AI module that provides a ChatGPT model engine.",
   "keywords": [
     "jupyter",
     "jupyterlab",
@@ -37,7 +37,7 @@
     "clean": "jlpm clean:lib",
     "clean:lib": "rimraf lib tsconfig.tsbuildinfo",
     "clean:lintcache": "rimraf .eslintcache .stylelintcache",
-    "clean:labextension": "rimraf jupyter_ai_dalle/labextension jupyter_ai_dalle/_version.py",
+    "clean:labextension": "rimraf jupyter_ai_chatgpt/labextension jupyter_ai_chatgpt/_version.py",
     "clean:all": "jlpm clean:lib && jlpm clean:labextension && jlpm clean:lintcache",
     "eslint": "jlpm eslint:check --fix",
     "eslint:check": "eslint . --cache --ext .ts,.tsx",
@@ -47,7 +47,7 @@
     "prettier": "jlpm prettier:base --write --list-different",
     "prettier:base": "prettier \"**/*{.ts,.tsx,.js,.jsx,.css,.json,.md}\"",
     "prettier:check": "jlpm prettier:base --check",
-    "setup:dev": "jupyter labextension develop . --overwrite && jupyter server extension enable jupyter_ai_dalle",
+    "setup:dev": "jupyter labextension develop . --overwrite && jupyter server extension enable jupyter_ai_chatgpt",
     "stylelint": "jlpm stylelint:check --fix",
     "stylelint:check": "stylelint --cache \"style/**/*.css\"",
     "test": "jest --coverage",
@@ -79,8 +79,8 @@
     "stylelint-config-recommended": "^6.0.0",
     "stylelint-config-standard": "~24.0.0",
     "stylelint-prettier": "^2.0.0",
-    "ts-jest": "^26.0.0",
-    "typescript": "~4.1.3"
+    "typescript": "~4.1.3",
+    "ts-jest": "^26.0.0"
   },
   "sideEffects": [
     "style/*.css",
@@ -92,6 +92,6 @@
   },
   "jupyterlab": {
     "extension": true,
-    "outputDir": "jupyter_ai_dalle/labextension"
+    "outputDir": "jupyter_ai_chatgpt/labextension"
   }
 }

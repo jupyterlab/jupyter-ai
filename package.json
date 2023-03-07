@@ -23,9 +23,9 @@
     "packages/*"
   ],
   "scripts": {
-    "setup:dev": "lerna run setup:dev --stream --concurrency=1",
-    "build": "lerna run build --stream --concurrency=1",
-    "build:prod": "lerna run build:prod",
+    "setup:dev": "lerna run setup:dev --stream",
+    "build": "lerna run build --stream",
+    "build:prod": "lerna run build:prod --stream",
     "clean": "lerna run clean",
     "clean:all": "lerna run clean:all",
     "dev": "jupyter lab --config playground/config.py",

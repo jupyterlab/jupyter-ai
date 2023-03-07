@@ -41,38 +41,7 @@ class GPT3ModelEngine(BaseModelEngine):
         super().__init__(*args, **kwargs)
 
     def list_default_tasks(self) -> List[DefaultTaskDefinition]:
-        return [
-            {
-                "id": "explain-code",
-                "name": "Explain code",
-                "prompt_template": "Explain the following Python 3 code. The first sentence must begin with the phrase \"The code below\".\n{body}",
-                "insertion_mode": "above"
-            },
-            {
-                "id": "generate-code",
-                "name": "Generate code",
-                "prompt_template": "Generate Python 3 code in Markdown according to the following definition.\n{body}",
-                "insertion_mode": "below"
-            },
-            {
-                "id": "explain-code-in-cells-above",
-                "name": "Explain code in cells above",
-                "prompt_template": "Explain the following Python 3 code. The first sentence must begin with the phrase \"The code below\".\n{body}",
-                "insertion_mode": "above-in-cells"
-            },
-            {
-                "id": "generate-code-in-cells-below",
-                "name": "Generate code in cells below",
-                "prompt_template": "Generate Python 3 code in Markdown according to the following definition.\n{body}",
-                "insertion_mode": "below-in-cells"
-            },
-            {
-                "id": "freeform",
-                "name": "Freeform prompt",
-                "prompt_template": "{body}",
-                "insertion_mode": "below"
-            }
-        ]
+        return []
 
     async def execute(self, task: DescribeTaskResponse, prompt_variables: Dict[str, str]):
         if "body" not in prompt_variables:

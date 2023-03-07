@@ -3,7 +3,7 @@ requires = ["hatchling>=1.4.0", "jupyterlab>=3.4.7,<4.0.0", "hatch-nodejs-versio
 build-backend = "hatchling.build"
 
 [project]
-name = "{{ cookiecutter.python_name }}"
+name = "jupyter_ai_chatgpt"
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.7"
@@ -22,9 +22,12 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
 ]
-
 dynamic = ["version", "description", "authors", "urls", "keywords"]
-{% if cookiecutter.test.lower().startswith('y') %}
+
+dependencies = [
+    "jupyter_ai",
+]
+
 [project.optional-dependencies]
 test = [
     "coverage",
@@ -32,13 +35,9 @@ test = [
     "pytest-asyncio",
     "pytest-cov"
 ]
-{% endif %}
-dependencies = [
-    "jupyter_ai"
-]
 
 [project.entry-points."jupyter_ai.model_engine_class"]
-test = "{{ cookiecutter.python_name }}:TestModelEngine"
+test = "jupyter_ai_chatgpt:ChatGptModelEngine"
 
 [tool.hatch.version]
 source = "nodejs"
@@ -47,24 +46,24 @@ source = "nodejs"
 fields = ["description", "authors", "urls"]
 
 [tool.hatch.build.targets.sdist]
-artifacts = ["{{ cookiecutter.python_name }}/labextension"]
+artifacts = ["jupyter_ai_chatgpt/labextension"]
 exclude = [".github", "binder"]
 
 [tool.hatch.build.targets.wheel.shared-data]
-"{{ cookiecutter.python_name }}/labextension" = "share/jupyter/labextensions/{{ cookiecutter.labextension_name }}"
-"install.json" = "share/jupyter/labextensions/{{ cookiecutter.labextension_name }}/install.json"
+"jupyter_ai_chatgpt/labextension" = "share/jupyter/labextensions/@jupyter-ai/chatgpt"
+"install.json" = "share/jupyter/labextensions/@jupyter-ai/chatgpt/install.json"
 
 [tool.hatch.build.hooks.version]
-path = "{{ cookiecutter.python_name }}/_version.py"
+path = "jupyter_ai_chatgpt/_version.py"
 
 [tool.hatch.build.hooks.jupyter-builder]
 dependencies = ["hatch-jupyter-builder>=0.5"]
 build-function = "hatch_jupyter_builder.npm_builder"
 ensured-targets = [
-    "{{ cookiecutter.python_name }}/labextension/static/style.js",
-    "{{ cookiecutter.python_name }}/labextension/package.json",
+    "jupyter_ai_chatgpt/labextension/static/style.js",
+    "jupyter_ai_chatgpt/labextension/package.json",
 ]
-skip-if-exists = ["{{ cookiecutter.python_name }}/labextension/static/style.js"]
+skip-if-exists = ["jupyter_ai_chatgpt/labextension/static/style.js"]
 
 [tool.hatch.build.hooks.jupyter-builder.build-kwargs]
 build_cmd = "build:prod"
@@ -74,7 +73,7 @@ npm = ["jlpm"]
 build_cmd = "install:extension"
 npm = ["jlpm"]
 source_dir = "src"
-build_dir = "{{cookiecutter.python_name}}/labextension"
+build_dir = "jupyter_ai_chatgpt/labextension"
 
 [tool.jupyter-releaser.options]
 version_cmd = "hatch version"
