@@ -22,7 +22,7 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
 ]
-dependencies = []
+
 dynamic = ["version", "description", "authors", "urls", "keywords"]
 {% if cookiecutter.test.lower().startswith('y') %}
 [project.optional-dependencies]
@@ -33,6 +33,10 @@ test = [
     "pytest-cov"
 ]
 {% endif %}
+dependencies = [
+    "jupyter_ai"
+]
+
 [project.entry-points."jupyter_ai.model_engine_class"]
 test = "{{ cookiecutter.python_name }}:TestModelEngine"
 
