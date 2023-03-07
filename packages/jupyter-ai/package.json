@@ -9,11 +9,13 @@
   ],
   "homepage": "https://github.com/jupyterlab/jupyter-ai",
   "bugs": {
-    "url": "https://github.com/jupyterlab/jupyter-ai/issues"
+    "url": "https://github.com/jupyterlab/jupyter-ai/issues",
+    "email": "jupyter@googlegroups.com"
   },
   "license": "BSD-3-Clause",
   "author": {
-    "name": "Project Jupyter"
+    "name": "Project Jupyter",
+    "email": "jupyter@googlegroups.com"
   },
   "files": [
     "lib/**/*.{d.ts,eot,gif,html,jpg,js,js.map,json,png,svg,woff2,ttf}",

@@ -1,0 +1,12 @@
+{
+  "author_name": "Project Jupyter",
+  "author_email": "jupyter@googlegroups.com",
+  "version": "0.1.0",
+  "labextension_name": "myextension",
+  "python_name": "{{ cookiecutter.labextension_name | replace('-', '_') }}",
+  "project_short_description": "A JupyterLab extension.",
+  "has_settings": "n",
+  "has_binder": "n",
+  "test": "y",
+  "repository": "https://github.com/jupyterlab/jupyter-ai"
+}

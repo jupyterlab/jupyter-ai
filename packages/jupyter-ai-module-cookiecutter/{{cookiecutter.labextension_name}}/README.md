@@ -1,8 +1,8 @@
-# jupyter_ai_dalle
+# {{ cookiecutter.python_name }}
 
-This extension is composed of a Python package named `jupyter_ai_dalle`
+This extension is composed of a Python package named `{{ cookiecutter.python_name }}`
 that exposes the model engines to the Jupyter AI server extension,
-and an NPM package named `jupyter_ai_dalle`
+and an NPM package named `{{ cookiecutter.labextension_name }}`
 that provides a frontend labextension registering inserters.
 
 ## Requirements
@@ -14,7 +14,7 @@ that provides a frontend labextension registering inserters.
 To install the extension, execute:
 
 ```bash
-pip install jupyter_ai_dalle
+pip install {{ cookiecutter.python_name }}
 ```
 
 ## Uninstall
@@ -22,7 +22,7 @@ pip install jupyter_ai_dalle
 To remove the extension, execute:
 
 ```bash
-pip uninstall jupyter_ai_dalle
+pip uninstall {{ cookiecutter.python_name }}
 ```
 ## Contributing
 
@@ -36,9 +36,9 @@ The `jlpm` command is JupyterLab's pinned version of
 
 ```bash
 # Clone the repo to your local environment
-# Change directory to the jupyter_ai_dalle directory
+# Change directory to the {{ cookiecutter.python_name }} directory
 # Install package in development mode
-pip install -e ".[test]"
+pip install -e ".{% if cookiecutter.test.lower().startswith('y') %}[test]{% endif %}"
 # Link your development version of the extension with JupyterLab
 jupyter labextension develop . --overwrite
 # Rebuild extension Typescript source after making changes
@@ -73,13 +73,13 @@ jupyter lab build --minimize=False
 ### Development uninstall
 
 ```bash
-pip uninstall jupyter_ai_dalle
+pip uninstall {{ cookiecutter.python_name }}
 ```
 
 In development mode, you will also need to remove the symlink created by `jupyter labextension develop`
 command. To find its location, you can run `jupyter labextension list` to figure out where the `labextensions`
-folder is located. Then you can remove the symlink named `jupyter_ai_dalle` within that folder.
-
+folder is located. Then you can remove the symlink named `{{ cookiecutter.labextension_name }}` within that folder.
+{% if cookiecutter.test.lower().startswith('y') %}
 ### Testing the extension
 
 #### Backend tests
@@ -97,7 +97,7 @@ jupyter labextension develop . --overwrite
 To execute them, run:
 
 ```sh
-pytest -vv -r ap --cov jupyter_ai_dalle
+pytest -vv -r ap --cov {{ cookiecutter.python_name }}
 ```
 
 #### Frontend tests
@@ -117,7 +117,7 @@ This extension uses [Playwright](https://playwright.dev/docs/intro/) for the int
 More precisely, the JupyterLab helper [Galata](https://github.com/jupyterlab/jupyterlab/tree/master/galata) is used to handle testing the extension in JupyterLab.
 
 More information are provided within the [ui-tests](./ui-tests/README.md) README.
-
+{% endif %}
 ### Packaging the extension
 
 See [RELEASE](RELEASE.md)

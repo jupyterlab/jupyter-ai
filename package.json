@@ -1,7 +1,23 @@
 {
   "name": "@jupyter-ai/monorepo",
   "version": "0.1.1",
+  "description": "A generative AI extension for JupyterLab",
   "private": true,
+  "keywords": [
+    "jupyter",
+    "jupyterlab",
+    "jupyterlab-extension"
+  ],
+  "homepage": "https://github.com/jupyterlab/jupyter-ai",
+  "bugs": {
+    "url": "https://github.com/jupyterlab/jupyter-ai/issues",
+    "email": "jupyter@googlegroups.com"
+  },
+  "license": "BSD-3-Clause",
+  "author": {
+    "name": "Project Jupyter",
+    "email": "jupyter@googlegroups.com"
+  },
   "workspaces": [
     ".",
     "packages/*"

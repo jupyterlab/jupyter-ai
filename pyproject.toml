@@ -4,18 +4,12 @@ build-backend = "hatchling.build"
 
 [project]
 name = "jupyter_ai_monorepo"
-description = "A collection of jupyter extensions and models for Generative AI"
-keywords = ["jupyter", "server", "extension"]
-dynamic = ["version"]
+dynamic = ["version", "description", "authors", "urls", "keywords"]
 requires-python = ">=3.7"
 dependencies = []
 
 [project.optional-dependencies]
 build = []
-
-[[project.authors]]
-name = "Jupyter Development Team"
-email = "jupyter@googlegroups.com"
 
 [project.readme]
 file = "README.md"
@@ -23,9 +17,6 @@ content-type = "text/markdown"
 
 [project.license]
 text = "BSD 3-Clause License"
-
-[project.urls]
-Homepage = "https://jupyter.org"
 
 [tool.hatch.envs.default]
 pre-install-commands = [
