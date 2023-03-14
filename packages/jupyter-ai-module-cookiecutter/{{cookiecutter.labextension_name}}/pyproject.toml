@@ -37,8 +37,11 @@ dependencies = [
     "jupyter_ai"
 ]
 
-[project.entry-points."jupyter_ai.model_engine_class"]
-test = "{{ cookiecutter.python_name }}:TestModelEngine"
+[project.entry-points."jupyter_ai.model_engine_classes"]
+TestModelEngine = "{{ cookiecutter.python_name }}:TestModelEngine"
+
+[project.entry-points."jupyter_ai.default_tasks"]
+TestDefaultTasks = "{{ cookiecutter.python_name }}:tasks"
 
 [tool.hatch.version]
 source = "nodejs"

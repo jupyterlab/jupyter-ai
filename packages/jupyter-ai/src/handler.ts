@@ -53,6 +53,7 @@ export namespace AiService {
 
   export interface IPromptRequest {
     task_id: string;
+    engine_id: string;
     prompt_variables: {
       body: string;
       [key: string]: string;
@@ -83,7 +84,6 @@ export namespace AiService {
   export type ListTasksEntry = {
     id: string;
     name: string;
-    engine: string;
   };
 
   export type ListTasksResponse = {
@@ -94,11 +94,16 @@ export namespace AiService {
     return requestAPI<ListTasksResponse>('tasks');
   }
 
+  export type ListEnginesEntry = {
+    id: string;
+    name: string;
+  };
+
   export type DescribeTaskResponse = {
     name: string;
-    engine: string;
     insertion_mode: string;
     prompt_template: string;
+    engines: ListEnginesEntry[];
   };
 
   export async function describeTask(

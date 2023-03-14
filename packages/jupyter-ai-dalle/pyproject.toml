@@ -38,8 +38,11 @@ test = [
     "pytest-cov"
 ]
 
-[project.entry-points."jupyter_ai.model_engine_class"]
-test = "jupyter_ai_dalle:DalleModelEngine"
+[project.entry-points."jupyter_ai.model_engine_classes"]
+DalleModelEngine = "jupyter_ai_dalle:DalleModelEngine"
+
+[project.entry-points."jupyter_ai.default_tasks"]
+dalle_default_tasks = "jupyter_ai_dalle:tasks"
 
 [tool.hatch.version]
 source = "nodejs"
