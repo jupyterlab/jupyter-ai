@@ -1,35 +1,30 @@
 from abc import abstractmethod, ABC, ABCMeta
-from typing import Dict, TypedDict, Literal, List
+from typing import Dict
 import openai
 from traitlets.config import LoggingConfigurable, Unicode
 from .task_manager import DescribeTaskResponse
-
-class DefaultTaskDefinition(TypedDict):
-    id: str
-    name: str
-    prompt_template: str
-    insertion_mode: str
 
 class BaseModelEngineMetaclass(ABCMeta, type(LoggingConfigurable)):
     pass
 
 class BaseModelEngine(ABC, LoggingConfigurable, metaclass=BaseModelEngineMetaclass):
+    id: str
     name: str
+
+    # these two attributes are currently reserved but unused.
     input_type: str
     output_type: str
   
-    @abstractmethod
-    def list_default_tasks(self) -> List[DefaultTaskDefinition]:
-        pass
-
     @abstractmethod
     async def execute(self, task: DescribeTaskResponse, prompt_variables: Dict[str, str]):
         pass
 
 class GPT3ModelEngine(BaseModelEngine):
-    name = "gpt3"
-    input_type = "txt"
-    output_type = "txt"
+    id = "gpt3"
+    name = "GPT-3"
+    modalities = [
+        "txt2txt"
+    ]
 
     api_key = Unicode(
         config=True,
@@ -39,9 +34,6 @@ class GPT3ModelEngine(BaseModelEngine):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-    def list_default_tasks(self) -> List[DefaultTaskDefinition]:
-        return []
 
     async def execute(self, task: DescribeTaskResponse, prompt_variables: Dict[str, str]):
         if "body" not in prompt_variables:

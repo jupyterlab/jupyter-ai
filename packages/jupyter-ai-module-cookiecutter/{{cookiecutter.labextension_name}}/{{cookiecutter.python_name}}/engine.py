@@ -1,6 +1,6 @@
-from typing import List, Dict
+from typing import Dict
 
-from jupyter_ai.engine import BaseModelEngine, DefaultTaskDefinition
+from jupyter_ai.engine import BaseModelEngine
 from jupyter_ai.models import DescribeTaskResponse
 
 class TestModelEngine(BaseModelEngine):
@@ -17,17 +17,6 @@ class TestModelEngine(BaseModelEngine):
     #     allow_none=False
     # )
     #
-
-    def list_default_tasks(self) -> List[DefaultTaskDefinition]:
-        # Tasks your model engine provides by default.
-        return [
-            {
-                "id": "test",
-                "name": "Test task",
-                "prompt_template": "{body}",
-                "insertion_mode": "test"
-            }
-        ]
 
     async def execute(self, task: DescribeTaskResponse, prompt_variables: Dict[str, str]):
         # Core method that executes a model when provided with a task

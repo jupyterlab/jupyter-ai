@@ -44,6 +44,9 @@ export function OpenTaskDialog(props: IOpenTaskDialogProps): JSX.Element {
   const [taskId, setTaskId] = useState<string>('');
   // response from DescribeTask endpoint, called after selection
   const [taskDesc, setTaskDesc] = useState<AiService.DescribeTaskResponse>();
+  // currently selected model engine
+  const [engineId, setEngineId] = useState<string>('');
+  // whether the UI is currently awaiting a ListTasks call
   const [loading, setLoading] = useState<boolean>(false);
 
   const onSubmitClick = async () => {
@@ -52,6 +55,7 @@ export function OpenTaskDialog(props: IOpenTaskDialogProps): JSX.Element {
     try {
       const request: AiService.IPromptRequest = {
         task_id: taskId,
+        engine_id: engineId,
         prompt_variables: {
           body: props.selectedText
         }
@@ -90,12 +94,26 @@ export function OpenTaskDialog(props: IOpenTaskDialogProps): JSX.Element {
     listTasks();
   }, []);
 
-  const handleChange = async (event: SelectChangeEvent) => {
+  /**
+   * Effect: when a task is selected, default to selecting the first available
+   * model engine.
+   */
+  useEffect(() => {
+    if (taskDesc?.engines?.length) {
+      setEngineId(taskDesc.engines[0].id);
+    }
+  }, [taskDesc]);
+
+  const handleTaskChange = async (event: SelectChangeEvent) => {
     setTaskId(event.target.value);
     const describeTaskResponse = await AiService.describeTask(
       event.target.value
     );
     setTaskDesc(describeTaskResponse);
+  };
+
+  const handleEngineChange = async (event: SelectChangeEvent) => {
+    setEngineId(event.target.value);
   };
 
   const taskDescription =
@@ -108,13 +126,12 @@ export function OpenTaskDialog(props: IOpenTaskDialogProps): JSX.Element {
       <Box padding={1} width={'40em'}>
         <Stack spacing={4}>
           <FormControl fullWidth>
-            <InputLabel id="prompt-type-select-label">Prompt type</InputLabel>
+            <InputLabel id="task-select-label">Task</InputLabel>
             <Select
-              labelId="prompt-type-select-label"
-              id="prompt-type-select"
               value={taskId}
-              onChange={handleChange}
-              label="Prompt type"
+              onChange={handleTaskChange}
+              label="Task"
+              labelId="task-select-label"
               MenuProps={{
                 style: { zIndex: 20000 }
               }}
@@ -126,33 +143,52 @@ export function OpenTaskDialog(props: IOpenTaskDialogProps): JSX.Element {
                 </MenuItem>
               ))}
             </Select>
-            <Box pt={4} width={'40em'}>
-              <Stack spacing={4}>
-                <ExpandableTextField
-                  label="Prompt template"
-                  text={taskDesc?.prompt_template}
-                />
-                {taskDescription && (
-                  <ExpandableTextField
-                    label="Task description"
-                    text={taskDescription}
-                  />
-                )}
-              </Stack>
-            </Box>
-            <Stack direction="row" justifyContent="flex-end" spacing={1}>
-              <Button variant="outlined" onClick={props.closeDialog}>
-                Cancel
-              </Button>
-              <Button
-                variant="contained"
-                onClick={onSubmitClick}
-                disabled={!!loading || taskId === ''}
-              >
-                {loading ? 'Submitting…' : 'Submit'}
-              </Button>
-            </Stack>
           </FormControl>
+          <Box pt={4} width={'40em'}>
+            <Stack spacing={4}>
+              <FormControl fullWidth>
+                <InputLabel id="engine-select-label">Model engine</InputLabel>
+                <Select
+                  value={engineId}
+                  onChange={handleEngineChange}
+                  label="Model engine"
+                  labelId="engine-select-label"
+                  MenuProps={{
+                    style: { zIndex: 20000 }
+                  }}
+                  autoFocus
+                >
+                  {taskDesc?.engines.map(engine => (
+                    <MenuItem key={engine.id} value={engine.id}>
+                      {engine.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <ExpandableTextField
+                label="Prompt template"
+                text={taskDesc?.prompt_template}
+              />
+              {taskDescription && (
+                <ExpandableTextField
+                  label="Task description"
+                  text={taskDescription}
+                />
+              )}
+            </Stack>
+          </Box>
+          <Stack direction="row" justifyContent="flex-end" spacing={1}>
+            <Button variant="outlined" onClick={props.closeDialog}>
+              Cancel
+            </Button>
+            <Button
+              variant="contained"
+              onClick={onSubmitClick}
+              disabled={!!loading || taskId === ''}
+            >
+              {loading ? 'Submitting…' : 'Submit'}
+            </Button>
+          </Stack>
         </Stack>
       </Box>
     </ThemeProvider>

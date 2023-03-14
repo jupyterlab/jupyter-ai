@@ -36,8 +36,8 @@ test = [
     "pytest-cov"
 ]
 
-[project.entry-points."jupyter_ai.model_engine_class"]
-test = "jupyter_ai_chatgpt:ChatGptModelEngine"
+[project.entry-points."jupyter_ai.model_engine_classes"]
+ChatGptModelEngine = "jupyter_ai_chatgpt:ChatGptModelEngine"
 
 [tool.hatch.version]
 source = "nodejs"

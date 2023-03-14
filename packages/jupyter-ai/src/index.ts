@@ -17,8 +17,8 @@ import { psychologyIcon } from './icons';
 import { getTextSelection } from './utils';
 
 export enum NotebookTasks {
-  GenerateCode = 'chatgpt:generate-code-in-cells-below',
-  ExplainCode = 'chatgpt:explain-code-in-cells-above'
+  GenerateCode = 'generate-code-in-cells-below',
+  ExplainCode = 'explain-code-in-cells-above'
 }
 
 export namespace CommandIDs {

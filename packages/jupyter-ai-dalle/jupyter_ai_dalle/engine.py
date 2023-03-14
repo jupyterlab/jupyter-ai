@@ -1,42 +1,22 @@
-from typing import List, Dict
+from typing import Dict
 from traitlets.config import Unicode
 import openai
 
-from jupyter_ai.engine import BaseModelEngine, DefaultTaskDefinition
+from jupyter_ai.engine import BaseModelEngine
 from jupyter_ai.models import DescribeTaskResponse
 
 class DalleModelEngine(BaseModelEngine):
-    name = "dalle"
-    input_type = "txt"
-    output_type = "img"
+    id = "dalle"
+    name = "DALL-E"
+    modalities = [
+        "txt2img"
+    ]
 
     api_key = Unicode(
         config=True,
         help="OpenAI API key",
         allow_none=False
     )
-
-    def list_default_tasks(self) -> List[DefaultTaskDefinition]:
-        return [
-            {
-                "id": "generate-image",
-                "name": "Generate image below",
-                "prompt_template": "{body}",
-                "insertion_mode": "below-in-image"
-            },
-            {
-                "id": "generate-photorealistic-image",
-                "name": "Generate photorealistic image below",
-                "prompt_template": "{body} in a photorealistic style",
-                "insertion_mode": "below-in-image"
-            },
-            {
-                "id": "generate-cartoon-image",
-                "name": "Generate cartoon image below",
-                "prompt_template": "{body} in the style of a cartoon",
-                "insertion_mode": "below-in-image"
-            }
-        ]
 
     async def execute(self, task: DescribeTaskResponse, prompt_variables: Dict[str, str]) -> str:
         if "body" not in prompt_variables:
