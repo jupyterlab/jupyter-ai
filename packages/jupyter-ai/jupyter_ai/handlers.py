@@ -11,15 +11,19 @@ from .models import PromptRequest
 
 class PromptAPIHandler(APIHandler):
     @property
-    def ai_engines(self): 
+    def engines(self): 
         return self.settings["ai_engines"]
+    
+    @property
+    def default_tasks(self):
+        return self.settings["ai_default_tasks"]
 
     @property
     def task_manager(self):
         # we have to create the TaskManager lazily, since no event loop is
         # running in ServerApp.initialize_settings().
         if "task_manager" not in self.settings:
-            self.settings["task_manager"] = TaskManager(ai_engines=self.settings["ai_engines"])
+            self.settings["task_manager"] = TaskManager(engines=self.engines, default_tasks=self.default_tasks)
         return self.settings["task_manager"]
     
     @tornado.web.authenticated
@@ -29,14 +33,15 @@ class PromptAPIHandler(APIHandler):
         except ValidationError as e:
             self.log.exception(e)
             raise HTTPError(500, str(e)) from e
-        
+
+        if request.engine_id not in self.engines:
+            raise HTTPError(500, f"Model engine not registered: {request.engine_id}")
+
+        engine = self.engines[request.engine_id]
         task = await self.task_manager.describe_task(request.task_id)
         if not task:
             raise HTTPError(404, f"Task not found with ID: {request.task_id}")
-        if task.engine not in self.ai_engines:
-            raise HTTPError(500, f"Model engine not registered: {task.engine}")
         
-        engine = self.ai_engines[task.engine]
         output = await ensure_async(engine.execute(task, request.prompt_variables))
 
         self.finish(json.dumps({
@@ -46,11 +51,19 @@ class PromptAPIHandler(APIHandler):
 
 class TaskAPIHandler(APIHandler):
     @property
+    def engines(self): 
+        return self.settings["ai_engines"]
+    
+    @property
+    def default_tasks(self):
+        return self.settings["ai_default_tasks"]
+
+    @property
     def task_manager(self):
         # we have to create the TaskManager lazily, since no event loop is
         # running in ServerApp.initialize_settings().
         if "task_manager" not in self.settings:
-            self.settings["task_manager"] = TaskManager(ai_engines=self.settings["ai_engines"])
+            self.settings["task_manager"] = TaskManager(engines=self.engines, default_tasks=self.default_tasks)
         return self.settings["task_manager"]
     
     @tornado.web.authenticated

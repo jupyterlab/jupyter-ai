@@ -172,6 +172,7 @@ export function buildNotebookShortcutCommand(
     // make request, then delete placeholder cell
     const request: AiService.IPromptRequest = {
       task_id,
+      engine_id: 'chatgpt',
       prompt_variables: {
         body: cellContents
       }
@@ -237,8 +238,8 @@ export function buildDefaultInserter(mode: 'above' | 'below' | 'replace') {
 }
 
 /**
- * Utility function that builds command that inserts 
- * prompt output above or below in new notebook cells. 
+ * Utility function that builds command that inserts
+ * prompt output above or below in new notebook cells.
  * Requires the current cell to be the active cell.
  */
 export function buildNotebookInserter(

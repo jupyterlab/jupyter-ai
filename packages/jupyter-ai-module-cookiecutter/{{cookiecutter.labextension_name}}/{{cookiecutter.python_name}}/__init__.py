@@ -1,8 +1,9 @@
 from ._version import __version__
 
-# expose TestModelEngine on the root module so that it may be declared as an
-# entrypoint in `pyproject.toml`
+# expose engines and tasks on the module root so that they may be declared as
+# entrypoints in `pyproject.toml`
 from .engine import TestModelEngine
+from .tasks import tasks
 
 
 def _jupyter_labextension_paths():

@@ -32,8 +32,11 @@ dependencies = [
 
 dynamic = ["version", "description", "authors", "urls", "keywords"]
 
-[project.entry-points."jupyter_ai.model_engine_class"]
+[project.entry-points."jupyter_ai.model_engine_classes"]
 gpt3 = "jupyter_ai:GPT3ModelEngine"
+
+[project.entry-points."jupyter_ai.default_tasks"]
+core_default_tasks = "jupyter_ai:tasks"
 
 [project.optional-dependencies]
 test = [

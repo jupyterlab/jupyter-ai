@@ -6,4 +6,4 @@
 
 # Specify full path to the notebook dir if running jupyter lab from
 # outside of the jupyter-ai project root directory 
-c["notebook-dir"] = "./playground"
+c.ServerApp.root_dir = "./playground"
