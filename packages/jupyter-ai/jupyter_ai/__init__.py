@@ -1,5 +1,6 @@
 from ._version import __version__
 from .extension import AiExtension
+from .magics import AiMagics
 
 # imports to expose entry points. DO NOT REMOVE.
 from .engine import GPT3ModelEngine
@@ -19,3 +20,6 @@ def _jupyter_server_extension_points():
         "module": "jupyter_ai",
         "app": AiExtension
     }]
+
+def load_ipython_extension(ipython):
+    ipython.register_magics(AiMagics)

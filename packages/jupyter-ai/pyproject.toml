@@ -27,7 +27,8 @@ dependencies = [
     "pydantic",
     "openai~=0.26",
     "aiosqlite~=0.18",
-    "importlib_metadata~=5.2.0"
+    "importlib_metadata~=5.2.0",
+    "langchain~=0.0.115"
 ]
 
 dynamic = ["version", "description", "authors", "urls", "keywords"]
