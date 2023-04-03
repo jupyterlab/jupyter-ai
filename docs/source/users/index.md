@@ -1,6 +1,6 @@
 # Users
 
-This page is intended for people interested in installing and using Jupyter AI.
+This page is intended for people interested in installing and using Jupyter AI. If you are interested in contributing a new or modified feature in JupyterLab, please see our {doc}`contributor's guide </contributors/index>`.
 
 ## Prerequisites
 
@@ -27,7 +27,13 @@ pip install jupyter_ai
 
 The command above should install two extensions: a server extension and a frontend extension.
 
-You can check that the server extension is enabled by running:
+You can also install a particular plugin by running `pip install`. For example, to install the ChatGPT plugin, run:
+
+```bash
+pip install jupyter_ai_chatgpt
+```
+
+You can check that the Jupyter AI server extension is enabled by running:
 
 ```bash
 jupyter server extension list
