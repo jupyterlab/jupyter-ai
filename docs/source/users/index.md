@@ -8,7 +8,7 @@ To use Jupyter AI, you will need to have JupyterLab ≥ 3.5 (*not* JupyterLab 4)
 
 To use Jupyter AI with OpenAI APIs, such as GPT-3 and ChatGPT, you will need
 an OpenAI account and API key. You can generate an API key at
-https://platform.openai.com/account/api-keys .
+[https://platform.openai.com/account/api-keys](https://platform.openai.com/account/api-keys).
 
 :::{attention}
 :name: open-ai-cost
@@ -43,7 +43,7 @@ jupyter labextension list
 
 The Jupyter AI package includes plugins that work with OpenAI's ChatGPT and GPT-3 models.
 To use these models, you will need to create an OpenAI account and create API keys.
-You can generate an API key at https://platform.openai.com/account/api-keys .
+You can generate an API key at [https://platform.openai.com/account/api-keys](https://platform.openai.com/account/api-keys).
 Please note that [OpenAI may charge for API usage](#open-ai-cost).
 
 ### Configuring GPT-3
