@@ -3,8 +3,11 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Jupyter AI's documentation!
-======================================
+Jupyter AI
+==========
+
+**Jupyter AI** is a package that lets Jupyter notebook users run tasks using
+generative AI (GAI) using APIs provided by GAI model vendors.
 
 .. toctree::
    :maxdepth: 2
