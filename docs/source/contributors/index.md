@@ -6,6 +6,24 @@ This page is intended for people interested in building new or modified function
 
 Jupyter AI is distributed as a monorepo, including the core `jupyter_ai` package and a set of AI modules.
 
+An **AI module** provides an interface between a Jupyter notebook and a generative artificial intelligence (GAI) algorithm. It defines one or more **tasks**. A task has the following properties, as specified in `tasks.py`:
+
+* **ID** (`id`) — A unique text identifier for the task.
+* **Task name** (`name`) — A friendly name that appears in the Jupyter notebook user interface. It should be styled as a menu item would, with a verb and without definite articles.
+  * Good task names: "Generate image below", "Explain code"
+  * Bad task names: "Image generation" (no verb), "Explain the code" (definite article)
+* **Prompt template** (`prompt_template`) — The prompt to be sent to the GAI algorithm, with the special string `{body}` to be replaced with the contents of the current cell or the highlighted portion of the cell.
+* **Modality** (`modality`) — The type of information that the task takes as input and emits as output. Currently supported modalities are:
+  * `txt2txt` — Text input, text output (as code, markdown, or both)
+  * `txt2img` — Text input, image output
+* **Insertion mode** (`insertion_mode`) — The way the task's output will be added to the notebook or document. Supported insertion modes are:
+  * `above` — AI output will be inserted above the selected text
+  * `replace` — AI output will replace the selected text
+  * `below` — AI output will be inserted below the selected text
+  * `above-in-cells` — AI output will be inserted above the current cell, in new notebook cells
+  * `below-in-cells` — AI output will be inserted below the current cell, in new notebook cells
+  * `below-in-image` — AI output will be inserted below the current cell, as an image
+
 ## Prerequisites
 
 You can develop Jupyter AI on any system that can run a supported Python version, including recent Windows, macOS, and Linux versions. If you have not already done so, [download Python](https://www.python.org/downloads/) and install it. The commands below presume that you can run `python` and `pip` from your preferred terminal.
@@ -52,3 +70,4 @@ To uninstall your Jupyter AI development environment, remove the Hatch environme
 hatch env remove default
 ```
 
+## Creating a new AI module
