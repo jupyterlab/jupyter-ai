@@ -123,3 +123,6 @@ playground/
 
 # jupyter releaser checkout
 .jupyter_releaser_checkout
+
+# reserve path for a dev script
+dev.sh
