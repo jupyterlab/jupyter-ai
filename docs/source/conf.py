@@ -7,8 +7,8 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'Jupyter AI'
-copyright = '2023, Brian Granger, Andrii Ieroshenko, Piyush Jain, David Qiu, Jason Weill'
-author = 'Brian Granger, Andrii Ieroshenko, Piyush Jain, David Qiu, Jason Weill'
+copyright = '2023, Project Jupyter'
+author = 'Project Jupyter'
 release = '0.3.0'
 
 # -- General configuration ---------------------------------------------------
