@@ -13,16 +13,18 @@ An **AI module** provides an interface between a Jupyter notebook and a generati
   * Good task names: "Generate image below", "Explain code"
   * Bad task names: "Image generation" (no verb), "Explain the code" (definite article)
 * **Prompt template** (`prompt_template`) — The prompt to be sent to the GAI algorithm, with the special string `{body}` to be replaced with the contents of the current cell or the highlighted portion of the cell.
-* **Modality** (`modality`) — The type of information that the task takes as input and emits as output. Currently supported modalities are:
+* **Modality** (`modality`) — The type of information that the task takes as input and emits as output. Supported modalities include:
   * `txt2txt` — Text input, text output (as code, markdown, or both)
   * `txt2img` — Text input, image output
-* **Insertion mode** (`insertion_mode`) — The way the task's output will be added to the notebook or document. Supported insertion modes are:
+* **Insertion mode** (`insertion_mode`) — The way the task's output will be added to the notebook or document. Supported insertion modes include:
   * `above` — AI output will be inserted above the selected text
   * `replace` — AI output will replace the selected text
   * `below` — AI output will be inserted below the selected text
   * `above-in-cells` — AI output will be inserted above the current cell, in new notebook cells
   * `below-in-cells` — AI output will be inserted below the current cell, in new notebook cells
   * `below-in-image` — AI output will be inserted below the current cell, as an image
+
+AI modules can register new modalities, tasks, and insertion modes.
 
 ## Prerequisites
 
