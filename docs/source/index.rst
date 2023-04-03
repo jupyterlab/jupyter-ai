@@ -12,12 +12,3 @@ generative AI (GAI) using APIs provided by GAI model vendors.
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
-
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
