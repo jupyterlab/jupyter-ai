@@ -11,4 +11,5 @@ maxdepth: 2
 ---
 
 users/index
+contributors/index
 ```
