@@ -62,6 +62,35 @@ To exit the hatch environment, on a blank command prompt, run `exit` or press `C
 
 If installation fails for any reason, you will have to first uninstall the hatch environment and then test your fix by reinstalling.
 
+## Creating a new AI module
+
+You can use the **Jupyter AI Module Cookiecutter** to create a new AI module easily. The AI module constructed from the template serves as a very simple example that can be extended however you wish. 
+
+First, install `cookiecutter`.
+
+```
+pip install cookiecutter
+```
+
+Then, from the root of your `jupyter-ai` repository, run these commands:
+
+```
+cd packages/
+cookiecutter jupyter-ai-module-cookiecutter
+```
+
+Follow the prompts to create a new AI module under `packages/`. Your labextension name should use hyphens, whereas your Python name should use underscores.
+
+To integrate the new AI module into the Jupyter AI monorepo, run this command from the AI module root:
+
+```
+rm -r .github/ binder/ CHANGELOG.md RELEASE.md
+```
+
+Rename the JS package to be scoped under `@jupyter-ai/`.
+
+Finally, add the Python package to the `options.python_packages` field in `.jupyter-releaser.toml`.
+
 ## Development uninstall
 
 To uninstall your Jupyter AI development environment, remove the Hatch environment:
@@ -69,5 +98,3 @@ To uninstall your Jupyter AI development environment, remove the Hatch environme
 ```
 hatch env remove default
 ```
-
-## Creating a new AI module
