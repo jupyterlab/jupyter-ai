@@ -21,6 +21,14 @@ class AiExtension(ExtensionApp):
             self.settings["ai_engines"] = {}
 
         return self.settings["ai_engines"]
+    
+    @property
+    def chat_model(self):
+        if "chat_model" not in self.settings:
+            self.settings["chat_model"] = "openai-chat:gpt-3.5-turbo"
+
+        return self.settings["chat_model"]
+
 
     def initialize_settings(self):
         # EP := entry point
