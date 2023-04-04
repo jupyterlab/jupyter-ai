@@ -1,7 +1,8 @@
 # jupyter-ai
 
-[![Github Actions Status](https://github.com/jupyterlab/jupyter_ai/workflows/Build/badge.svg)](https://github.com/jupyterlab/jupyter_ai/actions/workflows/build.yml)
-A generative AI extension for JupyterLab
+[![Github Actions Status](https://github.com/jupyterlab/jupyter-ai/actions/workflows/check-release.yml/badge.svg)](https://github.com/jupyterlab/jupyter-ai/actions/workflows/check-release.yml)
+
+A generative AI extension for Jupyter, to allow for AI to interact with notebooks and other documents. Documentation is available on [ReadTheDocs](https://jupyter-ai.readthedocs.io/en/latest/).
 
 This is a monorepo that houses the core `jupyter_ai` package in addition to the
 default supported AI modules. To learn more about the core package, please refer
