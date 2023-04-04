@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { Widget } from '@lumino/widgets';
 
-import { ThemeProvider } from '@mui/material/styles';
 import {
   Box,
   InputLabel,
@@ -17,7 +16,7 @@ import { ExpandableTextField } from './expandable-text-field';
 
 import { insertOutput } from '../inserter';
 import { AiService } from '../handler';
-import { getJupyterLabTheme } from '../theme-provider';
+import { JlThemeProvider } from './jl-theme-provider';
 
 /**
  * Map of human-readable descriptions per insertion mode.
@@ -122,7 +121,7 @@ export function OpenTaskDialog(props: IOpenTaskDialogProps): JSX.Element {
       : '';
 
   return (
-    <ThemeProvider theme={getJupyterLabTheme()}>
+    <JlThemeProvider>
       <Box padding={1} width={'40em'}>
         <Stack spacing={4}>
           <FormControl fullWidth>
@@ -191,6 +190,6 @@ export function OpenTaskDialog(props: IOpenTaskDialogProps): JSX.Element {
           </Stack>
         </Stack>
       </Box>
-    </ThemeProvider>
+    </JlThemeProvider>
   );
 }

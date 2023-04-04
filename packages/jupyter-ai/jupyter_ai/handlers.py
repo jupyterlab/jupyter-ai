@@ -4,12 +4,12 @@ import tornado
 from tornado.web import HTTPError
 from pydantic import ValidationError
 
-from jupyter_server.base.handlers import APIHandler
+from jupyter_server.base.handlers import APIHandler as BaseAPIHandler
 from jupyter_server.utils import ensure_async
 from .task_manager import TaskManager
-from .models import PromptRequest
+from .models import PromptRequest, ChatRequest
 
-class PromptAPIHandler(APIHandler):
+class APIHandler(BaseAPIHandler):
     @property
     def engines(self): 
         return self.settings["ai_engines"]
@@ -26,6 +26,11 @@ class PromptAPIHandler(APIHandler):
             self.settings["task_manager"] = TaskManager(engines=self.engines, default_tasks=self.default_tasks)
         return self.settings["task_manager"]
     
+    @property
+    def openai_chat(self):
+        return self.settings["openai_chat"]
+    
+class PromptAPIHandler(APIHandler):
     @tornado.web.authenticated
     async def post(self):
         try:
@@ -49,23 +54,27 @@ class PromptAPIHandler(APIHandler):
             "insertion_mode": task.insertion_mode
         }))
 
-class TaskAPIHandler(APIHandler):
-    @property
-    def engines(self): 
-        return self.settings["ai_engines"]
-    
-    @property
-    def default_tasks(self):
-        return self.settings["ai_default_tasks"]
+class ChatAPIHandler(APIHandler):
+    @tornado.web.authenticated
+    async def post(self):
+        try:
+            request = ChatRequest(**self.get_json_body())
+        except ValidationError as e:
+            self.log.exception(e)
+            raise HTTPError(500, str(e)) from e
+        
+        if not self.openai_chat:
+            raise HTTPError(500, "No chat models available.")
+        
+        result = await ensure_async(self.openai_chat.agenerate([request.prompt]))
+        output = result.generations[0][0].text
+        self.openai_chat.append_exchange(request.prompt, output)
 
-    @property
-    def task_manager(self):
-        # we have to create the TaskManager lazily, since no event loop is
-        # running in ServerApp.initialize_settings().
-        if "task_manager" not in self.settings:
-            self.settings["task_manager"] = TaskManager(engines=self.engines, default_tasks=self.default_tasks)
-        return self.settings["task_manager"]
-    
+        self.finish(json.dumps({
+            "output": output,
+        }))
+
+class TaskAPIHandler(APIHandler):
     @tornado.web.authenticated
     async def get(self, id=None):
         if id is None:
