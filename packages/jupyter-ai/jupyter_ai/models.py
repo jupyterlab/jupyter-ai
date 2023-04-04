@@ -6,6 +6,9 @@ class PromptRequest(BaseModel):
     engine_id: str
     prompt_variables: Dict[str, str]
 
+class ChatRequest(BaseModel):
+    prompt: str
+
 class ListEnginesEntry(BaseModel):
     id: str
     name: str

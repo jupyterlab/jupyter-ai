@@ -1,15 +1,18 @@
 from jupyter_server.extension.application import ExtensionApp
-from .handlers import PromptAPIHandler, TaskAPIHandler
+from .handlers import PromptAPIHandler, TaskAPIHandler, ChatAPIHandler
 from importlib_metadata import entry_points
 import inspect
 from .engine import BaseModelEngine
+from .providers import ChatOpenAIProvider
+import os
 
 class AiExtension(ExtensionApp):
     name = "jupyter_ai"
     handlers = [
         ("api/ai/prompt", PromptAPIHandler),
+        (r"api/ai/chat/?", ChatAPIHandler),
         (r"api/ai/tasks/?", TaskAPIHandler),
-        (r"api/ai/tasks/([\w\-:]*)", TaskAPIHandler)
+        (r"api/ai/tasks/([\w\-:]*)", TaskAPIHandler),
     ]
 
     @property
@@ -68,6 +71,10 @@ class AiExtension(ExtensionApp):
 
         self.settings["ai_default_tasks"] = default_tasks
         self.log.info("Registered all default tasks.")
+
+        ## load OpenAI chat provider
+        if ChatOpenAIProvider.auth_strategy.name in os.environ:
+            self.settings["openai_chat"] = ChatOpenAIProvider(model_id="gpt-3.5-turbo")
 
         self.log.info(f"Registered {self.name} server extension")
     

@@ -168,6 +168,21 @@ class ChatOpenAIProvider(BaseProvider, OpenAIChat):
     pypi_package_deps = ["openai"]
     auth_strategy = EnvAuthStrategy(name="OPENAI_API_KEY")
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def append_exchange(self, prompt: str, output: str):
+        """Appends a conversational exchange between user and an OpenAI Chat
+        model to a transcript that will be included in future exchanges."""
+        self.prefix_messages.append({
+            "role": "user",
+            "content": prompt
+        })
+        self.prefix_messages.append({
+            "role": "assistant",
+            "content": output
+        })
+
 class SmEndpointProvider(BaseProvider, SagemakerEndpoint):
     id = "sagemaker-endpoint"
     name = "Sagemaker Endpoint"
