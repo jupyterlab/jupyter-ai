@@ -27,7 +27,7 @@ pip install jupyter_ai
 
 The command above should install two extensions: a server extension and a frontend extension.
 
-You can also install a particular plugin by running `pip install`. For example, to install the ChatGPT plugin, run:
+You can also install a particular AI module by running `pip install`. For example, to install the ChatGPT AI module, run:
 
 ```bash
 pip install jupyter_ai_chatgpt
@@ -47,7 +47,7 @@ jupyter labextension list
 
 ## Configuring with OpenAI
 
-The Jupyter AI package includes plugins that work with OpenAI's ChatGPT and GPT-3 models.
+The Jupyter AI package includes AI modules that work with OpenAI's ChatGPT and GPT-3 models.
 To use these models, you will need to create an OpenAI account and create API keys.
 You can generate an API key at [https://platform.openai.com/account/api-keys](https://platform.openai.com/account/api-keys).
 Please note that [OpenAI may charge for API usage](#open-ai-cost).

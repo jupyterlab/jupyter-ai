@@ -2,7 +2,7 @@
 
 This page is intended for people interested in building new or modified functionality for Jupyter AI.
 
-## Code organization
+## AI module and task definitions
 
 Jupyter AI is distributed as a monorepo, including the core `jupyter_ai` package and a set of AI modules.
 
