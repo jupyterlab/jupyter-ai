@@ -24,7 +24,7 @@ An **AI module** provides an interface between a Jupyter notebook and a generati
   * `below-in-cells` — AI output will be inserted below the current cell, in new notebook cells
   * `below-in-image` — AI output will be inserted below the current cell, as an image
 
-AI modules can register new modalities, tasks, and insertion modes.
+AI modules can register new tasks, modalities, and insertion modes.
 
 ## Prerequisites
 
