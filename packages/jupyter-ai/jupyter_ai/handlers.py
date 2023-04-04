@@ -4,7 +4,9 @@ import tornado
 from tornado.web import HTTPError
 from pydantic import ValidationError
 
-from jupyter_server.base.handlers import APIHandler as BaseAPIHandler
+from tornado import web, websocket
+
+from jupyter_server.base.handlers import APIHandler as BaseAPIHandler, JupyterHandler
 from jupyter_server.utils import ensure_async
 from .task_manager import TaskManager
 from .models import PromptRequest, ChatRequest
@@ -87,3 +89,41 @@ class TaskAPIHandler(APIHandler):
             raise HTTPError(404, f"Task not found with ID: {id}")
 
         self.finish(json.dumps(describe_task_response.dict()))
+
+
+class ChatHandler(
+    JupyterHandler,
+    websocket.WebSocketHandler
+):
+    """
+    A websocket handler for chat.
+    """
+
+    _chat_model = None
+    _chat_provider = None
+
+    @property
+    def chat_model(self):
+        if self._chat_model is None:
+            self._chat_model = self.settings["chat_model"]
+        return self._chat_model
+    
+    def chat_provider(self):
+        if self._chat_provider is None:
+            self._chat_provider = {}
+        return self._chat_provider
+
+    def initialize(self):
+        self.log.debug("Initializing websocket connection %s", self.request.path)
+
+    def open(self):
+        # send the full message history to the new client
+        self.write_message("Connected")
+
+    def on_message(self, message):
+        # save the message to the chat history
+        # publish to all clients
+        print(message)
+
+    def on_close(self):
+        print("WebSocket closed")
