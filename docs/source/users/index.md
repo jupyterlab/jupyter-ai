@@ -100,8 +100,6 @@ jupyter lab --ChatGptModelEngine.api_key=<api-key>
 
 ## Using the extension in JupyterLab
 
-### Basic usage
-
 In JupyterLab, once the Jupyter AI extension is installed and configured, you should see a Jupyter AI button in the cell toolbar:
 
 ![The Jupyter AI button appears at the left of the cell toolbar](../_static/jupyter-ai-toolbar.png)
@@ -113,20 +111,6 @@ If you click the button on a code cell, it will run the "explain code" tasks, an
 You can also run the "generate code" or "explain code" task by right-clicking on a cell and clicking "Codify cell with AI".
 
 ![The JupyterLab context menu includes an option to "Codify cell with AI"](../_static/codify-cell-menu.png)
-
-### Advanced usage
-
-You can highlight all or some of the text in a cell, and select "Generate output from selection with AI…", to bring up a dialog with more AI options.
-
-![If you select text in a cell, the JupyterLab context menu includes an option to "Generate output from selection with AI…"](../_static/generate-output-from-selection.png)
-
-This dialog will show all available tasks and it shows a preview of what the prompt will look like. The special string `{body}` in the prompt template will be replaced with the selected text.
-
-![The dialog shows all tasks from all model engines and includes a prompt template for what will be sent to the specified model](../_static/generate-output-dialog.png)
-
-If the selected task has a description, the dialog will show that as well.
-
-![The dialog will show a task description if a task has one.](../_static/generate-code-dialog-description.png)
 
 ## Uninstalling
 
