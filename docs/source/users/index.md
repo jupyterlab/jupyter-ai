@@ -20,7 +20,8 @@ You can find the environment variables you need to set, and the Python packages 
 | OpenAI      | `OPENAI_API_KEY`           | `openai`       |
 | SageMaker   | N/A                        | `boto3`        |
 
-To use SageMaker's models, you will need to authenticate via `boto3`.
+To use SageMaker's models, you will need to authenticate via
+[boto3](https://github.com/boto/boto3).
 
 For example, to use OpenAI models, install the necessary package, and set an environment
 variable when you start JupyterLab from a terminal:
