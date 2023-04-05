@@ -25,6 +25,7 @@ DISPLAYS_BY_FORMAT = {
     "math": Math,
     "md": Markdown,
     "json": JSON,
+    "raw": None
 }
 
 class FormatDict(dict):
@@ -104,7 +105,7 @@ class AiMagics(Magics):
                 optionally prefixed with the ID of the model provider, delimited
                 by a colon.""")
     @argument('-f', '--format',
-                choices=["markdown", "html", "json", "math", "md"],
+                choices=["markdown", "html", "json", "math", "md", "raw"],
                 nargs="?",
                 default="markdown",
                 help="""IPython display to use when rendering output. [default="markdown"]""")
@@ -169,6 +170,8 @@ class AiMagics(Magics):
 
         # build output display
         DisplayClass = DISPLAYS_BY_FORMAT[args.format]
+        if DisplayClass is None:
+            return output
         if args.format == 'json':
             # JSON display expects a dict, not a JSON string
             output = json.loads(output)
