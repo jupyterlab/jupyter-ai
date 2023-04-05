@@ -155,9 +155,9 @@ Write some JavaScript code that prints "hello world" to the console.
 
 ### Formatting the output
 
-By default, Jupyter AI assumes that a model will output markdown, and its output cell will be
-formatted as markdown. You can override this using the `-f` or `--format` argument to your
-magic command. Valid formats include:
+By default, Jupyter AI assumes that a model will output markdown, so the output of
+an `%%ai` command will be formatted as markdown by default. You can override this
+using the `-f` or `--format` argument to your magic command. Valid formats include:
 
 - `markdown`
 - `math`
