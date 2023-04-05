@@ -2,13 +2,14 @@ import os
 import json
 import warnings
 from typing import Optional
-from importlib_metadata import entry_points
 
-from jupyter_ai.providers import BaseProvider
+from importlib_metadata import entry_points
 from IPython import get_ipython
 from IPython.core.magic import Magics, magics_class, line_cell_magic
 from IPython.core.magic_arguments import magic_arguments, argument, parse_argstring
-from IPython.display import display, HTML, Markdown, Math, JSON
+from IPython.display import HTML, Markdown, Math, JSON
+
+from jupyter_ai.providers import BaseProvider
 
 
 MODEL_ID_ALIASES = {
@@ -130,7 +131,7 @@ class AiMagics(Magics):
         provider_id, local_model_id = self._decompose_model_id(args.model_id)
         Provider = self._get_provider(provider_id)
         if Provider is None:
-            return display(f"Cannot determine model provider from model ID {args.model_id}.")
+            return f"Cannot determine model provider from model ID {args.model_id}."
 
         # if `--reset` is specified, reset transcript and return early
         if (provider_id == "openai-chat" and args.reset):
@@ -174,4 +175,4 @@ class AiMagics(Magics):
         output_display = DisplayClass(output)
 
         # finally, display output display
-        return display(output_display)
+        return output_display
