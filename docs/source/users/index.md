@@ -6,15 +6,36 @@ This page is intended for people interested in installing and using Jupyter AI. 
 
 To use Jupyter AI, you will need to have JupyterLab ≥ 3.5 (*not* JupyterLab 4) installed.
 
-To use Jupyter AI with OpenAI APIs, such as GPT-3 and ChatGPT, you will need
-an OpenAI account and API key. You can generate an API key at
-[https://platform.openai.com/account/api-keys](https://platform.openai.com/account/api-keys).
+To use some model providers, you will have to specify authentication credentials
+in environment variables, and you will have to install relevant Python packages from PyPI.
+You can find the environment variables you need to set, and the Python packages you need, in
+[`packages/jupyter-ai/jupyter_ai/providers.py`](https://github.com/jupyterlab/jupyter-ai/blob/main/packages/jupyter-ai/jupyter_ai/providers.py).
+
+| Provider    | Environment variable       | Python package(s) |
+| ------------| -------------------------- | -------------- |
+| AI21        | `AI21_API_KEY`             | `ai21`         |
+| Anthropic   | `ANTHROPIC_API_KEY`        | `anthropic`    |
+| Cohere      | `COHERE_API_KEY`           | `cohere`       |
+| HuggingFace | `HUGGINGFACEHUB_API_TOKEN` | `huggingface_hub`, `ipywidgets` |
+| OpenAI      | `OPENAI_API_KEY`           | `openai`       |
+| SageMaker   | N/A                        | `boto3`        |
+
+To use SageMaker's models, you will need to authenticate via
+[boto3](https://github.com/boto/boto3).
+
+For example, to use OpenAI models, install the necessary package, and set an environment
+variable when you start JupyterLab from a terminal:
+
+```bash
+pip install openai
+OPENAI_API_KEY=your-api-key-here jupyter lab
+```
 
 :::{attention}
 :name: open-ai-cost
-OpenAI may charge users for API usage. Jupyter AI users are responsible for all charges
-they incur when they make API requests. See [OpenAI's pricing page](https://openai.com/pricing)
-for details.
+Model providers, such as OpenAI, may charge users for API usage. Jupyter AI users are
+responsible for all charges they incur when they make API requests. Review your model
+provider's pricing information before submitting requests via Jupyter AI.
 :::
 
 ## Installing
@@ -45,88 +66,137 @@ To verify that the frontend extension is installed, run:
 jupyter labextension list
 ```
 
-## Configuring with OpenAI
+## Sending prompts to AI models with magic commands
 
-The Jupyter AI package includes AI modules that work with OpenAI's ChatGPT and GPT-3 models.
-To use these models, you will need to create an OpenAI account and create API keys.
-You can generate an API key at [https://platform.openai.com/account/api-keys](https://platform.openai.com/account/api-keys).
-Please note that [OpenAI may charge for API usage](#open-ai-cost).
+The examples in this section are based on the [Jupyter AI example notebook](https://github.com/jupyterlab/jupyter-ai/blob/main/examples/magics.ipynb).
 
-### Configuring GPT-3
+Before you send your first prompt to an AI model, load the IPython extension.
+Enter the following code into a Jupyter Notebook cell and run the cell:
 
-To use the `GPT3ModelEngine` in `jupyter_ai`, you will need an OpenAI API key.
-Copy the API key and then create a Jupyter config file locally at `config.py` to
-store the API key.
+```
+%load_ext jupyter_ai
+```
+
+This command should not produce any output.
+
+The `%%ai` magic command is easy to use and gives you the most control over the
+prompts you send to AI modules.
+
+### Choosing a provider and model
+
+To use Jupyter AI, use the `%%ai` cell magic with the
+syntax `<provider-id>:<model-id>`. Your prompt starts on the second line of the cell.
+The prompt starts on the second line of the cell.
+
+For example, to send a text prompt to the provider `anthropic` and the model ID
+`claude-v1.2`, enter the following code into a cell and run it:
+
+```
+%%ai anthropic:claude-v1.2
+Write a poem about C++.
+```
+
+We support the following providers, and all model IDs for each of these
+providers, as defined in [`langchain.llms`](https://langchain.readthedocs.io/en/latest/reference/modules/llms.html#module-langchain.llms):
+
+- `ai21`
+- `anthropic`
+- `cohere`
+- `huggingface_hub`
+- `openai`
+- `openai-chat`
+- `sagemaker-endpoint`
+
+If your model ID is associated with only one provider, you can omit the `provider-id` and
+the colon from the first line. For example, because `ai21` is the only provider of the
+`j2-jumbo-instruct` model, these two code cells will do the same thing when you run them:
+
+```
+%%ai ai21:j2-jumbo-instruct
+Write some JavaScript code that prints "hello world" to the console.
+```
+
+```
+%%ai j2-jumbo-instruct # infers AI21 provider
+Write some JavaScript code that prints "hello world" to the console.
+```
+
+### Formatting the output
+
+By default, Jupyter AI assumes that a model will output markdown, so the output of
+an `%%ai` command will be formatted as markdown by default. You can override this
+using the `-f` or `--format` argument to your magic command. Valid formats include:
+
+- `markdown`
+- `math`
+- `html`
+- `json`
+- `raw`
+
+For example, to force the output of a command to be interpreted as HTML, you can run:
+
+```
+%%ai anthropic:claude-v1.2 -f html
+Create a square using SVG with a black border and white fill.
+```
+
+The following cell will produce output in IPython's `Math` format, which in a web browser
+will look like properly typeset equations.
+
+```
+%%ai chatgpt -f math
+Generate the 2D heat equation in LaTeX surrounded by `$$`. Do not include an explanation.
+```
+
+### Interpolating IPython in prompts
+
+Using curly brace syntax, you can include variables and other IPython expressions in your
+prompt. This lets you execute a prompt using code that the IPython kernel knows about,
+but that is not in the current cell.
+
+For example, we can set a variable in one notebook cell:
 
 ```python
-c.GPT3ModelEngine.api_key = "<your-api-key>"
+poet = "Walt Whitman"
 ```
 
-Finally, start a new JupyterLab instance pointing to this configuration file.
+Then, we can use this same variable in an `%%ai` command in a later cell:
 
-```bash
-jupyter lab --config=config.py
+```
+%%ai chatgpt
+Write a poem in the style of {poet}
 ```
 
-If you are doing this in a Git repository, you can ensure you never commit this
-file by accident by adding it to `.git/info/exclude`.
+When this cell runs, `{poet}` is interpolated as `Walt Whitman`, or as whatever `poet`
+is assigned to at that time.
 
-Alternatively, you can also specify your API key while launching JupyterLab.
-
-```bash
-jupyter lab --GPT3ModelEngine.api_key=<api-key>
-```
-
-### Configuring ChatGPT
-
-To use the `ChatGptModelEngine` in `jupyter_ai`, add your ChatGPT API key to `config.py`.
+You can use the special `In` and `Out` list with interpolation syntax to explain code
+located elsewhere in a Jupyter notebook. For example, if you run the following code in
+a cell, and its input is assigned to `In[11]`:
 
 ```python
-c.ChatGptModelEngine.api_key = "<your-api-key>"
+for i in range(0, 5):
+  print(i)
 ```
 
-Then, start a new JupyterLab instance pointing to this configuration file.
+You can then refer to `In[11]` in an `%%ai` magic command, and it will be replaced
+with the code in question:
 
-```bash
-jupyter lab --config=config.py
+```
+%%ai cohere:command-xlarge-nightly
+Please explain the code below:
+--
+{In[11]}
 ```
 
-If you would prefer not to use a configuration file, you can specify your API key
-while launching JupyterLab.
+You can also refer to the cell's output using the special `Out` list, with the same index.
 
-```bash
-jupyter lab --ChatGptModelEngine.api_key=<api-key>
 ```
-
-## Using the extension in JupyterLab
-
-### Basic usage
-
-In JupyterLab, once the Jupyter AI extension is installed and configured, you should see a Jupyter AI button in the cell toolbar:
-
-![The Jupyter AI button appears at the left of the cell toolbar](../_static/jupyter-ai-toolbar.png)
-
-If you click the button on a markdown cell, it will run the "generate code" task, and it will create new cells with markdown and code.
-
-If you click the button on a code cell, it will run the "explain code" tasks, and it will create a new cell with a markdown explanation of what this code does.
-
-You can also run the "generate code" or "explain code" task by right-clicking on a cell and clicking "Codify cell with AI".
-
-![The JupyterLab context menu includes an option to "Codify cell with AI"](../_static/codify-cell-menu.png)
-
-### Advanced usage
-
-You can highlight all or some of the text in a cell, and select "Generate output from selection with AI…", to bring up a dialog with more AI options.
-
-![If you select text in a cell, the JupyterLab context menu includes an option to "Generate output from selection with AI…"](../_static/generate-output-from-selection.png)
-
-This dialog will show all available tasks and it shows a preview of what the prompt will look like. The special string `{body}` in the prompt template will be replaced with the selected text.
-
-![The dialog shows all tasks from all model engines and includes a prompt template for what will be sent to the specified model](../_static/generate-output-dialog.png)
-
-If the selected task has a description, the dialog will show that as well.
-
-![The dialog will show a task description if a task has one.](../_static/generate-code-dialog-description.png)
+%%ai cohere:command-xlarge-nightly
+Write code that would produce the following output:
+--
+{Out[11]}
+```
 
 ## Uninstalling
 
