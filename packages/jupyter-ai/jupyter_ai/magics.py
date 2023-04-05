@@ -1,5 +1,6 @@
 import os
 import json
+import warnings
 from typing import Optional
 from importlib_metadata import entry_points
 
@@ -40,6 +41,11 @@ class AiMagics(Magics):
     def __init__(self, shell):
         super(AiMagics, self).__init__(shell)
         self.transcript_openai = []
+
+        # suppress warning when using old OpenAIChat provider
+        warnings.filterwarnings("ignore", message="You are trying to use a chat model. This way of initializing it is "
+            "no longer supported. Instead, please use: "
+            "`from langchain.chat_models import ChatOpenAI`")
 
         # load model providers from entry point
         self.providers = {}
