@@ -8,7 +8,7 @@ To use Jupyter AI, you will need to have JupyterLab ≥ 3.5 (*not* JupyterLab 4)
 
 To use some model providers, you will have to specify authentication credentials
 in environment variables, and you will have to install relevant Python packages from PyPI.
-You can find the environment variables you need to set, and the Pyyhon packages you need, in
+You can find the environment variables you need to set, and the Python packages you need, in
 [`packages/jupyter-ai/jupyter_ai/providers.py`](https://github.com/jupyterlab/jupyter-ai/blob/main/packages/jupyter-ai/jupyter_ai/providers.py).
 
 | Provider    | Environment variable       | Python package(s) |
@@ -18,13 +18,16 @@ You can find the environment variables you need to set, and the Pyyhon packages 
 | Cohere      | `COHERE_API_KEY`           | `cohere`       |
 | HuggingFace | `HUGGINGFACEHUB_API_TOKEN` | `huggingface_hub`, `ipywidgets` |
 | OpenAI      | `OPENAI_API_KEY`           | `openai`       |
+| SageMaker   | N/A                        | `boto3`        |
 
-For example, to use OpenAI models, set an environment variable when you start
-JupyterLab from a terminal, and install the necessary package:
+To use SageMaker's models, you will need to authenticate via `boto3`.
+
+For example, to use OpenAI models, install the necessary package, and set an environment
+variable when you start JupyterLab from a terminal:
 
 ```bash
-OPENAI_API_KEY=your-api-key-here jupyter lab
 pip install openai
+OPENAI_API_KEY=your-api-key-here jupyter lab
 ```
 
 :::{attention}
