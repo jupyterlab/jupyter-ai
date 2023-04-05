@@ -5,14 +5,14 @@ import { Box } from '@mui/system';
 import { JlThemeProvider } from './jl-theme-provider';
 import { ChatMessages } from './chat-messages';
 import { ChatInput } from './chat-input';
-import { AiService } from '../handler';
+//import { AiService } from '../handler';
 
 type ChatMessageGroup = {
   side: 'left' | 'right';
   messages: string[];
 };
 
-export function Chat(): JSX.Element {
+export function Chat(props: any): JSX.Element {
   const [messageGroups, setMessageGroups] = useState<ChatMessageGroup[]>([]);
   const [input, setInput] = useState('');
 
@@ -22,11 +22,22 @@ export function Chat(): JSX.Element {
       ...messageGroups,
       { side: 'right', messages: [input] }
     ]);
-    const response = await AiService.sendChat({ prompt: input });
+    /*const response = await AiService.sendChat({ prompt: input });
     setMessageGroups(messageGroups => [
       ...messageGroups,
       { side: 'left', messages: [response.output] }
-    ]);
+    ]);*/
+    props.chatHandler.sendMessage(JSON.stringify({prompt: input}))
+    props.chatHandler.addListener((event: any) => {
+      if(event["event"] == "reply") {
+        setMessageGroups(messageGroups => [
+          ...messageGroups,
+          { side: 'left', messages: [event["data"]]}
+        ])
+      }
+      // TODO: add for history event
+      
+    });
   };
 
   return (

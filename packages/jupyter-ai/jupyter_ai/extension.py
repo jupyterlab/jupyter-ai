@@ -1,10 +1,20 @@
+import queue
 from jupyter_server.extension.application import ExtensionApp
-from .handlers import PromptAPIHandler, TaskAPIHandler, ChatAPIHandler
+from langchain import ConversationChain
+from .handlers import ChatHandler, PromptAPIHandler, TaskAPIHandler, ChatAPIHandler
 from importlib_metadata import entry_points
 import inspect
 from .engine import BaseModelEngine
 from .providers import ChatOpenAIProvider
 import os
+
+from langchain.memory import ConversationBufferMemory
+from langchain.prompts import (
+    ChatPromptTemplate, 
+    MessagesPlaceholder, 
+    SystemMessagePromptTemplate, 
+    HumanMessagePromptTemplate
+)
 
 class AiExtension(ExtensionApp):
     name = "jupyter_ai"
@@ -13,6 +23,7 @@ class AiExtension(ExtensionApp):
         (r"api/ai/chat/?", ChatAPIHandler),
         (r"api/ai/tasks/?", TaskAPIHandler),
         (r"api/ai/tasks/([\w\-:]*)", TaskAPIHandler),
+        (r"api/ai/chats/?", ChatHandler),
     ]
 
     @property
@@ -22,13 +33,6 @@ class AiExtension(ExtensionApp):
 
         return self.settings["ai_engines"]
     
-    @property
-    def chat_model(self):
-        if "chat_model" not in self.settings:
-            self.settings["chat_model"] = "openai-chat:gpt-3.5-turbo"
-
-        return self.settings["chat_model"]
-
 
     def initialize_settings(self):
         # EP := entry point
@@ -83,6 +87,26 @@ class AiExtension(ExtensionApp):
         ## load OpenAI chat provider
         if ChatOpenAIProvider.auth_strategy.name in os.environ:
             self.settings["openai_chat"] = ChatOpenAIProvider(model_id="gpt-3.5-turbo")
+            # Create a conversation memory
+            memory = ConversationBufferMemory(return_messages=True)
+            prompt_template = ChatPromptTemplate.from_messages([
+                SystemMessagePromptTemplate.from_template("The following is a friendly conversation between a human and an AI. The AI is talkative and provides lots of specific details from its context. If the AI does not know the answer to a question, it truthfully says it does not know."),
+                MessagesPlaceholder(variable_name="history"),
+                HumanMessagePromptTemplate.from_template("{input}")
+            ])
+            chain = ConversationChain(
+                llm=self.settings["openai_chat"], 
+                prompt=prompt_template,
+                verbose=True, 
+                memory=memory
+            )
+            self.settings["chat_provider"] = chain
 
         self.log.info(f"Registered {self.name} server extension")
+
+        # Add a message queue to the settings to be used by the chat handler
+        self.settings["chat_message_queue"] = queue.Queue()
+
+        self.settings["chat_clients"] = {}
+        
     

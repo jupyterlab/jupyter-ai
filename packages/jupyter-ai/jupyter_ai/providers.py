@@ -10,6 +10,7 @@ from langchain.llms import (
     OpenAIChat,
     SagemakerEndpoint
 )
+from langchain.chat_models import ChatOpenAI
 from pydantic import BaseModel
 
 class EnvAuthStrategy(BaseModel):
@@ -148,7 +149,7 @@ class OpenAIProvider(BaseProvider, OpenAI):
     pypi_package_deps = ["openai"]
     auth_strategy = EnvAuthStrategy(name="OPENAI_API_KEY")
 
-class ChatOpenAIProvider(BaseProvider, OpenAIChat):
+class ChatOpenAIProvider(BaseProvider, ChatOpenAI):
     id = "openai-chat"
     name = "OpenAI"
     models = [
