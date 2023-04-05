@@ -11,10 +11,10 @@ from IPython.display import display, HTML, Markdown, Math, JSON
 
 
 MODEL_ID_ALIASES = {
-    "gpt2": "huggingface_hub::gpt2",
-    "gpt3": "openai::text-davinci-003",
-    "chatgpt": "openai-chat::gpt-3.5-turbo",
-    "gpt4": "openai-chat::gpt-4",
+    "gpt2": "huggingface_hub:gpt2",
+    "gpt3": "openai:text-davinci-003",
+    "chatgpt": "openai-chat:gpt-3.5-turbo",
+    "gpt4": "openai-chat:gpt-4",
 }
 
 DISPLAYS_BY_FORMAT = {
@@ -69,7 +69,7 @@ class AiMagics(Magics):
         if model_id in MODEL_ID_ALIASES:
             model_id = MODEL_ID_ALIASES[model_id]
 
-        if "::" not in model_id:
+        if ":" not in model_id:
             # case: model ID was not provided with a prefix indicating the provider
             # ID. try to infer the provider ID before returning (None, None).
 
@@ -81,7 +81,7 @@ class AiMagics(Magics):
             
             return (None, None)
 
-        provider_id, local_model_id = model_id.split("::", 1)
+        provider_id, local_model_id = model_id.split(":", 1)
         return (provider_id, local_model_id)
 
     def _get_provider(self, provider_id: Optional[str]) -> BaseProvider:
