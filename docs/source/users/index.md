@@ -98,19 +98,11 @@ while launching JupyterLab.
 jupyter lab --ChatGptModelEngine.api_key=<api-key>
 ```
 
-## Using the extension in JupyterLab
+## Starting AI tasks with magic commands
 
-In JupyterLab, once the Jupyter AI extension is installed and configured, you should see a Jupyter AI button in the cell toolbar:
+The examples in this section are based on the [Jupyter AI example notebook](https://github.com/jupyterlab/jupyter-ai/blob/main/examples/magics.ipynb).
 
-![The Jupyter AI button appears at the left of the cell toolbar](../_static/jupyter-ai-toolbar.png)
-
-If you click the button on a markdown cell, it will run the "generate code" task, and it will create new cells with markdown and code.
-
-If you click the button on a code cell, it will run the "explain code" tasks, and it will create a new cell with a markdown explanation of what this code does.
-
-You can also run the "generate code" or "explain code" task by right-clicking on a cell and clicking "Codify cell with AI".
-
-![The JupyterLab context menu includes an option to "Codify cell with AI"](../_static/codify-cell-menu.png)
+The `%%ai` magic command is easy to use and gives you the most control over your calls to tasks in AI modules. 
 
 ## Uninstalling
 
