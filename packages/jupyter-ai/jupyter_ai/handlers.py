@@ -10,6 +10,7 @@ from jupyter_server.base.handlers import APIHandler as BaseAPIHandler, JupyterHa
 from jupyter_server.utils import ensure_async
 from .task_manager import TaskManager
 from .models import PromptRequest, ChatRequest
+from langchain.schema import messages_to_dict
 
 class APIHandler(BaseAPIHandler):
     @property
@@ -99,31 +100,93 @@ class ChatHandler(
     A websocket handler for chat.
     """
 
-    _chat_model = None
-    _chat_provider = None
-
-    @property
-    def chat_model(self):
-        if self._chat_model is None:
-            self._chat_model = self.settings["chat_model"]
-        return self._chat_model
+    _chat_provider = None  
+    _chat_message_queue = None 
     
+    @property
     def chat_provider(self):
         if self._chat_provider is None:
-            self._chat_provider = {}
+            self._chat_provider = self.settings["chat_provider"]
         return self._chat_provider
+    
+    @property
+    def chat_message_queue(self):
+        if self._chat_message_queue is None:
+            self._chat_message_queue = self.settings["chat_message_queue"]
+        return self._chat_message_queue
+    
+    def add_chat_client(self, username):
+        self.settings["chat_clients"][username] = self
+        self.log.debug("Clients are : %s", self.settings["chat_clients"])
+
+    def remove_chat_client(self, username):
+        self.settings["chat_clients"][username] = None
 
     def initialize(self):
         self.log.debug("Initializing websocket connection %s", self.request.path)
 
+    def pre_get(self):
+        """Handles authentication/authorization.
+        """
+        # authenticate the request before opening the websocket
+        user = self.current_user
+        if user is None:
+            self.log.warning("Couldn't authenticate WebSocket connection")
+            raise web.HTTPError(403)
+
+        # authorize the user.
+        if not self.authorizer.is_authorized(self, user, "execute", "events"):
+            raise web.HTTPError(403)
+
+    async def get(self, *args, **kwargs):
+        """Get an event socket."""
+        self.pre_get()
+        res = super().get(*args, **kwargs)
+        await res
+
     def open(self):
         # send the full message history to the new client
-        self.write_message("Connected")
+        self.log.debug("Connected...")
+        self.log.debug("current user is %s", self.current_user)
+        self.add_chat_client(self.current_user.username)
+        history = messages_to_dict(self.chat_provider.memory.chat_memory.messages)
+        if history:
+            event = {
+                "event": "history",
+                "data": history
+            }
+            self.write_message(json.dumps(event))
 
     def on_message(self, message):
-        # save the message to the chat history
-        # publish to all clients
-        print(message)
+        self.log.debug("message received: %s", message)
+        # Push to the queue
+        #self.chat_message_queue.push(message)
+
+        message = json.loads(message)
+
+        event = {
+            "event": "message",
+            "data": message
+        }
+        data = json.dumps(event)
+        # broadcast the message to other clients
+        client_names = self.settings["chat_clients"].keys()
+        for username in client_names:
+            if username != self.current_user.username:
+                self.settings["chat_clients"][username].write_message(data)
+
+        # process the message
+        response = self.chat_provider.predict(input=message["prompt"])
+
+        event = {
+            "event": "reply",
+            "data": response
+        }
+        # broadcast to all clients
+        for username in client_names:
+            self.settings["chat_clients"][username].write_message(json.dumps(event))
+        
 
     def on_close(self):
-        print("WebSocket closed")
+        self.log.debug("Disconnected client %s", self.current_user)
+        self.remove_chat_client(self.current_user.username)

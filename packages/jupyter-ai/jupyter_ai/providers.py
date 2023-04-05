@@ -7,10 +7,12 @@ from langchain.llms import (
     Cohere,
     HuggingFaceHub,
     OpenAI,
-    OpenAIChat,
     SagemakerEndpoint
 )
+
 from pydantic import BaseModel, Extra
+from langchain.chat_models import ChatOpenAI
+
 
 class EnvAuthStrategy(BaseModel):
     """Require one auth token via an environment variable."""
@@ -153,7 +155,7 @@ class OpenAIProvider(BaseProvider, OpenAI):
     pypi_package_deps = ["openai"]
     auth_strategy = EnvAuthStrategy(name="OPENAI_API_KEY")
 
-class ChatOpenAIProvider(BaseProvider, OpenAIChat):
+class ChatOpenAIProvider(BaseProvider, ChatOpenAI):
     id = "openai-chat"
     name = "OpenAI"
     models = [
