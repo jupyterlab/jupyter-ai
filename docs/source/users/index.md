@@ -98,12 +98,12 @@ while launching JupyterLab.
 jupyter lab --ChatGptModelEngine.api_key=<api-key>
 ```
 
-## Starting AI tasks with magic commands
+## Sending prompts to AI models with magic commands
 
 The examples in this section are based on the [Jupyter AI example notebook](https://github.com/jupyterlab/jupyter-ai/blob/main/examples/magics.ipynb).
 
-Before you run your first AI task, load the IPython extension. Enter the following
-code into a Jupyter Notebook cell and run the cell:
+Before you send your first prompt to an AI model, load the IPython extension.
+Enter the following code into a Jupyter Notebook cell and run the cell:
 
 ```
 %load_ext jupyter_ai
@@ -111,8 +111,8 @@ code into a Jupyter Notebook cell and run the cell:
 
 This command should not produce any output.
 
-The `%%ai` magic command is easy to use and gives you the most control over your
-calls to tasks in AI modules.
+The `%%ai` magic command is easy to use and gives you the most control over the
+prompts you send to AI modules.
 
 ### Choosing a provider and model
 
