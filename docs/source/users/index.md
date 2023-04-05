@@ -130,6 +130,7 @@ using the `-f` or `--format` argument to your magic command. Valid formats inclu
 - `math`
 - `html`
 - `json`
+- `raw`
 
 For example, to force the output of a command to be interpreted as HTML, you can run:
 
