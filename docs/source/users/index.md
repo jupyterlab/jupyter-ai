@@ -6,15 +6,32 @@ This page is intended for people interested in installing and using Jupyter AI. 
 
 To use Jupyter AI, you will need to have JupyterLab ≥ 3.5 (*not* JupyterLab 4) installed.
 
-To use Jupyter AI with OpenAI APIs, such as GPT-3 and ChatGPT, you will need
-an OpenAI account and API key. You can generate an API key at
-[https://platform.openai.com/account/api-keys](https://platform.openai.com/account/api-keys).
+To use some model providers, you will have to specify authentication credentials
+in environment variables, and you will have to install relevant Python packages from PyPI.
+You can find the environment variables you need to set, and the Pyyhon packages you need, in
+[`packages/jupyter-ai/jupyter_ai/providers.py`](https://github.com/jupyterlab/jupyter-ai/blob/main/packages/jupyter-ai/jupyter_ai/providers.py).
+
+| Provider    | Environment variable       | Python package(s) |
+| ------------| -------------------------- | -------------- |
+| AI21        | `AI21_API_KEY`             | `ai21`         |
+| Anthropic   | `ANTHROPIC_API_KEY`        | `anthropic`    |
+| Cohere      | `COHERE_API_KEY`           | `cohere`       |
+| HuggingFace | `HUGGINGFACEHUB_API_TOKEN` | `huggingface_hub`, `ipywidgets` |
+| OpenAI      | `OPENAI_API_KEY`           | `openai`       |
+
+For example, to use OpenAI models, set an environment variable when you start
+JupyterLab from a terminal, and install the necessary package:
+
+```bash
+OPENAI_API_KEY=your-api-key-here jupyter lab
+pip install openai
+```
 
 :::{attention}
 :name: open-ai-cost
-OpenAI may charge users for API usage. Jupyter AI users are responsible for all charges
-they incur when they make API requests. See [OpenAI's pricing page](https://openai.com/pricing)
-for details.
+Model providers, such as OpenAI, may charge users for API usage. Jupyter AI users are
+responsible for all charges they incur when they make API requests. Review your model
+provider's pricing information before submitting requests via Jupyter AI.
 :::
 
 ## Installing
