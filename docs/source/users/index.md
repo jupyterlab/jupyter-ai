@@ -102,7 +102,132 @@ jupyter lab --ChatGptModelEngine.api_key=<api-key>
 
 The examples in this section are based on the [Jupyter AI example notebook](https://github.com/jupyterlab/jupyter-ai/blob/main/examples/magics.ipynb).
 
-The `%%ai` magic command is easy to use and gives you the most control over your calls to tasks in AI modules. 
+Before you run your first AI task, load the IPython extension. Enter the following
+code into a Jupyter Notebook cell and run the cell:
+
+```
+%load_ext jupyter_ai
+```
+
+This command should not produce any output.
+
+The `%%ai` magic command is easy to use and gives you the most control over your
+calls to tasks in AI modules.
+
+### Choosing a provider and model
+
+To use Jupyter AI, use the `%%ai` cell magic with the
+syntax `<provider-id>:<model-id>`. Your prompt starts on the second line of the cell.
+The prompt starts on the second line of the cell.
+
+For example, to send a text prompt to the provider `anthropic` and the model ID
+`claude-v1.2`, enter the following code into a cell and run it:
+
+```
+%%ai anthropic:claude-v1.2
+Write a poem about C++.
+```
+
+We support the following providers, and all model IDs for each of these
+providers, as defined in [`langchain.llms`](https://langchain.readthedocs.io/en/latest/reference/modules/llms.html#module-langchain.llms):
+
+- `ai21`
+- `anthropic`
+- `cohere`
+- `huggingface_hub`
+- `openai`
+- `openai-chat`
+- `sagemaker-endpoint`
+
+If your model ID is associated with only one provider, you can omit the `provider-id` and
+the colon from the first line. For example, because `ai21` is the only provider of the
+`j2-jumbo-instruct` model, these two code cells will do the same thing when you run them:
+
+```
+%%ai ai21:j2-jumbo-instruct
+Write some JavaScript code that prints "hello world" to the console.
+```
+
+```
+%%ai j2-jumbo-instruct # infers AI21 provider
+Write some JavaScript code that prints "hello world" to the console.
+```
+
+### Formatting the output
+
+By default, Jupyter AI assumes that a model will output markdown, and its output cell will be
+formatted as markdown. You can override this using the `-f` or `--format` argument to your
+magic command. Valid formats include:
+
+- `markdown`
+- `math`
+- `html`
+- `json`
+
+For example, to force the output of a command to be interpreted as HTML, you can run:
+
+```
+%%ai anthropic:claude-v1.2 -f html
+Create a square using SVG with a black border and white fill.
+```
+
+The following cell will produce output in IPython's `Math` format, which in a web browser
+will look like properly typeset equations.
+
+```
+%%ai chatgpt -f math
+Generate the 2D heat equation in LaTeX surrounded by `$$`. Do not include an explanation.
+```
+
+### Interpolating IPython in prompts
+
+Using curly brace syntax, you can include variables and other IPython expressions in your
+prompt. This lets you execute a prompt using code that the IPython kernel knows about,
+but that is not in the current cell.
+
+For example, we can set a variable in one notebook cell:
+
+```python
+poet = "Walt Whitman"
+```
+
+Then, we can use this same variable in an `%%ai` command in a later cell:
+
+```
+%%ai chatgpt
+Write a poem in the style of {poet}
+```
+
+When this cell runs, `{poet}` is interpolated as `Walt Whitman`, or as whatever `poet`
+is assigned to at that time.
+
+You can use the special `In` and `Out` list with interpolation syntax to explain code
+located elsewhere in a Jupyter notebook. For example, if you run the following code in
+a cell, and its input is assigned to `In[11]`:
+
+```python
+for i in range(0, 5):
+  print(i)
+```
+
+You can then refer to `In[11]` in an `%%ai` magic command, and it will be replaced
+with the code in question:
+
+```
+%%ai cohere:command-xlarge-nightly
+Please explain the code below:
+--
+{In[11]}
+```
+
+You can also refer to the cell's output using the special `Out` list, with the same index.
+
+```
+%%ai cohere:command-xlarge-nightly
+Write code that would produce the following output:
+--
+{Out[11]}
+```
 
 ## Uninstalling
 
