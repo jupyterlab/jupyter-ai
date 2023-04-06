@@ -93,6 +93,16 @@ Rename the JS package to be scoped under `@jupyter-ai/`.
 
 Finally, add the Python package to the `options.python_packages` field in `.jupyter-releaser.toml`.
 
+## Making changes while your server is running
+
+If you change, add, or remove a **magic command**, after rebuilding, restart the kernel
+or restart the server.
+
+If you change the **server implementation** of an AI module, after rebuilding, restart the server.
+
+If you make changes to the **user interface** or **lab extension**, run `jlpm build` and then
+refresh your browser tab. Make sure to run `jlpm setup:dev` after starting a new Hatch shell.
+
 ## Development uninstall
 
 To uninstall your Jupyter AI development environment, remove the Hatch environment:
