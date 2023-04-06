@@ -58,6 +58,16 @@ test = [
     "pytest-tornasync"
 ]
 
+all = [
+    "ai21",
+    "anthropic",
+    "cohere",
+    "huggingface_hub",
+    "ipywidgets",
+    "openai",
+    "boto3"
+]
+
 [tool.hatch.version]
 source = "nodejs"
 

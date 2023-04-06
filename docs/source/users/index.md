@@ -11,14 +11,15 @@ in environment variables, and you will have to install relevant Python packages 
 You can find the environment variables you need to set, and the Python packages you need, in
 [`packages/jupyter-ai/jupyter_ai/providers.py`](https://github.com/jupyterlab/jupyter-ai/blob/main/packages/jupyter-ai/jupyter_ai/providers.py).
 
-| Provider    | Environment variable       | Python package(s) |
-| ------------| -------------------------- | -------------- |
-| AI21        | `AI21_API_KEY`             | `ai21`         |
-| Anthropic   | `ANTHROPIC_API_KEY`        | `anthropic`    |
-| Cohere      | `COHERE_API_KEY`           | `cohere`       |
-| HuggingFace | `HUGGINGFACEHUB_API_TOKEN` | `huggingface_hub`, `ipywidgets` |
-| OpenAI      | `OPENAI_API_KEY`           | `openai`       |
-| SageMaker   | N/A                        | `boto3`        |
+| Provider            | Provider ID          | Environment variable       | Python package(s)               |
+|---------------------|----------------------|----------------------------|---------------------------------|
+| AI21                | `ai21`               | `AI21_API_KEY`             | `ai21`                          |
+| Anthropic           | `anthropic`          | `ANTHROPIC_API_KEY`        | `anthropic`                     |
+| Cohere              | `cohere`             | `COHERE_API_KEY`           | `cohere`                        |
+| HuggingFace Hub     | `huggingface_hub`    | `HUGGINGFACEHUB_API_TOKEN` | `huggingface_hub`, `ipywidgets` |
+| OpenAI              | `openai`             | `OPENAI_API_KEY`           | `openai`                        |
+| OpenAI (chat)       | `openai-chat`        | `OPENAI_API_KEY`           | `openai`                        |
+| SageMaker Endpoints | `sagemaker-endpoint` | N/A                        | `boto3`                         |
 
 To use SageMaker's models, you will need to authenticate via
 [boto3](https://github.com/boto/boto3).

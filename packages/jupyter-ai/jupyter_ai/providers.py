@@ -10,7 +10,7 @@ from langchain.llms import (
     OpenAIChat,
     SagemakerEndpoint
 )
-from pydantic import BaseModel
+from pydantic import BaseModel, Extra
 
 class EnvAuthStrategy(BaseModel):
     """Require one auth token via an environment variable."""
@@ -39,6 +39,12 @@ AuthStrategy = Optional[
 
 class BaseProvider(BaseLangchainProvider):
     #
+    # pydantic config
+    #
+    class Config:
+        extra = Extra.allow
+
+    #
     # class attrs
     #
     id: ClassVar[str] = ...
@@ -50,6 +56,9 @@ class BaseProvider(BaseLangchainProvider):
     models: ClassVar[List[str]] = ...
     """List of supported models by their IDs. For registry providers, this will
     be just ["*"]."""
+
+    model_id_key: ClassVar[str] = ...
+    """Kwarg expected by the upstream LangChain provider."""
 
     pypi_package_deps: ClassVar[List[str]] = []
     """List of PyPi package dependencies."""
@@ -63,26 +72,17 @@ class BaseProvider(BaseLangchainProvider):
     #
     model_id: str
 
-    # define readonly aliases to self.model_id for LangChain model providers.
-    @property
-    def model(self):
-        return self.model_id
+    def __init__(self, *args, **kwargs):
+        try:
+            assert kwargs["model_id"]
+        except:
+            raise AssertionError("model_id was not specified. Please specify it as a keyword argument.")
 
-    @property
-    def model_name(self):
-        return self.model_id
-    
-    @property
-    def repo_id(self):
-        return self.model_id
+        model_kwargs = {}
+        model_kwargs[self.__class__.model_id_key] = kwargs["model_id"]
 
-    @property
-    def endpoint_url(self):
-        return self.model_id
-    
-    @property
-    def endpoint_name(self):
-        return self.model_id
+        super().__init__(*args, **kwargs, **model_kwargs)
+
     
 class AI21Provider(BaseProvider, AI21):
     id = "ai21"
@@ -98,6 +98,7 @@ class AI21Provider(BaseProvider, AI21):
         "j2-grande-instruct",
         "j2-jumbo-instruct",
     ]
+    model_id_key = "model"
     pypi_package_deps = ["ai21"]
     auth_strategy = EnvAuthStrategy(name="AI21_API_KEY")
 
@@ -111,6 +112,7 @@ class AnthropicProvider(BaseProvider, Anthropic):
         "claude-instant-v1",
         "claude-instant-v1.0",
     ]
+    model_id_key = "model"
     pypi_package_deps = ["anthropic"]
     auth_strategy = EnvAuthStrategy(name="ANTHROPIC_API_KEY")
 
@@ -118,6 +120,7 @@ class CohereProvider(BaseProvider, Cohere):
     id = "cohere"
     name = "Cohere"
     models = ["medium", "xlarge"]
+    model_id_key = "model"
     pypi_package_deps = ["cohere"]
     auth_strategy = EnvAuthStrategy(name="COHERE_API_KEY")
 
@@ -125,6 +128,7 @@ class HfHubProvider(BaseProvider, HuggingFaceHub):
     id = "huggingface_hub"
     name = "HuggingFace Hub"
     models = ["*"]
+    model_id_key = "repo_id"
     # ipywidgets needed to suppress tqdm warning
     # https://stackoverflow.com/questions/67998191
     # tqdm is a dependency of huggingface_hub
@@ -145,6 +149,7 @@ class OpenAIProvider(BaseProvider, OpenAI):
         "babbage",
         "ada",
     ]
+    model_id_key = "model_name"
     pypi_package_deps = ["openai"]
     auth_strategy = EnvAuthStrategy(name="OPENAI_API_KEY")
 
@@ -159,6 +164,7 @@ class ChatOpenAIProvider(BaseProvider, OpenAIChat):
         "gpt-3.5-turbo",
         "gpt-3.5-turbo-0301",
     ]
+    model_id_key = "model_name"
     pypi_package_deps = ["openai"]
     auth_strategy = EnvAuthStrategy(name="OPENAI_API_KEY")
 
@@ -166,5 +172,6 @@ class SmEndpointProvider(BaseProvider, SagemakerEndpoint):
     id = "sagemaker-endpoint"
     name = "Sagemaker Endpoint"
     models = ["*"]
+    model_id_key = "endpoint_name"
     pypi_package_deps = ["boto3"]
     auth_strategy = AwsAuthStrategy()
