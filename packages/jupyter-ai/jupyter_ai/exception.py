@@ -5,3 +5,5 @@ def store_exception(shell, etype, evalue, tb, tb_offset=None):
     err = shell.user_ns.get("Err", {})
     err[prompt_number] = str(evalue)
     shell.user_ns["Err"] = err
+    # Rereaise the exception
+    raise
