@@ -1,4 +1,5 @@
 from ._version import __version__
+from .exception import store_exception
 from .extension import AiExtension
 from jupyter_ai_magics import AiMagics
 
@@ -23,3 +24,4 @@ def _jupyter_server_extension_points():
 
 def load_ipython_extension(ipython):
     ipython.register_magics(AiMagics)
+    ipython.set_custom_exc((Exception,), store_exception)
