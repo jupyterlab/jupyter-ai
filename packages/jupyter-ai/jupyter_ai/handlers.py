@@ -1,4 +1,6 @@
+from dataclasses import asdict
 import json
+from typing import Optional
 
 import tornado
 from tornado.web import HTTPError
@@ -8,9 +10,10 @@ from tornado import web, websocket
 
 from jupyter_server.base.handlers import APIHandler as BaseAPIHandler, JupyterHandler
 from jupyter_server.utils import ensure_async
+
 from .task_manager import TaskManager
-from .models import PromptRequest, ChatRequest
-from langchain.schema import messages_to_dict
+from .models import ChatHistory, PromptRequest, ChatRequest
+from langchain.schema import _message_to_dict, HumanMessage, AIMessage
 
 class APIHandler(BaseAPIHandler):
     @property
@@ -92,6 +95,40 @@ class TaskAPIHandler(APIHandler):
         self.finish(json.dumps(describe_task_response.dict()))
 
 
+class ChatHistoryHandler(BaseAPIHandler):
+    """Handler to return message history"""
+
+    _chat_provider = None  
+    _messages = []
+    
+    @property
+    def chat_provider(self):
+        if self._chat_provider is None:
+            self._chat_provider = self.settings["chat_provider"]
+        return self._chat_provider
+    
+    @property
+    def messages(self):
+        self._messages = self.chat_provider.memory.chat_memory.messages or []
+        return self._messages
+
+    @tornado.web.authenticated
+    async def get(self):
+        messages = []
+        for message in self.messages:
+            messages.append(message)
+        history = ChatHistory(messages=messages)
+        
+        self.finish(history.json(models_as_dict=False))
+
+    @tornado.web.authenticated
+    async def delete(self):
+        self.chat_provider.memory.chat_memory.clear()
+        self.messages = []
+        self.set_status(204)
+        self.finish()
+
+
 class ChatHandler(
     JupyterHandler,
     websocket.WebSocketHandler
@@ -102,6 +139,7 @@ class ChatHandler(
 
     _chat_provider = None  
     _chat_message_queue = None 
+    _messages = []
     
     @property
     def chat_provider(self):
@@ -115,12 +153,18 @@ class ChatHandler(
             self._chat_message_queue = self.settings["chat_message_queue"]
         return self._chat_message_queue
     
+    @property
+    def messages(self):
+        self._messages = self.chat_provider.memory.chat_memory.messages or []
+        return self._messages
+    
     def add_chat_client(self, username):
         self.settings["chat_clients"][username] = self
-        self.log.debug("Clients are : %s", self.settings["chat_clients"])
+        self.log.debug("Clients are : %s", self.settings["chat_clients"].keys())
 
     def remove_chat_client(self, username):
         self.settings["chat_clients"][username] = None
+        print(f"Chat clients: {self.settings['chat_clients'].keys()}")
 
     def initialize(self):
         self.log.debug("Initializing websocket connection %s", self.request.path)
@@ -145,48 +189,46 @@ class ChatHandler(
         await res
 
     def open(self):
-        # send the full message history to the new client
-        self.log.debug("Connected...")
-        self.log.debug("current user is %s", self.current_user)
+        self.log.debug("Client with user %s connected...", self.current_user.username)
         self.add_chat_client(self.current_user.username)
-        history = messages_to_dict(self.chat_provider.memory.chat_memory.messages)
-        if history:
-            event = {
-                "event": "history",
-                "data": history
-            }
-            self.write_message(json.dumps(event))
 
-    def on_message(self, message):
-        self.log.debug("message received: %s", message)
-        # Push to the queue
-        #self.chat_message_queue.push(message)
+    def broadcast_message(self, message: any, exclude_current_user: Optional[bool] = False):
+        """Broadcasts message to all connected clients,
+        optionally excluding the current user
+        """
 
-        message = json.loads(message)
-
-        event = {
-            "event": "message",
-            "data": message
-        }
-        data = json.dumps(event)
-        # broadcast the message to other clients
+        self.log.debug("Broadcasting message: %s to all clients...", message)
         client_names = self.settings["chat_clients"].keys()
+        if exclude_current_user:
+            client_names = client_names - [self.current_user.username]
+        
         for username in client_names:
-            if username != self.current_user.username:
-                self.settings["chat_clients"][username].write_message(data)
+            client = self.settings["chat_clients"][username]
+            if client:
+                client.write_message(message)
+
+    def on_message(self, message: ChatRequest):
+        self.log.debug("Message recieved: %s", message)
+        
+        message = json.loads(message)
+        message = HumanMessage(
+            content=message['prompt'],
+            additional_kwargs=dict(user=asdict(self.current_user))
+        )
+        data = json.dumps(_message_to_dict(message))
+        # broadcast the message to other clients
+        self.broadcast_message(message=data, exclude_current_user=True)
 
         # process the message
-        response = self.chat_provider.predict(input=message["prompt"])
+        response = self.chat_provider.predict(input=message.content)
 
-        event = {
-            "event": "reply",
-            "data": response
-        }
+        response = AIMessage(
+            content=response
+        )
         # broadcast to all clients
-        for username in client_names:
-            self.settings["chat_clients"][username].write_message(json.dumps(event))
+        self.broadcast_message(message=json.dumps(_message_to_dict(response)))
         
 
     def on_close(self):
-        self.log.debug("Disconnected client %s", self.current_user)
+        self.log.debug("Disconnecting client with user %s", self.current_user.username)
         self.remove_chat_client(self.current_user.username)
