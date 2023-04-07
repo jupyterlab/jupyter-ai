@@ -1,5 +1,7 @@
-from pydantic import BaseModel
-from typing import Dict, List
+from pydantic import BaseModel, validator
+from typing import Dict, List, Literal
+
+from langchain.schema import BaseMessage, _message_to_dict
 
 class PromptRequest(BaseModel):
     task_id: str
@@ -25,3 +27,12 @@ class DescribeTaskResponse(BaseModel):
     insertion_mode: str
     prompt_template: str
     engines: List[ListEnginesEntry]
+
+class ChatHistory(BaseModel):
+    """History of chat messages"""
+    messages: List[BaseMessage]
+
+    class Config:
+        json_encoders = {
+            BaseMessage: lambda v: _message_to_dict(v)
+        }

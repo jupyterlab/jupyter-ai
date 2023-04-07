@@ -1,14 +1,51 @@
 import { IDisposable } from '@lumino/disposable';
 import { ServerConnection } from '@jupyterlab/services';
-import { Signal } from '@lumino/signaling';
 import { URLExt } from '@jupyterlab/coreutils';
 import {Poll} from '@lumino/polling';
 
 
+const API_NAMESPACE = 'api/ai';
+
 /**
- * The url for the chat api
+ * Call the API extension
+ *
+ * @param endPoint API REST end point for the extension
+ * @param init Initial values for the request
+ * @returns The response body interpreted as JSON
  */
-const CHAT_SERVICE_URL = 'api/ai/chats';
+export async function requestAPI<T>(
+  endPoint = '',
+  init: RequestInit = {}
+): Promise<T> {
+  // Make request to Jupyter API
+  const settings = ServerConnection.makeSettings();
+  const requestUrl = URLExt.join(settings.baseUrl, API_NAMESPACE, endPoint);
+
+  let response: Response;
+  try {
+    response = await ServerConnection.makeRequest(requestUrl, init, settings);
+  } catch (error) {
+    throw new ServerConnection.NetworkError(error as TypeError);
+  }
+
+  let data: any = await response.text();
+
+  if (data.length > 0) {
+    try {
+      data = JSON.parse(data);
+    } catch (error) {
+      console.log('Not a JSON response body.', response);
+    }
+  }
+
+  if (!response.ok) {
+    throw new ServerConnection.ResponseError(response, data.message || data);
+  }
+
+  return data;
+}
+
+const CHAT_SERVICE_URL = "api/ai/chats"
 
 export class ChatHandler implements IDisposable{
   /**
@@ -28,14 +65,14 @@ export class ChatHandler implements IDisposable{
   readonly serverSettings: ServerConnection.ISettings;
 
   /**
-   * Whether the event manager is disposed.
+   * Whether the chat handler is disposed.
    */
   get isDisposed(): boolean {
     return this._isDisposed;
   }
 
    /**
-   * Dispose the event manager.
+   * Dispose the chat handler.
    */
    dispose(): void {
     if (this.isDisposed) {
@@ -58,17 +95,34 @@ export class ChatHandler implements IDisposable{
       socket.onclose = () => undefined;
       socket.close();
     }
-
-    // Clean up stream.
-    Signal.clearData(this);
   }
 
   public addListener(handler: (msg: any) => void): void {
     this._listeners.push(handler);
   }
 
+  public removeListener(handler: (msg: any) => void): void {
+    const index = this._listeners.indexOf(handler)
+    if(index > -1) {
+      this._listeners.splice(index, 1)
+    }
+  }
+
   public sendMessage(msg: any): void {
     this._socket?.send(msg)
+  }
+
+  public async getHistory(): Promise<any[]> {
+    console.log("Going to get the history messages...")
+    let data: any[] = []
+    try {
+      data = await requestAPI('chats/history', {
+        method: 'GET'
+      });
+    } catch (e) {
+      return Promise.reject(e);
+    }
+    return data;
   }
 
   private _onMessage(msg: any): void {
@@ -86,10 +140,9 @@ export class ChatHandler implements IDisposable{
             (token ? `?token=${encodeURIComponent(token)}` : '');
         const socket = (this._socket = new WebSocket(url));
 
-        socket.onclose = () => reject(new Error('EventManager socket closed'));
+        socket.onclose = () => reject(new Error('ChatHandler socket closed'));
         socket.onmessage = msg => msg.data && this._onMessage(JSON.parse(msg.data));
     });
-
   }
 
   private _isDisposed = false;
@@ -99,7 +152,7 @@ export class ChatHandler implements IDisposable{
 }
 
 /**
- * A namespace for `EventManager` statics.
+ * A namespace for `ChatHandler`.
  */
 export namespace ChatHandler {
     /**

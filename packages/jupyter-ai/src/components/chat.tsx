@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { Box } from '@mui/system';
 
 import { JlThemeProvider } from './jl-theme-provider';
 import { ChatMessages } from './chat-messages';
 import { ChatInput } from './chat-input';
-//import { AiService } from '../handler';
 
 type ChatMessageGroup = {
   side: 'left' | 'right';
@@ -16,29 +15,51 @@ export function Chat(props: any): JSX.Element {
   const [messageGroups, setMessageGroups] = useState<ChatMessageGroup[]>([]);
   const [input, setInput] = useState('');
 
-  const onSend = async () => {
+  function clearInput() {
     setInput('');
+  }
+
+  const onSend = async () => {
+    clearInput();
     setMessageGroups(messageGroups => [
       ...messageGroups,
       { side: 'right', messages: [input] }
     ]);
-    /*const response = await AiService.sendChat({ prompt: input });
-    setMessageGroups(messageGroups => [
-      ...messageGroups,
-      { side: 'left', messages: [response.output] }
-    ]);*/
     props.chatHandler.sendMessage(JSON.stringify({prompt: input}))
-    props.chatHandler.addListener((event: any) => {
-      if(event["event"] == "reply") {
-        setMessageGroups(messageGroups => [
-          ...messageGroups,
-          { side: 'left', messages: [event["data"]]}
-        ])
-      }
-      // TODO: add for history event
-      
-    });
   };
+
+  useEffect(() => {
+    function handleChatEvents(message: any) {
+      setMessageGroups(messageGroups => [
+        ...messageGroups,
+        { 
+          side: message["type"] === "ai" ? 'left' : 'right', 
+          messages: [message["data"]["content"]]}
+      ])
+    }
+
+    props.chatHandler.getHistory().then((history: any) => {
+      const messages = history['messages']
+      if(messages.length > 0){
+        const _messageGroups = messages.map((message: any): ChatMessageGroup => {
+          return {
+            side: message["type"] === "ai" ? 'left' : 'right',
+            messages: [message["data"]["content"]]
+          }
+        });
+        console.log("_messageGroups is ", _messageGroups);
+        setMessageGroups(_messageGroups)
+      }
+    })
+    
+    props.chatHandler.addListener(handleChatEvents)
+
+    return function cleanup() {
+      props.chatHandler.removeListener(handleChatEvents)
+    }
+
+  }, []);
+
 
   return (
     <JlThemeProvider>
@@ -53,7 +74,7 @@ export function Chat(props: any): JSX.Element {
           flexDirection: 'column'
         }}
       >
-        <Box sx={{ flexGrow: 1 }}>
+        <Box sx={{ flexGrow: 1, overflowY: "auto" }}>
           <ChatMessages side="right" messages={['Hello. Who are you?']} />
           <ChatMessages
             side="left"
