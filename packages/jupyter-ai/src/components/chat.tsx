@@ -14,15 +14,25 @@ type ChatMessageGroup = {
 
 export function Chat(): JSX.Element {
   const [messageGroups, setMessageGroups] = useState<ChatMessageGroup[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
   const [input, setInput] = useState('');
 
   const onSend = async () => {
+    setLoading(true);
     setInput('');
     setMessageGroups(messageGroups => [
       ...messageGroups,
       { side: 'right', messages: [input] }
     ]);
-    const response = await AiService.sendChat({ prompt: input });
+
+    let response: AiService.ChatResponse;
+
+    try {
+      response = await AiService.sendChat({ prompt: input });
+    } finally {
+      setLoading(false);
+    }
+
     setMessageGroups(messageGroups => [
       ...messageGroups,
       { side: 'left', messages: [response.output] }
@@ -69,7 +79,12 @@ export function Chat(): JSX.Element {
             <ChatMessages side={group.side} messages={group.messages} />
           ))}
         </Box>
-        <ChatInput value={input} onChange={setInput} onSend={onSend} />
+        <ChatInput
+          loading={loading}
+          value={input}
+          onChange={setInput}
+          onSend={onSend}
+        />
       </Box>
     </JlThemeProvider>
   );
