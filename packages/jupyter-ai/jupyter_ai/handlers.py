@@ -217,7 +217,6 @@ class ChatHandler(
             self.log.error(e)
             return
 
-        message = json.loads(message)
         message = HumanMessage(
             content=chat_request.prompt,
             additional_kwargs=dict(user=asdict(self.current_user))
