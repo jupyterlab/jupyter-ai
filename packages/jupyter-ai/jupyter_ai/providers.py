@@ -7,10 +7,12 @@ from langchain.llms import (
     Cohere,
     HuggingFaceHub,
     OpenAI,
-    OpenAIChat,
     SagemakerEndpoint
 )
+
 from pydantic import BaseModel, Extra
+from langchain.chat_models import ChatOpenAI
+
 
 class EnvAuthStrategy(BaseModel):
     """Require one auth token via an environment variable."""
@@ -153,7 +155,7 @@ class OpenAIProvider(BaseProvider, OpenAI):
     pypi_package_deps = ["openai"]
     auth_strategy = EnvAuthStrategy(name="OPENAI_API_KEY")
 
-class ChatOpenAIProvider(BaseProvider, OpenAIChat):
+class ChatOpenAIProvider(BaseProvider, ChatOpenAI):
     id = "openai-chat"
     name = "OpenAI"
     models = [
@@ -167,6 +169,21 @@ class ChatOpenAIProvider(BaseProvider, OpenAIChat):
     model_id_key = "model_name"
     pypi_package_deps = ["openai"]
     auth_strategy = EnvAuthStrategy(name="OPENAI_API_KEY")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def append_exchange(self, prompt: str, output: str):
+        """Appends a conversational exchange between user and an OpenAI Chat
+        model to a transcript that will be included in future exchanges."""
+        self.prefix_messages.append({
+            "role": "user",
+            "content": prompt
+        })
+        self.prefix_messages.append({
+            "role": "assistant",
+            "content": output
+        })
 
 class SmEndpointProvider(BaseProvider, SagemakerEndpoint):
     id = "sagemaker-endpoint"

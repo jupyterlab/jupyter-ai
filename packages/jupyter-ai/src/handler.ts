@@ -60,6 +60,28 @@ export namespace AiService {
     };
   }
 
+  export type ChatRequest = {
+    prompt: string;
+  };
+
+  export type ChatResponse = {
+    output: string;
+  };
+
+  export type ChatMessageData = {
+    content: string
+    additional_kwargs: {[key: string]: any}
+  }
+
+  export type ChatMessage = {
+    type: string
+    data: ChatMessageData
+  }
+
+  export type ChatHistory = {
+    messages: ChatMessage[]
+  }
+
   export interface IPromptResponse {
     output: string;
     insertion_mode: 'above' | 'below' | 'replace';
@@ -72,6 +94,20 @@ export namespace AiService {
 
     try {
       data = await requestAPI('prompt', {
+        method: 'POST',
+        body: JSON.stringify(request)
+      });
+    } catch (e) {
+      return Promise.reject(e);
+    }
+    return data as IPromptResponse;
+  }
+
+  export async function sendChat(request: ChatRequest): Promise<ChatResponse> {
+    let data;
+
+    try {
+      data = await requestAPI('chat', {
         method: 'POST',
         body: JSON.stringify(request)
       });

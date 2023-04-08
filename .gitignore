@@ -126,3 +126,5 @@ playground/
 
 # reserve path for a dev script
 dev.sh
+
+.vscode
