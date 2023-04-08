@@ -15,6 +15,7 @@ import {
 } from './commands';
 import { psychologyIcon } from './icons';
 import { getTextSelection } from './utils';
+import { buildChatSidebar } from './widgets/chat-sidebar';
 
 export enum NotebookTasks {
   GenerateCode = 'generate-code-in-cells-below',
@@ -50,7 +51,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
     notebookTracker: INotebookTracker,
     editorTracker: IEditorTracker
   ) => {
-    const { commands } = app;
+    const { commands, shell } = app;
 
     /**
      * Register core commands
@@ -73,6 +74,11 @@ const plugin: JupyterFrontEndPlugin<void> = {
         return !!(editorWidget && getTextSelection(editorWidget));
       }
     });
+
+    /**
+     * Add Chat widget to right sidebar
+     */
+    shell.add(buildChatSidebar(), 'right');
 
     /**
      * Register inserters

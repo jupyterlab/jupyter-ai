@@ -170,9 +170,6 @@ class ChatOpenAIProvider(BaseProvider, ChatOpenAI):
     pypi_package_deps = ["openai"]
     auth_strategy = EnvAuthStrategy(name="OPENAI_API_KEY")
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
     def append_exchange(self, prompt: str, output: str):
         """Appends a conversational exchange between user and an OpenAI Chat
         model to a transcript that will be included in future exchanges."""
