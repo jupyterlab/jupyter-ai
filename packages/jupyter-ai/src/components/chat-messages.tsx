@@ -1,8 +1,9 @@
 import React from 'react';
 
 import { Avatar, Box, Grid, useTheme } from '@mui/material';
-// import MuiMarkdown from 'mui-markdown';
 import ReactMarkdown from 'react-markdown';
+
+import { ChatCodeView } from './chat-code-view';
 
 type ChatMessagesProps = {
   side: 'left' | 'right';
@@ -35,6 +36,8 @@ export function ChatMessages(props: ChatMessagesProps) {
                 marginBottom: 1,
                 wordBreak: 'break-word',
                 textAlign: 'left',
+                maxWidth: '100%',
+                boxSizing: 'border-box',
                 ...(props.side === 'left'
                   ? {
                       borderTopRightRadius: radius,
@@ -65,7 +68,13 @@ export function ChatMessages(props: ChatMessagesProps) {
                   })
               }}
             >
-              <ReactMarkdown>{message}</ReactMarkdown>
+              <ReactMarkdown
+                components={{
+                  code: ChatCodeView
+                }}
+              >
+                {message}
+              </ReactMarkdown>
             </Box>
           </Box>
         ))}
