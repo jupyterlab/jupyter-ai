@@ -2,56 +2,16 @@ import { IDisposable } from '@lumino/disposable';
 import { ServerConnection } from '@jupyterlab/services';
 import { URLExt } from '@jupyterlab/coreutils';
 import {Poll} from '@lumino/polling';
+import { AiService, requestAPI } from './handler';
 
-
-const API_NAMESPACE = 'api/ai';
-
-/**
- * Call the API extension
- *
- * @param endPoint API REST end point for the extension
- * @param init Initial values for the request
- * @returns The response body interpreted as JSON
- */
-export async function requestAPI<T>(
-  endPoint = '',
-  init: RequestInit = {}
-): Promise<T> {
-  // Make request to Jupyter API
-  const settings = ServerConnection.makeSettings();
-  const requestUrl = URLExt.join(settings.baseUrl, API_NAMESPACE, endPoint);
-
-  let response: Response;
-  try {
-    response = await ServerConnection.makeRequest(requestUrl, init, settings);
-  } catch (error) {
-    throw new ServerConnection.NetworkError(error as TypeError);
-  }
-
-  let data: any = await response.text();
-
-  if (data.length > 0) {
-    try {
-      data = JSON.parse(data);
-    } catch (error) {
-      console.log('Not a JSON response body.', response);
-    }
-  }
-
-  if (!response.ok) {
-    throw new ServerConnection.ResponseError(response, data.message || data);
-  }
-
-  return data;
-}
 
 const CHAT_SERVICE_URL = "api/ai/chats"
 
 export class ChatHandler implements IDisposable{
   /**
-   * Create a new event manager.
+   * Create a new chat handler.
    */
-  constructor(options: ChatHandler.IOptions = {}) {
+  constructor(options: AiService.IOptions = {}) {
     this.serverSettings =
       options.serverSettings ?? ServerConnection.makeSettings();
 
@@ -97,24 +57,23 @@ export class ChatHandler implements IDisposable{
     }
   }
 
-  public addListener(handler: (msg: any) => void): void {
+  public addListener(handler: (message: AiService.ChatMessage) => void): void {
     this._listeners.push(handler);
   }
 
-  public removeListener(handler: (msg: any) => void): void {
+  public removeListener(handler: (message: AiService.ChatMessage) => void): void {
     const index = this._listeners.indexOf(handler)
     if(index > -1) {
       this._listeners.splice(index, 1)
     }
   }
 
-  public sendMessage(msg: any): void {
-    this._socket?.send(msg)
+  public sendMessage(message: AiService.ChatRequest): void {
+    this._socket?.send(JSON.stringify(message))
   }
 
-  public async getHistory(): Promise<any[]> {
-    console.log("Going to get the history messages...")
-    let data: any[] = []
+  public async getHistory(): Promise<AiService.ChatHistory> {
+    let data: AiService.ChatHistory = {messages: []}
     try {
       data = await requestAPI('chats/history', {
         method: 'GET'
@@ -125,8 +84,8 @@ export class ChatHandler implements IDisposable{
     return data;
   }
 
-  private _onMessage(msg: any): void {
-    this._listeners.forEach(listener => listener(msg));
+  private _onMessage(message: AiService.ChatMessage): void {
+    this._listeners.forEach(listener => listener(message));
   }
 
   private _subscribe(): Promise<void> {
@@ -149,19 +108,4 @@ export class ChatHandler implements IDisposable{
   private _poll: Poll;
   private _socket: WebSocket | null = null;
   private _listeners:  ((msg: any) => void)[] = [];
-}
-
-/**
- * A namespace for `ChatHandler`.
- */
-export namespace ChatHandler {
-    /**
-     * The instantiation options for an event manager.
-     */
-    export interface IOptions {
-      /**
-       * The server settings used to make API requests.
-       */
-      serverSettings?: ServerConnection.ISettings;
-    }
 }

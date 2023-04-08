@@ -5,6 +5,7 @@ import { Box } from '@mui/system';
 import { JlThemeProvider } from './jl-theme-provider';
 import { ChatMessages } from './chat-messages';
 import { ChatInput } from './chat-input';
+import { AiService } from '../handler';
 
 type ChatMessageGroup = {
   side: 'left' | 'right';
@@ -25,11 +26,11 @@ export function Chat(props: any): JSX.Element {
       ...messageGroups,
       { side: 'right', messages: [input] }
     ]);
-    props.chatHandler.sendMessage(JSON.stringify({prompt: input}))
+    props.chatHandler.sendMessage({prompt: input})
   };
 
   useEffect(() => {
-    function handleChatEvents(message: any) {
+    function handleChatEvents(message: AiService.ChatMessage) {
       setMessageGroups(messageGroups => [
         ...messageGroups,
         { 
@@ -38,10 +39,10 @@ export function Chat(props: any): JSX.Element {
       ])
     }
 
-    props.chatHandler.getHistory().then((history: any) => {
+    props.chatHandler.getHistory().then((history: AiService.ChatHistory) => {
       const messages = history['messages']
       if(messages.length > 0){
-        const _messageGroups = messages.map((message: any): ChatMessageGroup => {
+        const _messageGroups = messages.map((message: AiService.ChatMessage): ChatMessageGroup => {
           return {
             side: message["type"] === "ai" ? 'left' : 'right',
             messages: [message["data"]["content"]]

@@ -164,7 +164,7 @@ class ChatHandler(
 
     def remove_chat_client(self, username):
         self.settings["chat_clients"][username] = None
-        print(f"Chat clients: {self.settings['chat_clients'].keys()}")
+        self.log.debug("Chat clients: %s", self.settings['chat_clients'].keys())
 
     def initialize(self):
         self.log.debug("Initializing websocket connection %s", self.request.path)
