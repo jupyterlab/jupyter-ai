@@ -1,13 +1,12 @@
 import { IDisposable } from '@lumino/disposable';
 import { ServerConnection } from '@jupyterlab/services';
 import { URLExt } from '@jupyterlab/coreutils';
-import {Poll} from '@lumino/polling';
+import { Poll } from '@lumino/polling';
 import { AiService, requestAPI } from './handler';
 
+const CHAT_SERVICE_URL = 'api/ai/chats';
 
-const CHAT_SERVICE_URL = "api/ai/chats"
-
-export class ChatHandler implements IDisposable{
+export class ChatHandler implements IDisposable {
   /**
    * Create a new chat handler.
    */
@@ -31,10 +30,10 @@ export class ChatHandler implements IDisposable{
     return this._isDisposed;
   }
 
-   /**
+  /**
    * Dispose the chat handler.
    */
-   dispose(): void {
+  dispose(): void {
     if (this.isDisposed) {
       return;
     }
@@ -43,7 +42,7 @@ export class ChatHandler implements IDisposable{
     // Clean up poll.
     this._poll.dispose();
 
-    this._listeners = []
+    this._listeners = [];
 
     // Clean up socket.
     const socket = this._socket;
@@ -61,19 +60,21 @@ export class ChatHandler implements IDisposable{
     this._listeners.push(handler);
   }
 
-  public removeListener(handler: (message: AiService.ChatMessage) => void): void {
-    const index = this._listeners.indexOf(handler)
-    if(index > -1) {
-      this._listeners.splice(index, 1)
+  public removeListener(
+    handler: (message: AiService.ChatMessage) => void
+  ): void {
+    const index = this._listeners.indexOf(handler);
+    if (index > -1) {
+      this._listeners.splice(index, 1);
     }
   }
 
   public sendMessage(message: AiService.ChatRequest): void {
-    this._socket?.send(JSON.stringify(message))
+    this._socket?.send(JSON.stringify(message));
   }
 
   public async getHistory(): Promise<AiService.ChatHistory> {
-    let data: AiService.ChatHistory = {messages: []}
+    let data: AiService.ChatHistory = { messages: [] };
     try {
       data = await requestAPI('chats/history', {
         method: 'GET'
@@ -90,22 +91,23 @@ export class ChatHandler implements IDisposable{
 
   private _subscribe(): Promise<void> {
     return new Promise<void>((_, reject) => {
-        if (this.isDisposed) {
-            return;
-        }
-        const { token, WebSocket, wsUrl } = this.serverSettings;
-        const url =
-            URLExt.join(wsUrl, CHAT_SERVICE_URL) +
-            (token ? `?token=${encodeURIComponent(token)}` : '');
-        const socket = (this._socket = new WebSocket(url));
+      if (this.isDisposed) {
+        return;
+      }
+      const { token, WebSocket, wsUrl } = this.serverSettings;
+      const url =
+        URLExt.join(wsUrl, CHAT_SERVICE_URL) +
+        (token ? `?token=${encodeURIComponent(token)}` : '');
+      const socket = (this._socket = new WebSocket(url));
 
-        socket.onclose = () => reject(new Error('ChatHandler socket closed'));
-        socket.onmessage = msg => msg.data && this._onMessage(JSON.parse(msg.data));
+      socket.onclose = () => reject(new Error('ChatHandler socket closed'));
+      socket.onmessage = msg =>
+        msg.data && this._onMessage(JSON.parse(msg.data));
     });
   }
 
   private _isDisposed = false;
   private _poll: Poll;
   private _socket: WebSocket | null = null;
-  private _listeners:  ((msg: any) => void)[] = [];
+  private _listeners: ((msg: any) => void)[] = [];
 }

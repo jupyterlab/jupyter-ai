@@ -5,7 +5,7 @@ from .handlers import ChatHandler, ChatHistoryHandler, PromptAPIHandler, TaskAPI
 from importlib_metadata import entry_points
 import inspect
 from .engine import BaseModelEngine
-from .providers import ChatOpenAIProvider
+from .providers import ChatOpenAIProvider, ChatOpenAINewProvider
 import os
 
 from langchain.memory import ConversationBufferMemory
@@ -85,9 +85,12 @@ class AiExtension(ExtensionApp):
         self.settings["ai_default_tasks"] = default_tasks
         self.log.info("Registered all default tasks.")
 
-        ## load OpenAI chat provider
-        if ChatOpenAIProvider.auth_strategy.name in os.environ:
-            self.settings["openai_chat"] = ChatOpenAIProvider(model_id="gpt-3.5-turbo")
+        ## load OpenAI provider
+        self.settings["openai_chat"] = ChatOpenAIProvider(model_id="gpt-3.5-turbo")
+
+        ## load OpenAI new provider
+        if ChatOpenAINewProvider.auth_strategy.name in os.environ:
+            provider = ChatOpenAINewProvider(model_id="gpt-3.5-turbo")
             # Create a conversation memory
             memory = ConversationBufferMemory(return_messages=True)
             prompt_template = ChatPromptTemplate.from_messages([
@@ -96,7 +99,7 @@ class AiExtension(ExtensionApp):
                 HumanMessagePromptTemplate.from_template("{input}")
             ])
             chain = ConversationChain(
-                llm=self.settings["openai_chat"], 
+                llm=provider, 
                 prompt=prompt_template,
                 verbose=True, 
                 memory=memory

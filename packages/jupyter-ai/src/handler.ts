@@ -69,18 +69,18 @@ export namespace AiService {
   };
 
   export type ChatMessageData = {
-    content: string
-    additional_kwargs: {[key: string]: any}
-  }
+    content: string;
+    additional_kwargs: { [key: string]: any };
+  };
 
   export type ChatMessage = {
-    type: string
-    data: ChatMessageData
-  }
+    type: string;
+    data: ChatMessageData;
+  };
 
   export type ChatHistory = {
-    messages: ChatMessage[]
-  }
+    messages: ChatMessage[];
+  };
 
   export interface IPromptResponse {
     output: string;

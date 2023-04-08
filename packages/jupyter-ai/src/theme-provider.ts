@@ -4,7 +4,14 @@ function getCSSVariable(name: string): string {
   return getComputedStyle(document.body).getPropertyValue(name).trim();
 }
 
-export function getJupyterLabTheme(): Theme {
+export async function pollUntilReady(): Promise<void> {
+  while (!document.body.hasAttribute('data-jp-theme-light')) {
+    await new Promise(resolve => setTimeout(resolve, 100)); // Wait 100ms
+  }
+}
+
+export async function getJupyterLabTheme(): Promise<Theme> {
+  await pollUntilReady();
   const light = document.body.getAttribute('data-jp-theme-light');
   return createTheme({
     spacing: 4,

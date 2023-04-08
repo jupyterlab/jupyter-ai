@@ -5,6 +5,6 @@ import { LabIcon } from '@jupyterlab/ui-components';
 import psychologySvgStr from '../style/icons/psychology.svg';
 
 export const psychologyIcon = new LabIcon({
-  name: 'jupyterlab-ai:psychology',
+  name: 'jupyter-ai::psychology',
   svgstr: psychologySvgStr
 });

@@ -7,6 +7,7 @@ from langchain.llms import (
     Cohere,
     HuggingFaceHub,
     OpenAI,
+    OpenAIChat,
     SagemakerEndpoint
 )
 
@@ -155,7 +156,7 @@ class OpenAIProvider(BaseProvider, OpenAI):
     pypi_package_deps = ["openai"]
     auth_strategy = EnvAuthStrategy(name="OPENAI_API_KEY")
 
-class ChatOpenAIProvider(BaseProvider, ChatOpenAI):
+class ChatOpenAIProvider(BaseProvider, OpenAIChat):
     id = "openai-chat"
     name = "OpenAI"
     models = [
@@ -170,9 +171,6 @@ class ChatOpenAIProvider(BaseProvider, ChatOpenAI):
     pypi_package_deps = ["openai"]
     auth_strategy = EnvAuthStrategy(name="OPENAI_API_KEY")
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
     def append_exchange(self, prompt: str, output: str):
         """Appends a conversational exchange between user and an OpenAI Chat
         model to a transcript that will be included in future exchanges."""
@@ -184,6 +182,23 @@ class ChatOpenAIProvider(BaseProvider, ChatOpenAI):
             "role": "assistant",
             "content": output
         })
+
+# uses the new OpenAIChat provider. temporarily living as a separate class until
+# conflicts can be resolved
+class ChatOpenAINewProvider(BaseProvider, ChatOpenAI):
+    id = "openai-chat-new"
+    name = "OpenAI"
+    models = [
+        "gpt-4",
+        "gpt-4-0314",
+        "gpt-4-32k",
+        "gpt-4-32k-0314",
+        "gpt-3.5-turbo",
+        "gpt-3.5-turbo-0301",
+    ]
+    model_id_key = "model_name"
+    pypi_package_deps = ["openai"]
+    auth_strategy = EnvAuthStrategy(name="OPENAI_API_KEY")
 
 class SmEndpointProvider(BaseProvider, SagemakerEndpoint):
     id = "sagemaker-endpoint"

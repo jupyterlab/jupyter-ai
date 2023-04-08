@@ -7,7 +7,7 @@ import { CodeEditor } from '@jupyterlab/codeeditor';
 import { Widget } from '@lumino/widgets';
 
 /**
- * Get text selection from the widget.
+ * Get text selection from an editor widget (DocumentWidget#content).
  */
 export function getTextSelection(widget: Widget): string {
   const editor = getEditor(widget);
