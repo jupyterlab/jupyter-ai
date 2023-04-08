@@ -20,7 +20,7 @@ type ChatMessageGroup = {
 function ChatBody(): JSX.Element {
   const [messageGroups, setMessageGroups] = useState<ChatMessageGroup[]>([]);
   const [loading, setLoading] = useState(false);
-  const [includeSelection, setIncludeSelection] = useState(false);
+  const [includeSelection, setIncludeSelection] = useState(true);
   const [replaceSelection, setReplaceSelection] = useState(false);
   const [input, setInput] = useState('');
   const [selection, replaceSelectionFn] = useSelectionContext();

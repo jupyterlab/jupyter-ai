@@ -4,6 +4,9 @@ import { Avatar, Box, useTheme } from '@mui/material';
 import type { SxProps, Theme } from '@mui/material';
 import PsychologyIcon from '@mui/icons-material/Psychology';
 import ReactMarkdown from 'react-markdown';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
+import 'katex/dist/katex.min.css';
 
 import { ChatCodeView } from './chat-code-view';
 
@@ -67,6 +70,8 @@ export function ChatMessages(props: ChatMessagesProps) {
                 components={{
                   code: ChatCodeView
                 }}
+                remarkPlugins={[remarkMath]}
+                rehypePlugins={[rehypeKatex]}
               >
                 {message}
               </ReactMarkdown>
