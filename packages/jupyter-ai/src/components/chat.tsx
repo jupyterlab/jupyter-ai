@@ -42,17 +42,27 @@ export function Chat(): JSX.Element {
   return (
     <JlThemeProvider>
       <Box
+        // root box should not include padding as it offsets the vertical
+        // scrollbar to the left
         sx={{
           width: '100%',
           height: '100%',
           boxSizing: 'border-box',
           background: 'white',
-          padding: 2,
           display: 'flex',
           flexDirection: 'column'
         }}
       >
-        <Box sx={{ flexGrow: 1, overflowY: 'scroll' }}>
+        <Box
+          sx={{
+            flexGrow: 1,
+            padding: 2,
+            overflowY: 'scroll',
+            '> :not(:last-child)': {
+              marginBottom: 1
+            }
+          }}
+        >
           <ChatMessages sender="self" messages={['Hello. Who are you?']} />
           <ChatMessages
             sender="ai"
@@ -84,6 +94,9 @@ export function Chat(): JSX.Element {
           value={input}
           onChange={setInput}
           onSend={onSend}
+          sx={{
+            padding: 2
+          }}
         />
       </Box>
     </JlThemeProvider>

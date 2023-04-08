@@ -39,7 +39,7 @@ export function ChatMessages(props: ChatMessagesProps) {
   return (
     <Box sx={{ display: 'flex', ' > :not(:last-child)': { marginRight: 2 } }}>
       {getAvatar(props.sender)}
-      <Box sx={{ flexGrow: 1 }}>
+      <Box sx={{ flexGrow: 1, minWidth: 0 }}>
         {props.messages.map((message, i) => (
           <Box
             sx={{

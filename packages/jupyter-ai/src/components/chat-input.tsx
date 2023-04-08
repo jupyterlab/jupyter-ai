@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Box, IconButton, Input } from '@mui/material';
+import { Box, IconButton, Input, SxProps, Theme } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 
 type ChatInputProps = {
@@ -8,11 +8,12 @@ type ChatInputProps = {
   value: string;
   onChange: (newValue: string) => unknown;
   onSend: () => unknown;
+  sx?: SxProps<Theme>;
 };
 
 export function ChatInput(props: ChatInputProps): JSX.Element {
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: 'flex', ...props.sx }}>
       <Input
         value={props.value}
         onChange={e => props.onChange(e.target.value)}
