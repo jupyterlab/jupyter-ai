@@ -7,8 +7,10 @@ import traceback
 def store_exception(shell, etype, evalue, tb, tb_offset=None):
     # Model the exception in plain text
     if tb:
-        estring = '\n'.join(traceback.extract_tb(tb).format())
+        etb = traceback.extract_tb(tb).format()
+        estring = '\n'.join(etb)
     else:
+        etb = None
         estring = None
 
     styled_exception = ('Exception type: ' + str(etype.__name__) +
@@ -20,5 +22,5 @@ def store_exception(shell, etype, evalue, tb, tb_offset=None):
     err[prompt_number] = styled_exception
     shell.user_ns["Err"] = err
     
-    # TODO: Return structured traceback
-    return None
+    # Return structured traceback, a list of strings, or None
+    return etb
