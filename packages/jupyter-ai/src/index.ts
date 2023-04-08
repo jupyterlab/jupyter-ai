@@ -16,6 +16,7 @@ import {
 import { psychologyIcon } from './icons';
 import { getTextSelection } from './utils';
 import { buildChatSidebar } from './widgets/chat-sidebar';
+import { SelectionWatcher } from './selection-watcher';
 
 export enum NotebookTasks {
   GenerateCode = 'generate-code-in-cells-below',
@@ -76,9 +77,14 @@ const plugin: JupyterFrontEndPlugin<void> = {
     });
 
     /**
+     * Initialize selection watcher singleton
+     */
+    const selectionWatcher = new SelectionWatcher(shell);
+
+    /**
      * Add Chat widget to right sidebar
      */
-    shell.add(buildChatSidebar(), 'right');
+    shell.add(buildChatSidebar(selectionWatcher), 'right');
 
     /**
      * Register inserters

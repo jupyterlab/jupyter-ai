@@ -41,33 +41,36 @@ export function ChatMessages(props: ChatMessagesProps) {
       {getAvatar(props.sender)}
       <Box sx={{ flexGrow: 1, minWidth: 0 }}>
         {props.messages.map((message, i) => (
-          <Box
-            sx={{
-              display: 'inline-block',
-              padding: theme.spacing(1, 2),
-              borderRadius: radius,
-              marginBottom: 1,
-              wordBreak: 'break-word',
-              textAlign: 'left',
-              maxWidth: '100%',
-              boxSizing: 'border-box',
-              ...(props.sender === 'self'
-                ? {
-                    backgroundColor: theme.palette.primary.main,
-                    color: theme.palette.common.white
-                  }
-                : {
-                    backgroundColor: theme.palette.grey[100]
-                  })
-            }}
-          >
-            <ReactMarkdown
-              components={{
-                code: ChatCodeView
+          // extra div needed to ensure each bubble is on a new line
+          <Box key={i}>
+            <Box
+              sx={{
+                display: 'inline-block',
+                padding: theme.spacing(1, 2),
+                borderRadius: radius,
+                marginBottom: 1,
+                wordBreak: 'break-word',
+                textAlign: 'left',
+                maxWidth: '100%',
+                boxSizing: 'border-box',
+                ...(props.sender === 'self'
+                  ? {
+                      backgroundColor: theme.palette.primary.main,
+                      color: theme.palette.common.white
+                    }
+                  : {
+                      backgroundColor: theme.palette.grey[100]
+                    })
               }}
             >
-              {message}
-            </ReactMarkdown>
+              <ReactMarkdown
+                components={{
+                  code: ChatCodeView
+                }}
+              >
+                {message}
+              </ReactMarkdown>
+            </Box>
           </Box>
         ))}
       </Box>
