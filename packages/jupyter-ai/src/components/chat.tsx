@@ -1,4 +1,8 @@
-import React, { useState } from 'react';
+import React, {
+  useState
+  // useMemo,
+  // useEffect
+} from 'react';
 
 import { Box } from '@mui/system';
 
@@ -11,6 +15,7 @@ import {
   useSelectionContext
 } from '../contexts/selection-context';
 import { SelectionWatcher } from '../selection-watcher';
+// import { ChatHandler } from '../chat_handler';
 
 type ChatMessageGroup = {
   sender: 'self' | 'ai' | string;
@@ -24,6 +29,53 @@ function ChatBody(): JSX.Element {
   const [replaceSelection, setReplaceSelection] = useState(false);
   const [input, setInput] = useState('');
   const [selection, replaceSelectionFn] = useSelectionContext();
+
+  // TODO: connect to websockets.
+  // const chatHandler = useMemo(() => new ChatHandler(), []);
+  //
+  // /**
+  //  * Effect: fetch history on initial render
+  //  */
+  // useEffect(() => {
+  //   async function fetchHistory() {
+  //     const history = await chatHandler.getHistory();
+  //     const messages = history.messages;
+  //     if (!messages.length) {
+  //       return;
+  //     }
+
+  //     const newMessageGroups = messages.map(
+  //       (message: AiService.ChatMessage): ChatMessageGroup => ({
+  //         sender: message.type === 'ai' ? 'ai' : 'self',
+  //         messages: [message.data.content]
+  //       })
+  //     );
+  //     setMessageGroups(newMessageGroups);
+  //   }
+
+  //   fetchHistory();
+  // }, [chatHandler]);
+
+  // /**
+  //  * Effect: listen to chat messages
+  //  */
+  // useEffect(() => {
+  //   function handleChatEvents(message: AiService.ChatMessage) {
+  //     setMessageGroups(messageGroups => [
+  //       ...messageGroups,
+  //       {
+  //         sender: message.type === 'ai' ? 'ai' : 'self',
+  //         messages: [message.data.content]
+  //       }
+  //     ]);
+  //   }
+
+  //   chatHandler.addListener(handleChatEvents);
+
+  //   return function cleanup() {
+  //     chatHandler.removeListener(handleChatEvents);
+  //   };
+  // }, [chatHandler]);
 
   const onSend = async () => {
     setLoading(true);
