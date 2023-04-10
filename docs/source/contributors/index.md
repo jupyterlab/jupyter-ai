@@ -48,7 +48,6 @@ hatch shell
 Set up your development environment and start the server:
 
 ```
-jlpm setup:dev # only needs to be run once
 jlpm dev
 ```
 
@@ -101,7 +100,7 @@ or restart the server.
 If you change the **server implementation** of an AI module, after rebuilding, restart the server.
 
 If you make changes to the **user interface** or **lab extension**, run `jlpm build` and then
-refresh your browser tab. Make sure to run `jlpm setup:dev` after starting a new Hatch shell.
+refresh your browser tab.
 
 ## Development uninstall
 

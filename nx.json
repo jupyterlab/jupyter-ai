@@ -1,13 +1,13 @@
 {
   "targetDefaults": {
-    "setup:dev": {
-      "dependsOn": ["build"]
-    },
     "build": {
       "dependsOn": ["^build"]
     },
     "build:prod": {
       "dependsOn": ["^build:prod"]
+    },
+    "dev-install": {
+      "dependsOn": ["^dev-install"]
     }
   },
   "tasksRunnerOptions": {

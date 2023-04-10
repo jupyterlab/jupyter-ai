@@ -1,0 +1,23 @@
+{
+  "name": "@jupyter-ai/magics",
+  "version": "0.4.0",
+  "description": "Jupyter AI magics Python package. Not published on NPM.",
+  "private": true,
+  "homepage": "https://github.com/jupyterlab/jupyter-ai",
+  "bugs": {
+    "url": "https://github.com/jupyterlab/jupyter-ai/issues",
+    "email": "jupyter@googlegroups.com"
+  },
+  "license": "BSD-3-Clause",
+  "author": {
+    "name": "Project Jupyter",
+    "email": "jupyter@googlegroups.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jupyterlab/jupyter-ai.git"
+  },
+  "scripts": {
+    "dev-install": "pip install -e \".[all]\""
+  }
+}
