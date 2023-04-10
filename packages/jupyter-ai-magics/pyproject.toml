@@ -24,6 +24,7 @@ dynamic = ["version", "description", "authors", "urls", "keywords"]
 dependencies = [
     "ipython",
     "pydantic",
+    "importlib_metadata~=5.2.0",
     "langchain~=0.0.115"
 ]
 
