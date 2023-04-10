@@ -5,13 +5,13 @@ from IPython.core.ultratb import ListTB
 import traceback
 
 def store_exception(shell, etype, evalue, tb, tb_offset=None):
+    # A structured traceback (a list of strings) or None
+    etraceback = shell.showtraceback()
     # Model the exception in plain text
-    if tb:
-        etb = traceback.extract_tb(tb).format()
-        estring = '\n'.join(etb)
+    if etraceback:
+        estring = '\n'.join(etraceback)
     else:
-        etb = None
-        estring = None
+        estring = 'None'
 
     styled_exception = ('Exception type: ' + str(etype.__name__) +
         '\nException value: ' + str(evalue) +
@@ -22,5 +22,5 @@ def store_exception(shell, etype, evalue, tb, tb_offset=None):
     err[prompt_number] = styled_exception
     shell.user_ns["Err"] = err
     
-    # Return structured traceback, a list of strings, or None
-    return shell.showtraceback()
+    # Return 
+    return etraceback
