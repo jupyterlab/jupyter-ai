@@ -53,7 +53,8 @@
     "watch": "run-p watch:src watch:labextension",
     "watch:src": "tsc -w",
     "watch:labextension": "jupyter labextension watch .",
-    "dev-install": "pip install -e . && jupyter labextension develop . --overwrite && jupyter server extension enable jupyter_ai_chatgpt"
+    "dev-install": "pip install -e . && jupyter labextension develop . --overwrite && jupyter server extension enable jupyter_ai_chatgpt",
+    "dev-uninstall": "pip uninstall jupyter_ai_chatgpt -y"
   },
   "dependencies": {
     "@jupyterlab/application": "^3.1.0"

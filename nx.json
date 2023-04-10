@@ -8,6 +8,9 @@
     },
     "dev-install": {
       "dependsOn": ["^dev-install"]
+    },
+    "dev-uninstall": {
+      "dependsOn": ["clean:labextension"]
     }
   },
   "tasksRunnerOptions": {

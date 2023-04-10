@@ -54,7 +54,8 @@
     "watch": "run-p watch:src watch:labextension",
     "watch:src": "tsc -w",
     "watch:labextension": "jupyter labextension watch .",
-    "dev-install": "pip install -e . && jupyter labextension develop . --overwrite && jupyter server extension enable jupyter_ai"
+    "dev-install": "pip install -e . && jupyter labextension develop . --overwrite && jupyter server extension enable jupyter_ai",
+    "dev-uninstall": "pip uninstall jupyter_ai -y"
   },
   "dependencies": {
     "@emotion/react": "^11.10.5",

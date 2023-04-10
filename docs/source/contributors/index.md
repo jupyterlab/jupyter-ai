@@ -63,6 +63,27 @@ To exit the hatch environment, on a blank command prompt, run `exit` or press `C
 
 If installation fails for any reason, you will have to first uninstall the hatch environment and then test your fix by reinstalling.
 
+To change what Jupyter AI packages are installed in your Hatch environment, use the `dev-uninstall` script:
+
+```
+# uninstalls all Jupyter AI packages
+jlpm dev-uninstall
+```
+
+To reinstall Jupyter AI packages back into your Hatch environment, use the `dev-install` script:
+
+```
+# installs all Jupyter AI packages
+jlpm dev-install
+```
+
+To only install/uninstall a subset of Jupyter AI packages, use the `--scope` argument that gets forwarded to Lerna:
+
+```
+# installs jupyter_ai_magics and its dependencies
+jlpm dev-install --scope "@jupyter-ai/magics"
+```
+
 ## Creating a new AI module
 
 You can use the **Jupyter AI Module Cookiecutter** to create a new AI module easily. The AI module constructed from the template serves as a very simple example that can be extended however you wish. 
