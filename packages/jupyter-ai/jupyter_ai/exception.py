@@ -23,4 +23,4 @@ def store_exception(shell, etype, evalue, tb, tb_offset=None):
     shell.user_ns["Err"] = err
     
     # Return structured traceback, a list of strings, or None
-    return etb
+    return shell.showtraceback()
