@@ -1,4 +1,5 @@
-from typing import ClassVar, List, Union, Literal, Optional
+from typing import ClassVar, Dict, List, Union, Literal, Optional
+import json
 
 from langchain.schema import BaseLanguageModel as BaseLangchainProvider
 from langchain.llms import (
@@ -10,6 +11,7 @@ from langchain.llms import (
     OpenAIChat,
     SagemakerEndpoint
 )
+from langchain.llms.sagemaker_endpoint import ContentHandlerBase
 
 from pydantic import BaseModel, Extra
 from langchain.chat_models import ChatOpenAI
@@ -40,6 +42,9 @@ AuthStrategy = Optional[
     ]
 ]
 
+class InvalidModelID(BaseException):
+    pass
+
 class BaseProvider(BaseLangchainProvider):
     #
     # pydantic config
@@ -60,8 +65,9 @@ class BaseProvider(BaseLangchainProvider):
     """List of supported models by their IDs. For registry providers, this will
     be just ["*"]."""
 
-    model_id_key: ClassVar[str] = ...
-    """Kwarg expected by the upstream LangChain provider."""
+    model_id_key: ClassVar[Optional[str]] = ...
+    """Kwarg by the upstream LangChain provider that accepts the model ID. If
+    left as `None`, subclasses must override the `parse_model_id()` method."""
 
     pypi_package_deps: ClassVar[List[str]] = []
     """List of PyPi package dependencies."""
@@ -81,10 +87,14 @@ class BaseProvider(BaseLangchainProvider):
         except:
             raise AssertionError("model_id was not specified. Please specify it as a keyword argument.")
 
-        model_kwargs = {}
-        model_kwargs[self.__class__.model_id_key] = kwargs["model_id"]
-
+        model_kwargs = self.parse_model_id(kwargs["model_id"])
         super().__init__(*args, **kwargs, **model_kwargs)
+    
+    def parse_model_id(self, model_id: str):
+        """Gets constructor keyword arguments from the model ID."""
+        model_kwargs = {}
+        model_kwargs[self.__class__.model_id_key] = model_id
+        return model_kwargs
 
     
 class AI21Provider(BaseProvider, AI21):
@@ -200,10 +210,39 @@ class ChatOpenAINewProvider(BaseProvider, ChatOpenAI):
     pypi_package_deps = ["openai"]
     auth_strategy = EnvAuthStrategy(name="OPENAI_API_KEY")
 
+class DefaultContentHandler(ContentHandlerBase):
+    content_type = "application/json"
+    accepts = "application/json"
+
+    def transform_input(self, prompt: str, model_kwargs: Dict) -> bytes:
+        input_str = json.dumps({prompt: prompt, **model_kwargs})
+        return input_str.encode('utf-8')
+    
+    def transform_output(self, output: bytes) -> str:
+        response_json = json.loads(output.read().decode("utf-8"))
+        return response_json[0]["generated_text"]
+
 class SmEndpointProvider(BaseProvider, SagemakerEndpoint):
     id = "sagemaker-endpoint"
     name = "Sagemaker Endpoint"
     models = ["*"]
-    model_id_key = "endpoint_name"
     pypi_package_deps = ["boto3"]
     auth_strategy = AwsAuthStrategy()
+
+    content_handler: ContentHandlerBase = DefaultContentHandler
+
+    def parse_model_id(self, model_id: str):
+        """Gets constructor keyword arguments from the model ID."""
+        if model_id.count(":") != 1:
+            raise InvalidModelID(
+                f"Invalid model ID syntax for using the {SmEndpointProvider.name} provider."
+                "The model ID should be the region name and the endpoint name, delimited by a colon."
+                "Example: `us-west-2:test-endpoint`"
+            )
+
+        region_name, endpoint_name = model_id.split(":")
+        model_kwargs = {
+            "region_name": region_name,
+            "endpoint_name": endpoint_name,
+        }
+        return model_kwargs
