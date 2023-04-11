@@ -207,7 +207,7 @@ class ChatHandler(
             if client:
                 client.write_message(message)
 
-    def on_message(self, message):
+    async def on_message(self, message):
         self.log.debug("Message recieved: %s", message)
         
         try:
@@ -226,7 +226,7 @@ class ChatHandler(
         self.broadcast_message(message=data, exclude_current_user=True)
 
         # process the message
-        response = self.chat_provider.predict(input=message.content)
+        response = await ensure_async(self.chat_provider.apredict(input=message.content))
 
         response = AIMessage(
             content=response
