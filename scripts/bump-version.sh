@@ -4,16 +4,10 @@
 #
 # see: https://github.com/lerna/lerna/issues/2369
 
-root_package=../..
-
-for package in ../*; do
-    touch $package/TEMP && git add $package/TEMP
-done
-touch $root_package/TEMP && git add $root_package/TEMP
-
-(npx -p lerna -y lerna version --no-git-tag-version --no-push -y $1) || exit 1
-
-for package in ../*; do
-    git rm -f $package/TEMP
-done
-git rm -f $root_package/TEMP
+(npx -p lerna -y lerna version \
+    --no-git-tag-version \
+    --no-push \
+    --force-publish \
+    -y \
+    $1 \
+) || exit 1
