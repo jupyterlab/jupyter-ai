@@ -75,7 +75,7 @@ Before you send your first prompt to an AI model, load the IPython extension.
 Enter the following code into a Jupyter Notebook cell and run the cell:
 
 ```
-%load_ext jupyter_ai
+%load_ext jupyter_ai_magics
 ```
 
 This command should not produce any output.
