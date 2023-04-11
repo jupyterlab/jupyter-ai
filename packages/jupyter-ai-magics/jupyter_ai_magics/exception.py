@@ -6,16 +6,12 @@ import traceback
 
 def store_exception(shell, etype, evalue, tb, tb_offset=None):
     # A structured traceback (a list of strings) or None
-    etraceback = shell.showtraceback()
-    # Model the exception in plain text
-    if etraceback:
-        estring = '\n'.join(etraceback)
-    else:
-        estring = 'None'
+    stb = shell.InteractiveTB.structured_traceback(etype, evalue, tb, tb_offset=tb_offset)
+    stb_text = shell.InteractiveTB.stb2text(stb)
 
-    styled_exception = ('Exception type: ' + str(etype.__name__) +
-        '\nException value: ' + str(evalue) +
-        '\nTraceback: ' + estring)
+    etraceback = shell.showtraceback()
+
+    styled_exception = str(stb_text)
 
     prompt_number = shell.execution_count
     err = shell.user_ns.get("Err", {})
