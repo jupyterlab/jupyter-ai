@@ -9,7 +9,7 @@ from IPython.core.magic import Magics, magics_class, line_cell_magic
 from IPython.core.magic_arguments import magic_arguments, argument, parse_argstring
 from IPython.display import HTML, Markdown, Math, JSON
 
-from jupyter_ai.providers import BaseProvider
+from .providers import BaseProvider
 
 
 MODEL_ID_ALIASES = {

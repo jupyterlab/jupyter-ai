@@ -25,7 +25,7 @@ pre-install-commands = [
 ]
 post-install-commands = [
     "jlpm install",       # install JS dependencies
-    "scripts/install.sh", # install Jupyter server extensions and their Python dependencies
+    "jlpm dev-install", # install Python packages locally in editable mode
 ]
 
 [tool.hatch.version]

@@ -1,13 +1,16 @@
 {
   "targetDefaults": {
-    "setup:dev": {
-      "dependsOn": ["build"]
-    },
     "build": {
       "dependsOn": ["^build"]
     },
     "build:prod": {
       "dependsOn": ["^build:prod"]
+    },
+    "dev-install": {
+      "dependsOn": ["^dev-install"]
+    },
+    "dev-uninstall": {
+      "dependsOn": ["clean:labextension"]
     }
   },
   "tasksRunnerOptions": {

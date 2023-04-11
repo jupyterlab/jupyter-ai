@@ -1,0 +1,65 @@
+[build-system]
+requires = ["hatchling>=1.4.0", "hatch-nodejs-version"]
+build-backend = "hatchling.build"
+
+[project]
+name = "jupyter_ai_magics"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.7"
+classifiers = [
+    "Framework :: Jupyter",
+    "License :: OSI Approved :: BSD License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+
+dynamic = ["version", "description", "authors", "urls", "keywords"]
+
+dependencies = [
+    "ipython",
+    "pydantic",
+    "importlib_metadata~=5.2.0",
+    "langchain~=0.0.115"
+]
+
+[project.optional-dependencies]
+test = [
+    "coverage",
+    "pytest",
+    "pytest-asyncio",
+    "pytest-cov"
+]
+
+all = [
+    "ai21",
+    "anthropic",
+    "cohere",
+    "huggingface_hub",
+    "ipywidgets",
+    "openai",
+    "boto3"
+]
+
+[project.entry-points."jupyter_ai.model_providers"]
+ai21 = "jupyter_ai_magics:AI21Provider"
+anthropic = "jupyter_ai_magics:AnthropicProvider"
+cohere = "jupyter_ai_magics:CohereProvider"
+huggingface_hub = "jupyter_ai_magics:HfHubProvider"
+openai = "jupyter_ai_magics:OpenAIProvider"
+openai-chat = "jupyter_ai_magics:ChatOpenAIProvider"
+sagemaker-endpoint = "jupyter_ai_magics:SmEndpointProvider"
+
+[tool.hatch.version]
+source = "nodejs"
+
+[tool.hatch.metadata.hooks.nodejs]
+fields = ["description", "authors", "urls"]
+
+[tool.hatch.build.hooks.version]
+path = "jupyter_ai_magics/_version.py"

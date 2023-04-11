@@ -48,7 +48,7 @@
     "prettier": "jlpm prettier:base --write --list-different",
     "prettier:base": "prettier \"**/*{.ts,.tsx,.js,.jsx,.css,.json,.md}\"",
     "prettier:check": "jlpm prettier:base --check",
-    "setup:dev": "jupyter labextension develop . --overwrite && jupyter server extension enable {{ cookiecutter.python_name }}",
+    "dev-install": "pip install -e . && jupyter labextension develop . --overwrite && jupyter server extension enable {{ cookiecutter.python_name }}",
     "stylelint": "jlpm stylelint:check --fix",
     "stylelint:check": "stylelint --cache \"style/**/*.css\"",{% if cookiecutter.test.lower().startswith('y') %}
     "test": "jest --coverage",{% endif %}

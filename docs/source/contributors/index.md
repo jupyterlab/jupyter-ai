@@ -48,7 +48,6 @@ hatch shell
 Set up your development environment and start the server:
 
 ```
-jlpm setup:dev # only needs to be run once
 jlpm dev
 ```
 
@@ -63,6 +62,27 @@ jlpm build
 To exit the hatch environment, on a blank command prompt, run `exit` or press `Ctrl+D`.
 
 If installation fails for any reason, you will have to first uninstall the hatch environment and then test your fix by reinstalling.
+
+To change what Jupyter AI packages are installed in your Hatch environment, use the `dev-uninstall` script:
+
+```
+# uninstalls all Jupyter AI packages
+jlpm dev-uninstall
+```
+
+To reinstall Jupyter AI packages back into your Hatch environment, use the `dev-install` script:
+
+```
+# installs all Jupyter AI packages
+jlpm dev-install
+```
+
+To only install/uninstall a subset of Jupyter AI packages, use the `--scope` argument that gets forwarded to Lerna:
+
+```
+# installs jupyter_ai_magics and its dependencies
+jlpm dev-install --scope "@jupyter-ai/magics"
+```
 
 ## Creating a new AI module
 
@@ -101,7 +121,7 @@ or restart the server.
 If you change the **server implementation** of an AI module, after rebuilding, restart the server.
 
 If you make changes to the **user interface** or **lab extension**, run `jlpm build` and then
-refresh your browser tab. Make sure to run `jlpm setup:dev` after starting a new Hatch shell.
+refresh your browser tab.
 
 ## Development uninstall
 

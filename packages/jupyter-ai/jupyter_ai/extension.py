@@ -5,7 +5,7 @@ from .handlers import ChatHandler, ChatHistoryHandler, PromptAPIHandler, TaskAPI
 from importlib_metadata import entry_points
 import inspect
 from .engine import BaseModelEngine
-from .providers import ChatOpenAIProvider, ChatOpenAINewProvider
+from jupyter_ai_magics.providers import ChatOpenAIProvider, ChatOpenAINewProvider
 import os
 
 from langchain.memory import ConversationBufferMemory

@@ -29,7 +29,6 @@ hatch shell
 Set up your development environment and start the server:
 
 ```
-jlpm setup:dev # only needs to be run once
 jlpm dev
 ```
 
