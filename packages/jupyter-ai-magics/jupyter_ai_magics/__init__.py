@@ -17,6 +17,3 @@ from .providers import BaseProvider
 def load_ipython_extension(ipython):
     ipython.register_magics(AiMagics)
     ipython.set_custom_exc((BaseException,), store_exception)
-
-def unload_ipython_extension(ipython):
-    ipython.set_custom_exc((BaseException,), ipython.CustomTB)
