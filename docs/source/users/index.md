@@ -128,6 +128,7 @@ By default, Jupyter AI assumes that a model will output markdown, so the output 
 an `%%ai` command will be formatted as markdown by default. You can override this
 using the `-f` or `--format` argument to your magic command. Valid formats include:
 
+- `code`
 - `markdown`
 - `math`
 - `html`
@@ -147,6 +148,22 @@ will look like properly typeset equations.
 ```
 %%ai chatgpt -f math
 Generate the 2D heat equation in LaTeX surrounded by `$$`. Do not include an explanation.
+```
+
+This prompt will produce output as a code cell below the input cell. 
+
+:::{warning}
+:name: run-code
+**Please review any code that a generative AI model produces before you run it
+or distribute it.**
+The code that you get in response to a prompt may have negative side effects and may
+include calls to nonexistent (hallucinated) helper functions.
+:::
+
+```
+%%ai chatgpt -f code
+A function that computes the lowest common multiples of two integers, and
+a function that runs 5 test cases of the lowest common multiple function
 ```
 
 ### Interpolating IPython in prompts
