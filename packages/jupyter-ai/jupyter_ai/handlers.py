@@ -14,7 +14,7 @@ from jupyter_server.utils import ensure_async
 
 from .task_manager import TaskManager
 from .models import ChatHistory, PromptRequest, ChatRequest, ChatMessage, AgentChatMessage, HumanChatMessage, ConnectionMessage, ChatClient
-from langchain.schema import _message_to_dict, HumanMessage, AIMessage
+from langchain.schema import HumanMessage
 
 class APIHandler(BaseAPIHandler):
     @property
@@ -59,26 +59,6 @@ class PromptAPIHandler(APIHandler):
         self.finish(json.dumps({
             "output": output,
             "insertion_mode": task.insertion_mode
-        }))
-
-class ChatAPIHandler(APIHandler):
-    @tornado.web.authenticated
-    async def post(self):
-        try:
-            request = ChatRequest(**self.get_json_body())
-        except ValidationError as e:
-            self.log.exception(e)
-            raise HTTPError(500, str(e)) from e
-        
-        if not self.openai_chat:
-            raise HTTPError(500, "No chat models available.")
-        
-        result = await ensure_async(self.openai_chat.agenerate([request.prompt]))
-        output = result.generations[0][0].text
-        self.openai_chat.append_exchange(request.prompt, output)
-
-        self.finish(json.dumps({
-            "output": output,
         }))
 
 class TaskAPIHandler(APIHandler):
