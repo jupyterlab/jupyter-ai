@@ -1,10 +1,10 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { SelectionWatcher } from '../selection-watcher';
+import { Selection, SelectionWatcher } from '../selection-watcher';
 
 const SelectionContext = React.createContext<
-  [string, (value: string) => unknown]
+  [Selection | null, (value: Selection) => unknown]
 >([
-  '',
+  null,
   () => {
     /* noop */
   }
@@ -23,7 +23,7 @@ export function SelectionContextProvider({
   selectionWatcher,
   children
 }: SelectionContextProviderProps) {
-  const [selection, setSelection] = useState('');
+  const [selection, setSelection] = useState<Selection | null>(null);
 
   /**
    * Effect: subscribe to SelectionWatcher
@@ -35,7 +35,7 @@ export function SelectionContextProvider({
   }, []);
 
   const replaceSelection = useCallback(
-    (value: string) => {
+    (value: Selection) => {
       selectionWatcher.replaceSelection(value);
     },
     [selectionWatcher]

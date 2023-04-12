@@ -36,3 +36,13 @@ export function getEditor(widget: Widget): CodeEditor.IEditor | undefined {
 
   return editor;
 }
+
+/**
+ * Gets the index of the cell associated with `cellId`.
+ */
+export function getCellIndex(notebook: Notebook, cellId: string): number {
+  const idx = notebook.model?.sharedModel.cells.findIndex(
+    cell => cell.getId() === cellId
+  );
+  return idx === undefined ? -1 : idx;
+}

@@ -102,8 +102,13 @@ function ChatBody(): JSX.Element {
       setLoading(false);
     }
 
-    if (replaceSelection) {
-      replaceSelectionFn(response.output);
+    if (replaceSelection && selection) {
+      const { cellId, ...selectionProps } = selection;
+      replaceSelectionFn({
+        ...selectionProps,
+        ...(cellId && { cellId }),
+        text: response.output
+      });
     }
     setMessageGroups(messageGroups => [
       ...messageGroups,
@@ -147,7 +152,7 @@ function ChatBody(): JSX.Element {
         value={input}
         onChange={setInput}
         onSend={onSend}
-        hasSelection={!!selection}
+        hasSelection={!!selection?.text}
         includeSelection={includeSelection}
         toggleIncludeSelection={() =>
           setIncludeSelection(includeSelection => !includeSelection)
