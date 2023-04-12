@@ -184,9 +184,9 @@ class ChatHandler(
     def generate_client_id(self):
         """Generates a client ID to identify the current WS connection."""
         # if collaborative mode is enabled, each client already has a UUID
-        collaborative = self.config.get("LabApp", {}).get("collaborative", False)
-        if collaborative:
-            return self.current_user.username
+        # collaborative = self.config.get("LabApp", {}).get("collaborative", False)
+        # if collaborative:
+        #     return self.current_user.username
 
         # if collaborative mode is not enabled, each client is assigned a UUID
         return uuid.uuid4().hex
