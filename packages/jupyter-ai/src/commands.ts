@@ -13,7 +13,7 @@ import { AiService } from './handler';
 import { OpenTaskDialog } from './components/open-task-dialog';
 import { ClosableDialog } from './widgets/closable-dialog';
 import { InsertionContext, insertOutput } from './inserter';
-import { getTextSelection, getEditor } from './utils';
+import { getTextSelection, getEditor, getCellIndex } from './utils';
 
 /**
  * Creates a placeholder markdown cell either above/below the currently active
@@ -53,7 +53,7 @@ function insertPlaceholderCell(
  * Replaces a cell with a markdown cell containing a string.
  */
 function replaceWithMarkdown(notebook: Notebook, cellId: string, body: string) {
-  const cellIdx = findIndex(notebook, cellId);
+  const cellIdx = getCellIndex(notebook, cellId);
   if (cellIdx === -1) {
     return;
   }
@@ -64,15 +64,8 @@ function replaceWithMarkdown(notebook: Notebook, cellId: string, body: string) {
   NotebookActions.run(notebook);
 }
 
-function findIndex(notebook: Notebook, id: string): number {
-  const idx = notebook.model?.sharedModel.cells.findIndex(
-    cell => cell.getId() === id
-  );
-  return idx === undefined ? -1 : idx;
-}
-
 function deleteCell(notebook: Notebook, id: string): void {
-  const idx = findIndex(notebook, id);
+  const idx = getCellIndex(notebook, id);
   if (idx !== -1) {
     notebook.model?.sharedModel.deleteCell(idx);
   }
