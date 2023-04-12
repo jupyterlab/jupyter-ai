@@ -113,5 +113,7 @@ class AiExtension(ExtensionApp):
 
         # Store chat clients in a dictionary
         self.settings["chat_clients"] = {}
+        self.settings["chat_handlers"] = {}
         
-    
+        # store chat messages in memory for now
+        self.settings["chat_history"] = []

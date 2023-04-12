@@ -13,7 +13,6 @@ import {
 import SendIcon from '@mui/icons-material/Send';
 
 type ChatInputProps = {
-  loading: boolean;
   value: string;
   onChange: (newValue: string) => unknown;
   onSend: () => unknown;
@@ -39,7 +38,7 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
           size="large"
           color="primary"
           onClick={props.onSend}
-          disabled={props.loading || !props.value.trim().length}
+          disabled={!props.value.trim().length}
         >
           <SendIcon />
         </IconButton>

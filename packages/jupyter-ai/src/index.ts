@@ -17,6 +17,7 @@ import { psychologyIcon } from './icons';
 import { getTextSelection } from './utils';
 import { buildChatSidebar } from './widgets/chat-sidebar';
 import { SelectionWatcher } from './selection-watcher';
+import { ChatHandler } from './chat_handler';
 
 export enum NotebookTasks {
   GenerateCode = 'generate-code-in-cells-below',
@@ -47,7 +48,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
   id: 'jupyter_ai:plugin',
   autoStart: true,
   requires: [INotebookTracker, IEditorTracker],
-  activate: (
+  activate: async (
     app: JupyterFrontEnd,
     notebookTracker: INotebookTracker,
     editorTracker: IEditorTracker
@@ -82,9 +83,15 @@ const plugin: JupyterFrontEndPlugin<void> = {
     const selectionWatcher = new SelectionWatcher(shell);
 
     /**
+     * Initialize chat handler, open WS connection
+     */
+    const chatHandler = new ChatHandler();
+    await chatHandler.initialize();
+
+    /**
      * Add Chat widget to right sidebar
      */
-    shell.add(buildChatSidebar(selectionWatcher), 'right');
+    shell.add(buildChatSidebar(selectionWatcher, chatHandler), 'right');
 
     /**
      * Register inserters

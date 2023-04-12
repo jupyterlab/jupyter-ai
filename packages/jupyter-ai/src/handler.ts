@@ -73,10 +73,36 @@ export namespace AiService {
     additional_kwargs: { [key: string]: any };
   };
 
-  export type ChatMessage = {
-    type: string;
-    data: ChatMessageData;
+  export type ChatClient = {
+    id: string;
+    initials: string;
+    name: string;
+    display_name: string;
+    color?: string;
+    avatar_url?: string;
   };
+
+  export type AgentChatMessage = {
+    type: 'agent';
+    id: string;
+    body: string;
+    reply_to: string;
+  };
+
+  export type HumanChatMessage = {
+    type: 'human';
+    id: string;
+    body: string;
+    client: ChatClient;
+  };
+
+  export type ConnectionMessage = {
+    type: 'connection';
+    client_id: string;
+  };
+
+  export type ChatMessage = AgentChatMessage | HumanChatMessage;
+  export type Message = AgentChatMessage | HumanChatMessage | ConnectionMessage;
 
   export type ChatHistory = {
     messages: ChatMessage[];
