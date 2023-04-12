@@ -28,6 +28,17 @@ DISPLAYS_BY_FORMAT = {
     "raw": None
 }
 
+MARKDOWN_PROMPT_TEMPLATE = '{prompt}\n\nProduce output in markdown format only.'
+
+PROMPT_TEMPLATES_BY_FORMAT = {
+    "html": '{prompt}\n\nProduce output in HTML format only, with no markup before or afterward.',
+    "markdown": MARKDOWN_PROMPT_TEMPLATE,
+    "md": MARKDOWN_PROMPT_TEMPLATE,
+    "math": '{prompt}\n\nProduce output in LaTeX format only, with $$ at the beginning and end.',
+    "json": '{prompt}\n\nProduce output in JSON format only, with nothing before or after it.',
+    "raw": '{prompt}' # No customization
+}
+
 class FormatDict(dict):
     """Subclass of dict to be passed to str#format(). Suppresses KeyError and
     leaves replacement field unchanged if replacement field is not associated
@@ -128,6 +139,9 @@ class AiMagics(Magics):
         else:
             prompt = cell
         
+        # Apply a prompt template.
+        prompt = PROMPT_TEMPLATES_BY_FORMAT[args.format].format(prompt = prompt)
+
         # determine provider and local model IDs
         provider_id, local_model_id = self._decompose_model_id(args.model_id)
         Provider = self._get_provider(provider_id)
