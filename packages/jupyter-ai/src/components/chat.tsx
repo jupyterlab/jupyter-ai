@@ -87,13 +87,11 @@ function ChatBody({ chatHandler }: ChatBodyProps): JSX.Element {
 
     // send message to backend
     const messageId = await chatHandler.sendMessage({ prompt });
-    console.log({ messageId });
 
     // await reply from agent
     // no need to append to messageGroups state variable, since that's already
     // handled in the effect hooks.
     const reply = await chatHandler.replyFor(messageId);
-    console.log({ reply });
     if (replaceSelection && selection) {
       const { cellId, ...selectionProps } = selection;
       replaceSelectionFn({
