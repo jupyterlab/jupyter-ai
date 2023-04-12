@@ -20,6 +20,7 @@ MODEL_ID_ALIASES = {
 }
 
 DISPLAYS_BY_FORMAT = {
+    "code": None,
     "html": HTML,
     "markdown": Markdown,
     "math": Math,
@@ -31,6 +32,7 @@ DISPLAYS_BY_FORMAT = {
 MARKDOWN_PROMPT_TEMPLATE = '{prompt}\n\nProduce output in markdown format only.'
 
 PROMPT_TEMPLATES_BY_FORMAT = {
+    "code": '{prompt}\n\nProduce output as source code only, with no text before or after it.',
     "html": '{prompt}\n\nProduce output in HTML format only, with no markup before or afterward.',
     "markdown": MARKDOWN_PROMPT_TEMPLATE,
     "md": MARKDOWN_PROMPT_TEMPLATE,
@@ -116,7 +118,7 @@ class AiMagics(Magics):
                 optionally prefixed with the ID of the model provider, delimited
                 by a colon.""")
     @argument('-f', '--format',
-                choices=["markdown", "html", "json", "math", "md", "raw"],
+                choices=["code", "markdown", "html", "json", "math", "md", "raw"],
                 nargs="?",
                 default="markdown",
                 help="""IPython display to use when rendering output. [default="markdown"]""")
@@ -184,6 +186,17 @@ class AiMagics(Magics):
 
         # build output display
         DisplayClass = DISPLAYS_BY_FORMAT[args.format]
+
+        # if the user wants code, add another cell with the output.
+        if args.format == 'code':
+            new_cell_payload = dict(
+                source='set_next_input',
+                text=output,
+                replace=False,
+            )
+            ip.payload_manager.write_payload(new_cell_payload)
+            return None; # No output from the AI cell
+
         if DisplayClass is None:
             return output
         if args.format == 'json':
