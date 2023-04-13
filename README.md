@@ -1,57 +1,30 @@
 # jupyter-ai
 
-[![Github Actions Status](https://github.com/jupyterlab/jupyter-ai/actions/workflows/check-release.yml/badge.svg)](https://github.com/jupyterlab/jupyter-ai/actions/workflows/check-release.yml)
-
 A generative AI extension for Jupyter, to allow for AI to interact with notebooks and other documents. Documentation is available on [ReadTheDocs](https://jupyter-ai.readthedocs.io/en/latest/).
+
+From within a Jupyter notebook, Jupyter AI adds a `%%ai` magic command that can generate code:
+
+![Sample with code generation](./docs/source/_static/sample-code.png)
+
+Jupyter AI can also generate HTML and math to be rendered as cell output.
+
+![Sample with HTML and math generation](./docs/source/_static/sample-html-math.png)
+
+Jupyter AI can interpolate IPython expressions, allowing you to run prompts
+that include variable values.
+
+![Sample with code interpolation and markdown output](./docs/source/_static/sample-markdown.png)
 
 This is a monorepo that houses the core `jupyter_ai` package in addition to the
 default supported AI modules. To learn more about the core package, please refer
-to the [README](packages/jupyter-ai/README.md).
+to the [core package's README](packages/jupyter-ai/README.md).
 
-### Development install
+### Using
 
-Install the Hatch CLI, which installs the Hatchling build backend automatically.
+For help with installing and using Jupyter AI, please see our
+[user documentation on ReadTheDocs](https://jupyter-ai.readthedocs.io/en/latest/users/index.html).
 
-```
-pip install hatch
-```
+### Contributing
 
-Then, simply enter the default hatch environment, which automatically installs
-all dependencies and executes development setup when entering for the first
-time. This command must be run with the current directory set to the root of the
-monorepo (`<jupyter-ai-top>`).
-
-```
-cd <jupyter-ai-top>
-hatch shell
-```
-
-Set up your development environment and start the server:
-
-```
-jlpm dev
-```
-
-Finally, in a separate shell, enter the hatch environment and build the project
-after making any changes.
-
-```
-cd <jupyter-ai-top>
-hatch shell
-jlpm build
-```
-
-To exit the hatch environment at any time, exit like you would normally exit a
-shell process, via the `exit` command or `Ctrl+D`.
-
-If installation fails for any reason, you will have to first uninstall the hatch
-environment and then test your fix by reinstalling. See "Uninstall" procedure
-below.
-
-### Uninstall
-
-Just remove the hatch environment:
-
-```
-hatch env remove default
-```
+If you would like to contribute to Jupyter AI, see our
+[contributor documentation on ReadTheDocs](https://jupyter-ai.readthedocs.io/en/latest/contributors/index.html).
