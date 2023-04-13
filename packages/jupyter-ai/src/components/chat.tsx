@@ -1,8 +1,4 @@
-import React, {
-  useState
-  // useMemo,
-  // useEffect
-} from 'react';
+import React, { useState, useEffect } from 'react';
 
 import { Box } from '@mui/system';
 
@@ -15,105 +11,95 @@ import {
   useSelectionContext
 } from '../contexts/selection-context';
 import { SelectionWatcher } from '../selection-watcher';
-// import { ChatHandler } from '../chat_handler';
+import { ChatHandler } from '../chat_handler';
 
 type ChatMessageGroup = {
   sender: 'self' | 'ai' | string;
   messages: string[];
 };
 
-function ChatBody(): JSX.Element {
+type ChatBodyProps = {
+  chatHandler: ChatHandler;
+};
+
+function ChatBody({ chatHandler }: ChatBodyProps): JSX.Element {
   const [messageGroups, setMessageGroups] = useState<ChatMessageGroup[]>([]);
-  const [loading, setLoading] = useState(false);
   const [includeSelection, setIncludeSelection] = useState(true);
   const [replaceSelection, setReplaceSelection] = useState(false);
   const [input, setInput] = useState('');
   const [selection, replaceSelectionFn] = useSelectionContext();
 
-  // TODO: connect to websockets.
-  // const chatHandler = useMemo(() => new ChatHandler(), []);
-  //
-  // /**
-  //  * Effect: fetch history on initial render
-  //  */
-  // useEffect(() => {
-  //   async function fetchHistory() {
-  //     const history = await chatHandler.getHistory();
-  //     const messages = history.messages;
-  //     if (!messages.length) {
-  //       return;
-  //     }
+  /**
+   * Effect: fetch history on initial render
+   */
+  useEffect(() => {
+    async function fetchHistory() {
+      const history = await chatHandler.getHistory();
+      const messages = history.messages;
+      if (!messages.length) {
+        return;
+      }
 
-  //     const newMessageGroups = messages.map(
-  //       (message: AiService.ChatMessage): ChatMessageGroup => ({
-  //         sender: message.type === 'ai' ? 'ai' : 'self',
-  //         messages: [message.data.content]
-  //       })
-  //     );
-  //     setMessageGroups(newMessageGroups);
-  //   }
+      const newMessageGroups = messages.map(
+        (message: AiService.ChatMessage): ChatMessageGroup => ({
+          sender: message.type === 'agent' ? 'ai' : 'self',
+          messages: [message.body]
+        })
+      );
+      setMessageGroups(newMessageGroups);
+    }
 
-  //   fetchHistory();
-  // }, [chatHandler]);
+    fetchHistory();
+  }, [chatHandler]);
 
-  // /**
-  //  * Effect: listen to chat messages
-  //  */
-  // useEffect(() => {
-  //   function handleChatEvents(message: AiService.ChatMessage) {
-  //     setMessageGroups(messageGroups => [
-  //       ...messageGroups,
-  //       {
-  //         sender: message.type === 'ai' ? 'ai' : 'self',
-  //         messages: [message.data.content]
-  //       }
-  //     ]);
-  //   }
+  /**
+   * Effect: listen to chat messages
+   */
+  useEffect(() => {
+    function handleChatEvents(message: AiService.Message) {
+      if (message.type === 'connection') {
+        return;
+      }
 
-  //   chatHandler.addListener(handleChatEvents);
+      setMessageGroups(messageGroups => [
+        ...messageGroups,
+        {
+          sender: message.type === 'agent' ? 'ai' : 'self',
+          messages: [message.body]
+        }
+      ]);
+    }
 
-  //   return function cleanup() {
-  //     chatHandler.removeListener(handleChatEvents);
-  //   };
-  // }, [chatHandler]);
+    chatHandler.addListener(handleChatEvents);
+    return function cleanup() {
+      chatHandler.removeListener(handleChatEvents);
+    };
+  }, [chatHandler]);
 
+  // no need to append to messageGroups imperatively here. all of that is
+  // handled by the listeners registered in the effect hooks above.
   const onSend = async () => {
-    setLoading(true);
     setInput('');
-    console.log({
-      includeSelection,
-      replaceSelection
-    });
-    const newMessages = [input];
-    if (includeSelection && selection) {
-      newMessages.push('```\n' + selection + '\n```');
-    }
-    setMessageGroups(messageGroups => [
-      ...messageGroups,
-      { sender: 'self', messages: newMessages }
-    ]);
 
-    let response: AiService.ChatResponse;
+    const prompt =
+      input +
+      (includeSelection && selection?.text ? '\n--\n' + selection.text : '');
 
-    const prompt = input + (selection ? '\n--\n' + selection : '');
-    try {
-      response = await AiService.sendChat({ prompt });
-    } finally {
-      setLoading(false);
-    }
+    // send message to backend
+    const messageId = await chatHandler.sendMessage({ prompt });
 
+    // await reply from agent
+    // no need to append to messageGroups state variable, since that's already
+    // handled in the effect hooks.
+    const reply = await chatHandler.replyFor(messageId);
     if (replaceSelection && selection) {
       const { cellId, ...selectionProps } = selection;
       replaceSelectionFn({
         ...selectionProps,
         ...(cellId && { cellId }),
-        text: response.output
+        text: reply.body
       });
     }
-    setMessageGroups(messageGroups => [
-      ...messageGroups,
-      { sender: 'ai', messages: [response.output] }
-    ]);
   };
 
   return (
@@ -148,7 +134,6 @@ function ChatBody(): JSX.Element {
         ))}
       </Box>
       <ChatInput
-        loading={loading}
         value={input}
         onChange={setInput}
         onSend={onSend}
@@ -171,13 +156,14 @@ function ChatBody(): JSX.Element {
 
 export type ChatProps = {
   selectionWatcher: SelectionWatcher;
+  chatHandler: ChatHandler;
 };
 
 export function Chat(props: ChatProps) {
   return (
     <JlThemeProvider>
       <SelectionContextProvider selectionWatcher={props.selectionWatcher}>
-        <ChatBody />
+        <ChatBody chatHandler={props.chatHandler} />
       </SelectionContextProvider>
     </JlThemeProvider>
   );

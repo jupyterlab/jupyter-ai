@@ -4,10 +4,14 @@ import { ReactWidget } from '@jupyterlab/apputils';
 import { Chat } from '../components/chat';
 import { psychologyIcon } from '../icons';
 import { SelectionWatcher } from '../selection-watcher';
+import { ChatHandler } from '../chat_handler';
 
-export function buildChatSidebar(selectionWatcher: SelectionWatcher) {
+export function buildChatSidebar(
+  selectionWatcher: SelectionWatcher,
+  chatHandler: ChatHandler
+) {
   const ChatWidget = ReactWidget.create(
-    <Chat selectionWatcher={selectionWatcher} />
+    <Chat selectionWatcher={selectionWatcher} chatHandler={chatHandler} />
   );
   ChatWidget.id = 'jupyter-ai::chat';
   ChatWidget.title.icon = psychologyIcon;

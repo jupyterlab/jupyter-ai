@@ -1,7 +1,7 @@
 import queue
 from jupyter_server.extension.application import ExtensionApp
 from langchain import ConversationChain
-from .handlers import ChatHandler, ChatHistoryHandler, PromptAPIHandler, TaskAPIHandler, ChatAPIHandler
+from .handlers import ChatHandler, ChatHistoryHandler, PromptAPIHandler, TaskAPIHandler
 from importlib_metadata import entry_points
 import inspect
 from .engine import BaseModelEngine
@@ -20,7 +20,6 @@ class AiExtension(ExtensionApp):
     name = "jupyter_ai"
     handlers = [
         ("api/ai/prompt", PromptAPIHandler),
-        (r"api/ai/chat/?", ChatAPIHandler),
         (r"api/ai/tasks/?", TaskAPIHandler),
         (r"api/ai/tasks/([\w\-:]*)", TaskAPIHandler),
         (r"api/ai/chats/?", ChatHandler),
@@ -113,5 +112,7 @@ class AiExtension(ExtensionApp):
 
         # Store chat clients in a dictionary
         self.settings["chat_clients"] = {}
+        self.settings["chat_handlers"] = {}
         
-    
+        # store chat messages in memory for now
+        self.settings["chat_history"] = []

@@ -1,15 +1,51 @@
-from pydantic import BaseModel, validator
-from typing import Dict, List, Literal
-
-from langchain.schema import BaseMessage, _message_to_dict
+from pydantic import BaseModel 
+from typing import Dict, List, Union, Literal, Optional
 
 class PromptRequest(BaseModel):
     task_id: str
     engine_id: str
     prompt_variables: Dict[str, str]
 
+# the type of message used to chat with the agent
 class ChatRequest(BaseModel):
     prompt: str
+
+class ChatClient(BaseModel):
+    id: str
+    initials: str
+    name: str
+    display_name: str
+    color: Optional[str]
+    avatar_url: Optional[str]
+
+class AgentChatMessage(BaseModel):
+    type: Literal["agent"] = "agent"
+    id: str
+    body: str
+    # message ID of the HumanChatMessage it is replying to
+    reply_to: str
+
+class HumanChatMessage(BaseModel):
+    type: Literal["human"] = "human"
+    id: str
+    body: str
+    client: ChatClient
+
+class ConnectionMessage(BaseModel):
+    type: Literal["connection"] = "connection"
+    client_id: str
+
+# the type of messages being broadcast to clients
+ChatMessage = Union[
+    AgentChatMessage,
+    HumanChatMessage,
+]
+
+Message = Union[
+    AgentChatMessage,
+    HumanChatMessage,
+    ConnectionMessage
+]
 
 class ListEnginesEntry(BaseModel):
     id: str
@@ -30,9 +66,4 @@ class DescribeTaskResponse(BaseModel):
 
 class ChatHistory(BaseModel):
     """History of chat messages"""
-    messages: List[BaseMessage]
-
-    class Config:
-        json_encoders = {
-            BaseMessage: lambda v: _message_to_dict(v)
-        }
+    messages: List[ChatMessage]
