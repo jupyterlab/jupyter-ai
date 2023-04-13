@@ -216,6 +216,33 @@ Write code that would produce the following output:
 {Out[11]}
 ```
 
+Jupyter AI also adds the special `Err` list, which uses the same indexes as `In` and `Out`.
+For example, if you run code in `In[3]` that produces an error, that error is captured in
+`Err[3]` so that you can request an explanation using a prompt such as:
+
+```
+%%ai chatgpt
+Explain the following Python error:
+--
+{Err[3]}
+```
+
+The AI model that you use will then attempt to explain the error. You could also write a
+prompt that uses both `In` and `Err` to attempt to get an AI model to correct your code:
+
+```
+%%ai chatgpt --format code
+The following Python code:
+--
+{In[3]}
+--
+produced the following Python error:
+--
+{Err[3]}
+--
+Write a new version of this code that does not produce that error.
+```
+
 ## Uninstalling
 
 To remove the extension, execute:
