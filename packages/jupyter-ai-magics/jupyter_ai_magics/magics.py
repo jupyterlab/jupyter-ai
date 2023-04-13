@@ -1,5 +1,5 @@
-import os
 import json
+import os
 import warnings
 from typing import Optional
 
@@ -189,6 +189,8 @@ class AiMagics(Magics):
 
         # if the user wants code, add another cell with the output.
         if args.format == 'code':
+            # Strip leading and trailing triple-backticks
+            output = output.removeprefix('```\n').removesuffix('\n```')
             new_cell_payload = dict(
                 source='set_next_input',
                 text=output,
