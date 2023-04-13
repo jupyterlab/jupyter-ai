@@ -154,11 +154,6 @@ class ChatHandler(
     def chat_history(self) -> List[ChatMessage]:
         return self.settings["chat_history"]
     
-    @property
-    def messages(self):
-        self._messages = self.chat_provider.memory.chat_memory.messages or []
-        return self._messages
-    
     def initialize(self):
         self.log.debug("Initializing websocket connection %s", self.request.path)
 
