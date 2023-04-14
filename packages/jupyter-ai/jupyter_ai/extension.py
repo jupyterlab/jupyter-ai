@@ -1,20 +1,15 @@
 import queue
+from jupyter_ai.actors import ChatActor, FileSystemActor
 from jupyter_server.extension.application import ExtensionApp
-from langchain import ConversationChain
 from .handlers import ChatHandler, ChatHistoryHandler, PromptAPIHandler, TaskAPIHandler
 from importlib_metadata import entry_points
 import inspect
 from .engine import BaseModelEngine
-from jupyter_ai_magics.providers import ChatOpenAIProvider, ChatOpenAINewProvider
-import os
+from jupyter_ai_magics.providers import ChatOpenAIProvider
 
-from langchain.memory import ConversationBufferMemory
-from langchain.prompts import (
-    ChatPromptTemplate, 
-    MessagesPlaceholder, 
-    SystemMessagePromptTemplate, 
-    HumanMessagePromptTemplate
-)
+import ray
+from ray.util.queue import Queue
+
 
 class AiExtension(ExtensionApp):
     name = "jupyter_ai"
@@ -35,6 +30,8 @@ class AiExtension(ExtensionApp):
     
 
     def initialize_settings(self):
+        ray.init()
+
         # EP := entry point
         eps = entry_points()
         
@@ -87,24 +84,6 @@ class AiExtension(ExtensionApp):
         ## load OpenAI provider
         self.settings["openai_chat"] = ChatOpenAIProvider(model_id="gpt-3.5-turbo")
 
-        ## load OpenAI new provider
-        if ChatOpenAINewProvider.auth_strategy.name in os.environ:
-            provider = ChatOpenAINewProvider(model_id="gpt-3.5-turbo")
-            # Create a conversation memory
-            memory = ConversationBufferMemory(return_messages=True)
-            prompt_template = ChatPromptTemplate.from_messages([
-                SystemMessagePromptTemplate.from_template("The following is a friendly conversation between a human and an AI. The AI is talkative and provides lots of specific details from its context. If the AI does not know the answer to a question, it truthfully says it does not know."),
-                MessagesPlaceholder(variable_name="history"),
-                HumanMessagePromptTemplate.from_template("{input}")
-            ])
-            chain = ConversationChain(
-                llm=provider, 
-                prompt=prompt_template,
-                verbose=True, 
-                memory=memory
-            )
-            self.settings["chat_provider"] = chain
-
         self.log.info(f"Registered {self.name} server extension")
 
         # Add a message queue to the settings to be used by the chat handler
@@ -116,3 +95,11 @@ class AiExtension(ExtensionApp):
         
         # store chat messages in memory for now
         self.settings["chat_history"] = []
+
+        reply_queue = Queue()
+        self.settings["reply_queue"] = reply_queue
+
+        fs_actor = FileSystemActor.options(name="filesystem").remote(reply_queue)
+        default_actor = ChatActor.options(name="chat").remote(reply_queue)
+        self.settings["fs_actor"] = fs_actor
+        self.settings["chat_actor"] = default_actor
