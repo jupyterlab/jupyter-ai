@@ -11,6 +11,8 @@ from langchain.llms import (
     SagemakerEndpoint
 )
 
+from .huggingface_image import HuggingFaceImage
+
 from pydantic import BaseModel, Extra
 from langchain.chat_models import ChatOpenAI
 
@@ -129,6 +131,17 @@ class CohereProvider(BaseProvider, Cohere):
 class HfHubProvider(BaseProvider, HuggingFaceHub):
     id = "huggingface_hub"
     name = "HuggingFace Hub"
+    models = ["*"]
+    model_id_key = "repo_id"
+    # ipywidgets needed to suppress tqdm warning
+    # https://stackoverflow.com/questions/67998191
+    # tqdm is a dependency of huggingface_hub
+    pypi_package_deps = ["huggingface_hub", "ipywidgets"]
+    auth_strategy = EnvAuthStrategy(name="HUGGINGFACEHUB_API_TOKEN")
+
+class HfImageProvider(BaseProvider, HuggingFaceImage):
+    id = "huggingface_image"
+    name = "HuggingFace Image"
     models = ["*"]
     model_id_key = "repo_id"
     # ipywidgets needed to suppress tqdm warning
