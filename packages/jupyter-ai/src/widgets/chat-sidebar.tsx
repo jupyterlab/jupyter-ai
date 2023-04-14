@@ -1,5 +1,6 @@
 import React from 'react';
 import { ReactWidget } from '@jupyterlab/apputils';
+import type { Awareness } from 'y-protocols/awareness';
 
 import { Chat } from '../components/chat';
 import { psychologyIcon } from '../icons';
@@ -8,10 +9,15 @@ import { ChatHandler } from '../chat_handler';
 
 export function buildChatSidebar(
   selectionWatcher: SelectionWatcher,
-  chatHandler: ChatHandler
+  chatHandler: ChatHandler,
+  globalAwareness: Awareness | null
 ) {
   const ChatWidget = ReactWidget.create(
-    <Chat selectionWatcher={selectionWatcher} chatHandler={chatHandler} />
+    <Chat
+      selectionWatcher={selectionWatcher}
+      chatHandler={chatHandler}
+      globalAwareness={globalAwareness}
+    />
   );
   ChatWidget.id = 'jupyter-ai::chat';
   ChatWidget.title.icon = psychologyIcon;

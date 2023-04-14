@@ -3,6 +3,7 @@ import json
 from typing import Dict, List
 import tornado
 import uuid
+import time
 
 from tornado.web import HTTPError
 from pydantic import ValidationError
@@ -191,10 +192,9 @@ class ChatHandler(
         from `self.client_id`."""
 
         client_id = self.generate_client_id()
-        chat_client_kwargs = {k: v for k, v in asdict(self.current_user).items() if k != "username"}
 
         self.chat_handlers[client_id] = self
-        self.chat_clients[client_id] = ChatClient(**chat_client_kwargs, id=client_id)
+        self.chat_clients[client_id] = ChatClient(**asdict(self.current_user), id=client_id)
         self.client_id = client_id
         self.write_message(ConnectionMessage(client_id=client_id).dict())
 
@@ -235,6 +235,7 @@ class ChatHandler(
         chat_message_id = str(uuid.uuid4())
         chat_message = HumanChatMessage(
             id=chat_message_id,
+            time=time.time(),
             body=chat_request.prompt,
             client=self.chat_client,
         )
@@ -246,6 +247,7 @@ class ChatHandler(
         response = await ensure_async(self.chat_provider.apredict(input=message.content))
         agent_message = AgentChatMessage(
             id=str(uuid.uuid4()),
+            time=time.time(),
             body=response,
             reply_to=chat_message_id
         )

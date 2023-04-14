@@ -1,84 +1,146 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
-import { Avatar, Box, useTheme } from '@mui/material';
+import { Avatar, Box, Typography } from '@mui/material';
 import type { SxProps, Theme } from '@mui/material';
 import PsychologyIcon from '@mui/icons-material/Psychology';
+import { formatDistanceToNowStrict, fromUnixTime } from 'date-fns';
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import 'katex/dist/katex.min.css';
 
 import { ChatCodeView } from './chat-code-view';
+import { AiService } from '../handler';
+import { useCollaboratorsContext } from '../contexts/collaborators-context';
 
 type ChatMessagesProps = {
-  sender: 'self' | 'ai' | string;
-  messages: string[];
+  messages: AiService.ChatMessage[];
 };
 
-function getAvatar(sender: 'self' | 'ai' | string) {
+type ChatMessageHeaderProps = {
+  message: AiService.ChatMessage;
+  timestamp: string;
+  sx?: SxProps<Theme>;
+};
+
+export function ChatMessageHeader(props: ChatMessageHeaderProps) {
+  const collaborators = useCollaboratorsContext();
+
   const sharedStyles: SxProps<Theme> = {
-    height: '2em',
-    width: '2em'
+    height: '24px',
+    width: '24px'
   };
 
-  switch (sender) {
-    case 'self':
-      return <Avatar src="" sx={{ ...sharedStyles }} />;
-    case 'ai':
-      return (
-        <Avatar sx={{ ...sharedStyles }}>
-          <PsychologyIcon />
-        </Avatar>
-      );
-    default:
-      return <Avatar src="?" sx={{ ...sharedStyles }} />;
+  let avatar: JSX.Element;
+  if (props.message.type === 'human') {
+    const bgcolor = collaborators?.[props.message.client.username]?.color;
+    avatar = (
+      <Avatar
+        sx={{
+          ...sharedStyles,
+          ...(bgcolor && { bgcolor })
+        }}
+      >
+        <Typography
+          sx={{
+            fontSize: 'var(--jp-ui-font-size1)',
+            color: 'var(--jp-ui-font-color1)'
+          }}
+        >
+          {props.message.client.initials}
+        </Typography>
+      </Avatar>
+    );
+  } else {
+    avatar = (
+      <Avatar sx={{ ...sharedStyles, bgcolor: 'var(--jp-jupyter-icon-color)' }}>
+        <PsychologyIcon />
+      </Avatar>
+    );
   }
+
+  const name =
+    props.message.type === 'human'
+      ? props.message.client.display_name
+      : 'Jupyter AI';
+
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        '& > :not(:last-child)': {
+          marginRight: 3
+        },
+        ...props.sx
+      }}
+    >
+      {avatar}
+      <Box
+        sx={{
+          display: 'flex',
+          flexGrow: 1,
+          flexWrap: 'wrap',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}
+      >
+        <Typography sx={{ fontWeight: 700 }}>{name}</Typography>
+        <Typography sx={{ fontSize: '0.8em', fontWeight: 300 }}>
+          {props.timestamp}
+        </Typography>
+      </Box>
+    </Box>
+  );
 }
 
 export function ChatMessages(props: ChatMessagesProps) {
-  const theme = useTheme();
-  const radius = theme.spacing(2);
+  const [timestamps, setTimestamps] = useState<Record<string, string>>({});
+
+  /**
+   * Effect: update cached timestamp strings upon receiving a new message and
+   * every 5 seconds after that.
+   */
+  useEffect(() => {
+    function updateTimestamps() {
+      const newTimestamps: Record<string, string> = {};
+      for (const message of props.messages) {
+        newTimestamps[message.id] =
+          formatDistanceToNowStrict(fromUnixTime(message.time)) + ' ago';
+      }
+      setTimestamps(newTimestamps);
+    }
+
+    updateTimestamps();
+    const intervalId = setInterval(updateTimestamps, 5000);
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [props.messages]);
 
   return (
-    <Box sx={{ display: 'flex', ' > :not(:last-child)': { marginRight: 2 } }}>
-      {getAvatar(props.sender)}
-      <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-        {props.messages.map((message, i) => (
-          // extra div needed to ensure each bubble is on a new line
-          <Box key={i}>
-            <Box
-              sx={{
-                display: 'inline-block',
-                padding: theme.spacing(1, 2),
-                borderRadius: radius,
-                marginBottom: 1,
-                wordBreak: 'break-word',
-                textAlign: 'left',
-                maxWidth: '100%',
-                boxSizing: 'border-box',
-                ...(props.sender === 'self'
-                  ? {
-                      backgroundColor: theme.palette.primary.main,
-                      color: theme.palette.common.white
-                    }
-                  : {
-                      backgroundColor: theme.palette.grey[100]
-                    })
-              }}
-            >
-              <ReactMarkdown
-                components={{
-                  code: ChatCodeView
-                }}
-                remarkPlugins={[remarkMath]}
-                rehypePlugins={[rehypeKatex]}
-              >
-                {message}
-              </ReactMarkdown>
-            </Box>
-          </Box>
-        ))}
-      </Box>
+    <Box
+      sx={{ '& > :not(:last-child)': { borderBottom: '1px solid lightgrey' } }}
+    >
+      {props.messages.map((message, i) => (
+        // extra div needed to ensure each bubble is on a new line
+        <Box key={i} sx={{ padding: 2 }}>
+          <ChatMessageHeader
+            message={message}
+            timestamp={timestamps[message.id]}
+            sx={{ marginBottom: '12px' }}
+          />
+          <ReactMarkdown
+            components={{
+              code: ChatCodeView
+            }}
+            remarkPlugins={[remarkMath]}
+            rehypePlugins={[rehypeKatex]}
+          >
+            {message.body}
+          </ReactMarkdown>
+        </Box>
+      ))}
     </Box>
   );
 }

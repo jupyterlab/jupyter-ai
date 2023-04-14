@@ -64,8 +64,8 @@ export namespace AiService {
     prompt: string;
   };
 
-  export type ChatClient = {
-    id: string;
+  export type Collaborator = {
+    username: string;
     initials: string;
     name: string;
     display_name: string;
@@ -73,9 +73,14 @@ export namespace AiService {
     avatar_url?: string;
   };
 
+  export type ChatClient = Collaborator & {
+    id: string;
+  };
+
   export type AgentChatMessage = {
     type: 'agent';
     id: string;
+    time: number;
     body: string;
     reply_to: string;
   };
@@ -83,6 +88,7 @@ export namespace AiService {
   export type HumanChatMessage = {
     type: 'human';
     id: string;
+    time: number;
     body: string;
     client: ChatClient;
   };

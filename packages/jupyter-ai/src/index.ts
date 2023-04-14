@@ -6,6 +6,8 @@ import { INotebookTracker } from '@jupyterlab/notebook';
 import { IEditorTracker } from '@jupyterlab/fileeditor';
 import { IWidgetTracker } from '@jupyterlab/apputils';
 import { IDocumentWidget } from '@jupyterlab/docregistry';
+import { IGlobalAwareness } from '@jupyterlab/collaboration';
+import type { Awareness } from 'y-protocols/awareness';
 
 import {
   buildNotebookShortcutCommand,
@@ -48,10 +50,12 @@ const plugin: JupyterFrontEndPlugin<void> = {
   id: 'jupyter_ai:plugin',
   autoStart: true,
   requires: [INotebookTracker, IEditorTracker],
+  optional: [IGlobalAwareness],
   activate: async (
     app: JupyterFrontEnd,
     notebookTracker: INotebookTracker,
-    editorTracker: IEditorTracker
+    editorTracker: IEditorTracker,
+    globalAwareness: Awareness | null
   ) => {
     const { commands, shell } = app;
 
@@ -91,7 +95,10 @@ const plugin: JupyterFrontEndPlugin<void> = {
     /**
      * Add Chat widget to right sidebar
      */
-    shell.add(buildChatSidebar(selectionWatcher, chatHandler), 'right');
+    shell.add(
+      buildChatSidebar(selectionWatcher, chatHandler, globalAwareness),
+      'right'
+    );
 
     /**
      * Register inserters
