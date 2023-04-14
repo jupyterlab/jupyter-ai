@@ -191,13 +191,6 @@ class ChatHandler(
         # if collaborative mode is not enabled, each client is assigned a UUID
         return uuid.uuid4().hex
 
-    async def process_replies(self):
-        while True:
-            if not self.reply_queue.empty():
-                message = self.reply_queue.get()
-                self.broadcast_message(message=message)
-            await asyncio.sleep(5)
-
     def open(self):
         """Handles opening of a WebSocket connection. Client ID can be retrieved
         from `self.client_id`."""
@@ -209,15 +202,12 @@ class ChatHandler(
         self.client_id = client_id
         self.write_message(ConnectionMessage(client_id=client_id).dict())
 
-        loop = asyncio.get_event_loop()
-        loop.create_task(self.process_replies())
-
         self.log.info(f"Client connected. ID: {client_id}")
         self.log.debug("Clients are : %s", self.chat_handlers.keys())
 
     def broadcast_message(self, message: ChatMessage):
-        """Broadcasts message to all connected clients, optionally excluding the
-        current user. Appends message to `self.chat_history`.
+        """Broadcasts message to all connected clients. 
+        Appends message to `self.chat_history`.
         """
 
         self.log.debug("Broadcasting message: %s to all clients...", message)
@@ -259,11 +249,7 @@ class ChatHandler(
 
         # process through actors
         actor = ray.get_actor("default")
-        actor.process_message.remote(chat_message)
-
-        # broadcast to all clients
-        #self.broadcast_message(message=agent_message)
-        
+        actor.process_message.remote(chat_message)             
 
     def on_close(self):
         self.log.debug("Disconnecting client with user %s", self.client_id)

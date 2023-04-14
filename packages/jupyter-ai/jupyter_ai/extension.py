@@ -1,5 +1,7 @@
+import asyncio
 import queue
-from jupyter_ai.actors import ChatActor, FileSystemActor
+from jupyter_ai.actors import DefaultActor, FileSystemActor
+from jupyter_ai.reply_processor import ReplyProcessor
 from jupyter_server.extension.application import ExtensionApp
 from .handlers import ChatHandler, ChatHistoryHandler, PromptAPIHandler, TaskAPIHandler
 from importlib_metadata import entry_points
@@ -100,6 +102,10 @@ class AiExtension(ExtensionApp):
         self.settings["reply_queue"] = reply_queue
 
         fs_actor = FileSystemActor.options(name="filesystem").remote(reply_queue)
-        default_actor = ChatActor.options(name="chat").remote(reply_queue)
+        default_actor = DefaultActor.options(name="default").remote(reply_queue)
         self.settings["fs_actor"] = fs_actor
-        self.settings["chat_actor"] = default_actor
+        self.settings["default_actor"] = default_actor
+
+        reply_processor = ReplyProcessor(self.settings['chat_handlers'], reply_queue, log=self.log)        
+        loop = asyncio.get_event_loop()
+        loop.create_task(reply_processor.start())
