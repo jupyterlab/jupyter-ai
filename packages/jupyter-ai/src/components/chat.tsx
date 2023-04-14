@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-
 import { Box } from '@mui/system';
+import type { Awareness } from 'y-protocols/awareness';
 
 import { JlThemeProvider } from './jl-theme-provider';
 import { ChatMessages } from './chat-messages';
@@ -12,18 +12,15 @@ import {
 } from '../contexts/selection-context';
 import { SelectionWatcher } from '../selection-watcher';
 import { ChatHandler } from '../chat_handler';
-
-type ChatMessageGroup = {
-  sender: 'self' | 'ai' | string;
-  messages: string[];
-};
+import { CollaboratorsContextProvider } from '../contexts/collaborators-context';
+import { ScrollContainer } from './scroll-container';
 
 type ChatBodyProps = {
   chatHandler: ChatHandler;
 };
 
 function ChatBody({ chatHandler }: ChatBodyProps): JSX.Element {
-  const [messageGroups, setMessageGroups] = useState<ChatMessageGroup[]>([]);
+  const [messages, setMessages] = useState<AiService.ChatMessage[]>([]);
   const [includeSelection, setIncludeSelection] = useState(true);
   const [replaceSelection, setReplaceSelection] = useState(false);
   const [input, setInput] = useState('');
@@ -35,18 +32,7 @@ function ChatBody({ chatHandler }: ChatBodyProps): JSX.Element {
   useEffect(() => {
     async function fetchHistory() {
       const history = await chatHandler.getHistory();
-      const messages = history.messages;
-      if (!messages.length) {
-        return;
-      }
-
-      const newMessageGroups = messages.map(
-        (message: AiService.ChatMessage): ChatMessageGroup => ({
-          sender: message.type === 'agent' ? 'ai' : 'self',
-          messages: [message.body]
-        })
-      );
-      setMessageGroups(newMessageGroups);
+      setMessages(history.messages);
     }
 
     fetchHistory();
@@ -61,13 +47,7 @@ function ChatBody({ chatHandler }: ChatBodyProps): JSX.Element {
         return;
       }
 
-      setMessageGroups(messageGroups => [
-        ...messageGroups,
-        {
-          sender: message.type === 'agent' ? 'ai' : 'self',
-          messages: [message.body]
-        }
-      ]);
+      setMessages(messageGroups => [...messageGroups, message]);
     }
 
     chatHandler.addListener(handleChatEvents);
@@ -115,24 +95,11 @@ function ChatBody({ chatHandler }: ChatBodyProps): JSX.Element {
         flexDirection: 'column'
       }}
     >
-      <Box
-        sx={{
-          flexGrow: 1,
-          padding: 2,
-          overflowY: 'scroll',
-          '> :not(:last-child)': {
-            marginBottom: 1
-          }
-        }}
-      >
-        {messageGroups.map((group, idx) => (
-          <ChatMessages
-            key={idx}
-            sender={group.sender}
-            messages={group.messages}
-          />
-        ))}
-      </Box>
+      <ScrollContainer sx={{ flexGrow: 1 }}>
+        <ChatMessages messages={messages} />
+        {/* https://css-tricks.com/books/greatest-css-tricks/pin-scrolling-to-bottom/ */}
+        <Box sx={{ overflowAnchor: 'auto', height: '1px' }} />
+      </ScrollContainer>
       <ChatInput
         value={input}
         onChange={setInput}
@@ -157,13 +124,16 @@ function ChatBody({ chatHandler }: ChatBodyProps): JSX.Element {
 export type ChatProps = {
   selectionWatcher: SelectionWatcher;
   chatHandler: ChatHandler;
+  globalAwareness: Awareness | null;
 };
 
 export function Chat(props: ChatProps) {
   return (
     <JlThemeProvider>
       <SelectionContextProvider selectionWatcher={props.selectionWatcher}>
-        <ChatBody chatHandler={props.chatHandler} />
+        <CollaboratorsContextProvider globalAwareness={props.globalAwareness}>
+          <ChatBody chatHandler={props.chatHandler} />
+        </CollaboratorsContextProvider>
       </SelectionContextProvider>
     </JlThemeProvider>
   );
