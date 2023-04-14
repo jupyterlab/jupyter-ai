@@ -14,6 +14,13 @@ from langchain.prompts import (
     HumanMessagePromptTemplate
 )
 
+
+@ray.remote
+class Router():
+    def __init__(self, reply_queue: Queue):
+        pass
+
+
 @ray.remote
 class FileSystemActor():
     def __init__(self, reply_queue: Queue):
