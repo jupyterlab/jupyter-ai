@@ -46,9 +46,6 @@ function ChatBody({ chatHandler }: ChatBodyProps): JSX.Element {
         return;
       }
 
-      if (message.type === 'human') {
-        console.log({ color: message.client.color });
-      }
       setMessages(messageGroups => [...messageGroups, message]);
     }
 
