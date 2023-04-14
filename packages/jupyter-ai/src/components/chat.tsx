@@ -13,6 +13,7 @@ import {
 import { SelectionWatcher } from '../selection-watcher';
 import { ChatHandler } from '../chat_handler';
 import { CollaboratorsContextProvider } from '../contexts/collaborators-context';
+import { ScrollContainer } from './scroll-container';
 
 type ChatBodyProps = {
   chatHandler: ChatHandler;
@@ -94,19 +95,11 @@ function ChatBody({ chatHandler }: ChatBodyProps): JSX.Element {
         flexDirection: 'column'
       }}
     >
-      <Box
-        sx={{
-          flexGrow: 1,
-          overflowY: 'scroll',
-          '& *': {
-            overflowAnchor: 'none'
-          }
-        }}
-      >
+      <ScrollContainer sx={{ flexGrow: 1 }}>
         <ChatMessages messages={messages} />
         {/* https://css-tricks.com/books/greatest-css-tricks/pin-scrolling-to-bottom/ */}
         <Box sx={{ overflowAnchor: 'auto', height: '1px' }} />
-      </Box>
+      </ScrollContainer>
       <ChatInput
         value={input}
         onChange={setInput}
