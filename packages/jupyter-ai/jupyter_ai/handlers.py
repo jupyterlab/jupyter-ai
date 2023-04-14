@@ -1,6 +1,8 @@
+import asyncio
 from dataclasses import asdict
 import json
 from typing import Dict, List
+import ray
 import tornado
 import uuid
 import time
@@ -85,8 +87,9 @@ class ChatHistoryHandler(BaseAPIHandler):
     
     @property
     def chat_provider(self):
-        if self._chat_provider is None:
-            self._chat_provider = self.settings["chat_provider"]
+        actor = ray.get_actor("default")
+        self._chat_provider = actor.chat_provider
+            
         return self._chat_provider
 
     @property
@@ -120,13 +123,7 @@ class ChatHandler(
 
     _chat_provider = None  
     _chat_message_queue = None 
-    _messages = []
-    
-    @property
-    def chat_provider(self):
-        if self._chat_provider is None:
-            self._chat_provider = self.settings["chat_provider"]
-        return self._chat_provider
+    _reply_queue = None
     
     @property
     def chat_message_queue(self):
@@ -155,6 +152,13 @@ class ChatHandler(
     def chat_history(self) -> List[ChatMessage]:
         return self.settings["chat_history"]
     
+    @property
+    def reply_queue(self):
+        if not self._reply_queue:
+            self._reply_queue = self.settings["reply_queue"]
+
+        return self._reply_queue
+
     def initialize(self):
         self.log.debug("Initializing websocket connection %s", self.request.path)
 
@@ -187,6 +191,13 @@ class ChatHandler(
         # if collaborative mode is not enabled, each client is assigned a UUID
         return uuid.uuid4().hex
 
+    async def process_replies(self):
+        while True:
+            if not self.reply_queue.empty():
+                message = self.reply_queue.get()
+                self.broadcast_message(message=message)
+            await asyncio.sleep(5)
+
     def open(self):
         """Handles opening of a WebSocket connection. Client ID can be retrieved
         from `self.client_id`."""
@@ -197,6 +208,9 @@ class ChatHandler(
         self.chat_clients[client_id] = ChatClient(**asdict(self.current_user), id=client_id)
         self.client_id = client_id
         self.write_message(ConnectionMessage(client_id=client_id).dict())
+
+        loop = asyncio.get_event_loop()
+        loop.create_task(self.process_replies())
 
         self.log.info(f"Client connected. ID: {client_id}")
         self.log.debug("Clients are : %s", self.chat_handlers.keys())
@@ -243,17 +257,12 @@ class ChatHandler(
         # broadcast the message to other clients
         self.broadcast_message(message=chat_message)
 
-        # process the message
-        response = await ensure_async(self.chat_provider.apredict(input=message.content))
-        agent_message = AgentChatMessage(
-            id=str(uuid.uuid4()),
-            time=time.time(),
-            body=response,
-            reply_to=chat_message_id
-        )
+        # process through actors
+        actor = ray.get_actor("default")
+        actor.process_message.remote(chat_message)
 
         # broadcast to all clients
-        self.broadcast_message(message=agent_message)
+        #self.broadcast_message(message=agent_message)
         
 
     def on_close(self):

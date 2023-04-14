@@ -29,7 +29,8 @@ dependencies = [
     "aiosqlite~=0.18",
     "importlib_metadata~=5.2.0",
     "langchain~=0.0.115",
-    "jupyter_ai_magics"
+    "jupyter_ai_magics",
+    "ray==2.2.0" # latest ray version 2.3.0 requires grpcio installation from conda
 ]
 
 dynamic = ["version", "description", "authors", "urls", "keywords"]
