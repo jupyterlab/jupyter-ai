@@ -1,15 +1,16 @@
 # Users
 
-This page is intended for people interested in installing and using Jupyter AI. If you are interested in contributing a new or modified feature in JupyterLab, please see our {doc}`contributor's guide </contributors/index>`.
+Welcome to the user documentation for Jupyter AI. If you are interested in contributing a new or modified
+feature in JupyterLab, please see our {doc}`contributor's guide </contributors/index>`.
 
-## Prerequisites
+## Model providers
 
-To use Jupyter AI, you will need to have JupyterLab ≥ 3.5 (*not* JupyterLab 4) installed.
-
-To use some model providers, you will have to specify authentication credentials
-in environment variables, and you will have to install relevant Python packages from PyPI.
+Jupyter AI supports a wide range of model providers and models. To use Jupyter AI, you will need to 
+install the corresponding Python package and configure the API key (or other authenication credentials) for the provider. 
 You can find the environment variables you need to set, and the Python packages you need, in
 [`packages/jupyter-ai/jupyter_ai/providers.py`](https://github.com/jupyterlab/jupyter-ai/blob/main/packages/jupyter-ai/jupyter_ai/providers.py).
+
+Jupyter AI supports the following model providers:
 
 | Provider            | Provider ID          | Environment variable       | Python package(s)               |
 |---------------------|----------------------|----------------------------|---------------------------------|
@@ -34,26 +35,24 @@ OPENAI_API_KEY=your-api-key-here jupyter lab
 
 :::{attention}
 :name: open-ai-cost
-Model providers, such as OpenAI, may charge users for API usage. Jupyter AI users are
+Model providers may charge users for API usage. Jupyter AI users are
 responsible for all charges they incur when they make API requests. Review your model
 provider's pricing information before submitting requests via Jupyter AI.
 :::
 
 ## Installing
 
-To install the extension, execute:
+To use Jupyter AI, you will need to have JupyterLab ≥ 3.5 (*not* JupyterLab 4) installed.
 
-```bash
-pip install jupyter_ai
-```
+If you want to install both the `%%ai` magic and the JupyterLab extension, you can run:
 
-The command above should install two extensions: a server extension and a frontend extension.
+    $ pip install jupyter_ai
 
-You can also install a particular AI module by running `pip install`. For example, to install the ChatGPT AI module, run:
+If you are not using JupyterLab and only want to install the Jupyter AI `%%ai` magic you can run:
 
-```bash
-pip install jupyter_ai_chatgpt
-```
+    $ pip install jupyter_ai_magics
+
+The `%%ai` magic will work anywhere the IPython kernel runs (JupyterLab, Jupyter Notebook, Google Colab, VSCode, etc.).
 
 You can check that the Jupyter AI server extension is enabled by running:
 
@@ -67,12 +66,25 @@ To verify that the frontend extension is installed, run:
 jupyter labextension list
 ```
 
-## Sending prompts to AI models with magic commands
+To remove the extension, run:
+
+```bash
+pip uninstall jupyter_ai
+```
+
+or
+
+```bash
+pip uninstall jupyter_ai_magics
+```
+
+
+## The Jupyter AI `%%ai` magic command
 
 The examples in this section are based on the [Jupyter AI example notebook](https://github.com/jupyterlab/jupyter-ai/blob/main/examples/magics.ipynb).
 
-Before you send your first prompt to an AI model, load the IPython extension.
-Enter the following code into a Jupyter Notebook cell and run the cell:
+Before you send your first prompt to an AI model, load the IPython extension by running 
+the following code in a notebook cell or IPython shell:
 
 ```
 %load_ext jupyter_ai
@@ -80,8 +92,8 @@ Enter the following code into a Jupyter Notebook cell and run the cell:
 
 This command should not produce any output.
 
-The `%%ai` magic command is easy to use and gives you the most control over the
-prompts you send to AI modules.
+The `%%ai` magic command is easy to use and enables to to quickly pick which model you want to use
+and specify natural language prompts.
 
 ### Choosing a provider and model
 
@@ -133,7 +145,7 @@ using the `-f` or `--format` argument to your magic command. Valid formats inclu
 - `math`
 - `html`
 - `json`
-- `raw`
+- `text`
 
 For example, to force the output of a command to be interpreted as HTML, you can run:
 
@@ -157,7 +169,7 @@ This prompt will produce output as a code cell below the input cell.
 **Please review any code that a generative AI model produces before you run it
 or distribute it.**
 The code that you get in response to a prompt may have negative side effects and may
-include calls to nonexistent (hallucinated) helper functions.
+include calls to nonexistent (hallucinated) APIs.
 :::
 
 ```
@@ -166,9 +178,9 @@ A function that computes the lowest common multiples of two integers, and
 a function that runs 5 test cases of the lowest common multiple function
 ```
 
-### Interpolating IPython in prompts
+### Interpolating in prompts
 
-Using curly brace syntax, you can include variables and other IPython expressions in your
+Using curly brace syntax, you can include variables and other Python expressions in your
 prompt. This lets you execute a prompt using code that the IPython kernel knows about,
 but that is not in the current cell.
 
@@ -243,10 +255,3 @@ produced the following Python error:
 Write a new version of this code that does not produce that error.
 ```
 
-## Uninstalling
-
-To remove the extension, execute:
-
-```bash
-pip uninstall jupyter_ai
-```

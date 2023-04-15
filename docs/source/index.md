@@ -1,8 +1,13 @@
 # Jupyter AI
 
-**Jupyter AI** is a package that lets Jupyter notebook users run tasks using generative AI (GAI) using APIs provided by GAI model vendors.
+Welcome to Jupyter AI, which brings generative AI to Jupyter. Jupyter has always been focused on enabling
+humans to interact with code and data, and with the advent of generative AI, we're now able to use natural language
+to further enhance this experience. Jupyter AI offers:
 
-Jupyter AI provides a framework for AI modules that define GAI-powered tasks. For example, a "generate code" task uses a large language model (LLM) to generate source code from a text description, and an "explain code" task could use that same LLM to provide a plain English explanation for what some source code does. AI modules can read and write text, images, or other media formats, and can work on multiple file types — not just Jupyter notebooks. AI modules are Python packages that provide GAI interfaces and can provide JupyterLab extensions as well. They can register new models, new insertion modes, and new tasks. You can use the `%%ai` magic command to start a task.
+* An `%%ai` magic that turns the Jupyter notebook into a reproducible generative AI playground.
+* A native UI in JupyterLab, enabling you to engage with generative AI as a conversational assistant.
+* Support for a wide range of generative model providers and models
+  (AI21, Anthropic, Cohere, Hugging Face, OpenAI, SageMaker, etc.).
 
 ## Contents
 
