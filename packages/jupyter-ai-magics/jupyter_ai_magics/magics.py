@@ -7,7 +7,7 @@ from importlib_metadata import entry_points
 from IPython import get_ipython
 from IPython.core.magic import Magics, magics_class, line_cell_magic
 from IPython.core.magic_arguments import magic_arguments, argument, parse_argstring
-from IPython.display import HTML, Markdown, Math, JSON
+from IPython.display import HTML, Markdown, Math, JSON, TextDisplayObject
 
 from .providers import BaseProvider
 
@@ -26,19 +26,19 @@ DISPLAYS_BY_FORMAT = {
     "math": Math,
     "md": Markdown,
     "json": JSON,
-    "raw": None
+    "text": TextDisplayObject
 }
 
 MARKDOWN_PROMPT_TEMPLATE = '{prompt}\n\nProduce output in markdown format only.'
 
 PROMPT_TEMPLATES_BY_FORMAT = {
-    "code": '{prompt}\n\nProduce output as source code only, with no text before or after it.',
+    "code": '{prompt}\n\nProduce output as source code only, with no text or explanation before or after it.',
     "html": '{prompt}\n\nProduce output in HTML format only, with no markup before or afterward.',
     "markdown": MARKDOWN_PROMPT_TEMPLATE,
     "md": MARKDOWN_PROMPT_TEMPLATE,
     "math": '{prompt}\n\nProduce output in LaTeX format only, with $$ at the beginning and end.',
     "json": '{prompt}\n\nProduce output in JSON format only, with nothing before or after it.',
-    "raw": '{prompt}' # No customization
+    "text": '{prompt}' # No customization
 }
 
 class FormatDict(dict):
@@ -118,7 +118,7 @@ class AiMagics(Magics):
                 optionally prefixed with the ID of the model provider, delimited
                 by a colon.""")
     @argument('-f', '--format',
-                choices=["code", "markdown", "html", "json", "math", "md", "raw"],
+                choices=["code", "markdown", "html", "json", "math", "md", "text"],
                 nargs="?",
                 default="markdown",
                 help="""IPython display to use when rendering output. [default="markdown"]""")
@@ -204,7 +204,13 @@ class AiMagics(Magics):
         if args.format == 'json':
             # JSON display expects a dict, not a JSON string
             output = json.loads(output)
-        output_display = DisplayClass(output)
+        md = {
+            "jupyter_ai": {
+                "provider_id": provider_id,
+                "model_id": local_model_id
+            }
+        }
+        output_display = DisplayClass(output, metadata=md)
 
         # finally, display output display
         return output_display
