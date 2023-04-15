@@ -24,6 +24,6 @@ class ReplyProcessor():
     async def start(self):
         while True:
             if not self.queue.empty():
-                self.process(self.queue.get())
+                self.process(await self.queue.get_async())
             
             await asyncio.sleep(5)
