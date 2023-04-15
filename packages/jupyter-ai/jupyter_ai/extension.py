@@ -102,13 +102,19 @@ class AiExtension(ExtensionApp):
         self.settings["reply_queue"] = reply_queue
 
         router = Router.options(name="router").remote(log=self.log)
-        default_actor = DefaultActor.options(name=ACTOR_TYPE.DEFAULT.value).remote(reply_queue)
-        index_actor = DocumentIndexActor.options(name=ACTOR_TYPE.READ.value).remote(
+        default_actor = DefaultActor.options(name=ACTOR_TYPE.DEFAULT.value).remote(
+            reply_queue=reply_queue, 
+            log=self.log
+        )
+        index_actor = DocumentIndexActor.options(name=ACTOR_TYPE.INDEX.value).remote(
             reply_queue=reply_queue,
             root_dir=self.serverapp.root_dir,
             log=self.log 
         )
-        fs_actor = FileSystemActor.options(name=ACTOR_TYPE.FILESYSTEM.value).remote(reply_queue)
+        fs_actor = FileSystemActor.options(name=ACTOR_TYPE.FILESYSTEM.value).remote(
+            reply_queue=reply_queue, 
+            log=self.log
+        )
         self.settings['router'] = router
         self.settings["default_actor"] = default_actor
         self.settings["index_actor"] = index_actor

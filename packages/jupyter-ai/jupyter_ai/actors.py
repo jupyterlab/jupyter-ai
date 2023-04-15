@@ -1,6 +1,8 @@
 from enum import Enum
+import logging
 import os
 import time
+from typing import Union
 from uuid import uuid4
 from jupyter_ai.models import AgentChatMessage, ChatMessage, HumanChatMessage
 from jupyter_ai_magics.providers import ChatOpenAINewProvider
@@ -24,22 +26,24 @@ from jupyter_core.paths import jupyter_data_dir
 class ACTOR_TYPE(str, Enum):
     DEFAULT = "default"
     FILESYSTEM = "filesystem"
-    READ = 'read'
+    INDEX = 'index'
 
 COMMANDS = {
     '/fs': ACTOR_TYPE.FILESYSTEM,
-    '/read': ACTOR_TYPE.READ
+    '/filesystem': ACTOR_TYPE.FILESYSTEM,
+    '/index': ACTOR_TYPE.INDEX
 }
+
+Logger = Union[logging.Logger, logging.LoggerAdapter]
 
 @ray.remote
 class Router():
-    """Routes messages to the correct actor. To register 
-    new actors, add the actor type in the `ACTOR_TYPE` 
-    enum and then add a corresponding command in the 
-    `COMMANDS` dictionary.
+    """Routes messages to the correct actor. To register new
+    actors, add the actor type in the `ACTOR_TYPE` enum and 
+    add a corresponding command in the `COMMANDS` dictionary.
     """
 
-    def __init__(self, log):
+    def __init__(self, log: Logger):
         self.log = log
 
     def route_message(self, message):
@@ -51,16 +55,29 @@ class Router():
             command = message.body.split(' ', 1)[0]
             if command in COMMANDS.keys():
                 actor = ray.get_actor(COMMANDS[command].value)
+                
         
         actor.process_message.remote(message)
 
+class BaseActor():
+    """Base actor implemented by actors that are called by the `Router`"""
+
+    def __init__(
+            self, 
+            log: Logger
+        ):
+        self.log = log
+
+    def process_message(self, message: HumanChatMessage):
+        """Processes the message passed by the `Router`"""
+        raise NotImplementedError("Should be implemented by subclasses.")
 
 @ray.remote
-class DocumentIndexActor():
-    def __init__(self, reply_queue: Queue, root_dir: str, log):
+class DocumentIndexActor(BaseActor):
+    def __init__(self, reply_queue: Queue, root_dir: str, log: Logger):
+        super().__init__(log=log)
         self.reply_queue = reply_queue
         self.root_dir = root_dir
-        self.log = log
         self.index_save_dir = os.path.join(jupyter_data_dir(), '.jupyter_ai_indexes')
 
         if ChatOpenAINewProvider.auth_strategy.name not in os.environ:
@@ -92,7 +109,7 @@ class DocumentIndexActor():
         self.index.add_documents(documents)
         self.index.save_local(self.index_save_dir)
 
-        response = f"""🎉 I have read documents at **{dir_path}** and ready to answer questions. 
+        response = f"""🎉 I have indexed documents at **{dir_path}** and ready to answer questions. 
         You can ask questions from these docs by prefixing your message with **/fs**."""
         agent_message = AgentChatMessage(
                 id=uuid4().hex,
@@ -104,7 +121,7 @@ class DocumentIndexActor():
 
 
 @ray.remote
-class FileSystemActor():
+class FileSystemActor(BaseActor):
     """Processes messages prefixed with /fs. This actor will
     send the message as input to a RetrieverQA chain, that
     follows the Retrieval and Generation (RAG) tehnique to
@@ -112,9 +129,10 @@ class FileSystemActor():
     to the LLM to generate the final reply.
     """
 
-    def __init__(self, reply_queue: Queue):
+    def __init__(self, reply_queue: Queue, log: Logger):
+        super().__init__(log=log)
         self.reply_queue = reply_queue
-        index_actor = ray.get_actor(ACTOR_TYPE.READ.value)
+        index_actor = ray.get_actor(ACTOR_TYPE.INDEX.value)
         handle = index_actor.get_index.remote()
         vectorstore = ray.get(handle)
         if not vectorstore:
@@ -129,7 +147,7 @@ class FileSystemActor():
     def process_message(self, message: HumanChatMessage):
         query = message.body.split(' ', 1)[-1]
         
-        index_actor = ray.get_actor(ACTOR_TYPE.READ.value)
+        index_actor = ray.get_actor(ACTOR_TYPE.INDEX.value)
         handle = index_actor.get_index.remote()
         vectorstore = ray.get(handle)
         # Have to reference the latest index
@@ -147,39 +165,38 @@ class FileSystemActor():
         self.reply_queue.put(agent_message)
 
 @ray.remote
-class DefaultActor():
-    def __init__(self, reply_queue: Queue):
+class DefaultActor(BaseActor):
+    def __init__(self, reply_queue: Queue, log: Logger):
+        super().__init__(log=log)
         # TODO: Should take the provider/model id as strings
-        
         self.reply_queue = reply_queue
-        if ChatOpenAINewProvider.auth_strategy.name in os.environ:
-            provider = ChatOpenAINewProvider(model_id="gpt-3.5-turbo")
-            
-            # Create a conversation memory
-            memory = ConversationBufferMemory(return_messages=True)
-            prompt_template = ChatPromptTemplate.from_messages([
-                SystemMessagePromptTemplate.from_template("The following is a friendly conversation between a human and an AI. The AI is talkative and provides lots of specific details from its context. If the AI does not know the answer to a question, it truthfully says it does not know."),
-                MessagesPlaceholder(variable_name="history"),
-                HumanMessagePromptTemplate.from_template("{input}")
-            ])
-            chain = ConversationChain(
-                llm=provider, 
-                prompt=prompt_template,
-                verbose=True, 
-                memory=memory
-            )
-            self.chat_provider = chain
+        
+        provider = ChatOpenAINewProvider(model_id="gpt-3.5-turbo")
+        
+        # Create a conversation memory
+        memory = ConversationBufferMemory(return_messages=True)
+        prompt_template = ChatPromptTemplate.from_messages([
+            SystemMessagePromptTemplate.from_template("The following is a friendly conversation between a human and an AI. The AI is talkative and provides lots of specific details from its context. If the AI does not know the answer to a question, it truthfully says it does not know."),
+            MessagesPlaceholder(variable_name="history"),
+            HumanMessagePromptTemplate.from_template("{input}")
+        ])
+        chain = ConversationChain(
+            llm=provider, 
+            prompt=prompt_template,
+            verbose=True, 
+            memory=memory
+        )
+        self.chat_provider = chain
 
     def process_message(self, message: HumanChatMessage):
-        if self.chat_provider:
-            response = self.chat_provider.predict(input=message.body)
-            agent_message = AgentChatMessage(
-                id=uuid4().hex,
-                time=time.time(),
-                body=response,
-                reply_to=message.id
-            )
-            self.reply_queue.put(agent_message)
+        response = self.chat_provider.predict(input=message.body)
+        agent_message = AgentChatMessage(
+            id=uuid4().hex,
+            time=time.time(),
+            body=response,
+            reply_to=message.id
+        )
+        self.reply_queue.put(agent_message)
 
 
 
