@@ -7,9 +7,9 @@ from ray.util.queue import Queue
 class ReplyProcessor():
     """A single processor to distribute replies"""
 
-    def __init__(self, handlers: Dict[str, ChatHandler], reply_queue: Queue, log):
+    def __init__(self, handlers: Dict[str, ChatHandler], queue: Queue, log):
         self.handlers = handlers
-        self.reply_queue = reply_queue
+        self.queue = queue
         self.log = log
 
     def process(self, message):
@@ -23,7 +23,7 @@ class ReplyProcessor():
 
     async def start(self):
         while True:
-            if not self.reply_queue.empty():
-                self.process(self.reply_queue.get())
+            if not self.queue.empty():
+                self.process(self.queue.get())
             
             await asyncio.sleep(5)
