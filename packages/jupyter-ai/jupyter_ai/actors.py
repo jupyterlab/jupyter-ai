@@ -64,9 +64,11 @@ class BaseActor():
 
     def __init__(
             self, 
-            log: Logger
+            log: Logger,
+            reply_queue: Queue
         ):
         self.log = log
+        self.reply_queue = reply_queue
 
     def process_message(self, message: HumanChatMessage):
         """Processes the message passed by the `Router`"""
@@ -75,8 +77,7 @@ class BaseActor():
 @ray.remote
 class DocumentIndexActor(BaseActor):
     def __init__(self, reply_queue: Queue, root_dir: str, log: Logger):
-        super().__init__(log=log)
-        self.reply_queue = reply_queue
+        super().__init__(log=log, reply_queue=reply_queue)
         self.root_dir = root_dir
         self.index_save_dir = os.path.join(jupyter_data_dir(), '.jupyter_ai_indexes')
 
@@ -130,8 +131,7 @@ class FileSystemActor(BaseActor):
     """
 
     def __init__(self, reply_queue: Queue, log: Logger):
-        super().__init__(log=log)
-        self.reply_queue = reply_queue
+        super().__init__(log=log, reply_queue=reply_queue)
         index_actor = ray.get_actor(ACTOR_TYPE.INDEX.value)
         handle = index_actor.get_index.remote()
         vectorstore = ray.get(handle)
@@ -167,10 +167,8 @@ class FileSystemActor(BaseActor):
 @ray.remote
 class DefaultActor(BaseActor):
     def __init__(self, reply_queue: Queue, log: Logger):
-        super().__init__(log=log)
+        super().__init__(log=log, reply_queue=reply_queue)
         # TODO: Should take the provider/model id as strings
-        self.reply_queue = reply_queue
-        
         provider = ChatOpenAINewProvider(model_id="gpt-3.5-turbo")
         
         # Create a conversation memory
