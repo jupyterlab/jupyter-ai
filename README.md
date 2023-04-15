@@ -11,7 +11,7 @@ to further enhance this experience. Jupyter AI offers:
 
 Documentation is available on [ReadTheDocs](https://jupyter-ai.readthedocs.io/en/latest/).
 
-# Installation
+## Installation
 
 If you want to install both the `%%ai` magic and the JupyterLab extension, you can run:
 
@@ -55,12 +55,12 @@ The Jupyter AI extension for JupyterLab offers a native UI that enables multiple
 to chat with the Jupyter AI conversational assistant. If you have JupyterLab instaled,
 this should be installed and activated when you install the `jupyter_ai` package.
 
-### Using
+## Using
 
 For help with installing and using Jupyter AI, please see our
 [user documentation on ReadTheDocs](https://jupyter-ai.readthedocs.io/en/latest/users/index.html).
 
-### Contributing
+## Contributing
 
 If you would like to contribute to Jupyter AI, see our
 [contributor documentation on ReadTheDocs](https://jupyter-ai.readthedocs.io/en/latest/contributors/index.html).
