@@ -1,6 +1,6 @@
 import asyncio
 import queue
-from jupyter_ai.actors import DefaultActor, FileSystemActor
+from jupyter_ai.actors import ACTOR_TYPE, DefaultActor, DocumentIndexActor, FileSystemActor, Router
 from jupyter_ai.reply_processor import ReplyProcessor
 from jupyter_server.extension.application import ExtensionApp
 from .handlers import ChatHandler, ChatHistoryHandler, PromptAPIHandler, TaskAPIHandler
@@ -101,10 +101,18 @@ class AiExtension(ExtensionApp):
         reply_queue = Queue()
         self.settings["reply_queue"] = reply_queue
 
-        fs_actor = FileSystemActor.options(name="filesystem").remote(reply_queue)
-        default_actor = DefaultActor.options(name="default").remote(reply_queue)
-        self.settings["fs_actor"] = fs_actor
+        router = Router.options(name="router").remote(log=self.log)
+        default_actor = DefaultActor.options(name=ACTOR_TYPE.DEFAULT.value).remote(reply_queue)
+        index_actor = DocumentIndexActor.options(name=ACTOR_TYPE.READ.value).remote(
+            reply_queue=reply_queue,
+            root_dir=self.serverapp.root_dir,
+            log=self.log 
+        )
+        fs_actor = FileSystemActor.options(name=ACTOR_TYPE.FILESYSTEM.value).remote(reply_queue)
+        self.settings['router'] = router
         self.settings["default_actor"] = default_actor
+        self.settings["index_actor"] = index_actor
+        self.settings["fs_actor"] = fs_actor
 
         reply_processor = ReplyProcessor(self.settings['chat_handlers'], reply_queue, log=self.log)        
         loop = asyncio.get_event_loop()
