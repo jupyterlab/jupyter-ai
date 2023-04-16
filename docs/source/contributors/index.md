@@ -4,7 +4,20 @@ This page is intended for people interested in building new or modified function
 
 ## Prerequisites
 
-You can develop Jupyter AI on any system that can run a supported Python version, including recent Windows, macOS, and Linux versions. If you have not already done so, [download Python](https://www.python.org/downloads/) and install it. The commands below presume that you can run `python` and `pip` from your preferred terminal.
+You can develop Jupyter AI on any system that can run a supported Python version up to and including 3.10, including recent Windows, macOS, and Linux versions. Python 3.11 is **not supported** due
+to incompatibility with the [ray](https://pypi.org/project/ray/) library that we use.
+
+If you use `conda`, you can install Python 3.10 in your environment by running:
+
+```
+conda install python=3.10
+```
+
+To use the `jupyter_ai` package in JupyterLab, as the development environment below does, you will need a currently-maintained version of JupyterLab 3. We do not yet support JupyterLab 4. If you use `conda`, you can install JupyterLab in your environment by running:
+
+```
+conda install jupyterlab
+```
 
 ## Development install
 
