@@ -5,6 +5,17 @@ Welcome to the user documentation for Jupyter AI.
 If you are interested in contributing to Jupyter AI, 
 please see our {doc}`contributor's guide </contributors/index>`.
 
+## Prerequisites
+
+You will need a supported version of Python up to and including 3.10. Python 3.11 is **not supported** due
+to incompatibility with the [ray](https://pypi.org/project/ray/) library that we use.
+
+If you use `conda`, you can install Python 3.10 in your environment by running:
+
+```
+conda install python=3.10
+```
+
 ## Model providers
 
 Jupyter AI supports a wide range of model providers and models. To use Jupyter AI, you will need to 
