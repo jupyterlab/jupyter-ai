@@ -101,7 +101,10 @@ class AiExtension(ExtensionApp):
         reply_queue = Queue()
         self.settings["reply_queue"] = reply_queue
 
-        router = Router.options(name="router").remote(log=self.log)
+        router = Router.options(name="router").remote(
+            reply_queue=reply_queue,
+            log=self.log
+        )
         default_actor = DefaultActor.options(name=ACTOR_TYPE.DEFAULT.value).remote(
             reply_queue=reply_queue, 
             log=self.log

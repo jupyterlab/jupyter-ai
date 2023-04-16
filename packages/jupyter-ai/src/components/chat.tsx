@@ -45,6 +45,9 @@ function ChatBody({ chatHandler }: ChatBodyProps): JSX.Element {
     function handleChatEvents(message: AiService.Message) {
       if (message.type === 'connection') {
         return;
+      } else if (message.type === 'clear') {
+        setMessages([]);
+        return;
       }
 
       setMessages(messageGroups => [...messageGroups, message]);
