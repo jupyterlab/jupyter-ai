@@ -2,13 +2,14 @@ import React from 'react';
 
 import {
   Box,
-  IconButton,
-  Input,
   SxProps,
+  TextField,
   Theme,
   FormGroup,
   FormControlLabel,
-  Checkbox
+  Checkbox,
+  IconButton,
+  InputAdornment
 } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 
@@ -25,23 +26,33 @@ type ChatInputProps = {
 };
 
 export function ChatInput(props: ChatInputProps): JSX.Element {
+  function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
+    if (event.key === 'Enter' && event.shiftKey) {
+      props.onSend();
+      event.stopPropagation();
+      event.preventDefault();
+    }
+  }
   return (
     <Box sx={props.sx}>
       <Box sx={{ display: 'flex' }}>
-        <Input
+        <TextField
           value={props.value}
           onChange={e => props.onChange(e.target.value)}
+          fullWidth
+          variant="outlined"
           multiline
-          sx={{ flexGrow: 1 }}
+          onKeyDown={handleKeyDown}
+          InputProps={{
+            endAdornment: (
+               <InputAdornment position="end">
+                  <IconButton size="small" color="primary" onClick={props.onSend} disabled={!props.value.trim().length}>
+                     <SendIcon />
+                  </IconButton>
+               </InputAdornment>
+            ),
+         }}
         />
-        <IconButton
-          size="large"
-          color="primary"
-          onClick={props.onSend}
-          disabled={!props.value.trim().length}
-        >
-          <SendIcon />
-        </IconButton>
       </Box>
       {props.hasSelection && (
         <FormGroup sx={{ display: 'flex', flexDirection: 'row' }}>
