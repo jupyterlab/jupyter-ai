@@ -44,7 +44,7 @@ export function ChatMessageHeader(props: ChatMessageHeaderProps) {
         <Typography
           sx={{
             fontSize: 'var(--jp-ui-font-size1)',
-            color: 'var(--jp-ui-font-color1)'
+            color: 'var(--jp-ui-inverse-font-color1)'
           }}
         >
           {props.message.client.initials}
@@ -85,8 +85,8 @@ export function ChatMessageHeader(props: ChatMessageHeaderProps) {
           alignItems: 'center'
         }}
       >
-        <Typography sx={{ fontWeight: 700 }}>{name}</Typography>
-        <Typography sx={{ fontSize: '0.8em', fontWeight: 300 }}>
+        <Typography sx={{ fontWeight: 700, color: 'var(--jp-ui-font-color1)' }}>{name}</Typography>
+        <Typography sx={{ fontSize: '0.8em', color: 'var(--jp-ui-font-color2)', fontWeight: 300 }}>
           {props.timestamp}
         </Typography>
       </Box>
