@@ -1,6 +1,7 @@
 import {
   JupyterFrontEnd,
-  JupyterFrontEndPlugin
+  JupyterFrontEndPlugin,
+  ILayoutRestorer
 } from '@jupyterlab/application';
 import { INotebookTracker } from '@jupyterlab/notebook';
 import { IEditorTracker } from '@jupyterlab/fileeditor';
@@ -50,12 +51,13 @@ const plugin: JupyterFrontEndPlugin<void> = {
   id: 'jupyter_ai:plugin',
   autoStart: true,
   requires: [INotebookTracker, IEditorTracker],
-  optional: [IGlobalAwareness],
+  optional: [IGlobalAwareness, ILayoutRestorer],
   activate: async (
     app: JupyterFrontEnd,
     notebookTracker: INotebookTracker,
     editorTracker: IEditorTracker,
-    globalAwareness: Awareness | null
+    globalAwareness: Awareness | null,
+    restorer: ILayoutRestorer
   ) => {
     const { commands, shell } = app;
 
@@ -92,13 +94,19 @@ const plugin: JupyterFrontEndPlugin<void> = {
     const chatHandler = new ChatHandler();
     await chatHandler.initialize();
 
+    const chatWidget = buildChatSidebar(selectionWatcher, chatHandler, globalAwareness);
+
     /**
      * Add Chat widget to right sidebar
      */
     shell.add(
-      buildChatSidebar(selectionWatcher, chatHandler, globalAwareness),
-      'right'
+      chatWidget,
+      'left', { rank: 2000 }
     );
+
+    if (restorer) {
+      restorer.add(chatWidget, 'jupyter-ai-chat');
+    }
 
     /**
      * Register inserters
