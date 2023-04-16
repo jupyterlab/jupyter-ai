@@ -7,7 +7,7 @@ from importlib_metadata import entry_points
 from IPython import get_ipython
 from IPython.core.magic import Magics, magics_class, line_cell_magic
 from IPython.core.magic_arguments import magic_arguments, argument, parse_argstring
-from IPython.display import HTML, Markdown, Math, JSON, TextDisplayObject
+from IPython.display import HTML, Markdown, Math, JSON
 
 from .providers import BaseProvider
 
@@ -19,6 +19,15 @@ MODEL_ID_ALIASES = {
     "gpt4": "openai-chat:gpt-4",
 }
 
+class TextWithMetadata(object):
+
+    def __init__(self, text, metadata):
+        self.text = text
+        self.metadata = metadata
+
+    def _repr_mimebundle_(self, include=None, exclude=None):
+        return ({'text/plain': self.text}, self.metadata)
+
 DISPLAYS_BY_FORMAT = {
     "code": None,
     "html": HTML,
@@ -26,7 +35,7 @@ DISPLAYS_BY_FORMAT = {
     "math": Math,
     "md": Markdown,
     "json": JSON,
-    "text": TextDisplayObject
+    "text": TextWithMetadata
 }
 
 MARKDOWN_PROMPT_TEMPLATE = '{prompt}\n\nProduce output in markdown format only.'
@@ -40,6 +49,8 @@ PROMPT_TEMPLATES_BY_FORMAT = {
     "json": '{prompt}\n\nProduce output in JSON format only, with nothing before or after it.',
     "text": '{prompt}' # No customization
 }
+
+
 
 class FormatDict(dict):
     """Subclass of dict to be passed to str#format(). Suppresses KeyError and
@@ -187,6 +198,13 @@ class AiMagics(Magics):
         # build output display
         DisplayClass = DISPLAYS_BY_FORMAT[args.format]
 
+        md = {
+            "jupyter_ai": {
+                "provider_id": provider_id,
+                "model_id": local_model_id
+            }
+        }
+
         # if the user wants code, add another cell with the output.
         if args.format == 'code':
             # Strip leading and trailing triple-backticks
@@ -197,19 +215,13 @@ class AiMagics(Magics):
                 replace=False,
             )
             ip.payload_manager.write_payload(new_cell_payload)
-            return None; # No output from the AI cell
+            return HTML('AI generated code inserted below &#11015;&#65039;', metadata=md); # No output from the AI cell
 
         if DisplayClass is None:
             return output
         if args.format == 'json':
             # JSON display expects a dict, not a JSON string
             output = json.loads(output)
-        md = {
-            "jupyter_ai": {
-                "provider_id": provider_id,
-                "model_id": local_model_id
-            }
-        }
         output_display = DisplayClass(output, metadata=md)
 
         # finally, display output display
