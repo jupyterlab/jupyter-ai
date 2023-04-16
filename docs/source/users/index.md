@@ -16,11 +16,13 @@ If you use `conda`, you can install Python 3.10 in your environment by running:
 conda install python=3.10
 ```
 
-You will also need to have a currently-maintained version of JupyterLab installed. If you use `conda`, you can install JupyterLab in your environment by running:
+To use the `jupyter_ai` package, you will also need to have a currently-maintained version of JupyterLab installed. If you use `conda`, you can install JupyterLab in your environment by running:
 
 ```
 conda install jupyterlab
 ```
+
+You can use the `jupyter_ai_magics` package without JupyterLab, but you will need a compatible interface, such as [IPython](https://ipython.org/).
 
 ## Model providers
 
