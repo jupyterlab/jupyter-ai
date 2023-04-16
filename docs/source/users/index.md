@@ -56,30 +56,22 @@ The `%%ai` magic will work anywhere the IPython kernel runs (JupyterLab, Jupyter
 
 You can check that the Jupyter AI server extension is enabled by running:
 
-```bash
-jupyter server extension list
-```
+    $ jupyter server extension list
 
 To verify that the frontend extension is installed, run:
 
-```bash
-jupyter labextension list
-```
+
+    $ jupyter labextension list
 
 To remove the extension, run:
 
-```bash
-pip uninstall jupyter_ai
-```
+    $ pip uninstall jupyter_ai
 
 or
 
-```bash
-pip uninstall jupyter_ai_magics
-```
+    $pip uninstall jupyter_ai_magics
 
-
-## The Jupyter AI `%%ai` magic command
+## The `%%ai` magic command
 
 The examples in this section are based on the [Jupyter AI example notebook](https://github.com/jupyterlab/jupyter-ai/blob/main/examples/magics.ipynb).
 
@@ -87,7 +79,7 @@ Before you send your first prompt to an AI model, load the IPython extension by 
 the following code in a notebook cell or IPython shell:
 
 ```
-%load_ext jupyter_ai
+%load_ext jupyter_ai_magics
 ```
 
 This command should not produce any output.
@@ -122,12 +114,14 @@ providers, as defined in [`langchain.llms`](https://langchain.readthedocs.io/en/
 
 If your model ID is associated with only one provider, you can omit the `provider-id` and
 the colon from the first line. For example, because `ai21` is the only provider of the
-`j2-jumbo-instruct` model, these two code cells will do the same thing when you run them:
+`j2-jumbo-instruct` model, you can either give the full provider and model,
 
 ```
 %%ai ai21:j2-jumbo-instruct
 Write some JavaScript code that prints "hello world" to the console.
 ```
+
+or just the model,
 
 ```
 %%ai j2-jumbo-instruct # infers AI21 provider
