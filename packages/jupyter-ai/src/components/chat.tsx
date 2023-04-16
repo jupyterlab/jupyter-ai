@@ -63,7 +63,7 @@ function ChatBody({ chatHandler }: ChatBodyProps): JSX.Element {
 
     const prompt =
       input +
-      (includeSelection && selection?.text ? '\n--\n' + selection.text : '');
+      (includeSelection && selection?.text ? '\n\n```\n' + selection.text + '```': '');
 
     // send message to backend
     const messageId = await chatHandler.sendMessage({ prompt });
@@ -90,7 +90,7 @@ function ChatBody({ chatHandler }: ChatBodyProps): JSX.Element {
         width: '100%',
         height: '100%',
         boxSizing: 'border-box',
-        background: 'white',
+        background: 'var(--jp-layout-color0)',
         display: 'flex',
         flexDirection: 'column'
       }}
@@ -114,7 +114,11 @@ function ChatBody({ chatHandler }: ChatBodyProps): JSX.Element {
           setReplaceSelection(replaceSelection => !replaceSelection)
         }
         sx={{
-          padding: 2
+          paddingLeft: 4,
+          paddingRight: 4,
+          paddingTop: 2,
+          paddingBottom: 2,
+          borderTop: '1px solid var(--jp-border-color1)'
         }}
       />
     </Box>

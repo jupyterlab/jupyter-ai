@@ -120,17 +120,20 @@ export function ChatMessages(props: ChatMessagesProps) {
 
   return (
     <Box
-      sx={{ '& > :not(:last-child)': { borderBottom: '1px solid lightgrey' } }}
+      sx={{ '& > :not(:last-child)': { borderBottom: '1px solid var(--jp-border-color2)' } }}
     >
       {props.messages.map((message, i) => (
         // extra div needed to ensure each bubble is on a new line
-        <Box key={i} sx={{ padding: 2 }}>
+        <Box key={i} sx={{ padding: 4 }}>
           <ChatMessageHeader
             message={message}
             timestamp={timestamps[message.id]}
-            sx={{ marginBottom: '12px' }}
+            sx={{ marginBottom: 3 }}
           />
           <ReactMarkdown
+            // We are using the jp-RenderedHTMLCommon class here to get the default Jupyter
+            // markdown styling and then overriding any CSS to make it more compact.
+            className="jp-RenderedHTMLCommon jp-ai-react-markdown"
             components={{
               code: ChatCodeView
             }}
