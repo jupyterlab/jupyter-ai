@@ -1,8 +1,8 @@
 # Jupyter AI
 
 Welcome to Jupyter AI, which brings generative AI to Jupyter. Jupyter AI provides a user-friendly 
-and powerful way to explore generative AI in notebooks and use these models to accelerate
-your work in JupyterLab and the Jupyter Notebook. More specifically, Jupyter AI offers:
+and powerful way to explore generative AI models in notebooks and improve your productivity
+in JupyterLab and the Jupyter Notebook. More specifically, Jupyter AI offers:
 
 * An `%%ai` magic that turns the Jupyter notebook into a reproducible generative AI playground.
   This works anywhere the IPython kernel runs (JupyterLab, Jupyter Notebook, Google Colab, VSCode, etc.).
