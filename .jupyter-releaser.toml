@@ -12,7 +12,5 @@ before-build-python = [
 version-cmd = "../../scripts/bump-version.sh"
 python_packages = [
     "packages/jupyter-ai-magics:jupyter-ai-magics",
-    "packages/jupyter-ai:jupyter-ai",
-    "packages/jupyter-ai-dalle:jupyter-ai-dalle",
-    "packages/jupyter-ai-chatgpt:jupyter-ai-chatgpt"
+    "packages/jupyter-ai:jupyter-ai"
 ]
