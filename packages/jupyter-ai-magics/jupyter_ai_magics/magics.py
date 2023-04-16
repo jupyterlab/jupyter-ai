@@ -8,7 +8,7 @@ from importlib_metadata import entry_points
 from IPython import get_ipython
 from IPython.core.magic import Magics, magics_class, line_cell_magic
 from IPython.core.magic_arguments import magic_arguments, argument, parse_argstring
-from IPython.display import HTML, Image, JSON, Markdown, Math, TextDisplayObject
+from IPython.display import HTML, Image, JSON, Markdown, Math
 
 from .providers import BaseProvider
 
