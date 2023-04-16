@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 name = "jupyter_ai"
 readme = "README.md"
 license = { file = "LICENSE" }
-requires-python = ">=3.7,<=3.10"
+requires-python = ">=3.7,<3.11"
 classifiers = [
     "Framework :: Jupyter",
     "Framework :: Jupyter :: JupyterLab",
