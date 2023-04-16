@@ -1,7 +1,9 @@
 # Users
 
-Welcome to the user documentation for Jupyter AI. If you are interested in contributing a new or modified
-feature in JupyterLab, please see our {doc}`contributor's guide </contributors/index>`.
+Welcome to the user documentation for Jupyter AI.
+
+If you are interested in contributing to Jupyter AI, 
+please see our {doc}`contributor's guide </contributors/index>`.
 
 ## Model providers
 
@@ -69,11 +71,11 @@ To remove the extension, run:
 
 or
 
-    $pip uninstall jupyter_ai_magics
+    $ pip uninstall jupyter_ai_magics
 
 ## The `%%ai` magic command
 
-The examples in this section are based on the [Jupyter AI example notebook](https://github.com/jupyterlab/jupyter-ai/blob/main/examples/magics.ipynb).
+The examples in this section are based on the [Jupyter AI example notebooks](https://github.com/jupyterlab/jupyter-ai/blob/main/examples/).
 
 Before you send your first prompt to an AI model, load the IPython extension by running 
 the following code in a notebook cell or IPython shell:
@@ -84,14 +86,13 @@ the following code in a notebook cell or IPython shell:
 
 This command should not produce any output.
 
-The `%%ai` magic command is easy to use and enables to to quickly pick which model you want to use
+The `%%ai` magic command is user-friendly and enables you to quickly pick which model you want to use
 and specify natural language prompts.
 
 ### Choosing a provider and model
 
-To use Jupyter AI, use the `%%ai` cell magic with the
-syntax `<provider-id>:<model-id>`. Your prompt starts on the second line of the cell.
-The prompt starts on the second line of the cell.
+The `%%ai` magic command enables you to specify a model provider and model with the
+syntax `<provider-id>:<model-id>`. The natural language prompt starts on the second line of the cell.
 
 For example, to send a text prompt to the provider `anthropic` and the model ID
 `claude-v1.2`, enter the following code into a cell and run it:
