@@ -98,8 +98,12 @@ export namespace AiService {
     client_id: string;
   };
 
+  export type ClearMessage = {
+    type: 'clear'
+  }
+
   export type ChatMessage = AgentChatMessage | HumanChatMessage;
-  export type Message = AgentChatMessage | HumanChatMessage | ConnectionMessage;
+  export type Message = AgentChatMessage | HumanChatMessage | ConnectionMessage | ClearMessage;
 
   export type ChatHistory = {
     messages: ChatMessage[];

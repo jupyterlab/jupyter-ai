@@ -42,6 +42,9 @@ class ConnectionMessage(BaseModel):
     type: Literal["connection"] = "connection"
     client_id: str
 
+class ClearMessage(BaseModel):
+    type: Literal["clear"] = "clear"
+
 # the type of messages being broadcast to clients
 ChatMessage = Union[
     AgentChatMessage,
@@ -51,7 +54,8 @@ ChatMessage = Union[
 Message = Union[
     AgentChatMessage,
     HumanChatMessage,
-    ConnectionMessage
+    ConnectionMessage,
+    ClearMessage
 ]
 
 class ListEnginesEntry(BaseModel):

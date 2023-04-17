@@ -16,7 +16,7 @@ from jupyter_server.base.handlers import APIHandler as BaseAPIHandler, JupyterHa
 from jupyter_server.utils import ensure_async
 
 from .task_manager import TaskManager
-from .models import ChatHistory, PromptRequest, ChatRequest, ChatMessage, AgentChatMessage, HumanChatMessage, ConnectionMessage, ChatClient
+from .models import ChatHistory, PromptRequest, ChatRequest, ChatMessage, Message, AgentChatMessage, HumanChatMessage, ConnectionMessage, ChatClient
 from langchain.schema import HumanMessage
 
 class APIHandler(BaseAPIHandler):
@@ -205,7 +205,7 @@ class ChatHandler(
         self.log.info(f"Client connected. ID: {client_id}")
         self.log.debug("Clients are : %s", self.chat_handlers.keys())
 
-    def broadcast_message(self, message: ChatMessage):
+    def broadcast_message(self, message: Message):
         """Broadcasts message to all connected clients. 
         Appends message to `self.chat_history`.
         """
@@ -218,7 +218,9 @@ class ChatHandler(
             if client:
                 client.write_message(message.dict())
         
-        self.chat_history.append(message)
+        # Only append ChatMessage instances to history, not control messages
+        if isinstance(message, HumanChatMessage) or isinstance(message, AgentChatMessage):
+            self.chat_history.append(message)
 
     async def on_message(self, message):
         self.log.debug("Message recieved: %s", message)
@@ -230,11 +232,6 @@ class ChatHandler(
             self.log.error(e)
             return
 
-        # message sent to the agent instance
-        message = HumanMessage(
-            content=chat_request.prompt,
-            additional_kwargs=dict(user=asdict(self.current_user))
-        )
         # message broadcast to chat clients
         chat_message_id = str(uuid.uuid4())
         chat_message = HumanChatMessage(
@@ -246,6 +243,12 @@ class ChatHandler(
 
         # broadcast the message to other clients
         self.broadcast_message(message=chat_message)
+
+        # Clear the message history if given the /clear command
+        if chat_request.prompt.startswith('/'):
+            command = chat_request.prompt.split(' ', 1)[0]
+            if command == '/clear':
+                self.chat_history.clear()
 
         # process through the router
         router = ray.get_actor("router")
