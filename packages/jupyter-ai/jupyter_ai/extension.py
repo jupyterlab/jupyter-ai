@@ -125,7 +125,7 @@ class AiExtension(ExtensionApp):
             log=self.log
         )
         memory_actor = MemoryActor.options(name=ACTOR_TYPE.MEMORY.value).remote(
-            memory=ConversationBufferMemory()
+            memory=ConversationBufferMemory(return_messages=True),
             log=self.log
         )
         self.settings['router'] = router
