@@ -1,4 +1,5 @@
 import asyncio
+import os
 import queue
 from langchain.memory import ConversationBufferWindowMemory
 from jupyter_ai.actors.default import DefaultActor 
@@ -13,7 +14,7 @@ from .handlers import ChatHandler, ChatHistoryHandler, PromptAPIHandler, TaskAPI
 from importlib_metadata import entry_points
 import inspect
 from .engine import BaseModelEngine
-from jupyter_ai_magics.providers import ChatOpenAIProvider
+from jupyter_ai_magics.providers import ChatOpenAINewProvider, ChatOpenAIProvider
 
 import ray
 from ray.util.queue import Queue
@@ -89,6 +90,9 @@ class AiExtension(ExtensionApp):
         self.settings["ai_default_tasks"] = default_tasks
         self.log.info("Registered all default tasks.")
 
+        if ChatOpenAINewProvider.auth_strategy.name not in os.environ:
+            raise EnvironmentError(f"`{ChatOpenAINewProvider.auth_strategy.name}` value not set in environment. For chat to work, this value should be provided.")
+
         ## load OpenAI provider
         self.settings["openai_chat"] = ChatOpenAIProvider(model_id="gpt-3.5-turbo")
 
@@ -103,6 +107,7 @@ class AiExtension(ExtensionApp):
         
         # store chat messages in memory for now
         self.settings["chat_history"] = []
+
 
         reply_queue = Queue()
         self.settings["reply_queue"] = reply_queue
@@ -136,4 +141,4 @@ class AiExtension(ExtensionApp):
 
         reply_processor = ReplyProcessor(self.settings['chat_handlers'], reply_queue, log=self.log)        
         loop = asyncio.get_event_loop()
-        loop.create_task(reply_processor.start())
+        loop.create_task(reply_processor.start())            

@@ -31,8 +31,13 @@ function ChatBody({ chatHandler }: ChatBodyProps): JSX.Element {
    */
   useEffect(() => {
     async function fetchHistory() {
-      const history = await chatHandler.getHistory();
-      setMessages(history.messages);
+      try {
+        const history = await chatHandler.getHistory();
+        setMessages(history.messages);
+      } catch (e) {
+        
+      }
+      
     }
 
     fetchHistory();
