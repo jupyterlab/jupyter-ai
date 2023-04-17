@@ -1,6 +1,10 @@
 import asyncio
 import queue
-from jupyter_ai.actors import ACTOR_TYPE, DefaultActor, DocumentIndexActor, FileSystemActor, Router
+from jupyter_ai.actors.default import DefaultActor 
+from jupyter_ai.actors.filesystem import FileSystemActor 
+from jupyter_ai.actors.index import DocumentIndexActor
+from jupyter_ai.actors.router import Router
+from jupyter_ai.actors.base import ACTOR_TYPE
 from jupyter_ai.reply_processor import ReplyProcessor
 from jupyter_server.extension.application import ExtensionApp
 from .handlers import ChatHandler, ChatHistoryHandler, PromptAPIHandler, TaskAPIHandler

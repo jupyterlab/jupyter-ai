@@ -1,4 +1,3 @@
-import asyncio
 from dataclasses import asdict
 import json
 from typing import Dict, List
@@ -17,7 +16,7 @@ from jupyter_server.utils import ensure_async
 
 from .task_manager import TaskManager
 from .models import ChatHistory, PromptRequest, ChatRequest, ChatMessage, Message, AgentChatMessage, HumanChatMessage, ConnectionMessage, ChatClient
-from langchain.schema import HumanMessage
+
 
 class APIHandler(BaseAPIHandler):
     @property
