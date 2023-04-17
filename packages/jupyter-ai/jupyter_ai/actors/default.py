@@ -36,7 +36,7 @@ class DefaultActor(BaseActor):
         chain = ConversationChain(
             llm=provider, 
             prompt=prompt_template,
-            verbose=True, 
+            verbose=True,
             memory=memory
         )
         self.chat_provider = chain
