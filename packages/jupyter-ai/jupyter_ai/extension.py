@@ -1,6 +1,6 @@
 import asyncio
 import queue
-from langchain.memory import ConversationBufferMemory
+from langchain.memory import ConversationBufferWindowMemory
 from jupyter_ai.actors.default import DefaultActor 
 from jupyter_ai.actors.filesystem import FileSystemActor 
 from jupyter_ai.actors.index import DocumentIndexActor
@@ -125,7 +125,7 @@ class AiExtension(ExtensionApp):
             log=self.log
         )
         memory_actor = MemoryActor.options(name=ACTOR_TYPE.MEMORY.value).remote(
-            memory=ConversationBufferMemory(return_messages=True),
+            memory=ConversationBufferWindowMemory(return_messages=True, k=2),
             log=self.log
         )
         self.settings['router'] = router
