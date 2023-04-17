@@ -1,4 +1,5 @@
 from jupyter_ai.actors.base import Logger
+from typing import Dict, Any, List
 from langchain.schema import BaseMemory
 import ray
 from pydantic import PrivateAttr
