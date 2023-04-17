@@ -15,8 +15,7 @@ from langchain.prompts import (
     HumanMessagePromptTemplate
 )
 
-# [W 2023-04-17 08:54:34.187 ServerApp] 404 GET /api/ai/chats?token=[secret]
-# (e9e4e29d33d44ab4a7c2838cbce85646@127.0.0.1) 21.38ms referer=None
+SYSTEM_PROMPT = "The following is a friendly conversation between a human and an AI, whose name is Jupyter AI. The AI is talkative and provides lots of specific details from its context. If the AI does not know the answer to a question, it truthfully says it does not know."
 
 
 @ray.remote
@@ -29,7 +28,7 @@ class DefaultActor(BaseActor):
         # Create a conversation memory
         memory = RemoteMemory(actor_name=ACTOR_TYPE.MEMORY)
         prompt_template = ChatPromptTemplate.from_messages([
-            SystemMessagePromptTemplate.from_template("The following is a friendly conversation between a human and an AI. The AI is talkative and provides lots of specific details from its context. If the AI does not know the answer to a question, it truthfully says it does not know."),
+            SystemMessagePromptTemplate.from_template(SYSTEM_PROMPT),
             MessagesPlaceholder(variable_name="history"),
             HumanMessagePromptTemplate.from_template("{input}")
         ])
