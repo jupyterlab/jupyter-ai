@@ -11,6 +11,7 @@ class ACTOR_TYPE(str, Enum):
     DEFAULT = "default"
     FILESYSTEM = "filesystem"
     INDEX = 'index'
+    MEMORY = 'memory'
 
 COMMANDS = {
     '/fs': ACTOR_TYPE.FILESYSTEM,

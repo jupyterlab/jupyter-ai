@@ -1,6 +1,7 @@
 import time
 from uuid import uuid4
-from jupyter_ai.actors.base import BaseActor, Logger
+from jupyter_ai.actors.base import BaseActor, Logger, ACTOR_TYPE
+from jupyter_ai.actors.memory import RemoteMemory
 from jupyter_ai.models import AgentChatMessage, HumanChatMessage
 from jupyter_ai_magics.providers import ChatOpenAINewProvider
 from langchain import ConversationChain
@@ -14,6 +15,8 @@ from langchain.prompts import (
     HumanMessagePromptTemplate
 )
 
+# [W 2023-04-17 08:54:34.187 ServerApp] 404 GET /api/ai/chats?token=[secret]
+# (e9e4e29d33d44ab4a7c2838cbce85646@127.0.0.1) 21.38ms referer=None
 
 
 @ray.remote
@@ -24,7 +27,7 @@ class DefaultActor(BaseActor):
         provider = ChatOpenAINewProvider(model_id="gpt-3.5-turbo")
         
         # Create a conversation memory
-        memory = ConversationBufferMemory(return_messages=True)
+        memory = RemoteMemory(actor_name=ACTOR_TYPE.MEMORY)
         prompt_template = ChatPromptTemplate.from_messages([
             SystemMessagePromptTemplate.from_template("The following is a friendly conversation between a human and an AI. The AI is talkative and provides lots of specific details from its context. If the AI does not know the answer to a question, it truthfully says it does not know."),
             MessagesPlaceholder(variable_name="history"),

@@ -1,9 +1,11 @@
 import asyncio
 import queue
+from langchain.memory import ConversationBufferMemory
 from jupyter_ai.actors.default import DefaultActor 
 from jupyter_ai.actors.filesystem import FileSystemActor 
 from jupyter_ai.actors.index import DocumentIndexActor
 from jupyter_ai.actors.router import Router
+from jupyter_ai.actors.memory import MemoryActor
 from jupyter_ai.actors.base import ACTOR_TYPE
 from jupyter_ai.reply_processor import ReplyProcessor
 from jupyter_server.extension.application import ExtensionApp
@@ -122,10 +124,15 @@ class AiExtension(ExtensionApp):
             reply_queue=reply_queue, 
             log=self.log
         )
+        memory_actor = MemoryActor.options(name=ACTOR_TYPE.MEMORY.value).remote(
+            memory=ConversationBufferMemory()
+            log=self.log
+        )
         self.settings['router'] = router
         self.settings["default_actor"] = default_actor
         self.settings["index_actor"] = index_actor
         self.settings["fs_actor"] = fs_actor
+        self.settings["memory_actor"] = memory_actor
 
         reply_processor = ReplyProcessor(self.settings['chat_handlers'], reply_queue, log=self.log)        
         loop = asyncio.get_event_loop()
