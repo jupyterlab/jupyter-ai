@@ -260,7 +260,8 @@ providers, as defined in [`langchain.llms`](https://langchain.readthedocs.io/en/
 - `ai21`
 - `anthropic`
 - `cohere`
-- `huggingface_hub`
+- `huggingface_hub` (uses HuggingFace Hub for models that output text)
+- `huggingface_image` (uses HuggingFace Hub for models that output images)
 - `openai`
 - `openai-chat`
 - `sagemaker-endpoint`
@@ -297,6 +298,7 @@ an `%%ai` command will be formatted as markdown by default. You can override thi
 using the `-f` or `--format` argument to your magic command. Valid formats include:
 
 - `code`
+- `image`
 - `markdown`
 - `math`
 - `html`
