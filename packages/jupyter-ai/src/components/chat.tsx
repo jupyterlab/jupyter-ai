@@ -46,6 +46,7 @@ function ChatBody({ chatHandler }: ChatBodyProps): JSX.Element {
       if (message.type === 'connection') {
         return;
       } else if (message.type === 'clear') {
+        console.log('clearing messages');
         setMessages([]);
         return;
       }
