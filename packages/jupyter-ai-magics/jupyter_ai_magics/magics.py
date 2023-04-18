@@ -1,6 +1,7 @@
 import json
 import os
 import re
+import traceback
 import warnings
 from typing import Optional
 
@@ -101,8 +102,12 @@ class AiMagics(Magics):
         model_provider_eps = eps.select(group="jupyter_ai.model_providers")
         for model_provider_ep in model_provider_eps:
             try:
+                model_provider_ep_name = model_provider_ep.name
+                print(f"Loading entry point {model_provider_ep_name}");
                 Provider = model_provider_ep.load()
+                print(f"Loaded entry point {model_provider_ep_name}");
             except:
+                traceback.print_exc()
                 continue
             self.providers[Provider.id] = Provider
     
