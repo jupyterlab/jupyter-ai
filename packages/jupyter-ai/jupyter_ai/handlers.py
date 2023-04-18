@@ -81,16 +81,8 @@ class TaskAPIHandler(APIHandler):
 class ChatHistoryHandler(BaseAPIHandler):
     """Handler to return message history"""
 
-    _chat_provider = None  
     _messages = []
     
-    @property
-    def chat_provider(self):
-        actor = ray.get_actor("default")
-        self._chat_provider = actor.chat_provider
-            
-        return self._chat_provider
-
     @property
     def chat_history(self):
         return self.settings["chat_history"]
@@ -104,13 +96,6 @@ class ChatHistoryHandler(BaseAPIHandler):
         history = ChatHistory(messages=self.chat_history)
         self.finish(history.json())
 
-    @tornado.web.authenticated
-    async def delete(self):
-        self.chat_provider.memory.chat_memory.clear()
-        self.chat_history = []
-        self.set_status(204)
-        self.finish()
-
 
 class ChatHandler(
     JupyterHandler,
@@ -122,7 +107,6 @@ class ChatHandler(
 
     _chat_provider = None  
     _chat_message_queue = None 
-    _reply_queue = None
     
     @property
     def chat_message_queue(self):
@@ -150,13 +134,6 @@ class ChatHandler(
     @property
     def chat_history(self) -> List[ChatMessage]:
         return self.settings["chat_history"]
-    
-    @property
-    def reply_queue(self):
-        if not self._reply_queue:
-            self._reply_queue = self.settings["reply_queue"]
-
-        return self._reply_queue
 
     def initialize(self):
         self.log.debug("Initializing websocket connection %s", self.request.path)
