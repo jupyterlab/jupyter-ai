@@ -4,13 +4,14 @@ import {
   ILayoutRestorer
 } from '@jupyterlab/application';
 
-import { IWidgetTracker } from '@jupyterlab/apputils';
+import { IWidgetTracker, ReactWidget } from '@jupyterlab/apputils';
 import { IDocumentWidget } from '@jupyterlab/docregistry';
 import { IGlobalAwareness } from '@jupyterlab/collaboration';
 import type { Awareness } from 'y-protocols/awareness';
 import { buildChatSidebar } from './widgets/chat-sidebar';
 import { SelectionWatcher } from './selection-watcher';
 import { ChatHandler } from './chat_handler';
+import { buildErrorWidget } from './widgets/chat-error';
 
 export type DocumentTracker = IWidgetTracker<IDocumentWidget>;
 
@@ -35,10 +36,15 @@ const plugin: JupyterFrontEndPlugin<void> = {
      * Initialize chat handler, open WS connection
      */
     const chatHandler = new ChatHandler();
-    await chatHandler.initialize();
-
-    const chatWidget = buildChatSidebar(selectionWatcher, chatHandler, globalAwareness);
-
+    
+    let chatWidget: ReactWidget | null = null;
+    try {
+      await chatHandler.initialize();
+      chatWidget = buildChatSidebar(selectionWatcher, chatHandler, globalAwareness);
+    } catch (e) {
+      chatWidget = buildErrorWidget()
+    }
+   
     /**
      * Add Chat widget to right sidebar
      */

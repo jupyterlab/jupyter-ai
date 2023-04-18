@@ -40,6 +40,7 @@ export class ChatHandler implements IDisposable {
         (token ? `?token=${encodeURIComponent(token)}` : '');
 
       const socket = (this._socket = new WebSocket(url));
+      socket.onerror = (e) => reject(e);
       socket.onmessage = msg =>
         msg.data && this._onMessage(JSON.parse(msg.data));
 
