@@ -12,12 +12,7 @@ from langchain.prompts import PromptTemplate
 from langchain.llms import BaseLLM
 from langchain.chains import LLMChain
 
-from nbformat.v4.nbbase import (
-    nbformat,
-    new_code_cell,
-    new_markdown_cell,
-    new_notebook
-)
+import nbformat
 
 from jupyter_ai.models import AgentChatMessage, HumanChatMessage
 from jupyter_ai.actors.base import BaseActor, Logger
@@ -53,7 +48,7 @@ class NotebookOutlineChain(LLMChain):
     """Chain to generates tasks."""
 
     @classmethod
-    def from_llm(cls, llm: BaseLLM, verbose: bool = False) -> LLMChain:
+    def from_llm(cls, llm: BaseLLM, verbose: bool=False) -> LLMChain:
         task_creation_template = (
             "You are an AI that creates a detailed content outline for a Jupyter notebook on a given topic.\n"
             "Generate the outline as JSON data that will validate against this JSON schema:\n"
@@ -73,15 +68,38 @@ class NotebookOutlineChain(LLMChain):
 def generate_outline(description, llm=None, verbose=False):
     if llm is None:
         llm = ChatOpenAINewProvider(model_id='gpt-3.5-turbo')
-    chain = NotebookOutlineChain.from_llm(llm)
+    chain = NotebookOutlineChain.from_llm(llm=llm, verbose=verbose)
     outline = chain.predict(description=description, schema=schema)
     return json.loads(outline)
+
+class CodeImproverChain(LLMChain):
+    """Chain to generates tasks."""
+
+    @classmethod
+    def from_llm(cls, llm: BaseLLM, verbose: bool=False) -> LLMChain:
+        task_creation_template = (
+            "Improve the following code and make sure it is valid. Make sure to return the improved code only - don't give an explanation of the improvements.\n"
+            "{code}"
+        )
+        prompt = PromptTemplate(
+            template=task_creation_template,
+            input_variables=[
+                "code",
+            ],
+        )
+        return cls(prompt=prompt, llm=llm, verbose=verbose)
+
+def improve_code(code, llm=None, verbose=False):
+    chain = CodeImproverChain.from_llm(llm=llm, verbose=verbose)
+    improved_code = chain.predict(code=code)
+    improved_code = '\n'.join([line for line in improved_code.split('/n') if not line.startswith("```")])
+    return improved_code
 
 class NotebookSectionCodeChain(LLMChain):
     """Chain to generates tasks."""
 
     @classmethod
-    def from_llm(cls, llm: BaseLLM, verbose: bool = True) -> LLMChain:
+    def from_llm(cls, llm: BaseLLM, verbose: bool=False) -> LLMChain:
         task_creation_template = (
             "You are an AI that writes code for a single section of a Jupyter notebook.\n"
             "Overall topic of the notebook: {description}\n"
@@ -106,7 +124,7 @@ class NotebookSectionCodeChain(LLMChain):
 def generate_code(outline, llm=None, verbose=False):
     if llm is None:
         llm = ChatOpenAINewProvider(model_id='gpt-3.5-turbo')
-    chain = NotebookSectionCodeChain.from_llm(llm)
+    chain = NotebookSectionCodeChain.from_llm(llm=llm, verbose=verbose)
     code_so_far = []
     for section in outline['sections']:
         code = chain.predict(
@@ -115,7 +133,7 @@ def generate_code(outline, llm=None, verbose=False):
             content=section['content'],
             code_so_far='\n'.join(code_so_far)
         )
-        section['code'] = code
+        section['code'] = improve_code(code, llm=llm, verbose=verbose)
         code_so_far.append(code)
     return outline
 
@@ -141,9 +159,9 @@ class NotebookTitleChain(LLMChain):
     """Chain to generates tasks."""
 
     @classmethod
-    def from_llm(cls, llm: BaseLLM, verbose: bool = True) -> LLMChain:
+    def from_llm(cls, llm: BaseLLM, verbose: bool=False) -> LLMChain:
         task_creation_template = (
-            "Create a short, few word, descriptive title for a Jupyter notebook with the following content."
+            "Create a short, few word, descriptive title for a Jupyter notebook with the following content.\n"
             "Content:\n{content}"
         )
         prompt = PromptTemplate(
@@ -157,25 +175,32 @@ class NotebookTitleChain(LLMChain):
 def generate_title_and_summary(outline, llm=None, verbose=False):
     if llm is None:
         llm = ChatOpenAINewProvider(model_id='gpt-3.5-turbo')
-    summary_chain = NotebookSummaryChain.from_llm(llm)
-    title_chain = NotebookTitleChain.from_llm(llm)
+    summary_chain = NotebookSummaryChain.from_llm(llm=llm, verbose=verbose)
+    title_chain = NotebookTitleChain.from_llm(llm=llm, verbose=verbose)
     summary = summary_chain.predict(content=outline)
     title = title_chain.predict(content=outline)
     outline['summary'] = summary
-    outline['title'] = title
+    outline['title'] = title.strip('"')
     return outline
 
 def create_notebook(outline):
-    nb = new_notebook()
-    markdown_cell = new_markdown_cell('# ' + outline['title'])
+    nb = nbformat.v4.new_notebook()
+    markdown_cell = nbformat.v4.new_markdown_cell('# ' + outline['title'])
     nb['cells'].append(markdown_cell)
-    markdown_cell = new_markdown_cell(outline['summary'])
+    markdown_cell = nbformat.v4.new_markdown_cell('## Introduction')
+    nb['cells'].append(markdown_cell)
+    disclaimer = f"This notebook was created by [Jupyter AI](https://github.com/jupyterlab/jupyter-ai) with the following prompt:\n\n> {outline['description']}"
+    markdown_cell = nbformat.v4.new_markdown_cell(disclaimer)
+    nb['cells'].append(markdown_cell)
+    markdown_cell = nbformat.v4.new_markdown_cell(outline['summary'])
     nb['cells'].append(markdown_cell)
 
     for section in outline['sections'][1:]:
-        markdown_cell = new_markdown_cell('## ' + section['title'])
+        markdown_cell = nbformat.v4.new_markdown_cell('## ' + section['title'])
         nb['cells'].append(markdown_cell)
-        code_cell = new_code_cell(section['code'])
+        for code_block in section['code'].split('\n\n'):
+            code_cell = nbformat.v4.new_code_cell(code_block)
+            nb['cells'].append(code_cell)
         nb['cells'].append(code_cell)
     return nb
 
@@ -183,17 +208,24 @@ def create_notebook(outline):
 class AutoNotebookActor(BaseActor):
     def __init__(self, reply_queue: Queue, root_dir: str, log: Logger):
         super().__init__(log=log, reply_queue=reply_queue)
-        self.root_dir = root_dir
+        self.root_dir = os.path.abspath(os.path.expanduser(root_dir))
         self.llm = ChatOpenAINewProvider(model_id='gpt-3.5-turbo')
   
     def process_message(self, message: HumanChatMessage):
-        outline = generate_outline(message.body, llm=self.llm)
-        outline = generate_code(outline, llm=self.llm)
+        agent_message = AgentChatMessage(
+                id=uuid4().hex,
+                time=time.time(),
+                body="👍 Great, I will get started on your notebook. It may take a few minutes, but I will reply here when the notebook is ready. In the meantime, you can continue to ask me other questions.",
+                reply_to=message.id
+        )
+        self.reply_queue.put(agent_message)
+        outline = generate_outline(message.body, llm=self.llm, verbose=True)
+        outline = generate_code(outline, llm=self.llm, verbose=True)
         outline = generate_title_and_summary(outline, llm=self.llm)
         notebook = create_notebook(outline)
         final_path = os.path.join(self.root_dir, outline['title'] + '.ipynb')
         nbformat.write(notebook, final_path)
-        response = f"""🎉 I have created the notebook and saved it to the location {final_path}."""
+        response = f"""🎉 I have created your notebook and saved it to the location {final_path}. I am still learning how to create notebooks, so please review all code before running it."""
         agent_message = AgentChatMessage(
                 id=uuid4().hex,
                 time=time.time(),

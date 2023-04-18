@@ -136,8 +136,8 @@ class AiExtension(ExtensionApp):
         )
         autonotebook_actor = AutoNotebookActor.options(name=ACTOR_TYPE.AUTONOTEBOOK.value).remote(
             reply_queue=reply_queue, 
-            log=self.log
-            root_dir=self.settings['root_dir']
+            log=self.log,
+            root_dir=self.settings['server_root_dir']
         )
      
         self.settings['router'] = router
