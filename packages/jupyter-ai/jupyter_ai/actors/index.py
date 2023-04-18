@@ -11,8 +11,9 @@ from jupyter_ai_magics.providers import ChatOpenAINewProvider
 from ray.util.queue import Queue
 from jupyter_core.paths import jupyter_data_dir
 from langchain.embeddings.openai import OpenAIEmbeddings
-from langchain.document_loaders import DirectoryLoader, TextLoader
+from langchain.document_loaders import TextLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+from jupyter_ai.document_loaders.directory import DirectoryLoader
 
 
 @ray.remote
@@ -42,7 +43,7 @@ class DocumentIndexActor(BaseActor):
         load_path = os.path.join(self.root_dir, dir_path)
         loader = DirectoryLoader(
             load_path, 
-            glob="**/*.txt",
+            glob=['*.txt', '*.text', '*.md', '*.py', '*.ipynb', '*.R'],
             loader_cls=TextLoader
         )
         documents = loader.load_and_split(
