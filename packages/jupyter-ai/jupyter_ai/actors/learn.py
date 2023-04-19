@@ -53,7 +53,7 @@ class LearnActor(BaseActor):
 
         if args.delete:
             self.delete()
-            self.reply(f"👍 I have deleted everthing I previously learned", message)
+            self.reply(f"👍 I have deleted everything I previously learned.", message)
             return
 
         # Make sure the path exists.
