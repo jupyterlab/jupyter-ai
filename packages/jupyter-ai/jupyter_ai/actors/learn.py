@@ -87,7 +87,7 @@ class LearnActor(BaseActor):
         self.save()
 
         response = f"""🎉 I have indexed documents at **{load_path}** and I am ready to answer questions about them. 
-        You can ask questions from these docs by prefixing your message with **/ask**."""
+        You can ask questions about these docs by prefixing your message with **/ask**."""
         self.reply(response, message)
 
     def get_index(self):
