@@ -122,16 +122,16 @@ class AiExtension(ExtensionApp):
         )
         learn_actor = LearnActor.options(name=ACTOR_TYPE.LEARN.value).remote(
             reply_queue=reply_queue,
+            log=self.log,
             root_dir=self.serverapp.root_dir,
-            log=self.log 
         )
         ask_actor = AskActor.options(name=ACTOR_TYPE.ASK.value).remote(
             reply_queue=reply_queue, 
             log=self.log
         )
         memory_actor = MemoryActor.options(name=ACTOR_TYPE.MEMORY.value).remote(
-            memory=ConversationBufferWindowMemory(return_messages=True, k=2),
-            log=self.log
+            log=self.log,
+            memory=ConversationBufferWindowMemory(return_messages=True, k=2)
         )
         self.settings['router'] = router
         self.settings["default_actor"] = default_actor
