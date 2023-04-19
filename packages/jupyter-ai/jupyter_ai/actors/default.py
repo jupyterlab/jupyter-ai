@@ -1,13 +1,11 @@
 import time
 from uuid import uuid4
-from jupyter_ai.actors.base import BaseActor, Logger, ACTOR_TYPE
-from jupyter_ai.actors.memory import RemoteMemory
-from jupyter_ai.models import AgentChatMessage, HumanChatMessage
-from jupyter_ai_magics.providers import ChatOpenAINewProvider
-from langchain import ConversationChain
+
+
 import ray
 from ray.util.queue import Queue
-from langchain.memory import ConversationBufferMemory
+
+from langchain import ConversationChain
 from langchain.prompts import (
     ChatPromptTemplate, 
     MessagesPlaceholder, 
@@ -15,8 +13,12 @@ from langchain.prompts import (
     HumanMessagePromptTemplate
 )
 
-SYSTEM_PROMPT = "The following is a friendly conversation between a human and an AI, whose name is Jupyter AI. The AI is talkative and provides lots of specific details from its context. If the AI does not know the answer to a question, it truthfully says it does not know."
+from jupyter_ai.actors.base import BaseActor, Logger, ACTOR_TYPE
+from jupyter_ai.actors.memory import RemoteMemory
+from jupyter_ai.models import AgentChatMessage, HumanChatMessage
+from jupyter_ai_magics.providers import ChatOpenAINewProvider
 
+SYSTEM_PROMPT = "The following is a friendly conversation between a human and an AI, whose name is Jupyter AI. The AI is talkative and provides lots of specific details from its context. If the AI does not know the answer to a question, it truthfully says it does not know."
 
 @ray.remote
 class DefaultActor(BaseActor):

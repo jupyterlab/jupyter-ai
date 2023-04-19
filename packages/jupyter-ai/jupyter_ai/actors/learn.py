@@ -34,15 +34,15 @@ def create_message(response, id):
     return m
 
 @ray.remote
-class DocumentIndexActor(BaseActor):
+class LearnActor(BaseActor):
 
     def __init__(self, reply_queue: Queue, root_dir: str, log: Logger):
         super().__init__(log=log, reply_queue=reply_queue)
         self.root_dir = root_dir
-        self.index_save_dir = os.path.join(jupyter_data_dir(), '.jupyter_ai_indexes')
+        self.index_save_dir = os.path.join(jupyter_data_dir(), 'jupyter_ai')
         self.chunk_size = 2000
         self.chunk_overlap = 100
-        self.parser = argparse.ArgumentParser(prog='/index')
+        self.parser = argparse.ArgumentParser(prog='/learn')
         self.parser.add_argument('path')
         self.parser.add_argument('-v', '--verbose', action='store_true')
 
@@ -56,7 +56,7 @@ class DocumentIndexActor(BaseActor):
         try:
             self.index = FAISS.load_local(self.index_save_dir, embeddings)
         except Exception as e:
-            self.index = FAISS.from_texts(["Jupyter AI knows about your filesystem, to ask questions first use the /index command."], embeddings)
+            self.index = FAISS.from_texts(["Jupyter AI knows about your filesystem, to ask questions first use the /learn command."], embeddings)
 
     def get_index(self):
         return self.index
@@ -71,14 +71,14 @@ class DocumentIndexActor(BaseActor):
             args = message.body.split(' ')
 
             if len(args) <= 1:
-                response = f"Usage: `/index [-v] path`."
+                response = f"Usage: `/learn [-v] path`."
                 reply(response)
                 return
             
             try:
                 args = self.parser.parse_args(args[1:])
             except (argparse.ArgumentError, SystemExit) as e:
-                response = f"Usage: `/index [-v] path`."
+                response = f"Usage: `/learn [-v] path`."
                 reply(response)
                 return
 
@@ -115,7 +115,7 @@ class DocumentIndexActor(BaseActor):
             self.index.save_local(self.index_save_dir)
 
             response = f"""🎉 I have indexed documents at **{args.path}** and ready to answer questions. 
-            You can ask questions from these docs by prefixing your message with **/fs**."""
+            You can ask questions from these docs by prefixing your message with **/ask**."""
             reply(response)
         except Exception as e:
             formatted_e = traceback.format_exc()

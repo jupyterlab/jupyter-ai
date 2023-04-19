@@ -9,8 +9,8 @@ from jupyter_ai.actors.base import ACTOR_TYPE, BaseActor, Logger
 
 
 @ray.remote
-class FileSystemActor(BaseActor):
-    """Processes messages prefixed with /fs. This actor will
+class AskActor(BaseActor):
+    """Processes messages prefixed with /ask. This actor will
     send the message as input to a RetrieverQA chain, that
     follows the Retrieval and Generation (RAG) tehnique to
     query the documents from the index, and sends this context
@@ -19,7 +19,7 @@ class FileSystemActor(BaseActor):
 
     def __init__(self, reply_queue: Queue, log: Logger):
         super().__init__(log=log, reply_queue=reply_queue)
-        index_actor = ray.get_actor(ACTOR_TYPE.INDEX.value)
+        index_actor = ray.get_actor(ACTOR_TYPE.LEARN.value)
         handle = index_actor.get_index.remote()
         vectorstore = ray.get(handle)
         if not vectorstore:
@@ -34,7 +34,7 @@ class FileSystemActor(BaseActor):
     def process_message(self, message: HumanChatMessage):
         query = message.body.split(' ', 1)[-1]
         
-        index_actor = ray.get_actor(ACTOR_TYPE.INDEX.value)
+        index_actor = ray.get_actor(ACTOR_TYPE.LEARN.value)
         handle = index_actor.get_index.remote()
         vectorstore = ray.get(handle)
         # Have to reference the latest index

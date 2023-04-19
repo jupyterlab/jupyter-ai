@@ -9,14 +9,13 @@ Logger = Union[logging.Logger, logging.LoggerAdapter]
 
 class ACTOR_TYPE(str, Enum):
     DEFAULT = "default"
-    FILESYSTEM = "filesystem"
-    INDEX = 'index'
+    ASK = "ask"
+    LEARN = 'learn'
     MEMORY = 'memory'
 
 COMMANDS = {
-    '/fs': ACTOR_TYPE.FILESYSTEM,
-    '/filesystem': ACTOR_TYPE.FILESYSTEM,
-    '/index': ACTOR_TYPE.INDEX
+    '/ask': ACTOR_TYPE.ASK,
+    '/learn': ACTOR_TYPE.LEARN
 }
 
 class BaseActor():
