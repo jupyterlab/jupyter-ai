@@ -1,54 +1,73 @@
-import logging
-from typing import Dict, List, Optional, Union
+from typing import List, Optional
+from pathlib import Path
+import hashlib
+import itertools
+
+import ray
 
 from langchain.document_loaders.base import BaseLoader
-from langchain.document_loaders.directory import FILE_LOADER_TYPE, _is_visible
-from langchain.document_loaders.unstructured import UnstructuredFileLoader
 from langchain.schema import Document
-from wcmatch.pathlib import Path
+from langchain.document_loaders.directory import _is_visible
+from langchain.text_splitter import (
+    RecursiveCharacterTextSplitter, TextSplitter,
+)
 
+@ray.remote
+def path_to_doc(path):
+    with open(str(path), 'r') as f:
+        text = f.read()
+        m = hashlib.sha256()
+        m.update(text.encode('utf-8'))
+        metadata = {'path': str(path), 'sha256': m.digest(), 'extension': path.suffix}
+        return Document(page_content=text, metadata=metadata)
 
-logger = logging.getLogger(__name__)
+class ExcludePattern(Exception):
+    pass
+    
+def iter_paths(path, extensions, exclude):
+    for p in Path(path).rglob('*'):
+        if p.is_dir():
+            continue
+        if not _is_visible(p.relative_to(path)):
+            continue
+        try:
+            for pattern in exclude:
+                if pattern in str(p):
+                    raise ExcludePattern()
+        except ExcludePattern:
+            continue
+        if p.suffix in extensions:
+            yield p
 
-
-class DirectoryLoader(BaseLoader):
-    """Loading logic for loading documents from a directory."""
-
+class RayRecursiveDirectoryLoader(BaseLoader):
+    
     def __init__(
         self,
-        path: str,
-        glob: Union[str, List[str]] = "**/[!.]*",
-        silent_errors: bool = False,
-        load_hidden: bool = False,
-        loader_cls: FILE_LOADER_TYPE = UnstructuredFileLoader,
-        loader_kwargs: Optional[Dict] = None,
-        recursive: bool = False,
+        path,
+        extensions={'.py', '.md', '.R', '.Rmd', '.jl', '.sh', '.ipynb', '.js', '.ts'},
+        exclude={'.ipynb_checkpoints', 'node_modules', 'lib', 'build'}
     ):
-        """Initialize with path to directory and how to glob over it."""
-        if loader_kwargs is None:
-            loader_kwargs = {}
         self.path = path
-        self.glob = glob
-        self.load_hidden = load_hidden
-        self.loader_cls = loader_cls
-        self.loader_kwargs = loader_kwargs
-        self.silent_errors = silent_errors
-        self.recursive = recursive
-
+        self.extensions = extensions
+        self.exclude=exclude
+    
     def load(self) -> List[Document]:
-        """Load documents."""
-        p = Path(self.path)
-        docs = []
-        items = p.rglob(self.glob) if self.recursive else p.glob(self.glob)
-        for i in items:
-            if i.is_file():
-                if _is_visible(i.relative_to(p)) or self.load_hidden:
-                    try:
-                        sub_docs = self.loader_cls(str(i), **self.loader_kwargs).load()
-                        docs.extend(sub_docs)
-                    except Exception as e:
-                        if self.silent_errors:
-                            logger.warning(e)
-                        else:
-                            raise e
-        return docs
+        paths = iter_paths(self.path, self.extensions, self.exclude)
+        doc_refs = list(map(path_to_doc.remote, paths))
+        return ray.get(doc_refs)
+    
+    def load_and_split(
+        self, text_splitter: Optional[TextSplitter] = None
+    ) -> List[Document]:
+        if text_splitter is None:
+            _text_splitter = RecursiveCharacterTextSplitter()
+        else:
+            _text_splitter = text_splitter
+
+        @ray.remote
+        def split(doc):
+            return _text_splitter.split_documents([doc])
+        
+        paths = iter_paths(self.path, self.extensions, self.exclude)
+        doc_refs = map(split.remote, map(path_to_doc.remote, paths))
+        return list(itertools.chain(*ray.get(list(doc_refs))))
