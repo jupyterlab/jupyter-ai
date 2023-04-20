@@ -117,12 +117,24 @@ class AiMagics(Magics):
             output += command + " - " + AI_COMMANDS[command] + "\n";
 
         return output
+    
+    def _ai_list_models_for_provider(self, provider_id, Provider, isMarkdown=False):
+        output = ""
+        if (len(Provider.models) == 1 and Provider.models[0] == "*"):
+            output += f"* This provider does not define a list of models.\n"
+        else:
+            for model_id in Provider.models:
+                output += f"* {provider_id}:{model_id}\n";
+        output += "\n" # End of bulleted list
+        
+        return output
 
     def _ai_list_command(self):
         output = ""
 
         for provider_id, Provider in self.providers.items():
-            output += f"**{provider_id}**\n\n"
+            output += (f"**{provider_id}**\n"
+                + self._ai_list_models_for_provider(provider_id, Provider, True))
 
         return output
 
@@ -130,7 +142,8 @@ class AiMagics(Magics):
         output = ""
         
         for provider_id, Provider in self.providers.items():
-            output += f"{provider_id}\n"
+            output += (f"{provider_id}\n"
+                + self._ai_list_models_for_provider(provider_id, Provider, False))
 
         return output
 
