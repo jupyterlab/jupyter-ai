@@ -277,7 +277,7 @@ class AiMagics(Magics):
                 replace=False,
             )
             ip.payload_manager.write_payload(new_cell_payload)
-            return HTML('AI generated code inserted below &#11015;&#65039;', metadata=md); # No output from the AI cell
+            return HTML('AI generated code inserted below &#11015;&#65039;', metadata=md);
 
         if DisplayClass is None:
             return output
