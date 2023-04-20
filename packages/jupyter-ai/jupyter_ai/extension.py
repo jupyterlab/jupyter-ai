@@ -7,6 +7,7 @@ from jupyter_ai.actors.ask import AskActor
 from jupyter_ai.actors.learn import LearnActor
 from jupyter_ai.actors.router import Router
 from jupyter_ai.actors.memory import MemoryActor
+from jupyter_ai.actors.generate import GenerateActor
 from jupyter_ai.actors.base import ACTOR_TYPE
 from jupyter_ai.reply_processor import ReplyProcessor
 from jupyter_server.extension.application import ExtensionApp
@@ -133,11 +134,18 @@ class AiExtension(ExtensionApp):
             log=self.log,
             memory=ConversationBufferWindowMemory(return_messages=True, k=2)
         )
+        generate_actor = GenerateActor.options(name=ACTOR_TYPE.GENERATE.value).remote(
+            reply_queue=reply_queue, 
+            log=self.log,
+            root_dir=self.settings['server_root_dir']
+        )
+     
         self.settings['router'] = router
         self.settings["default_actor"] = default_actor
         self.settings["learn_actor"] = learn_actor
         self.settings["ask_actor"] = ask_actor
         self.settings["memory_actor"] = memory_actor
+        self.settings["generate_actor"] = generate_actor
 
         reply_processor = ReplyProcessor(self.settings['chat_handlers'], reply_queue, log=self.log)        
         loop = asyncio.get_event_loop()
