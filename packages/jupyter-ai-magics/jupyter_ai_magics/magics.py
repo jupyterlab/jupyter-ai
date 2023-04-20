@@ -118,6 +118,22 @@ class AiMagics(Magics):
 
         return output
 
+    def _ai_list_command(self):
+        output = ""
+
+        for provider_id, Provider in self.providers.items():
+            output += f"**{provider_id}**\n\n"
+
+        return output
+
+    def _ai_list_command_text(self):
+        output = ""
+        
+        for provider_id, Provider in self.providers.items():
+            output += f"{provider_id}\n"
+
+        return output
+
     # Run an AI command using the arguments provided as a space-delimited value
     def _ai_command(self, command, args_string):
         args = args_string.split() # Split by whitespace
@@ -126,7 +142,7 @@ class AiMagics(Magics):
         if (command == 'help'):
             return TextWithMarkdown(self._ai_help_command_text(), self._ai_help_command())
         elif (command == 'list'):
-            return "Running list"
+            return TextWithMarkdown(self._ai_list_command_text(), self._ai_list_command())
         else:
             # This should be unreachable, since unhandled commands are treated like model names
             return TextWithMarkdown(
