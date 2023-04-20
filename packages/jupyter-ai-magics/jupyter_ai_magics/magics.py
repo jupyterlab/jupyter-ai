@@ -28,6 +28,20 @@ class TextWithMetadata(object):
     def _repr_mimebundle_(self, include=None, exclude=None):
         return ({'text/plain': self.text}, self.metadata)
 
+class TextWithMarkdown(object):
+
+    def __init__(self, text, markdown):
+        self.text = text
+        self.markdown = markdown
+
+    def _repr_mimebundle_(self, include=None, exclude=None):
+        return (
+            {
+                'text/plain': self.text,
+                'text/markdown': self.markdown
+            }
+        )
+
 DISPLAYS_BY_FORMAT = {
     "code": None,
     "html": HTML,
@@ -96,18 +110,29 @@ class AiMagics(Magics):
 
         return table
 
+    def _ai_help_command_text(self):
+        output = ""
+        
+        for command in AI_COMMANDS:
+            output += command + " - " + AI_COMMANDS[command] + "\n";
+
+        return output
+
     # Run an AI command using the arguments provided as a space-delimited value
     def _ai_command(self, command, args_string):
         args = args_string.split() # Split by whitespace
 
         # When we can use Python 3.10+, replace this with a 'match' command
         if (command == 'help'):
-            return Markdown(self._ai_help_command())
+            return TextWithMarkdown(self._ai_help_command_text(), self._ai_help_command())
         elif (command == 'list'):
             return "Running list"
         else:
             # This should be unreachable, since unhandled commands are treated like model names
-            return Markdown(f"No handler for command `{command}`")
+            return TextWithMarkdown(
+                f"No handler for command {command}\n",
+                f"No handler for command `{command}`"
+            )
 
     def _append_exchange_openai(self, prompt: str, output: str):
         """Appends a conversational exchange between user and an OpenAI Chat
@@ -189,9 +214,14 @@ class AiMagics(Magics):
         provider_id, local_model_id = self._decompose_model_id(args.model_id)
         Provider = self._get_provider(provider_id)
         if Provider is None:
-            return Markdown(f"Cannot determine model provider from model ID `{args.model_id}`.\n\n"
+            return TextWithMarkdown(
+                f"Cannot determine model provider from model ID '{args.model_id}'.\n\n"
+                + "To see a list of models you can use, run '%ai list'.\n\n"
+                + "If you were trying to run a command, run '%ai help' to see a list of commands.",
+                f"Cannot determine model provider from model ID `{args.model_id}`.\n\n"
                 + "To see a list of models you can use, run `%ai list`.\n\n"
-                + "If you were trying to run a command, run `%ai help` to see a list of commands.")
+                + "If you were trying to run a command, run `%ai help` to see a list of commands."
+            )
 
         # if `--reset` is specified, reset transcript and return early
         if (provider_id == "openai-chat" and args.reset):
