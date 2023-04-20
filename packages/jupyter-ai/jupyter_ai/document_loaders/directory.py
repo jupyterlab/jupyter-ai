@@ -44,8 +44,8 @@ class RayRecursiveDirectoryLoader(BaseLoader):
     def __init__(
         self,
         path,
-        extensions={'.py', '.md', '.R', '.Rmd', '.jl', '.sh', '.ipynb', '.js', '.ts'},
-        exclude={'.ipynb_checkpoints', 'node_modules', 'lib', 'build'}
+        extensions={'.py', '.md', '.R', '.Rmd', '.jl', '.sh', '.ipynb', '.js', '.ts', '.jsx', '.tsx', '.txt'},
+        exclude={'.ipynb_checkpoints', 'node_modules', 'lib', 'build', '.git', '.DS_Store'}
     ):
         self.path = path
         self.extensions = extensions
