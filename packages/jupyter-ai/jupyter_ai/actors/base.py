@@ -18,12 +18,12 @@ class ACTOR_TYPE(str, Enum):
     ASK = "ask"
     LEARN = 'learn'
     MEMORY = 'memory'
-    AUTONOTEBOOK = 'autonotebook'
+    GENERATE = 'generate'
 
 COMMANDS = {
     '/ask': ACTOR_TYPE.ASK,
     '/learn': ACTOR_TYPE.LEARN,
-    '/autonotebook': ACTOR_TYPE.AUTONOTEBOOK
+    '/generate': ACTOR_TYPE.GENERATE
 }
 
 class BaseActor():
