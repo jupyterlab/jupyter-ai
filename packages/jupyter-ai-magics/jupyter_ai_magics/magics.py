@@ -189,7 +189,7 @@ class AiMagics(Magics):
         provider_id, local_model_id = self._decompose_model_id(args.model_id)
         Provider = self._get_provider(provider_id)
         if Provider is None:
-            return Markdown(f"Cannot determine model provider from model ID {args.model_id}.\n\n"
+            return Markdown(f"Cannot determine model provider from model ID `{args.model_id}`.\n\n"
                 + "To see a list of models you can use, run `%ai list`.\n\n"
                 + "If you were trying to run a command, run `%ai help` to see a list of commands.")
 
