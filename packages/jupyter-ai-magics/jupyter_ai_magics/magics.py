@@ -87,17 +87,27 @@ class AiMagics(Magics):
                 continue
             self.providers[Provider.id] = Provider
     
+    def _ai_help_command(self):
+        table = ("| Command | Description |\n"
+            "| ------- | ----------- |\n")
+        
+        for command in AI_COMMANDS:
+            table += "| `" + command + "` | " + AI_COMMANDS[command] + "|\n";
+
+        return table
+
     # Run an AI command using the arguments provided as a space-delimited value
     def _ai_command(self, command, args_string):
         args = args_string.split() # Split by whitespace
 
         # When we can use Python 3.10+, replace this with a 'match' command
         if (command == 'help'):
-            return "Running help"
+            return Markdown(self._ai_help_command())
         elif (command == 'list'):
             return "Running list"
         else:
-            return f"Command not recognized: {command}"
+            # This should be unreachable, since unhandled commands are treated like model names
+            return Markdown(f"No handler for command `{command}`")
 
     def _append_exchange_openai(self, prompt: str, output: str):
         """Appends a conversational exchange between user and an OpenAI Chat
@@ -179,7 +189,9 @@ class AiMagics(Magics):
         provider_id, local_model_id = self._decompose_model_id(args.model_id)
         Provider = self._get_provider(provider_id)
         if Provider is None:
-            return f"Cannot determine model provider from model ID {args.model_id}."
+            return Markdown(f"Cannot determine model provider from model ID {args.model_id}.\n\n"
+                + "To see a list of models you can use, run `%ai list`.\n\n"
+                + "If you were trying to run a command, run `%ai help` to see a list of commands.")
 
         # if `--reset` is specified, reset transcript and return early
         if (provider_id == "openai-chat" and args.reset):
