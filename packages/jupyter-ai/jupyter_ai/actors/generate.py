@@ -137,7 +137,7 @@ def generate_code(outline, llm=None, verbose=False):
             code_so_far='\n'.join(code_so_far)
         )
         section['code'] = improve_code(code, llm=llm, verbose=verbose)
-        code_so_far.append(code)
+        code_so_far.append(section['code'])
     return outline
 
 class NotebookSummaryChain(LLMChain):
@@ -189,24 +189,18 @@ def generate_title_and_summary(outline, llm=None, verbose=False):
 
 def create_notebook(outline):
     """Create an nbformat Notebook object for a notebook outline."""
-    nb = nbformat.v4.new_notebook()
-    markdown_cell = nbformat.v4.new_markdown_cell('# ' + outline['title'])
-    nb['cells'].append(markdown_cell)
-    markdown_cell = nbformat.v4.new_markdown_cell('## Introduction')
-    nb['cells'].append(markdown_cell)
+    nbf = nbformat.v4
+    nb = nbf.new_notebook()
+    nb['cells'].append(nbf.new_markdown_cell('# ' + outline['title']))
+    nb['cells'].append(nbf.new_markdown_cell('## Introduction'))
     disclaimer = f"This notebook was created by [Jupyter AI](https://github.com/jupyterlab/jupyter-ai) with the following prompt:\n\n> {outline['prompt']}"
-    markdown_cell = nbformat.v4.new_markdown_cell(disclaimer)
-    nb['cells'].append(markdown_cell)
-    markdown_cell = nbformat.v4.new_markdown_cell(outline['summary'])
-    nb['cells'].append(markdown_cell)
+    nb['cells'].append(nbf.new_markdown_cell(disclaimer))
+    nb['cells'].append(nbf.new_markdown_cell(outline['summary']))
 
     for section in outline['sections'][1:]:
-        markdown_cell = nbformat.v4.new_markdown_cell('## ' + section['title'])
-        nb['cells'].append(markdown_cell)
+        nb['cells'].append(nbf.new_markdown_cell('## ' + section['title']))
         for code_block in section['code'].split('\n\n'):
-            code_cell = nbformat.v4.new_code_cell(code_block)
-            nb['cells'].append(code_cell)
-        nb['cells'].append(code_cell)
+            nb['cells'].append(nbf.new_code_cell(code_block))
     return nb
 
 @ray.remote
