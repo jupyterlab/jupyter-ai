@@ -1,6 +1,6 @@
 {
   "name": "@jupyter-ai/core",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "A generative AI extension for JupyterLab",
   "keywords": [
     "jupyter",
@@ -62,12 +62,12 @@
     "@emotion/styled": "^11.10.5",
     "@jupyterlab/application": "^3.6.3",
     "@jupyterlab/cells": "^3.6.3",
+    "@jupyterlab/collaboration": "^3.6.3",
     "@jupyterlab/coreutils": "^5.6.3",
     "@jupyterlab/fileeditor": "^3.6.3",
     "@jupyterlab/notebook": "^3.6.3",
     "@jupyterlab/services": "^6.6.3",
     "@jupyterlab/ui-components": "^3.6.3",
-    "@jupyterlab/collaboration": "^3.6.3",
     "@mui/icons-material": "^5.11.0",
     "@mui/material": "^5.11.0",
     "date-fns": "^2.29.3",
