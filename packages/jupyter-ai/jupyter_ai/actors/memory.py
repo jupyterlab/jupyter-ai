@@ -1,9 +1,10 @@
-from jupyter_ai.actors.base import Logger
 from typing import Dict, Any, List
-from langchain.schema import BaseMemory
+
 import ray
+from langchain.schema import BaseMemory
 from pydantic import PrivateAttr
 
+from jupyter_ai.actors.base import Logger
 
 @ray.remote
 class MemoryActor(object):
@@ -13,7 +14,7 @@ class MemoryActor(object):
     running in different actors by using RemoteMemory (below).
     """
     
-    def __init__(self, memory: BaseMemory, log: Logger):
+    def __init__(self, log: Logger, memory: BaseMemory):
         self.memory = memory
         self.log = log
     

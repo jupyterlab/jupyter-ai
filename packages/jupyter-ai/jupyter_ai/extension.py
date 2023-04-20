@@ -3,8 +3,8 @@ import os
 import queue
 from langchain.memory import ConversationBufferWindowMemory
 from jupyter_ai.actors.default import DefaultActor 
-from jupyter_ai.actors.filesystem import FileSystemActor 
-from jupyter_ai.actors.index import DocumentIndexActor
+from jupyter_ai.actors.ask import AskActor 
+from jupyter_ai.actors.learn import LearnActor
 from jupyter_ai.actors.router import Router
 from jupyter_ai.actors.memory import MemoryActor
 from jupyter_ai.actors.base import ACTOR_TYPE
@@ -120,23 +120,23 @@ class AiExtension(ExtensionApp):
             reply_queue=reply_queue, 
             log=self.log
         )
-        index_actor = DocumentIndexActor.options(name=ACTOR_TYPE.INDEX.value).remote(
+        learn_actor = LearnActor.options(name=ACTOR_TYPE.LEARN.value).remote(
             reply_queue=reply_queue,
+            log=self.log,
             root_dir=self.serverapp.root_dir,
-            log=self.log 
         )
-        fs_actor = FileSystemActor.options(name=ACTOR_TYPE.FILESYSTEM.value).remote(
+        ask_actor = AskActor.options(name=ACTOR_TYPE.ASK.value).remote(
             reply_queue=reply_queue, 
             log=self.log
         )
         memory_actor = MemoryActor.options(name=ACTOR_TYPE.MEMORY.value).remote(
-            memory=ConversationBufferWindowMemory(return_messages=True, k=2),
-            log=self.log
+            log=self.log,
+            memory=ConversationBufferWindowMemory(return_messages=True, k=2)
         )
         self.settings['router'] = router
         self.settings["default_actor"] = default_actor
-        self.settings["index_actor"] = index_actor
-        self.settings["fs_actor"] = fs_actor
+        self.settings["learn_actor"] = learn_actor
+        self.settings["ask_actor"] = ask_actor
         self.settings["memory_actor"] = memory_actor
 
         reply_processor = ReplyProcessor(self.settings['chat_handlers'], reply_queue, log=self.log)        

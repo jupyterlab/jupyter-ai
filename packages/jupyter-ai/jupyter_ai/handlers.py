@@ -228,7 +228,7 @@ class ChatHandler(
 
         # process through the router
         router = ray.get_actor("router")
-        router.route_message.remote(chat_message)
+        router.process_message.remote(chat_message)
 
     def on_close(self):
         self.log.debug("Disconnecting client with user %s", self.client_id)

@@ -1,9 +1,8 @@
-from jupyter_ai.actors.base import ACTOR_TYPE, COMMANDS, Logger, BaseActor
-from jupyter_ai.models import ClearMessage
-
 import ray
 from ray.util.queue import Queue
 
+from jupyter_ai.actors.base import ACTOR_TYPE, COMMANDS, Logger, BaseActor
+from jupyter_ai.models import ClearMessage
 
 @ray.remote
 class Router(BaseActor):
@@ -13,9 +12,9 @@ class Router(BaseActor):
         To register new actors, add the actor type in the `ACTOR_TYPE` enum and 
         add a corresponding command in the `COMMANDS` dictionary.
         """
-        super().__init__(log=log, reply_queue=reply_queue)
+        super().__init__(reply_queue=reply_queue, log=log)
 
-    def route_message(self, message):
+    def _process_message(self, message):
         
         # assign default actor
         default = ray.get_actor(ACTOR_TYPE.DEFAULT)
@@ -30,4 +29,3 @@ class Router(BaseActor):
                 self.reply_queue.put(reply_message)
         else:
             default.process_message.remote(message)
-
