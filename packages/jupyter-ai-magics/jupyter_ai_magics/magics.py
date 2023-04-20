@@ -50,7 +50,10 @@ PROMPT_TEMPLATES_BY_FORMAT = {
     "text": '{prompt}' # No customization
 }
 
-
+AI_COMMANDS = {
+    "help": "Display a list of supported commands",
+    "list": "Display a list of models that you can use"
+}
 
 class FormatDict(dict):
     """Subclass of dict to be passed to str#format(). Suppresses KeyError and
@@ -84,6 +87,18 @@ class AiMagics(Magics):
                 continue
             self.providers[Provider.id] = Provider
     
+    # Run an AI command using the arguments provided as a space-delimited value
+    def _ai_command(self, command, args_string):
+        args = args_string.split() # Split by whitespace
+
+        # When we can use Python 3.10+, replace this with a 'match' command
+        if (command == 'help'):
+            return "Running help"
+        elif (command == 'list'):
+            return "Running list"
+        else:
+            return f"Command not recognized: {command}"
+
     def _append_exchange_openai(self, prompt: str, output: str):
         """Appends a conversational exchange between user and an OpenAI Chat
         model to a transcript that will be included in future exchanges."""
@@ -152,6 +167,11 @@ class AiMagics(Magics):
         else:
             prompt = cell
         
+        # If the user is attempting to run a command, run the command separately.
+        if (args.model_id in AI_COMMANDS):
+            # The "prompt" is a list of arguments to the command, whitespace-delimited
+            return self._ai_command(args.model_id, prompt)
+
         # Apply a prompt template.
         prompt = PROMPT_TEMPLATES_BY_FORMAT[args.format].format(prompt = prompt)
 
