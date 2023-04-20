@@ -19,15 +19,6 @@ MODEL_ID_ALIASES = {
     "gpt4": "openai-chat:gpt-4",
 }
 
-class TextWithMetadata(object):
-
-    def __init__(self, text, metadata):
-        self.text = text
-        self.metadata = metadata
-
-    def _repr_mimebundle_(self, include=None, exclude=None):
-        return ({'text/plain': self.text}, self.metadata)
-
 class TextWithMarkdown(object):
 
     def __init__(self, text, markdown):
@@ -41,6 +32,15 @@ class TextWithMarkdown(object):
                 'text/markdown': self.markdown
             }
         )
+
+class TextWithMetadata(object):
+
+    def __init__(self, text, metadata):
+        self.text = text
+        self.metadata = metadata
+
+    def _repr_mimebundle_(self, include=None, exclude=None):
+        return ({'text/plain': self.text}, self.metadata)
 
 DISPLAYS_BY_FORMAT = {
     "code": None,
