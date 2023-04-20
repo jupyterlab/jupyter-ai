@@ -66,7 +66,7 @@ PROMPT_TEMPLATES_BY_FORMAT = {
 
 AI_COMMANDS = {
     "help": "Display a list of supported commands",
-    "list": "Display a list of models that you can use"
+    "list": "Display a list of models that you can use (optionally, for a single provider)"
 }
 
 class FormatDict(dict):
@@ -101,7 +101,7 @@ class AiMagics(Magics):
                 continue
             self.providers[Provider.id] = Provider
     
-    def _ai_help_command(self):
+    def _ai_help_command_markdown(self):
         table = ("| Command | Description |\n"
             "| ------- | ----------- |\n")
         
@@ -129,19 +129,29 @@ class AiMagics(Magics):
         
         return output
 
-    def _ai_list_command(self):
+    def _ai_list_command_markdown(self, single_provider=None):
         output = ""
+        if (single_provider is not None and single_provider not in self.providers):
+            return f"There is no model provider with ID `{single_provider}`.";
 
         for provider_id, Provider in self.providers.items():
+            if (single_provider is not None and provider_id != single_provider):
+                continue;
+
             output += (f"**{provider_id}**\n"
                 + self._ai_list_models_for_provider(provider_id, Provider, True))
 
         return output
 
-    def _ai_list_command_text(self):
+    def _ai_list_command_text(self, single_provider=None):
         output = ""
-        
+        if (single_provider is not None and single_provider not in self.providers):
+            return f"There is no model provider with ID '{single_provider}'.";
+
         for provider_id, Provider in self.providers.items():
+            if (single_provider is not None and provider_id != single_provider):
+                continue;
+
             output += (f"{provider_id}\n"
                 + self._ai_list_models_for_provider(provider_id, Provider, False))
 
@@ -153,9 +163,17 @@ class AiMagics(Magics):
 
         # When we can use Python 3.10+, replace this with a 'match' command
         if (command == 'help'):
-            return TextWithMarkdown(self._ai_help_command_text(), self._ai_help_command())
+            return TextWithMarkdown(self._ai_help_command_text(), self._ai_help_command_markdown())
         elif (command == 'list'):
-            return TextWithMarkdown(self._ai_list_command_text(), self._ai_list_command())
+            # Optional parameter: model provider ID
+            provider_id = None
+            if (len(args) >= 1):
+                provider_id = args[0]
+
+            return TextWithMarkdown(
+                self._ai_list_command_text(provider_id),
+                self._ai_list_command_markdown(provider_id)
+            )
         else:
             # This should be unreachable, since unhandled commands are treated like model names
             return TextWithMarkdown(
