@@ -4,11 +4,11 @@ import re
 import warnings
 from typing import Optional
 
-from importlib_metadata import entry_points
 from IPython import get_ipython
 from IPython.core.magic import Magics, magics_class, line_cell_magic
 from IPython.core.magic_arguments import magic_arguments, argument, parse_argstring
 from IPython.display import HTML, Markdown, Math, JSON
+from jupyter_ai_magics.utils import decompose_model_id, load_providers
 
 from .providers import BaseProvider
 
@@ -33,6 +33,7 @@ class TextOrMarkdown(object):
                 'text/markdown': self.markdown
             }
         )
+
 
 class TextWithMetadata(object):
 
@@ -93,16 +94,7 @@ class AiMagics(Magics):
             "no longer supported. Instead, please use: "
             "`from langchain.chat_models import ChatOpenAI`")
 
-        # load model providers from entry point
-        self.providers = {}
-        eps = entry_points()
-        model_provider_eps = eps.select(group="jupyter_ai.model_providers")
-        for model_provider_ep in model_provider_eps:
-            try:
-                Provider = model_provider_ep.load()
-            except:
-                continue
-            self.providers[Provider.id] = Provider
+        self.providers = load_providers()
     
     def _ai_help_command_markdown(self):
         table = ("| Command | Description |\n"
@@ -254,24 +246,7 @@ class AiMagics(Magics):
         })
 
     def _decompose_model_id(self, model_id: str):
-        """Breaks down a model ID into a two-tuple (provider_id, local_model_id). Returns (None, None) if indeterminate."""
-        if model_id in MODEL_ID_ALIASES:
-            model_id = MODEL_ID_ALIASES[model_id]
-
-        if ":" not in model_id:
-            # case: model ID was not provided with a prefix indicating the provider
-            # ID. try to infer the provider ID before returning (None, None).
-
-            # naively search through the dictionary and return the first provider
-            # that provides a model of the same ID.
-            for provider_id, Provider in self.providers.items():
-                if model_id in Provider.models:
-                    return (provider_id, model_id)
-            
-            return (None, None)
-
-        provider_id, local_model_id = model_id.split(":", 1)
-        return (provider_id, local_model_id)
+        return decompose_model_id(model_id, self.providers)
 
     def _get_provider(self, provider_id: Optional[str]) -> BaseProvider:
         """Returns the model provider ID and class for a model ID. Returns None if indeterminate."""

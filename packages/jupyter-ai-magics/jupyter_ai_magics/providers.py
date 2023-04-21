@@ -206,3 +206,5 @@ class SmEndpointProvider(BaseProvider, SagemakerEndpoint):
     model_id_key = "endpoint_name"
     pypi_package_deps = ["boto3"]
     auth_strategy = AwsAuthStrategy()
+
+    

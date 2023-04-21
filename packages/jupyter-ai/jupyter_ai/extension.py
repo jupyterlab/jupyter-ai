@@ -1,6 +1,7 @@
 import asyncio
 import os
 import queue
+from jupyter_ai_magics.utils import load_providers
 from langchain.memory import ConversationBufferWindowMemory
 from jupyter_ai.actors.default import DefaultActor 
 from jupyter_ai.actors.ask import AskActor 
@@ -11,7 +12,7 @@ from jupyter_ai.actors.generate import GenerateActor
 from jupyter_ai.actors.base import ACTOR_TYPE
 from jupyter_ai.reply_processor import ReplyProcessor
 from jupyter_server.extension.application import ExtensionApp
-from .handlers import ChatHandler, ChatHistoryHandler, PromptAPIHandler, TaskAPIHandler
+from .handlers import ChatHandler, ChatHistoryHandler, ModelProviderHandler, PromptAPIHandler, TaskAPIHandler
 from importlib_metadata import entry_points
 import inspect
 from .engine import BaseModelEngine
@@ -29,6 +30,7 @@ class AiExtension(ExtensionApp):
         (r"api/ai/tasks/([\w\-:]*)", TaskAPIHandler),
         (r"api/ai/chats/?", ChatHandler),
         (r"api/ai/chats/history?", ChatHistoryHandler),
+        (r"api/ai/providers?", ModelProviderHandler),
     ]
 
     @property
@@ -90,6 +92,10 @@ class AiExtension(ExtensionApp):
 
         self.settings["ai_default_tasks"] = default_tasks
         self.log.info("Registered all default tasks.")
+
+        providers = load_providers(log=self.log)
+        self.settings["chat_providers"] = providers
+        self.log.info("Registered providers.")
 
         if ChatOpenAINewProvider.auth_strategy.name not in os.environ:
             raise EnvironmentError(f"`{ChatOpenAINewProvider.auth_strategy.name}` value not set in environment. For chat to work, this value should be provided.")
