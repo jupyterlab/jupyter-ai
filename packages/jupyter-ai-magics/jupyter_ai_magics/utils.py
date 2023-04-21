@@ -10,6 +10,9 @@ Logger = Union[logging.Logger, logging.LoggerAdapter]
 
 
 def load_providers(log: Optional[Logger] = None) -> Dict[str, BaseProvider]:
+    if not log:
+        log = logging.getLogger()
+        log.addHandler(logging.NullHandler())
     providers = {}
     eps = entry_points()
     model_provider_eps = eps.select(group="jupyter_ai.model_providers")
@@ -17,12 +20,10 @@ def load_providers(log: Optional[Logger] = None) -> Dict[str, BaseProvider]:
         try:
             provider = model_provider_ep.load()
         except:
-            if log:
-                log.error(f"Unable to load model provider class from entry point `{model_provider_ep.name}`.")
+            log.error(f"Unable to load model provider class from entry point `{model_provider_ep.name}`.")
             continue
         providers[provider.id] = provider
-        if log:
-            log.info(f"Registered model provider `{provider.id}`.")
+        log.info(f"Registered model provider `{provider.id}`.")
     
     return providers
 

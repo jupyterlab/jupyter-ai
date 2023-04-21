@@ -83,7 +83,7 @@ class ChatHistory(BaseModel):
     messages: List[ChatMessage]
 
 
-class ListProviderEntry(BaseModel):
+class ListProvidersEntry(BaseModel):
     """Model provider with supported models
     and provider's authentication strategy
     """
@@ -94,4 +94,4 @@ class ListProviderEntry(BaseModel):
 
 
 class ListProvidersResponse(BaseModel):
-    providers: List[ListProviderEntry]
+    providers: List[ListProvidersEntry]
