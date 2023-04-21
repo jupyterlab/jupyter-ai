@@ -54,6 +54,8 @@ DISPLAYS_BY_FORMAT = {
 
 MARKDOWN_PROMPT_TEMPLATE = '{prompt}\n\nProduce output in markdown format only.'
 
+PROVIDER_NO_MODELS = 'This provider does not define a list of models.'
+
 PROMPT_TEMPLATES_BY_FORMAT = {
     "code": '{prompt}\n\nProduce output as source code only, with no text or explanation before or after it.',
     "html": '{prompt}\n\nProduce output in HTML format only, with no markup before or afterward.',
@@ -118,10 +120,10 @@ class AiMagics(Magics):
 
         return output
     
-    def _ai_list_models_for_provider(self, provider_id, Provider, isMarkdown=False):
+    def _ai_bulleted_list_models_for_provider(self, provider_id, Provider):
         output = ""
         if (len(Provider.models) == 1 and Provider.models[0] == "*"):
-            output += f"* This provider does not define a list of models.\n"
+            output += f"* {PROVIDER_NO_MODELS}\n"
         else:
             for model_id in Provider.models:
                 output += f"* {provider_id}:{model_id}\n";
@@ -129,8 +131,20 @@ class AiMagics(Magics):
         
         return output
 
-    def _ai_list_command_markdown(self, single_provider=None):
+    def _ai_inline_list_models_for_provider(self, provider_id, Provider):
         output = ""
+
+        if (len(Provider.models) == 1 and Provider.models[0] == "*"):
+            return PROVIDER_NO_MODELS
+
+        for model_id in Provider.models:
+            output += f", `{provider_id}:{model_id}`";
+        
+        return output.removeprefix(', ')
+
+    def _ai_list_command_markdown(self, single_provider=None):
+        output = ("| Provider | Models |\n"
+            + "|----------|--------|\n")
         if (single_provider is not None and single_provider not in self.providers):
             return f"There is no model provider with ID `{single_provider}`.";
 
@@ -138,8 +152,9 @@ class AiMagics(Magics):
             if (single_provider is not None and provider_id != single_provider):
                 continue;
 
-            output += (f"**{provider_id}**\n"
-                + self._ai_list_models_for_provider(provider_id, Provider, True))
+            output += (f"| `{provider_id}` | "
+                + self._ai_inline_list_models_for_provider(provider_id, Provider)
+                + " |\n")
 
         return output
 
@@ -153,7 +168,7 @@ class AiMagics(Magics):
                 continue;
 
             output += (f"{provider_id}\n"
-                + self._ai_list_models_for_provider(provider_id, Provider, False))
+                + self._ai_bulleted_list_models_for_provider(provider_id, Provider))
 
         return output
 
