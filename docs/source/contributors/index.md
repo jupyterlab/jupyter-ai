@@ -6,6 +6,8 @@ This page is intended for people interested in building new or modified function
 
 You can develop Jupyter AI on any system that can run a supported Python version up to and including 3.10, including recent Windows, macOS, and Linux versions. Python 3.11 is **not supported** due
 to incompatibility with the [ray](https://pypi.org/project/ray/) library that we use.
+If you are using an Apple Silicon-based Mac (M1, M1 Pro, M2, etc.), and you see an error when using
+Python 3.10, try installing version 3.9 instead.
 
 If you use `conda`, you can install Python 3.10 in your environment by running:
 
@@ -18,6 +20,13 @@ To use the `jupyter_ai` package in JupyterLab, as the development environment be
 ```
 conda install jupyterlab
 ```
+
+You will need Node.js 18 to use Jupyter AI. Node.js 18.16.0 is known to work.
+
+:::{warning}
+:name: node-18-15
+Due to a compatibility issue with Webpack, Node.js 18.15.0 does not work with Jupyter AI.
+:::
 
 ## Development install
 
