@@ -1,3 +1,4 @@
+from jupyter_ai_magics.providers import AuthStrategy
 from pydantic import BaseModel 
 from typing import Dict, List, Union, Literal, Optional
 
@@ -80,3 +81,17 @@ class DescribeTaskResponse(BaseModel):
 class ChatHistory(BaseModel):
     """History of chat messages"""
     messages: List[ChatMessage]
+
+
+class ListProviderEntry(BaseModel):
+    """Model provider with supported models
+    and provider's authentication strategy
+    """
+    id: str
+    name: str
+    models: List[str]
+    auth_strategy: AuthStrategy
+
+
+class ListProvidersResponse(BaseModel):
+    providers: List[ListProviderEntry]

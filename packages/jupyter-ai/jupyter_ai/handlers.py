@@ -16,7 +16,20 @@ from jupyter_server.base.handlers import APIHandler as BaseAPIHandler, JupyterHa
 from jupyter_server.utils import ensure_async
 
 from .task_manager import TaskManager
-from .models import ChatHistory, PromptRequest, ChatRequest, ChatMessage, Message, AgentChatMessage, HumanChatMessage, ConnectionMessage, ChatClient, ChatUser
+from .models import (
+    ChatHistory, 
+    ListProviderEntry, 
+    ListProvidersResponse, 
+    PromptRequest, 
+    ChatRequest, 
+    ChatMessage, 
+    Message, 
+    AgentChatMessage, 
+    HumanChatMessage, 
+    ConnectionMessage, 
+    ChatClient
+)
+
 
 
 class APIHandler(BaseAPIHandler):
@@ -254,3 +267,29 @@ class ChatHandler(
 
         self.log.info(f"Client disconnected. ID: {self.client_id}")
         self.log.debug("Chat clients: %s", self.chat_handlers.keys())
+
+
+class ModelProviderHandler(BaseAPIHandler):
+    @property
+    def chat_providers(self): 
+        return self.settings["chat_providers"]
+    
+    @web.authenticated
+    def get(self):
+        providers = []
+        for provider in self.chat_providers.values():
+            providers.append(
+                ListProviderEntry(
+                    id=provider.id,
+                    name=provider.name,
+                    models=provider.models,
+                    auth_strategy=provider.auth_strategy
+                )
+            )
+        response = ListProvidersResponse(providers=providers)
+        self.finish(response.json())
+
+
+class EmbeddingModelProviderHandler(BaseAPIHandler):
+    # Placeholder for embedding model provider handler
+    pass
