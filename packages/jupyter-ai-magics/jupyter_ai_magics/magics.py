@@ -9,7 +9,7 @@ from IPython.core.magic import Magics, magics_class, line_cell_magic
 from IPython.core.magic_arguments import magic_arguments, argument, parse_argstring
 from IPython.display import HTML, Markdown, Math, JSON
 
-from .providers import BaseProvider
+from .providers import BaseProvider, PROVIDER_ENV_VARS
 
 
 MODEL_ID_ALIASES = {
@@ -141,10 +141,24 @@ class AiMagics(Magics):
             output += f", `{provider_id}:{model_id}`";
         
         return output.removeprefix(', ')
+    
+    # Is the required environment variable set?
+    def _ai_env_status_for_provider_markdown(self, provider_id):
+        if provider_id not in PROVIDER_ENV_VARS:
+            return 'Not applicable.'
+        
+        env_var = PROVIDER_ENV_VARS[provider_id]
+        output = f"`{env_var}` "
+        if (os.getenv(env_var) != None):
+            output += "✅"
+        else:
+            output += "❌"
+        
+        return output
 
     def _ai_list_command_markdown(self, single_provider=None):
-        output = ("| Provider | Models |\n"
-            + "|----------|--------|\n")
+        output = ("| Provider | Environment variable | Models |\n"
+            + "|----------|----------------------|--------|\n")
         if (single_provider is not None and single_provider not in self.providers):
             return f"There is no model provider with ID `{single_provider}`.";
 
@@ -153,6 +167,7 @@ class AiMagics(Magics):
                 continue;
 
             output += (f"| `{provider_id}` | "
+                + self._ai_env_status_for_provider_markdown(provider_id) + " | "
                 + self._ai_inline_list_models_for_provider(provider_id, Provider)
                 + " |\n")
 
