@@ -145,20 +145,36 @@ class AiMagics(Magics):
     # Is the required environment variable set?
     def _ai_env_status_for_provider_markdown(self, provider_id):
         if provider_id not in PROVIDER_ENV_VARS:
-            return 'Not applicable.'
+            return 'Not applicable. | <abbr title="Not applicable">N/A</abbr> ' # No emoji
         
         env_var = PROVIDER_ENV_VARS[provider_id]
-        output = f"`{env_var}` "
-        if (os.getenv(env_var) != None):
-            output += "✅"
+        output = f"`{env_var}` | "
+        if (os.getenv(env_var) == None):
+            output += ("<abbr title=\"You have not set this environment variable, "
+            + "so you cannot use this provider's models.\">❌</abbr>"); 
         else:
-            output += "❌"
+            output += ("<abbr title=\"You have set this environment variable, "
+            + "so you can use this provider's models.\">✅</abbr>");
         
         return output
 
+    def _ai_env_status_for_provider_text(self, provider_id):
+        if provider_id not in PROVIDER_ENV_VARS:
+            return '' # No message necessary
+        
+        env_var = PROVIDER_ENV_VARS[provider_id]
+        output = f"Requires environment variable {env_var} "
+        if (os.getenv(env_var) != None):
+            output += "(set)"
+        else:
+            output += "(not set)"
+        
+        return output + "\n"
+
+
     def _ai_list_command_markdown(self, single_provider=None):
-        output = ("| Provider | Environment variable | Models |\n"
-            + "|----------|----------------------|--------|\n")
+        output = ("| Provider | Environment variable | Set? | Models |\n"
+            + "|----------|----------------------|------|--------|\n")
         if (single_provider is not None and single_provider not in self.providers):
             return f"There is no model provider with ID `{single_provider}`.";
 
@@ -183,6 +199,7 @@ class AiMagics(Magics):
                 continue;
 
             output += (f"{provider_id}\n"
+                + self._ai_env_status_for_provider_text(provider_id) # includes \n if nonblank
                 + self._ai_bulleted_list_models_for_provider(provider_id, Provider))
 
         return output
