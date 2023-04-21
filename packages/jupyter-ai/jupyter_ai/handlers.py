@@ -16,9 +16,10 @@ from jupyter_server.base.handlers import APIHandler as BaseAPIHandler, JupyterHa
 from jupyter_server.utils import ensure_async
 
 from .task_manager import TaskManager
+
 from .models import (
     ChatHistory, 
-    ListProviderEntry, 
+    ListProvidersEntry, 
     ListProvidersResponse, 
     PromptRequest, 
     ChatRequest, 
@@ -29,7 +30,6 @@ from .models import (
     ConnectionMessage, 
     ChatClient
 )
-
 
 
 class APIHandler(BaseAPIHandler):
@@ -279,7 +279,7 @@ class ModelProviderHandler(BaseAPIHandler):
         providers = []
         for provider in self.chat_providers.values():
             providers.append(
-                ListProviderEntry(
+                ListProvidersEntry(
                     id=provider.id,
                     name=provider.name,
                     models=provider.models,
