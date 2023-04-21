@@ -21,7 +21,12 @@ To use the `jupyter_ai` package in JupyterLab, as the development environment be
 conda install jupyterlab
 ```
 
-You will need Node.js 18 to use Jupyter AI. Node.js 18.16.0 is known to work. If you need to install a specific version of Node.js, we recommend installing [asdf](https://asdf-vm.com/), then running `asdf install node 18.16.0`, for example.
+You will need Node.js 18 to use Jupyter AI. Node.js 18.16.0 is known to work.
+
+:::{warning}
+:name: node-18-15
+Due to a compatibility issue with Webpack, Node.js 18.15.0 does not work with Jupyter AI.
+:::
 
 ## Development install
 
