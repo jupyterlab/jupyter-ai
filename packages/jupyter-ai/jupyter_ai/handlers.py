@@ -170,7 +170,7 @@ class ChatHandler(
         login = os.getlogin()
         return ChatUser(
             username=self.current_user.username,
-            initials=login[0],
+            initials=login[0].capitalize(),
             name=login,
             display_name=login,
             color=None,
