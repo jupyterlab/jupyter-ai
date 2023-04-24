@@ -9,7 +9,7 @@ from IPython.core.magic import Magics, magics_class, line_cell_magic
 from IPython.core.magic_arguments import magic_arguments, argument, parse_argstring
 from IPython.display import HTML, Markdown, Math, JSON
 
-from .providers import BaseProvider, PROVIDER_ENV_VARS
+from .providers import BaseProvider
 
 
 MODEL_ID_ALIASES = {
@@ -144,10 +144,17 @@ class AiMagics(Magics):
     
     # Is the required environment variable set?
     def _ai_env_status_for_provider_markdown(self, provider_id):
-        if provider_id not in PROVIDER_ENV_VARS:
-            return 'Not applicable. | <abbr title="Not applicable">N/A</abbr> ' # No emoji
+        na_message = 'Not applicable. | <abbr title="Not applicable">N/A</abbr> '
+
+        if (provider_id not in self.providers or
+            self.providers[provider_id].auth_strategy == None):
+            return na_message # No emoji
         
-        env_var = PROVIDER_ENV_VARS[provider_id]
+        try:
+            env_var = self.providers[provider_id].auth_strategy.name
+        except AttributeError: # No "name" attribute
+            return na_message
+        
         output = f"`{env_var}` | "
         if (os.getenv(env_var) == None):
             output += ("<abbr title=\"You have not set this environment variable, "
@@ -159,10 +166,15 @@ class AiMagics(Magics):
         return output
 
     def _ai_env_status_for_provider_text(self, provider_id):
-        if provider_id not in PROVIDER_ENV_VARS:
+        if (provider_id not in self.providers or
+            self.providers[provider_id].auth_strategy == None):
             return '' # No message necessary
         
-        env_var = PROVIDER_ENV_VARS[provider_id]
+        try:        
+            env_var = self.providers[provider_id].auth_strategy.name
+        except AttributeError: # No "name" attribute
+            return ''
+        
         output = f"Requires environment variable {env_var} "
         if (os.getenv(env_var) != None):
             output += "(set)"

@@ -14,16 +14,6 @@ from langchain.llms import (
 from pydantic import BaseModel, Extra
 from langchain.chat_models import ChatOpenAI
 
-PROVIDER_ENV_VARS = {
-    "ai21": "AI21_API_KEY",
-    "anthropic": "ANTHROPIC_API_KEY",
-    "cohere": "COHERE_API_KEY",
-    "huggingface_hub": "HUGGINGFACEHUB_API_TOKEN",
-    "openai": "OPENAI_API_KEY",
-    "openai-chat": "OPENAI_API_KEY",
-    "openai-chat-new": "OPENAI_API_KEY"
-}
-
 class EnvAuthStrategy(BaseModel):
     """Require one auth token via an environment variable."""
     type: Literal["env"] = "env"
@@ -112,7 +102,7 @@ class AI21Provider(BaseProvider, AI21):
     ]
     model_id_key = "model"
     pypi_package_deps = ["ai21"]
-    auth_strategy = EnvAuthStrategy(name=PROVIDER_ENV_VARS["ai21"])
+    auth_strategy = EnvAuthStrategy(name="AI21_API_KEY")
 
 class AnthropicProvider(BaseProvider, Anthropic):
     id = "anthropic"
@@ -126,7 +116,7 @@ class AnthropicProvider(BaseProvider, Anthropic):
     ]
     model_id_key = "model"
     pypi_package_deps = ["anthropic"]
-    auth_strategy = EnvAuthStrategy(name=PROVIDER_ENV_VARS["anthropic"])
+    auth_strategy = EnvAuthStrategy(name="ANTHROPIC_API_KEY")
 
 class CohereProvider(BaseProvider, Cohere):
     id = "cohere"
@@ -134,7 +124,7 @@ class CohereProvider(BaseProvider, Cohere):
     models = ["medium", "xlarge"]
     model_id_key = "model"
     pypi_package_deps = ["cohere"]
-    auth_strategy = EnvAuthStrategy(name=PROVIDER_ENV_VARS["cohere"])
+    auth_strategy = EnvAuthStrategy(name="COHERE_API_KEY")
 
 class HfHubProvider(BaseProvider, HuggingFaceHub):
     id = "huggingface_hub"
@@ -145,7 +135,7 @@ class HfHubProvider(BaseProvider, HuggingFaceHub):
     # https://stackoverflow.com/questions/67998191
     # tqdm is a dependency of huggingface_hub
     pypi_package_deps = ["huggingface_hub", "ipywidgets"]
-    auth_strategy = EnvAuthStrategy(name=PROVIDER_ENV_VARS["huggingface_hub"])
+    auth_strategy = EnvAuthStrategy(name="HUGGINGFACEHUB_API_TOKEN")
 
 class OpenAIProvider(BaseProvider, OpenAI):
     id = "openai"
@@ -163,7 +153,7 @@ class OpenAIProvider(BaseProvider, OpenAI):
     ]
     model_id_key = "model_name"
     pypi_package_deps = ["openai"]
-    auth_strategy = EnvAuthStrategy(name=PROVIDER_ENV_VARS["openai"])
+    auth_strategy = EnvAuthStrategy(name="OPENAI_API_KEY")
 
 class ChatOpenAIProvider(BaseProvider, OpenAIChat):
     id = "openai-chat"
@@ -178,7 +168,7 @@ class ChatOpenAIProvider(BaseProvider, OpenAIChat):
     ]
     model_id_key = "model_name"
     pypi_package_deps = ["openai"]
-    auth_strategy = EnvAuthStrategy(name=PROVIDER_ENV_VARS["openai-chat"])
+    auth_strategy = EnvAuthStrategy(name="OPENAI_API_KEY")
 
     def append_exchange(self, prompt: str, output: str):
         """Appends a conversational exchange between user and an OpenAI Chat
@@ -207,7 +197,7 @@ class ChatOpenAINewProvider(BaseProvider, ChatOpenAI):
     ]
     model_id_key = "model_name"
     pypi_package_deps = ["openai"]
-    auth_strategy = EnvAuthStrategy(name=PROVIDER_ENV_VARS["openai-chat-new"])
+    auth_strategy = EnvAuthStrategy(name="OPENAI_API_KEY")
 
 class SmEndpointProvider(BaseProvider, SagemakerEndpoint):
     id = "sagemaker-endpoint"
