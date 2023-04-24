@@ -20,9 +20,9 @@ class ChatUser(BaseModel):
     avatar_url: Optional[str]
 
 class ChatClient(ChatUser):
-    # Client ID assigned by us. Necessary because different JupyterLab clients
-    # on the same device (i.e. running on multiple tabs/windows) may have the
-    # same user ID assigned to them by IdentityProvider.
+    # A unique client ID assigned to identify different JupyterLab clients on
+    # the same device (i.e. running on multiple tabs/windows), which may have
+    # the same username assigned to them by the IdentityProvider.
     id: str
 
 class AgentChatMessage(BaseModel):
