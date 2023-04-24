@@ -98,11 +98,7 @@ The easiest way to get started with Jupyter AI is to use the chat interface. The
 
 :::{attention}
 :name: open-ai-privacy-cost
-The chat interface sends data to generative AI models hosted by third parties.
-Please be careful not to send confidential or sensitive data using the chat
-interface. In addition, please review your model provider's privacy policy and
-cost information to understand your payment obligations when using the
-chat interface.
+The chat interface sends data to generative AI models hosted by third parties. Please review your model provider's privacy policy to understand how it may use the data you send to it. Review its pricing model so that you understand your payment obligations when using the chat interface.
 :::
 
 Once you have started JupyterLab, click the new "chat" icon in the side panel to open the chat interface.
