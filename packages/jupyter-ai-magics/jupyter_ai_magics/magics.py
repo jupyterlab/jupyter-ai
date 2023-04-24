@@ -19,7 +19,7 @@ MODEL_ID_ALIASES = {
     "gpt4": "openai-chat:gpt-4",
 }
 
-class TextWithMarkdown(object):
+class TextOrMarkdown(object):
 
     def __init__(self, text, markdown):
         self.text = text
@@ -210,20 +210,20 @@ class AiMagics(Magics):
 
         # When we can use Python 3.10+, replace this with a 'match' command
         if (command == 'help'):
-            return TextWithMarkdown(self._ai_help_command_text(), self._ai_help_command_markdown())
+            return TextOrMarkdown(self._ai_help_command_text(), self._ai_help_command_markdown())
         elif (command == 'list'):
             # Optional parameter: model provider ID
             provider_id = None
             if (len(args) >= 1):
                 provider_id = args[0]
 
-            return TextWithMarkdown(
+            return TextOrMarkdown(
                 self._ai_list_command_text(provider_id),
                 self._ai_list_command_markdown(provider_id)
             )
         else:
             # This should be unreachable, since unhandled commands are treated like model names
-            return TextWithMarkdown(
+            return TextOrMarkdown(
                 f"No handler for command {command}\n",
                 f"No handler for command `{command}`"
             )
@@ -308,7 +308,7 @@ class AiMagics(Magics):
         provider_id, local_model_id = self._decompose_model_id(args.model_id)
         Provider = self._get_provider(provider_id)
         if Provider is None:
-            return TextWithMarkdown(
+            return TextOrMarkdown(
                 f"Cannot determine model provider from model ID '{args.model_id}'.\n\n"
                 + "To see a list of models you can use, run '%ai list'.\n\n"
                 + "If you were trying to run a command, run '%ai help' to see a list of commands.",
