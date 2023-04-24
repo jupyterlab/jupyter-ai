@@ -5,6 +5,7 @@ import ray
 import tornado
 import uuid
 import time
+import getpass
 
 from tornado.web import HTTPError
 from pydantic import ValidationError
@@ -15,7 +16,7 @@ from jupyter_server.base.handlers import APIHandler as BaseAPIHandler, JupyterHa
 from jupyter_server.utils import ensure_async
 
 from .task_manager import TaskManager
-from .models import ChatHistory, PromptRequest, ChatRequest, ChatMessage, Message, AgentChatMessage, HumanChatMessage, ConnectionMessage, ChatClient
+from .models import ChatHistory, PromptRequest, ChatRequest, ChatMessage, Message, AgentChatMessage, HumanChatMessage, ConnectionMessage, ChatClient, ChatUser
 
 
 class APIHandler(BaseAPIHandler):
@@ -157,24 +158,39 @@ class ChatHandler(
         res = super().get(*args, **kwargs)
         await res
 
+    def get_current_user(self) -> ChatUser:
+        """Retrieves the current user. If collaborative mode is disabled, one
+        is synthesized from the login."""
+        collaborative = self.config.get("LabApp", {}).get("collaborative", False)
+
+        if collaborative:
+            return ChatUser(**asdict(self.current_user))
+        
+        
+        login = getpass.getuser()
+        return ChatUser(
+            username=self.current_user.username,
+            initials=login[0].capitalize(),
+            name=login,
+            display_name=login,
+            color=None,
+            avatar_url=None
+        )
+
+
     def generate_client_id(self):
         """Generates a client ID to identify the current WS connection."""
-        # if collaborative mode is enabled, each client already has a UUID
-        # collaborative = self.config.get("LabApp", {}).get("collaborative", False)
-        # if collaborative:
-        #     return self.current_user.username
-
-        # if collaborative mode is not enabled, each client is assigned a UUID
         return uuid.uuid4().hex
 
     def open(self):
         """Handles opening of a WebSocket connection. Client ID can be retrieved
         from `self.client_id`."""
 
+        current_user = self.get_current_user().dict()
         client_id = self.generate_client_id()
 
         self.chat_handlers[client_id] = self
-        self.chat_clients[client_id] = ChatClient(**asdict(self.current_user), id=client_id)
+        self.chat_clients[client_id] = ChatClient(**current_user, id=client_id)
         self.client_id = client_id
         self.write_message(ConnectionMessage(client_id=client_id).dict())
 

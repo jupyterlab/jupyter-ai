@@ -10,11 +10,7 @@ class PromptRequest(BaseModel):
 class ChatRequest(BaseModel):
     prompt: str
 
-class ChatClient(BaseModel):
-    # Client ID assigned by us. Necessary because different JupyterLab clients
-    # on the same device (i.e. running on multiple tabs/windows) may have the
-    # same user ID assigned to them by IdentityProvider.
-    id: str
+class ChatUser(BaseModel):
     # User ID assigned by IdentityProvider.
     username: str
     initials: str
@@ -22,6 +18,12 @@ class ChatClient(BaseModel):
     display_name: str
     color: Optional[str]
     avatar_url: Optional[str]
+
+class ChatClient(ChatUser):
+    # A unique client ID assigned to identify different JupyterLab clients on
+    # the same device (i.e. running on multiple tabs/windows), which may have
+    # the same username assigned to them by the IdentityProvider.
+    id: str
 
 class AgentChatMessage(BaseModel):
     type: Literal["agent"] = "agent"
