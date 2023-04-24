@@ -56,6 +56,11 @@ openai = "jupyter_ai_magics:OpenAIProvider"
 openai-chat = "jupyter_ai_magics:ChatOpenAIProvider"
 sagemaker-endpoint = "jupyter_ai_magics:SmEndpointProvider"
 
+[project.entry-points."jupyter_ai.embeddings_model_providers"]
+cohere = "jupyter_ai_magics:CohereEmbeddingsProvider"
+huggingface_hub = "jupyter_ai_magics:HfHubEmbeddingsProvider"
+openai = "jupyter_ai_magics:OpenAIEmbeddingsProvider"
+
 [tool.hatch.version]
 source = "nodejs"
 

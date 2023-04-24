@@ -291,6 +291,24 @@ class ModelProviderHandler(BaseAPIHandler):
         self.finish(response.json())
 
 
-class EmbeddingModelProviderHandler(BaseAPIHandler):
-    # Placeholder for embedding model provider handler
-    pass
+class EmbeddingsModelProviderHandler(BaseAPIHandler):
+    
+    @property
+    def embeddings_providers(self):
+        return self.settings['embeddings_providers']
+
+    @web.authenticated
+    def get(self):
+        providers = []
+        for provider in self.embeddings_providers.values():
+            providers.append(
+                ListProvidersEntry(
+                    id=provider.id,
+                    name=provider.name,
+                    models=provider.models,
+                    auth_strategy=provider.auth_strategy
+                )
+            )
+        
+        response = ListProvidersResponse(providers=sorted(providers, key=lambda p: p.name))
+        self.finish(response.json())
