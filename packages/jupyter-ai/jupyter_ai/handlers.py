@@ -286,7 +286,8 @@ class ModelProviderHandler(BaseAPIHandler):
                     auth_strategy=provider.auth_strategy
                 )
             )
-        response = ListProvidersResponse(providers=providers)
+        
+        response = ListProvidersResponse(providers=sorted(providers, key=lambda p: p.name))
         self.finish(response.json())
 
 
