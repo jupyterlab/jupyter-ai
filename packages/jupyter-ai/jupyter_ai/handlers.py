@@ -5,7 +5,7 @@ import ray
 import tornado
 import uuid
 import time
-import os
+import getpass
 
 from tornado.web import HTTPError
 from pydantic import ValidationError
@@ -167,7 +167,7 @@ class ChatHandler(
             return ChatUser(**asdict(self.current_user))
         
         
-        login = os.getlogin()
+        login = getpass.getuser()
         return ChatUser(
             username=self.current_user.username,
             initials=login[0].capitalize(),
