@@ -1,5 +1,6 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { Selection, SelectionWatcher } from '../selection-watcher';
+import type { Selection } from '../selection-utils';
+import { SelectionWatcher } from '../selection-watcher';
 
 const SelectionContext = React.createContext<
   [Selection | null, (value: Selection) => unknown]
@@ -36,7 +37,9 @@ export function SelectionContextProvider({
 
   const replaceSelection = useCallback(
     (value: Selection) => {
-      selectionWatcher.replaceSelection(value);
+      if (value.type === 'text') {
+        selectionWatcher.replaceSelection(value);
+      }
     },
     [selectionWatcher]
   );

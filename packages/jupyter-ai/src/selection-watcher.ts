@@ -1,95 +1,13 @@
 import { JupyterFrontEnd, LabShell } from '@jupyterlab/application';
 import { DocumentWidget } from '@jupyterlab/docregistry';
-import { CodeEditor } from '@jupyterlab/codeeditor';
-import { CodeMirrorEditor } from '@jupyterlab/codemirror';
-import { FileEditor } from '@jupyterlab/fileeditor';
 import { Notebook } from '@jupyterlab/notebook';
 
 import { find } from '@lumino/algorithm';
 import { Widget } from '@lumino/widgets';
 import { Signal } from '@lumino/signaling';
 
-import { getCellIndex } from './utils';
-
-/**
- * Gets the editor instance used by a document widget. Returns `null` if unable.
- */
-function getEditor(widget: Widget | null) {
-  if (!(widget instanceof DocumentWidget)) {
-    return null;
-  }
-
-  let editor: CodeEditor.IEditor | undefined;
-  const { content } = widget;
-
-  if (content instanceof FileEditor) {
-    editor = content.editor;
-  } else if (content instanceof Notebook) {
-    editor = content.activeCell?.editor;
-  }
-
-  if (!(editor instanceof CodeMirrorEditor)) {
-    return undefined;
-  }
-
-  return editor;
-}
-
-/**
- * Gets a Selection object from a document widget. Returns `null` if unable.
- */
-function getTextSelection(widget: Widget | null): Selection | null {
-  const editor = getEditor(widget);
-  // widget type check is redundant but hints the type to TypeScript
-  if (!editor || !(widget instanceof DocumentWidget)) {
-    return null;
-  }
-
-  let cellId: string | undefined = undefined;
-  if (widget.content instanceof Notebook) {
-    cellId = widget.content.activeCell?.model.id;
-  }
-
-  let { start, end, ...selectionObj } = editor.getSelection();
-  const startOffset = editor.getOffsetAt(start);
-  const endOffset = editor.getOffsetAt(end);
-  const text = editor.model.sharedModel
-    .getSource()
-    .substring(startOffset, endOffset);
-
-  // ensure start <= end
-  // required for editor.model.sharedModel.updateSource()
-  if (startOffset > endOffset) {
-    [start, end] = [end, start];
-  }
-
-  return {
-    ...selectionObj,
-    start,
-    end,
-    text,
-    widgetId: widget.id,
-    ...(cellId && {
-      cellId
-    })
-  };
-}
-
-export type Selection = CodeEditor.ITextSelection & {
-  /**
-   * The text within the selection as a string.
-   */
-  text: string;
-  /**
-   * The ID of the document widget in which the selection was made.
-   */
-  widgetId: string;
-  /**
-   * The ID of the cell in which the selection was made, if the original widget
-   * was a notebook.
-   */
-  cellId?: string;
-};
+import type { Selection, TextSelection } from './selection-utils';
+import { getCellIndex, getEditor, getSelection } from './selection-utils';
 
 export class SelectionWatcher {
   constructor(shell: JupyterFrontEnd.IShell) {
@@ -109,7 +27,7 @@ export class SelectionWatcher {
     return this._selectionChanged;
   }
 
-  replaceSelection(selection: Selection) {
+  replaceSelection(selection: TextSelection) {
     // unfortunately shell.currentWidget doesn't update synchronously after
     // shell.activateById(), which is why we have to get a reference to the
     // widget manually.
@@ -151,7 +69,7 @@ export class SelectionWatcher {
 
   protected _poll() {
     const prevSelection = this._selection;
-    const currSelection = getTextSelection(this._mainAreaWidget);
+    const currSelection = getSelection(this._mainAreaWidget);
 
     if (prevSelection?.text === currSelection?.text) {
       return;
