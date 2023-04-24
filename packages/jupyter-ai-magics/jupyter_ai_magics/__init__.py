@@ -12,6 +12,12 @@ from .providers import (
     ChatOpenAIProvider,
     SmEndpointProvider
 )
+# expose embedding model providers on the package root
+from .embedding_providers import (
+    OpenAIEmbeddingsProvider,
+    CohereEmbeddingsProvider,
+    HfHubEmbeddingsProvider
+)
 from .providers import BaseProvider
 
 def load_ipython_extension(ipython):

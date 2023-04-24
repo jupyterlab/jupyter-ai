@@ -1,7 +1,7 @@
 import asyncio
 import os
 import queue
-from jupyter_ai_magics.utils import load_providers
+from jupyter_ai_magics.utils import load_embedding_providers, load_providers
 from langchain.memory import ConversationBufferWindowMemory
 from jupyter_ai.actors.default import DefaultActor 
 from jupyter_ai.actors.ask import AskActor 
@@ -12,7 +12,7 @@ from jupyter_ai.actors.generate import GenerateActor
 from jupyter_ai.actors.base import ACTOR_TYPE
 from jupyter_ai.reply_processor import ReplyProcessor
 from jupyter_server.extension.application import ExtensionApp
-from .handlers import ChatHandler, ChatHistoryHandler, ModelProviderHandler, PromptAPIHandler, TaskAPIHandler
+from .handlers import ChatHandler, ChatHistoryHandler, EmbeddingsModelProviderHandler, ModelProviderHandler, PromptAPIHandler, TaskAPIHandler
 from importlib_metadata import entry_points
 import inspect
 from .engine import BaseModelEngine
@@ -31,6 +31,7 @@ class AiExtension(ExtensionApp):
         (r"api/ai/chats/?", ChatHandler),
         (r"api/ai/chats/history?", ChatHistoryHandler),
         (r"api/ai/providers?", ModelProviderHandler),
+        (r"api/ai/providers/embeddings?", EmbeddingsModelProviderHandler),
     ]
 
     @property
@@ -96,6 +97,10 @@ class AiExtension(ExtensionApp):
         providers = load_providers(log=self.log)
         self.settings["chat_providers"] = providers
         self.log.info("Registered providers.")
+
+        embeddings_providers = load_embedding_providers(log=self.log)
+        self.settings["embeddings_providers"] = embeddings_providers
+        self.log.info("Registered embeddings providers.")
 
         if ChatOpenAINewProvider.auth_strategy.name not in os.environ:
             raise EnvironmentError(f"`{ChatOpenAINewProvider.auth_strategy.name}` value not set in environment. For chat to work, this value should be provided.")

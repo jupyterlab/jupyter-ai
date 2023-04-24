@@ -2,6 +2,7 @@ import logging
 from typing import Dict, Optional, Tuple, Union
 from importlib_metadata import entry_points
 from jupyter_ai_magics.aliases import MODEL_ID_ALIASES
+from jupyter_ai_magics.embedding_providers import BaseEmbeddingsProvider
 
 from jupyter_ai_magics.providers import BaseProvider
 
@@ -26,6 +27,27 @@ def load_providers(log: Optional[Logger] = None) -> Dict[str, BaseProvider]:
         log.info(f"Registered model provider `{provider.id}`.")
     
     return providers
+
+
+def load_embedding_providers(log: Optional[Logger] = None) -> Dict[str, BaseEmbeddingsProvider]:
+    if not log:
+        log = logging.getLogger()
+        log.addHandler(logging.NullHandler())
+    providers = {}
+    eps = entry_points()
+    model_provider_eps = eps.select(group="jupyter_ai.embeddings_model_providers")
+    for model_provider_ep in model_provider_eps:
+        try:
+            provider = model_provider_ep.load()
+        except:
+            log.error(f"Unable to load embeddings model provider class from entry point `{model_provider_ep.name}`.")
+            continue
+        providers[provider.id] = provider
+        log.info(f"Registered embeddings model provider `{provider.id}`.")
+    
+    return providers
+
+
 
 def decompose_model_id(model_id: str, providers: Dict[str, BaseProvider]) -> Tuple[str, str]:
         """Breaks down a model ID into a two-tuple (provider_id, local_model_id). Returns (None, None) if indeterminate."""
