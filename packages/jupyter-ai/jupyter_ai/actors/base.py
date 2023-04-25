@@ -19,6 +19,8 @@ class ACTOR_TYPE(str, Enum):
     LEARN = 'learn'
     MEMORY = 'memory'
     GENERATE = 'generate'
+    PROVIDERS = 'providers'
+    CONFIG = 'config'
 
 COMMANDS = {
     '/ask': ACTOR_TYPE.ASK,

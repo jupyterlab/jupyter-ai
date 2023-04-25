@@ -1,6 +1,8 @@
 import asyncio
 import os
 import queue
+from jupyter_ai.actors.config import ConfigActor
+from jupyter_ai.actors.providers import ProvidersActor
 from jupyter_ai_magics.utils import load_embedding_providers, load_providers
 from langchain.memory import ConversationBufferWindowMemory
 from jupyter_ai.actors.default import DefaultActor 
@@ -94,14 +96,6 @@ class AiExtension(ExtensionApp):
         self.settings["ai_default_tasks"] = default_tasks
         self.log.info("Registered all default tasks.")
 
-        providers = load_providers(log=self.log)
-        self.settings["chat_providers"] = providers
-        self.log.info("Registered providers.")
-
-        embeddings_providers = load_embedding_providers(log=self.log)
-        self.settings["embeddings_providers"] = embeddings_providers
-        self.log.info("Registered embeddings providers.")
-
         if ChatOpenAINewProvider.auth_strategy.name not in os.environ:
             raise EnvironmentError(f"`{ChatOpenAINewProvider.auth_strategy.name}` value not set in environment. For chat to work, this value should be provided.")
 
@@ -128,6 +122,13 @@ class AiExtension(ExtensionApp):
             reply_queue=reply_queue,
             log=self.log
         )
+        providers_actor = ProvidersActor.options(name=ACTOR_TYPE.PROVIDERS.value).remote(
+            log=self.log
+        )
+        config_actor = ConfigActor.options(name=ACTOR_TYPE.CONFIG.value).remote(
+            log=self.log,
+            root_dir=self.serverapp.root_dir,
+        )
         default_actor = DefaultActor.options(name=ACTOR_TYPE.DEFAULT.value).remote(
             reply_queue=reply_queue, 
             log=self.log
@@ -152,6 +153,8 @@ class AiExtension(ExtensionApp):
         )
      
         self.settings['router'] = router
+        self.settings['providers_actor'] = providers_actor
+        self.settings['config_actor'] = config_actor
         self.settings["default_actor"] = default_actor
         self.settings["learn_actor"] = learn_actor
         self.settings["ask_actor"] = ask_actor

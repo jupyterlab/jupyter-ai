@@ -273,7 +273,9 @@ class ChatHandler(
 class ModelProviderHandler(BaseAPIHandler):
     @property
     def chat_providers(self): 
-        return self.settings["chat_providers"]
+        actor = ray.get_actor("providers")
+        o = actor.get_model_providers.remote()
+        return ray.get(o)
     
     @web.authenticated
     def get(self):
@@ -296,7 +298,9 @@ class EmbeddingsModelProviderHandler(BaseAPIHandler):
     
     @property
     def embeddings_providers(self):
-        return self.settings['embeddings_providers']
+        actor = ray.get_actor("providers")
+        o = actor.get_embeddings_providers.remote()
+        return ray.get(o)
 
     @web.authenticated
     def get(self):
@@ -313,3 +317,10 @@ class EmbeddingsModelProviderHandler(BaseAPIHandler):
         
         response = ListProvidersResponse(providers=sorted(providers, key=lambda p: p.name))
         self.finish(response.json())
+
+
+class ProviderConfigHandler(BaseAPIHandler):
+    
+    @web.authenticated
+    def get(self):
+        ...
