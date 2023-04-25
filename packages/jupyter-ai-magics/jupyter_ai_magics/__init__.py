@@ -8,7 +8,6 @@ from .providers import (
     AnthropicProvider,
     CohereProvider,
     HfHubProvider,
-    HfImageProvider,
     OpenAIProvider,
     ChatOpenAIProvider,
     SmEndpointProvider

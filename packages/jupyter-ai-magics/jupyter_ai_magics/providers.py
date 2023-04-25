@@ -1,4 +1,4 @@
-from typing import ClassVar, List, Union, Literal, Optional
+from typing import ClassVar, Dict, List, Union, Literal, Optional
 
 from langchain.schema import BaseLanguageModel as BaseLangchainProvider
 from langchain.llms import (
@@ -10,10 +10,11 @@ from langchain.llms import (
     OpenAIChat,
     SagemakerEndpoint
 )
+from langchain.utils import get_from_dict_or_env
 
 from .huggingface_image import HuggingFaceImage
 
-from pydantic import BaseModel, Extra
+from pydantic import BaseModel, Extra, root_validator
 from langchain.chat_models import ChatOpenAI
 
 class EnvAuthStrategy(BaseModel):
@@ -139,16 +140,36 @@ class HfHubProvider(BaseProvider, HuggingFaceHub):
     pypi_package_deps = ["huggingface_hub", "ipywidgets"]
     auth_strategy = EnvAuthStrategy(name="HUGGINGFACEHUB_API_TOKEN")
 
-class HfImageProvider(BaseProvider, HuggingFaceImage):
-    id = "huggingface_image"
-    name = "HuggingFace Image"
-    models = ["*"]
-    model_id_key = "repo_id"
-    # ipywidgets needed to suppress tqdm warning
-    # https://stackoverflow.com/questions/67998191
-    # tqdm is a dependency of huggingface_hub
-    pypi_package_deps = ["huggingface_hub", "ipywidgets"]
-    auth_strategy = EnvAuthStrategy(name="HUGGINGFACEHUB_API_TOKEN")
+    # Override the parent's validate_environment with a custom list of valid tasks
+    @root_validator()
+    def validate_environment(cls, values: Dict) -> Dict:
+        """Validate that api key and python package exists in environment."""
+        huggingfacehub_api_token = get_from_dict_or_env(
+            values, "huggingfacehub_api_token", "HUGGINGFACEHUB_API_TOKEN"
+        )
+        try:
+            from huggingface_hub.inference_api import InferenceApi
+
+            VALID_TASKS = ("text2text-generation", "text-generation", "text-to-image")
+
+            repo_id = values["repo_id"]
+            client = InferenceApi(
+                repo_id=repo_id,
+                token=huggingfacehub_api_token,
+                task=values.get("task"),
+            )
+            if client.task not in VALID_TASKS:
+                raise ValueError(
+                    f"Got invalid task {client.task}, "
+                    f"currently only {VALID_TASKS} are supported"
+                )
+            values["client"] = client
+        except ImportError:
+            raise ValueError(
+                "Could not import huggingface_hub python package. "
+                "Please install it with `pip install huggingface_hub`."
+            )
+        return values
 
 class OpenAIProvider(BaseProvider, OpenAI):
     id = "openai"
