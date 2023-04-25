@@ -101,9 +101,9 @@ The easiest way to get started with Jupyter AI is to use the chat interface. The
 The chat interface sends data to generative AI models hosted by third parties. Please review your model provider's privacy policy to understand how it may use the data you send to it. Review its pricing model so that you understand your payment obligations when using the chat interface.
 :::
 
-Once you have started JupyterLab, click the new "chat" icon in the side panel to open the chat interface.
+Once you have started JupyterLab, click the new "chat" icon in the left side panel to open the chat interface. You can right-click on the panel icon and move it to the other side, if you prefer.
 
-![Screen shot of the initial, blank, chat interface.](../_static/chat-interface-blank.png)
+![Screen shot of the initial, blank, chat interface.](../_static/chat-icon-left-tab-bar.png)
 
 To compose a message, type it in the text box at the bottom of the chat interface and press <kbd>SHIFT</kbd>+<kbd>ENTER</kbd> to send. You can press <kbd>ENTER</kbd> to add a new line. Once you have sent a message, you should see a response from Jupyter AI.
 
@@ -142,8 +142,6 @@ you run it.
 After Jupyter AI sends a response, your notebook will be updated immediately with the response replacing the selection. You can also see the response in the chat panel.
 
 ![Screen shot of Jupyter AI displaying a response in the chat panel and in the notebook.](../_static/chat-replace-selection-output.png)
-
-
 
 ### Generating a new notebook
 
