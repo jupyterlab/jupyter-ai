@@ -1,3 +1,4 @@
+import base64
 import json
 import os
 import re
@@ -35,7 +36,7 @@ class TextOrMarkdown(object):
             }
         )
 
-class TextWithMetadata(object):
+class TextWithMetadata:
 
     def __init__(self, text, metadata):
         self.text = text
@@ -44,10 +45,21 @@ class TextWithMetadata(object):
     def _repr_mimebundle_(self, include=None, exclude=None):
         return ({'text/plain': self.text}, self.metadata)
 
+
+class Base64Image:
+    def __init__(self, base64bytes, metadata, mimeType='image/jpeg'):
+        self.data = base64.b64decode(base64bytes);
+        self.mimeType = mimeType
+        self.metadata = metadata
+
+    def _repr_mimebundle_(self, include=None, exclude=None):
+        return ({self.mimeType: self.data}, self.metadata)
+
+
 DISPLAYS_BY_FORMAT = {
     "code": None,
     "html": HTML,
-    "image": Image,
+    "image": Base64Image,
     "markdown": Markdown,
     "math": Math,
     "md": Markdown,

@@ -25,7 +25,8 @@ dependencies = [
     "ipython",
     "pydantic",
     "importlib_metadata~=5.2.0",
-    "langchain~=0.0.144"
+    "langchain~=0.0.144",
+    "Pillow"
 ]
 
 [project.optional-dependencies]
