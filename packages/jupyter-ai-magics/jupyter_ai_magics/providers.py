@@ -14,7 +14,6 @@ from langchain.llms import (
 from pydantic import BaseModel, Extra
 from langchain.chat_models import ChatOpenAI
 
-
 class EnvAuthStrategy(BaseModel):
     """Require one auth token via an environment variable."""
     type: Literal["env"] = "env"

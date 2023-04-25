@@ -238,6 +238,15 @@ providers, as defined in [`langchain.llms`](https://langchain.readthedocs.io/en/
 - `openai-chat`
 - `sagemaker-endpoint`
 
+You can find a list of supported providers and models by running `%ai list`. Some providers
+define a list of supported models. If a provider does not define a list of supported models,
+consult the vendor's documentation. The [Hugging Face web site](https://huggingface.co/)
+includes a list of models, for example.
+
+Optionally, you can pass a provider ID as a parameter to `%ai list` to get all
+models provided by one provider. For example, `%ai list openai` will display only models
+provided by the `openai` provider.
+
 If your model ID is associated with only one provider, you can omit the `provider-id` and
 the colon from the first line. For example, because `ai21` is the only provider of the
 `j2-jumbo-instruct` model, you can either give the full provider and model,
