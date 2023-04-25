@@ -103,7 +103,7 @@ The chat interface sends data to generative AI models hosted by third parties. P
 
 Once you have started JupyterLab, click the new "chat" icon in the side panel to open the chat interface.
 
-![Screen shot of the initial, blank, chat interface.](../_static/chat-icon-left-tab-bar)
+![Screen shot of the initial, blank, chat interface.](../_static/chat-icon-left-tab-bar.png)
 
 To compose a message, type it in the text box at the bottom of the chat interface and press <kbd>SHIFT</kbd>+<kbd>ENTER</kbd> to send. You can press <kbd>ENTER</kbd> to add a new line. Once you have sent a message, you should see a response from Jupyter AI.
 
