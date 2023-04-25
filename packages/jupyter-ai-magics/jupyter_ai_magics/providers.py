@@ -16,8 +16,6 @@ from langchain.llms import (
 )
 from langchain.utils import get_from_dict_or_env
 
-from .huggingface_image import HuggingFaceImage
-
 from pydantic import BaseModel, Extra, root_validator
 from langchain.chat_models import ChatOpenAI
 

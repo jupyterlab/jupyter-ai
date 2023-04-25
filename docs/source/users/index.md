@@ -42,13 +42,10 @@ Jupyter AI supports the following model providers:
 | AI21                | `ai21`               | `AI21_API_KEY`             | `ai21`                          |
 | Anthropic           | `anthropic`          | `ANTHROPIC_API_KEY`        | `anthropic`                     |
 | Cohere              | `cohere`             | `COHERE_API_KEY`           | `cohere`                        |
-| HuggingFace Hub     | `huggingface_hub`, `huggingface_image` | `HUGGINGFACEHUB_API_TOKEN` | `huggingface_hub`, `ipywidgets` |
+| HuggingFace Hub     | `huggingface_hub`    | `HUGGINGFACEHUB_API_TOKEN` | `huggingface_hub`, `ipywidgets` |
 | OpenAI              | `openai`             | `OPENAI_API_KEY`           | `openai`                        |
 | OpenAI (chat)       | `openai-chat`        | `OPENAI_API_KEY`           | `openai`                        |
 | SageMaker Endpoints | `sagemaker-endpoint` | N/A                        | `boto3`                         |
-
-The `huggingface_hub` provider is for models that output text. The `huggingface_image`
-provider is for models such as Stable Diffusion that output images.
 
 To use SageMaker's models, you will need to authenticate via
 [boto3](https://github.com/boto/boto3).
@@ -260,8 +257,7 @@ providers, as defined in [`langchain.llms`](https://langchain.readthedocs.io/en/
 - `ai21`
 - `anthropic`
 - `cohere`
-- `huggingface_hub` (uses HuggingFace Hub for models that output text)
-- `huggingface_image` (uses HuggingFace Hub for models that output images)
+- `huggingface_hub`
 - `openai`
 - `openai-chat`
 - `sagemaker-endpoint`
