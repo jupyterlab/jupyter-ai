@@ -18,7 +18,8 @@ from jupyter_server.utils import ensure_async
 from .task_manager import TaskManager
 
 from .models import (
-    ChatHistory, 
+    ChatHistory,
+    ChatUser, 
     ListProvidersEntry, 
     ListProvidersResponse, 
     PromptRequest, 
