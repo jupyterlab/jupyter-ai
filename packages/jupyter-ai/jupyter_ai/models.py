@@ -1,4 +1,5 @@
-from jupyter_ai_magics.providers import AuthStrategy
+from jupyter_ai_magics.embedding_providers import BaseEmbeddingsProvider
+from jupyter_ai_magics.providers import AuthStrategy, BaseProvider
 from pydantic import BaseModel 
 from typing import Dict, List, Union, Literal, Optional
 
@@ -95,3 +96,9 @@ class ListProvidersEntry(BaseModel):
 
 class ListProvidersResponse(BaseModel):
     providers: List[ListProvidersEntry]
+
+
+class ProviderConfig(BaseModel):
+    model_provider: str
+    embeddings_provider: str
+    api_keys: Dict[str, str]
