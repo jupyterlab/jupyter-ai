@@ -5,7 +5,7 @@ from langchain.embeddings import OpenAIEmbeddings, CohereEmbeddings, HuggingFace
 from langchain.embeddings.base import Embeddings
 
 
-class BaseEmbeddingsProvider(Embeddings):
+class BaseEmbeddingsProvider(BaseModel):
     """Base class for embedding providers"""
 
     class Config:
@@ -33,21 +33,10 @@ class BaseEmbeddingsProvider(Embeddings):
 
     model_id: str
 
-    
-    def __init__(self, *args, **kwargs):
-        try:
-            assert kwargs["model_id"]
-        except:
-            raise AssertionError("model_id was not specified. Please specify it as a keyword argument.")
-
-        model_kwargs = {}
-        model_kwargs[self.__class__.model_id_key] = kwargs["model_id"]
-
-        super().__init__(*args, **kwargs, **model_kwargs)
-    
+    provider_klass: ClassVar[Type[Embeddings]]    
 
     
-class OpenAIEmbeddingsProvider(BaseEmbeddingsProvider, OpenAIEmbeddings):
+class OpenAIEmbeddingsProvider(BaseEmbeddingsProvider):
     id = "openai"
     name = "OpenAI"
     models = [
@@ -56,9 +45,10 @@ class OpenAIEmbeddingsProvider(BaseEmbeddingsProvider, OpenAIEmbeddings):
     model_id_key = "model"
     pypi_package_deps = ["openai"]
     auth_strategy = EnvAuthStrategy(name="OPENAI_API_KEY")
+    provider_klass: OpenAIEmbeddings
 
 
-class CohereEmbeddingsProvider(BaseEmbeddingsProvider, CohereEmbeddings):
+class CohereEmbeddingsProvider(BaseEmbeddingsProvider):
     id = "cohere"
     name = "Cohere"
     models = [
@@ -69,9 +59,10 @@ class CohereEmbeddingsProvider(BaseEmbeddingsProvider, CohereEmbeddings):
     model_id_key = "model"
     pypi_package_deps = ["cohere"]
     auth_strategy = EnvAuthStrategy(name="COHERE_API_KEY")
+    provider_klass: CohereEmbeddings
 
 
-class HfHubEmbeddingsProvider(BaseEmbeddingsProvider, HuggingFaceHubEmbeddings):
+class HfHubEmbeddingsProvider(BaseEmbeddingsProvider):
     id = "huggingface_hub"
     name = "HuggingFace Hub"
     models = ["*"]
@@ -81,3 +72,4 @@ class HfHubEmbeddingsProvider(BaseEmbeddingsProvider, HuggingFaceHubEmbeddings):
     # tqdm is a dependency of huggingface_hub
     pypi_package_deps = ["huggingface_hub", "ipywidgets"]
     auth_strategy = EnvAuthStrategy(name="HUGGINGFACEHUB_API_TOKEN")
+    provider_klass: HuggingFaceHubEmbeddings
