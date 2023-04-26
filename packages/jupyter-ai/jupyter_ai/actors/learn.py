@@ -38,7 +38,6 @@ class LearnActor(BaseActor):
         self.parser.add_argument('path', nargs=argparse.REMAINDER)
         self.index_name = 'default'
         self.index = None
-        self.embeddings_provider = None
  
         if not os.path.exists(self.index_save_dir):
             os.makedirs(self.index_save_dir)
@@ -102,20 +101,9 @@ class LearnActor(BaseActor):
             if os.path.isfile(path):
                 os.remove(path)
         self.create()
-    
-    def _get_embeddings_provider(self):
-        actor = ray.get_actor(ACTOR_TYPE.EMBEDDINGS_PROVIDER)
-        o = actor.get_provider.remote()
-        provider = ray.get(o)
-        
-        if not provider:
-            return None
-        if provider.__class__.__name__ != self.embeddings_provider.__class__.__name__:
-            self.embeddings_provider = provider
-        return self.embeddings_provider
 
     def create(self):
-        embeddings = self._get_embeddings_provider()
+        embeddings = self.get_embeddings()
         if not embeddings:
             return
         self.index = FAISS.from_texts(["Jupyter AI knows about your filesystem, to ask questions first use the /learn command."], embeddings)
@@ -126,7 +114,7 @@ class LearnActor(BaseActor):
             self.index.save_local(self.index_save_dir, index_name=self.index_name)
 
     def load_or_create(self):
-        embeddings = self._get_embeddings_provider()
+        embeddings = self.get_embeddings()
         if not embeddings:
             return
         if self.index is None:

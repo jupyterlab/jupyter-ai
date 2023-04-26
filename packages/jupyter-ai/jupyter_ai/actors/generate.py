@@ -1,21 +1,19 @@
 import json
 import os
-import time
-from uuid import uuid4
+from typing import Dict
 
 import ray
 from ray.util.queue import Queue
 
 from langchain.llms import BaseLLM
-from langchain.chat_models import ChatOpenAI
 from langchain.prompts import PromptTemplate
 from langchain.llms import BaseLLM
 from langchain.chains import LLMChain
 
 import nbformat
 
-from jupyter_ai.models import AgentChatMessage, HumanChatMessage
-from jupyter_ai.actors.base import ACTOR_TYPE, BaseActor, Logger
+from jupyter_ai.models import HumanChatMessage
+from jupyter_ai.actors.base import BaseActor, Logger
 from jupyter_ai_magics.providers import BaseProvider, ChatOpenAINewProvider
 
 schema = """{
@@ -206,20 +204,14 @@ class GenerateActor(BaseActor):
         self.root_dir = os.path.abspath(os.path.expanduser(root_dir))
         self.llm = None
 
-    def _get_chat_provider(self):
-        actor = ray.get_actor(ACTOR_TYPE.CHAT_PROVIDER)
-        o = actor.get_provider.remote()
-        provider = ray.get(o)
-        if not provider:
-            return None
-        if provider.__class__.__name__ != self.provider.__class__.__name__:
-            self.llm = provider
-        return self.llm
+    def create_llm_chain(self, provider: BaseProvider, provider_params: Dict[str, str]):
+        llm = provider(**provider_params)
+        self.llm = llm
+        return llm
   
     def _process_message(self, message: HumanChatMessage):
-        llm = self._get_chat_provider()
-        if not llm:
-            return
+        self.get_llm_chain()
+        
         response = "👍 Great, I will get started on your notebook. It may take a few minutes, but I will reply here when the notebook is ready. In the meantime, you can continue to ask me other questions."
         self.reply(response, message)
 
