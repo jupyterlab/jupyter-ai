@@ -193,9 +193,21 @@ class HfHubProvider(BaseProvider, HuggingFaceHub):
         response = self.client(inputs=prompt, params=_model_kwargs)
         # Custom code for responding to image generation responses
         if self.client.task == "text-to-image":
+            imageFormat = response.format # Presume it's a PIL ImageFile
+            mimeType = ''
+            if (imageFormat == 'JPEG'):
+                mimeType = 'image/jpeg'
+            elif (imageFormat == 'PNG'):
+                mimeType = 'image/png'
+            elif (imageFormat == 'GIF'):
+                mimeType = 'image/gif'
+            else:
+                raise ValueError(f"Unrecognized image format {imageFormat}")
+            
             buffer = io.BytesIO()
-            response.save(buffer, format='JPEG', quality=75)
-            return base64.b64encode(buffer.getvalue())
+            response.save(buffer, format=imageFormat)
+            # Encode image data to Base64 bytes, then decode bytes to str
+            return (mimeType + ';base64,' + base64.b64encode(buffer.getvalue()).decode())
 
         if "error" in response:
             raise ValueError(f"Error raised by inference API: {response['error']}")

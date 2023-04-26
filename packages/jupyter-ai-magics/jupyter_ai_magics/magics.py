@@ -47,9 +47,10 @@ class TextWithMetadata:
 
 
 class Base64Image:
-    def __init__(self, base64bytes, metadata, mimeType='image/jpeg'):
-        self.data = base64.b64decode(base64bytes);
-        self.mimeType = mimeType
+    def __init__(self, mimeData, metadata):
+        mimeDataParts = mimeData.split(',')
+        self.data = base64.b64decode(mimeDataParts[1]);
+        self.mimeType = mimeDataParts[0].removesuffix(';base64')
         self.metadata = metadata
 
     def _repr_mimebundle_(self, include=None, exclude=None):
