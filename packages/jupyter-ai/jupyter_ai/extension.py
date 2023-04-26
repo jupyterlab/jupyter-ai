@@ -1,7 +1,9 @@
 import asyncio
 import os
 import queue
+from jupyter_ai.actors.chat_provider import ChatProviderActor
 from jupyter_ai.actors.config import ConfigActor
+from jupyter_ai.actors.embeddings_provider import EmbeddingsProviderActor
 from jupyter_ai.actors.providers import ProvidersActor
 from jupyter_ai_magics.utils import load_embedding_providers, load_providers
 from langchain.memory import ConversationBufferWindowMemory
@@ -96,11 +98,11 @@ class AiExtension(ExtensionApp):
         self.settings["ai_default_tasks"] = default_tasks
         self.log.info("Registered all default tasks.")
 
-        if ChatOpenAINewProvider.auth_strategy.name not in os.environ:
-            raise EnvironmentError(f"`{ChatOpenAINewProvider.auth_strategy.name}` value not set in environment. For chat to work, this value should be provided.")
+        #if ChatOpenAINewProvider.auth_strategy.name not in os.environ:
+        #    raise EnvironmentError(f"`{ChatOpenAINewProvider.auth_strategy.name}` value not set in environment. For chat to work, this value should be provided.")
 
         ## load OpenAI provider
-        self.settings["openai_chat"] = ChatOpenAIProvider(model_id="gpt-3.5-turbo")
+        #self.settings["openai_chat"] = ChatOpenAIProvider(model_id="gpt-3.5-turbo")
 
         self.log.info(f"Registered {self.name} server extension")
 
@@ -129,6 +131,12 @@ class AiExtension(ExtensionApp):
             log=self.log,
             root_dir=self.serverapp.root_dir,
         )
+        chat_provider_actor = ChatProviderActor.options(name=ACTOR_TYPE.CHAT_PROVIDER.value).remote(
+            log=self.log
+        )
+        embeddings_provider_actor = EmbeddingsProviderActor.options(name=ACTOR_TYPE.EMBEDDINGS_PROVIDER.value).remote(
+            log=self.log
+        )
         default_actor = DefaultActor.options(name=ACTOR_TYPE.DEFAULT.value).remote(
             reply_queue=reply_queue, 
             log=self.log
@@ -155,6 +163,8 @@ class AiExtension(ExtensionApp):
         self.settings['router'] = router
         self.settings['providers_actor'] = providers_actor
         self.settings['config_actor'] = config_actor
+        self.settings['chat_provider_actor'] = chat_provider_actor
+        self.settings['embeddings_provider_actor'] = embeddings_provider_actor
         self.settings["default_actor"] = default_actor
         self.settings["learn_actor"] = learn_actor
         self.settings["ask_actor"] = ask_actor

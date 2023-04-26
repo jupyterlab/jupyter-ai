@@ -1,4 +1,5 @@
 import argparse
+from jupyter_ai_magics.providers import BaseProvider
 
 import ray
 from ray.util.queue import Queue
@@ -21,20 +22,35 @@ class AskActor(BaseActor):
 
     def __init__(self, reply_queue: Queue, log: Logger):
         super().__init__(reply_queue=reply_queue, log=log)
+        
+        self.provider = None
+        self.chat_provider = None
+        self.parser.prog = '/ask'
+        self.parser.add_argument('query', nargs=argparse.REMAINDER)
+
+    def create_chat_provider(self, provider: BaseProvider):
         index_actor = ray.get_actor(ACTOR_TYPE.LEARN.value)
         handle = index_actor.get_index.remote()
         vectorstore = ray.get(handle)
         if not vectorstore:
-            return
-
+            return None
+        self.provider = provider
         self.chat_history = []
         self.chat_provider = ConversationalRetrievalChain.from_llm(
-            OpenAI(temperature=0, verbose=True),
+            provider,
             vectorstore.as_retriever()
         )
+        
 
-        self.parser.prog = '/ask'
-        self.parser.add_argument('query', nargs=argparse.REMAINDER)
+    def _get_chat_provider(self):
+        actor = ray.get_actor(ACTOR_TYPE.CHAT_PROVIDER)
+        o = actor.get_provider.remote()
+        provider = ray.get(o)
+        if not provider:
+            return None
+        if provider.__class__.__name__ != self.provider.__class__.__name__:
+            self.create_chat_provider(provider)
+        return self.chat_provider
 
 
     def _process_message(self, message: HumanChatMessage):
@@ -49,6 +65,9 @@ class AskActor(BaseActor):
         index_actor = ray.get_actor(ACTOR_TYPE.LEARN.value)
         handle = index_actor.get_index.remote()
         vectorstore = ray.get(handle)
+
+        self._get_chat_provider()
+        
         # Have to reference the latest index
         self.chat_provider.retriever = vectorstore.as_retriever()
         

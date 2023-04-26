@@ -53,6 +53,7 @@ cohere = "jupyter_ai_magics:CohereProvider"
 huggingface_hub = "jupyter_ai_magics:HfHubProvider"
 openai = "jupyter_ai_magics:OpenAIProvider"
 openai-chat = "jupyter_ai_magics:ChatOpenAIProvider"
+openai-chat-new = "jupyter_ai_magics:ChatOpenAINewProvider"
 sagemaker-endpoint = "jupyter_ai_magics:SmEndpointProvider"
 
 [project.entry-points."jupyter_ai.embeddings_model_providers"]

@@ -21,6 +21,8 @@ class ACTOR_TYPE(str, Enum):
     GENERATE = 'generate'
     PROVIDERS = 'providers'
     CONFIG = 'config'
+    CHAT_PROVIDER = 'chat_provider'
+    EMBEDDINGS_PROVIDER = 'embeddings_provider'
 
 COMMANDS = {
     '/ask': ACTOR_TYPE.ASK,

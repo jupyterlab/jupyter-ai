@@ -50,10 +50,6 @@ class APIHandler(BaseAPIHandler):
             self.settings["task_manager"] = TaskManager(engines=self.engines, default_tasks=self.default_tasks)
         return self.settings["task_manager"]
     
-    @property
-    def openai_chat(self):
-        return self.settings["openai_chat"]
-    
 class PromptAPIHandler(APIHandler):
     @tornado.web.authenticated
     async def post(self):

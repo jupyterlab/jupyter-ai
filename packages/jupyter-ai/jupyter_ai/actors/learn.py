@@ -2,6 +2,7 @@ import os
 import traceback
 from collections import Counter
 import argparse
+from jupyter_ai_magics.embedding_providers import BaseEmbeddingsProvider
 
 import ray
 from ray.util.queue import Queue
@@ -16,7 +17,7 @@ from langchain.text_splitter import (
 )
 
 from jupyter_ai.models import HumanChatMessage
-from jupyter_ai.actors.base import BaseActor, Logger
+from jupyter_ai.actors.base import ACTOR_TYPE, BaseActor, Logger
 from jupyter_ai_magics.providers import ChatOpenAINewProvider
 from jupyter_ai.document_loaders.directory import RayRecursiveDirectoryLoader
 from jupyter_ai.document_loaders.splitter import ExtensionSplitter, NotebookSplitter
@@ -37,16 +38,17 @@ class LearnActor(BaseActor):
         self.parser.add_argument('path', nargs=argparse.REMAINDER)
         self.index_name = 'default'
         self.index = None
-
-        if ChatOpenAINewProvider.auth_strategy.name not in os.environ:
-            return
-        
+        self.embeddings_provider = None
+ 
         if not os.path.exists(self.index_save_dir):
             os.makedirs(self.index_save_dir)
-
-        self.load_or_create()
+        
+        self.load_or_create()    
         
     def _process_message(self, message: HumanChatMessage):
+        if not self.index:
+            self.load_or_create()
+
         args = self.parse_args(message)
         if args is None:
             return
@@ -101,8 +103,21 @@ class LearnActor(BaseActor):
                 os.remove(path)
         self.create()
     
+    def _get_embeddings_provider(self):
+        actor = ray.get_actor(ACTOR_TYPE.EMBEDDINGS_PROVIDER)
+        o = actor.get_provider.remote()
+        provider = ray.get(o)
+        
+        if not provider:
+            return None
+        if provider.__class__.__name__ != self.embeddings_provider.__class__.__name__:
+            self.embeddings_provider = provider
+        return self.embeddings_provider
+
     def create(self):
-        embeddings = OpenAIEmbeddings()
+        embeddings = self._get_embeddings_provider()
+        if not embeddings:
+            return
         self.index = FAISS.from_texts(["Jupyter AI knows about your filesystem, to ask questions first use the /learn command."], embeddings)
         self.save()
 
@@ -111,7 +126,9 @@ class LearnActor(BaseActor):
             self.index.save_local(self.index_save_dir, index_name=self.index_name)
 
     def load_or_create(self):
-        embeddings = OpenAIEmbeddings()
+        embeddings = self._get_embeddings_provider()
+        if not embeddings:
+            return
         if self.index is None:
             try:
                 self.index = FAISS.load_local(self.index_save_dir, embeddings, index_name=self.index_name)

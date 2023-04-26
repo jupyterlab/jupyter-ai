@@ -45,7 +45,7 @@ class OpenAIEmbeddingsProvider(BaseEmbeddingsProvider):
     model_id_key = "model"
     pypi_package_deps = ["openai"]
     auth_strategy = EnvAuthStrategy(name="OPENAI_API_KEY")
-    provider_klass: OpenAIEmbeddings
+    provider_klass = OpenAIEmbeddings
 
 
 class CohereEmbeddingsProvider(BaseEmbeddingsProvider):
@@ -59,7 +59,7 @@ class CohereEmbeddingsProvider(BaseEmbeddingsProvider):
     model_id_key = "model"
     pypi_package_deps = ["cohere"]
     auth_strategy = EnvAuthStrategy(name="COHERE_API_KEY")
-    provider_klass: CohereEmbeddings
+    provider_klass = CohereEmbeddings
 
 
 class HfHubEmbeddingsProvider(BaseEmbeddingsProvider):
@@ -72,4 +72,4 @@ class HfHubEmbeddingsProvider(BaseEmbeddingsProvider):
     # tqdm is a dependency of huggingface_hub
     pypi_package_deps = ["huggingface_hub", "ipywidgets"]
     auth_strategy = EnvAuthStrategy(name="HUGGINGFACEHUB_API_TOKEN")
-    provider_klass: HuggingFaceHubEmbeddings
+    provider_klass = HuggingFaceHubEmbeddings
