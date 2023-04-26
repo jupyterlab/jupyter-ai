@@ -13,6 +13,7 @@ class EmbeddingsProviderActor():
     def __init__(self, log: Logger):
         self.log = log
         self.provider = None
+        self.provider_params = None
 
     def update(self, config: ProviderConfig):
         providers_actor = ray.get_actor(ACTOR_TYPE.PROVIDERS.value)
@@ -36,7 +37,11 @@ class EmbeddingsProviderActor():
             provider_params[provider.model_id_key] = local_model_id
             api_key_name = auth_strategy.name.lower()
             provider_params[api_key_name] = api_keys[api_key_name]
-            self.provider = provider.provider_klass(**provider_params)
+            self.provider = provider.provider_klass
+            self.provider_params = provider_params
 
     def get_provider(self):
         return self.provider
+    
+    def get_provider_params(self):
+        return self.provider_params

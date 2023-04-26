@@ -1,4 +1,5 @@
 import argparse
+from typing import Dict
 from jupyter_ai_magics.providers import BaseProvider
 
 import ray
@@ -22,36 +23,22 @@ class AskActor(BaseActor):
 
     def __init__(self, reply_queue: Queue, log: Logger):
         super().__init__(reply_queue=reply_queue, log=log)
-        
-        self.provider = None
-        self.chat_provider = None
+
         self.parser.prog = '/ask'
         self.parser.add_argument('query', nargs=argparse.REMAINDER)
 
-    def create_chat_provider(self, provider: BaseProvider):
+    def create_llm_chain(self, provider: BaseProvider, provider_params: Dict[str, str]):
         index_actor = ray.get_actor(ACTOR_TYPE.LEARN.value)
         handle = index_actor.get_index.remote()
         vectorstore = ray.get(handle)
         if not vectorstore:
             return None
-        self.provider = provider
+        self.llm = provider(**provider_params)
         self.chat_history = []
-        self.chat_provider = ConversationalRetrievalChain.from_llm(
-            provider,
+        self.llm_chain = ConversationalRetrievalChain.from_llm(
+            self.llm,
             vectorstore.as_retriever()
         )
-        
-
-    def _get_chat_provider(self):
-        actor = ray.get_actor(ACTOR_TYPE.CHAT_PROVIDER)
-        o = actor.get_provider.remote()
-        provider = ray.get(o)
-        if not provider:
-            return None
-        if provider.__class__.__name__ != self.provider.__class__.__name__:
-            self.create_chat_provider(provider)
-        return self.chat_provider
-
 
     def _process_message(self, message: HumanChatMessage):
         args = self.parse_args(message)
@@ -66,12 +53,12 @@ class AskActor(BaseActor):
         handle = index_actor.get_index.remote()
         vectorstore = ray.get(handle)
 
-        self._get_chat_provider()
+        self.get_llm_chain()
         
         # Have to reference the latest index
-        self.chat_provider.retriever = vectorstore.as_retriever()
+        self.llm_chain.retriever = vectorstore.as_retriever()
         
-        result = self.chat_provider({"question": query, "chat_history": self.chat_history})
+        result = self.llm_chain({"question": query, "chat_history": self.chat_history})
         response = result['answer']
         self.chat_history.append((query, response))
         self.reply(response, message)

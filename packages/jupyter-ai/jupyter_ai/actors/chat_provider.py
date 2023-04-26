@@ -1,6 +1,3 @@
-
-import os
-from typing import Optional
 from jupyter_ai.actors.base import Logger, ACTOR_TYPE
 from jupyter_ai.models import ProviderConfig
 from jupyter_ai_magics.utils import decompose_model_id
@@ -12,6 +9,7 @@ class ChatProviderActor():
     def __init__(self, log: Logger):
         self.log = log
         self.provider = None
+        self.provider_params = None
 
     def update(self, config: ProviderConfig):
         providers_actor = ray.get_actor(ACTOR_TYPE.PROVIDERS.value)
@@ -34,7 +32,11 @@ class ChatProviderActor():
             provider_params = { "model_id": local_model_id}
             api_key_name = auth_strategy.name.lower()
             provider_params[api_key_name] = api_keys[api_key_name]
-            self.provider = provider(**provider_params)
+            self.provider = provider
+            self.provider_params = provider_params
 
     def get_provider(self):
         return self.provider
+    
+    def get_provider_params(self):
+        return self.provider_params
