@@ -15,8 +15,8 @@ from langchain.chains import LLMChain
 import nbformat
 
 from jupyter_ai.models import AgentChatMessage, HumanChatMessage
-from jupyter_ai.actors.base import BaseActor, Logger
-from jupyter_ai_magics.providers import ChatOpenAINewProvider
+from jupyter_ai.actors.base import ACTOR_TYPE, BaseActor, Logger
+from jupyter_ai_magics.providers import BaseProvider, ChatOpenAINewProvider
 
 schema = """{
   "$schema": "http://json-schema.org/draft-07/schema#",
@@ -67,8 +67,6 @@ class NotebookOutlineChain(LLMChain):
 
 def generate_outline(description, llm=None, verbose=False):
     """Generate an outline of sections given a description of a notebook."""
-    if llm is None:
-        llm = ChatOpenAINewProvider(model_id='gpt-3.5-turbo')
     chain = NotebookOutlineChain.from_llm(llm=llm, verbose=verbose)
     outline = chain.predict(description=description, schema=schema)
     return json.loads(outline)
@@ -125,8 +123,6 @@ class NotebookSectionCodeChain(LLMChain):
 
 def generate_code(outline, llm=None, verbose=False):
     """Generate source code for a section given a description of the notebook and section."""
-    if llm is None:
-        llm = ChatOpenAINewProvider(model_id='gpt-3.5-turbo')
     chain = NotebookSectionCodeChain.from_llm(llm=llm, verbose=verbose)
     code_so_far = []
     for section in outline['sections']:
@@ -177,8 +173,6 @@ class NotebookTitleChain(LLMChain):
 
 def generate_title_and_summary(outline, llm=None, verbose=False):
     """Generate a title and summary of a notebook outline using an LLM."""
-    if llm is None:
-        llm = ChatOpenAINewProvider(model_id='gpt-3.5-turbo')
     summary_chain = NotebookSummaryChain.from_llm(llm=llm, verbose=verbose)
     title_chain = NotebookTitleChain.from_llm(llm=llm, verbose=verbose)
     summary = summary_chain.predict(content=outline)
@@ -210,9 +204,22 @@ class GenerateActor(BaseActor):
     def __init__(self, reply_queue: Queue, root_dir: str, log: Logger):
         super().__init__(log=log, reply_queue=reply_queue)
         self.root_dir = os.path.abspath(os.path.expanduser(root_dir))
-        self.llm = ChatOpenAINewProvider(model_id='gpt-3.5-turbo')
+        self.llm = None
+
+    def _get_chat_provider(self):
+        actor = ray.get_actor(ACTOR_TYPE.CHAT_PROVIDER)
+        o = actor.get_provider.remote()
+        provider = ray.get(o)
+        if not provider:
+            return None
+        if provider.__class__.__name__ != self.provider.__class__.__name__:
+            self.llm = provider
+        return self.llm
   
     def _process_message(self, message: HumanChatMessage):
+        llm = self._get_chat_provider()
+        if not llm:
+            return
         response = "👍 Great, I will get started on your notebook. It may take a few minutes, but I will reply here when the notebook is ready. In the meantime, you can continue to ask me other questions."
         self.reply(response, message)
 
