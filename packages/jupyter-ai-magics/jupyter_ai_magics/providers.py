@@ -131,6 +131,8 @@ class CohereProvider(BaseProvider, Cohere):
     pypi_package_deps = ["cohere"]
     auth_strategy = EnvAuthStrategy(name="COHERE_API_KEY")
 
+HUGGINGFACE_HUB_VALID_TASKS = ("text2text-generation", "text-generation", "text-to-image")
+
 class HfHubProvider(BaseProvider, HuggingFaceHub):
     id = "huggingface_hub"
     name = "HuggingFace Hub"
@@ -152,18 +154,16 @@ class HfHubProvider(BaseProvider, HuggingFaceHub):
         try:
             from huggingface_hub.inference_api import InferenceApi
 
-            VALID_TASKS = ("text2text-generation", "text-generation", "text-to-image")
-
             repo_id = values["repo_id"]
             client = InferenceApi(
                 repo_id=repo_id,
                 token=huggingfacehub_api_token,
                 task=values.get("task"),
             )
-            if client.task not in VALID_TASKS:
+            if client.task not in HUGGINGFACE_HUB_VALID_TASKS:
                 raise ValueError(
                     f"Got invalid task {client.task}, "
-                    f"currently only {VALID_TASKS} are supported"
+                    f"currently only {HUGGINGFACE_HUB_VALID_TASKS} are supported"
                 )
             values["client"] = client
         except ImportError:
@@ -219,7 +219,7 @@ class HfHubProvider(BaseProvider, HuggingFaceHub):
         else:
             raise ValueError(
                 f"Got invalid task {self.client.task}, "
-                f"currently only {VALID_TASKS} are supported"
+                f"currently only {HUGGINGFACE_HUB_VALID_TASKS} are supported"
             )
         if stop is not None:
             # This is a bit hacky, but I can't figure out a better way to enforce
