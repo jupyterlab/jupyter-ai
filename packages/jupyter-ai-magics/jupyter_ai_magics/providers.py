@@ -191,6 +191,10 @@ class HfHubProvider(BaseProvider, HuggingFaceHub):
         """
         _model_kwargs = self.model_kwargs or {}
         response = self.client(inputs=prompt, params=_model_kwargs)
+
+        if type(response) is dict and "error" in response:
+            raise ValueError(f"Error raised by inference API: {response['error']}")
+
         # Custom code for responding to image generation responses
         if self.client.task == "text-to-image":
             imageFormat = response.format # Presume it's a PIL ImageFile
@@ -209,8 +213,6 @@ class HfHubProvider(BaseProvider, HuggingFaceHub):
             # Encode image data to Base64 bytes, then decode bytes to str
             return (mimeType + ';base64,' + base64.b64encode(buffer.getvalue()).decode())
 
-        if "error" in response:
-            raise ValueError(f"Error raised by inference API: {response['error']}")
         if self.client.task == "text-generation":
             # Text generation return includes the starter text.
             text = response[0]["generated_text"][len(prompt) :]
