@@ -21,13 +21,13 @@ class ChatProviderActor():
         provider = ray.get(p)
         
         if not provider:
-            return
+            raise ValueError(f"No provider and model found with '{config.model_provider}'")
+        
         auth_strategy = provider.auth_strategy
         api_keys = config.api_keys
         if auth_strategy:
             if auth_strategy.type == "env" and auth_strategy.name.lower() not in api_keys:
-                # raise error?
-                return
+                raise ValueError(f"Missing value for '{auth_strategy.name}' in the config.")
             
             provider_params = { "model_id": local_model_id}
             api_key_name = auth_strategy.name.lower()

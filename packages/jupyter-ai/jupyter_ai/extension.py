@@ -16,7 +16,15 @@ from jupyter_ai.actors.generate import GenerateActor
 from jupyter_ai.actors.base import ACTOR_TYPE
 from jupyter_ai.reply_processor import ReplyProcessor
 from jupyter_server.extension.application import ExtensionApp
-from .handlers import ChatHandler, ChatHistoryHandler, EmbeddingsModelProviderHandler, ModelProviderHandler, PromptAPIHandler, TaskAPIHandler
+from .handlers import (
+    ChatHandler, 
+    ChatHistoryHandler, 
+    EmbeddingsModelProviderHandler, 
+    ModelProviderHandler, 
+    PromptAPIHandler, 
+    TaskAPIHandler,
+    ProviderConfigHandler
+)
 from importlib_metadata import entry_points
 import inspect
 from .engine import BaseModelEngine
@@ -29,6 +37,7 @@ from ray.util.queue import Queue
 class AiExtension(ExtensionApp):
     name = "jupyter_ai"
     handlers = [
+        ("api/ai/config", ProviderConfigHandler),
         ("api/ai/prompt", PromptAPIHandler),
         (r"api/ai/tasks/?", TaskAPIHandler),
         (r"api/ai/tasks/([\w\-:]*)", TaskAPIHandler),
