@@ -135,7 +135,9 @@ Once you have started JupyterLab, click the new "chat" icon in the left side pan
 
 To compose a message, type it in the text box at the bottom of the chat interface and press <kbd>SHIFT</kbd>+<kbd>ENTER</kbd> to send. You can press <kbd>ENTER</kbd> to add a new line. Once you have sent a message, you should see a response from Jupyter AI.
 
-![Screen shot of an example "Hello world" message sent to Jupyter AI, who responds with "Hello! Is there anything you would like to discuss or ask me?"](../_static/chat-hello-world.png)
+<img src="../_static/chat-hello-world.png"
+    alt='Screen shot of an example "Hello world" message sent to Jupyter AI, who responds with "Hello! Is there anything you would like to discuss or ask me?"'
+    class="screenshot" />
 
 ### Asking about something in your notebook
 
@@ -150,11 +152,15 @@ Review your model provider's cost policy before making large requests.
 
 After highlighting a portion of your notebook, check "Include selection" in the chat panel, type your message, and press <kbd>SHIFT</kbd>+<kbd>ENTER</kbd> to send your message. Your outgoing message will include your selection.
 
-![Screen shot of JupyterLab with Jupyter AI's chat panel active. A Python function is selected, the user has "What does this code do?" as their prompt, and the user has chosen to include the selection with their message.](../_static/chat-interface-selection.png)
+<img src="../_static/chat-interface-selection.png"
+    alt='Screen shot of JupyterLab with Jupyter AI&apos;s chat panel active. A Python function is selected, the user has "What does this code do?" as their prompt, and the user has chosen to include the selection with their message.'
+    class="screenshot" />
 
 Below your message, you will see Jupyter AI's response.
 
-![Screen shot of Jupyter AI's chat panel, showing an answer to the question asked above.](../_static/chat-explain-code-output.png)
+<img src="../_static/chat-explain-code-output.png"
+    alt="Screen shot of Jupyter AI's chat panel, showing an answer to the question asked above."
+    class="screenshot" />
 
 You can copy Jupyter AI's response to the clipboard so that you can paste it into your notebook, or into any other application. You can also choose to replace the selection with Jupyter AI's response by clicking "Replace selection" before you send your message.
 
@@ -165,7 +171,9 @@ sends its response to your message. Review any generated code carefully before
 you run it.
 :::
 
-![Screen shot of Jupyter AI with a Python function selected, the user having typed "Rewrite this function to be iterative, not recursive" as their prompt, and with the user having chosen to include the selection with their message and to replace the selection with the response.](../_static/chat-replace-selection-input.png)
+<img src="../_static/chat-replace-selection-input.png"
+    alt='Screen shot of Jupyter AI with a Python function selected, the user having typed "Rewrite this function to be iterative, not recursive" as their prompt, and with the user having chosen to include the selection with their message and to replace the selection with the response.'
+    class="screenshot" />
 
 After Jupyter AI sends a response, your notebook will be updated immediately with the response replacing the selection. You can also see the response in the chat panel.
 
@@ -181,7 +189,7 @@ Generating a notebook can take a substantial amount of time, so Jupyter AI will 
 
 ![Screen shot of Jupyter AI responding to a generate message with a message that it is working on a notebook.](../_static/chat-generate-command-response.png)
 
-:::{info}
+:::{note}
 :name: generate-progress
 Especially if your prompt is detailed, it may take several minutes to generate
 your notebook. During this time, you can still use JupyterLab and Jupyter AI
