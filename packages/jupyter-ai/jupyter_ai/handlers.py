@@ -1,6 +1,7 @@
 from dataclasses import asdict
 import json
 from typing import Dict, List
+from jupyter_ai.actors.base import ACTOR_TYPE
 import ray
 import tornado
 import uuid
@@ -29,7 +30,8 @@ from .models import (
     AgentChatMessage, 
     HumanChatMessage, 
     ConnectionMessage, 
-    ChatClient
+    ChatClient,
+    ProviderConfig
 )
 
 
@@ -316,7 +318,39 @@ class EmbeddingsModelProviderHandler(BaseAPIHandler):
 
 
 class ProviderConfigHandler(BaseAPIHandler):
+    """API handler for fetching and setting the
+    model and emebddings provider config.
+    """
     
     @web.authenticated
     def get(self):
-        ...
+        actor = ray.get_actor(ACTOR_TYPE.CONFIG)
+        handle = actor.get_config.remote()
+        config = ray.get(handle)
+        if not config:
+            raise HTTPError(500, "No config found.")
+        
+        self.finish(config.json())
+
+    @web.authenticated
+    def post(self):
+        try:
+            config = ProviderConfig(**self.get_json_body())
+            actor = ray.get_actor(ACTOR_TYPE.CONFIG)
+            handle = actor.update.remote(config)
+            ray.get(handle)
+
+            self.set_status(204)
+            self.finish()
+
+        except ValidationError as e:
+            self.log.exception(e)
+            raise HTTPError(500, str(e)) from e
+        except ValueError as e:
+            self.log.exception(e)
+            raise HTTPError(500, str(e.cause) if hasattr(e, 'cause') else str(e))
+        except Exception as e:
+            self.log.exception(e)
+            raise HTTPError(
+                500, "Unexpected error occurred while updating the config."
+            ) from e
