@@ -177,17 +177,23 @@ you run it.
 
 After Jupyter AI sends a response, your notebook will be updated immediately with the response replacing the selection. You can also see the response in the chat panel.
 
-![Screen shot of Jupyter AI displaying a response in the chat panel and in the notebook.](../_static/chat-replace-selection-output.png)
+<img src="../_static/chat-replace-selection-output.png"
+    alt='Screen shot of Jupyter AI displaying a response in the chat panel and in the notebook.'
+    class="screenshot" />
 
 ### Generating a new notebook
 
 You can use Jupyter AI to generate an entire notebook from a text prompt. To get started, open the chat panel, and send it a message starting with `/generate`.
 
-![Screen shot of a prompt reading "/generate A demonstration of how to use Matplotlib" in Jupyter AI](../_static/chat-generate-input.png)
+<img src="../_static/chat-generate-input.png"
+    alt='Screen shot of a prompt reading "/generate A demonstration of how to use Matplotlib" in Jupyter AI'
+    class="screenshot" />
 
 Generating a notebook can take a substantial amount of time, so Jupyter AI will respond to your message immediately while it works. You can continue to ask it other questions in the meantime.
 
-![Screen shot of Jupyter AI responding to a generate message with a message that it is working on a notebook.](../_static/chat-generate-command-response.png)
+<img src="../_static/chat-generate-command-response.png"
+    alt="Screen shot of Jupyter AI responding to a generate message with a message that it is working on a notebook."
+    class="screenshot" />
 
 :::{note}
 :name: generate-progress
@@ -199,7 +205,9 @@ Jupyter AI is working.
 
 When Jupyter AI is done generating your notebook, it will send you another message with the filename that it generated.
 
-![Screen shot of Jupyter AI response indicating the file name that it wrote.](../_static/chat-generate-file.png)
+<img src="../_static/chat-generate-file.png"
+    alt="Screen shot of Jupyter AI response indicating the file name that it wrote."
+    class="screenshot" />
 
 You can then open this file using the file browser.
 
@@ -210,7 +218,9 @@ you run the code contained in them. Please review all generated code carefully
 before you run it.
 :::
 
-![Screen shot of generated notebook built using Jupyter AI](../_static/chat-generate-notebook-opened.png)
+<img src="../_static/chat-generate-notebook-opened.png"
+    alt="Screen shot of generated notebook built using Jupyter AI"
+    class="screenshot" />
 
 ### Learning about local data
 
@@ -218,15 +228,21 @@ Using the `/learn` command, you can teach Jupyter AI about local data so that it
 
 To teach Jupyter AI about a folder full of documentation, for example, run `/learn docs/`. You will receive a response when Jupyter AI has indexed this documentation in a local vector database.
 
-![Screen shot of "/learn docs/" command and a response.](../_static/chat-learn-docs.png)
+<img src="../_static/chat-learn-docs.png"
+    alt='Screen shot of "/learn docs/" command and a response.'
+    class="screenshot" />
 
 You can then use `/ask` to ask a question specifically about the data that you taught Jupyter AI with `/learn`.
 
-![Screen shot of an "/ask" command and a response.](../_static/chat-ask-command.png)
+<img src="../_static/chat-ask-command.png"
+    alt='Screen shot of an "/ask" command and a response.'
+    class="screenshot" />
 
 To clear the local vector database, you can run `/learn -d` and Jupyter AI will forget all information that it learned from your `/learn` commands.
 
-![Screen shot of a "/learn -d" command and a response.](../_static/chat-learn-delete.png)
+<img src="../_static/chat-learn-delete.png"
+    alt='Screen shot of a "/learn -d" command and a response.'
+    class="screenshot" />
 
 ### Additional chat commands
 
