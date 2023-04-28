@@ -43,7 +43,7 @@ If you are using an Apple Silicon-based Mac (M1, M1 Pro, M2, etc.), you need to 
 
     $ pip uninstall grpcio; conda install grpcio 
 
-If you are not using JupyterLab and you only want to install the Jupyter AI `%%ai` magic, you can run:
+If you are not using JupyterLab and you only want to install the Jupyter AI `%%ai` magic, skip the `pip install jupyter_ai` step above, and instead, run:
 
     $ pip install jupyter_ai_magics
 
