@@ -14,27 +14,45 @@ Documentation is available on [ReadTheDocs](https://jupyter-ai.readthedocs.io/en
 
 ## Installation
 
+You can use `conda` or `pip` to install Jupyter AI. If you're using macOS on an Apple Silicon-based Mac (M1, M1 Pro, M2, etc.), we strongly recommend using `conda`.
+
+Because of Ray's incompatibility with Python 3.11, you must use Python 3.9, or 3.10 with Jupyter AI. The instructions below presume that you are using Python 3.10.
+
+Before you can use Jupyter AI, you will need to install any packages and set environment variables with API keys for the model providers that you will use. See [our documentation](https://jupyter-ai.readthedocs.io/en/latest/users/index.html) for details about what you'll need.
+
+### With pip
+
 If you want to install both the `%%ai` magic and the JupyterLab extension, you can run:
 
     $ pip install jupyter_ai
 
-If you are using Apple Silicon-based Mac (M1, M1 Pro, M2, etc.), you need to install [Conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html) and run these commands before launching Jupyter Lab.
-    
-    $ pip uninstall grpcio; conda install grpcio 
-
-If you are not using JupyterLab and only want to install the Jupyter AI `%%ai` magic you can run:
+If you are not using JupyterLab and you only want to install the Jupyter AI `%%ai` magic, you can run:
 
     $ pip install jupyter_ai_magics
 
-The `%%ai` magic works anywhere the IPython kernel runs (JupyterLab, Jupyter Notebook, Google Colab, VSCode, etc.).
 
-To complete your installation, you will also need to install any packages and API keys for the model providers
-you wish to use. See [our documentation](https://jupyter-ai.readthedocs.io/en/latest/users/index.html) for details.
+### With conda
+
+First, install [conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html) and create an environment that uses Python 3.10:
+
+    $ conda create -n jupyter-ai python=3.10
+    $ conda activate jupyter-ai
+    $ pip install jupyter_ai
+
+If you are using an Apple Silicon-based Mac (M1, M1 Pro, M2, etc.), you need to uninstall the `pip` provided version of `grpcio` and install the version provided by `conda` instead.
+
+    $ pip uninstall grpcio; conda install grpcio 
+
+If you are not using JupyterLab and you only want to install the Jupyter AI `%%ai` magic, you can run:
+
+    $ pip install jupyter_ai_magics
+
 
 ## The `%%ai` magic command
 
-Once you installed the `%%ai` magic, you can enable it in any notebook or the IPython shell by running:
+The `%%ai` magic works anywhere the IPython kernel runs (JupyterLab, Jupyter Notebook, Google Colab, VSCode, etc.).
 
+Once you have installed the `%%ai` magic, you can enable it in any notebook or the IPython shell by running:
     %load_ext jupyter_ai_magics
 
 Or
