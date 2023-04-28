@@ -11,27 +11,35 @@ for the frontend extension.
 
 - JupyterLab >= 3.5 (not JupyterLab 4)
 
-## Install
+## Installation
 
-To install the extension, execute:
+You can use `conda` or `pip` to install Jupyter AI. If you're using macOS on an Apple Silicon-based Mac (M1, M1 Pro, M2, etc.), we strongly recommend using `conda`.
 
-```bash
-pip install jupyter_ai
-```
+Because of Ray's incompatibility with Python 3.11, you must use Python 3.9, or 3.10 with Jupyter AI. The instructions below presume that you are using Python 3.10.
 
-If you are using Apple Silicon-based Mac (M1, M1 Pro, M2, etc.), you need to install [Conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html) and run these commands before launching Jupyter Lab.
-    
-```bash
-pip uninstall grpcio; conda install grpcio 
-```
+Before you can use Jupyter AI, you will need to install any packages and set environment variables with API keys for the model providers that you will use. See [our documentation](https://jupyter-ai.readthedocs.io/en/latest/users/index.html) for details about what you'll need.
+
+### With pip
+
+    $ pip install jupyter_ai
+
+### With conda
+
+First, install [conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html) and create an environment that uses Python 3.10:
+
+    $ conda create -n jupyter-ai python=3.10
+    $ conda activate jupyter-ai
+    $ pip install jupyter_ai
+
+If you are using an Apple Silicon-based Mac (M1, M1 Pro, M2, etc.), you need to uninstall the `pip` provided version of `grpcio` and install the version provided by `conda` instead.
+
+    $ pip uninstall grpcio; conda install grpcio 
 
 ## Uninstall
 
 To remove the extension, execute:
 
-```bash
-pip uninstall jupyter_ai
-```
+    $ pip uninstall jupyter_ai
 
 ## Usage with GPT-3
 
