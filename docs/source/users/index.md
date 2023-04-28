@@ -7,8 +7,12 @@ please see our {doc}`contributor's guide </contributors/index>`.
 
 ## Prerequisites
 
-You will need a supported version of Python up to and including 3.10. Python 3.11 is **not supported** due
-to incompatibility with the [ray](https://pypi.org/project/ray/) library that we use.
+You can run Jupyter AI on any system that can run a supported Python version up to and including 3.10, including recent Windows, macOS, and Linux versions.
+
+:::{important}
+:name: python-3-11-not-supported
+Because the [ray](https://pypi.org/project/ray/) library that Jupyter AI uses is not compatible with Python 3.11, please use a supported version of Python up to and including Python 3.10.
+:::
 
 If you use `conda`, you can install Python 3.10 in your environment by running:
 
@@ -63,13 +67,36 @@ provider's pricing information before submitting requests via Jupyter AI.
 
 ## Installing
 
-To use Jupyter AI, you will need to have JupyterLab ≥ 3.5 (*not* JupyterLab 4) installed.
+You can use `conda` or `pip` to install Jupyter AI. If you're using macOS on an Apple Silicon-based Mac (M1, M1 Pro, M2, etc.), we strongly recommend using `conda`.
+
+Because of Ray's incompatibility with Python 3.11, you must use Python 3.9, or 3.10 with Jupyter AI. The instructions below presume that you are using Python 3.10.
+
+Before you can use Jupyter AI, you will need to install any packages and set environment variables with API keys for the model providers that you will use. See [our documentation](https://jupyter-ai.readthedocs.io/en/latest/users/index.html) for details about what you'll need.
+
+### With pip
 
 If you want to install both the `%%ai` magic and the JupyterLab extension, you can run:
 
     $ pip install jupyter_ai
 
-If you are not using JupyterLab and only want to install the Jupyter AI `%%ai` magic you can run:
+If you are not using JupyterLab and you only want to install the Jupyter AI `%%ai` magic, you can run:
+
+    $ pip install jupyter_ai_magics
+
+
+### With conda
+
+First, install [conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html) and create an environment that uses Python 3.10:
+
+    $ conda create -n jupyter-ai python=3.10
+    $ conda activate jupyter-ai
+    $ pip install jupyter_ai
+
+If you are using an Apple Silicon-based Mac (M1, M1 Pro, M2, etc.), you need to uninstall the `pip` provided version of `grpcio` and install the version provided by `conda` instead.
+
+    $ pip uninstall grpcio; conda install grpcio 
+
+If you are not using JupyterLab and you only want to install the Jupyter AI `%%ai` magic, you can run:
 
     $ pip install jupyter_ai_magics
 
@@ -80,7 +107,6 @@ You can check that the Jupyter AI server extension is enabled by running:
     $ jupyter server extension list
 
 To verify that the frontend extension is installed, run:
-
 
     $ jupyter labextension list
 

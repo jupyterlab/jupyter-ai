@@ -4,15 +4,14 @@ This page is intended for people interested in building new or modified function
 
 ## Prerequisites
 
-You can develop Jupyter AI on any system that can run a supported Python version up to and including 3.10, including recent Windows, macOS, and Linux versions. Python 3.11 is **not supported** due
-to incompatibility with the [ray](https://pypi.org/project/ray/) library that we use.
-If you are using an Apple Silicon-based Mac (M1, M1 Pro, M2, etc.), you need to install [Conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html) and follow the additional instructions to install the `grpcio` library from conda.
+You can develop Jupyter AI on any system that can run a supported Python version up to and including 3.10, including recent Windows, macOS, and Linux versions.
 
-To use the `jupyter_ai` package in JupyterLab, as the development environment below does, you will need a currently-maintained version of JupyterLab 3. We do not yet support JupyterLab 4. If you use `conda`, you can install JupyterLab in your environment by running:
+:::{important}
+:name: python-3-11-not-supported
+Because the [ray](https://pypi.org/project/ray/) library that Jupyter AI uses is not compatible with Python 3.11, please use a supported version of Python up to and including Python 3.10.
+:::
 
-```
-conda install jupyterlab
-```
+We highly recommend that you install [conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html) to start developing on Jupyter AI, especially if you are developing on macOS on an Apple Silicon-based Mac (M1, M1 Pro, M2, etc.).
 
 You will need Node.js 18 to use Jupyter AI. Node.js 18.16.0 is known to work.
 
@@ -22,35 +21,45 @@ Due to a compatibility issue with Webpack, Node.js 18.15.0 does not work with Ju
 :::
 
 ## Development install
+After you have gone through the prerequisites, create a new conda environment and activate it. 
+
+```
+conda create -n jupyter-ai python=3.10
+conda activate jupyter-ai
+```
+
 This command must be run from the root of the monorepo (`<jupyter-ai-top>`).
 
 ```
+# Move to the root of the repo package
 cd <jupyter-ai-top>
+
+# Installs all the dependencies and sets up the dev environment
 ./scripts/install.sh
 ```
 
-Set up your development environment and start the server:
+Start and launch JupyterLab in your default browser
 
 ```
 jlpm dev
 ```
 
-Finally, in a separate shell, enter the `conda` environment and build the project after making any changes.
+You can open a new terminal and use that to build and push changes to the repository. Enter the `conda` environment and build the project after making any changes.
 
 ```
 cd <jupyter-ai-top>
-conda <your-conda-env>
+conda activate jupyter-ai
 jlpm build
 ```
 
-To change what Jupyter AI packages are installed in your Hatch environment, use the `dev-uninstall` script:
+To change what Jupyter AI packages are installed in your dev environment, use the `dev-uninstall` script:
 
 ```
 # uninstalls all Jupyter AI packages
 jlpm dev-uninstall
 ```
 
-To reinstall Jupyter AI packages back into your Hatch environment, use the `dev-install` script:
+To reinstall Jupyter AI packages back into your dev environment, use the `dev-install` script:
 
 ```
 # installs all Jupyter AI packages
@@ -78,5 +87,5 @@ To uninstall your Jupyter AI development environment, deactivate and remove the 
 
 ```
 conda deactivate
-conda env remove -n <your-conda-env>
+conda env remove -n jupyter-ai
 ```
