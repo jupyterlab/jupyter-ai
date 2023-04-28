@@ -18,16 +18,6 @@ content-type = "text/markdown"
 [project.license]
 text = "BSD 3-Clause License"
 
-[tool.hatch.envs.default]
-pre-install-commands = [
-    "pip install jupyterlab~=3.4",
-    "cp playground/config.example.py playground/config.py"
-]
-post-install-commands = [
-    "jlpm install",       # install JS dependencies
-    "jlpm dev-install", # install Python packages locally in editable mode
-]
-
 [tool.hatch.version]
 source = "nodejs"
 path = "package.json"
