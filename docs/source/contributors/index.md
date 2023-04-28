@@ -38,7 +38,7 @@ cd <jupyter-ai-top>
 ./scripts/install.sh
 ```
 
-Start and launch JupyterLab in your default browser
+Start and launch JupyterLab in your default browser:
 
 ```
 jlpm dev
