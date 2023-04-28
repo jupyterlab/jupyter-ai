@@ -42,10 +42,12 @@ Jupyter AI supports the following model providers:
 | AI21                | `ai21`               | `AI21_API_KEY`             | `ai21`                          |
 | Anthropic           | `anthropic`          | `ANTHROPIC_API_KEY`        | `anthropic`                     |
 | Cohere              | `cohere`             | `COHERE_API_KEY`           | `cohere`                        |
-| HuggingFace Hub     | `huggingface_hub`    | `HUGGINGFACEHUB_API_TOKEN` | `huggingface_hub`, `ipywidgets` |
+| HuggingFace Hub     | `huggingface_hub`    | `HUGGINGFACEHUB_API_TOKEN` | `huggingface_hub`, `ipywidgets`, `pillow` |
 | OpenAI              | `openai`             | `OPENAI_API_KEY`           | `openai`                        |
 | OpenAI (chat)       | `openai-chat`        | `OPENAI_API_KEY`           | `openai`                        |
 | SageMaker Endpoints | `sagemaker-endpoint` | N/A                        | `boto3`                         |
+
+You need the `pillow` Python package to use HuggingFace Hub's text-to-image models.
 
 To use SageMaker's models, you will need to authenticate via
 [boto3](https://github.com/boto/boto3).
@@ -294,7 +296,7 @@ an `%%ai` command will be formatted as markdown by default. You can override thi
 using the `-f` or `--format` argument to your magic command. Valid formats include:
 
 - `code`
-- `image`
+- `image` (for HuggingFace Hub's text-to-image models only)
 - `markdown`
 - `math`
 - `html`
