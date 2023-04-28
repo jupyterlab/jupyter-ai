@@ -19,6 +19,12 @@ To install the extension, execute:
 pip install jupyter_ai
 ```
 
+If you are using Apple Silicon-based Mac (M1, M1 Pro, M2, etc.), you need to install [Conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html) and run these commands before launching Jupyter Lab.
+    
+```bash
+pip uninstall grpcio; conda install grpcio 
+```
+
 ## Uninstall
 
 To remove the extension, execute:

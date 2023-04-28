@@ -18,6 +18,10 @@ If you want to install both the `%%ai` magic and the JupyterLab extension, you c
 
     $ pip install jupyter_ai
 
+If you are using Apple Silicon-based Mac (M1, M1 Pro, M2, etc.), you need to install [Conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html) and run these commands before launching Jupyter Lab.
+    
+    $ pip uninstall grpcio; conda install grpcio 
+
 If you are not using JupyterLab and only want to install the Jupyter AI `%%ai` magic you can run:
 
     $ pip install jupyter_ai_magics
