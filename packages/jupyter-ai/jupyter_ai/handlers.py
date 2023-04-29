@@ -31,7 +31,7 @@ from .models import (
     HumanChatMessage, 
     ConnectionMessage, 
     ChatClient,
-    ProviderConfig
+    GlobalConfig
 )
 
 
@@ -117,15 +117,6 @@ class ChatHandler(
     """
     A websocket handler for chat.
     """
-
-    _chat_provider = None  
-    _chat_message_queue = None 
-    
-    @property
-    def chat_message_queue(self):
-        if self._chat_message_queue is None:
-            self._chat_message_queue = self.settings["chat_message_queue"]
-        return self._chat_message_queue
     
     @property
     def chat_handlers(self) -> Dict[str, 'ChatHandler']:
@@ -317,16 +308,15 @@ class EmbeddingsModelProviderHandler(BaseAPIHandler):
         self.finish(response.json())
 
 
-class ProviderConfigHandler(BaseAPIHandler):
+class GlobalConfigHandler(BaseAPIHandler):
     """API handler for fetching and setting the
-    model and emebddings provider config.
+    model and emebddings config.
     """
     
     @web.authenticated
     def get(self):
         actor = ray.get_actor(ACTOR_TYPE.CONFIG)
-        handle = actor.get_config.remote()
-        config = ray.get(handle)
+        config = ray.get(actor.get_config.remote())
         if not config:
             raise HTTPError(500, "No config found.")
         
@@ -335,10 +325,9 @@ class ProviderConfigHandler(BaseAPIHandler):
     @web.authenticated
     def post(self):
         try:
-            config = ProviderConfig(**self.get_json_body())
+            config = GlobalConfig(**self.get_json_body())
             actor = ray.get_actor(ACTOR_TYPE.CONFIG)
-            handle = actor.update.remote(config)
-            ray.get(handle)
+            ray.get(actor.update.remote(config))
 
             self.set_status(204)
             self.finish()

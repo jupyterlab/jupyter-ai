@@ -1,10 +1,5 @@
-
-
-
-from typing import Optional
 from jupyter_ai.actors.base import Logger, ACTOR_TYPE
-from jupyter_ai.models import ProviderConfig
-from jupyter_ai_magics.utils import decompose_model_id
+from jupyter_ai.models import GlobalConfig
 import ray
 
 @ray.remote
@@ -15,29 +10,29 @@ class EmbeddingsProviderActor():
         self.provider = None
         self.provider_params = None
 
-    def update(self, config: ProviderConfig):
-        providers_actor = ray.get_actor(ACTOR_TYPE.PROVIDERS.value)
-        o = providers_actor.get_embeddings_providers.remote()
-        providers = ray.get(o)
-        provider_id, local_model_id = decompose_model_id(model_id=config.embeddings_provider, providers=providers)
-
-        p = providers_actor.get_embeddings_provider.remote(provider_id)
-        provider = ray.get(p)
+    def update(self, config: GlobalConfig):
+        model_id = config.embeddings_provider_id
+        actor = ray.get_actor(ACTOR_TYPE.PROVIDERS.value)
+        local_model_id, provider = ray.get(
+            actor.get_embeddings_provider_data.remote(model_id)
+        )
+        
         if not provider:
-            raise ValueError(f"No provider and model found with '{config.embeddings_provider}'")
+            raise ValueError(f"No provider and model found with '{model_id}'")
+        
+        provider_params = {}
+        provider_params[provider.model_id_key] = local_model_id
         
         auth_strategy = provider.auth_strategy
-        api_keys = config.api_keys
-        if auth_strategy:
-            if auth_strategy.type == "env" and auth_strategy.name.lower() not in api_keys:
+        if auth_strategy and auth_strategy.type == "env":
+            api_keys = config.api_keys
+            name = auth_strategy.name.lower()
+            if name not in api_keys:
                 raise ValueError(f"Missing value for '{auth_strategy.name}' in the config.")
+            provider_params[name] = api_keys[name]
             
-            provider_params = {}
-            provider_params[provider.model_id_key] = local_model_id
-            api_key_name = auth_strategy.name.lower()
-            provider_params[api_key_name] = api_keys[api_key_name]
-            self.provider = provider.provider_klass
-            self.provider_params = provider_params
+        self.provider = provider.provider_klass
+        self.provider_params = provider_params
 
     def get_provider(self):
         return self.provider

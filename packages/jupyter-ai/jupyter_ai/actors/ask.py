@@ -1,11 +1,10 @@
 import argparse
-from typing import Dict
+from typing import Dict, Type
 from jupyter_ai_magics.providers import BaseProvider
 
 import ray
 from ray.util.queue import Queue
 
-from langchain import OpenAI
 from langchain.chains import ConversationalRetrievalChain
 
 from jupyter_ai.models import HumanChatMessage
@@ -27,12 +26,12 @@ class AskActor(BaseActor):
         self.parser.prog = '/ask'
         self.parser.add_argument('query', nargs=argparse.REMAINDER)
 
-    def create_llm_chain(self, provider: BaseProvider, provider_params: Dict[str, str]):
+    def create_llm_chain(self, provider: Type[BaseProvider], provider_params: Dict[str, str]):
         index_actor = ray.get_actor(ACTOR_TYPE.LEARN.value)
-        handle = index_actor.get_index.remote()
-        vectorstore = ray.get(handle)
+        vectorstore = ray.get(index_actor.get_index.remote())
         if not vectorstore:
             return None
+        
         self.llm = provider(**provider_params)
         self.chat_history = []
         self.llm_chain = ConversationalRetrievalChain.from_llm(
@@ -50,9 +49,8 @@ class AskActor(BaseActor):
             return
         
         index_actor = ray.get_actor(ACTOR_TYPE.LEARN.value)
-        handle = index_actor.get_index.remote()
-        vectorstore = ray.get(handle)
-
+        vectorstore = ray.get(index_actor.get_index.remote())
+        
         self.get_llm_chain()
         
         # Have to reference the latest index

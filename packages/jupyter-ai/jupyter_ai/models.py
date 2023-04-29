@@ -98,7 +98,7 @@ class ListProvidersResponse(BaseModel):
     providers: List[ListProvidersEntry]
 
 
-class ProviderConfig(BaseModel):
-    model_provider: str
-    embeddings_provider: str
+class GlobalConfig(BaseModel):
+    model_provider_id: str
+    embeddings_provider_id: str
     api_keys: Dict[str, str]
