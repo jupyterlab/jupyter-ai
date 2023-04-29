@@ -1,6 +1,6 @@
 import json
 import os
-from typing import Dict
+from typing import Dict, Type
 
 import ray
 from ray.util.queue import Queue
@@ -204,7 +204,7 @@ class GenerateActor(BaseActor):
         self.root_dir = os.path.abspath(os.path.expanduser(root_dir))
         self.llm = None
 
-    def create_llm_chain(self, provider: BaseProvider, provider_params: Dict[str, str]):
+    def create_llm_chain(self, provider: Type[BaseProvider], provider_params: Dict[str, str]):
         llm = provider(**provider_params)
         self.llm = llm
         return llm

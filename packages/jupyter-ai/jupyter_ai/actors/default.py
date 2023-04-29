@@ -1,5 +1,4 @@
-from typing import Dict
-from jupyter_ai_magics.utils import decompose_model_id
+from typing import Dict, Type
 import ray
 from ray.util.queue import Queue
 
@@ -23,7 +22,7 @@ class DefaultActor(BaseActor):
     def __init__(self, reply_queue: Queue, log: Logger):
         super().__init__(reply_queue=reply_queue, log=log)
 
-    def create_llm_chain(self, provider: BaseProvider, provider_params: Dict[str, str]):
+    def create_llm_chain(self, provider: Type[BaseProvider], provider_params: Dict[str, str]):
         llm = provider(**provider_params)
         memory = RemoteMemory(actor_name=ACTOR_TYPE.MEMORY)
         prompt_template = ChatPromptTemplate.from_messages([

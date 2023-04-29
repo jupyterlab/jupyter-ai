@@ -1,8 +1,5 @@
 import os
-import traceback
-from collections import Counter
 import argparse
-from jupyter_ai_magics.embedding_providers import BaseEmbeddingsProvider
 
 import ray
 from ray.util.queue import Queue
@@ -10,15 +7,13 @@ from ray.util.queue import Queue
 from jupyter_core.paths import jupyter_data_dir
 
 from langchain import FAISS
-from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.text_splitter import (
     RecursiveCharacterTextSplitter, PythonCodeTextSplitter,
     MarkdownTextSplitter, LatexTextSplitter
 )
 
 from jupyter_ai.models import HumanChatMessage
-from jupyter_ai.actors.base import ACTOR_TYPE, BaseActor, Logger
-from jupyter_ai_magics.providers import ChatOpenAINewProvider
+from jupyter_ai.actors.base import BaseActor, Logger
 from jupyter_ai.document_loaders.directory import RayRecursiveDirectoryLoader
 from jupyter_ai.document_loaders.splitter import ExtensionSplitter, NotebookSplitter
 
@@ -47,6 +42,10 @@ class LearnActor(BaseActor):
     def _process_message(self, message: HumanChatMessage):
         if not self.index:
             self.load_or_create()
+
+        # If index is not still there, embeddings are not present
+        if not self.index:
+            self.reply("Sorry, please select an embedding provider before using the `/learn` command.")
 
         args = self.parse_args(message)
         if args is None:

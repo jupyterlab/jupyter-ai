@@ -119,9 +119,6 @@ dmypy.json
 # OSX files
 .DS_Store
 
-# local config storing authn credentials
-config.py
-
 # vscode
 .vscode
 

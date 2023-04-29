@@ -1,11 +1,8 @@
 import asyncio
-import os
-import queue
 from jupyter_ai.actors.chat_provider import ChatProviderActor
 from jupyter_ai.actors.config import ConfigActor
 from jupyter_ai.actors.embeddings_provider import EmbeddingsProviderActor
 from jupyter_ai.actors.providers import ProvidersActor
-from jupyter_ai_magics.utils import load_embedding_providers, load_providers
 from langchain.memory import ConversationBufferWindowMemory
 from jupyter_ai.actors.default import DefaultActor 
 from jupyter_ai.actors.ask import AskActor 
@@ -23,12 +20,11 @@ from .handlers import (
     ModelProviderHandler, 
     PromptAPIHandler, 
     TaskAPIHandler,
-    ProviderConfigHandler
+    GlobalConfigHandler
 )
 from importlib_metadata import entry_points
 import inspect
 from .engine import BaseModelEngine
-from jupyter_ai_magics.providers import ChatOpenAINewProvider, ChatOpenAIProvider
 
 import ray
 from ray.util.queue import Queue
@@ -37,7 +33,7 @@ from ray.util.queue import Queue
 class AiExtension(ExtensionApp):
     name = "jupyter_ai"
     handlers = [
-        ("api/ai/config", ProviderConfigHandler),
+        ("api/ai/config", GlobalConfigHandler),
         ("api/ai/prompt", PromptAPIHandler),
         (r"api/ai/tasks/?", TaskAPIHandler),
         (r"api/ai/tasks/([\w\-:]*)", TaskAPIHandler),
@@ -107,16 +103,7 @@ class AiExtension(ExtensionApp):
         self.settings["ai_default_tasks"] = default_tasks
         self.log.info("Registered all default tasks.")
 
-        #if ChatOpenAINewProvider.auth_strategy.name not in os.environ:
-        #    raise EnvironmentError(f"`{ChatOpenAINewProvider.auth_strategy.name}` value not set in environment. For chat to work, this value should be provided.")
-
-        ## load OpenAI provider
-        #self.settings["openai_chat"] = ChatOpenAIProvider(model_id="gpt-3.5-turbo")
-
         self.log.info(f"Registered {self.name} server extension")
-
-        # Add a message queue to the settings to be used by the chat handler
-        self.settings["chat_message_queue"] = queue.Queue()
 
         # Store chat clients in a dictionary
         self.settings["chat_clients"] = {}
@@ -137,8 +124,7 @@ class AiExtension(ExtensionApp):
             log=self.log
         )
         config_actor = ConfigActor.options(name=ACTOR_TYPE.CONFIG.value).remote(
-            log=self.log,
-            root_dir=self.serverapp.root_dir,
+            log=self.log
         )
         chat_provider_actor = ChatProviderActor.options(name=ACTOR_TYPE.CHAT_PROVIDER.value).remote(
             log=self.log

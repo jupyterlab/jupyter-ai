@@ -3,7 +3,7 @@ from enum import Enum
 from uuid import uuid4
 import time
 import logging
-from typing import Dict, Union
+from typing import Dict, Type, Union
 import traceback
 
 from jupyter_ai_magics.providers import BaseProvider
@@ -73,11 +73,8 @@ class BaseActor():
 
     def get_llm_chain(self):
         actor = ray.get_actor(ACTOR_TYPE.CHAT_PROVIDER)
-        handle = actor.get_provider.remote()
-        llm = ray.get(handle)
-
-        handle = actor.get_provider_params.remote()
-        llm_params = ray.get(handle)
+        llm = ray.get(actor.get_provider.remote())
+        llm_params = ray.get(actor.get_provider_params.remote())
 
         if not llm:
             return None
@@ -88,19 +85,17 @@ class BaseActor():
     
     def get_embeddings(self):
         actor = ray.get_actor(ACTOR_TYPE.EMBEDDINGS_PROVIDER)
-        handle = actor.get_provider.remote()
-        provider = ray.get(handle)
-
-        handle = actor.get_provider_params.remote()
-        embedding_params = ray.get(handle)
+        provider = ray.get(actor.get_provider.remote())
+        embedding_params = ray.get(actor.get_provider_params.remote())
         
         if not provider:
             return None
+        
         if provider.__class__.__name__ != self.embeddings.__class__.__name__:
             self.embeddings = provider(**embedding_params)
         return self.embeddings
     
-    def create_llm_chain(self, provider: BaseProvider, provider_params: Dict[str, str]):
+    def create_llm_chain(self, provider: Type[BaseProvider], provider_params: Dict[str, str]):
         raise NotImplementedError("Should be implemented by subclasses")
     
     def parse_args(self, message):
