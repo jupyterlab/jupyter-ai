@@ -47,10 +47,19 @@ class AskActor(BaseActor):
         
         self.get_llm_chain()
 
-        result = self.llm_chain({"question": query, "chat_history": self.chat_history})
-        response = result['answer']
-        self.chat_history.append((query, response))
-        self.reply(response, message)
+        try:
+            result = self.llm_chain({"question": query, "chat_history": self.chat_history})
+            response = result['answer']
+            self.chat_history.append((query, response))
+            self.reply(response, message)
+        except AssertionError as e:
+            self.log.error(e)
+            response = """Sorry, an error occurred while reading the from the learned documents. 
+            If you have changed the embedding provider, try deleting the existing index by running 
+            `/learn -d` command and then re-submitting the `learn <directory>` to learn the documents,
+            and then asking the question again.
+            """
+            self.reply(response, message)
 
 
 class Retriever(BaseRetriever):
