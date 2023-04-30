@@ -93,6 +93,7 @@ class BaseActor():
         
         if provider.__class__.__name__ != self.embeddings.__class__.__name__:
             self.embeddings = provider(**embedding_params)
+
         return self.embeddings
     
     def create_llm_chain(self, provider: Type[BaseProvider], provider_params: Dict[str, str]):

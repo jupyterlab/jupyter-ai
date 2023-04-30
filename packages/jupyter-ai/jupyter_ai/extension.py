@@ -28,6 +28,7 @@ from .engine import BaseModelEngine
 
 import ray
 from ray.util.queue import Queue
+from jupyter_ai_magics.utils import load_providers
 
 
 class AiExtension(ExtensionApp):
@@ -102,6 +103,10 @@ class AiExtension(ExtensionApp):
 
         self.settings["ai_default_tasks"] = default_tasks
         self.log.info("Registered all default tasks.")
+
+        providers = load_providers(log=self.log)
+        self.settings["chat_providers"] = providers
+        self.log.info("Registered providers.")
 
         self.log.info(f"Registered {self.name} server extension")
 
