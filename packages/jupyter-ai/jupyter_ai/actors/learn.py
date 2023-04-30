@@ -1,5 +1,6 @@
 import os
 import argparse
+from typing import List
 
 import ray
 from ray.util.queue import Queue
@@ -11,6 +12,7 @@ from langchain.text_splitter import (
     RecursiveCharacterTextSplitter, PythonCodeTextSplitter,
     MarkdownTextSplitter, LatexTextSplitter
 )
+from langchain.schema import Document
 
 from jupyter_ai.models import HumanChatMessage
 from jupyter_ai.actors.base import BaseActor, Logger
@@ -121,3 +123,9 @@ class LearnActor(BaseActor):
                 self.index = FAISS.load_local(self.index_save_dir, embeddings, index_name=self.index_name)
             except Exception as e:
                 self.create()
+
+    def get_relevant_documents(self, question: str) -> List[Document]:
+        if self.index:
+            docs = self.index.similarity_search(question)
+            return docs
+        return []
