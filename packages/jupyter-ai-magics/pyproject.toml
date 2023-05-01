@@ -42,6 +42,7 @@ all = [
     "cohere",
     "huggingface_hub",
     "ipywidgets",
+    "pillow",
     "openai",
     "boto3"
 ]

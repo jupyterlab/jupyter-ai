@@ -1,6 +1,8 @@
+import base64
 import json
 import os
 import re
+import traceback
 import warnings
 from typing import Optional
 
@@ -8,7 +10,7 @@ from importlib_metadata import entry_points
 from IPython import get_ipython
 from IPython.core.magic import Magics, magics_class, line_cell_magic
 from IPython.core.magic_arguments import magic_arguments, argument, parse_argstring
-from IPython.display import HTML, Markdown, Math, JSON
+from IPython.display import HTML, Image, JSON, Markdown, Math
 
 from .providers import BaseProvider
 
@@ -34,7 +36,7 @@ class TextOrMarkdown(object):
             }
         )
 
-class TextWithMetadata(object):
+class TextWithMetadata:
 
     def __init__(self, text, metadata):
         self.text = text
@@ -43,9 +45,22 @@ class TextWithMetadata(object):
     def _repr_mimebundle_(self, include=None, exclude=None):
         return ({'text/plain': self.text}, self.metadata)
 
+
+class Base64Image:
+    def __init__(self, mimeData, metadata):
+        mimeDataParts = mimeData.split(',')
+        self.data = base64.b64decode(mimeDataParts[1]);
+        self.mimeType = mimeDataParts[0].removesuffix(';base64')
+        self.metadata = metadata
+
+    def _repr_mimebundle_(self, include=None, exclude=None):
+        return ({self.mimeType: self.data}, self.metadata)
+
+
 DISPLAYS_BY_FORMAT = {
     "code": None,
     "html": HTML,
+    "image": Base64Image,
     "markdown": Markdown,
     "math": Math,
     "md": Markdown,
@@ -60,6 +75,7 @@ PROVIDER_NO_MODELS = 'This provider does not define a list of models.'
 PROMPT_TEMPLATES_BY_FORMAT = {
     "code": '{prompt}\n\nProduce output as source code only, with no text or explanation before or after it.',
     "html": '{prompt}\n\nProduce output in HTML format only, with no markup before or afterward.',
+    "image": '{prompt}\n\nProduce output as an image only, with no text before or after it.',
     "markdown": MARKDOWN_PROMPT_TEMPLATE,
     "md": MARKDOWN_PROMPT_TEMPLATE,
     "math": '{prompt}\n\nProduce output in LaTeX format only, with $$ at the beginning and end.',
@@ -101,6 +117,8 @@ class AiMagics(Magics):
             try:
                 Provider = model_provider_ep.load()
             except:
+                print(f"Unable to load entry point {model_provider_ep.name}");
+                traceback.print_exc()
                 continue
             self.providers[Provider.id] = Provider
     
@@ -286,7 +304,7 @@ class AiMagics(Magics):
                 optionally prefixed with the ID of the model provider, delimited
                 by a colon.""")
     @argument('-f', '--format',
-                choices=["code", "markdown", "html", "json", "math", "md", "text"],
+                choices=["code", "html", "image", "json", "markdown", "math", "md", "text"],
                 nargs="?",
                 default="markdown",
                 help="""IPython display to use when rendering output. [default="markdown"]""")
