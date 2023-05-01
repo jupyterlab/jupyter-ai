@@ -59,6 +59,8 @@ Once you have installed the `%%ai` magic, you can enable it in any notebook or t
 or:
 
     %load_ext jupyter_ai
+    
+The screenshots below are from notebooks in the `examples/` directory of this package.
 
 Then, you can use the `%%ai` magic command to specify a model and natural language prompt:
 
@@ -76,7 +78,7 @@ that include variable values.
 ## JupyterLab extension
 
 The Jupyter AI extension for JupyterLab offers a native UI that enables multiple users
-to chat with the Jupyter AI conversational assistant. If you have JupyterLab instaled,
+to chat with the Jupyter AI conversational assistant. If you have JupyterLab installed,
 this should be installed and activated when you install the `jupyter_ai` package.
 
 ## Using
