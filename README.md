@@ -50,7 +50,7 @@ If you are not using JupyterLab and you only want to install the Jupyter AI `%%a
 
 ## The `%%ai` magic command
 
-The `%%ai` magic works anywhere the IPython kernel runs (JupyterLab, Jupyter Notebook, Google Colab, Visual Studio, etc.).
+The `%%ai` magic works anywhere the IPython kernel runs (JupyterLab, Jupyter Notebook, Google Colab, Visual Studio Code, etc.).
 
 Once you have installed the `%%ai` magic, you can enable it in any notebook or the IPython shell by running:
 
