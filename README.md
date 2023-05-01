@@ -60,7 +60,7 @@ or:
 
     %load_ext jupyter_ai
     
-The screen shots below are from notebooks in the `examples/` directory of this package.
+The screenshots below are from notebooks in the `examples/` directory of this package.
 
 Then, you can use the `%%ai` magic command to specify a model and natural language prompt:
 
