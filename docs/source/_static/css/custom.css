@@ -1,0 +1,5 @@
+img.screenshot {
+    /* Copied from div.admonition */
+    box-shadow: 0 .2rem .5rem var(--pst-color-shadow),0 0 .0625rem var(--pst-color-shadow);
+    border-color: var(--pst-color-info);
+}
