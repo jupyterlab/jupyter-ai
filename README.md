@@ -50,16 +50,17 @@ If you are not using JupyterLab and you only want to install the Jupyter AI `%%a
 
 ## The `%%ai` magic command
 
-The `%%ai` magic works anywhere the IPython kernel runs (JupyterLab, Jupyter Notebook, Google Colab, VSCode, etc.).
+The `%%ai` magic works anywhere the IPython kernel runs (JupyterLab, Jupyter Notebook, Google Colab, Visual Studio, etc.).
 
 Once you have installed the `%%ai` magic, you can enable it in any notebook or the IPython shell by running:
+
     %load_ext jupyter_ai_magics
 
-Or
+or:
 
     %load_ext jupyter_ai
 
-Then you can use the `%%ai` magic command to specify a model and natural language prompt:
+Then, you can use the `%%ai` magic command to specify a model and natural language prompt:
 
 ![Sample with code generation](./docs/source/_static/sample-code.png)
 
