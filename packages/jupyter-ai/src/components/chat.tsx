@@ -34,10 +34,7 @@ function ChatBody({ chatHandler }: ChatBodyProps): JSX.Element {
       try {
         const history = await chatHandler.getHistory();
         setMessages(history.messages);
-      } catch (e) {
-        
-      }
-      
+      } catch (e) {}
     }
 
     fetchHistory();
@@ -71,7 +68,9 @@ function ChatBody({ chatHandler }: ChatBodyProps): JSX.Element {
 
     const prompt =
       input +
-      (includeSelection && selection?.text ? '\n\n```\n' + selection.text + '```': '');
+      (includeSelection && selection?.text
+        ? '\n\n```\n' + selection.text + '```'
+        : '');
 
     // send message to backend
     const messageId = await chatHandler.sendMessage({ prompt });
@@ -105,8 +104,6 @@ function ChatBody({ chatHandler }: ChatBodyProps): JSX.Element {
     >
       <ScrollContainer sx={{ flexGrow: 1 }}>
         <ChatMessages messages={messages} />
-        {/* https://css-tricks.com/books/greatest-css-tricks/pin-scrolling-to-bottom/ */}
-        <Box sx={{ overflowAnchor: 'auto', height: '1px' }} />
       </ScrollContainer>
       <ChatInput
         value={input}
