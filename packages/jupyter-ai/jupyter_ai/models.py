@@ -103,3 +103,11 @@ class GlobalConfig(BaseModel):
     embeddings_provider_id: str
     api_keys: Dict[str, str]
 
+
+class IndexedDir(BaseModel):
+    path: str
+
+
+class IndexMetadata(BaseModel):
+    dirs: List[IndexedDir]
+
