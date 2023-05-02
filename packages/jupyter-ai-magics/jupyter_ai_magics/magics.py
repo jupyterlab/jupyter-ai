@@ -119,6 +119,9 @@ class AiMagics(Magics):
             "`from langchain.chat_models import ChatOpenAI`")
 
         self.providers = load_providers()
+        
+        # initialize a registry of custom model/chain names
+        self.custom_model_registry = {}
     
     
     def _ai_bulleted_list_models_for_provider(self, provider_id, Provider):
@@ -184,7 +187,39 @@ class AiMagics(Magics):
             output += "(not set)"
         
         return output + "\n"
+    
+    # Returns any error
+    def _validate_register_name(self, register_name):
+        # Existing command names are not allowed
+        if (register_name in AI_COMMANDS):
+            return 'This name is reserved for a command'
+        
+        # Existing registered names are not allowed
+        if (register_name in self.custom_model_registry):
+            # TODO: Recommend 'update' command
+            return 'This name is already associated with a custom model'
+        
+        # A registry name contains ASCII letters, numbers, hyphens, underscores,
+        # and periods. No other characters, including a colon, are permitted
+        acceptable_name = re.compile('^[a-zA-Z0-9._-]+$')
+        if (acceptable_name.match(register_name)):
+            return None # No error
+        else:
+            return ('A registry name may contain ASCII letters, numbers, hyphens, underscores, '
+                + 'and periods. No other characters, including a colon, are permitted')
 
+    def _ai_register_command_markdown(self, register_name, variable_name):
+        # TODO: Write this method
+        return self._ai_register_command_text(register_name, variable_name)
+
+    def _ai_register_command_text(self, register_name, variable_name):
+        output = 'Registry name is valid'
+
+        register_name_errors = self._validate_register_name(register_name)
+        if (register_name_errors is not None):
+            output = f"Unable to create a new entry with name {register_name}: {register_name_errors}"
+        
+        return output
 
     def _ai_list_command_markdown(self, single_provider=None):
         output = ("| Provider | Environment variable | Set? | Models |\n"
