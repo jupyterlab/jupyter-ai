@@ -188,28 +188,22 @@ class AiMagics(Magics):
         
         return output + "\n"
     
-    # Returns any error
-    def _validate_register_name(self, register_name):
+    def _register_name(self, register_name, variable_name):
         # Existing command names are not allowed
         if (register_name in AI_COMMANDS):
-            return 'This name is reserved for a command'
+            raise ValueError('This name is reserved for a command')
         
         # Existing registered names are not allowed
         if (register_name in self.custom_model_registry):
             # TODO: Recommend 'update' command
-            return 'This name is already associated with a custom model'
+            raise ValueError('This name is already associated with a custom model')
         
         # A registry name contains ASCII letters, numbers, hyphens, underscores,
         # and periods. No other characters, including a colon, are permitted
         acceptable_name = re.compile('^[a-zA-Z0-9._-]+$')
-        if (acceptable_name.match(register_name)):
-            return None # No error
-        else:
-            return ('A registry name may contain ASCII letters, numbers, hyphens, underscores, '
+        if (not acceptable_name.match(register_name)):
+            raise ValueError('A registry name may contain ASCII letters, numbers, hyphens, underscores, '
                 + 'and periods. No other characters, including a colon, are permitted')
-
-    def _register_name(self, register_name, variable_name):
-        # This presumes that register_name is unique and valid.
 
         # If variable_name is a string, treat this as an alias.
         if (isinstance(variable_name, str)):
@@ -218,7 +212,7 @@ class AiMagics(Magics):
                 self.custom_model_registry[register_name] = variable_name
                 return None # No error
             else:
-                return 'To register an alias, use %ai register ALIAS PROVIDER_ID:MODEL_NAME'
+                raise ValueError('Target model was not specified in PROVIDER_ID:MODEL_NAME format')
         
         return None
 
@@ -227,12 +221,8 @@ class AiMagics(Magics):
         return self._ai_register_command_text(register_name, variable_name)
 
     def _ai_register_command_text(self, register_name, variable_name):
-        register_name_errors = self._validate_register_name(register_name)
-        if (register_name_errors is None):
-            self._register_name(register_name, variable_name)
-            output = f"Registered new name {register_name}"
-        else:
-            output = f"Unable to create a new entry with name {register_name}: {register_name_errors}"
+        self._register_name(register_name, variable_name)
+        output = f"Registered new name {register_name}"
         
         return output
 
