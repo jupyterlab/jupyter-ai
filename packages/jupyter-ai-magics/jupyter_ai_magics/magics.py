@@ -68,6 +68,14 @@ DISPLAYS_BY_FORMAT = {
     "text": TextWithMetadata
 }
 
+NA_MESSAGE = '<abbr title="Not applicable">N/A</abbr>'
+
+REGISTER_COMMAND_USAGE = "%ai register NAME TARGET"
+
+DELETE_COMMAND_USAGE = "%ai delete NAME"
+
+UPDATE_COMMAND_USAGE = "%ai update NAME TARGET"
+
 MARKDOWN_PROMPT_TEMPLATE = '{prompt}\n\nProduce output in markdown format only.'
 
 PROVIDER_NO_MODELS = 'This provider does not define a list of models.'
@@ -92,7 +100,7 @@ PROMPT_TEMPLATES_BY_FORMAT = {
     "text": '{prompt}' # No customization
 }
 
-AI_COMMANDS = { "error", "help", "list" }
+AI_COMMANDS = { "delete", "error", "help", "list", "register", "update" }
 
 class FormatDict(dict):
     """Subclass of dict to be passed to str#format(). Suppresses KeyError and
@@ -123,7 +131,6 @@ class AiMagics(Magics):
         # initialize a registry of custom model/chain names
         self.custom_model_registry = MODEL_ID_ALIASES
     
-    
     def _ai_bulleted_list_models_for_provider(self, provider_id, Provider):
         output = ""
         if (len(Provider.models) == 1 and Provider.models[0] == "*"):
@@ -149,7 +156,7 @@ class AiMagics(Magics):
     
     # Is the required environment variable set?
     def _ai_env_status_for_provider_markdown(self, provider_id):
-        na_message = 'Not applicable. | <abbr title="Not applicable">N/A</abbr> '
+        na_message = 'Not applicable. | ' + NA_MESSAGE
 
         if (provider_id not in self.providers or
             self.providers[provider_id].auth_strategy == None):
@@ -187,8 +194,36 @@ class AiMagics(Magics):
             output += "(not set)"
         
         return output + "\n"
+
+    # Is this an acceptable name for an alias?
+    def _validate_name(self, register_name):
+        # A registry name contains ASCII letters, numbers, hyphens, underscores,
+        # and periods. No other characters, including a colon, are permitted
+        acceptable_name = re.compile('^[a-zA-Z0-9._-]+$')
+        if (not acceptable_name.match(register_name)):
+            raise ValueError('A registry name may contain ASCII letters, numbers, hyphens, underscores, '
+                + 'and periods. No other characters, including a colon, are permitted')
+
+    # Initially set or update an alias to a target
+    def _safely_set_target(self, register_name, target):
+        # If target is a string, treat this as an alias.
+        if (isinstance(target, str)):
+            # Ensure that the destination is properly formatted
+            if (':' not in target):
+                raise ValueError('Target model was not specified in PROVIDER_ID:MODEL_NAME format')
+
+        self.custom_model_registry[register_name] = target
+
+    def _delete_name(self, register_name):
+        if (register_name in AI_COMMANDS):
+            raise ValueError('Reserved command names cannot be deleted')
+        
+        if (register_name not in self.custom_model_registry):
+            raise ValueError(f"There is no alias called {register_name}")
+        
+        del self.custom_model_registry[register_name]
     
-    def _register_name(self, register_name, variable_name):
+    def _register_name(self, register_name, target):
         # Existing command names are not allowed
         if (register_name in AI_COMMANDS):
             raise ValueError('This name is reserved for a command')
@@ -198,33 +233,31 @@ class AiMagics(Magics):
             # TODO: Recommend 'update' command
             raise ValueError('This name is already associated with a custom model')
         
-        # A registry name contains ASCII letters, numbers, hyphens, underscores,
-        # and periods. No other characters, including a colon, are permitted
-        acceptable_name = re.compile('^[a-zA-Z0-9._-]+$')
-        if (not acceptable_name.match(register_name)):
-            raise ValueError('A registry name may contain ASCII letters, numbers, hyphens, underscores, '
-                + 'and periods. No other characters, including a colon, are permitted')
+        # Does the new name match expected format?
+        self._validate_name(register_name)
 
-        # If variable_name is a string, treat this as an alias.
-        if (isinstance(variable_name, str)):
-            if (':' in variable_name):
-                # Establish alias
-                self.custom_model_registry[register_name] = variable_name
-                return None # No error
-            else:
-                raise ValueError('Target model was not specified in PROVIDER_ID:MODEL_NAME format')
+        self._safely_set_target(register_name, target)
+
+    def _update_name(self, register_name, target):
+        if (register_name in AI_COMMANDS):
+            raise ValueError('Reserved command names cannot be updated')
         
-        return None
-
-    def _ai_register_command_markdown(self, register_name, variable_name):
-        # TODO: Write this method
-        return self._ai_register_command_text(register_name, variable_name)
-
-    def _ai_register_command_text(self, register_name, variable_name):
-        self._register_name(register_name, variable_name)
-        output = f"Registered new name {register_name}"
+        if (register_name not in self.custom_model_registry):
+            raise ValueError(f"There is no alias called {register_name}")
         
-        return output
+        self._safely_set_target(register_name, target)
+
+    def _ai_delete_command(self, register_name):
+        self._delete_name(register_name)
+        return f"Deleted name `{register_name}`"
+
+    def _ai_register_command(self, register_name, target):
+        self._register_name(register_name, target)
+        return f"Registered new name `{register_name}`"
+
+    def _ai_update_command(self, register_name, target):
+        self._update_name(register_name, target)
+        return f"Updated target of name `{register_name}`"
 
     def _ai_list_command_markdown(self, single_provider=None):
         output = ("| Provider | Environment variable | Set? | Models |\n"
