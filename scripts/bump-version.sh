@@ -4,7 +4,7 @@
 #
 # see: https://github.com/lerna/lerna/issues/2369
 
-(npx -p lerna -y lerna version \
+(npx -p lerna@6.4.1 -y lerna version \
     --no-git-tag-version \
     --no-push \
     --force-publish \
