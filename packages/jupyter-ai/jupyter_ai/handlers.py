@@ -19,7 +19,8 @@ from jupyter_server.utils import ensure_async
 from .task_manager import TaskManager
 
 from .models import (
-    ChatHistory, 
+    ChatHistory,
+    ChatUser, 
     ListProvidersEntry, 
     ListProvidersResponse, 
     PromptRequest, 
@@ -270,7 +271,7 @@ class ModelProviderHandler(BaseAPIHandler):
         providers = []
         for provider in self.chat_providers.values():
             providers.append(
-                ListProviderEntry(
+                ListProvidersEntry(
                     id=provider.id,
                     name=provider.name,
                     models=provider.models,
@@ -343,7 +344,3 @@ class GlobalConfigHandler(BaseAPIHandler):
                 500, "Unexpected error occurred while updating the config."
             ) from e
 
-
-class EmbeddingModelProviderHandler(BaseAPIHandler):
-    # Placeholder for embedding model provider handler
-    pass

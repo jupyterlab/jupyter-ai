@@ -15,6 +15,7 @@ from langchain.llms import (
     SagemakerEndpoint
 )
 from langchain.utils import get_from_dict_or_env
+from langchain.llms.utils import enforce_stop_tokens
 
 from pydantic import BaseModel, Extra, root_validator
 from langchain.chat_models import ChatOpenAI

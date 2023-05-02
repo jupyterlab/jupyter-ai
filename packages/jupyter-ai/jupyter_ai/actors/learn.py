@@ -118,11 +118,8 @@ class LearnActor(BaseActor):
     def add_dir_to_metadata(self, path: str):
         dirs = self.metadata.dirs
         index = next((i for i, dir in enumerate(dirs) if dir.path == path), None)
-        meta = IndexedDir(path=path)
-        if index:
-            dirs[index] = meta
-        else:
-            dirs.append(meta)
+        if not index:
+            dirs.append(IndexedDir(path=path))
         self.metadata.dirs = dirs
 
     def delete_and_relearn(self):
@@ -175,9 +172,9 @@ class LearnActor(BaseActor):
         if self.index is not None:
             self.index.save_local(self.index_save_dir, index_name=self.index_name)
         
-        self.save_metdata()
+        self.save_metadata()
 
-    def save_metdata(self):
+    def save_metadata(self):
         with open(self.metadata_save_path, 'w') as f:
             f.write(self.metadata.json())
 
