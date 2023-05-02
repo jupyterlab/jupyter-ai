@@ -121,7 +121,7 @@ class AiMagics(Magics):
         self.providers = load_providers()
         
         # initialize a registry of custom model/chain names
-        self.custom_model_registry = {}
+        self.custom_model_registry = MODEL_ID_ALIASES
     
     
     def _ai_bulleted_list_models_for_provider(self, provider_id, Provider):
@@ -208,15 +208,30 @@ class AiMagics(Magics):
             return ('A registry name may contain ASCII letters, numbers, hyphens, underscores, '
                 + 'and periods. No other characters, including a colon, are permitted')
 
+    def _register_name(self, register_name, variable_name):
+        # This presumes that register_name is unique and valid.
+
+        # If variable_name is a string, treat this as an alias.
+        if (isinstance(variable_name, str)):
+            if (':' in variable_name):
+                # Establish alias
+                self.custom_model_registry[register_name] = variable_name
+                return None # No error
+            else:
+                return 'To register an alias, use %ai register ALIAS PROVIDER_ID:MODEL_NAME'
+        
+        return None
+
     def _ai_register_command_markdown(self, register_name, variable_name):
         # TODO: Write this method
         return self._ai_register_command_text(register_name, variable_name)
 
     def _ai_register_command_text(self, register_name, variable_name):
-        output = 'Registry name is valid'
-
         register_name_errors = self._validate_register_name(register_name)
-        if (register_name_errors is not None):
+        if (register_name_errors is None):
+            self._register_name(register_name, variable_name)
+            output = f"Registered new name {register_name}"
+        else:
             output = f"Unable to create a new entry with name {register_name}: {register_name_errors}"
         
         return output
@@ -235,6 +250,15 @@ class AiMagics(Magics):
                 + self._ai_env_status_for_provider_markdown(provider_id) + " | "
                 + self._ai_inline_list_models_for_provider(provider_id, Provider)
                 + " |\n")
+
+        # Also list aliases.
+        if (single_provider is None and len(self.custom_model_registry) > 0):
+            output += ("\nAliases and custom commands:\n\n"
+                + "| Name | Target |\n"
+                + "|------|--------|\n")
+            for key, value in self.custom_model_registry.items():
+                # TODO: Handle cases where value is not a string
+                output += f"| `{key}` | `{value}` |\n"
 
         return output
 
@@ -296,6 +320,10 @@ class AiMagics(Magics):
         })
 
     def _decompose_model_id(self, model_id: str):
+        """Breaks down a model ID into a two-tuple (provider_id, local_model_id). Returns (None, None) if indeterminate."""
+        if model_id in MODEL_ID_ALIASES:
+            model_id = MODEL_ID_ALIASES[model_id]
+
         return decompose_model_id(model_id, self.providers)
 
     def _get_provider(self, provider_id: Optional[str]) -> BaseProvider:
