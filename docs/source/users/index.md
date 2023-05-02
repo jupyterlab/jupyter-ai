@@ -575,6 +575,8 @@ You can delete this alias using the `%ai delete` command:
 %ai delete claude
 ```
 
+You can see a list of all aliases by running the `%ai list` command.
+
 Aliases' names can contain ASCII letters (uppercase and lowercase), numbers, hyphens, underscores, and periods. They may not contain colons. They may also not override built-in commands — run `%ai help` for a list of these commands.
 
 Aliases must refer to models; they cannot refer to other aliases.
