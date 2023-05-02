@@ -124,10 +124,11 @@ function ChatBody({ chatHandler }: ChatBodyProps): JSX.Element {
         sx={{
           paddingLeft: 4,
           paddingRight: 4,
-          paddingTop: 2,
-          paddingBottom: 2,
+          paddingTop: 3.5,
+          paddingBottom: 0,
           borderTop: '1px solid var(--jp-border-color1)'
         }}
+        helperText={<span><b>Press Shift</b> + <b>Enter</b> to submit message</span>}
       />
     </Box>
   );

@@ -22,10 +22,12 @@ type ChatInputProps = {
   toggleIncludeSelection: () => unknown;
   replaceSelection: boolean;
   toggleReplaceSelection: () => unknown;
+  helperText: JSX.Element
   sx?: SxProps<Theme>;
 };
 
 export function ChatInput(props: ChatInputProps): JSX.Element {
+  
   function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
     if (event.key === 'Enter' && event.shiftKey) {
       props.onSend();
@@ -35,7 +37,7 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
   }
   return (
     <Box sx={props.sx}>
-      <Box sx={{ display: 'flex' }}>
+      <Box sx={{ display: 'flex'}}>
         <TextField
           value={props.value}
           onChange={e => props.onChange(e.target.value)}
@@ -50,8 +52,12 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
                      <SendIcon />
                   </IconButton>
                </InputAdornment>
-            ),
+            )
          }}
+         FormHelperTextProps={{
+          sx: {marginLeft: 'auto', marginRight: 0}
+         }}
+         helperText={props.value.length > 2 ? props.helperText : ' '}
         />
       </Box>
       {props.hasSelection && (
