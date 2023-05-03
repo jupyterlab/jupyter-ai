@@ -248,7 +248,7 @@ export function ChatSettings() {
             label={apiKey}
             value={apiKeyValue}
             fullWidth
-            hidden
+            type="password"
             onChange={e =>
               setInputConfig(inputConfig => ({
                 ...inputConfig,
