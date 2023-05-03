@@ -1,8 +1,12 @@
 import asyncio
+
 from jupyter_ai.actors.chat_provider import ChatProviderActor
 from jupyter_ai.actors.config import ConfigActor
 from jupyter_ai.actors.embeddings_provider import EmbeddingsProviderActor
 from jupyter_ai.actors.providers import ProvidersActor
+
+from jupyter_ai_magics.utils import load_providers
+
 from langchain.memory import ConversationBufferWindowMemory
 from jupyter_ai.actors.default import DefaultActor 
 from jupyter_ai.actors.ask import AskActor 
@@ -13,6 +17,7 @@ from jupyter_ai.actors.generate import GenerateActor
 from jupyter_ai.actors.base import ACTOR_TYPE
 from jupyter_ai.reply_processor import ReplyProcessor
 from jupyter_server.extension.application import ExtensionApp
+
 from .handlers import (
     ChatHandler, 
     ChatHistoryHandler, 
@@ -22,6 +27,7 @@ from .handlers import (
     TaskAPIHandler,
     GlobalConfigHandler
 )
+
 from importlib_metadata import entry_points
 import inspect
 from .engine import BaseModelEngine

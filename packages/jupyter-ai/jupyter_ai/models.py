@@ -1,5 +1,5 @@
-from jupyter_ai_magics.embedding_providers import BaseEmbeddingsProvider
-from jupyter_ai_magics.providers import AuthStrategy, BaseProvider
+from jupyter_ai_magics.providers import AuthStrategy
+
 from pydantic import BaseModel 
 from typing import Dict, List, Union, Literal, Optional
 
@@ -102,3 +102,12 @@ class GlobalConfig(BaseModel):
     model_provider_id: str
     embeddings_provider_id: str
     api_keys: Dict[str, str]
+
+
+class IndexedDir(BaseModel):
+    path: str
+
+
+class IndexMetadata(BaseModel):
+    dirs: List[IndexedDir]
+

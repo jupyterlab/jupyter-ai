@@ -3,7 +3,7 @@ from enum import Enum
 from uuid import uuid4
 import time
 import logging
-from typing import Dict, Type, Union
+from typing import Dict, Optional, Type, Union
 import traceback
 
 from jupyter_ai_magics.providers import BaseProvider
@@ -48,6 +48,7 @@ class BaseActor():
         self.llm_chain = None
         self.embeddings = None
         self.embeddings_params = None
+        self.embedding_model_id = None
 
     def process_message(self, message: HumanChatMessage):
         """Processes the message passed by the `Router`"""
@@ -62,12 +63,12 @@ class BaseActor():
         """Processes the message passed by the `Router`"""
         raise NotImplementedError("Should be implemented by subclasses.")
     
-    def reply(self, response, message: HumanChatMessage):
+    def reply(self, response, message: Optional[HumanChatMessage] = None):
         m = AgentChatMessage(
             id=uuid4().hex,
             time=time.time(),
             body=response,
-            reply_to=message.id
+            reply_to=message.id if message else ""
         )
         self.reply_queue.put(m)
 
@@ -87,11 +88,12 @@ class BaseActor():
         actor = ray.get_actor(ACTOR_TYPE.EMBEDDINGS_PROVIDER)
         provider = ray.get(actor.get_provider.remote())
         embedding_params = ray.get(actor.get_provider_params.remote())
+        embedding_model_id = ray.get(actor.get_model_id.remote())
         
         if not provider:
             return None
         
-        if provider.__class__.__name__ != self.embeddings.__class__.__name__:
+        if embedding_model_id != self.embedding_model_id:
             self.embeddings = provider(**embedding_params)
 
         return self.embeddings

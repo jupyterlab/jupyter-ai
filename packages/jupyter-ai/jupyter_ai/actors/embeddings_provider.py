@@ -9,6 +9,7 @@ class EmbeddingsProviderActor():
         self.log = log
         self.provider = None
         self.provider_params = None
+        self.model_id = None
 
     def update(self, config: GlobalConfig):
         model_id = config.embeddings_provider_id
@@ -33,9 +34,19 @@ class EmbeddingsProviderActor():
             
         self.provider = provider.provider_klass
         self.provider_params = provider_params
+        previous_model_id = self.model_id
+        self.model_id = model_id
+        
+        if previous_model_id and previous_model_id != model_id:
+            # delete the index
+            actor = ray.get_actor(ACTOR_TYPE.LEARN)
+            actor.delete_and_relearn.remote()
 
     def get_provider(self):
         return self.provider
     
     def get_provider_params(self):
         return self.provider_params
+    
+    def get_model_id(self):
+        return self.model_id

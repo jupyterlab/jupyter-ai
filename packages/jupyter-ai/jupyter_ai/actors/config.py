@@ -23,25 +23,23 @@ class ConfigActor():
         self._update_chat_provider(config)
         self._update_embeddings_provider(config)
         if save_to_disk:
-            self._save()
+            self._save(config)
         self.config = config
     
     def _update_chat_provider(self, config: GlobalConfig):
         actor = ray.get_actor(ACTOR_TYPE.CHAT_PROVIDER)
-        handle = actor.update.remote(config)
-        ray.get(handle)
+        ray.get(actor.update.remote(config))
 
     def _update_embeddings_provider(self, config: GlobalConfig):
         actor = ray.get_actor(ACTOR_TYPE.EMBEDDINGS_PROVIDER)
-        handle = actor.update.remote(config)
-        ray.get(handle)
+        ray.get(actor.update.remote(config))
 
     def _save(self, config: GlobalConfig):
         if not os.path.exists:
             os.makedirs(self.save_dir)
         
         with open(self.save_path, 'w') as f:
-                f.write(json.dumps(config))
+            f.write(config.json())
 
     def _load(self):
         if os.path.exists(self.save_path):

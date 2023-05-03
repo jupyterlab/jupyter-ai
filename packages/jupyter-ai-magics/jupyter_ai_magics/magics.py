@@ -8,11 +8,8 @@ from typing import Optional
 from IPython import get_ipython
 from IPython.core.magic import Magics, magics_class, line_cell_magic
 from IPython.core.magic_arguments import magic_arguments, argument, parse_argstring
-
 from IPython.display import HTML, JSON, Markdown, Math
-
 from jupyter_ai_magics.utils import decompose_model_id, load_providers
-
 from .providers import BaseProvider
 
 
@@ -36,6 +33,7 @@ class TextOrMarkdown(object):
                 'text/markdown': self.markdown
             }
         )
+
 
 class TextWithMetadata(object):
     def __init__(self, text, metadata):

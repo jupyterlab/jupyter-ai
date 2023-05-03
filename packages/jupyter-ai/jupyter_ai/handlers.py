@@ -343,3 +343,4 @@ class GlobalConfigHandler(BaseAPIHandler):
             raise HTTPError(
                 500, "Unexpected error occurred while updating the config."
             ) from e
+
