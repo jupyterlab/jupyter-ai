@@ -270,6 +270,10 @@ class ModelProviderHandler(BaseAPIHandler):
     def get(self):
         providers = []
         for provider in self.chat_providers.values():
+            # skip old legacy OpenAI chat provider used only in magics
+            if provider.id == "openai-chat":
+                continue
+
             providers.append(
                 ListProvidersEntry(
                     id=provider.id,
