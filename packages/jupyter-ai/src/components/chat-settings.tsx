@@ -3,13 +3,12 @@ import { Box } from '@mui/system';
 import {
   Alert,
   Button,
-  FormControl,
-  InputLabel,
-  Select,
   MenuItem,
   TextField,
   CircularProgress
 } from '@mui/material';
+
+import { Select } from './select';
 import { AiService } from '../handler';
 
 enum ChatSettingsState {
@@ -113,14 +112,6 @@ export function ChatSettings() {
       api_keys: { ...inputConfig.api_keys }
     };
 
-    // replace config fields with value '' with value `null`
-    let key: keyof AiService.Config;
-    for (key in inputConfigCopy) {
-      if (key !== 'api_keys' && inputConfigCopy[key] === '') {
-        inputConfigCopy[key] = null;
-      }
-    }
-
     // delete any empty api keys
     for (const apiKey in inputConfigCopy.api_keys) {
       if (inputConfigCopy.api_keys[apiKey] === '') {
@@ -201,56 +192,50 @@ export function ChatSettings() {
       {state === ChatSettingsState.Success && (
         <Alert severity="success">Settings saved successfully.</Alert>
       )}
-      <FormControl fullWidth>
-        <InputLabel>Language model</InputLabel>
-        <Select
-          value={inputConfig.model_provider_id}
-          label="Language model"
-          onChange={e =>
-            setInputConfig(inputConfig => ({
-              ...inputConfig,
-              model_provider_id: e.target.value
-            }))
-          }
-          MenuProps={{ sx: { maxHeight: '50%', minHeight: 400 } }}
-        >
-          <MenuItem value="">None</MenuItem>
-          {lmProviders.providers.map(lmp =>
-            lmp.models
-              .filter(lm => lm !== '*') // TODO: support registry providers
-              .map(lm => (
-                <MenuItem value={`${lmp.id}:${lm}`}>
-                  {lmp.name} :: {lm}
-                </MenuItem>
-              ))
-          )}
-        </Select>
-      </FormControl>
-      <FormControl fullWidth>
-        <InputLabel>Embedding model</InputLabel>
-        <Select
-          value={inputConfig.embeddings_provider_id}
-          label="Embedding model"
-          onChange={e =>
-            setInputConfig(inputConfig => ({
-              ...inputConfig,
-              embeddings_provider_id: e.target.value
-            }))
-          }
-          MenuProps={{ sx: { maxHeight: '50%', minHeight: 400 } }}
-        >
-          <MenuItem value="">None</MenuItem>
-          {emProviders.providers.map(emp =>
-            emp.models
-              .filter(em => em !== '*') // TODO: support registry providers
-              .map(em => (
-                <MenuItem value={`${emp.id}:${em}`}>
-                  {emp.name} :: {em}
-                </MenuItem>
-              ))
-          )}
-        </Select>
-      </FormControl>
+      <Select
+        value={inputConfig.model_provider_id}
+        label="Language model"
+        onChange={e =>
+          setInputConfig(inputConfig => ({
+            ...inputConfig,
+            model_provider_id: e.target.value
+          }))
+        }
+        MenuProps={{ sx: { maxHeight: '50%', minHeight: 400 } }}
+      >
+        <MenuItem value="null">None</MenuItem>
+        {lmProviders.providers.map(lmp =>
+          lmp.models
+            .filter(lm => lm !== '*') // TODO: support registry providers
+            .map(lm => (
+              <MenuItem value={`${lmp.id}:${lm}`}>
+                {lmp.name} :: {lm}
+              </MenuItem>
+            ))
+        )}
+      </Select>
+      <Select
+        value={inputConfig.embeddings_provider_id}
+        label="Embedding model"
+        onChange={e =>
+          setInputConfig(inputConfig => ({
+            ...inputConfig,
+            embeddings_provider_id: e.target.value
+          }))
+        }
+        MenuProps={{ sx: { maxHeight: '50%', minHeight: 400 } }}
+      >
+        <MenuItem value="null">None</MenuItem>
+        {emProviders.providers.map(emp =>
+          emp.models
+            .filter(em => em !== '*') // TODO: support registry providers
+            .map(em => (
+              <MenuItem value={`${emp.id}:${em}`}>
+                {emp.name} :: {em}
+              </MenuItem>
+            ))
+        )}
+      </Select>
       {Object.entries(inputConfig.api_keys).map(
         ([apiKey, apiKeyValue], idx) => (
           <TextField
