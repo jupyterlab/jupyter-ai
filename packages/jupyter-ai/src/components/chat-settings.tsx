@@ -138,6 +138,7 @@ export function ChatSettings() {
       }
       setState(ChatSettingsState.SubmitError);
     }
+    setState(ChatSettingsState.Success);
     setSaving(false);
   };
 
@@ -182,16 +183,23 @@ export function ChatSettings() {
     );
   }
 
-  console.log({ inputConfig });
-
   return (
-    <Box sx={{ padding: 4, boxSizing: 'border-box' }}>
+    <Box
+      sx={{
+        padding: 4,
+        boxSizing: 'border-box',
+        '& > .MuiAlert-root': { marginBottom: 2 }
+      }}
+    >
       {state === ChatSettingsState.SubmitError && (
         <Alert severity="error">
           {saveEmsg
             ? `An error occurred. Error details:\n\n${saveEmsg}`
             : 'An unknown error occurred. Check the console for more details.'}
         </Alert>
+      )}
+      {state === ChatSettingsState.Success && (
+        <Alert severity="success">Settings saved successfully.</Alert>
       )}
       <FormControl fullWidth>
         <InputLabel>Language model</InputLabel>
@@ -204,6 +212,7 @@ export function ChatSettings() {
               model_provider_id: e.target.value
             }))
           }
+          MenuProps={{ sx: { maxHeight: '50%', minHeight: 400 } }}
         >
           <MenuItem value="">None</MenuItem>
           {lmProviders.providers.map(lmp =>
@@ -228,6 +237,7 @@ export function ChatSettings() {
               embeddings_provider_id: e.target.value
             }))
           }
+          MenuProps={{ sx: { maxHeight: '50%', minHeight: 400 } }}
         >
           <MenuItem value="">None</MenuItem>
           {emProviders.providers.map(emp =>
@@ -261,9 +271,11 @@ export function ChatSettings() {
           />
         )
       )}
-      <Button onClick={handleSave} disabled={saving}>
-        Save changes
-      </Button>
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+        <Button variant="contained" onClick={handleSave} disabled={saving}>
+          {saving ? 'Saving...' : 'Save changes'}
+        </Button>
+      </Box>
     </Box>
   );
 }
