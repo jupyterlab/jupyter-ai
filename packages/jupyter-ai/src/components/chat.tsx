@@ -25,6 +25,7 @@ type ChatBodyProps = {
 
 function ChatBody({ chatHandler }: ChatBodyProps): JSX.Element {
   const [messages, setMessages] = useState<AiService.ChatMessage[]>([]);
+  const [showWelcomeMessage, setShowWelcomeMessage] = useState<boolean>(false);
   const [includeSelection, setIncludeSelection] = useState(true);
   const [replaceSelection, setReplaceSelection] = useState(false);
   const [input, setInput] = useState('');
@@ -36,9 +37,17 @@ function ChatBody({ chatHandler }: ChatBodyProps): JSX.Element {
   useEffect(() => {
     async function fetchHistory() {
       try {
-        const history = await chatHandler.getHistory();
+        const [history, config] = await Promise.all([
+          chatHandler.getHistory(),
+          AiService.getConfig()
+        ]);
         setMessages(history.messages);
-      } catch (e) {}
+        if (!config.model_provider_id) {
+          setShowWelcomeMessage(true);
+        }
+      } catch (e) {
+        console.error(e);
+      }
     }
 
     fetchHistory();
@@ -93,6 +102,24 @@ function ChatBody({ chatHandler }: ChatBodyProps): JSX.Element {
     }
   };
 
+  if (showWelcomeMessage) {
+    return (
+      <Box
+        sx={{
+          padding: 4,
+          display: 'flex',
+          flexGrow: 1,
+          alignItems: 'center',
+          justifyContent: 'space-around'
+        }}
+      >
+        Welcome to Jupyter AI! To get started, please select a language model to
+        chat with from the settings menu at the top right. You will also likely
+        need to provide API credentials, so be sure to have those handy.
+      </Box>
+    );
+  }
+
   return (
     <>
       <ScrollContainer sx={{ flexGrow: 1 }}>
@@ -118,7 +145,11 @@ function ChatBody({ chatHandler }: ChatBodyProps): JSX.Element {
           paddingBottom: 0,
           borderTop: '1px solid var(--jp-border-color1)'
         }}
-        helperText={<span><b>Press Shift</b> + <b>Enter</b> to submit message</span>}
+        helperText={
+          <span>
+            <b>Press Shift</b> + <b>Enter</b> to submit message
+          </span>
+        }
       />
     </>
   );
