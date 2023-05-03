@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Box } from '@mui/system';
+import { IconButton } from '@mui/material';
+import SettingsIcon from '@mui/icons-material/Settings';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import type { Awareness } from 'y-protocols/awareness';
 
 import { JlThemeProvider } from './jl-theme-provider';
 import { ChatMessages } from './chat-messages';
 import { ChatInput } from './chat-input';
+import { ChatSettings } from './chat-settings';
 import { AiService } from '../handler';
 import {
   SelectionContextProvider,
@@ -90,18 +94,7 @@ function ChatBody({ chatHandler }: ChatBodyProps): JSX.Element {
   };
 
   return (
-    <Box
-      // root box should not include padding as it offsets the vertical
-      // scrollbar to the left
-      sx={{
-        width: '100%',
-        height: '100%',
-        boxSizing: 'border-box',
-        background: 'var(--jp-layout-color0)',
-        display: 'flex',
-        flexDirection: 'column'
-      }}
-    >
+    <>
       <ScrollContainer sx={{ flexGrow: 1 }}>
         <ChatMessages messages={messages} />
       </ScrollContainer>
@@ -127,7 +120,7 @@ function ChatBody({ chatHandler }: ChatBodyProps): JSX.Element {
         }}
         helperText={<span><b>Press Shift</b> + <b>Enter</b> to submit message</span>}
       />
-    </Box>
+    </>
   );
 }
 
@@ -137,12 +130,53 @@ export type ChatProps = {
   globalAwareness: Awareness | null;
 };
 
+enum ChatView {
+  Chat,
+  Settings
+}
+
 export function Chat(props: ChatProps) {
+  const [view, setView] = useState<ChatView>(ChatView.Chat);
+
   return (
     <JlThemeProvider>
       <SelectionContextProvider selectionWatcher={props.selectionWatcher}>
         <CollaboratorsContextProvider globalAwareness={props.globalAwareness}>
-          <ChatBody chatHandler={props.chatHandler} />
+          <Box
+            // root box should not include padding as it offsets the vertical
+            // scrollbar to the left
+            sx={{
+              width: '100%',
+              height: '100%',
+              boxSizing: 'border-box',
+              background: 'var(--jp-layout-color0)',
+              display: 'flex',
+              flexDirection: 'column'
+            }}
+          >
+            {/* top bar */}
+            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+              {view !== ChatView.Chat ? (
+                <IconButton onClick={() => setView(ChatView.Chat)}>
+                  <ArrowBackIcon />
+                </IconButton>
+              ) : (
+                <Box />
+              )}
+              {view === ChatView.Chat ? (
+                <IconButton onClick={() => setView(ChatView.Settings)}>
+                  <SettingsIcon />
+                </IconButton>
+              ) : (
+                <Box />
+              )}
+            </Box>
+            {/* body */}
+            {view === ChatView.Chat && (
+              <ChatBody chatHandler={props.chatHandler} />
+            )}
+            {view === ChatView.Settings && <ChatSettings />}
+          </Box>
         </CollaboratorsContextProvider>
       </SelectionContextProvider>
     </JlThemeProvider>

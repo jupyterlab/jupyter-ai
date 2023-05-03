@@ -99,11 +99,15 @@ export namespace AiService {
   };
 
   export type ClearMessage = {
-    type: 'clear'
-  }
+    type: 'clear';
+  };
 
   export type ChatMessage = AgentChatMessage | HumanChatMessage;
-  export type Message = AgentChatMessage | HumanChatMessage | ConnectionMessage | ClearMessage;
+  export type Message =
+    | AgentChatMessage
+    | HumanChatMessage
+    | ConnectionMessage
+    | ClearMessage;
 
   export type ChatHistory = {
     messages: ChatMessage[];
@@ -159,5 +163,58 @@ export namespace AiService {
     id: string
   ): Promise<DescribeTaskResponse> {
     return requestAPI<DescribeTaskResponse>(`tasks/${id}`);
+  }
+
+  export type Config = {
+    model_provider_id: string | null;
+    embeddings_provider_id: string | null;
+    api_keys: Record<string, string>;
+  };
+
+  export type GetConfigResponse = Config;
+
+  export type UpdateConfigRequest = Config;
+
+  export async function getConfig(): Promise<GetConfigResponse> {
+    return requestAPI<GetConfigResponse>('config');
+  }
+
+  export type EnvAuthStrategy = {
+    type: 'env';
+    name: string;
+  };
+
+  export type AwsAuthStrategy = {
+    type: 'aws';
+  };
+
+  export type AuthStrategy = EnvAuthStrategy | AwsAuthStrategy | null;
+
+  export type ListProvidersEntry = {
+    id: string;
+    name: string;
+    models: string[];
+    auth_strategy: AuthStrategy;
+  };
+
+  export type ListProvidersResponse = {
+    providers: ListProvidersEntry[];
+  };
+
+  export async function listLmProviders(): Promise<ListProvidersResponse> {
+    return requestAPI<ListProvidersResponse>('providers');
+  }
+
+  export async function listEmProviders(): Promise<ListProvidersResponse> {
+    return requestAPI<ListProvidersResponse>('providers/embeddings');
+  }
+
+  export async function updateConfig(
+    config: UpdateConfigRequest
+  ): Promise<void> {
+    return requestAPI<void>('config', {
+      method: 'POST',
+      body: JSON.stringify(config)
+    });
   }
 }
