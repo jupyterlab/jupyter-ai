@@ -22,13 +22,15 @@ from jupyter_ai.document_loaders.directory import RayRecursiveDirectoryLoader
 from jupyter_ai.document_loaders.splitter import ExtensionSplitter, NotebookSplitter
 
 
+INDEX_SAVE_DIR = os.path.join(jupyter_data_dir(), 'jupyter_ai', 'indices')
+METADATA_SAVE_PATH = os.path.join(INDEX_SAVE_DIR, 'metadata.json')
+
 @ray.remote
 class LearnActor(BaseActor):
 
     def __init__(self, reply_queue: Queue, log: Logger, root_dir: str):
         super().__init__(reply_queue=reply_queue, log=log)
         self.root_dir = root_dir
-        self.index_save_dir = os.path.join(jupyter_data_dir(), 'jupyter_ai', 'indices')
         self.chunk_size = 2000
         self.chunk_overlap = 100
         self.parser.prog = '/learn'
@@ -39,10 +41,9 @@ class LearnActor(BaseActor):
         self.index_name = 'default'
         self.index = None
         self.metadata = IndexMetadata(dirs=[])
-        self.metadata_save_path = os.path.join(self.index_save_dir, 'metadata.json')
- 
-        if not os.path.exists(self.index_save_dir):
-            os.makedirs(self.index_save_dir)
+        
+        if not os.path.exists(INDEX_SAVE_DIR):
+            os.makedirs(INDEX_SAVE_DIR)
         
         self.load_or_create()    
         
@@ -64,7 +65,7 @@ class LearnActor(BaseActor):
             return
         
         if args.list:
-            self.reply(self.build_list_response())
+            self.reply(self._build_list_response())
             return
 
         # Make sure the path exists.
@@ -88,7 +89,7 @@ class LearnActor(BaseActor):
         You can ask questions about these docs by prefixing your message with **/ask**."""
         self.reply(response, message)
 
-    def build_list_response(self):
+    def _build_list_response(self):
         if not self.metadata.dirs:
             return "There are no docs that have been learned yet."
         
@@ -113,9 +114,9 @@ class LearnActor(BaseActor):
         loader = RayRecursiveDirectoryLoader(path)
         texts = loader.load_and_split(text_splitter=splitter)
         self.index.add_documents(texts)
-        self.add_dir_to_metadata(path)
+        self._add_dir_to_metadata(path)
     
-    def add_dir_to_metadata(self, path: str):
+    def _add_dir_to_metadata(self, path: str):
         dirs = self.metadata.dirs
         index = next((i for i, dir in enumerate(dirs) if dir.path == path), None)
         if not index:
@@ -138,7 +139,7 @@ class LearnActor(BaseActor):
     def delete(self):
         self.index = None
         self.metadata = IndexMetadata(dirs=[])
-        paths = [os.path.join(self.index_save_dir, self.index_name+ext) for ext in ['.pkl', '.faiss']]
+        paths = [os.path.join(INDEX_SAVE_DIR, self.index_name+ext) for ext in ['.pkl', '.faiss']]
         for path in paths:
             if os.path.isfile(path):
                 os.remove(path)
@@ -148,14 +149,13 @@ class LearnActor(BaseActor):
         # Index all dirs in the metadata
         if not metadata.dirs:
             return    
-        dirs = []
+        
         for dir in metadata.dirs:
             self.learn_dir(dir.path)
-            dirs.append(dir.path)
-
+            
         self.save()
 
-        dir_list = "\n- " + "\n- ".join(dirs) + "\n\n"
+        dir_list = "\n- " + "\n- ".join([dir.path for dir in self.metadata.dirs]) + "\n\n"
         message = f"""🎉 I am done learning docs in these directories:
         {dir_list} I am ready to answer questions about them. 
         You can ask questions about these docs by prefixing your message with **/ask**."""
@@ -170,12 +170,12 @@ class LearnActor(BaseActor):
 
     def save(self):
         if self.index is not None:
-            self.index.save_local(self.index_save_dir, index_name=self.index_name)
+            self.index.save_local(INDEX_SAVE_DIR, index_name=self.index_name)
         
         self.save_metadata()
 
     def save_metadata(self):
-        with open(self.metadata_save_path, 'w') as f:
+        with open(METADATA_SAVE_PATH, 'w') as f:
             f.write(self.metadata.json())
 
     def load_or_create(self):
@@ -184,16 +184,16 @@ class LearnActor(BaseActor):
             return
         if self.index is None:
             try:
-                self.index = FAISS.load_local(self.index_save_dir, embeddings, index_name=self.index_name)
+                self.index = FAISS.load_local(INDEX_SAVE_DIR, embeddings, index_name=self.index_name)
                 self.load_metadata()
             except Exception as e:
                 self.create()
 
     def load_metadata(self):
-        if not os.path.exists(self.metadata_save_path):
+        if not os.path.exists(METADATA_SAVE_PATH):
            return
         
-        with open(self.metadata_save_path, 'r', encoding='utf-8') as f:
+        with open(METADATA_SAVE_PATH, 'r', encoding='utf-8') as f:
             j = json.loads(f.read()) 
             self.metadata = IndexMetadata(**j)
 
