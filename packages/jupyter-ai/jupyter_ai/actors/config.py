@@ -27,10 +27,16 @@ class ConfigActor():
         self.config = config
     
     def _update_chat_provider(self, config: GlobalConfig):
+        if not config.model_provider_id:
+            return
+
         actor = ray.get_actor(ACTOR_TYPE.CHAT_PROVIDER)
         ray.get(actor.update.remote(config))
 
     def _update_embeddings_provider(self, config: GlobalConfig):
+        if not config.embeddings_provider_id:
+            return
+
         actor = ray.get_actor(ACTOR_TYPE.EMBEDDINGS_PROVIDER)
         ray.get(actor.update.remote(config))
 
@@ -46,6 +52,10 @@ class ConfigActor():
             with open(self.save_path, 'r', encoding='utf-8') as f:
                 config = GlobalConfig(**json.loads(f.read()))
                 self.update(config, False)
+            return
+        
+        # otherwise, create a new empty config file
+        self.update(GlobalConfig(), True)
 
     def get_config(self):
         return self.config

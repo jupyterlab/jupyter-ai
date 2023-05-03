@@ -97,17 +97,13 @@ class ListProvidersEntry(BaseModel):
 class ListProvidersResponse(BaseModel):
     providers: List[ListProvidersEntry]
 
-
-class GlobalConfig(BaseModel):
-    model_provider_id: str
-    embeddings_provider_id: str
-    api_keys: Dict[str, str]
-
-
 class IndexedDir(BaseModel):
     path: str
-
 
 class IndexMetadata(BaseModel):
     dirs: List[IndexedDir]
 
+class GlobalConfig(BaseModel):
+    model_provider_id: Optional[str] = None
+    embeddings_provider_id: Optional[str] = None
+    api_keys: Dict[str, str] = {}
