@@ -55,5 +55,8 @@ class DefaultActor(BaseActor):
 
     def _process_message(self, message: HumanChatMessage):
         self.get_llm_chain()
-        response = self.llm_chain.predict(input=message.body)
+        response = self.llm_chain.predict(
+            input=message.body,
+            stop=["\nHuman:"]
+        )
         self.reply(response, message)
