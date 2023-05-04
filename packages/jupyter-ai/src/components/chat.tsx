@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Box } from '@mui/system';
+import { Button, IconButton, Stack } from '@mui/material';
+import SettingsIcon from '@mui/icons-material/Settings';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import type { Awareness } from 'y-protocols/awareness';
 
 import { JlThemeProvider } from './jl-theme-provider';
 import { ChatMessages } from './chat-messages';
 import { ChatInput } from './chat-input';
+import { ChatSettings } from './chat-settings';
 import { AiService } from '../handler';
 import {
   SelectionContextProvider,
@@ -17,10 +21,12 @@ import { ScrollContainer } from './scroll-container';
 
 type ChatBodyProps = {
   chatHandler: ChatHandler;
+  setChatView: (view: ChatView) => void
 };
 
-function ChatBody({ chatHandler }: ChatBodyProps): JSX.Element {
+function ChatBody({ chatHandler, setChatView: chatViewHandler }: ChatBodyProps): JSX.Element {
   const [messages, setMessages] = useState<AiService.ChatMessage[]>([]);
+  const [showWelcomeMessage, setShowWelcomeMessage] = useState<boolean>(false);
   const [includeSelection, setIncludeSelection] = useState(true);
   const [replaceSelection, setReplaceSelection] = useState(false);
   const [input, setInput] = useState('');
@@ -32,12 +38,17 @@ function ChatBody({ chatHandler }: ChatBodyProps): JSX.Element {
   useEffect(() => {
     async function fetchHistory() {
       try {
-        const history = await chatHandler.getHistory();
+        const [history, config] = await Promise.all([
+          chatHandler.getHistory(),
+          AiService.getConfig()
+        ]);
         setMessages(history.messages);
+        if (!config.model_provider_id) {
+          setShowWelcomeMessage(true);
+        }
       } catch (e) {
-        
+        console.error(e);
       }
-      
     }
 
     fetchHistory();
@@ -71,7 +82,9 @@ function ChatBody({ chatHandler }: ChatBodyProps): JSX.Element {
 
     const prompt =
       input +
-      (includeSelection && selection?.text ? '\n\n```\n' + selection.text + '```': '');
+      (includeSelection && selection?.text
+        ? '\n\n```\n' + selection.text + '```'
+        : '');
 
     // send message to backend
     const messageId = await chatHandler.sendMessage({ prompt });
@@ -90,23 +103,45 @@ function ChatBody({ chatHandler }: ChatBodyProps): JSX.Element {
     }
   };
 
+  const openSettingsView = () => {
+    setShowWelcomeMessage(false)
+    chatViewHandler(ChatView.Settings)
+  }
+
+  if (showWelcomeMessage) {
+    return (
+      <Box
+        sx={{
+          padding: 4,
+          display: 'flex',
+          flexGrow: 1,
+          alignItems: 'top',
+          justifyContent: 'space-around'
+        }}
+      >
+        <Stack spacing={4}>
+          <p>
+            Welcome to Jupyter AI! To get started, please select a language
+            model to chat with from the settings panel. You will also likely
+            need to provide API credentials, so be sure to have those handy.
+          </p>
+          <Button 
+            variant="contained" 
+            startIcon={<SettingsIcon />} 
+            size={'large'}
+            onClick={() => openSettingsView()}
+            >
+              Start Here
+          </Button>
+        </Stack>
+      </Box>
+    );
+  }
+
   return (
-    <Box
-      // root box should not include padding as it offsets the vertical
-      // scrollbar to the left
-      sx={{
-        width: '100%',
-        height: '100%',
-        boxSizing: 'border-box',
-        background: 'var(--jp-layout-color0)',
-        display: 'flex',
-        flexDirection: 'column'
-      }}
-    >
+    <>
       <ScrollContainer sx={{ flexGrow: 1 }}>
         <ChatMessages messages={messages} />
-        {/* https://css-tricks.com/books/greatest-css-tricks/pin-scrolling-to-bottom/ */}
-        <Box sx={{ overflowAnchor: 'auto', height: '1px' }} />
       </ScrollContainer>
       <ChatInput
         value={input}
@@ -128,9 +163,13 @@ function ChatBody({ chatHandler }: ChatBodyProps): JSX.Element {
           paddingBottom: 0,
           borderTop: '1px solid var(--jp-border-color1)'
         }}
-        helperText={<span><b>Press Shift</b> + <b>Enter</b> to submit message</span>}
+        helperText={
+          <span>
+            Press <b>Shift</b> + <b>Enter</b> to submit message
+          </span>
+        }
       />
-    </Box>
+    </>
   );
 }
 
@@ -138,14 +177,56 @@ export type ChatProps = {
   selectionWatcher: SelectionWatcher;
   chatHandler: ChatHandler;
   globalAwareness: Awareness | null;
+  chatView?: ChatView
 };
 
+enum ChatView {
+  Chat,
+  Settings
+}
+
 export function Chat(props: ChatProps) {
+  const [view, setView] = useState<ChatView>(props.chatView || ChatView.Chat);
+
   return (
     <JlThemeProvider>
       <SelectionContextProvider selectionWatcher={props.selectionWatcher}>
         <CollaboratorsContextProvider globalAwareness={props.globalAwareness}>
-          <ChatBody chatHandler={props.chatHandler} />
+          <Box
+            // root box should not include padding as it offsets the vertical
+            // scrollbar to the left
+            sx={{
+              width: '100%',
+              height: '100%',
+              boxSizing: 'border-box',
+              background: 'var(--jp-layout-color0)',
+              display: 'flex',
+              flexDirection: 'column'
+            }}
+          >
+            {/* top bar */}
+            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+              {view !== ChatView.Chat ? (
+                <IconButton onClick={() => setView(ChatView.Chat)}>
+                  <ArrowBackIcon />
+                </IconButton>
+              ) : (
+                <Box />
+              )}
+              {view === ChatView.Chat ? (
+                <IconButton onClick={() => setView(ChatView.Settings)}>
+                  <SettingsIcon />
+                </IconButton>
+              ) : (
+                <Box />
+              )}
+            </Box>
+            {/* body */}
+            {view === ChatView.Chat && (
+              <ChatBody chatHandler={props.chatHandler} setChatView={setView}/>
+            )}
+            {view === ChatView.Settings && <ChatSettings />}
+          </Box>
         </CollaboratorsContextProvider>
       </SelectionContextProvider>
     </JlThemeProvider>

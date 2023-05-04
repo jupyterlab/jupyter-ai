@@ -25,10 +25,10 @@ class ChatProviderActor():
         auth_strategy = provider.auth_strategy
         if auth_strategy and auth_strategy.type == "env":
             api_keys = config.api_keys
-            name = auth_strategy.name.lower()
+            name = auth_strategy.name
             if name not in api_keys:
                 raise ValueError(f"Missing value for '{auth_strategy.name}' in the config.")
-            provider_params[name] = api_keys[name]
+            provider_params[name.lower()] = api_keys[name]
             
         self.provider = provider
         self.provider_params = provider_params
