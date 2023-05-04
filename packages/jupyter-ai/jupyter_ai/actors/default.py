@@ -1,6 +1,5 @@
-from typing import Dict, Type
+from typing import Dict, Type, List
 import ray
-from ray.util.queue import Queue
 
 from langchain import ConversationChain
 from langchain.prompts import (
@@ -19,12 +18,14 @@ SYSTEM_PROMPT = "The following is a friendly conversation between a human and an
 
 @ray.remote
 class DefaultActor(BaseActor):
-    def __init__(self, reply_queue: Queue, log: Logger):
-        super().__init__(reply_queue=reply_queue, log=log)
+    def __init__(self, chat_history: List[ChatMessage], *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.memory = None
+        self.chat_history = chat_history
 
     def create_llm_chain(self, provider: Type[BaseProvider], provider_params: Dict[str, str]):
         llm = provider(**provider_params)
-        memory = RemoteMemory(actor_name=ACTOR_TYPE.MEMORY)
+        self.memory = RemoteMemory(actor_name=ACTOR_TYPE.MEMORY)
         prompt_template = ChatPromptTemplate.from_messages([
             SystemMessagePromptTemplate.from_template(SYSTEM_PROMPT),
             MessagesPlaceholder(variable_name="history"),
@@ -35,8 +36,22 @@ class DefaultActor(BaseActor):
             llm=llm,
             prompt=prompt_template,
             verbose=True,
-            memory=memory
+            memory=self.memory
         )
+    
+    def clear_memory(self):
+        if not self.memory:
+            return
+        
+        # clear chain memory
+        self.memory.clear()
+
+        # clear transcript for existing chat clients
+        reply_message = ClearMessage()
+        self.reply_queue.put(reply_message)
+
+        # clear transcript for new chat clients
+        self.chat_history.clear()
 
     def _process_message(self, message: HumanChatMessage):
         self.get_llm_chain()

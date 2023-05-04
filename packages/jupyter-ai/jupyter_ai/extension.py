@@ -121,31 +121,35 @@ class AiExtension(ExtensionApp):
         self.settings["chat_handlers"] = {}
         
         # store chat messages in memory for now
+        # this is only used to render the UI, and is not the conversational
+        # memory object used by the LM chain.
         self.settings["chat_history"] = []
 
 
         reply_queue = Queue()
         self.settings["reply_queue"] = reply_queue
 
-        router = Router.options(name="router").remote(
+        router = Router.options(name=ACTOR_TYPE.ROUTER).remote(
             reply_queue=reply_queue,
-            log=self.log
-        )
-        providers_actor = ProvidersActor.options(name=ACTOR_TYPE.PROVIDERS.value).remote(
-            log=self.log
-        )
-        config_actor = ConfigActor.options(name=ACTOR_TYPE.CONFIG.value).remote(
-            log=self.log
-        )
-        chat_provider_actor = ChatProviderActor.options(name=ACTOR_TYPE.CHAT_PROVIDER.value).remote(
-            log=self.log
-        )
-        embeddings_provider_actor = EmbeddingsProviderActor.options(name=ACTOR_TYPE.EMBEDDINGS_PROVIDER.value).remote(
-            log=self.log
+            log=self.log,
         )
         default_actor = DefaultActor.options(name=ACTOR_TYPE.DEFAULT.value).remote(
             reply_queue=reply_queue, 
-            log=self.log
+            log=self.log,
+            chat_history=self.settings["chat_history"]
+        )
+
+        providers_actor = ProvidersActor.options(name=ACTOR_TYPE.PROVIDERS.value).remote(
+            log=self.log,
+        )
+        config_actor = ConfigActor.options(name=ACTOR_TYPE.CONFIG.value).remote(
+            log=self.log,
+        )
+        chat_provider_actor = ChatProviderActor.options(name=ACTOR_TYPE.CHAT_PROVIDER.value).remote(
+            log=self.log,
+        )
+        embeddings_provider_actor = EmbeddingsProviderActor.options(name=ACTOR_TYPE.EMBEDDINGS_PROVIDER.value).remote(
+            log=self.log,
         )
         learn_actor = LearnActor.options(name=ACTOR_TYPE.LEARN.value).remote(
             reply_queue=reply_queue,
@@ -154,16 +158,16 @@ class AiExtension(ExtensionApp):
         )
         ask_actor = AskActor.options(name=ACTOR_TYPE.ASK.value).remote(
             reply_queue=reply_queue, 
-            log=self.log
+            log=self.log,
         )
         memory_actor = MemoryActor.options(name=ACTOR_TYPE.MEMORY.value).remote(
             log=self.log,
-            memory=ConversationBufferWindowMemory(return_messages=True, k=2)
+            memory=ConversationBufferWindowMemory(return_messages=True, k=2),
         )
         generate_actor = GenerateActor.options(name=ACTOR_TYPE.GENERATE.value).remote(
             reply_queue=reply_queue, 
             log=self.log,
-            root_dir=self.settings['server_root_dir']
+            root_dir=self.settings['server_root_dir'],
         )
      
         self.settings['router'] = router
