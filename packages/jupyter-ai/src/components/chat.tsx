@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Box } from '@mui/system';
-import { IconButton } from '@mui/material';
+import { Button, IconButton, Stack } from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import type { Awareness } from 'y-protocols/awareness';
@@ -21,9 +21,10 @@ import { ScrollContainer } from './scroll-container';
 
 type ChatBodyProps = {
   chatHandler: ChatHandler;
+  setChatView: (view: ChatView) => void
 };
 
-function ChatBody({ chatHandler }: ChatBodyProps): JSX.Element {
+function ChatBody({ chatHandler, setChatView: chatViewHandler }: ChatBodyProps): JSX.Element {
   const [messages, setMessages] = useState<AiService.ChatMessage[]>([]);
   const [showWelcomeMessage, setShowWelcomeMessage] = useState<boolean>(false);
   const [includeSelection, setIncludeSelection] = useState(true);
@@ -102,6 +103,11 @@ function ChatBody({ chatHandler }: ChatBodyProps): JSX.Element {
     }
   };
 
+  const openSettingsView = () => {
+    setShowWelcomeMessage(false)
+    chatViewHandler(ChatView.Settings)
+  }
+
   if (showWelcomeMessage) {
     return (
       <Box
@@ -109,13 +115,25 @@ function ChatBody({ chatHandler }: ChatBodyProps): JSX.Element {
           padding: 4,
           display: 'flex',
           flexGrow: 1,
-          alignItems: 'center',
+          alignItems: 'top',
           justifyContent: 'space-around'
         }}
       >
-        Welcome to Jupyter AI! To get started, please select a language model to
-        chat with from the settings menu at the top right. You will also likely
-        need to provide API credentials, so be sure to have those handy.
+        <Stack spacing={4}>
+          <p>
+            Welcome to Jupyter AI! To get started, please select a language
+            model to chat with from the settings panel. You will also likely
+            need to provide API credentials, so be sure to have those handy.
+          </p>
+          <Button 
+            variant="contained" 
+            startIcon={<SettingsIcon />} 
+            size={'large'}
+            onClick={() => openSettingsView()}
+            >
+              Start Here
+          </Button>
+        </Stack>
       </Box>
     );
   }
@@ -147,7 +165,7 @@ function ChatBody({ chatHandler }: ChatBodyProps): JSX.Element {
         }}
         helperText={
           <span>
-            <b>Press Shift</b> + <b>Enter</b> to submit message
+            Press <b>Shift</b> + <b>Enter</b> to submit message
           </span>
         }
       />
@@ -159,6 +177,7 @@ export type ChatProps = {
   selectionWatcher: SelectionWatcher;
   chatHandler: ChatHandler;
   globalAwareness: Awareness | null;
+  chatView?: ChatView
 };
 
 enum ChatView {
@@ -167,7 +186,7 @@ enum ChatView {
 }
 
 export function Chat(props: ChatProps) {
-  const [view, setView] = useState<ChatView>(ChatView.Chat);
+  const [view, setView] = useState<ChatView>(props.chatView || ChatView.Chat);
 
   return (
     <JlThemeProvider>
@@ -204,7 +223,7 @@ export function Chat(props: ChatProps) {
             </Box>
             {/* body */}
             {view === ChatView.Chat && (
-              <ChatBody chatHandler={props.chatHandler} />
+              <ChatBody chatHandler={props.chatHandler} setChatView={setView}/>
             )}
             {view === ChatView.Settings && <ChatSettings />}
           </Box>
