@@ -16,7 +16,12 @@ from jupyter_ai.models import HumanChatMessage, AgentChatMessage
 Logger = Union[logging.Logger, logging.LoggerAdapter]
 
 class ACTOR_TYPE(str, Enum):
+    # the top level actor that routes incoming messages to the appropriate actor
+    ROUTER = "router"
+
+    # the default actor that responds to messages using a language model
     DEFAULT = "default"
+
     ASK = "ask"
     LEARN = 'learn'
     MEMORY = 'memory'
@@ -74,14 +79,18 @@ class BaseActor():
 
     def get_llm_chain(self):
         actor = ray.get_actor(ACTOR_TYPE.CHAT_PROVIDER)
-        llm = ray.get(actor.get_provider.remote())
-        llm_params = ray.get(actor.get_provider_params.remote())
+        lm_provider = ray.get(actor.get_provider.remote())
+        lm_provider_params = ray.get(actor.get_provider_params.remote())
 
-        if not llm:
+        curr_lm_id = f'{self.llm.id}:{lm_provider_params["model_id"]}' if self.llm else None
+        next_lm_id = f'{lm_provider.id}:{lm_provider_params["model_id"]}' if lm_provider else None
+
+        if not lm_provider:
             return None
         
-        if llm.__class__.__name__ != self.llm.__class__.__name__:
-            self.create_llm_chain(llm, llm_params)
+        if curr_lm_id != next_lm_id:
+            self.log.info(f"Switching chat language model from {curr_lm_id} to {next_lm_id}.")
+            self.create_llm_chain(lm_provider, lm_provider_params)
         return self.llm_chain
     
     def get_embeddings(self):
