@@ -2,15 +2,17 @@
 
 import { LabIcon } from '@jupyterlab/ui-components';
 
-import psychologySvgStr from '../style/icons/psychology.svg';
 import chatSvgStr from '../style/icons/chat.svg';
-
-export const psychologyIcon = new LabIcon({
-  name: 'jupyter-ai::psychology',
-  svgstr: psychologySvgStr
-});
+import jupyternautSvg from '../style/icons/jupyternaut.svg';
 
 export const chatIcon = new LabIcon({
   name: 'jupyter-ai::chat',
   svgstr: chatSvgStr
 });
+
+export const jupyternautIcon = new LabIcon({
+  name: 'jupyter-ai::jupyternaut',
+  svgstr: jupyternautSvg
+});
+
+export const Jupyternaut = jupyternautIcon.react;
