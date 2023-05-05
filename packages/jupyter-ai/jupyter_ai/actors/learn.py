@@ -165,7 +165,7 @@ class LearnActor(BaseActor):
         embeddings = self.get_embeddings()
         if not embeddings:
             return
-        self.index = FAISS.from_texts(["Jupyter AI knows about your filesystem, to ask questions first use the /learn command."], embeddings)
+        self.index = FAISS.from_texts(["Jupyternaut knows about your filesystem, to ask questions first use the /learn command."], embeddings)
         self.save()
 
     def save(self):

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 
 import { Avatar, Box, Typography } from '@mui/material';
 import type { SxProps, Theme } from '@mui/material';
-import PsychologyIcon from '@mui/icons-material/Psychology';
 import { formatDistanceToNowStrict, fromUnixTime } from 'date-fns';
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
@@ -12,6 +11,7 @@ import 'katex/dist/katex.min.css';
 import { ChatCodeView } from './chat-code-view';
 import { AiService } from '../handler';
 import { useCollaboratorsContext } from '../contexts/collaborators-context';
+import { Jupyternaut } from '../icons';
 
 type ChatMessagesProps = {
   messages: AiService.ChatMessage[];
@@ -54,7 +54,7 @@ export function ChatMessageHeader(props: ChatMessageHeaderProps) {
   } else {
     avatar = (
       <Avatar sx={{ ...sharedStyles, bgcolor: 'var(--jp-jupyter-icon-color)' }}>
-        <PsychologyIcon />
+        <Jupyternaut display="block" height="100%" width="100%" />
       </Avatar>
     );
   }
@@ -62,7 +62,7 @@ export function ChatMessageHeader(props: ChatMessageHeaderProps) {
   const name =
     props.message.type === 'human'
       ? props.message.client.display_name
-      : 'Jupyter AI';
+      : 'Jupyternaut';
 
   return (
     <Box
@@ -85,8 +85,16 @@ export function ChatMessageHeader(props: ChatMessageHeaderProps) {
           alignItems: 'center'
         }}
       >
-        <Typography sx={{ fontWeight: 700, color: 'var(--jp-ui-font-color1)' }}>{name}</Typography>
-        <Typography sx={{ fontSize: '0.8em', color: 'var(--jp-ui-font-color2)', fontWeight: 300 }}>
+        <Typography sx={{ fontWeight: 700, color: 'var(--jp-ui-font-color1)' }}>
+          {name}
+        </Typography>
+        <Typography
+          sx={{
+            fontSize: '0.8em',
+            color: 'var(--jp-ui-font-color2)',
+            fontWeight: 300
+          }}
+        >
           {props.timestamp}
         </Typography>
       </Box>
@@ -120,7 +128,11 @@ export function ChatMessages(props: ChatMessagesProps) {
 
   return (
     <Box
-      sx={{ '& > :not(:last-child)': { borderBottom: '1px solid var(--jp-border-color2)' } }}
+      sx={{
+        '& > :not(:last-child)': {
+          borderBottom: '1px solid var(--jp-border-color2)'
+        }
+      }}
     >
       {props.messages.map((message, i) => (
         // extra div needed to ensure each bubble is on a new line
