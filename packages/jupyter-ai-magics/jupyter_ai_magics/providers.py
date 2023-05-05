@@ -4,7 +4,7 @@ import base64
 
 import io
 
-from langchain.schema import BaseLanguageModel as BaseLangchainProvider
+from langchain.schema import BaseModel as BaseLangchainProvider
 from langchain.llms import (
     AI21,
     Anthropic,
