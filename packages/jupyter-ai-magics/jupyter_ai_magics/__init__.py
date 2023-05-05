@@ -10,7 +10,14 @@ from .providers import (
     HfHubProvider,
     OpenAIProvider,
     ChatOpenAIProvider,
+    ChatOpenAINewProvider,
     SmEndpointProvider
+)
+# expose embedding model providers on the package root
+from .embedding_providers import (
+    OpenAIEmbeddingsProvider,
+    CohereEmbeddingsProvider,
+    HfHubEmbeddingsProvider
 )
 from .providers import BaseProvider
 

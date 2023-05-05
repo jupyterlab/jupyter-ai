@@ -1,6 +1,7 @@
 from dataclasses import asdict
 import json
 from typing import Dict, List
+from jupyter_ai.actors.base import ACTOR_TYPE
 import ray
 import tornado
 import uuid
@@ -16,7 +17,22 @@ from jupyter_server.base.handlers import APIHandler as BaseAPIHandler, JupyterHa
 from jupyter_server.utils import ensure_async
 
 from .task_manager import TaskManager
-from .models import ChatHistory, PromptRequest, ChatRequest, ChatMessage, Message, AgentChatMessage, HumanChatMessage, ConnectionMessage, ChatClient, ChatUser
+
+from .models import (
+    ChatHistory,
+    ChatUser, 
+    ListProvidersEntry, 
+    ListProvidersResponse, 
+    PromptRequest, 
+    ChatRequest, 
+    ChatMessage, 
+    Message, 
+    AgentChatMessage, 
+    HumanChatMessage, 
+    ConnectionMessage, 
+    ChatClient,
+    GlobalConfig
+)
 
 
 class APIHandler(BaseAPIHandler):
@@ -35,10 +51,6 @@ class APIHandler(BaseAPIHandler):
         if "task_manager" not in self.settings:
             self.settings["task_manager"] = TaskManager(engines=self.engines, default_tasks=self.default_tasks)
         return self.settings["task_manager"]
-    
-    @property
-    def openai_chat(self):
-        return self.settings["openai_chat"]
     
 class PromptAPIHandler(APIHandler):
     @tornado.web.authenticated
@@ -105,15 +117,6 @@ class ChatHandler(
     """
     A websocket handler for chat.
     """
-
-    _chat_provider = None  
-    _chat_message_queue = None 
-    
-    @property
-    def chat_message_queue(self):
-        if self._chat_message_queue is None:
-            self._chat_message_queue = self.settings["chat_message_queue"]
-        return self._chat_message_queue
     
     @property
     def chat_handlers(self) -> Dict[str, 'ChatHandler']:
@@ -254,3 +257,94 @@ class ChatHandler(
 
         self.log.info(f"Client disconnected. ID: {self.client_id}")
         self.log.debug("Chat clients: %s", self.chat_handlers.keys())
+
+
+class ModelProviderHandler(BaseAPIHandler):
+    @property
+    def chat_providers(self): 
+        actor = ray.get_actor("providers")
+        o = actor.get_model_providers.remote()
+        return ray.get(o)
+    
+    @web.authenticated
+    def get(self):
+        providers = []
+        for provider in self.chat_providers.values():
+            # skip old legacy OpenAI chat provider used only in magics
+            if provider.id == "openai-chat":
+                continue
+
+            providers.append(
+                ListProvidersEntry(
+                    id=provider.id,
+                    name=provider.name,
+                    models=provider.models,
+                    auth_strategy=provider.auth_strategy
+                )
+            )
+        
+        response = ListProvidersResponse(providers=sorted(providers, key=lambda p: p.name))
+        self.finish(response.json())
+
+
+class EmbeddingsModelProviderHandler(BaseAPIHandler):
+    
+    @property
+    def embeddings_providers(self):
+        actor = ray.get_actor("providers")
+        o = actor.get_embeddings_providers.remote()
+        return ray.get(o)
+
+    @web.authenticated
+    def get(self):
+        providers = []
+        for provider in self.embeddings_providers.values():
+            providers.append(
+                ListProvidersEntry(
+                    id=provider.id,
+                    name=provider.name,
+                    models=provider.models,
+                    auth_strategy=provider.auth_strategy
+                )
+            )
+        
+        response = ListProvidersResponse(providers=sorted(providers, key=lambda p: p.name))
+        self.finish(response.json())
+
+
+class GlobalConfigHandler(BaseAPIHandler):
+    """API handler for fetching and setting the
+    model and emebddings config.
+    """
+    
+    @web.authenticated
+    def get(self):
+        actor = ray.get_actor(ACTOR_TYPE.CONFIG)
+        config = ray.get(actor.get_config.remote())
+        if not config:
+            raise HTTPError(500, "No config found.")
+        
+        self.finish(config.json())
+
+    @web.authenticated
+    def post(self):
+        try:
+            config = GlobalConfig(**self.get_json_body())
+            actor = ray.get_actor(ACTOR_TYPE.CONFIG)
+            ray.get(actor.update.remote(config))
+
+            self.set_status(204)
+            self.finish()
+
+        except ValidationError as e:
+            self.log.exception(e)
+            raise HTTPError(500, str(e)) from e
+        except ValueError as e:
+            self.log.exception(e)
+            raise HTTPError(500, str(e.cause) if hasattr(e, 'cause') else str(e))
+        except Exception as e:
+            self.log.exception(e)
+            raise HTTPError(
+                500, "Unexpected error occurred while updating the config."
+            ) from e
+

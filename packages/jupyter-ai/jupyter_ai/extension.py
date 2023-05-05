@@ -1,6 +1,12 @@
 import asyncio
-import os
-import queue
+
+from jupyter_ai.actors.chat_provider import ChatProviderActor
+from jupyter_ai.actors.config import ConfigActor
+from jupyter_ai.actors.embeddings_provider import EmbeddingsProviderActor
+from jupyter_ai.actors.providers import ProvidersActor
+
+from jupyter_ai_magics.utils import load_providers
+
 from langchain.memory import ConversationBufferWindowMemory
 from jupyter_ai.actors.default import DefaultActor 
 from jupyter_ai.actors.ask import AskActor 
@@ -11,24 +17,37 @@ from jupyter_ai.actors.generate import GenerateActor
 from jupyter_ai.actors.base import ACTOR_TYPE
 from jupyter_ai.reply_processor import ReplyProcessor
 from jupyter_server.extension.application import ExtensionApp
-from .handlers import ChatHandler, ChatHistoryHandler, PromptAPIHandler, TaskAPIHandler
+
+from .handlers import (
+    ChatHandler, 
+    ChatHistoryHandler, 
+    EmbeddingsModelProviderHandler, 
+    ModelProviderHandler, 
+    PromptAPIHandler, 
+    TaskAPIHandler,
+    GlobalConfigHandler
+)
+
 from importlib_metadata import entry_points
 import inspect
 from .engine import BaseModelEngine
-from jupyter_ai_magics.providers import ChatOpenAINewProvider, ChatOpenAIProvider
 
 import ray
 from ray.util.queue import Queue
+from jupyter_ai_magics.utils import load_providers
 
 
 class AiExtension(ExtensionApp):
     name = "jupyter_ai"
     handlers = [
+        ("api/ai/config", GlobalConfigHandler),
         ("api/ai/prompt", PromptAPIHandler),
         (r"api/ai/tasks/?", TaskAPIHandler),
         (r"api/ai/tasks/([\w\-:]*)", TaskAPIHandler),
         (r"api/ai/chats/?", ChatHandler),
         (r"api/ai/chats/history?", ChatHistoryHandler),
+        (r"api/ai/providers?", ModelProviderHandler),
+        (r"api/ai/providers/embeddings?", EmbeddingsModelProviderHandler),
     ]
 
     @property
@@ -91,35 +110,46 @@ class AiExtension(ExtensionApp):
         self.settings["ai_default_tasks"] = default_tasks
         self.log.info("Registered all default tasks.")
 
-        if ChatOpenAINewProvider.auth_strategy.name not in os.environ:
-            raise EnvironmentError(f"`{ChatOpenAINewProvider.auth_strategy.name}` value not set in environment. For chat to work, this value should be provided.")
-
-        ## load OpenAI provider
-        self.settings["openai_chat"] = ChatOpenAIProvider(model_id="gpt-3.5-turbo")
+        providers = load_providers(log=self.log)
+        self.settings["chat_providers"] = providers
+        self.log.info("Registered providers.")
 
         self.log.info(f"Registered {self.name} server extension")
-
-        # Add a message queue to the settings to be used by the chat handler
-        self.settings["chat_message_queue"] = queue.Queue()
 
         # Store chat clients in a dictionary
         self.settings["chat_clients"] = {}
         self.settings["chat_handlers"] = {}
         
         # store chat messages in memory for now
+        # this is only used to render the UI, and is not the conversational
+        # memory object used by the LM chain.
         self.settings["chat_history"] = []
 
 
         reply_queue = Queue()
         self.settings["reply_queue"] = reply_queue
 
-        router = Router.options(name="router").remote(
+        router = Router.options(name=ACTOR_TYPE.ROUTER).remote(
             reply_queue=reply_queue,
-            log=self.log
+            log=self.log,
         )
         default_actor = DefaultActor.options(name=ACTOR_TYPE.DEFAULT.value).remote(
             reply_queue=reply_queue, 
-            log=self.log
+            log=self.log,
+            chat_history=self.settings["chat_history"]
+        )
+
+        providers_actor = ProvidersActor.options(name=ACTOR_TYPE.PROVIDERS.value).remote(
+            log=self.log,
+        )
+        config_actor = ConfigActor.options(name=ACTOR_TYPE.CONFIG.value).remote(
+            log=self.log,
+        )
+        chat_provider_actor = ChatProviderActor.options(name=ACTOR_TYPE.CHAT_PROVIDER.value).remote(
+            log=self.log,
+        )
+        embeddings_provider_actor = EmbeddingsProviderActor.options(name=ACTOR_TYPE.EMBEDDINGS_PROVIDER.value).remote(
+            log=self.log,
         )
         learn_actor = LearnActor.options(name=ACTOR_TYPE.LEARN.value).remote(
             reply_queue=reply_queue,
@@ -128,19 +158,23 @@ class AiExtension(ExtensionApp):
         )
         ask_actor = AskActor.options(name=ACTOR_TYPE.ASK.value).remote(
             reply_queue=reply_queue, 
-            log=self.log
+            log=self.log,
         )
         memory_actor = MemoryActor.options(name=ACTOR_TYPE.MEMORY.value).remote(
             log=self.log,
-            memory=ConversationBufferWindowMemory(return_messages=True, k=2)
+            memory=ConversationBufferWindowMemory(return_messages=True, k=2),
         )
         generate_actor = GenerateActor.options(name=ACTOR_TYPE.GENERATE.value).remote(
             reply_queue=reply_queue, 
             log=self.log,
-            root_dir=self.settings['server_root_dir']
+            root_dir=self.settings['server_root_dir'],
         )
      
         self.settings['router'] = router
+        self.settings['providers_actor'] = providers_actor
+        self.settings['config_actor'] = config_actor
+        self.settings['chat_provider_actor'] = chat_provider_actor
+        self.settings['embeddings_provider_actor'] = embeddings_provider_actor
         self.settings["default_actor"] = default_actor
         self.settings["learn_actor"] = learn_actor
         self.settings["ask_actor"] = ask_actor

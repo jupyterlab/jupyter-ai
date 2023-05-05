@@ -1,10 +1,12 @@
 import argparse
+from typing import Dict, List, Type
+from jupyter_ai_magics.providers import BaseProvider
 
 import ray
 from ray.util.queue import Queue
 
-from langchain import OpenAI
 from langchain.chains import ConversationalRetrievalChain
+from langchain.schema import BaseRetriever, Document
 
 from jupyter_ai.models import HumanChatMessage
 from jupyter_ai.actors.base import ACTOR_TYPE, BaseActor, Logger
@@ -21,21 +23,18 @@ class AskActor(BaseActor):
 
     def __init__(self, reply_queue: Queue, log: Logger):
         super().__init__(reply_queue=reply_queue, log=log)
-        index_actor = ray.get_actor(ACTOR_TYPE.LEARN.value)
-        handle = index_actor.get_index.remote()
-        vectorstore = ray.get(handle)
-        if not vectorstore:
-            return
-
-        self.chat_history = []
-        self.chat_provider = ConversationalRetrievalChain.from_llm(
-            OpenAI(temperature=0, verbose=True),
-            vectorstore.as_retriever()
-        )
 
         self.parser.prog = '/ask'
         self.parser.add_argument('query', nargs=argparse.REMAINDER)
 
+    def create_llm_chain(self, provider: Type[BaseProvider], provider_params: Dict[str, str]):
+        retriever = Retriever()
+        self.llm = provider(**provider_params)
+        self.chat_history = []
+        self.llm_chain = ConversationalRetrievalChain.from_llm(
+            self.llm,
+            retriever
+        )
 
     def _process_message(self, message: HumanChatMessage):
         args = self.parse_args(message)
@@ -46,13 +45,34 @@ class AskActor(BaseActor):
             self.reply(f"{self.parser.format_usage()}", message)
             return
         
+        self.get_llm_chain()
+
+        try:
+            result = self.llm_chain({"question": query, "chat_history": self.chat_history})
+            response = result['answer']
+            self.chat_history.append((query, response))
+            self.reply(response, message)
+        except AssertionError as e:
+            self.log.error(e)
+            response = """Sorry, an error occurred while reading the from the learned documents. 
+            If you have changed the embedding provider, try deleting the existing index by running 
+            `/learn -d` command and then re-submitting the `learn <directory>` to learn the documents,
+            and then asking the question again.
+            """
+            self.reply(response, message)
+
+
+class Retriever(BaseRetriever):
+    """Wrapper retriever class to get relevant docs
+    from the vector store, this is important because
+    of inconsistent de-serialization of index when it's
+    accessed directly from the ask actor.
+    """
+    
+    def get_relevant_documents(self, question: str):
         index_actor = ray.get_actor(ACTOR_TYPE.LEARN.value)
-        handle = index_actor.get_index.remote()
-        vectorstore = ray.get(handle)
-        # Have to reference the latest index
-        self.chat_provider.retriever = vectorstore.as_retriever()
-        
-        result = self.chat_provider({"question": query, "chat_history": self.chat_history})
-        response = result['answer']
-        self.chat_history.append((query, response))
-        self.reply(response, message)
+        docs = ray.get(index_actor.get_relevant_documents.remote(question))
+        return docs
+    
+    async def aget_relevant_documents(self, query: str) -> List[Document]:
+        return await super().aget_relevant_documents(query)

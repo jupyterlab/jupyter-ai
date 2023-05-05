@@ -2,7 +2,6 @@ import ray
 from ray.util.queue import Queue
 
 from jupyter_ai.actors.base import ACTOR_TYPE, COMMANDS, Logger, BaseActor
-from jupyter_ai.models import ClearMessage
 
 @ray.remote
 class Router(BaseActor):
@@ -25,7 +24,7 @@ class Router(BaseActor):
                 actor = ray.get_actor(COMMANDS[command].value)
                 actor.process_message.remote(message)
             if command == '/clear':
-                reply_message = ClearMessage()
-                self.reply_queue.put(reply_message)
+                actor = ray.get_actor(ACTOR_TYPE.DEFAULT)
+                actor.clear_memory.remote()
         else:
             default.process_message.remote(message)
