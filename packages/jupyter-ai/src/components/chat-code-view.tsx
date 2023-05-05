@@ -4,6 +4,7 @@ import type { CodeProps } from 'react-markdown/lib/ast-to-react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { duotoneLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { Box, Button } from '@mui/material';
+import cx from 'clsx';
 
 type ChatCodeViewProps = CodeProps;
 
@@ -13,13 +14,15 @@ type ChatCodeBlockProps = ChatCodeViewProps & {
   language?: string;
 };
 
+const JPAI_CODE_CLASS = 'jp-ai-code';
+
 function ChatCodeInline({
   className,
   children,
   ...props
 }: ChatCodeInlineProps) {
   return (
-    <code {...props} className={className}>
+    <code {...props} className={cx(JPAI_CODE_CLASS, className)}>
       {children}
     </code>
   );
@@ -59,6 +62,7 @@ function ChatCodeBlock({ language, children, ...props }: ChatCodeBlockProps) {
     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
       <SyntaxHighlighter
         {...props}
+        className={cx(props.className, JPAI_CODE_CLASS)}
         children={value}
         style={duotoneLight}
         language={language}

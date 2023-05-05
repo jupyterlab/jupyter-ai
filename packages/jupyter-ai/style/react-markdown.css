@@ -1,7 +1,14 @@
 .jp-RenderedHTMLCommon.jp-ai-react-markdown > pre {
-    margin: 0px;
+  margin: 0;
 }
 
 .jp-RenderedHTMLCommon.jp-ai-react-markdown {
-    padding: 0px;
+  padding: 0;
+}
+
+/* !important specifier required to override inline styles from Prism */
+.jp-ai-code {
+  font-family: var(--jp-code-font-family) !important;
+  font-size: var(--jp-code-font-size) !important;
+  line-height: var(--jp-code-line-height) !important;
 }
