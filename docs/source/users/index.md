@@ -122,7 +122,7 @@ or
 
 ## The chat interface
 
-The easiest way to get started with Jupyter AI is to use the chat interface. The chat interface uses OpenAI's gpt-3.5-turbo model, the same model used by default in the ChatGPT web interface. To get started, you will need to set up an OpenAI account, obtain an API key, set the `OPENAI_API_KEY` environment variable to contain your key, and then start JupyterLab. 
+The easiest way to get started with Jupyter AI is to use the chat interface. 
 
 :::{attention}
 :name: open-ai-privacy-cost
@@ -130,6 +130,20 @@ The chat interface sends data to generative AI models hosted by third parties. P
 :::
 
 Once you have started JupyterLab, click the new "chat" icon in the left side panel to open the chat interface. You can right-click on the panel icon and move it to the other side, if you prefer.
+
+<img src="../_static/chat-getting-started.png"
+    alt="Screen shot of the setup interface"
+    class="screenshot" />
+
+The first time you open the chat interface, you are asked which models you want to use as a language model and as an embedding model. Once you have made your selection, the UI may display one or more environment variables.
+
+<img src="../_static/chat-select-model.png"
+    alt="Screen shot of the setup interface, showing model selections and environment variable"
+    class="screenshot" />
+
+Before you can use the chat interface, you need to set the environment variables shown to your API keys for the model providers that you have selected. If you have not already done this, shut down JupyterLab, set the environment variables in the terminal where you launched JupyterLab, then relaunch JupyterLab.
+
+Once you have set all necessary environment variables, the chat interface lets you ask a question using the message box at the bottom.
 
 <img src="../_static/chat-icon-left-tab-bar.png"
     alt="Screen shot of the initial, blank, chat interface."
