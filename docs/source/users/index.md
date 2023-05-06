@@ -47,6 +47,8 @@ Jupyter AI supports the following model providers:
 | OpenAI (chat)       | `openai-chat`        | `OPENAI_API_KEY`           | `openai`                        |
 | SageMaker Endpoints | `sagemaker-endpoint` | N/A                        | `boto3`                         |
 
+The environment variable names shown above are also the names of the settings keys used when setting up the chat interface.
+
 You need the `pillow` Python package to use HuggingFace Hub's text-to-image models.
 
 To use SageMaker's models, you will need to authenticate via
@@ -122,7 +124,7 @@ or
 
 ## The chat interface
 
-The easiest way to get started with Jupyter AI is to use the chat interface. The chat interface uses OpenAI's gpt-3.5-turbo model, the same model used by default in the ChatGPT web interface. To get started, you will need to set up an OpenAI account, obtain an API key, set the `OPENAI_API_KEY` environment variable to contain your key, and then start JupyterLab. 
+The easiest way to get started with Jupyter AI is to use the chat interface. 
 
 :::{attention}
 :name: open-ai-privacy-cost
@@ -131,14 +133,45 @@ The chat interface sends data to generative AI models hosted by third parties. P
 
 Once you have started JupyterLab, click the new "chat" icon in the left side panel to open the chat interface. You can right-click on the panel icon and move it to the other side, if you prefer.
 
+<img src="../_static/chat-getting-started.png"
+    alt="Screen shot of the setup interface"
+    class="screenshot" />
+
+The first time you open the chat interface, Jupyter AI will ask you which models you want to use as a language model and as an embedding model. Once you have made your selections, the UI may display text boxes for one or more settings keys.
+
+:::{admonition} Language models and embedding models
+:class: tip
+:name: language-models-and-embedding-models
+Users may select a language model and, optionally, an embedding model. You should select one of each so that you can use the full functionality of the chat interface.
+
+A **language model** responds to users' messages in the chat panel. It accepts a prompt and produces a response. Language models are typically *pre-trained*; they are ready to use, but their training sets are biased and incomplete, and users need to be aware of their biases when they use the chat interface.
+
+An **embedding model** is used when [learning and asking about local data](#learning-about-local-data). These models can transform your data, including documents and source code files, into vectors that can help Jupyter AI compose prompts to language models.
+
+Your language model and your embedding model do not need to be provided by the same vendor, but you will need authentication credentials for each model provider that you use.
+:::
+
+
+<img src="../_static/chat-select-model.png"
+    alt="Screen shot of the setup interface, showing model selections and key"
+    class="screenshot" />
+
+Before you can use the chat interface, you need to provide your API keys for the model providers that you have selected. Paste or type your keys into the boxes provided.
+
+<img src="../_static/chat-select-model-complete.png"
+    alt="Screen shot of the setup interface, showing model selections and key populated"
+    class="screenshot" />
+
+Once you have set all the necessary keys, click the "back" (left arrow) button in the upper-left corner of the Jupyter AI side panel. The chat interface now appears, and you can ask a question using the message box at the bottom.
+
 <img src="../_static/chat-icon-left-tab-bar.png"
     alt="Screen shot of the initial, blank, chat interface."
     class="screenshot" />
 
-To compose a message, type it in the text box at the bottom of the chat interface and press <kbd>SHIFT</kbd>+<kbd>ENTER</kbd> to send. You can press <kbd>ENTER</kbd> to add a new line. Once you have sent a message, you should see a response from Jupyter AI.
+To compose a message, type it in the text box at the bottom of the chat interface and press <kbd>SHIFT</kbd>+<kbd>ENTER</kbd> to send. You can press <kbd>ENTER</kbd> to add a new line. Once you have sent a message, you should see a response from Jupyternaut, the Jupyter AI chatbot.
 
 <img src="../_static/chat-hello-world.png"
-    alt='Screen shot of an example "Hello world" message sent to Jupyter AI, who responds with "Hello! Is there anything you would like to discuss or ask me?"'
+    alt='Screen shot of an example "Hello world" message sent to Jupyternaut, who responds with "Hello world, how are you today?"'
     class="screenshot" />
 
 ### Asking about something in your notebook
@@ -146,7 +179,7 @@ To compose a message, type it in the text box at the bottom of the chat interfac
 Jupyter AI's chat interface can include a portion of your notebook in your prompt.
 
 :::{warning}
-:name: open-ai-selection-cost
+:name: include-selection-cost
 When you choose to include the selection with your message, this may increase the
 number of tokens in your request, which may cause your request to cost more money.
 Review your model provider's cost policy before making large requests.
@@ -158,13 +191,13 @@ After highlighting a portion of your notebook, check "Include selection" in the 
     alt='Screen shot of JupyterLab with Jupyter AI&apos;s chat panel active. A Python function is selected, the user has "What does this code do?" as their prompt, and the user has chosen to include the selection with their message.'
     class="screenshot" />
 
-Below your message, you will see Jupyter AI's response.
+Below your message, you will see Jupyternaut's response.
 
 <img src="../_static/chat-explain-code-output.png"
     alt="Screen shot of Jupyter AI's chat panel, showing an answer to the question asked above."
     class="screenshot" />
 
-You can copy Jupyter AI's response to the clipboard so that you can paste it into your notebook, or into any other application. You can also choose to replace the selection with Jupyter AI's response by clicking "Replace selection" before you send your message.
+You can copy Jupyternaut's response to the clipboard so that you can paste it into your notebook, or into any other application. You can also choose to replace the selection with Jupyternaut's response by clicking "Replace selection" before you send your message.
 
 :::{warning}
 :name: replace-selection
@@ -177,11 +210,7 @@ you run it.
     alt='Screen shot of Jupyter AI with a Python function selected, the user having typed "Rewrite this function to be iterative, not recursive" as their prompt, and with the user having chosen to include the selection with their message and to replace the selection with the response.'
     class="screenshot" />
 
-After Jupyter AI sends a response, your notebook will be updated immediately with the response replacing the selection. You can also see the response in the chat panel.
-
-<img src="../_static/chat-replace-selection-output.png"
-    alt='Screen shot of Jupyter AI displaying a response in the chat panel and in the notebook.'
-    class="screenshot" />
+After Jupyternaut sends a response, your notebook will be updated immediately with the response replacing the selection. You can also see the response in the chat panel.
 
 ### Generating a new notebook
 
@@ -194,7 +223,7 @@ You can use Jupyter AI to generate an entire notebook from a text prompt. To get
 Generating a notebook can take a substantial amount of time, so Jupyter AI will respond to your message immediately while it works. You can continue to ask it other questions in the meantime.
 
 <img src="../_static/chat-generate-command-response.png"
-    alt="Screen shot of Jupyter AI responding to a generate message with a message that it is working on a notebook."
+    alt="Screen shot of Jupyternaut responding to a generate message with a message that it is working on a notebook."
     class="screenshot" />
 
 :::{note}
@@ -205,13 +234,7 @@ as you would normally. Do not shut your JupyterLab instance down while
 Jupyter AI is working.
 :::
 
-When Jupyter AI is done generating your notebook, it will send you another message with the filename that it generated.
-
-<img src="../_static/chat-generate-file.png"
-    alt="Screen shot of Jupyter AI response indicating the file name that it wrote."
-    class="screenshot" />
-
-You can then open this file using the file browser.
+When Jupyter AI is done generating your notebook, it will send you another message with the filename that it generated. You can then open this file using the file browser.
 
 :::{warning}
 :name: generated-notebook
@@ -220,13 +243,16 @@ you run the code contained in them. Please review all generated code carefully
 before you run it.
 :::
 
-<img src="../_static/chat-generate-notebook-opened.png"
-    alt="Screen shot of generated notebook built using Jupyter AI"
-    class="screenshot" />
-
 ### Learning about local data
 
-Using the `/learn` command, you can teach Jupyter AI about local data so that it can include it when answering your questions. This data is **not** sent to remote AI model providers.
+Using the `/learn` command, you can teach Jupyter AI about local data so that Jupyternaut can include it when answering your questions. This local data is embedded using the embedding model you selected in the settings panel.
+
+:::{warning}
+:name: learning-embedding-model
+If you are using an embedding model hosted by a third party, please review your
+model provider's policies before sending any confidential, sensitive, or
+privileged data to your embedding model.
+:::
 
 To teach Jupyter AI about a folder full of documentation, for example, run `/learn docs/`. You will receive a response when Jupyter AI has indexed this documentation in a local vector database.
 
