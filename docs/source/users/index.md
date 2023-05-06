@@ -142,9 +142,9 @@ The first time you open the chat interface, Jupyter AI will ask you which models
 :::{admonition} Language models and embedding models
 :class: tip
 :name: language-models-and-embedding-models
-Users may select a language model and, optionally, an embedding model. Both of these are optional, but both are required for the full functionality of the chat interface.
+Users may select a language model and, optionally, an embedding model. You should select one of each so that you can use the full functionality of the chat interface.
 
-A **language model** is what the user is chatting with in the chat panel. It accepts a prompt and produces the most probable response. Language models are typically *pre-trained*; they are ready to use, but their training sets are biased and incomplete, and users need to be aware of their biases when they use the chat interface.
+A **language model** responds to users' messages in the chat panel. It accepts a prompt and produces a response. Language models are typically *pre-trained*; they are ready to use, but their training sets are biased and incomplete, and users need to be aware of their biases when they use the chat interface.
 
 An **embedding model** is used when [learning and asking about local data](#learning-about-local-data). These models can transform your data, including documents and source code files, into vectors that can help Jupyter AI compose prompts to language models.
 
