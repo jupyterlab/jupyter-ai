@@ -47,6 +47,8 @@ Jupyter AI supports the following model providers:
 | OpenAI (chat)       | `openai-chat`        | `OPENAI_API_KEY`           | `openai`                        |
 | SageMaker Endpoints | `sagemaker-endpoint` | N/A                        | `boto3`                         |
 
+The environment variable names shown above are also the names of the settings keys used when setting up the chat interface.
+
 You need the `pillow` Python package to use HuggingFace Hub's text-to-image models.
 
 To use SageMaker's models, you will need to authenticate via
@@ -135,15 +137,32 @@ Once you have started JupyterLab, click the new "chat" icon in the left side pan
     alt="Screen shot of the setup interface"
     class="screenshot" />
 
-The first time you open the chat interface, you are asked which models you want to use as a language model and as an embedding model. Once you have made your selection, the UI may display one or more environment variables.
+The first time you open the chat interface, Jupyter AI will ask you which models you want to use as a language model and as an embedding model. Once you have made your selections, the UI may display text boxes for one or more settings keys.
+
+:::{admonition} Language models and embedding models
+:class: tip
+:name: language-models-and-embedding-models
+Users may select a language model and, optionally, an embedding model. Both of these are optional, but both are required for the full functionality of the chat interface.
+
+A **language model** is what the user is chatting with in the chat panel. It accepts a prompt and produces the most probable response. Language models are typically *pre-trained*; they are ready to use, but their training sets are biased and incomplete, and users need to be aware of their biases when they use the chat interface.
+
+An **embedding model** is used when [learning and asking about local data](#learning-about-local-data). These models can transform your data, including documents and source code files, into vectors that can help Jupyter AI compose prompts to language models.
+
+Your language model and your embedding model do not need to be provided by the same vendor, but you will need authentication credentials for each model provider that you use.
+:::
+
 
 <img src="../_static/chat-select-model.png"
-    alt="Screen shot of the setup interface, showing model selections and environment variable"
+    alt="Screen shot of the setup interface, showing model selections and key"
     class="screenshot" />
 
-Before you can use the chat interface, you need to set the environment variables shown to your API keys for the model providers that you have selected. If you have not already done this, shut down JupyterLab, set the environment variables in the terminal where you launched JupyterLab, then relaunch JupyterLab.
+Before you can use the chat interface, you need to provide your API keys for the model providers that you have selected. Paste or type your keys into the boxes provided.
 
-Once you have set all necessary environment variables, the chat interface lets you ask a question using the message box at the bottom.
+<img src="../_static/chat-select-model-complete.png"
+    alt="Screen shot of the setup interface, showing model selections and key populated"
+    class="screenshot" />
+
+Once you have set all the necessary keys, click the "back" (left arrow) button in the upper-left corner of the Jupyter AI side panel. The chat interface now appears, and you can ask a question using the message box at the bottom.
 
 <img src="../_static/chat-icon-left-tab-bar.png"
     alt="Screen shot of the initial, blank, chat interface."
