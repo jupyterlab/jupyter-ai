@@ -231,8 +231,8 @@ class AiMagics(Magics):
         
         # Existing registered names are not allowed
         if (register_name in self.custom_model_registry):
-            # TODO: Recommend 'update' command
-            raise ValueError('This name is already associated with a custom model')
+            raise ValueError('This name is already associated with a custom model; '
+                + 'use %ai update to change its target')
         
         # Does the new name match expected format?
         self._validate_name(register_name)
