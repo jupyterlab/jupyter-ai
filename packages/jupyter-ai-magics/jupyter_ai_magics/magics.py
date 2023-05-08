@@ -214,7 +214,7 @@ class AiMagics(Magics):
 
         self.custom_model_registry[register_name] = target
 
-    def _delete_name(self, register_name):
+    def _ai_delete_command(self, register_name):
         if (register_name in AI_COMMANDS):
             raise ValueError('Reserved command names cannot be deleted')
         
@@ -222,8 +222,9 @@ class AiMagics(Magics):
             raise ValueError(f"There is no alias called {register_name}")
         
         del self.custom_model_registry[register_name]
-    
-    def _register_name(self, register_name, target):
+        return f"Deleted name `{register_name}`"
+
+    def _ai_register_command(self, register_name, target):
         # Existing command names are not allowed
         if (register_name in AI_COMMANDS):
             raise ValueError('This name is reserved for a command')
@@ -237,8 +238,9 @@ class AiMagics(Magics):
         self._validate_name(register_name)
 
         self._safely_set_target(register_name, target)
+        return f"Registered new name `{register_name}`"
 
-    def _update_name(self, register_name, target):
+    def _ai_update_command(self, register_name, target):
         if (register_name in AI_COMMANDS):
             raise ValueError('Reserved command names cannot be updated')
         
@@ -246,17 +248,6 @@ class AiMagics(Magics):
             raise ValueError(f"There is no alias called {register_name}")
         
         self._safely_set_target(register_name, target)
-
-    def _ai_delete_command(self, register_name):
-        self._delete_name(register_name)
-        return f"Deleted name `{register_name}`"
-
-    def _ai_register_command(self, register_name, target):
-        self._register_name(register_name, target)
-        return f"Registered new name `{register_name}`"
-
-    def _ai_update_command(self, register_name, target):
-        self._update_name(register_name, target)
         return f"Updated target of name `{register_name}`"
 
     def _ai_list_command_markdown(self, single_provider=None):
