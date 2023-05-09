@@ -1,5 +1,6 @@
 import base64
 import json
+import keyword
 import os
 import re
 import warnings
@@ -14,6 +15,7 @@ from jupyter_ai_magics.utils import decompose_model_id, load_providers
 from .providers import BaseProvider
 from .parsers import cell_magic_parser, line_magic_parser, CellArgs, ErrorArgs, HelpArgs, ListArgs
 
+from langchain.chains import LLMChain
 
 MODEL_ID_ALIASES = {
     "gpt2": "huggingface_hub:gpt2",
@@ -195,6 +197,19 @@ class AiMagics(Magics):
         
         return output + "\n"
 
+    # Is this a name of a Python variable that can be called as a LangChain chain?
+    def _is_langchain_chain(self, name):
+        # Reserved word in Python?
+        if (keyword.iskeyword(name)):
+            return False;
+    
+        acceptable_name = re.compile('^[a-zA-Z0-9_]+$')
+        if (not acceptable_name.match(name)):
+            return False;
+        
+        ipython = get_ipython()
+        return(name in ipython.user_ns and isinstance(ipython.user_ns[name], LLMChain))
+
     # Is this an acceptable name for an alias?
     def _validate_name(self, register_name):
         # A registry name contains ASCII letters, numbers, hyphens, underscores,
@@ -234,6 +249,10 @@ class AiMagics(Magics):
             raise ValueError('This name is already associated with a custom model; '
                 + 'use %ai update to change its target')
         
+        # Is this the name of a variable?
+        if self._is_langchain_chain(target):
+            return f"`{target}` is a LangChain chain"
+
         # Does the new name match expected format?
         self._validate_name(register_name)
 
