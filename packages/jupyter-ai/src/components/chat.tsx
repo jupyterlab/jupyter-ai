@@ -83,7 +83,7 @@ function ChatBody({ chatHandler, setChatView: chatViewHandler }: ChatBodyProps):
     const prompt =
       input +
       (includeSelection && selection?.text
-        ? '\n\n```\n' + selection.text + '```'
+        ? '\n\n```\n' + selection.text + '\n```'
         : '');
 
     // send message to backend
