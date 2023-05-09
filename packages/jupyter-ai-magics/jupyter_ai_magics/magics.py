@@ -228,7 +228,8 @@ class AiMagics(Magics):
         else:
             # Ensure that the destination is properly formatted
             if (':' not in target):
-                raise ValueError('Target model was not specified in PROVIDER_ID:MODEL_NAME format')
+                raise ValueError(
+                    'Target model must be an LLMChain object or a model name in PROVIDER_ID:MODEL_NAME format')
 
             self.custom_model_registry[register_name] = target
 
@@ -293,7 +294,7 @@ class AiMagics(Magics):
                 if isinstance(value, str):
                     output += f"`{value}`"
                 else:
-                    output += "*(custom chain)*"
+                    output += "*custom chain*"
                 
                 output += " |\n"
 
@@ -311,6 +312,18 @@ class AiMagics(Magics):
             output += (f"{provider_id}\n"
                 + self._ai_env_status_for_provider_text(provider_id) # includes \n if nonblank
                 + self._ai_bulleted_list_models_for_provider(provider_id, Provider))
+
+        # Also list aliases.
+        if (single_provider is None and len(self.custom_model_registry) > 0):
+            output += "\nAliases and custom commands:\n"
+            for key, value in self.custom_model_registry.items():
+                output += f"{key} - "
+                if isinstance(value, str):
+                    output += value
+                else:
+                    output += "custom chain"
+                
+                output += "\n"
 
         return output
 
