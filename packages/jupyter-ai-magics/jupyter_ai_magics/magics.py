@@ -221,13 +221,16 @@ class AiMagics(Magics):
 
     # Initially set or update an alias to a target
     def _safely_set_target(self, register_name, target):
-        # If target is a string, treat this as an alias.
-        if (isinstance(target, str)):
+        # If target is a string, treat this as an alias to another model.
+        if self._is_langchain_chain(target):
+            ip = get_ipython()
+            self.custom_model_registry[register_name] = ip.user_ns[target]
+        else:
             # Ensure that the destination is properly formatted
             if (':' not in target):
                 raise ValueError('Target model was not specified in PROVIDER_ID:MODEL_NAME format')
 
-        self.custom_model_registry[register_name] = target
+            self.custom_model_registry[register_name] = target
 
     def _ai_delete_command(self, register_name):
         if (register_name in AI_COMMANDS):
@@ -249,10 +252,6 @@ class AiMagics(Magics):
             raise ValueError('This name is already associated with a custom model; '
                 + 'use %ai update to change its target')
         
-        # Is this the name of a variable?
-        if self._is_langchain_chain(target):
-            return f"`{target}` is a LangChain chain"
-
         # Does the new name match expected format?
         self._validate_name(register_name)
 
@@ -290,8 +289,13 @@ class AiMagics(Magics):
                 + "| Name | Target |\n"
                 + "|------|--------|\n")
             for key, value in self.custom_model_registry.items():
-                # TODO: Handle cases where value is not a string
-                output += f"| `{key}` | `{value}` |\n"
+                output += f"| `{key}` | "
+                if isinstance(value, str):
+                    output += f"`{value}`"
+                else:
+                    output += "*(custom chain)*"
+                
+                output += " |\n"
 
         return output
 
@@ -354,8 +358,8 @@ class AiMagics(Magics):
 
     def _decompose_model_id(self, model_id: str):
         """Breaks down a model ID into a two-tuple (provider_id, local_model_id). Returns (None, None) if indeterminate."""
-        if model_id in MODEL_ID_ALIASES:
-            model_id = MODEL_ID_ALIASES[model_id]
+        if model_id in self.custom_model_registry:
+            model_id = self.custom_model_registry[model_id]
 
         return decompose_model_id(model_id, self.providers)
 
@@ -365,6 +369,34 @@ class AiMagics(Magics):
             return None
 
         return self.providers[provider_id]
+    
+    def display_output(self, output, display_format, md):
+        # build output display
+        DisplayClass = DISPLAYS_BY_FORMAT[display_format]
+
+        # if the user wants code, add another cell with the output.
+        if display_format == 'code':
+            # Strip a leading language indicator and trailing triple-backticks
+            lang_indicator = r'^```[a-zA-Z0-9]*\n'
+            output = re.sub(lang_indicator, '', output)
+            output = re.sub(r'\n```$', '', output)
+            new_cell_payload = dict(
+                source='set_next_input',
+                text=output,
+                replace=False,
+            )
+            ip.payload_manager.write_payload(new_cell_payload)
+            return HTML('AI generated code inserted below &#11015;&#65039;', metadata=md);
+
+        if DisplayClass is None:
+            return output
+        if display_format == 'json':
+            # JSON display expects a dict, not a JSON string
+            output = json.loads(output)
+        output_display = DisplayClass(output, metadata=md)
+
+        # finally, display output display
+        return output_display
 
     def handle_help(self, _: HelpArgs):
         with click.Context(cell_magic_parser, info_name="%%ai") as ctx:
@@ -383,7 +415,24 @@ class AiMagics(Magics):
         # Apply a prompt template.
         prompt = PROMPT_TEMPLATES_BY_FORMAT[args.format].format(prompt = prompt)
 
-        # determine provider and local model IDs
+        # interpolate user namespace into prompt
+        ip = get_ipython()
+        prompt = prompt.format_map(FormatDict(ip.user_ns))
+
+        # Determine provider and local model IDs
+        # If this is a custom chain, send the message to the custom chain.
+        if (args.model_id in self.custom_model_registry and
+            isinstance(self.custom_model_registry[args.model_id], LLMChain)):
+            
+            return self.display_output(
+                self.custom_model_registry[args.model_id].run(prompt),
+                args.format,
+                {
+                    "jupyter_ai": {
+                        "custom_chain_id": args.model_id
+                    }
+                })
+
         provider_id, local_model_id = self._decompose_model_id(args.model_id)
         Provider = self._get_provider(provider_id)
         if Provider is None:
@@ -423,9 +472,6 @@ class AiMagics(Magics):
         # if openai-chat, append exchange to transcript
         if provider_id == "openai-chat":
             self._append_exchange_openai(prompt, output)
-
-        # build output display
-        DisplayClass = DISPLAYS_BY_FORMAT[args.format]
 
         md = {
             "jupyter_ai": {
