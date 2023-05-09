@@ -548,7 +548,7 @@ As a shortcut for explaining errors, you can use the `%ai error` command, which 
 %ai error anthropic:claude-v1.2
 ```
 
-### Creating and managing aliases for models
+### Creating and managing aliases
 
 You can create an alias for a model using the `%ai register` command. For example, the command:
 
@@ -563,7 +563,28 @@ will register the alias `claude` as pointing to the `anthropic` provider's `clau
 Write a poem about C++.
 ```
 
-You can change this alias's target model using the `%ai update` command:
+You can also define a custom LangChain chain:
+
+```
+from langchain.chains import LLMChain
+from langchain.prompts import PromptTemplate
+from langchain.llms import OpenAI
+
+llm = OpenAI(temperature=0.9)
+prompt = PromptTemplate(
+    input_variables=["product"],
+    template="What is a good name for a company that makes {product}?",
+)
+chain = LLMChain(llm=llm, prompt=prompt)
+```
+
+… and then use `%ai register` to give it a name:
+
+```
+%ai register companyname chain
+```
+
+You can change this alias's target using the `%ai update` command:
 
 ```
 %ai update claude anthropic:claude-instant-v1.0
@@ -579,4 +600,4 @@ You can see a list of all aliases by running the `%ai list` command.
 
 Aliases' names can contain ASCII letters (uppercase and lowercase), numbers, hyphens, underscores, and periods. They may not contain colons. They may also not override built-in commands — run `%ai help` for a list of these commands.
 
-Aliases must refer to models; they cannot refer to other aliases.
+Aliases must refer to models or `LLMChain` objects; they cannot refer to other aliases.
