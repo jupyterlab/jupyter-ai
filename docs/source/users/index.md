@@ -171,7 +171,7 @@ Once you have set all the necessary keys, click the "back" (left arrow) button i
     alt="Screen shot of the initial, blank, chat interface."
     class="screenshot" />
 
-To compose a message, type it in the text box at the bottom of the chat interface and press <kbd>SHIFT</kbd>+<kbd>ENTER</kbd> to send. You can press <kbd>ENTER</kbd> to add a new line. Once you have sent a message, you should see a response from Jupyternaut, the Jupyter AI chatbot.
+To compose a message, type it in the text box at the bottom of the chat interface and press <kbd>SHIFT</kbd>+<kbd>ENTER</kbd> to send. You can press <kbd>ENTER</kbd> to add a new line. (These are the default keybindings; you can change them in the chat settings pane.) Once you have sent a message, you should see a response from Jupyternaut, the Jupyter AI chatbot.
 
 <img src="../_static/chat-hello-world.png"
     alt='Screen shot of an example "Hello world" message sent to Jupyternaut, who responds with "Hello world, how are you today?"'

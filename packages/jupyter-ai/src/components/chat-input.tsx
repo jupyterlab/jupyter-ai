@@ -23,13 +23,17 @@ type ChatInputProps = {
   replaceSelection: boolean;
   toggleReplaceSelection: () => unknown;
   helperText: JSX.Element
+  sendWithShiftEnter: boolean;
   sx?: SxProps<Theme>;
 };
 
 export function ChatInput(props: ChatInputProps): JSX.Element {
   
   function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
-    if (event.key === 'Enter' && event.shiftKey) {
+    if (event.key === 'Enter' && (
+      (props.sendWithShiftEnter && event.shiftKey)
+      || (!props.sendWithShiftEnter && !event.shiftKey)
+    )) {
       props.onSend();
       event.stopPropagation();
       event.preventDefault();

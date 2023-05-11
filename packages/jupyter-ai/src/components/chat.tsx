@@ -31,9 +31,22 @@ function ChatBody({ chatHandler, setChatView: chatViewHandler }: ChatBodyProps):
   const [replaceSelection, setReplaceSelection] = useState(false);
   const [input, setInput] = useState('');
   const [selection, replaceSelectionFn] = useSelectionContext();
+  const [sendWithShiftEnter, setSendWithShiftEnter] = useState(true);
+
+  // Load the config once, to determine Shift+Enter behavior
+  useEffect(() => {
+    async function getConfig() {
+      const config = await AiService.getConfig();
+
+      console.log('in getConfig(), config.send_with_shift_enter is: ', config.send_with_shift_enter);
+      setSendWithShiftEnter(config.send_with_shift_enter ?? true);
+    }
+
+    getConfig();
+  }, []);
 
   /**
-   * Effect: fetch history on initial render
+   * Effect: fetch history and config on initial render
    */
   useEffect(() => {
     async function fetchHistory() {
@@ -138,6 +151,7 @@ function ChatBody({ chatHandler, setChatView: chatViewHandler }: ChatBodyProps):
     );
   }
 
+  console.log('About to render component; sendWithShiftEnter: ', sendWithShiftEnter);
   return (
     <>
       <ScrollContainer sx={{ flexGrow: 1 }}>
@@ -163,10 +177,11 @@ function ChatBody({ chatHandler, setChatView: chatViewHandler }: ChatBodyProps):
           paddingBottom: 0,
           borderTop: '1px solid var(--jp-border-color1)'
         }}
+        sendWithShiftEnter={sendWithShiftEnter}
         helperText={
-          <span>
-            Press <b>Shift</b> + <b>Enter</b> to submit message
-          </span>
+          sendWithShiftEnter
+          ? <span>Press <kbd>Shift</kbd>+<kbd>Enter</kbd> to submit message</span>
+          : <span>Press <kbd>Shift</kbd>+<kbd>Enter</kbd> to add a new line</span>
         }
       />
     </>
