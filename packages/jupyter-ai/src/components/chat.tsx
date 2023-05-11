@@ -37,8 +37,6 @@ function ChatBody({ chatHandler, setChatView: chatViewHandler }: ChatBodyProps):
   useEffect(() => {
     async function getConfig() {
       const config = await AiService.getConfig();
-
-      console.log('in getConfig(), config.send_with_shift_enter is: ', config.send_with_shift_enter);
       setSendWithShiftEnter(config.send_with_shift_enter ?? true);
     }
 
@@ -151,7 +149,6 @@ function ChatBody({ chatHandler, setChatView: chatViewHandler }: ChatBodyProps):
     );
   }
 
-  console.log('About to render component; sendWithShiftEnter: ', sendWithShiftEnter);
   return (
     <>
       <ScrollContainer sx={{ flexGrow: 1 }}>
@@ -178,11 +175,6 @@ function ChatBody({ chatHandler, setChatView: chatViewHandler }: ChatBodyProps):
           borderTop: '1px solid var(--jp-border-color1)'
         }}
         sendWithShiftEnter={sendWithShiftEnter}
-        helperText={
-          sendWithShiftEnter
-          ? <span>Press <kbd>Shift</kbd>+<kbd>Enter</kbd> to submit message</span>
-          : <span>Press <kbd>Shift</kbd>+<kbd>Enter</kbd> to add a new line</span>
-        }
       />
     </>
   );

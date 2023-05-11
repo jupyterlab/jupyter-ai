@@ -22,7 +22,6 @@ type ChatInputProps = {
   toggleIncludeSelection: () => unknown;
   replaceSelection: boolean;
   toggleReplaceSelection: () => unknown;
-  helperText: JSX.Element
   sendWithShiftEnter: boolean;
   sx?: SxProps<Theme>;
 };
@@ -39,6 +38,12 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
       event.preventDefault();
     }
   }
+
+  // Set the helper text based on whether Shift+Enter is used for sending.
+  const helperText = props.sendWithShiftEnter
+    ? <span>Press <b>Shift</b>+<b>Enter</b> to send message</span>
+    : <span>Press <b>Shift</b>+<b>Enter</b> to add a new line</span>;
+
   return (
     <Box sx={props.sx}>
       <Box sx={{ display: 'flex'}}>
@@ -68,7 +73,7 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
          FormHelperTextProps={{
           sx: {marginLeft: 'auto', marginRight: 0}
          }}
-         helperText={props.value.length > 2 ? props.helperText : ' '}
+         helperText={props.value.length > 2 ? helperText : ' '}
         />
       </Box>
       {props.hasSelection && (
