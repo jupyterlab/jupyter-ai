@@ -41,7 +41,7 @@ class ConfigActor():
         ray.get(actor.update.remote(config))
 
     def _save(self, config: GlobalConfig):
-        if not os.path.exists:
+        if not os.path.exists(self.save_dir):
             os.makedirs(self.save_dir)
         
         with open(self.save_path, 'w') as f:
