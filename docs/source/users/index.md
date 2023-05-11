@@ -26,6 +26,12 @@ To use the `jupyter_ai` package, you will also need to have a currently-maintain
 conda install jupyterlab
 ```
 
+You should have Jupyter Server 2.x (not 1.x) installed. A fresh install of JupyterLab 3.6.x should come with Server 2.x. You can find your current Server version by running `jupyter --version` and checking for a line beginning with `jupyter_server`. To upgrade your version of Jupyter Server, run:
+
+```
+pip install jupyter_server --upgrade
+```
+
 You can use the `jupyter_ai_magics` package without JupyterLab, but you will need a compatible interface, such as [IPython](https://ipython.org/).
 
 ## Model providers
