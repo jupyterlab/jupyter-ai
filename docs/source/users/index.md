@@ -542,3 +542,9 @@ produced the following Python error:
 Write a new version of this code that does not produce that error.
 ```
 
+As a shortcut for explaining errors, you can use the `%ai error` command, which will explain the most recent error using the model of your choice.
+
+```
+%ai error anthropic:claude-v1.2
+```
+
