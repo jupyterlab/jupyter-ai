@@ -146,7 +146,8 @@ class AiMagics(Magics):
         for model_id in Provider.models:
             output += f", `{provider_id}:{model_id}`";
         
-        return output.removeprefix(', ')
+        initial_comma = r'^, '
+        return re.sub(initial_comma, '', output)
     
     # Is the required environment variable set?
     def _ai_env_status_for_provider_markdown(self, provider_id):
