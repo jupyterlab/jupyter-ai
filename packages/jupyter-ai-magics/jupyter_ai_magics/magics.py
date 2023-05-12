@@ -72,6 +72,15 @@ MARKDOWN_PROMPT_TEMPLATE = '{prompt}\n\nProduce output in markdown format only.'
 
 PROVIDER_NO_MODELS = 'This provider does not define a list of models.'
 
+CANNOT_DETERMINE_MODEL_TEXT = """Cannot determine model provider from model ID '{0}'.
+
+To see a list of models you can use, run '%ai list'"""
+
+CANNOT_DETERMINE_MODEL_MARKDOWN = """Cannot determine model provider from model ID `{0}`.
+
+To see a list of models you can use, run `%ai list`"""
+
+
 PROMPT_TEMPLATES_BY_FORMAT = {
     "code": '{prompt}\n\nProduce output as source code only, with no text or explanation before or after it.',
     "html": '{prompt}\n\nProduce output in HTML format only, with no markup before or afterward.',
@@ -85,7 +94,8 @@ PROMPT_TEMPLATES_BY_FORMAT = {
 
 AI_COMMANDS = {
     "help": "Display a list of supported commands",
-    "list": "Display a list of models that you can use (optionally, for a single provider)"
+    "list": "Display a list of models that you can use (optionally, for a single provider)",
+    "error": "Explain the last error received. Takes a model, as %%ai does."
 }
 
 class FormatDict(dict):
@@ -212,6 +222,39 @@ class AiMagics(Magics):
 
         return output
 
+    def _ai_error_command(self, model_id):
+        no_errors = "There have been no errors since the kernel started."
+        provider_id, local_model_id = self._decompose_model_id(model_id)
+        Provider = self._get_provider(provider_id)
+        if Provider is None:
+            return TextOrMarkdown(
+                CANNOT_DETERMINE_MODEL_TEXT.format(model_id),
+                CANNOT_DETERMINE_MODEL_MARKDOWN.format(model_id)
+            )
+
+        # Find the most recent error.
+        ip = get_ipython()
+        if ('Err' not in ip.user_ns):
+            return TextOrMarkdown(no_errors, no_errors)
+
+        err = ip.user_ns['Err']
+        # Start from the previous execution count
+        excount = ip.execution_count - 1
+        last_error = None
+        while (excount >= 0 and last_error is None):
+            if(excount in err):
+                last_error = err[excount]
+            else:
+                excount = excount - 1;
+
+        if (last_error is None):
+            return TextOrMarkdown(no_errors, no_errors)
+
+        return self.ai(line=(f"""{model_id}
+Explain the Python error:
+
+{last_error}"""))
+
     def _append_exchange_openai(self, prompt: str, output: str):
         """Appends a conversational exchange between user and an OpenAI Chat
         model to a transcript that will be included in future exchanges."""
@@ -290,11 +333,9 @@ class AiMagics(Magics):
         Provider = self._get_provider(provider_id)
         if Provider is None:
             return TextOrMarkdown(
-                f"Cannot determine model provider from model ID '{args.model_id}'.\n\n"
-                + "To see a list of models you can use, run '%ai list'.\n\n"
+                CANNOT_DETERMINE_MODEL_TEXT.format(args.model_id) + "\n\n"
                 + "If you were trying to run a command, run '%ai help' to see a list of commands.",
-                f"Cannot determine model provider from model ID `{args.model_id}`.\n\n"
-                + "To see a list of models you can use, run `%ai list`.\n\n"
+                CANNOT_DETERMINE_MODEL_MARKDOWN.format(args.model_id) + "\n\n"
                 + "If you were trying to run a command, run `%ai help` to see a list of commands."
             )
 
