@@ -48,7 +48,7 @@ class Base64Image:
     def __init__(self, mimeData, metadata):
         mimeDataParts = mimeData.split(',')
         self.data = base64.b64decode(mimeDataParts[1]);
-        self.mimeType = mimeDataParts[0].removesuffix(';base64')
+        self.mimeType = re.sub(r';base64$', '', mimeDataParts[0])
         self.metadata = metadata
 
     def _repr_mimebundle_(self, include=None, exclude=None):
@@ -146,8 +146,8 @@ class AiMagics(Magics):
         for model_id in Provider.models:
             output += f", `{provider_id}:{model_id}`";
         
-        initial_comma = r'^, '
-        return re.sub(initial_comma, '', output)
+        # Remove initial comma
+        return re.sub(r'^, ', '', output)
     
     # Is the required environment variable set?
     def _ai_env_status_for_provider_markdown(self, provider_id):
@@ -368,7 +368,7 @@ class AiMagics(Magics):
             # Strip a leading language indicator and trailing triple-backticks
             lang_indicator = r'^```[a-zA-Z0-9]*\n'
             output = re.sub(lang_indicator, '', output)
-            output = output.removesuffix('\n```')
+            output = re.sub(r'\n```$', '', output)
             new_cell_payload = dict(
                 source='set_next_input',
                 text=output,
