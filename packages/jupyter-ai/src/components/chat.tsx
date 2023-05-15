@@ -33,16 +33,6 @@ function ChatBody({ chatHandler, setChatView: chatViewHandler }: ChatBodyProps):
   const [selection, replaceSelectionFn] = useSelectionContext();
   const [sendWithShiftEnter, setSendWithShiftEnter] = useState(true);
 
-  // Load the config once, to determine Shift+Enter behavior
-  useEffect(() => {
-    async function getConfig() {
-      const config = await AiService.getConfig();
-      setSendWithShiftEnter(config.send_with_shift_enter ?? true);
-    }
-
-    getConfig();
-  }, []);
-
   /**
    * Effect: fetch history and config on initial render
    */
@@ -53,6 +43,7 @@ function ChatBody({ chatHandler, setChatView: chatViewHandler }: ChatBodyProps):
           chatHandler.getHistory(),
           AiService.getConfig()
         ]);
+        setSendWithShiftEnter(config.send_with_shift_enter ?? true);
         setMessages(history.messages);
         if (!config.model_provider_id) {
           setShowWelcomeMessage(true);
