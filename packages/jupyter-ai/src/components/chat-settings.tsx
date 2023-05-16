@@ -282,16 +282,16 @@ export function ChatSettings() {
             })}
         >
           <FormControlLabel
+            value="send"
+            control={<Radio />}
+            label="Send the message"
+          />
+          <FormControlLabel
             value="newline"
             control={<Radio />}
             label={
               <>Start a new line (use <kbd>Shift</kbd>+<kbd>Enter</kbd> to send)</>
             }
-          />
-          <FormControlLabel
-            value="send"
-            control={<Radio />}
-            label="Send the message"
           />
         </RadioGroup>
       </FormControl>
