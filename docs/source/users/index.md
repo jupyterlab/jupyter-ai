@@ -171,7 +171,7 @@ Once you have set all the necessary keys, click the "back" (left arrow) button i
     alt="Screen shot of the initial, blank, chat interface."
     class="screenshot" />
 
-To compose a message, type it in the text box at the bottom of the chat interface and press <kbd>SHIFT</kbd>+<kbd>ENTER</kbd> to send. You can press <kbd>ENTER</kbd> to add a new line. (These are the default keybindings; you can change them in the chat settings pane.) Once you have sent a message, you should see a response from Jupyternaut, the Jupyter AI chatbot.
+To compose a message, type it in the text box at the bottom of the chat interface and press <kbd>ENTER</kbd> to send it. You can press <kbd>SHIFT</kbd>+<kbd>ENTER</kbd> to add a new line. (These are the default keybindings; you can change them in the chat settings pane.) Once you have sent a message, you should see a response from Jupyternaut, the Jupyter AI chatbot.
 
 <img src="../_static/chat-hello-world.png"
     alt='Screen shot of an example "Hello world" message sent to Jupyternaut, who responds with "Hello world, how are you today?"'
@@ -188,7 +188,7 @@ number of tokens in your request, which may cause your request to cost more mone
 Review your model provider's cost policy before making large requests.
 :::
 
-After highlighting a portion of your notebook, check "Include selection" in the chat panel, type your message, and press <kbd>SHIFT</kbd>+<kbd>ENTER</kbd> to send your message. Your outgoing message will include your selection.
+After highlighting a portion of your notebook, check "Include selection" in the chat panel, type your message, and then send your message. Your outgoing message will include your selection.
 
 <img src="../_static/chat-interface-selection.png"
     alt='Screen shot of JupyterLab with Jupyter AI&apos;s chat panel active. A Python function is selected, the user has "What does this code do?" as their prompt, and the user has chosen to include the selection with their message.'

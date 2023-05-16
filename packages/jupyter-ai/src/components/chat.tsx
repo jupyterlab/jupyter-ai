@@ -43,7 +43,7 @@ function ChatBody({ chatHandler, setChatView: chatViewHandler }: ChatBodyProps):
           chatHandler.getHistory(),
           AiService.getConfig()
         ]);
-        setSendWithShiftEnter(config.send_with_shift_enter ?? true);
+        setSendWithShiftEnter(config.send_with_shift_enter ?? false);
         setMessages(history.messages);
         if (!config.model_provider_id) {
           setShowWelcomeMessage(true);

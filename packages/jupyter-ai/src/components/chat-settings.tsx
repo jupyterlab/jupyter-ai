@@ -270,7 +270,7 @@ export function ChatSettings() {
         <RadioGroup
           aria-labelledby="send-radio-buttons-group-label"
           value={
-            (inputConfig.send_with_shift_enter ?? true) ? 'newline' : 'send'
+            (inputConfig.send_with_shift_enter ?? false) ? 'newline' : 'send'
           }
           name="send-radio-buttons-group"
           onChange={e =>
