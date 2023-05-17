@@ -3,7 +3,12 @@ import { Box } from '@mui/system';
 import {
   Alert,
   Button,
+  FormControl,
+  FormControlLabel,
+  FormLabel,
   MenuItem,
+  Radio,
+  RadioGroup,
   TextField,
   CircularProgress
 } from '@mui/material';
@@ -42,7 +47,8 @@ export function ChatSettings() {
   const [inputConfig, setInputConfig] = useState<AiService.Config>({
     model_provider_id: null,
     embeddings_provider_id: null,
-    api_keys: {}
+    api_keys: {},
+    send_with_shift_enter: null
   });
 
   // whether the form is currently saving
@@ -109,7 +115,8 @@ export function ChatSettings() {
   const handleSave = async () => {
     const inputConfigCopy: AiService.Config = {
       ...inputConfig,
-      api_keys: { ...inputConfig.api_keys }
+      api_keys: { ...inputConfig.api_keys },
+      send_with_shift_enter: inputConfig.send_with_shift_enter ?? true
     };
 
     // delete any empty api keys
@@ -256,6 +263,38 @@ export function ChatSettings() {
           />
         )
       )}
+      <FormControl>
+        <FormLabel id="send-radio-buttons-group-label">
+          When writing a message, press <kbd>Enter</kbd> to:
+        </FormLabel>
+        <RadioGroup
+          aria-labelledby="send-radio-buttons-group-label"
+          value={
+            (inputConfig.send_with_shift_enter ?? false) ? 'newline' : 'send'
+          }
+          name="send-radio-buttons-group"
+          onChange={e =>
+            setInputConfig(inputConfig => {
+              return ({
+                ...inputConfig,
+                send_with_shift_enter: (e.target as HTMLInputElement).value === 'newline'
+              });
+            })}
+        >
+          <FormControlLabel
+            value="send"
+            control={<Radio />}
+            label="Send the message"
+          />
+          <FormControlLabel
+            value="newline"
+            control={<Radio />}
+            label={
+              <>Start a new line (use <kbd>Shift</kbd>+<kbd>Enter</kbd> to send)</>
+            }
+          />
+        </RadioGroup>
+      </FormControl>
       <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
         <Button variant="contained" onClick={handleSave} disabled={saving}>
           {saving ? 'Saving...' : 'Save changes'}

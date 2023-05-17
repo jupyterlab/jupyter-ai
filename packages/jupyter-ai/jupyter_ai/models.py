@@ -107,3 +107,4 @@ class GlobalConfig(BaseModel):
     model_provider_id: Optional[str] = None
     embeddings_provider_id: Optional[str] = None
     api_keys: Dict[str, str] = {}
+    send_with_shift_enter: Optional[bool] = None

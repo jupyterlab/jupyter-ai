@@ -31,9 +31,10 @@ function ChatBody({ chatHandler, setChatView: chatViewHandler }: ChatBodyProps):
   const [replaceSelection, setReplaceSelection] = useState(false);
   const [input, setInput] = useState('');
   const [selection, replaceSelectionFn] = useSelectionContext();
+  const [sendWithShiftEnter, setSendWithShiftEnter] = useState(true);
 
   /**
-   * Effect: fetch history on initial render
+   * Effect: fetch history and config on initial render
    */
   useEffect(() => {
     async function fetchHistory() {
@@ -42,6 +43,7 @@ function ChatBody({ chatHandler, setChatView: chatViewHandler }: ChatBodyProps):
           chatHandler.getHistory(),
           AiService.getConfig()
         ]);
+        setSendWithShiftEnter(config.send_with_shift_enter ?? false);
         setMessages(history.messages);
         if (!config.model_provider_id) {
           setShowWelcomeMessage(true);
@@ -163,11 +165,7 @@ function ChatBody({ chatHandler, setChatView: chatViewHandler }: ChatBodyProps):
           paddingBottom: 0,
           borderTop: '1px solid var(--jp-border-color1)'
         }}
-        helperText={
-          <span>
-            Press <b>Shift</b> + <b>Enter</b> to submit message
-          </span>
-        }
+        sendWithShiftEnter={sendWithShiftEnter}
       />
     </>
   );

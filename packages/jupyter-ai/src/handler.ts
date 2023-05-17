@@ -169,6 +169,7 @@ export namespace AiService {
     model_provider_id: string | null;
     embeddings_provider_id: string | null;
     api_keys: Record<string, string>;
+    send_with_shift_enter: boolean | null;
   };
 
   export type GetConfigResponse = Config;
