@@ -21,6 +21,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           version_spec: minor
       - name: Runner debug info
+        if: always()
         run: |
           echo "Node version: $(node --version)"
           echo "NPM version: $(npm --version)"
