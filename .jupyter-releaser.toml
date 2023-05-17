@@ -1,6 +1,6 @@
 [hooks]
 before-build-npm = [
-    "python -m pip install jupyterlab",
+    "python -m pip install jupyterlab~=3.6",
     "jlpm",
     "jlpm build:prod"
 ]
@@ -11,6 +11,6 @@ before-build-python = [
 [options]
 version-cmd = "../../scripts/bump-version.sh"
 python_packages = [
-    "packages/jupyter-ai-magics:jupyter-ai-magics",
-    "packages/jupyter-ai:jupyter-ai"
+    "packages/jupyter-ai:jupyter-ai",
+    "packages/jupyter-ai-magics:jupyter-ai-magics"
 ]
