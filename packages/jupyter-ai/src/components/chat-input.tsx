@@ -45,11 +45,18 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
           variant="outlined"
           multiline
           onKeyDown={handleKeyDown}
+          placeholder='Ask Jupyternaut anything'
           InputProps={{
             endAdornment: (
                <InputAdornment position="end">
-                  <IconButton size="small" color="primary" onClick={props.onSend} disabled={!props.value.trim().length}>
-                     <SendIcon />
+                  <IconButton
+                    size="small"
+                    color="primary"
+                    onClick={props.onSend}
+                    disabled={!props.value.trim().length}
+                    title='Send message (SHIFT+ENTER)'
+                  >
+                    <SendIcon />
                   </IconButton>
                </InputAdornment>
             )
