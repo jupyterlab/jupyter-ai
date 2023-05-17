@@ -108,29 +108,25 @@ export function ChatMessages(props: ChatMessagesProps) {
    * Effect: update cached timestamp strings upon receiving a new message.
    */
   useEffect(() => {
-    function updateTimestamps() {
-      const newTimestamps: Record<string, string> = {};
-      let timestampAdded: boolean = false;
+    const newTimestamps: Record<string, string> = {};
+    let timestampAdded: boolean = false;
 
-      for (const message of props.messages) {
-        if (!(message.id in newTimestamps)) {
-          // Use the browser's default locale
-          newTimestamps[message.id] =
-            new Date(message.time * 1000) // Convert message time to milliseconds
-              .toLocaleTimeString([], {
-                hour: 'numeric', // Avoid leading zero for hours; we don't want "03:15 PM"
-                minute: '2-digit'
-              });
+    for (const message of props.messages) {
+      if (!(message.id in newTimestamps)) {
+        // Use the browser's default locale
+        newTimestamps[message.id] =
+          new Date(message.time * 1000) // Convert message time to milliseconds
+            .toLocaleTimeString([], {
+              hour: 'numeric', // Avoid leading zero for hours; we don't want "03:15 PM"
+              minute: '2-digit'
+            });
 
-          timestampAdded = true;
-        }
-      }
-      if (timestampAdded) {
-        setTimestamps(newTimestamps);
+        timestampAdded = true;
       }
     }
-
-    updateTimestamps();
+    if (timestampAdded) {
+      setTimestamps(newTimestamps);
+    }
   }, [props.messages]);
 
   return (
