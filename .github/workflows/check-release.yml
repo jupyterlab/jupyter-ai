@@ -19,6 +19,7 @@ jobs:
         run: |
           echo "Node version: $(node --version)"
           echo "NPM version: $(npm --version)"
+          echo "jlpm version: $(jlpm --version)"
           echo "Yarn version: $(yarn --version)"
           echo "Python version: $(python --version)"
       - name: Check Release
