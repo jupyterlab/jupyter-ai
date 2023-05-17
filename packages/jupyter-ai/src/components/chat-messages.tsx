@@ -108,7 +108,7 @@ export function ChatMessages(props: ChatMessagesProps) {
    * Effect: update cached timestamp strings upon receiving a new message.
    */
   useEffect(() => {
-    const newTimestamps: Record<string, string> = {};
+    const newTimestamps: Record<string, string> = { ...timestamps };
     let timestampAdded: boolean = false;
 
     for (const message of props.messages) {
