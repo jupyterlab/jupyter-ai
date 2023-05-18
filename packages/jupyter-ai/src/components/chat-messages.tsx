@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 
 import { Avatar, Box, Typography } from '@mui/material';
 import type { SxProps, Theme } from '@mui/material';
-import { formatDistanceToNowStrict, fromUnixTime } from 'date-fns';
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
@@ -106,24 +105,28 @@ export function ChatMessages(props: ChatMessagesProps) {
   const [timestamps, setTimestamps] = useState<Record<string, string>>({});
 
   /**
-   * Effect: update cached timestamp strings upon receiving a new message and
-   * every 5 seconds after that.
+   * Effect: update cached timestamp strings upon receiving a new message.
    */
   useEffect(() => {
-    function updateTimestamps() {
-      const newTimestamps: Record<string, string> = {};
-      for (const message of props.messages) {
+    const newTimestamps: Record<string, string> = { ...timestamps };
+    let timestampAdded: boolean = false;
+
+    for (const message of props.messages) {
+      if (!(message.id in newTimestamps)) {
+        // Use the browser's default locale
         newTimestamps[message.id] =
-          formatDistanceToNowStrict(fromUnixTime(message.time)) + ' ago';
+          new Date(message.time * 1000) // Convert message time to milliseconds
+            .toLocaleTimeString([], {
+              hour: 'numeric', // Avoid leading zero for hours; we don't want "03:15 PM"
+              minute: '2-digit'
+            });
+
+        timestampAdded = true;
       }
+    }
+    if (timestampAdded) {
       setTimestamps(newTimestamps);
     }
-
-    updateTimestamps();
-    const intervalId = setInterval(updateTimestamps, 5000);
-    return () => {
-      clearInterval(intervalId);
-    };
   }, [props.messages]);
 
   return (
