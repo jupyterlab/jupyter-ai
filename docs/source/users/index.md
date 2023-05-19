@@ -95,7 +95,7 @@ If you are not using JupyterLab and you only want to install the Jupyter AI `%%a
 
 First, install [conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html) and create an environment that uses Python 3.10:
 
-    $ conda create -n jupyter-ai python=3.10 pip
+    $ conda create -n jupyter-ai python=3.10 conda pip
     $ conda activate jupyter-ai
     $ pip install jupyter_ai
 
