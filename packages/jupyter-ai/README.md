@@ -28,7 +28,7 @@ Before you can use Jupyter AI, you will need to install any packages and set env
 
 First, install [conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html) and create an environment that uses Python 3.10:
 
-    $ conda create -n jupyter-ai python=3.10
+    $ conda create -n jupyter-ai python=3.10 pip
     $ conda activate jupyter-ai
     $ pip install jupyter_ai
 
