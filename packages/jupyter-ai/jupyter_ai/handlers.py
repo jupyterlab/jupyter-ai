@@ -172,7 +172,7 @@ class ChatHandler(
         
         login = getpass.getuser()
         return ChatUser(
-            username=self.current_user.username,
+            username=login,
             initials=login[0].capitalize(),
             name=login,
             display_name=login,
