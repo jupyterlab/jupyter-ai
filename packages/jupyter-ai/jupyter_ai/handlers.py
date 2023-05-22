@@ -161,7 +161,7 @@ class ChatHandler(
         res = super().get(*args, **kwargs)
         await res
 
-    def get_current_user(self) -> ChatUser:
+    def get_chat_user(self) -> ChatUser:
         """Retrieves the current user. If collaborative mode is disabled, one
         is synthesized from the login."""
         collaborative = self.config.get("LabApp", {}).get("collaborative", False)
@@ -189,7 +189,7 @@ class ChatHandler(
         """Handles opening of a WebSocket connection. Client ID can be retrieved
         from `self.client_id`."""
 
-        current_user = self.get_current_user().dict()
+        current_user = self.get_chat_user().dict()
         client_id = self.generate_client_id()
 
         self.chat_handlers[client_id] = self
