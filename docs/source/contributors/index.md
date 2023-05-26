@@ -81,6 +81,25 @@ or restart the server.
 If you make changes to the **user interface** or **lab extension**, run `jlpm build` and then
 refresh your browser tab.
 
+## Building documentation
+
+The `./scripts/install.sh` should automatically install the documentation
+dependencies. To build the documentation locally, run
+
+```
+cd docs/
+make html
+```
+
+and open `file://<JUPYTER-AI-ABSOLUTE-PATH>/docs/build/html/index.html`, where
+`<JUPYTER-AI-ABSOLUTE-PATH>` is the absolute path of the Jupyter AI monorepo on
+your local filesystem. It is helpful to bookmark this path in your browser of
+choice to easily view your local documentation build.
+
+After making any changes, make sure to rebuild the documentation locally via
+`make html`, and then refresh your browser to verify the changes visually.
+
+
 ## Development uninstall
 
 To uninstall your Jupyter AI development environment, deactivate and remove the Conda environment:
