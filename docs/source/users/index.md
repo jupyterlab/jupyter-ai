@@ -281,10 +281,19 @@ To clear the chat panel, use the `/clear` command. This does not reset the AI mo
 
 ## The `%%ai` magic command
 
-The examples in this section are based on the [Jupyter AI example notebooks](https://github.com/jupyterlab/jupyter-ai/blob/main/examples/).
+Jupyter AI can also be used in notebooks via Jupyter AI magics. This section
+provides guidance on how to use Jupyter AI magics effectively. The examples in
+this section are based on the [Jupyter AI example notebooks](https://github.com/jupyterlab/jupyter-ai/blob/main/examples/).
 
-Before you send your first prompt to an AI model, load the IPython extension by running 
-the following code in a notebook cell or IPython shell:
+If you already have `jupyter_ai` installed, the magics package
+`jupyter_ai_magics` is installed automatically. Otherwise, run
+
+    pip install jupyter_ai_magics
+
+in your terminal to install the magics package.
+
+Before you send your first prompt to an AI model, load the IPython extension by
+running the following code in a notebook cell or IPython shell:
 
 ```
 %load_ext jupyter_ai_magics
@@ -292,8 +301,22 @@ the following code in a notebook cell or IPython shell:
 
 This command should not produce any output.
 
-The `%%ai` magic command is user-friendly and enables you to quickly pick which model you want to use
-and specify natural language prompts.
+:::{note}
+If you are using remote kernels (e.g.  Amazon SageMaker Studio), the above
+command will throw an error. This means that need to install the magics package
+on your remote kernel separately, even if you already have `jupyter_ai_magics`
+installed in your server's environment. In a notebook, run
+
+```
+%pip install jupyter_ai_magics
+```
+
+and re-run `%load_ext jupyter_ai_magics`.
+:::
+
+
+The `%%ai` magic command is user-friendly and enables you to quickly pick which
+model you want to use and specify natural language prompts.
 
 ### Choosing a provider and model
 
