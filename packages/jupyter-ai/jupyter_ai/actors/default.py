@@ -53,18 +53,18 @@ class DefaultActor(BaseActor):
         )
     
     def clear_memory(self):
-        if not self.memory:
-            return
         
         # clear chain memory
-        self.memory.clear()
+        if self.memory:
+            self.memory.clear()
 
         # clear transcript for existing chat clients
         reply_message = ClearMessage()
         self.reply_queue.put(reply_message)
 
         # clear transcript for new chat clients
-        self.chat_history.clear()
+        if self.chat_history:
+            self.chat_history.clear()
 
     def _process_message(self, message: HumanChatMessage):
         self.get_llm_chain()

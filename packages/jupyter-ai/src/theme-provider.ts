@@ -13,6 +13,7 @@ export async function pollUntilReady(): Promise<void> {
 export async function getJupyterLabTheme(): Promise<Theme> {
   await pollUntilReady();
   const light = document.body.getAttribute('data-jp-theme-light');
+  const primaryFontColor = getCSSVariable('--jp-ui-font-color1');
   return createTheme({
     spacing: 4,
     components: {
@@ -112,7 +113,7 @@ export async function getJupyterLabTheme(): Promise<Theme> {
         dark: getCSSVariable('--jp-success-color0')
       },
       text: {
-        primary: getCSSVariable('--jp-ui-font-color1'),
+        primary: primaryFontColor,
         secondary: getCSSVariable('--jp-ui-font-color2'),
         disabled: getCSSVariable('--jp-ui-font-color3')
       }
@@ -126,6 +127,11 @@ export async function getJupyterLabTheme(): Promise<Theme> {
       htmlFontSize: 16,
       button: {
         textTransform: 'capitalize'
+      },
+      // this is undocumented as of the time of writing.
+      // https://stackoverflow.com/a/62950304/12548458
+      allVariants: {
+        color: primaryFontColor
       }
     }
   });
