@@ -62,7 +62,7 @@ def help_subparser():
     return HelpArgs()
 
 @line_magic_parser.command(name='list',
-    short_help="List language models. See `%ai list --help` for more."
+    short_help="List language models. See `%ai list --help` for options."
 )
 @click.argument('provider_id', required=False)
 def list_subparser(**kwargs):
