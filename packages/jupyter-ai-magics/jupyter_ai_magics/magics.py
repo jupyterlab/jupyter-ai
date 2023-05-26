@@ -5,12 +5,14 @@ import re
 import warnings
 from typing import Optional
 
+import click
 from IPython import get_ipython
 from IPython.core.magic import Magics, magics_class, line_cell_magic
-from IPython.core.magic_arguments import magic_arguments, argument, parse_argstring
 from IPython.display import HTML, JSON, Markdown, Math
 from jupyter_ai_magics.utils import decompose_model_id, load_providers
+
 from .providers import BaseProvider
+from .parsers import cell_magic_parser, line_magic_parser, CellArgs, HelpArgs, ListArgs
 
 
 MODEL_ID_ALIASES = {
@@ -96,6 +98,9 @@ class FormatDict(dict):
 class EnvironmentError(BaseException):
     pass
 
+class CellMagicError(BaseException):
+    pass
+
 @magics_class
 class AiMagics(Magics):
     def __init__(self, shell):
@@ -109,22 +114,6 @@ class AiMagics(Magics):
 
         self.providers = load_providers()
     
-    def _ai_help_command_markdown(self):
-        table = ("| Command | Description |\n"
-            "| ------- | ----------- |\n")
-        
-        for command in AI_COMMANDS:
-            table += "| `" + command + "` | " + AI_COMMANDS[command] + "|\n";
-
-        return table
-
-    def _ai_help_command_text(self):
-        output = ""
-        
-        for command in AI_COMMANDS:
-            output += command + " - " + AI_COMMANDS[command] + "\n";
-
-        return output
     
     def _ai_bulleted_list_models_for_provider(self, provider_id, Provider):
         output = ""
@@ -223,30 +212,6 @@ class AiMagics(Magics):
 
         return output
 
-    # Run an AI command using the arguments provided as a space-delimited value
-    def _ai_command(self, command, args_string):
-        args = args_string.split() # Split by whitespace
-
-        # When we can use Python 3.10+, replace this with a 'match' command
-        if (command == 'help'):
-            return TextOrMarkdown(self._ai_help_command_text(), self._ai_help_command_markdown())
-        elif (command == 'list'):
-            # Optional parameter: model provider ID
-            provider_id = None
-            if (len(args) >= 1):
-                provider_id = args[0]
-
-            return TextOrMarkdown(
-                self._ai_list_command_text(provider_id),
-                self._ai_list_command_markdown(provider_id)
-            )
-        else:
-            # This should be unreachable, since unhandled commands are treated like model names
-            return TextOrMarkdown(
-                f"No handler for command {command}\n",
-                f"No handler for command `{command}`"
-            )
-
     def _append_exchange_openai(self, prompt: str, output: str):
         """Appends a conversational exchange between user and an OpenAI Chat
         model to a transcript that will be included in future exchanges."""
@@ -269,34 +234,48 @@ class AiMagics(Magics):
 
         return self.providers[provider_id]
 
-    @magic_arguments()
-    @argument('model_id',
-                help="""Model to run, specified as a model ID that may be
-                optionally prefixed with the ID of the model provider, delimited
-                by a colon.""")
-    @argument('-f', '--format',
-                choices=["code", "html", "image", "json", "markdown", "math", "md", "text"],
-                nargs="?",
-                default="markdown",
-                help="""IPython display to use when rendering output. [default="markdown"]""")
-    @argument('-r', '--reset',
-                action="store_true",
-                help="""Clears the conversation transcript used when interacting
-                with an OpenAI chat model provider. Does nothing with other
-                providers.""")
-    @argument('prompt',
-                nargs='*',
-                help="""Prompt for code generation. When used as a line magic, it
-                runs to the end of the line. In cell mode, the entire cell is
-                considered the code generation prompt.""")
+    def handle_help(self, _: HelpArgs):
+        with click.Context(cell_magic_parser, info_name="%%ai") as ctx:
+            click.echo(cell_magic_parser.get_help(ctx))
+        click.echo('-' * 78)
+        with click.Context(line_magic_parser, info_name="%ai") as ctx:
+            click.echo(line_magic_parser.get_help(ctx))
+
+    def handle_list(self, args: ListArgs):
+        return TextOrMarkdown(
+            self._ai_list_command_text(args.provider_id),
+            self._ai_list_command_markdown(args.provider_id)
+        )
+
     @line_cell_magic
     def ai(self, line, cell=None):
-        # parse arguments
-        args = parse_argstring(self.ai, line)
-        if cell is None:
-            prompt = ' '.join(args.prompt)
+        raw_args = line.split(' ')
+        if cell:
+            args = cell_magic_parser(raw_args, prog_name="%%ai", standalone_mode=False)
         else:
-            prompt = cell
+            args = line_magic_parser(raw_args, prog_name="%ai", standalone_mode=False)
+
+        if args == 0:
+            # this happens when `--help` is called on the root command, in which
+            # case we want to exit early.
+            return
+
+        if args.type == "help":
+            return self.handle_help(args)
+        if args.type == "list":
+            return self.handle_list(args)
+        
+        # hint to the IDE that this object must be of type `RootArgs`
+        args: CellArgs = args
+
+        if not cell:
+            raise CellMagicError(
+                """[0.8+]: To invoke a language model, you must use the `%%ai`
+                cell magic. The `%ai` line magic is only for use with
+                subcommands."""
+            ) 
+
+        prompt = cell.strip()
         
         # If the user is attempting to run a command, run the command separately.
         if (args.model_id in AI_COMMANDS):
