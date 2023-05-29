@@ -196,6 +196,7 @@ export namespace AiService {
     name: string;
     models: string[];
     auth_strategy: AuthStrategy;
+    registry: boolean;
   };
 
   export type ListProvidersResponse = {

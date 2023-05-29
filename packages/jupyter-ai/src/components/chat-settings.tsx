@@ -29,6 +29,32 @@ enum ChatSettingsState {
   Success
 }
 
+function getProviderId(globalModelId: string | null) {
+  if (!globalModelId) {
+    return null;
+  }
+
+  return globalModelId.split(':')[0];
+}
+
+function getLocalModelId(globalModelId: string | null) {
+  if (!globalModelId) {
+    return null;
+  }
+
+  const components = globalModelId.split(':');
+  return components[components.length - 1];
+}
+
+function fromRegistryProvider(
+  globalModelId: string | null,
+  providers: AiService.ListProvidersResponse
+) {
+  const providerId = getProviderId(globalModelId);
+  const provider = providers.providers.find(p => p.id === providerId);
+  return provider?.registry ?? false;
+}
+
 export function ChatSettings() {
   const [state, setState] = useState<ChatSettingsState>(
     ChatSettingsState.Loading
@@ -56,6 +82,10 @@ export function ChatSettings() {
   // error message from submission
   const [saveEmsg, setSaveEmsg] = useState<string>();
 
+  // whether to show the language model's local model ID input
+  const [showLmLmid, setShowLmLmid] = useState<boolean>(false);
+  const [lmLmid, setLmLmid] = useState<string>('*');
+
   /**
    * Effect: call APIs on initial render
    */
@@ -68,9 +98,23 @@ export function ChatSettings() {
           AiService.listEmProviders()
         ]);
         setConfig(config);
-        setInputConfig(config);
         setLmProviders(lmProviders);
         setEmProviders(emProviders);
+
+        // if a model from a registry provider was previously selected, store
+        // the local model ID in a separate text field.
+        if (fromRegistryProvider(config.model_provider_id, lmProviders)) {
+          setShowLmLmid(true);
+          const lmPid = getProviderId(config.model_provider_id);
+          setLmLmid(getLocalModelId(config.model_provider_id) as string);
+          setInputConfig({
+            ...config,
+            model_provider_id: `${lmPid}:*`
+          });
+        } else {
+          setInputConfig(config);
+        }
+
         setState(ChatSettingsState.Ready);
       } catch (e) {
         console.error(e);
@@ -87,8 +131,8 @@ export function ChatSettings() {
    * Effect: re-initialize API keys object whenever the selected LM/EM changes.
    */
   useEffect(() => {
-    const selectedLmpId = inputConfig.model_provider_id?.split(':')[0];
-    const selectedEmpId = inputConfig.embeddings_provider_id?.split(':')[0];
+    const selectedLmpId = getProviderId(inputConfig.model_provider_id);
+    const selectedEmpId = getProviderId(inputConfig.embeddings_provider_id);
     const lmp = lmProviders?.providers.find(
       provider => provider.id === selectedLmpId
     );
@@ -115,6 +159,9 @@ export function ChatSettings() {
   const handleSave = async () => {
     const inputConfigCopy: AiService.Config = {
       ...inputConfig,
+      model_provider_id: showLmLmid
+        ? `${getProviderId(inputConfig.model_provider_id)}:${lmLmid}`
+        : inputConfig.model_provider_id,
       api_keys: { ...inputConfig.api_keys },
       send_with_shift_enter: inputConfig.send_with_shift_enter ?? true
     };
@@ -202,25 +249,40 @@ export function ChatSettings() {
       <Select
         value={inputConfig.model_provider_id}
         label="Language model"
-        onChange={e =>
+        onChange={e => {
           setInputConfig(inputConfig => ({
             ...inputConfig,
             model_provider_id: e.target.value
-          }))
-        }
+          }));
+
+          // if model is from a registry provider, show an input for the local
+          // model ID
+          if (fromRegistryProvider(e.target.value, lmProviders)) {
+            setShowLmLmid(true);
+            setLmLmid('*');
+          } else {
+            setShowLmLmid(false);
+          }
+        }}
         MenuProps={{ sx: { maxHeight: '50%', minHeight: 400 } }}
       >
         <MenuItem value="null">None</MenuItem>
         {lmProviders.providers.map(lmp =>
-          lmp.models
-            .filter(lm => lm !== '*') // TODO: support registry providers
-            .map(lm => (
-              <MenuItem value={`${lmp.id}:${lm}`}>
-                {lmp.name} :: {lm}
-              </MenuItem>
-            ))
+          lmp.models.map(lm => (
+            <MenuItem value={`${lmp.id}:${lm}`}>
+              {lmp.name} :: {lm}
+            </MenuItem>
+          ))
         )}
       </Select>
+      {showLmLmid && (
+        <TextField
+          label="Local model ID"
+          value={lmLmid}
+          onChange={e => setLmLmid(e.target.value)}
+          fullWidth
+        />
+      )}
       <Select
         value={inputConfig.embeddings_provider_id}
         label="Embedding model"
@@ -270,16 +332,18 @@ export function ChatSettings() {
         <RadioGroup
           aria-labelledby="send-radio-buttons-group-label"
           value={
-            (inputConfig.send_with_shift_enter ?? false) ? 'newline' : 'send'
+            inputConfig.send_with_shift_enter ?? false ? 'newline' : 'send'
           }
           name="send-radio-buttons-group"
           onChange={e =>
             setInputConfig(inputConfig => {
-              return ({
+              return {
                 ...inputConfig,
-                send_with_shift_enter: (e.target as HTMLInputElement).value === 'newline'
-              });
-            })}
+                send_with_shift_enter:
+                  (e.target as HTMLInputElement).value === 'newline'
+              };
+            })
+          }
         >
           <FormControlLabel
             value="send"
@@ -290,7 +354,9 @@ export function ChatSettings() {
             value="newline"
             control={<Radio />}
             label={
-              <>Start a new line (use <kbd>Shift</kbd>+<kbd>Enter</kbd> to send)</>
+              <>
+                Start a new line (use <kbd>Shift</kbd>+<kbd>Enter</kbd> to send)
+              </>
             }
           />
         </RadioGroup>

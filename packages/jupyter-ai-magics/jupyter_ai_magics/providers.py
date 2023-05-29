@@ -75,6 +75,9 @@ class BaseProvider(BaseLangchainProvider):
     """Authentication/authorization strategy. Declares what credentials are
     required to use this model provider. Generally should not be `None`."""
 
+    registry: ClassVar[bool] = False
+    """Whether this provider is a registry provider."""
+
     #
     # instance attrs
     #
@@ -144,6 +147,7 @@ class HfHubProvider(BaseProvider, HuggingFaceHub):
     # tqdm is a dependency of huggingface_hub
     pypi_package_deps = ["huggingface_hub", "ipywidgets"]
     auth_strategy = EnvAuthStrategy(name="HUGGINGFACEHUB_API_TOKEN")
+    registry = True
 
     # Override the parent's validate_environment with a custom list of valid tasks
     @root_validator()
@@ -299,5 +303,4 @@ class SmEndpointProvider(BaseProvider, SagemakerEndpoint):
     model_id_key = "endpoint_name"
     pypi_package_deps = ["boto3"]
     auth_strategy = AwsAuthStrategy()
-
-    
+    registry = True

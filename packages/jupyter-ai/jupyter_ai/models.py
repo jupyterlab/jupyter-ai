@@ -92,6 +92,7 @@ class ListProvidersEntry(BaseModel):
     name: str
     models: List[str]
     auth_strategy: AuthStrategy
+    registry: bool
 
 
 class ListProvidersResponse(BaseModel):

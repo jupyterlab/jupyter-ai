@@ -35,6 +35,10 @@ class BaseEmbeddingsProvider(BaseModel):
 
     provider_klass: ClassVar[Type[Embeddings]]    
 
+    registry: ClassVar[bool] = False
+    """Whether this provider is a registry provider."""
+
+
     
 class OpenAIEmbeddingsProvider(BaseEmbeddingsProvider):
     id = "openai"
@@ -73,3 +77,4 @@ class HfHubEmbeddingsProvider(BaseEmbeddingsProvider):
     pypi_package_deps = ["huggingface_hub", "ipywidgets"]
     auth_strategy = EnvAuthStrategy(name="HUGGINGFACEHUB_API_TOKEN")
     provider_klass = HuggingFaceHubEmbeddings
+    registry = True
