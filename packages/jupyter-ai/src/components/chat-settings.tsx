@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Box } from '@mui/system';
 import {
   Alert,
@@ -108,6 +108,26 @@ export function ChatSettings() {
   const [showLmLmid, setShowLmLmid] = useState<boolean>(false);
   const [lmLmid, setLmLmid] = useState<string>('*');
 
+  // provider of the currently selected language model
+  const lmProvider = useMemo(() => {
+    if (!inputConfig.model_provider_id || !lmProviders) {
+      return;
+    }
+
+    return getProvider(inputConfig.model_provider_id, lmProviders);
+  }, [inputConfig.model_provider_id, lmProviders]);
+
+  // global model ID of the currently selected language model
+  const lmGmid = useMemo(() => {
+    if (!inputConfig.model_provider_id || !lmProvider) {
+      return null;
+    }
+
+    return lmProvider?.registry
+      ? `${lmProvider.id}:${lmLmid}`
+      : inputConfig.model_provider_id;
+  }, [inputConfig.model_provider_id, lmProviders]);
+
   /**
    * Effect: call APIs on initial render
    */
@@ -181,9 +201,7 @@ export function ChatSettings() {
   const handleSave = async () => {
     const inputConfigCopy: AiService.Config = {
       ...inputConfig,
-      model_provider_id: showLmLmid
-        ? `${getProviderId(inputConfig.model_provider_id)}:${lmLmid}`
-        : inputConfig.model_provider_id,
+      model_provider_id: lmGmid,
       api_keys: { ...inputConfig.api_keys },
       send_with_shift_enter: inputConfig.send_with_shift_enter ?? true
     };
@@ -192,6 +210,24 @@ export function ChatSettings() {
     for (const apiKey in inputConfigCopy.api_keys) {
       if (inputConfigCopy.api_keys[apiKey] === '') {
         delete inputConfigCopy.api_keys[apiKey];
+      }
+    }
+
+    // compress fields with JSON values
+    for (const gmid in inputConfigCopy.fields) {
+      for (const fieldKey in inputConfigCopy.fields[gmid]) {
+        const fieldVal = inputConfigCopy.fields[gmid][fieldKey];
+        if (typeof fieldVal !== 'string') {
+          continue;
+        }
+
+        try {
+          const parsedFieldVal = JSON.parse(fieldVal);
+          const compressedFieldVal = JSON.stringify(parsedFieldVal);
+          inputConfigCopy.fields[gmid][fieldKey] = compressedFieldVal;
+        } catch (e) {
+          continue;
+        }
       }
     }
 
@@ -254,12 +290,6 @@ export function ChatSettings() {
    * Helper variables used in rendering logic.
    */
   // currently selected LM provider
-  const lmProvider = getProvider(inputConfig.model_provider_id, lmProviders);
-  // language model's global model ID
-  const lmGmid = lmProvider?.registry
-    ? `${lmProvider.id}:${lmLmid}`
-    : inputConfig.model_provider_id;
-
   console.log({ inputConfig, showLmLmid, lmProvider });
 
   return (

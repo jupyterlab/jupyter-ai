@@ -27,6 +27,7 @@ dependencies = [
     "langchain==0.0.159",
     "typing_extensions==4.5.0",
     "click~=8.0",
+    "jsonpath-ng~=1.5.3",
 ]
 
 [project.optional-dependencies]

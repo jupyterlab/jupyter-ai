@@ -47,6 +47,7 @@ export function ModelField(props: ModelFieldProps): JSX.Element {
         onChange={handleChange}
         fullWidth
         multiline
+        minRows={2}
       />
     );
   }
