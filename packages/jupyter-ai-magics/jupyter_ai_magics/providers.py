@@ -45,6 +45,18 @@ AuthStrategy = Optional[
     ]
 ]
 
+class TextField(BaseModel):
+    type: Literal["text"] = "text"
+    key: str
+    label: str
+
+class MultilineTextField(BaseModel):
+    type: Literal["text-multiline"] = "text-multiline"
+    key: str
+    label: str
+
+Field = Union[TextField, MultilineTextField]
+
 class BaseProvider(BaseLangchainProvider):
     #
     # pydantic config
@@ -77,6 +89,10 @@ class BaseProvider(BaseLangchainProvider):
 
     registry: ClassVar[bool] = False
     """Whether this provider is a registry provider."""
+
+    fields: ClassVar[List[Field]] = []
+    """Fields expected by this provider in its constructor. Each `Field` `f`
+    should be passed as a keyword argument, keyed by `f.key`."""
 
     #
     # instance attrs
@@ -304,3 +320,9 @@ class SmEndpointProvider(BaseProvider, SagemakerEndpoint):
     pypi_package_deps = ["boto3"]
     auth_strategy = AwsAuthStrategy()
     registry = True
+    fields = [
+        TextField(
+            key="region_name",
+            label="Region name",
+        )
+    ]

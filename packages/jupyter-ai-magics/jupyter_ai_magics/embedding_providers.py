@@ -1,5 +1,5 @@
 from typing import ClassVar, List, Type
-from jupyter_ai_magics.providers import AuthStrategy, EnvAuthStrategy
+from jupyter_ai_magics.providers import AuthStrategy, EnvAuthStrategy, Field
 from pydantic import BaseModel, Extra
 from langchain.embeddings import OpenAIEmbeddings, CohereEmbeddings, HuggingFaceHubEmbeddings
 from langchain.embeddings.base import Embeddings
@@ -38,8 +38,11 @@ class BaseEmbeddingsProvider(BaseModel):
     registry: ClassVar[bool] = False
     """Whether this provider is a registry provider."""
 
-
+    fields: ClassVar[List[Field]] = []
+    """Fields expected by this provider in its constructor. Each `Field` `f`
+    should be passed as a keyword argument, keyed by `f.key`."""
     
+
 class OpenAIEmbeddingsProvider(BaseEmbeddingsProvider):
     id = "openai"
     name = "OpenAI"

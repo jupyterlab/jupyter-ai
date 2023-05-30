@@ -3,6 +3,8 @@ import { Box } from '@mui/system';
 import {
   Alert,
   Button,
+  Chip,
+  Divider,
   FormControl,
   FormControlLabel,
   FormLabel,
@@ -15,6 +17,7 @@ import {
 
 import { Select } from './select';
 import { AiService } from '../handler';
+import { ModelFields } from './settings/model-fields';
 
 enum ChatSettingsState {
   // chat settings is making initial fetches
@@ -46,15 +49,33 @@ function getLocalModelId(globalModelId: string | null) {
   return components[components.length - 1];
 }
 
-function fromRegistryProvider(
+function getProvider(
   globalModelId: string | null,
   providers: AiService.ListProvidersResponse
 ) {
   const providerId = getProviderId(globalModelId);
   const provider = providers.providers.find(p => p.id === providerId);
-  return provider?.registry ?? false;
+  return provider;
 }
 
+function fromRegistryProvider(
+  globalModelId: string | null,
+  providers: AiService.ListProvidersResponse
+) {
+  return getProvider(globalModelId, providers)?.registry ?? false;
+}
+
+/**
+ * Component that returns the settings view in the chat panel.
+ *
+ * Implementation notes:
+ * - `config` is the configuration last fetched from the backend. `inputConfig`
+ * is the editable copy of that object that stores all user input state.
+ *
+ * - `inputConfig.model_provider_id` reflects the global model ID only if the
+ * provider is not a registry provider. Otherwise, it is set to
+ * `<provider-id>:*`.
+ */
 export function ChatSettings() {
   const [state, setState] = useState<ChatSettingsState>(
     ChatSettingsState.Loading
@@ -74,7 +95,8 @@ export function ChatSettings() {
     model_provider_id: null,
     embeddings_provider_id: null,
     api_keys: {},
-    send_with_shift_enter: null
+    send_with_shift_enter: null,
+    fields: {}
   });
 
   // whether the form is currently saving
@@ -228,6 +250,18 @@ export function ChatSettings() {
     );
   }
 
+  /*
+   * Helper variables used in rendering logic.
+   */
+  // currently selected LM provider
+  const lmProvider = getProvider(inputConfig.model_provider_id, lmProviders);
+  // language model's global model ID
+  const lmGmid = lmProvider?.registry
+    ? `${lmProvider.id}:${lmLmid}`
+    : inputConfig.model_provider_id;
+
+  console.log({ inputConfig, showLmLmid, lmProvider });
+
   return (
     <Box
       sx={{
@@ -246,6 +280,11 @@ export function ChatSettings() {
       {state === ChatSettingsState.Success && (
         <Alert severity="success">Settings saved successfully.</Alert>
       )}
+
+      {/* Language model section */}
+      <Divider>
+        <Chip label="Language model" color="primary" variant="outlined" />
+      </Divider>
       <Select
         value={inputConfig.model_provider_id}
         label="Language model"
@@ -257,7 +296,8 @@ export function ChatSettings() {
 
           // if model is from a registry provider, show an input for the local
           // model ID
-          if (fromRegistryProvider(e.target.value, lmProviders)) {
+          const nextLmProvider = getProvider(e.target.value, lmProviders);
+          if (nextLmProvider?.registry) {
             setShowLmLmid(true);
             setLmLmid('*');
           } else {
@@ -283,6 +323,19 @@ export function ChatSettings() {
           fullWidth
         />
       )}
+      {lmGmid && (
+        <ModelFields
+          gmid={lmGmid}
+          config={inputConfig}
+          setConfig={setInputConfig}
+          fields={lmProvider?.fields}
+        />
+      )}
+
+      {/* Embedding model section */}
+      <Divider>
+        <Chip label="Embedding model" color="primary" variant="outlined" />
+      </Divider>
       <Select
         value={inputConfig.embeddings_provider_id}
         label="Embedding model"
@@ -305,6 +358,11 @@ export function ChatSettings() {
             ))
         )}
       </Select>
+
+      {/* API Keys section */}
+      <Divider>
+        <Chip label="API Keys" color="primary" variant="outlined" />
+      </Divider>
       {Object.entries(inputConfig.api_keys).map(
         ([apiKey, apiKeyValue], idx) => (
           <TextField
@@ -325,6 +383,11 @@ export function ChatSettings() {
           />
         )
       )}
+
+      {/* Input */}
+      <Divider>
+        <Chip label="Input" color="primary" variant="outlined" />
+      </Divider>
       <FormControl>
         <FormLabel id="send-radio-buttons-group-label">
           When writing a message, press <kbd>Enter</kbd> to:
