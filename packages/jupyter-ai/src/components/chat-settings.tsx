@@ -286,12 +286,6 @@ export function ChatSettings() {
     );
   }
 
-  /*
-   * Helper variables used in rendering logic.
-   */
-  // currently selected LM provider
-  console.log({ inputConfig, showLmLmid, lmProvider });
-
   return (
     <Box
       sx={{
