@@ -93,8 +93,8 @@ class BaseProvider(BaseLangchainProvider):
     """Whether this provider is a registry provider."""
 
     fields: ClassVar[List[Field]] = []
-    """Fields expected by this provider in its constructor. Each `Field` `f`
-    should be passed as a keyword argument, keyed by `f.key`."""
+    """User inputs expected by this provider when initializing it. Each `Field` `f` 
+    should be passed in the constructor as a keyword argument, keyed by `f.key`."""
 
     #
     # instance attrs
