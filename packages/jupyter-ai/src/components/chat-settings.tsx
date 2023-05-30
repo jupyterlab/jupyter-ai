@@ -105,8 +105,8 @@ export function ChatSettings() {
   const [saveEmsg, setSaveEmsg] = useState<string>();
 
   // whether to show the language model's local model ID input
-  const [showLmLmid, setShowLmLmid] = useState<boolean>(false);
-  const [lmLmid, setLmLmid] = useState<string>('*');
+  const [showLmLocalId, setShowLmLocalId] = useState<boolean>(false);
+  const [lmLocalId, setLmLocalId] = useState<string>('*');
 
   // provider of the currently selected language model
   const lmProvider = useMemo(() => {
@@ -118,13 +118,13 @@ export function ChatSettings() {
   }, [inputConfig.model_provider_id, lmProviders]);
 
   // global model ID of the currently selected language model
-  const lmGmid = useMemo(() => {
+  const lmGlobalId = useMemo(() => {
     if (!inputConfig.model_provider_id || !lmProvider) {
       return null;
     }
 
     return lmProvider?.registry
-      ? `${lmProvider.id}:${lmLmid}`
+      ? `${lmProvider.id}:${lmLocalId}`
       : inputConfig.model_provider_id;
   }, [inputConfig.model_provider_id, lmProviders]);
 
@@ -146,9 +146,9 @@ export function ChatSettings() {
         // if a model from a registry provider was previously selected, store
         // the local model ID in a separate text field.
         if (fromRegistryProvider(config.model_provider_id, lmProviders)) {
-          setShowLmLmid(true);
+          setShowLmLocalId(true);
           const lmPid = getProviderId(config.model_provider_id);
-          setLmLmid(getLocalModelId(config.model_provider_id) as string);
+          setLmLocalId(getLocalModelId(config.model_provider_id) as string);
           setInputConfig({
             ...config,
             model_provider_id: `${lmPid}:*`
@@ -201,7 +201,7 @@ export function ChatSettings() {
   const handleSave = async () => {
     const inputConfigCopy: AiService.Config = {
       ...inputConfig,
-      model_provider_id: lmGmid,
+      model_provider_id: lmGlobalId,
       api_keys: { ...inputConfig.api_keys },
       send_with_shift_enter: inputConfig.send_with_shift_enter ?? true
     };
@@ -322,10 +322,10 @@ export function ChatSettings() {
           // model ID
           const nextLmProvider = getProvider(e.target.value, lmProviders);
           if (nextLmProvider?.registry) {
-            setShowLmLmid(true);
-            setLmLmid('*');
+            setShowLmLocalId(true);
+            setLmLocalId('*');
           } else {
-            setShowLmLmid(false);
+            setShowLmLocalId(false);
           }
         }}
         MenuProps={{ sx: { maxHeight: '50%', minHeight: 400 } }}
@@ -339,17 +339,17 @@ export function ChatSettings() {
           ))
         )}
       </Select>
-      {showLmLmid && (
+      {showLmLocalId && (
         <TextField
           label="Local model ID"
-          value={lmLmid}
-          onChange={e => setLmLmid(e.target.value)}
+          value={lmLocalId}
+          onChange={e => setLmLocalId(e.target.value)}
           fullWidth
         />
       )}
-      {lmGmid && (
+      {lmGlobalId && (
         <ModelFields
-          gmid={lmGmid}
+          gmid={lmGlobalId}
           config={inputConfig}
           setConfig={setInputConfig}
           fields={lmProvider?.fields}
