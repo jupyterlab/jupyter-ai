@@ -189,7 +189,6 @@ When selecting the SageMaker Endpoints provider in the settings panel, you will
 see the following interface:
 
 <img src="../_static/chat-sagemaker-endpoints.png"
-    height="50%"
     width="50%"
     alt='Screenshot of the settings panel with the SageMaker Endpoints provider selected.'
     class="screenshot" />
