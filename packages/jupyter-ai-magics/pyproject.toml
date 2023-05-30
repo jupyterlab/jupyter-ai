@@ -25,7 +25,8 @@ dependencies = [
     "pydantic",
     "importlib_metadata~=5.2.0",
     "langchain==0.0.159",
-    "typing_extensions==4.5.0"
+    "typing_extensions==4.5.0",
+    "click~=8.0",
 ]
 
 [project.optional-dependencies]

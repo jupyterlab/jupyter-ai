@@ -279,7 +279,7 @@ To clear the local vector database, you can run `/learn -d` and Jupyter AI will 
 
 To clear the chat panel, use the `/clear` command. This does not reset the AI model; the model may still remember previous messages that you sent it, and it may use them to inform its responses.
 
-## The `%%ai` magic command
+## The `%ai` and `%%ai` magic commands
 
 Jupyter AI can also be used in notebooks via Jupyter AI magics. This section
 provides guidance on how to use Jupyter AI magics effectively. The examples in
@@ -320,8 +320,11 @@ model you want to use and specify natural language prompts.
 
 ### Choosing a provider and model
 
-The `%%ai` magic command enables you to specify a model provider and model with the
-syntax `<provider-id>:<model-id>`. The natural language prompt starts on the second line of the cell.
+The `%%ai` cell magic allows you to invoke a language model of your choice with
+a given prompt. The model is identified with a **global model ID**, which is a string with the
+syntax `<provider-id>:<local-model-id>`, where `<provider-id>` is the ID of the
+provider and `<local-model-id>` is the ID of the model scoped to that provider.
+The prompt begins on the second line of the cell.
 
 For example, to send a text prompt to the provider `anthropic` and the model ID
 `claude-v1.2`, enter the following code into a cell and run it:
@@ -331,8 +334,7 @@ For example, to send a text prompt to the provider `anthropic` and the model ID
 Write a poem about C++.
 ```
 
-We support the following providers, and all model IDs for each of these
-providers, as defined in [`langchain.llms`](https://langchain.readthedocs.io/en/latest/reference/modules/llms.html#module-langchain.llms):
+We currently support the following language model providers:
 
 - `ai21`
 - `anthropic`
@@ -342,14 +344,29 @@ providers, as defined in [`langchain.llms`](https://langchain.readthedocs.io/en/
 - `openai-chat`
 - `sagemaker-endpoint`
 
-You can find a list of supported providers and models by running `%ai list`. Some providers
-define a list of supported models. If a provider does not define a list of supported models,
-consult the vendor's documentation. The [Hugging Face web site](https://huggingface.co/)
-includes a list of models, for example.
+:::{warning}
+As of v0.8.0, only the `%%ai` *cell* magic may be used to invoke a language
+model, while the `%ai` *line* magic is reserved for invoking subcommands.
+:::
 
-Optionally, you can pass a provider ID as a parameter to `%ai list` to get all
-models provided by one provider. For example, `%ai list openai` will display only models
-provided by the `openai` provider.
+### Listing available models
+
+Jupyter AI also includes multiple subcommands, which may be invoked via the
+`%ai` *line* magic. Jupyter AI uses subcommands to provide additional utilities
+in notebooks while keeping the same concise syntax for invoking a language model.
+
+The `%ai list` subcommand prints a list of available providers and models. Some
+providers explicitly define a list of supported models in their API. However,
+other providers, like HuggingFace Hub, lack a well-defined list of available
+models. In such cases, it's best to consult the provider's upstream
+documentation. The [HuggingFace website](https://huggingface.co/) includes a
+list of models, for example.
+
+Optionally, you can specify a provider ID as a positional argument to `%ai list`
+to get all models provided by one provider. For example, `%ai list openai` will
+display only models provided by the `openai` provider.
+
+### Abbreviated syntax
 
 If your model ID is associated with only one provider, you can omit the `provider-id` and
 the colon from the first line. For example, because `ai21` is the only provider of the
