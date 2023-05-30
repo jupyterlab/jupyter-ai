@@ -177,6 +177,43 @@ To compose a message, type it in the text box at the bottom of the chat interfac
     alt='Screen shot of an example "Hello world" message sent to Jupyternaut, who responds with "Hello world, how are you today?"'
     class="screenshot" />
 
+### Usage with SageMaker Endpoints
+
+Jupyter AI supports language models hosted on SageMaker Endpoints that use JSON
+APIs. The first step is to authenticate with AWS via the `boto3` SDK and have
+the credentials stored in the `default` profile.  Guidance on how to do this can
+be found in the
+[`boto3` documentation](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html).
+
+When selecting the SageMaker Endpoints provider in the settings panel, you will
+see the following interface:
+
+<img src="../_static/chat-sagemaker-endpoints.png"
+    height="50%"
+    width="50%"
+    alt='Screenshot of the settings panel with the SageMaker Endpoints provider selected.'
+    class="screenshot" />
+
+Each of the additional fields under "Language model" is required. These fields
+should contain the following data:
+
+- **Local model ID**: The name of your endpoint. This can be retrieved from the
+AWS Console at the URL
+`https://<region>.console.aws.amazon.com/sagemaker/home?region=<region>#/endpoints`.
+
+- **Region name**: The AWS region your SageMaker endpoint is hosted in, e.g. `us-west-2`.
+
+- **Request schema**: The JSON object the endpoint expects, with the prompt
+being substituted into any value that matches the string literal `"<prompt>"`.
+In this example, the request schema `{"text_inputs":"<prompt>"}` generates a JSON
+object with the prompt stored under the `text_inputs` key.
+
+- **Response path**: A [JSONPath](https://goessner.net/articles/JsonPath/index.html)
+string that retrieves the language model's output from the endpoint's JSON
+response.  In this example, the endpoint returns an object with the schema
+`{"generated_texts":["<output>"]}`, hence the response path is
+`generated_texts.[0]`.
+
 ### Asking about something in your notebook
 
 Jupyter AI's chat interface can include a portion of your notebook in your prompt.
