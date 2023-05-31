@@ -80,12 +80,6 @@ DISPLAYS_BY_FORMAT = {
 
 NA_MESSAGE = '<abbr title="Not applicable">N/A</abbr>'
 
-REGISTER_COMMAND_USAGE = "%ai register NAME TARGET"
-
-DELETE_COMMAND_USAGE = "%ai delete NAME"
-
-UPDATE_COMMAND_USAGE = "%ai update NAME TARGET"
-
 MARKDOWN_PROMPT_TEMPLATE = '{prompt}\n\nProduce output in markdown format only.'
 
 PROVIDER_NO_MODELS = 'This provider does not define a list of models.'
