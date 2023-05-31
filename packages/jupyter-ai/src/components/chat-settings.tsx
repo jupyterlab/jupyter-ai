@@ -126,7 +126,7 @@ export function ChatSettings() {
     return lmProvider?.registry
       ? `${lmProvider.id}:${lmLocalId}`
       : inputConfig.model_provider_id;
-  }, [inputConfig.model_provider_id, lmProviders]);
+  }, [inputConfig.model_provider_id, lmProvider, lmProviders, lmLocalId]);
 
   /**
    * Effect: call APIs on initial render
