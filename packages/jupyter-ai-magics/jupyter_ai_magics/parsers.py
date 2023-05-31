@@ -25,6 +25,20 @@ class ListArgs(BaseModel):
     type: Literal["list"] = "list"
     provider_id: Optional[str]
 
+class RegisterArgs(BaseModel):
+    type: Literal["register"] = "register"
+    name: str
+    target: str
+
+class DeleteArgs(BaseModel):
+    type: Literal["delete"] = "delete"
+    name: str
+
+class UpdateArgs(BaseModel):
+    type: Literal["update"] = "update"
+    name: str
+    target: str
+
 class LineMagicGroup(click.Group):
     """Helper class to print the help string for cell magics as well when
     `%ai --help` is called."""
@@ -89,3 +103,29 @@ def help_subparser():
 def list_subparser(**kwargs):
     """List language models, optionally scoped to PROVIDER_ID."""
     return ListArgs(**kwargs)
+
+@line_magic_parser.command(name='register',
+    short_help="Register a new alias. See `%ai register --help` for options."
+)
+@click.argument('name')
+@click.argument('target')
+def register_subparser(**kwargs):
+    """Register a new alias called NAME for the model or chain named TARGET."""
+    return RegisterArgs(**kwargs)
+
+@line_magic_parser.command(name='delete',
+    short_help="Delete an alias. See `%ai delete --help` for options."
+)
+@click.argument('name')
+def register_subparser(**kwargs):
+    """Delete an alias called NAME."""
+    return DeleteArgs(**kwargs)
+
+@line_magic_parser.command(name='update',
+    short_help="Update the target of an alias. See `%ai update --help` for options."
+)
+@click.argument('name')
+@click.argument('target')
+def register_subparser(**kwargs):
+    """Update an alias called NAME to refer to the model or chain named TARGET."""
+    return UpdateArgs(**kwargs)

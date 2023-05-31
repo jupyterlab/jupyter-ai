@@ -13,7 +13,15 @@ from IPython.display import HTML, JSON, Markdown, Math
 from jupyter_ai_magics.utils import decompose_model_id, load_providers
 
 from .providers import BaseProvider
-from .parsers import cell_magic_parser, line_magic_parser, CellArgs, ErrorArgs, HelpArgs, ListArgs
+from .parsers import (cell_magic_parser,
+    line_magic_parser,
+    CellArgs,
+    DeleteArgs,
+    ErrorArgs,
+    HelpArgs,
+    ListArgs,
+    RegisterArgs,
+    UpdateArgs)
 
 from langchain.chains import LLMChain
 
@@ -233,41 +241,44 @@ class AiMagics(Magics):
 
             self.custom_model_registry[register_name] = target
 
-    def _ai_delete_command(self, register_name):
-        if (register_name in AI_COMMANDS):
-            raise ValueError('Reserved command names cannot be deleted')
+    def handle_delete(self, args: DeleteArgs):
+        if (args.name in AI_COMMANDS):
+            raise ValueError(f"Reserved command names, including {args.name}, cannot be deleted")
         
-        if (register_name not in self.custom_model_registry):
-            raise ValueError(f"There is no alias called {register_name}")
+        if (args.name not in self.custom_model_registry):
+            raise ValueError(f"There is no alias called {args.name}")
         
-        del self.custom_model_registry[register_name]
-        return f"Deleted name `{register_name}`"
+        del self.custom_model_registry[args.name]
+        output = f"Deleted alias `{args.name}`"
+        return TextOrMarkdown(output, output)
 
-    def _ai_register_command(self, register_name, target):
+    def handle_register(self, args: RegisterArgs):
         # Existing command names are not allowed
-        if (register_name in AI_COMMANDS):
-            raise ValueError('This name is reserved for a command')
+        if (args.name in AI_COMMANDS):
+            raise ValueError(f"The name {args.name} is reserved for a command")
         
         # Existing registered names are not allowed
-        if (register_name in self.custom_model_registry):
-            raise ValueError('This name is already associated with a custom model; '
+        if (args.name in self.custom_model_registry):
+            raise ValueError(f"The name {args.name} is already associated with a custom model; "
                 + 'use %ai update to change its target')
         
         # Does the new name match expected format?
-        self._validate_name(register_name)
+        self._validate_name(args.name)
 
-        self._safely_set_target(register_name, target)
-        return f"Registered new name `{register_name}`"
+        self._safely_set_target(args.name, args.target)
+        output = f"Registered new alias `{args.name}`"
+        return TextOrMarkdown(output, output)
 
-    def _ai_update_command(self, register_name, target):
-        if (register_name in AI_COMMANDS):
-            raise ValueError('Reserved command names cannot be updated')
+    def handle_update(self, args: UpdateArgs):
+        if (args.name in AI_COMMANDS):
+            raise ValueError(f"Reserved command names, including {args.name}, cannot be updated")
         
-        if (register_name not in self.custom_model_registry):
-            raise ValueError(f"There is no alias called {register_name}")
+        if (args.name not in self.custom_model_registry):
+            raise ValueError(f"There is no alias called {args.name}")
         
-        self._safely_set_target(register_name, target)
-        return f"Updated target of name `{register_name}`"
+        self._safely_set_target(args.name, args.target)
+        output = f"Updated target of alias `{args.name}`"
+        return TextOrMarkdown(output, output)
 
     def _ai_list_command_markdown(self, single_provider=None):
         output = ("| Provider | Environment variable | Set? | Models |\n"
@@ -537,7 +548,13 @@ class AiMagics(Magics):
             return self.handle_help(args)
         if args.type == "list":
             return self.handle_list(args)
-        
+        if args.type == "register":
+            return self.handle_register(args)
+        if args.type == "delete":
+            return self.handle_delete(args)
+        if args.type == "update":
+            return self.handle_update(args)
+
         # hint to the IDE that this object must be of type `RootArgs`
         args: CellArgs = args
 
