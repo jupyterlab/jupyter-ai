@@ -12,7 +12,7 @@ from IPython.display import HTML, JSON, Markdown, Math
 from jupyter_ai_magics.utils import decompose_model_id, load_providers
 
 from .providers import BaseProvider
-from .parsers import cell_magic_parser, line_magic_parser, CellArgs, HelpArgs, ListArgs
+from .parsers import cell_magic_parser, line_magic_parser, CellArgs, ErrorArgs, HelpArgs, ListArgs
 
 
 MODEL_ID_ALIASES = {
@@ -92,11 +92,7 @@ PROMPT_TEMPLATES_BY_FORMAT = {
     "text": '{prompt}' # No customization
 }
 
-AI_COMMANDS = {
-    "help": "Display a list of supported commands",
-    "list": "Display a list of models that you can use (optionally, for a single provider)",
-    "error": "Explain the last error received. Takes a model, as %%ai does."
-}
+AI_COMMANDS = { "error", "help", "list" }
 
 class FormatDict(dict):
     """Subclass of dict to be passed to str#format(). Suppresses KeyError and
@@ -222,15 +218,8 @@ class AiMagics(Magics):
 
         return output
 
-    def _ai_error_command(self, model_id):
+    def handle_error(self, args: ErrorArgs):
         no_errors = "There have been no errors since the kernel started."
-        provider_id, local_model_id = self._decompose_model_id(model_id)
-        Provider = self._get_provider(provider_id)
-        if Provider is None:
-            return TextOrMarkdown(
-                CANNOT_DETERMINE_MODEL_TEXT.format(model_id),
-                CANNOT_DETERMINE_MODEL_MARKDOWN.format(model_id)
-            )
 
         # Find the most recent error.
         ip = get_ipython()
@@ -250,10 +239,14 @@ class AiMagics(Magics):
         if (last_error is None):
             return TextOrMarkdown(no_errors, no_errors)
 
-        return self.ai(line=(f"""{model_id}
-Explain the Python error:
-
-{last_error}"""))
+        prompt = f"Explain the following error:\n\n{last_error}"
+        # Set CellArgs based on ErrorArgs
+        cell_args = CellArgs(
+            type="root",
+            model_id=args.model_id,
+            format=args.format,
+            reset=False)
+        return self.run_ai_cell(cell_args, prompt)
 
     def _append_exchange_openai(self, prompt: str, output: str):
         """Appends a conversational exchange between user and an OpenAI Chat
@@ -290,41 +283,7 @@ Explain the Python error:
             self._ai_list_command_markdown(args.provider_id)
         )
 
-    @line_cell_magic
-    def ai(self, line, cell=None):
-        raw_args = line.split(' ')
-        if cell:
-            args = cell_magic_parser(raw_args, prog_name="%%ai", standalone_mode=False)
-        else:
-            args = line_magic_parser(raw_args, prog_name="%ai", standalone_mode=False)
-
-        if args == 0:
-            # this happens when `--help` is called on the root command, in which
-            # case we want to exit early.
-            return
-
-        if args.type == "help":
-            return self.handle_help(args)
-        if args.type == "list":
-            return self.handle_list(args)
-        
-        # hint to the IDE that this object must be of type `RootArgs`
-        args: CellArgs = args
-
-        if not cell:
-            raise CellMagicError(
-                """[0.8+]: To invoke a language model, you must use the `%%ai`
-                cell magic. The `%ai` line magic is only for use with
-                subcommands."""
-            ) 
-
-        prompt = cell.strip()
-        
-        # If the user is attempting to run a command, run the command separately.
-        if (args.model_id in AI_COMMANDS):
-            # The "prompt" is a list of arguments to the command, whitespace-delimited
-            return self._ai_command(args.model_id, prompt)
-
+    def run_ai_cell(self, args: CellArgs, prompt: str):
         # Apply a prompt template.
         prompt = PROMPT_TEMPLATES_BY_FORMAT[args.format].format(prompt = prompt)
 
@@ -355,10 +314,6 @@ Explain the Python error:
                     f"Please specify it via `%env {auth_strategy.name}=token`. "
                 ) from None
         
-        # interpolate user namespace into prompt
-        ip = get_ipython()
-        prompt = prompt.format_map(FormatDict(ip.user_ns))
-
         # configure and instantiate provider
         provider_params = { "model_id": local_model_id }
         if provider_id == "openai-chat":
@@ -394,6 +349,7 @@ Explain the Python error:
                 text=output,
                 replace=False,
             )
+            ip = get_ipython()
             ip.payload_manager.write_payload(new_cell_payload)
             return HTML('AI generated code inserted below &#11015;&#65039;', metadata=md);
 
@@ -406,3 +362,41 @@ Explain the Python error:
 
         # finally, display output display
         return output_display
+
+    @line_cell_magic
+    def ai(self, line, cell=None):
+        raw_args = line.split(' ')
+        if cell:
+            args = cell_magic_parser(raw_args, prog_name="%%ai", standalone_mode=False)
+        else:
+            args = line_magic_parser(raw_args, prog_name="%ai", standalone_mode=False)
+
+        if args == 0:
+            # this happens when `--help` is called on the root command, in which
+            # case we want to exit early.
+            return
+
+        if args.type == "error":
+            return self.handle_error(args)
+        if args.type == "help":
+            return self.handle_help(args)
+        if args.type == "list":
+            return self.handle_list(args)
+        
+        # hint to the IDE that this object must be of type `RootArgs`
+        args: CellArgs = args
+
+        if not cell:
+            raise CellMagicError(
+                """[0.8+]: To invoke a language model, you must use the `%%ai`
+                cell magic. The `%ai` line magic is only for use with
+                subcommands."""
+            ) 
+
+        prompt = cell.strip()
+        
+        # interpolate user namespace into prompt
+        ip = get_ipython()
+        prompt = prompt.format_map(FormatDict(ip.user_ns))
+
+        return self.run_ai_cell(args, prompt)
