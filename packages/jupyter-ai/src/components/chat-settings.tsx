@@ -3,8 +3,6 @@ import { Box } from '@mui/system';
 import {
   Alert,
   Button,
-  Chip,
-  Divider,
   FormControl,
   FormControlLabel,
   FormLabel,
@@ -306,9 +304,7 @@ export function ChatSettings() {
       )}
 
       {/* Language model section */}
-      <Divider>
-        <Chip label="Language model" color="primary" variant="outlined" />
-      </Divider>
+      <h2 className="jp-ai-ChatSettings-header">Language model</h2>
       <Select
         value={inputConfig.model_provider_id}
         label="Language model"
@@ -357,9 +353,7 @@ export function ChatSettings() {
       )}
 
       {/* Embedding model section */}
-      <Divider>
-        <Chip label="Embedding model" color="primary" variant="outlined" />
-      </Divider>
+      <h2 className="jp-ai-ChatSettings-header">Embedding model</h2>
       <Select
         value={inputConfig.embeddings_provider_id}
         label="Embedding model"
@@ -384,9 +378,7 @@ export function ChatSettings() {
       </Select>
 
       {/* API Keys section */}
-      <Divider>
-        <Chip label="API Keys" color="primary" variant="outlined" />
-      </Divider>
+      <h2 className="jp-ai-ChatSettings-header">API Keys</h2>
       {Object.entries(inputConfig.api_keys).map(
         ([apiKey, apiKeyValue], idx) => (
           <TextField
@@ -409,9 +401,7 @@ export function ChatSettings() {
       )}
 
       {/* Input */}
-      <Divider>
-        <Chip label="Input" color="primary" variant="outlined" />
-      </Divider>
+      <h2 className="jp-ai-ChatSettings-header">Input</h2>
       <FormControl>
         <FormLabel id="send-radio-buttons-group-label">
           When writing a message, press <kbd>Enter</kbd> to:
