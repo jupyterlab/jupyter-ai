@@ -170,6 +170,7 @@ export namespace AiService {
     embeddings_provider_id: string | null;
     api_keys: Record<string, string>;
     send_with_shift_enter: boolean | null;
+    fields: Record<string, Record<string, any>>;
   };
 
   export type GetConfigResponse = Config;
@@ -191,11 +192,27 @@ export namespace AiService {
 
   export type AuthStrategy = EnvAuthStrategy | AwsAuthStrategy | null;
 
+  export type TextField = {
+    type: 'text';
+    key: string;
+    label: string;
+  };
+
+  export type MultilineTextField = {
+    type: 'text-multiline';
+    key: string;
+    label: string;
+  };
+
+  export type Field = TextField | MultilineTextField;
+
   export type ListProvidersEntry = {
     id: string;
     name: string;
     models: string[];
     auth_strategy: AuthStrategy;
+    registry: boolean;
+    fields: Field[];
   };
 
   export type ListProvidersResponse = {

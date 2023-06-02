@@ -279,7 +279,9 @@ class ModelProviderHandler(BaseAPIHandler):
                     id=provider.id,
                     name=provider.name,
                     models=provider.models,
-                    auth_strategy=provider.auth_strategy
+                    auth_strategy=provider.auth_strategy,
+                    registry=provider.registry,
+                    fields=provider.fields,
                 )
             )
         
@@ -304,7 +306,9 @@ class EmbeddingsModelProviderHandler(BaseAPIHandler):
                     id=provider.id,
                     name=provider.name,
                     models=provider.models,
-                    auth_strategy=provider.auth_strategy
+                    auth_strategy=provider.auth_strategy,
+                    registry=provider.registry,
+                    fields=provider.fields,
                 )
             )
         

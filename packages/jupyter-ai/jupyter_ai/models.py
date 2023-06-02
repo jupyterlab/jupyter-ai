@@ -1,7 +1,7 @@
-from jupyter_ai_magics.providers import AuthStrategy
+from jupyter_ai_magics.providers import AuthStrategy, Field
 
 from pydantic import BaseModel 
-from typing import Dict, List, Union, Literal, Optional
+from typing import Any, Dict, List, Union, Literal, Optional
 
 class PromptRequest(BaseModel):
     task_id: str
@@ -92,6 +92,8 @@ class ListProvidersEntry(BaseModel):
     name: str
     models: List[str]
     auth_strategy: AuthStrategy
+    registry: bool
+    fields: List[Field]
 
 
 class ListProvidersResponse(BaseModel):
@@ -108,3 +110,4 @@ class GlobalConfig(BaseModel):
     embeddings_provider_id: Optional[str] = None
     api_keys: Dict[str, str] = {}
     send_with_shift_enter: Optional[bool] = None
+    fields: Dict[str, Dict[str, Any]] = {}

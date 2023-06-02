@@ -20,7 +20,8 @@ class ChatProviderActor():
         if not provider:
             raise ValueError(f"No provider and model found with '{model_id}'")
         
-        provider_params = { "model_id": local_model_id}
+        fields = config.fields.get(model_id, {})
+        provider_params = { "model_id": local_model_id, **fields }
         
         auth_strategy = provider.auth_strategy
         if auth_strategy and auth_strategy.type == "env":

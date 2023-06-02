@@ -1,9 +1,10 @@
-from typing import ClassVar, Dict, List, Union, Literal, Optional
-
+from typing import Any, ClassVar, Dict, List, Union, Literal, Optional
 import base64
-
 import io
+import json
+import copy
 
+from jsonpath_ng import jsonpath, parse
 from langchain.schema import BaseModel as BaseLangchainProvider
 from langchain.llms import (
     AI21,
@@ -14,6 +15,7 @@ from langchain.llms import (
     OpenAIChat,
     SagemakerEndpoint
 )
+from langchain.llms.sagemaker_endpoint import LLMContentHandler
 from langchain.utils import get_from_dict_or_env
 from langchain.llms.utils import enforce_stop_tokens
 
@@ -45,6 +47,18 @@ AuthStrategy = Optional[
     ]
 ]
 
+class TextField(BaseModel):
+    type: Literal["text"] = "text"
+    key: str
+    label: str
+
+class MultilineTextField(BaseModel):
+    type: Literal["text-multiline"] = "text-multiline"
+    key: str
+    label: str
+
+Field = Union[TextField, MultilineTextField]
+
 class BaseProvider(BaseLangchainProvider):
     #
     # pydantic config
@@ -74,6 +88,13 @@ class BaseProvider(BaseLangchainProvider):
     auth_strategy: ClassVar[AuthStrategy] = None
     """Authentication/authorization strategy. Declares what credentials are
     required to use this model provider. Generally should not be `None`."""
+
+    registry: ClassVar[bool] = False
+    """Whether this provider is a registry provider."""
+
+    fields: ClassVar[List[Field]] = []
+    """User inputs expected by this provider when initializing it. Each `Field` `f` 
+    should be passed in the constructor as a keyword argument, keyed by `f.key`."""
 
     #
     # instance attrs
@@ -144,6 +165,7 @@ class HfHubProvider(BaseProvider, HuggingFaceHub):
     # tqdm is a dependency of huggingface_hub
     pypi_package_deps = ["huggingface_hub", "ipywidgets"]
     auth_strategy = EnvAuthStrategy(name="HUGGINGFACEHUB_API_TOKEN")
+    registry = True
 
     # Override the parent's validate_environment with a custom list of valid tasks
     @root_validator()
@@ -292,6 +314,36 @@ class ChatOpenAINewProvider(BaseProvider, ChatOpenAI):
     pypi_package_deps = ["openai"]
     auth_strategy = EnvAuthStrategy(name="OPENAI_API_KEY")
 
+class JsonContentHandler(LLMContentHandler):
+    content_type = "application/json"
+    accepts = "application/json"
+
+    def __init__(self, request_schema, response_path):
+        self.request_schema = json.loads(request_schema)
+        self.response_path = response_path
+        self.response_parser = parse(response_path)
+
+    def replace_values(self, old_val, new_val, d: Dict[str, Any]):
+        """Replaces values of a dictionary recursively."""
+        for key, val in d.items():
+            if val == old_val:
+                d[key] = new_val
+            if isinstance(val, dict):
+                self.replace_values(old_val, new_val, val)
+        
+        return d
+
+    def transform_input(self, prompt: str, model_kwargs: Dict) -> bytes:
+        request_obj = copy.deepcopy(self.request_schema)
+        self.replace_values("<prompt>", prompt, request_obj)
+        request = json.dumps(request_obj).encode('utf-8')
+        return request
+    
+    def transform_output(self, output: bytes) -> str:
+        response_json = json.loads(output.read().decode("utf-8"))
+        matches = self.response_parser.find(response_json)
+        return matches[0].value
+
 class SmEndpointProvider(BaseProvider, SagemakerEndpoint):
     id = "sagemaker-endpoint"
     name = "Sagemaker Endpoint"
@@ -299,5 +351,25 @@ class SmEndpointProvider(BaseProvider, SagemakerEndpoint):
     model_id_key = "endpoint_name"
     pypi_package_deps = ["boto3"]
     auth_strategy = AwsAuthStrategy()
-
+    registry = True
+    fields = [
+        TextField(
+            key="region_name",
+            label="Region name",
+        ),
+        MultilineTextField(
+            key="request_schema",
+            label="Request schema",
+        ),
+        TextField(
+            key="response_path",
+            label="Response path",
+        )
+    ]
     
+    def __init__(self, *args, **kwargs):
+        request_schema = kwargs.pop('request_schema')
+        response_path = kwargs.pop('response_path')
+        content_handler = JsonContentHandler(request_schema=request_schema, response_path=response_path)
+        super().__init__(*args, **kwargs, content_handler=content_handler)
+
