@@ -49,6 +49,18 @@ export function ModelField(props: ModelFieldProps): JSX.Element {
     });
   }
 
+  if (props.field.type === 'integer') {
+    return (
+      <TextField
+        label={props.field.label}
+        value={props.config.fields[props.gmid]?.[props.field.key]}
+        onChange={handleChange}
+        inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+        fullWidth
+      />
+    );
+  }
+
   if (props.field.type === 'text') {
     return (
       <TextField
