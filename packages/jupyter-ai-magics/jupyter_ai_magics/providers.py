@@ -17,6 +17,7 @@ from langchain.llms import (
     HuggingFaceHub,
     OpenAI,
     OpenAIChat,
+    GPT4All,
     SagemakerEndpoint,
 )
 from langchain.llms.sagemaker_endpoint import LLMContentHandler
@@ -191,6 +192,32 @@ class CohereProvider(BaseProvider, Cohere):
 
     async def _acall(self, *args, **kwargs) -> Coroutine[Any, Any, str]:
         return await self._call_in_executor(*args, **kwargs)
+
+
+class GPT4AllProvider(BaseProvider, GPT4All):
+
+    def __init__(self, **kwargs):
+        model = kwargs.get("model_id")
+        if model == "ggml-gpt4all-l13b-snoozy":
+            kwargs["backend"] = "llama"
+        else:
+            kwargs["backend"] = "gptj"
+
+        kwargs['allow_download'] = True
+        super().__init__(**kwargs)
+
+    id = "gpt4all"
+    name = "GPT4All"
+    docs = "https://docs.gpt4all.io/gpt4all_python.html"
+    models = [
+        "ggml-gpt4all-j-v1.2-jazzy",
+        "ggml-gpt4all-j-v1.3-groovy",
+        # this one needs llama backend and has licence restriction
+        "ggml-gpt4all-l13b-snoozy"
+    ]
+    model_id_key = "model"
+    pypi_package_deps = ["gpt4all"]
+    auth_strategy = None
 
 
 HUGGINGFACE_HUB_VALID_TASKS = (
