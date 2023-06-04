@@ -7,17 +7,17 @@ please see our {doc}`contributor's guide </contributors/index>`.
 
 ## Prerequisites
 
-You can run Jupyter AI on any system that can run a supported Python version from 3.8 to 3.10, including recent Windows, macOS, and Linux versions.
+You can run Jupyter AI on any system that can run a supported Python version from 3.8 to 3.11, including recent Windows, macOS, and Linux versions.
 
 :::{important}
-:name: python-3-11-not-supported
-Because the [ray](https://pypi.org/project/ray/) library that Jupyter AI uses is not compatible with Python 3.11, please use Python 3.8 to Python 3.10, inclusive.
+:name: python-3-12-not-supported
+Jupyter AI is not compatible with Python 3.11, please use Python 3.8 to Python 3.11, inclusive.
 :::
 
-If you use `conda`, you can install Python 3.10 in your environment by running:
+If you use `conda`, you can install Python 3.11 in your environment by running:
 
 ```
-conda install python=3.10
+conda install python=3.11
 ```
 
 To use the `jupyter_ai` package, you will also need to have a currently-maintained version of JupyterLab 3 installed. We do not yet support JupyterLab 4. If you use `conda`, you can install JupyterLab in your environment by running:
