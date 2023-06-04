@@ -46,6 +46,7 @@ all = [
     "ai21",
     "anthropic~=0.2.10",
     "cohere",
+    "gpt4all",
     "huggingface_hub",
     "ipywidgets",
     "pillow",
@@ -57,6 +58,7 @@ all = [
 ai21 = "jupyter_ai_magics:AI21Provider"
 anthropic = "jupyter_ai_magics:AnthropicProvider"
 cohere = "jupyter_ai_magics:CohereProvider"
+gpt4all = "jupyter_ai_magics:GPT4AllProvider"
 huggingface_hub = "jupyter_ai_magics:HfHubProvider"
 openai = "jupyter_ai_magics:OpenAIProvider"
 openai-chat = "jupyter_ai_magics:ChatOpenAIProvider"
