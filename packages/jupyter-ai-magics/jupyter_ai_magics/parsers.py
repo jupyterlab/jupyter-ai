@@ -4,12 +4,19 @@ from typing import Optional, Literal, get_args
 
 FORMAT_CHOICES_TYPE = Literal["code", "html", "image", "json", "markdown", "math", "md", "text"]
 FORMAT_CHOICES = list(get_args(FORMAT_CHOICES_TYPE))
+FORMAT_HELP = """IPython display to use when rendering output. [default="markdown"]"""
 
 class CellArgs(BaseModel):
     type: Literal["root"] = "root"
     model_id: str
     format: FORMAT_CHOICES_TYPE
     reset: bool
+
+# Should match CellArgs, but without "reset"
+class ErrorArgs(BaseModel):
+    type: Literal["error"] = "error"
+    model_id: str
+    format: FORMAT_CHOICES_TYPE
 
 class HelpArgs(BaseModel):
     type: Literal["help"] = "help"
@@ -33,7 +40,7 @@ class LineMagicGroup(click.Group):
 @click.option('-f', '--format',
     type=click.Choice(FORMAT_CHOICES, case_sensitive=False),
     default="markdown",
-    help="""IPython display to use when rendering output. [default="markdown"]"""
+    help=FORMAT_HELP
 )
 @click.option('-r', '--reset', is_flag=True,
     help="""Clears the conversation transcript used when interacting with an
@@ -55,6 +62,20 @@ def line_magic_parser():
     """
     Invokes a subcommand.
     """
+
+@line_magic_parser.command(name='error')
+@click.argument('model_id')
+@click.option('-f', '--format',
+    type=click.Choice(FORMAT_CHOICES, case_sensitive=False),
+    default="markdown",
+    help=FORMAT_HELP
+)
+def error_subparser(**kwargs):
+    """
+    Explains the most recent error. Takes the same options (except -r) as
+    the basic `%%ai` command.
+    """
+    return ErrorArgs(**kwargs)
 
 @line_magic_parser.command(name='help')
 def help_subparser():
