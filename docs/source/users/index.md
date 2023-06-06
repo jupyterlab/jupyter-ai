@@ -590,7 +590,7 @@ You can change an alias's target using the `%ai update` command:
 %ai update claude anthropic:claude-instant-v1.0
 ```
 
-You can delete this alias using the `%ai delete` command:
+You can delete an alias using the `%ai delete` command:
 
 ```
 %ai delete claude
