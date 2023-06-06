@@ -3,6 +3,7 @@ import json
 import keyword
 import os
 import re
+import sys
 import warnings
 from typing import Optional
 
@@ -514,18 +515,23 @@ class AiMagics(Magics):
             # case we want to exit early.
             return
 
-        if args.type == "error":
-            return self.handle_error(args)
-        if args.type == "help":
-            return self.handle_help(args)
-        if args.type == "list":
-            return self.handle_list(args)
-        if args.type == "register":
-            return self.handle_register(args)
-        if args.type == "delete":
-            return self.handle_delete(args)
-        if args.type == "update":
-            return self.handle_update(args)
+        # If a value error occurs, don't print the full stacktrace
+        try:
+            if args.type == "error":
+                return self.handle_error(args)
+            if args.type == "help":
+                return self.handle_help(args)
+            if args.type == "list":
+                return self.handle_list(args)
+            if args.type == "register":
+                return self.handle_register(args)
+            if args.type == "delete":
+                return self.handle_delete(args)
+            if args.type == "update":
+                return self.handle_update(args)
+        except ValueError as e:
+            print(e, file=sys.stderr)
+            return
 
         # hint to the IDE that this object must be of type `RootArgs`
         args: CellArgs = args
