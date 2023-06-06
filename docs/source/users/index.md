@@ -584,7 +584,7 @@ chain = LLMChain(llm=llm, prompt=prompt)
 %ai register companyname chain
 ```
 
-You can change this alias's target using the `%ai update` command:
+You can change an alias's target using the `%ai update` command:
 
 ```
 %ai update claude anthropic:claude-instant-v1.0
