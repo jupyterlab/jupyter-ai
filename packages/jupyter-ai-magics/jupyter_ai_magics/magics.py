@@ -403,6 +403,7 @@ class AiMagics(Magics):
                 text=output,
                 replace=False,
             )
+            ip = get_ipython()
             ip.payload_manager.write_payload(new_cell_payload)
             return HTML('AI generated code inserted below &#11015;&#65039;', metadata=md);
 
