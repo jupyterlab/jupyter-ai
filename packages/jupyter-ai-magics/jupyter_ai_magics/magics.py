@@ -498,30 +498,7 @@ class AiMagics(Magics):
             }
         }
 
-        # if the user wants code, add another cell with the output.
-        if args.format == 'code':
-            # Strip a leading language indicator and trailing triple-backticks
-            lang_indicator = r'^```[a-zA-Z0-9]*\n'
-            output = re.sub(lang_indicator, '', output)
-            output = re.sub(r'\n```$', '', output)
-            new_cell_payload = dict(
-                source='set_next_input',
-                text=output,
-                replace=False,
-            )
-            ip = get_ipython()
-            ip.payload_manager.write_payload(new_cell_payload)
-            return HTML('AI generated code inserted below &#11015;&#65039;', metadata=md);
-
-        if DisplayClass is None:
-            return output
-        if args.format == 'json':
-            # JSON display expects a dict, not a JSON string
-            output = json.loads(output)
-        output_display = DisplayClass(output, metadata=md)
-
-        # finally, display output display
-        return output_display
+        return self.display_output(output, args.format, md)
 
     @line_cell_magic
     def ai(self, line, cell=None):
