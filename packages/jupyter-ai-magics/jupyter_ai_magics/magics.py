@@ -1,7 +1,9 @@
 import base64
 import json
+import keyword
 import os
 import re
+import sys
 import warnings
 from typing import Optional
 
@@ -12,8 +14,17 @@ from IPython.display import HTML, JSON, Markdown, Math
 from jupyter_ai_magics.utils import decompose_model_id, load_providers
 
 from .providers import BaseProvider
-from .parsers import cell_magic_parser, line_magic_parser, CellArgs, ErrorArgs, HelpArgs, ListArgs
+from .parsers import (cell_magic_parser,
+    line_magic_parser,
+    CellArgs,
+    DeleteArgs,
+    ErrorArgs,
+    HelpArgs,
+    ListArgs,
+    RegisterArgs,
+    UpdateArgs)
 
+from langchain.chains import LLMChain
 
 MODEL_ID_ALIASES = {
     "gpt2": "huggingface_hub:gpt2",
@@ -68,6 +79,8 @@ DISPLAYS_BY_FORMAT = {
     "text": TextWithMetadata
 }
 
+NA_MESSAGE = '<abbr title="Not applicable">N/A</abbr>'
+
 MARKDOWN_PROMPT_TEMPLATE = '{prompt}\n\nProduce output in markdown format only.'
 
 PROVIDER_NO_MODELS = 'This provider does not define a list of models.'
@@ -92,7 +105,7 @@ PROMPT_TEMPLATES_BY_FORMAT = {
     "text": '{prompt}' # No customization
 }
 
-AI_COMMANDS = { "error", "help", "list" }
+AI_COMMANDS = { "delete", "error", "help", "list", "register", "update" }
 
 class FormatDict(dict):
     """Subclass of dict to be passed to str#format(). Suppresses KeyError and
@@ -119,7 +132,9 @@ class AiMagics(Magics):
             "`from langchain.chat_models import ChatOpenAI`")
 
         self.providers = load_providers()
-    
+        
+        # initialize a registry of custom model/chain names
+        self.custom_model_registry = MODEL_ID_ALIASES
     
     def _ai_bulleted_list_models_for_provider(self, provider_id, Provider):
         output = ""
@@ -146,7 +161,7 @@ class AiMagics(Magics):
     
     # Is the required environment variable set?
     def _ai_env_status_for_provider_markdown(self, provider_id):
-        na_message = 'Not applicable. | <abbr title="Not applicable">N/A</abbr> '
+        na_message = 'Not applicable. | ' + NA_MESSAGE
 
         if (provider_id not in self.providers or
             self.providers[provider_id].auth_strategy == None):
@@ -185,6 +200,80 @@ class AiMagics(Magics):
         
         return output + "\n"
 
+    # Is this a name of a Python variable that can be called as a LangChain chain?
+    def _is_langchain_chain(self, name):
+        # Reserved word in Python?
+        if (keyword.iskeyword(name)):
+            return False;
+    
+        acceptable_name = re.compile('^[a-zA-Z0-9_]+$')
+        if (not acceptable_name.match(name)):
+            return False;
+        
+        ipython = get_ipython()
+        return(name in ipython.user_ns and isinstance(ipython.user_ns[name], LLMChain))
+
+    # Is this an acceptable name for an alias?
+    def _validate_name(self, register_name):
+        # A registry name contains ASCII letters, numbers, hyphens, underscores,
+        # and periods. No other characters, including a colon, are permitted
+        acceptable_name = re.compile('^[a-zA-Z0-9._-]+$')
+        if (not acceptable_name.match(register_name)):
+            raise ValueError('A registry name may contain ASCII letters, numbers, hyphens, underscores, '
+                + 'and periods. No other characters, including a colon, are permitted')
+
+    # Initially set or update an alias to a target
+    def _safely_set_target(self, register_name, target):
+        # If target is a string, treat this as an alias to another model.
+        if self._is_langchain_chain(target):
+            ip = get_ipython()
+            self.custom_model_registry[register_name] = ip.user_ns[target]
+        else:
+            # Ensure that the destination is properly formatted
+            if (':' not in target):
+                raise ValueError(
+                    'Target model must be an LLMChain object or a model name in PROVIDER_ID:MODEL_NAME format')
+
+            self.custom_model_registry[register_name] = target
+
+    def handle_delete(self, args: DeleteArgs):
+        if (args.name in AI_COMMANDS):
+            raise ValueError(f"Reserved command names, including {args.name}, cannot be deleted")
+        
+        if (args.name not in self.custom_model_registry):
+            raise ValueError(f"There is no alias called {args.name}")
+        
+        del self.custom_model_registry[args.name]
+        output = f"Deleted alias `{args.name}`"
+        return TextOrMarkdown(output, output)
+
+    def handle_register(self, args: RegisterArgs):
+        # Existing command names are not allowed
+        if (args.name in AI_COMMANDS):
+            raise ValueError(f"The name {args.name} is reserved for a command")
+        
+        # Existing registered names are not allowed
+        if (args.name in self.custom_model_registry):
+            raise ValueError(f"The name {args.name} is already associated with a custom model; "
+                + 'use %ai update to change its target')
+        
+        # Does the new name match expected format?
+        self._validate_name(args.name)
+
+        self._safely_set_target(args.name, args.target)
+        output = f"Registered new alias `{args.name}`"
+        return TextOrMarkdown(output, output)
+
+    def handle_update(self, args: UpdateArgs):
+        if (args.name in AI_COMMANDS):
+            raise ValueError(f"Reserved command names, including {args.name}, cannot be updated")
+        
+        if (args.name not in self.custom_model_registry):
+            raise ValueError(f"There is no alias called {args.name}")
+        
+        self._safely_set_target(args.name, args.target)
+        output = f"Updated target of alias `{args.name}`"
+        return TextOrMarkdown(output, output)
 
     def _ai_list_command_markdown(self, single_provider=None):
         output = ("| Provider | Environment variable | Set? | Models |\n"
@@ -201,6 +290,20 @@ class AiMagics(Magics):
                 + self._ai_inline_list_models_for_provider(provider_id, Provider)
                 + " |\n")
 
+        # Also list aliases.
+        if (single_provider is None and len(self.custom_model_registry) > 0):
+            output += ("\nAliases and custom commands:\n\n"
+                + "| Name | Target |\n"
+                + "|------|--------|\n")
+            for key, value in self.custom_model_registry.items():
+                output += f"| `{key}` | "
+                if isinstance(value, str):
+                    output += f"`{value}`"
+                else:
+                    output += "*custom chain*"
+                
+                output += " |\n"
+
         return output
 
     def _ai_list_command_text(self, single_provider=None):
@@ -215,6 +318,18 @@ class AiMagics(Magics):
             output += (f"{provider_id}\n"
                 + self._ai_env_status_for_provider_text(provider_id) # includes \n if nonblank
                 + self._ai_bulleted_list_models_for_provider(provider_id, Provider))
+
+        # Also list aliases.
+        if (single_provider is None and len(self.custom_model_registry) > 0):
+            output += "\nAliases and custom commands:\n"
+            for key, value in self.custom_model_registry.items():
+                output += f"{key} - "
+                if isinstance(value, str):
+                    output += value
+                else:
+                    output += "custom chain"
+                
+                output += "\n"
 
         return output
 
@@ -261,6 +376,10 @@ class AiMagics(Magics):
         })
 
     def _decompose_model_id(self, model_id: str):
+        """Breaks down a model ID into a two-tuple (provider_id, local_model_id). Returns (None, None) if indeterminate."""
+        if model_id in self.custom_model_registry:
+            model_id = self.custom_model_registry[model_id]
+
         return decompose_model_id(model_id, self.providers)
 
     def _get_provider(self, provider_id: Optional[str]) -> BaseProvider:
@@ -269,6 +388,35 @@ class AiMagics(Magics):
             return None
 
         return self.providers[provider_id]
+    
+    def display_output(self, output, display_format, md):
+        # build output display
+        DisplayClass = DISPLAYS_BY_FORMAT[display_format]
+
+        # if the user wants code, add another cell with the output.
+        if display_format == 'code':
+            # Strip a leading language indicator and trailing triple-backticks
+            lang_indicator = r'^```[a-zA-Z0-9]*\n'
+            output = re.sub(lang_indicator, '', output)
+            output = re.sub(r'\n```$', '', output)
+            new_cell_payload = dict(
+                source='set_next_input',
+                text=output,
+                replace=False,
+            )
+            ip = get_ipython()
+            ip.payload_manager.write_payload(new_cell_payload)
+            return HTML('AI generated code inserted below &#11015;&#65039;', metadata=md);
+
+        if DisplayClass is None:
+            return output
+        if display_format == 'json':
+            # JSON display expects a dict, not a JSON string
+            output = json.loads(output)
+        output_display = DisplayClass(output, metadata=md)
+
+        # finally, display output display
+        return output_display
 
     def handle_help(self, _: HelpArgs):
         with click.Context(cell_magic_parser, info_name="%%ai") as ctx:
@@ -287,7 +435,24 @@ class AiMagics(Magics):
         # Apply a prompt template.
         prompt = PROMPT_TEMPLATES_BY_FORMAT[args.format].format(prompt = prompt)
 
-        # determine provider and local model IDs
+        # interpolate user namespace into prompt
+        ip = get_ipython()
+        prompt = prompt.format_map(FormatDict(ip.user_ns))
+
+        # Determine provider and local model IDs
+        # If this is a custom chain, send the message to the custom chain.
+        if (args.model_id in self.custom_model_registry and
+            isinstance(self.custom_model_registry[args.model_id], LLMChain)):
+            
+            return self.display_output(
+                self.custom_model_registry[args.model_id].run(prompt),
+                args.format,
+                {
+                    "jupyter_ai": {
+                        "custom_chain_id": args.model_id
+                    }
+                })
+
         provider_id, local_model_id = self._decompose_model_id(args.model_id)
         Provider = self._get_provider(provider_id)
         if Provider is None:
@@ -328,9 +493,6 @@ class AiMagics(Magics):
         if provider_id == "openai-chat":
             self._append_exchange_openai(prompt, output)
 
-        # build output display
-        DisplayClass = DISPLAYS_BY_FORMAT[args.format]
-
         md = {
             "jupyter_ai": {
                 "provider_id": provider_id,
@@ -338,30 +500,7 @@ class AiMagics(Magics):
             }
         }
 
-        # if the user wants code, add another cell with the output.
-        if args.format == 'code':
-            # Strip a leading language indicator and trailing triple-backticks
-            lang_indicator = r'^```[a-zA-Z0-9]*\n'
-            output = re.sub(lang_indicator, '', output)
-            output = re.sub(r'\n```$', '', output)
-            new_cell_payload = dict(
-                source='set_next_input',
-                text=output,
-                replace=False,
-            )
-            ip = get_ipython()
-            ip.payload_manager.write_payload(new_cell_payload)
-            return HTML('AI generated code inserted below &#11015;&#65039;', metadata=md);
-
-        if DisplayClass is None:
-            return output
-        if args.format == 'json':
-            # JSON display expects a dict, not a JSON string
-            output = json.loads(output)
-        output_display = DisplayClass(output, metadata=md)
-
-        # finally, display output display
-        return output_display
+        return self.display_output(output, args.format, md)
 
     @line_cell_magic
     def ai(self, line, cell=None):
@@ -376,13 +515,24 @@ class AiMagics(Magics):
             # case we want to exit early.
             return
 
-        if args.type == "error":
-            return self.handle_error(args)
-        if args.type == "help":
-            return self.handle_help(args)
-        if args.type == "list":
-            return self.handle_list(args)
-        
+        # If a value error occurs, don't print the full stacktrace
+        try:
+            if args.type == "error":
+                return self.handle_error(args)
+            if args.type == "help":
+                return self.handle_help(args)
+            if args.type == "list":
+                return self.handle_list(args)
+            if args.type == "register":
+                return self.handle_register(args)
+            if args.type == "delete":
+                return self.handle_delete(args)
+            if args.type == "update":
+                return self.handle_update(args)
+        except ValueError as e:
+            print(e, file=sys.stderr)
+            return
+
         # hint to the IDE that this object must be of type `RootArgs`
         args: CellArgs = args
 
