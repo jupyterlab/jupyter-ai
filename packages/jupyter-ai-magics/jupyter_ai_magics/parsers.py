@@ -112,9 +112,9 @@ def line_magic_parser():
     default="markdown",
     help=FORMAT_HELP
 )
-@click.option('-n', '--region-name', required=False, help=REGION_NAME_HELP)
-@click.option('-q', '--request-schema', required=False, help=REQUEST_SCHEMA_HELP)
-@click.option('-p', '--response-path', required=False, help=RESPONSE_PATH_HELP)
+@click.option(REGION_NAME_SHORT_OPTION, REGION_NAME_LONG_OPTION, required=False, help=REGION_NAME_HELP)
+@click.option(REQUEST_SCHEMA_SHORT_OPTION, REQUEST_SCHEMA_LONG_OPTION, required=False, help=REQUEST_SCHEMA_HELP)
+@click.option(RESPONSE_PATH_SHORT_OPTION, RESPONSE_PATH_LONG_OPTION, required=False, help=RESPONSE_PATH_HELP)
 def error_subparser(**kwargs):
     """
     Explains the most recent error. Takes the same options (except -r) as
