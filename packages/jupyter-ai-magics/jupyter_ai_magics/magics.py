@@ -478,11 +478,26 @@ class AiMagics(Magics):
                     f"An authentication token is required to use models from the {Provider.name} provider.\n"
                     f"Please specify it via `%env {auth_strategy.name}=token`. "
                 ) from None
-        
+
         # configure and instantiate provider
         provider_params = { "model_id": local_model_id }
         if provider_id == "openai-chat":
             provider_params["prefix_messages"] = self.transcript_openai
+        # for SageMaker, validate that required params are specified
+        if provider_id == "sagemaker-endpoint":
+            if (
+                args.region_name is None or
+                args.request_schema is None or
+                args.response_path is None
+            ):
+                raise ValueError(
+                    "When using the sagemaker-endpoint provider, you must specify all of " +
+                    "the --region-name, --request-schema, and --response-path options."
+                )
+            provider_params["region_name"] = args.region_name
+            provider_params["request_schema"] = args.request_schema
+            provider_params["response_path"] = args.response_path
+
         provider = Provider(**provider_params)
 
         # generate output from model via provider
