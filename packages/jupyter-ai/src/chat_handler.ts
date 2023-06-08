@@ -144,7 +144,7 @@ export class ChatHandler implements IDisposable {
     reject(new Error("Chat UI websocket disconnected"))
     console.error("Chat UI websocket disconnected")
     const delaySeconds = 1
-    console.info(`Will try to reconnect in ${delaySeconds} seconds.`)
+    console.info(`Will try to reconnect in ${delaySeconds} s.`)
     setTimeout(async () => await this._initialize(), delaySeconds * 1000);
   }
 
