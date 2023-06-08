@@ -180,7 +180,7 @@ To compose a message, type it in the text box at the bottom of the chat interfac
 ### Using the chat interrface with SageMaker endpoints
 
 Jupyter AI supports language models hosted on SageMaker endpoints that use JSON
-APIs. The first step is to authenticate with AWS via the `boto3` SDK and have
+schemas. The first step is to authenticate with AWS via the `boto3` SDK and have
 the credentials stored in the `default` profile.  Guidance on how to do this can
 be found in the
 [`boto3` documentation](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html).
