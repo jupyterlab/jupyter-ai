@@ -606,7 +606,7 @@ Aliases must refer to models or `LLMChain` objects; they cannot refer to other a
 
 You can use magic commands with models hosted using Amazon SageMaker.
 
-First, make sure that you've set your `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, and `AWS_SESSION_TOKEN` environment variables either before starting JupyterLab or using the `%env` magic command within JupyterLab.
+First, make sure that you've set your `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` environment variables either before starting JupyterLab or using the `%env` magic command within JupyterLab.
 
 Jupyter AI supports language models hosted on SageMaker endpoints that use JSON APIs. Authenticate with AWS via the `boto3` SDK and have the credentials stored in the `default` profile.  Guidance on how to do this can be found in the [`boto3` documentation](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html).
 
