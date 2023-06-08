@@ -48,7 +48,7 @@ Jupyter AI supports the following model providers:
 | HuggingFace Hub     | `huggingface_hub`    | `HUGGINGFACEHUB_API_TOKEN` | `huggingface_hub`, `ipywidgets`, `pillow` |
 | OpenAI              | `openai`             | `OPENAI_API_KEY`           | `openai`                        |
 | OpenAI (chat)       | `openai-chat`        | `OPENAI_API_KEY`           | `openai`                        |
-| SageMaker Endpoints | `sagemaker-endpoint` | N/A                        | `boto3`                         |
+| SageMaker          | `sagemaker-endpoint` | N/A                        | `boto3`                         |
 
 The environment variable names shown above are also the names of the settings keys used when setting up the chat interface.
 
@@ -177,20 +177,20 @@ To compose a message, type it in the text box at the bottom of the chat interfac
     alt='Screen shot of an example "Hello world" message sent to Jupyternaut, who responds with "Hello world, how are you today?"'
     class="screenshot" />
 
-### Usage with SageMaker Endpoints
+### Using the chat interrface with SageMaker endpoints
 
-Jupyter AI supports language models hosted on SageMaker Endpoints that use JSON
+Jupyter AI supports language models hosted on SageMaker endpoints that use JSON
 APIs. The first step is to authenticate with AWS via the `boto3` SDK and have
 the credentials stored in the `default` profile.  Guidance on how to do this can
 be found in the
 [`boto3` documentation](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html).
 
-When selecting the SageMaker Endpoints provider in the settings panel, you will
+When selecting the SageMaker provider in the settings panel, you will
 see the following interface:
 
 <img src="../_static/chat-sagemaker-endpoints.png"
     width="50%"
-    alt='Screenshot of the settings panel with the SageMaker Endpoints provider selected.'
+    alt='Screenshot of the settings panel with the SageMaker provider selected.'
     class="screenshot" />
 
 Each of the additional fields under "Language model" is required. These fields
@@ -601,3 +601,26 @@ You can see a list of all aliases by running the `%ai list` command.
 Aliases' names can contain ASCII letters (uppercase and lowercase), numbers, hyphens, underscores, and periods. They may not contain colons. They may also not override built-in commands — run `%ai help` for a list of these commands.
 
 Aliases must refer to models or `LLMChain` objects; they cannot refer to other aliases.
+
+### Using the chat interface with SageMaker endpoints
+
+You can use the chat interface with models hosted using Amazon SageMaker.
+
+First, make sure that you've set your `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, and `AWS_SESSION_TOKEN` environment variables either before starting JupyterLab or using the `%env` magic command within JupyterLab.
+
+Jupyter AI supports language models hosted on SageMaker endpoints that use JSON APIs. Authenticate with AWS via the `boto3` SDK and have the credentials stored in the `default` profile.  Guidance on how to do this can be found in the [`boto3` documentation](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html).
+
+You will need to deploy a model in SageMaker, then provide it as your model name (as `sagemaker-endpoint:my-model-name`). See the [documentation on how to deploy a JumpStart model](https://docs.aws.amazon.com/sagemaker/latest/dg/jumpstart-deploy.html).
+
+All SageMaker endpoint requests require you to specify the `--region-name`, `--request-schema`, and `--response-path` options. The example below presumes that you have deployed a model called `jumpstart-dft-hf-text2text-flan-t5-xl`.
+
+```
+%%ai sagemaker-endpoint:jumpstart-dft-hf-text2text-flan-t5-xl --region-name=us-east-1 --request-schema={"text_inputs":"<prompt>"} --response-path=generated_texts.[0] -f code
+Write Python code to print "Hello world"
+```
+
+The `--region-name` parameter is set to the [AWS region code](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html) where the model is deployed, which in this case is `us-east-1`.
+
+The `--request-schema` parameter is the JSON object the endpoint expects, with the prompt being substituted into any value that matches the string literal `"<prompt>"`. For example, the request schema `{"text_inputs":"<prompt>"}` generates a JSON object with the prompt stored under the `text_inputs` key.
+
+The `--response-path` option is a [JSONPath](https://goessner.net/articles/JsonPath/index.html) string that retrieves the language model's output from the endpoint's JSON response. For example, if your endpoint returns an object with the schema `{"generated_texts":["<output>"]}`, its response path is `generated_texts.[0]`.
