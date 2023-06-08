@@ -143,7 +143,9 @@ export class ChatHandler implements IDisposable {
   private _onClose(reject: any) {
     reject(new Error("Chat UI websocket disconnected"))
     console.error("Chat UI websocket disconnected")
-    setTimeout(async () => await this._initialize(), 500);
+    const delaySeconds = 1
+    console.info(`Will try to reconnect in ${delaySeconds} seconds.`)
+    setTimeout(async () => await this._initialize(), delaySeconds * 1000);
   }
 
   private _initialize(): Promise<void> {
@@ -151,7 +153,7 @@ export class ChatHandler implements IDisposable {
       if (this.isDisposed) {
         return;
       }
-      console.log("Creating a new websocket connection...");
+      console.log("Creating a new websocket connection for chat...");
       const { token, WebSocket, wsUrl } = this.serverSettings;
       const url =
         URLExt.join(wsUrl, CHAT_SERVICE_URL) +
@@ -162,6 +164,7 @@ export class ChatHandler implements IDisposable {
         socket.onerror = (e) => reject(e);
         socket.onmessage = msg =>
           msg.data && this._onMessage(JSON.parse(msg.data));
+        
         const listenForConnection = (message: AiService.Message) => {
           if (message.type !== 'connection') {
             return;
