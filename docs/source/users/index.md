@@ -602,9 +602,9 @@ Aliases' names can contain ASCII letters (uppercase and lowercase), numbers, hyp
 
 Aliases must refer to models or `LLMChain` objects; they cannot refer to other aliases.
 
-### Using the chat interface with SageMaker endpoints
+### Using magic commands with SageMaker endpoints
 
-You can use the chat interface with models hosted using Amazon SageMaker.
+You can use magic commands with models hosted using Amazon SageMaker.
 
 First, make sure that you've set your `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, and `AWS_SESSION_TOKEN` environment variables either before starting JupyterLab or using the `%env` magic command within JupyterLab.
 
