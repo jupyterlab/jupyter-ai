@@ -29,33 +29,10 @@ export class ChatHandler implements IDisposable {
    * resolved when server acknowledges connection and sends the client ID. This
    * must be awaited before calling any other method.
    */
-  public initialize(): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
-      if (this.isDisposed) {
-        return;
-      }
-      const { token, WebSocket, wsUrl } = this.serverSettings;
-      const url =
-        URLExt.join(wsUrl, CHAT_SERVICE_URL) +
-        (token ? `?token=${encodeURIComponent(token)}` : '');
-
-      const socket = (this._socket = new WebSocket(url));
-      socket.onerror = (e) => reject(e);
-      socket.onmessage = msg =>
-        msg.data && this._onMessage(JSON.parse(msg.data));
-
-      const listenForConnection = (message: AiService.Message) => {
-        if (message.type !== 'connection') {
-          return;
-        }
-        this.id = message.client_id;
-        resolve();
-        this.removeListener(listenForConnection);
-      };
-
-      this.addListener(listenForConnection);
-    });
+  public async initialize() {
+    await this._initialize();
   }
+
 
   /**
    * Sends a message across the WebSocket. Promise resolves to the message ID
@@ -116,7 +93,6 @@ export class ChatHandler implements IDisposable {
       return;
     }
     this._isDisposed = true;
-
     this._listeners = [];
 
     // Clean up socket.
@@ -163,6 +139,44 @@ export class ChatHandler implements IDisposable {
     string,
     (value: AiService.AgentChatMessage) => void
   > = {};
+
+  private _onClose(reject: any) {
+    reject(new Error("Chat UI websocket disconnected"))
+    console.error("Chat UI websocket disconnected")
+    const delaySeconds = 1
+    console.info(`Will try to reconnect in ${delaySeconds} s.`)
+    setTimeout(async () => await this._initialize(), delaySeconds * 1000);
+  }
+
+  private _initialize(): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      if (this.isDisposed) {
+        return;
+      }
+      console.log("Creating a new websocket connection for chat...");
+      const { token, WebSocket, wsUrl } = this.serverSettings;
+      const url =
+        URLExt.join(wsUrl, CHAT_SERVICE_URL) +
+        (token ? `?token=${encodeURIComponent(token)}` : '');
+      
+        const socket = (this._socket = new WebSocket(url));
+        socket.onclose = () => this._onClose(reject);
+        socket.onerror = (e) => reject(e);
+        socket.onmessage = msg =>
+          msg.data && this._onMessage(JSON.parse(msg.data));
+        
+        const listenForConnection = (message: AiService.Message) => {
+          if (message.type !== 'connection') {
+            return;
+          }
+          this.id = message.client_id;
+          resolve();
+          this.removeListener(listenForConnection);
+        };
+  
+        this.addListener(listenForConnection);
+    });
+  }
 
   private _isDisposed = false;
   private _socket: WebSocket | null = null;
