@@ -419,9 +419,7 @@ class AiMagics(Magics):
         return output_display
 
     def handle_help(self, _: HelpArgs):
-        with click.Context(cell_magic_parser, info_name="%%ai") as ctx:
-            click.echo(cell_magic_parser.get_help(ctx))
-        click.echo('-' * 78)
+        # The line parser's help function prints both cell and line help
         with click.Context(line_magic_parser, info_name="%ai") as ctx:
             click.echo(line_magic_parser.get_help(ctx))
 
