@@ -65,12 +65,9 @@ class UpdateArgs(BaseModel):
     target: str
 
 class LineMagicGroup(click.Group):
-    """Helper class to print the help string for cell magics as well when
+    """Helper class to print the help string for line magics when
     `%ai --help` is called."""
     def get_help(self, ctx):
-        with click.Context(cell_magic_parser, info_name="%%ai") as ctx:
-            click.echo(cell_magic_parser.get_help(ctx))
-        click.echo('-' * 78)
         with click.Context(line_magic_parser, info_name="%ai") as ctx:
             click.echo(super().get_help(ctx))
 
