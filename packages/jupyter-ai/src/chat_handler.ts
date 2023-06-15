@@ -144,7 +144,8 @@ export class ChatHandler implements IDisposable {
     reject(new Error("Chat UI websocket disconnected"))
     console.error("Chat UI websocket disconnected")
     // only attempt re-connect if there was an abnormal closure
-    if(e.code === 1006) {
+    // WebSocket status codes defined in RFC 6455: https://www.rfc-editor.org/rfc/rfc6455.html#section-7.4.1
+    if (e.code === 1006) {
       const delaySeconds = 1
       console.info(`Will try to reconnect in ${delaySeconds} s.`)
       setTimeout(async () => await this._initialize(), delaySeconds * 1000);
