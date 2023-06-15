@@ -140,12 +140,15 @@ export class ChatHandler implements IDisposable {
     (value: AiService.AgentChatMessage) => void
   > = {};
 
-  private _onClose(reject: any) {
+  private _onClose(e: CloseEvent, reject: any) {
     reject(new Error("Chat UI websocket disconnected"))
     console.error("Chat UI websocket disconnected")
-    const delaySeconds = 1
-    console.info(`Will try to reconnect in ${delaySeconds} s.`)
-    setTimeout(async () => await this._initialize(), delaySeconds * 1000);
+    // only attempt re-connect if there was an abnormal closure
+    if(e.code === 1006) {
+      const delaySeconds = 1
+      console.info(`Will try to reconnect in ${delaySeconds} s.`)
+      setTimeout(async () => await this._initialize(), delaySeconds * 1000);
+    }
   }
 
   private _initialize(): Promise<void> {
@@ -160,7 +163,7 @@ export class ChatHandler implements IDisposable {
         (token ? `?token=${encodeURIComponent(token)}` : '');
       
         const socket = (this._socket = new WebSocket(url));
-        socket.onclose = () => this._onClose(reject);
+        socket.onclose = (e) => this._onClose(e, reject);
         socket.onerror = (e) => reject(e);
         socket.onmessage = msg =>
           msg.data && this._onMessage(JSON.parse(msg.data));
