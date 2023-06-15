@@ -260,7 +260,7 @@ class GPT4AllProvider(BaseProvider, GPT4All):
         else:
             kwargs["backend"] = "gptj"
 
-        kwargs['allow_download'] = True
+        kwargs['allow_download'] = False
         n_threads = kwargs.get('n_threads', None)
         if n_threads is not None:
             kwargs['n_threads'] = max(int(n_threads), 1)
