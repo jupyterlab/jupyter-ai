@@ -36,6 +36,7 @@ import ray
 from ray.util.queue import Queue
 from jupyter_ai_magics.utils import load_providers
 
+from traitlets import Unicode
 
 class AiExtension(ExtensionApp):
     name = "jupyter_ai"
@@ -49,6 +50,14 @@ class AiExtension(ExtensionApp):
         (r"api/ai/providers?", ModelProviderHandler),
         (r"api/ai/providers/embeddings?", EmbeddingsModelProviderHandler),
     ]
+
+    # Traitlets for customization in config
+    model_provider_id = Unicode(
+        allow_none = True,
+        help="Model provider ID, as provider:model",
+        config=True
+    )
+    # TODO: Pass traitlets to ConfigActor's constructor
 
     @property
     def ai_engines(self): 
