@@ -32,7 +32,7 @@ export class ClosableDialog<
   /**
    * Opens the dialog.
    *
-   * This method is necessary to avoid polluting the console with errors, 
+   * This method is necessary to avoid polluting the console with errors,
    * because by default, `this.dispose()` causes the promise returned from
    * `Dialog#launch()` to be rejected, which requires manual handling via
    * `Promise#catch()` on every invocation.

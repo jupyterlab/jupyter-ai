@@ -36,22 +36,23 @@ const plugin: JupyterFrontEndPlugin<void> = {
      * Initialize chat handler, open WS connection
      */
     const chatHandler = new ChatHandler();
-    
+
     let chatWidget: ReactWidget | null = null;
     try {
       await chatHandler.initialize();
-      chatWidget = buildChatSidebar(selectionWatcher, chatHandler, globalAwareness);
+      chatWidget = buildChatSidebar(
+        selectionWatcher,
+        chatHandler,
+        globalAwareness
+      );
     } catch (e) {
-      chatWidget = buildErrorWidget()
+      chatWidget = buildErrorWidget();
     }
-   
+
     /**
      * Add Chat widget to right sidebar
      */
-    app.shell.add(
-      chatWidget,
-      'left', { rank: 2000 }
-    );
+    app.shell.add(chatWidget, 'left', { rank: 2000 });
 
     if (restorer) {
       restorer.add(chatWidget, 'jupyter-ai-chat');

@@ -109,17 +109,16 @@ export function ChatMessages(props: ChatMessagesProps) {
    */
   useEffect(() => {
     const newTimestamps: Record<string, string> = { ...timestamps };
-    let timestampAdded: boolean = false;
+    let timestampAdded = false;
 
     for (const message of props.messages) {
       if (!(message.id in newTimestamps)) {
         // Use the browser's default locale
-        newTimestamps[message.id] =
-          new Date(message.time * 1000) // Convert message time to milliseconds
-            .toLocaleTimeString([], {
-              hour: 'numeric', // Avoid leading zero for hours; we don't want "03:15 PM"
-              minute: '2-digit'
-            });
+        newTimestamps[message.id] = new Date(message.time * 1000) // Convert message time to milliseconds
+          .toLocaleTimeString([], {
+            hour: 'numeric', // Avoid leading zero for hours; we don't want "03:15 PM"
+            minute: '2-digit'
+          });
 
         timestampAdded = true;
       }

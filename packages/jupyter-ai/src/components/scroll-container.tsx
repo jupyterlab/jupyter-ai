@@ -32,7 +32,9 @@ export function ScrollContainer(props: ScrollContainerProps) {
    */
   useEffect(() => {
     const el = document.querySelector<HTMLElement>(`#${id}`);
-    if (!el) return;
+    if (!el) {
+      return;
+    }
 
     const observer = new IntersectionObserver(
       entries => {
