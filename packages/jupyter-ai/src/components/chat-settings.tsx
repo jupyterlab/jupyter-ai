@@ -74,7 +74,7 @@ function fromRegistryProvider(
  * provider is not a registry provider. Otherwise, it is set to
  * `<provider-id>:*`.
  */
-export function ChatSettings() {
+export function ChatSettings(): JSX.Element {
   const [state, setState] = useState<ChatSettingsState>(
     ChatSettingsState.Loading
   );

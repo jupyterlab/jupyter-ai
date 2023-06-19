@@ -10,6 +10,7 @@ const SelectionContext = React.createContext<
   }
 ]);
 
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function useSelectionContext() {
   return useContext(SelectionContext);
 }
@@ -19,6 +20,7 @@ type SelectionContextProviderProps = {
   children: React.ReactNode;
 };
 
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function SelectionContextProvider({
   selectionWatcher,
   children

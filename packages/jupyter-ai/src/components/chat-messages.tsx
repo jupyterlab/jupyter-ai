@@ -22,7 +22,7 @@ type ChatMessageHeaderProps = {
   sx?: SxProps<Theme>;
 };
 
-export function ChatMessageHeader(props: ChatMessageHeaderProps) {
+export function ChatMessageHeader(props: ChatMessageHeaderProps): JSX.Element {
   const collaborators = useCollaboratorsContext();
 
   const sharedStyles: SxProps<Theme> = {
@@ -101,7 +101,7 @@ export function ChatMessageHeader(props: ChatMessageHeaderProps) {
   );
 }
 
-export function ChatMessages(props: ChatMessagesProps) {
+export function ChatMessages(props: ChatMessagesProps): JSX.Element {
   const [timestamps, setTimestamps] = useState<Record<string, string>>({});
 
   /**

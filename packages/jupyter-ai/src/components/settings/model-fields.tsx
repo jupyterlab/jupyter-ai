@@ -59,7 +59,7 @@ export type ModelFieldsProps = Omit<ModelFieldProps, 'field'> & {
   fields?: AiService.Field[];
 };
 
-export function ModelFields(props: ModelFieldsProps) {
+export function ModelFields(props: ModelFieldsProps): JSX.Element | null {
   if (!props.fields?.length) {
     return null;
   }

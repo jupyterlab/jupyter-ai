@@ -11,7 +11,7 @@ export function buildChatSidebar(
   selectionWatcher: SelectionWatcher,
   chatHandler: ChatHandler,
   globalAwareness: Awareness | null
-) {
+): ReactWidget {
   const ChatWidget = ReactWidget.create(
     <Chat
       selectionWatcher={selectionWatcher}

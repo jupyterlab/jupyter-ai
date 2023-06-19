@@ -5,7 +5,7 @@ import { chatIcon } from '../icons';
 import { Alert, Box } from '@mui/material';
 import { JlThemeProvider } from '../components/jl-theme-provider';
 
-export function buildErrorWidget() {
+export function buildErrorWidget(): ReactWidget {
   const ErrorWidget = ReactWidget.create(
     <JlThemeProvider>
       <Box

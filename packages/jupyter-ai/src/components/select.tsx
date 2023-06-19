@@ -25,7 +25,7 @@ export type SelectProps = Omit<MuiSelectProps<string>, 'value' | 'onChange'> & {
  * - handles `null` values by coercing them to the string `'null'`. The
  * corresponding `MenuItem` should have the value `'null'`.
  */
-export function Select(props: SelectProps) {
+export function Select(props: SelectProps): JSX.Element {
   return (
     <FormControl fullWidth>
       <InputLabel>{props.label}</InputLabel>

@@ -21,7 +21,7 @@ type ScrollContainerProps = {
  * **References**
  * - https://css-tricks.com/books/greatest-css-tricks/pin-scrolling-to-bottom/
  */
-export function ScrollContainer(props: ScrollContainerProps) {
+export function ScrollContainer(props: ScrollContainerProps): JSX.Element {
   const id = useMemo(
     () => 'jupyter-ai-scroll-container-' + Date.now().toString(),
     []

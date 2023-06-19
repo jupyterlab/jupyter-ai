@@ -29,7 +29,7 @@ export class ChatHandler implements IDisposable {
    * resolved when server acknowledges connection and sends the client ID. This
    * must be awaited before calling any other method.
    */
-  public async initialize() {
+  public async initialize(): Promise<void> {
     await this._initialize();
   }
 

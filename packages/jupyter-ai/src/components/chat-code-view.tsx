@@ -83,7 +83,7 @@ export function ChatCodeView({
   inline,
   className,
   ...props
-}: ChatCodeViewProps) {
+}: ChatCodeViewProps): JSX.Element {
   const match = /language-(\w+)/.exec(className || '');
   return inline ? (
     <ChatCodeInline {...props} />

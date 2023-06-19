@@ -186,7 +186,7 @@ enum ChatView {
   Settings
 }
 
-export function Chat(props: ChatProps) {
+export function Chat(props: ChatProps): JSX.Element {
   const [view, setView] = useState<ChatView>(props.chatView || ChatView.Chat);
 
   return (
