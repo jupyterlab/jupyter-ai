@@ -57,7 +57,6 @@ class AiExtension(ExtensionApp):
         help="Model provider ID, as provider:model",
         config=True
     )
-    # TODO: Pass traitlets to ConfigActor's constructor
 
     @property
     def ai_engines(self): 
@@ -72,6 +71,11 @@ class AiExtension(ExtensionApp):
 
         # EP := entry point
         eps = entry_points()
+
+        # Create a config based on specified options on startup
+        config = {
+            "model_provider_id": self.model_provider_id
+        }
         
         ## step 1: instantiate model engines and bind them to settings
         model_engine_class_eps = eps.select(group="jupyter_ai.model_engine_classes")
@@ -153,6 +157,7 @@ class AiExtension(ExtensionApp):
         )
         config_actor = ConfigActor.options(name=ACTOR_TYPE.CONFIG.value).remote(
             log=self.log,
+            config=config,
         )
         chat_provider_actor = ChatProviderActor.options(name=ACTOR_TYPE.CHAT_PROVIDER.value).remote(
             log=self.log,

@@ -12,12 +12,25 @@ class ConfigActor():
     with the credentials to authenticate providers.
     """
 
-    def __init__(self, log: Logger):
+    def __init__(self, log: Logger, config):
         self.log = log
         self.save_dir = os.path.join(jupyter_data_dir(), 'jupyter_ai')
         self.save_path = os.path.join(self.save_dir, 'config.json')
         self.config = None
         self._load()
+        # For each key in the config, override what's in self.config,
+        # if the value is not None
+        configChanged = False;
+        newConfig = {}
+        for configKey in config:
+            # TODO: Validate that configKey is in GlobalConfig
+            if (config[configKey] is not None):
+                newConfig[configKey] = config[configKey]
+                configChanged = True
+        # Save the config, if it has changed
+        if configChanged:
+            newConfig = GlobalConfig({ **self.get_config(), **newConfig })
+            self.update(newConfig, True)
 
     def update(self, config: GlobalConfig, save_to_disk: bool = True):
         self._update_chat_provider(config)
