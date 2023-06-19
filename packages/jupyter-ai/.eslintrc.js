@@ -35,7 +35,9 @@ module.exports = {
     eqeqeq: 'error',
     'prefer-arrow-callback': 'error'
   },
-  overrides: {
-    files: ['src/**/*']
-  }
+  overrides: [
+    {
+      files: ['src/**/*']
+    }
+  ]
 };

@@ -6,6 +6,7 @@
   ],
   "rules": {
     "property-no-vendor-prefix": null,
+    "selector-class-pattern": null,
     "selector-no-vendor-prefix": null,
     "value-no-vendor-prefix": null
   }
