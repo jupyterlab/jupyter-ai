@@ -6,3 +6,5 @@ tests
 
 **/__tests__
 ui-tests
+
+.*.js
