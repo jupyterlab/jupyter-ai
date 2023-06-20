@@ -1,0 +1,25 @@
+name: Tests
+on:
+  pull_request:
+    types: [labeled, unlabeled, opened, edited, synchronize]
+
+jobs:
+  base_setup:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: "3.10"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+  test_lint:
+    name: Test Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/base-setup@v3
+      -  name: Run Linters
+         run: lerna run lint
