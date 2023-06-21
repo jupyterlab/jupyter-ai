@@ -21,5 +21,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
-      -  name: Run Linters
+        with:
+          cache: 'yarn'
+      - name: Run Linters
          run: lerna run lint
