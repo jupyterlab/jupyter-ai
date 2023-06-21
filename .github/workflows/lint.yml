@@ -1,9 +1,8 @@
 name: Lint
 
 on:
-  push:
-    paths:
-      - '*.py'
+  pull_request:
+    types: [opened, synchronize]
 
 jobs:
   mypy:
