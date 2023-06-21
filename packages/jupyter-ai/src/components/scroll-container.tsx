@@ -21,7 +21,7 @@ type ScrollContainerProps = {
  * **References**
  * - https://css-tricks.com/books/greatest-css-tricks/pin-scrolling-to-bottom/
  */
-export function ScrollContainer(props: ScrollContainerProps) {
+export function ScrollContainer(props: ScrollContainerProps): JSX.Element {
   const id = useMemo(
     () => 'jupyter-ai-scroll-container-' + Date.now().toString(),
     []
@@ -32,7 +32,9 @@ export function ScrollContainer(props: ScrollContainerProps) {
    */
   useEffect(() => {
     const el = document.querySelector<HTMLElement>(`#${id}`);
-    if (!el) return;
+    if (!el) {
+      return;
+    }
 
     const observer = new IntersectionObserver(
       entries => {

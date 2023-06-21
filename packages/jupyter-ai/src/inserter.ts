@@ -13,8 +13,8 @@ export type InsertionContext = {
  * active document. This function expects that a command with an id
  * of `ai:insert-<insertion-mode>` is registered, context is passed
  * through to the command for handling insertion. See `InsertionContext`
- * for more info. 
- * 
+ * for more info.
+ *
  * @param app - Jupyter front end application
  * @param context - Insertion context
  */

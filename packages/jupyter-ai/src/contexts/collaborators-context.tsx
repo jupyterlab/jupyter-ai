@@ -11,6 +11,7 @@ const CollaboratorsContext = React.createContext<
  * Returns a dictionary mapping each collaborator's username to their associated
  * Collaborator object.
  */
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function useCollaboratorsContext() {
   return useContext(CollaboratorsContext);
 }
@@ -25,6 +26,7 @@ type CollaboratorsContextProviderProps = {
   children: JSX.Element;
 };
 
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function CollaboratorsContextProvider({
   globalAwareness,
   children

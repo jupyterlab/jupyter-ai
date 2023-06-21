@@ -1,0 +1,19 @@
+name: JS Lint
+on:
+  - pull_request
+
+jobs:
+  js_lint:
+    name: JS Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
+        with:
+          python_version: "3.10.x"
+      - name: Install JupyterLab
+        run: pip install jupyterlab~=3.6
+      - name: Install JS dependencies
+        run: jlpm
+      - name: Run JS Lint
+        run: jlpm lerna run lint:check

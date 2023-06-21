@@ -21,10 +21,13 @@ import { ScrollContainer } from './scroll-container';
 
 type ChatBodyProps = {
   chatHandler: ChatHandler;
-  setChatView: (view: ChatView) => void
+  setChatView: (view: ChatView) => void;
 };
 
-function ChatBody({ chatHandler, setChatView: chatViewHandler }: ChatBodyProps): JSX.Element {
+function ChatBody({
+  chatHandler,
+  setChatView: chatViewHandler
+}: ChatBodyProps): JSX.Element {
   const [messages, setMessages] = useState<AiService.ChatMessage[]>([]);
   const [showWelcomeMessage, setShowWelcomeMessage] = useState<boolean>(false);
   const [includeSelection, setIncludeSelection] = useState(true);
@@ -106,9 +109,9 @@ function ChatBody({ chatHandler, setChatView: chatViewHandler }: ChatBodyProps):
   };
 
   const openSettingsView = () => {
-    setShowWelcomeMessage(false)
-    chatViewHandler(ChatView.Settings)
-  }
+    setShowWelcomeMessage(false);
+    chatViewHandler(ChatView.Settings);
+  };
 
   if (showWelcomeMessage) {
     return (
@@ -127,13 +130,13 @@ function ChatBody({ chatHandler, setChatView: chatViewHandler }: ChatBodyProps):
             model to chat with from the settings panel. You will also likely
             need to provide API credentials, so be sure to have those handy.
           </p>
-          <Button 
-            variant="contained" 
-            startIcon={<SettingsIcon />} 
+          <Button
+            variant="contained"
+            startIcon={<SettingsIcon />}
             size={'large'}
             onClick={() => openSettingsView()}
-            >
-              Start Here
+          >
+            Start Here
           </Button>
         </Stack>
       </Box>
@@ -175,7 +178,7 @@ export type ChatProps = {
   selectionWatcher: SelectionWatcher;
   chatHandler: ChatHandler;
   globalAwareness: Awareness | null;
-  chatView?: ChatView
+  chatView?: ChatView;
 };
 
 enum ChatView {
@@ -183,7 +186,7 @@ enum ChatView {
   Settings
 }
 
-export function Chat(props: ChatProps) {
+export function Chat(props: ChatProps): JSX.Element {
   const [view, setView] = useState<ChatView>(props.chatView || ChatView.Chat);
 
   return (
@@ -221,7 +224,7 @@ export function Chat(props: ChatProps) {
             </Box>
             {/* body */}
             {view === ChatView.Chat && (
-              <ChatBody chatHandler={props.chatHandler} setChatView={setView}/>
+              <ChatBody chatHandler={props.chatHandler} setChatView={setView} />
             )}
             {view === ChatView.Settings && <ChatSettings />}
           </Box>

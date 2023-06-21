@@ -34,7 +34,7 @@ First, install [conda](https://conda.io/projects/conda/en/latest/user-guide/inst
 
 If you are using an Apple Silicon-based Mac (M1, M1 Pro, M2, etc.), you need to uninstall the `pip` provided version of `grpcio` and install the version provided by `conda` instead.
 
-    $ pip uninstall grpcio; conda install grpcio 
+    $ pip uninstall grpcio; conda install grpcio
 
 ## Uninstall
 
