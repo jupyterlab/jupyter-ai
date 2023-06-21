@@ -4,17 +4,6 @@ on:
     types: [labeled, unlabeled, opened, edited, synchronize]
 
 jobs:
-  base_setup:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest]
-        python-version: ["3.10"]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
   test_lint:
     name: Test Lint
     runs-on: ubuntu-latest
