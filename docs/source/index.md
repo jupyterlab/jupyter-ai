@@ -1,6 +1,6 @@
 # Jupyter AI
 
-Welcome to Jupyter AI, which brings generative AI to Jupyter. Jupyter AI provides a user-friendly 
+Welcome to Jupyter AI, which brings generative AI to Jupyter. Jupyter AI provides a user-friendly
 and powerful way to explore generative AI models in notebooks and improve your productivity
 in JupyterLab and the Jupyter Notebook. More specifically, Jupyter AI offers:
 

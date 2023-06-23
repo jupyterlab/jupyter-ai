@@ -21,7 +21,7 @@ Due to a compatibility issue with Webpack, Node.js 18.15.0 does not work with Ju
 :::
 
 ## Development install
-After you have installed the prerequisites, create a new conda environment and activate it. 
+After you have installed the prerequisites, create a new conda environment and activate it.
 
 ```
 conda create -n jupyter-ai python=3.10

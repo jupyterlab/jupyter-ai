@@ -3,6 +3,7 @@ from typing import Dict
 from jupyter_ai.engine import BaseModelEngine
 from jupyter_ai.models import DescribeTaskResponse
 
+
 class TestModelEngine(BaseModelEngine):
     name = "test"
     input_type = "txt"
@@ -18,7 +19,9 @@ class TestModelEngine(BaseModelEngine):
     # )
     #
 
-    async def execute(self, task: DescribeTaskResponse, prompt_variables: Dict[str, str]):
+    async def execute(
+        self, task: DescribeTaskResponse, prompt_variables: Dict[str, str]
+    ):
         # Core method that executes a model when provided with a task
         # description and a dictionary of prompt variables. For example, to
         # execute an OpenAI text completion model:

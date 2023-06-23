@@ -1,8 +1,13 @@
 from typing import ClassVar, List, Type
+
 from jupyter_ai_magics.providers import AuthStrategy, EnvAuthStrategy, Field
-from pydantic import BaseModel, Extra
-from langchain.embeddings import OpenAIEmbeddings, CohereEmbeddings, HuggingFaceHubEmbeddings
+from langchain.embeddings import (
+    CohereEmbeddings,
+    HuggingFaceHubEmbeddings,
+    OpenAIEmbeddings,
+)
 from langchain.embeddings.base import Embeddings
+from pydantic import BaseModel, Extra
 
 
 class BaseEmbeddingsProvider(BaseModel):
@@ -33,7 +38,7 @@ class BaseEmbeddingsProvider(BaseModel):
 
     model_id: str
 
-    provider_klass: ClassVar[Type[Embeddings]]    
+    provider_klass: ClassVar[Type[Embeddings]]
 
     registry: ClassVar[bool] = False
     """Whether this provider is a registry provider."""
@@ -41,14 +46,12 @@ class BaseEmbeddingsProvider(BaseModel):
     fields: ClassVar[List[Field]] = []
     """Fields expected by this provider in its constructor. Each `Field` `f`
     should be passed as a keyword argument, keyed by `f.key`."""
-    
+
 
 class OpenAIEmbeddingsProvider(BaseEmbeddingsProvider):
     id = "openai"
     name = "OpenAI"
-    models = [
-        "text-embedding-ada-002"
-    ]
+    models = ["text-embedding-ada-002"]
     model_id_key = "model"
     pypi_package_deps = ["openai"]
     auth_strategy = EnvAuthStrategy(name="OPENAI_API_KEY")
@@ -58,11 +61,7 @@ class OpenAIEmbeddingsProvider(BaseEmbeddingsProvider):
 class CohereEmbeddingsProvider(BaseEmbeddingsProvider):
     id = "cohere"
     name = "Cohere"
-    models = [
-        'large',
-        'multilingual-22-12',
-        'small'
-    ]
+    models = ["large", "multilingual-22-12", "small"]
     model_id_key = "model"
     pypi_package_deps = ["cohere"]
     auth_strategy = EnvAuthStrategy(name="COHERE_API_KEY")

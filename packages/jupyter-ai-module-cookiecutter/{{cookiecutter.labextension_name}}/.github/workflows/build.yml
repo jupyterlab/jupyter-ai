@@ -25,7 +25,7 @@ jobs:
         set -eux
         jlpm
         jlpm run lint:check
-{% if cookiecutter.test.lower().startswith('y') %}    
+{% if cookiecutter.test.lower().startswith('y') %}
     - name: Test the extension
       run: |
         set -eux
@@ -102,7 +102,7 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: extension-artifacts
-        
+
     - name: Install the extension
       run: |
         set -eux

@@ -6,9 +6,9 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'Jupyter AI'
-copyright = '2023, Project Jupyter'
-author = 'Project Jupyter'
+project = "Jupyter AI"
+copyright = "2023, Project Jupyter"
+author = "Project Jupyter"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -16,17 +16,17 @@ author = 'Project Jupyter'
 extensions = ["myst_parser"]
 myst_enable_extensions = ["colon_fence"]
 
-templates_path = ['_templates']
+templates_path = ["_templates"]
 exclude_patterns = []
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
 html_theme = "pydata_sphinx_theme"
-html_static_path = ['_static']
+html_static_path = ["_static"]
 
 html_css_files = [
-    'css/custom.css',
+    "css/custom.css",
 ]
 
 # -- Jupyter theming -------------------------------------------------

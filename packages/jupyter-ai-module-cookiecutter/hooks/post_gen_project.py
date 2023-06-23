@@ -6,7 +6,7 @@ PROJECT_DIRECTORY = Path.cwd()
 
 def remove_path(path: Path) -> None:
     """Remove the provided path.
-    
+
     If the target path is a directory, remove it recursively.
     """
     if not path.exists():
@@ -21,7 +21,6 @@ def remove_path(path: Path) -> None:
 
 
 if __name__ == "__main__":
-
     if not "{{ cookiecutter.has_settings }}".lower().startswith("y"):
         remove_path(PROJECT_DIRECTORY / "schema")
 
@@ -30,7 +29,9 @@ if __name__ == "__main__":
         remove_path(PROJECT_DIRECTORY / ".github/workflows/binder-on-pr.yml")
 
     if not "{{ cookiecutter.test }}".lower().startswith("y"):
-        remove_path(PROJECT_DIRECTORY / ".github" / "workflows" / "update-integration-tests.yml")
+        remove_path(
+            PROJECT_DIRECTORY / ".github" / "workflows" / "update-integration-tests.yml"
+        )
         remove_path(PROJECT_DIRECTORY / "src" / "__tests__")
         remove_path(PROJECT_DIRECTORY / "ui-tests")
         remove_path(PROJECT_DIRECTORY / "{{ cookiecutter.python_name }}" / "tests")

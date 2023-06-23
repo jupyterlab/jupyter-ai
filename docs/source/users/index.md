@@ -2,7 +2,7 @@
 
 Welcome to the user documentation for Jupyter AI.
 
-If you are interested in contributing to Jupyter AI, 
+If you are interested in contributing to Jupyter AI,
 please see our {doc}`contributor's guide </contributors/index>`.
 
 ## Prerequisites
@@ -101,7 +101,7 @@ First, install [conda](https://conda.io/projects/conda/en/latest/user-guide/inst
 
 If you are using an Apple Silicon-based Mac (M1, M1 Pro, M2, etc.), you need to uninstall the `pip` provided version of `grpcio` and install the version provided by `conda` instead.
 
-    $ pip uninstall grpcio; conda install grpcio 
+    $ pip uninstall grpcio; conda install grpcio
 
 If you are not using JupyterLab and you only want to install the Jupyter AI `%%ai` magic, you can run:
 
@@ -127,7 +127,7 @@ or
 
 ## The chat interface
 
-The easiest way to get started with Jupyter AI is to use the chat interface. 
+The easiest way to get started with Jupyter AI is to use the chat interface.
 
 :::{attention}
 :name: open-ai-privacy-cost
@@ -449,7 +449,7 @@ will look like properly typeset equations.
 Generate the 2D heat equation in LaTeX surrounded by `$$`. Do not include an explanation.
 ```
 
-This prompt will produce output as a code cell below the input cell. 
+This prompt will produce output as a code cell below the input cell.
 
 :::{warning}
 :name: run-code

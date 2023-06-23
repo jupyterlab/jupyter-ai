@@ -7,7 +7,4 @@ from .tasks import tasks
 
 
 def _jupyter_labextension_paths():
-    return [{
-        "src": "labextension",
-        "dest": "{{ cookiecutter.labextension_name }}"
-    }]
+    return [{"src": "labextension", "dest": "{{ cookiecutter.labextension_name }}"}]

@@ -1,6 +1,6 @@
 # Jupyter AI
 
-Welcome to Jupyter AI, which brings generative AI to Jupyter. Jupyter AI provides a user-friendly 
+Welcome to Jupyter AI, which brings generative AI to Jupyter. Jupyter AI provides a user-friendly
 and powerful way to explore generative AI models in notebooks and improve your productivity
 in JupyterLab and the Jupyter Notebook. More specifically, Jupyter AI offers:
 
@@ -41,7 +41,7 @@ First, install [conda](https://conda.io/projects/conda/en/latest/user-guide/inst
 
 If you are using an Apple Silicon-based Mac (M1, M1 Pro, M2, etc.), you need to uninstall the `pip` provided version of `grpcio` and install the version provided by `conda` instead.
 
-    $ pip uninstall grpcio; conda install grpcio 
+    $ pip uninstall grpcio; conda install grpcio
 
 If you are not using JupyterLab and you only want to install the Jupyter AI `%%ai` magic, skip the `pip install jupyter_ai` step above, and instead, run:
 
@@ -59,7 +59,7 @@ Once you have installed the `%%ai` magic, you can enable it in any notebook or t
 or:
 
     %load_ext jupyter_ai
-    
+
 The screenshots below are from notebooks in the `examples/` directory of this package.
 
 Then, you can use the `%%ai` magic command to specify a model and natural language prompt:
