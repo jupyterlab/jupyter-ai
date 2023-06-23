@@ -53,14 +53,12 @@ test = [
     "pytest-tornasync"
 ]
 
+dev = [
+    "jupyter_ai_magics[dev]"
+]
+
 all = [
-    "ai21",
-    "anthropic",
-    "cohere",
-    "huggingface_hub",
-    "ipywidgets",
-    "openai",
-    "boto3"
+    "jupyter_ai_magics[all]"
 ]
 
 [tool.hatch.version]

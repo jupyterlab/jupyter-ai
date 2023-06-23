@@ -31,6 +31,10 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+dev = [
+    "pre-commit~=3.3.3"
+]
+
 test = [
     "coverage",
     "pytest",
