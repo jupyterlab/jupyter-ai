@@ -1,45 +1,43 @@
-from dataclasses import asdict
+import getpass
 import json
+import time
+import uuid
+from dataclasses import asdict
 from typing import Dict, List
-from jupyter_ai.actors.base import ACTOR_TYPE
+
 import ray
 import tornado
-import uuid
-import time
-import getpass
-
-from tornado.web import HTTPError
-from pydantic import ValidationError
-
-from tornado import web, websocket
-
-from jupyter_server.base.handlers import APIHandler as BaseAPIHandler, JupyterHandler
+from jupyter_ai.actors.base import ACTOR_TYPE
+from jupyter_server.base.handlers import APIHandler as BaseAPIHandler
+from jupyter_server.base.handlers import JupyterHandler
 from jupyter_server.utils import ensure_async
-
-from .task_manager import TaskManager
+from pydantic import ValidationError
+from tornado import web, websocket
+from tornado.web import HTTPError
 
 from .models import (
-    ChatHistory,
-    ChatUser, 
-    ListProvidersEntry, 
-    ListProvidersResponse, 
-    PromptRequest, 
-    ChatRequest, 
-    ChatMessage, 
-    Message, 
-    AgentChatMessage, 
-    HumanChatMessage, 
-    ConnectionMessage, 
+    AgentChatMessage,
     ChatClient,
-    GlobalConfig
+    ChatHistory,
+    ChatMessage,
+    ChatRequest,
+    ChatUser,
+    ConnectionMessage,
+    GlobalConfig,
+    HumanChatMessage,
+    ListProvidersEntry,
+    ListProvidersResponse,
+    Message,
+    PromptRequest,
 )
+from .task_manager import TaskManager
 
 
 class APIHandler(BaseAPIHandler):
     @property
-    def engines(self): 
+    def engines(self):
         return self.settings["ai_engines"]
-    
+
     @property
     def default_tasks(self):
         return self.settings["ai_default_tasks"]
@@ -49,9 +47,12 @@ class APIHandler(BaseAPIHandler):
         # we have to create the TaskManager lazily, since no event loop is
         # running in ServerApp.initialize_settings().
         if "task_manager" not in self.settings:
-            self.settings["task_manager"] = TaskManager(engines=self.engines, default_tasks=self.default_tasks)
+            self.settings["task_manager"] = TaskManager(
+                engines=self.engines, default_tasks=self.default_tasks
+            )
         return self.settings["task_manager"]
-    
+
+
 class PromptAPIHandler(APIHandler):
     @tornado.web.authenticated
     async def post(self):
@@ -68,13 +69,13 @@ class PromptAPIHandler(APIHandler):
         task = await self.task_manager.describe_task(request.task_id)
         if not task:
             raise HTTPError(404, f"Task not found with ID: {request.task_id}")
-        
+
         output = await ensure_async(engine.execute(task, request.prompt_variables))
 
-        self.finish(json.dumps({
-            "output": output,
-            "insertion_mode": task.insertion_mode
-        }))
+        self.finish(
+            json.dumps({"output": output, "insertion_mode": task.insertion_mode})
+        )
+
 
 class TaskAPIHandler(APIHandler):
     @tornado.web.authenticated
@@ -83,7 +84,7 @@ class TaskAPIHandler(APIHandler):
             list_tasks_response = await self.task_manager.list_tasks()
             self.finish(json.dumps(list_tasks_response.dict()))
             return
-        
+
         describe_task_response = await self.task_manager.describe_task(id)
         if describe_task_response is None:
             raise HTTPError(404, f"Task not found with ID: {id}")
@@ -95,35 +96,32 @@ class ChatHistoryHandler(BaseAPIHandler):
     """Handler to return message history"""
 
     _messages = []
-    
+
     @property
     def chat_history(self):
         return self.settings["chat_history"]
-    
+
     @chat_history.setter
     def _chat_history_setter(self, new_history):
         self.settings["chat_history"] = new_history
-    
+
     @tornado.web.authenticated
     async def get(self):
         history = ChatHistory(messages=self.chat_history)
         self.finish(history.json())
 
 
-class ChatHandler(
-    JupyterHandler,
-    websocket.WebSocketHandler
-):
+class ChatHandler(JupyterHandler, websocket.WebSocketHandler):
     """
     A websocket handler for chat.
     """
-    
+
     @property
-    def chat_handlers(self) -> Dict[str, 'ChatHandler']:
+    def chat_handlers(self) -> Dict[str, "ChatHandler"]:
         """Dictionary mapping client IDs to their WebSocket handler
         instances."""
         return self.settings["chat_handlers"]
-    
+
     @property
     def chat_clients(self) -> Dict[str, ChatClient]:
         """Dictionary mapping client IDs to their ChatClient objects that store
@@ -143,8 +141,7 @@ class ChatHandler(
         self.log.debug("Initializing websocket connection %s", self.request.path)
 
     def pre_get(self):
-        """Handles authentication/authorization.
-        """
+        """Handles authentication/authorization."""
         # authenticate the request before opening the websocket
         user = self.current_user
         if user is None:
@@ -168,8 +165,7 @@ class ChatHandler(
 
         if collaborative:
             return ChatUser(**asdict(self.current_user))
-        
-        
+
         login = getpass.getuser()
         return ChatUser(
             username=login,
@@ -177,9 +173,8 @@ class ChatHandler(
             name=login,
             display_name=login,
             color=None,
-            avatar_url=None
+            avatar_url=None,
         )
-
 
     def generate_client_id(self):
         """Generates a client ID to identify the current WS connection."""
@@ -201,25 +196,27 @@ class ChatHandler(
         self.log.debug("Clients are : %s", self.chat_handlers.keys())
 
     def broadcast_message(self, message: Message):
-        """Broadcasts message to all connected clients. 
+        """Broadcasts message to all connected clients.
         Appends message to `self.chat_history`.
         """
 
         self.log.debug("Broadcasting message: %s to all clients...", message)
         client_ids = self.chat_handlers.keys()
-        
+
         for client_id in client_ids:
             client = self.chat_handlers[client_id]
             if client:
                 client.write_message(message.dict())
-        
+
         # Only append ChatMessage instances to history, not control messages
-        if isinstance(message, HumanChatMessage) or isinstance(message, AgentChatMessage):
+        if isinstance(message, HumanChatMessage) or isinstance(
+            message, AgentChatMessage
+        ):
             self.chat_history.append(message)
 
     async def on_message(self, message):
         self.log.debug("Message recieved: %s", message)
-        
+
         try:
             message = json.loads(message)
             chat_request = ChatRequest(**message)
@@ -240,9 +237,9 @@ class ChatHandler(
         self.broadcast_message(message=chat_message)
 
         # Clear the message history if given the /clear command
-        if chat_request.prompt.startswith('/'):
-            command = chat_request.prompt.split(' ', 1)[0]
-            if command == '/clear':
+        if chat_request.prompt.startswith("/"):
+            command = chat_request.prompt.split(" ", 1)[0]
+            if command == "/clear":
                 self.chat_history.clear()
 
         # process through the router
@@ -261,11 +258,11 @@ class ChatHandler(
 
 class ModelProviderHandler(BaseAPIHandler):
     @property
-    def chat_providers(self): 
+    def chat_providers(self):
         actor = ray.get_actor("providers")
         o = actor.get_model_providers.remote()
         return ray.get(o)
-    
+
     @web.authenticated
     def get(self):
         providers = []
@@ -284,13 +281,14 @@ class ModelProviderHandler(BaseAPIHandler):
                     fields=provider.fields,
                 )
             )
-        
-        response = ListProvidersResponse(providers=sorted(providers, key=lambda p: p.name))
+
+        response = ListProvidersResponse(
+            providers=sorted(providers, key=lambda p: p.name)
+        )
         self.finish(response.json())
 
 
 class EmbeddingsModelProviderHandler(BaseAPIHandler):
-    
     @property
     def embeddings_providers(self):
         actor = ray.get_actor("providers")
@@ -311,8 +309,10 @@ class EmbeddingsModelProviderHandler(BaseAPIHandler):
                     fields=provider.fields,
                 )
             )
-        
-        response = ListProvidersResponse(providers=sorted(providers, key=lambda p: p.name))
+
+        response = ListProvidersResponse(
+            providers=sorted(providers, key=lambda p: p.name)
+        )
         self.finish(response.json())
 
 
@@ -320,14 +320,14 @@ class GlobalConfigHandler(BaseAPIHandler):
     """API handler for fetching and setting the
     model and emebddings config.
     """
-    
+
     @web.authenticated
     def get(self):
         actor = ray.get_actor(ACTOR_TYPE.CONFIG)
         config = ray.get(actor.get_config.remote())
         if not config:
             raise HTTPError(500, "No config found.")
-        
+
         self.finish(config.json())
 
     @web.authenticated
@@ -345,10 +345,9 @@ class GlobalConfigHandler(BaseAPIHandler):
             raise HTTPError(500, str(e)) from e
         except ValueError as e:
             self.log.exception(e)
-            raise HTTPError(500, str(e.cause) if hasattr(e, 'cause') else str(e))
+            raise HTTPError(500, str(e.cause) if hasattr(e, "cause") else str(e))
         except Exception as e:
             self.log.exception(e)
             raise HTTPError(
                 500, "Unexpected error occurred while updating the config."
             ) from e
-

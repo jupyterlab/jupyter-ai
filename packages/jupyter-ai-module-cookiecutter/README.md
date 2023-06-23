@@ -2,8 +2,8 @@
 
 A [cookiecutter](https://github.com/audreyr/cookiecutter) template for creating
 a AI module. The AI module constructed from the template serves as a very simple
-example that can be extended however you wish. 
-    
+example that can be extended however you wish.
+
 ## Usage
 
 Install cookiecutter.

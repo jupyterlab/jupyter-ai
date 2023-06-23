@@ -1,12 +1,13 @@
-from IPython.core.magic import register_line_magic
+import traceback
+
 from IPython.core.getipython import get_ipython
+from IPython.core.magic import register_line_magic
 from IPython.core.ultratb import ListTB
 
-import traceback
 
 def store_exception(shell, etype, evalue, tb, tb_offset=None):
     # A structured traceback (a list of strings) or None
- 
+
     if issubclass(etype, SyntaxError):
         # Disable ANSI color strings
         shell.SyntaxTB.color_toggle()
@@ -18,7 +19,9 @@ def store_exception(shell, etype, evalue, tb, tb_offset=None):
     else:
         # Disable ANSI color strings
         shell.InteractiveTB.color_toggle()
-        stb = shell.InteractiveTB.structured_traceback(etype, evalue, tb, tb_offset=tb_offset)
+        stb = shell.InteractiveTB.structured_traceback(
+            etype, evalue, tb, tb_offset=tb_offset
+        )
         stb_text = shell.InteractiveTB.stb2text(stb)
         # Re-enable ANSI color strings
         shell.InteractiveTB.color_toggle()
@@ -31,6 +34,6 @@ def store_exception(shell, etype, evalue, tb, tb_offset=None):
     err = shell.user_ns.get("Err", {})
     err[prompt_number] = styled_exception
     shell.user_ns["Err"] = err
-    
-    # Return 
+
+    # Return
     return etraceback

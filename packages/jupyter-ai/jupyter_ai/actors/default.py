@@ -1,21 +1,18 @@
-from typing import Dict, Type, List
-import ray
+from typing import Dict, List, Type
 
+import ray
+from jupyter_ai.actors.base import ACTOR_TYPE, BaseActor
+from jupyter_ai.actors.memory import RemoteMemory
+from jupyter_ai.models import ChatMessage, ClearMessage, HumanChatMessage
+from jupyter_ai_magics.providers import BaseProvider
 from langchain import ConversationChain
 from langchain.prompts import (
-    ChatPromptTemplate, 
-    MessagesPlaceholder, 
+    ChatPromptTemplate,
     HumanMessagePromptTemplate,
-    SystemMessagePromptTemplate
+    MessagesPlaceholder,
+    SystemMessagePromptTemplate,
 )
-from langchain.schema import (
-    AIMessage,
-)
-
-from jupyter_ai.actors.base import BaseActor, ACTOR_TYPE
-from jupyter_ai.actors.memory import RemoteMemory
-from jupyter_ai.models import HumanChatMessage, ClearMessage, ChatMessage
-from jupyter_ai_magics.providers import BaseProvider
+from langchain.schema import AIMessage
 
 SYSTEM_PROMPT = """
 You are Jupyternaut, a conversational assistant living in JupyterLab to help users.
@@ -28,6 +25,7 @@ If you do not know the answer to a question, answer truthfully by responding tha
 The following is a friendly conversation between you and a human.
 """.strip()
 
+
 @ray.remote
 class DefaultActor(BaseActor):
     def __init__(self, chat_history: List[ChatMessage], *args, **kwargs):
@@ -35,25 +33,27 @@ class DefaultActor(BaseActor):
         self.memory = None
         self.chat_history = chat_history
 
-    def create_llm_chain(self, provider: Type[BaseProvider], provider_params: Dict[str, str]):
+    def create_llm_chain(
+        self, provider: Type[BaseProvider], provider_params: Dict[str, str]
+    ):
         llm = provider(**provider_params)
         self.memory = RemoteMemory(actor_name=ACTOR_TYPE.MEMORY)
-        prompt_template = ChatPromptTemplate.from_messages([
-            SystemMessagePromptTemplate.from_template(SYSTEM_PROMPT).format(provider_name=llm.name, local_model_id=llm.model_id),
-            MessagesPlaceholder(variable_name="history"),
-            HumanMessagePromptTemplate.from_template("{input}"),
-            AIMessage(content="")
-        ])
+        prompt_template = ChatPromptTemplate.from_messages(
+            [
+                SystemMessagePromptTemplate.from_template(SYSTEM_PROMPT).format(
+                    provider_name=llm.name, local_model_id=llm.model_id
+                ),
+                MessagesPlaceholder(variable_name="history"),
+                HumanMessagePromptTemplate.from_template("{input}"),
+                AIMessage(content=""),
+            ]
+        )
         self.llm = llm
         self.llm_chain = ConversationChain(
-            llm=llm,
-            prompt=prompt_template,
-            verbose=True,
-            memory=self.memory
+            llm=llm, prompt=prompt_template, verbose=True, memory=self.memory
         )
-    
+
     def clear_memory(self):
-        
         # clear chain memory
         if self.memory:
             self.memory.clear()
@@ -68,8 +68,5 @@ class DefaultActor(BaseActor):
 
     def _process_message(self, message: HumanChatMessage):
         self.get_llm_chain()
-        response = self.llm_chain.predict(
-            input=message.body,
-            stop=["\nHuman:"]
-        )
+        response = self.llm_chain.predict(input=message.body, stop=["\nHuman:"])
         self.reply(response, message)

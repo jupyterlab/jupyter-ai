@@ -1,6 +1,6 @@
 import pytest
 
-pytest_plugins = ("jupyter_server.pytest_plugin", )
+pytest_plugins = ("jupyter_server.pytest_plugin",)
 
 
 @pytest.fixture

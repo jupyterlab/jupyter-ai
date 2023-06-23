@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # script that bumps version for all projects regardless of whether they were
 # changed since last release. needed because `lerna version` only bumps versions for projects
 # listed by `lerna changed` by default.

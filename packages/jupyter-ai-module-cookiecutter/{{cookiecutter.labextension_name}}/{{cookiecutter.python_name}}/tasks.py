@@ -1,4 +1,5 @@
 from typing import List
+
 from jupyter_ai import DefaultTaskDefinition
 
 # tasks your AI module exposes by default. declared in `pyproject.toml` as an
@@ -9,6 +10,6 @@ tasks: List[DefaultTaskDefinition] = [
         "name": "Test task",
         "prompt_template": "{body}",
         "modality": "txt2txt",
-        "insertion_mode": "test"
+        "insertion_mode": "test",
     }
 ]

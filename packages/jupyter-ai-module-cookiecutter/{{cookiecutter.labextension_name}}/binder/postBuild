@@ -15,16 +15,18 @@ from pathlib import Path
 
 ROOT = Path.cwd()
 
-def _(*args, **kwargs):
-    """ Run a command, echoing the args
 
-        fails hard if something goes wrong
+def _(*args, **kwargs):
+    """Run a command, echoing the args
+
+    fails hard if something goes wrong
     """
     print("\n\t", " ".join(args), "\n")
     return_code = subprocess.call(args, **kwargs)
     if return_code != 0:
         print("\nERROR", return_code, " ".join(args))
         sys.exit(return_code)
+
 
 # verify the environment is self-consistent before even starting
 _(sys.executable, "-m", "pip", "check")
