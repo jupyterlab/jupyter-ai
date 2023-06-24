@@ -179,12 +179,12 @@ To compose a message, type it in the text box at the bottom of the chat interfac
 
 The chat backend remembers the last 2 conversations and passes this history to the language model. This enables you to ask follow up questions without repeating the information from your previous conversations. Here is an example of a chat conversation with a follow up question.
 
-Initial question
+#### Initial question
 <img src="../_static/chat-history-context-1.png"
     alt='Screen shot of an example coding question sent to Jupyternaut, who responds with the code and explanation.'
     class="screenshot" />
 
-Follow-up question
+#### Follow-up question
 <img src="../_static/chat-history-context-2.png"
     alt='Screen shot of an example follow up question sent to Jupyternaut, who responds with the improved code and explanation.'
     class="screenshot" />
