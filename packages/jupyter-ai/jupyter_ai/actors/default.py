@@ -2,7 +2,6 @@ from typing import Dict, List, Type
 
 import ray
 from jupyter_ai.actors.base import ACTOR_TYPE, BaseActor
-from jupyter_ai.actors.memory import RemoteMemory
 from jupyter_ai.models import ChatMessage, ClearMessage, HumanChatMessage
 from jupyter_ai_magics.providers import BaseProvider
 from langchain import ConversationChain
@@ -13,6 +12,7 @@ from langchain.prompts import (
     SystemMessagePromptTemplate,
 )
 from langchain.schema import AIMessage
+from langchain.memory import ConversationBufferWindowMemory
 
 SYSTEM_PROMPT = """
 You are Jupyternaut, a conversational assistant living in JupyterLab to help users.
@@ -30,14 +30,13 @@ The following is a friendly conversation between you and a human.
 class DefaultActor(BaseActor):
     def __init__(self, chat_history: List[ChatMessage], *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.memory = None
+        self.memory = ConversationBufferWindowMemory(return_messages=True, k=2)
         self.chat_history = chat_history
 
     def create_llm_chain(
         self, provider: Type[BaseProvider], provider_params: Dict[str, str]
     ):
         llm = provider(**provider_params)
-        self.memory = RemoteMemory(actor_name=ACTOR_TYPE.MEMORY)
         prompt_template = ChatPromptTemplate.from_messages(
             [
                 SystemMessagePromptTemplate.from_template(SYSTEM_PROMPT).format(

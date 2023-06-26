@@ -23,7 +23,6 @@ class ACTOR_TYPE(str, Enum):
 
     ASK = "ask"
     LEARN = "learn"
-    MEMORY = "memory"
     GENERATE = "generate"
     PROVIDERS = "providers"
     CONFIG = "config"

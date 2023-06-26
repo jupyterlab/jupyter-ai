@@ -11,13 +11,11 @@ from jupyter_ai.actors.default import DefaultActor
 from jupyter_ai.actors.embeddings_provider import EmbeddingsProviderActor
 from jupyter_ai.actors.generate import GenerateActor
 from jupyter_ai.actors.learn import LearnActor
-from jupyter_ai.actors.memory import MemoryActor
 from jupyter_ai.actors.providers import ProvidersActor
 from jupyter_ai.actors.router import Router
 from jupyter_ai.reply_processor import ReplyProcessor
 from jupyter_ai_magics.utils import load_providers
 from jupyter_server.extension.application import ExtensionApp
-from langchain.memory import ConversationBufferWindowMemory
 from ray.util.queue import Queue
 
 from .engine import BaseModelEngine
@@ -169,10 +167,6 @@ class AiExtension(ExtensionApp):
             reply_queue=reply_queue,
             log=self.log,
         )
-        memory_actor = MemoryActor.options(name=ACTOR_TYPE.MEMORY.value).remote(
-            log=self.log,
-            memory=ConversationBufferWindowMemory(return_messages=True, k=2),
-        )
         generate_actor = GenerateActor.options(name=ACTOR_TYPE.GENERATE.value).remote(
             reply_queue=reply_queue,
             log=self.log,
@@ -187,7 +181,6 @@ class AiExtension(ExtensionApp):
         self.settings["default_actor"] = default_actor
         self.settings["learn_actor"] = learn_actor
         self.settings["ask_actor"] = ask_actor
-        self.settings["memory_actor"] = memory_actor
         self.settings["generate_actor"] = generate_actor
 
         reply_processor = ReplyProcessor(
