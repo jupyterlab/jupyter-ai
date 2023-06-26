@@ -45,7 +45,7 @@ class AskActor(BaseActor):
         self.get_llm_chain()
 
         try:
-            # limit chat history to last 2 conversations
+            # limit chat history to last 2 exchanges
             self.chat_history = self.chat_history[-2:]
             result = self.llm_chain(
                 {"question": query, "chat_history": self.chat_history}
