@@ -258,15 +258,13 @@ class ChatHandler(JupyterHandler, websocket.WebSocketHandler):
 
 class ModelProviderHandler(BaseAPIHandler):
     @property
-    def chat_providers(self):
-        actor = ray.get_actor("providers")
-        o = actor.get_model_providers.remote()
-        return ray.get(o)
+    def lm_providers(self):
+        return self.settings["lm_providers"]
 
     @web.authenticated
     def get(self):
         providers = []
-        for provider in self.chat_providers.values():
+        for provider in self.lm_providers.values():
             # skip old legacy OpenAI chat provider used only in magics
             if provider.id == "openai-chat":
                 continue
@@ -290,15 +288,13 @@ class ModelProviderHandler(BaseAPIHandler):
 
 class EmbeddingsModelProviderHandler(BaseAPIHandler):
     @property
-    def embeddings_providers(self):
-        actor = ray.get_actor("providers")
-        o = actor.get_embeddings_providers.remote()
-        return ray.get(o)
+    def em_providers(self):
+        return self.settings["em_providers"]
 
     @web.authenticated
     def get(self):
         providers = []
-        for provider in self.embeddings_providers.values():
+        for provider in self.em_providers.values():
             providers.append(
                 ListProvidersEntry(
                     id=provider.id,

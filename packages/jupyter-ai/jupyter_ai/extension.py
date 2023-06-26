@@ -11,10 +11,9 @@ from jupyter_ai.actors.default import DefaultActor
 from jupyter_ai.actors.embeddings_provider import EmbeddingsProviderActor
 from jupyter_ai.actors.generate import GenerateActor
 from jupyter_ai.actors.learn import LearnActor
-from jupyter_ai.actors.providers import ProvidersActor
 from jupyter_ai.actors.router import Router
 from jupyter_ai.reply_processor import ReplyProcessor
-from jupyter_ai_magics.utils import load_providers
+from jupyter_ai_magics.utils import get_lm_providers, get_em_providers
 from jupyter_server.extension.application import ExtensionApp
 from ray.util.queue import Queue
 
@@ -43,54 +42,13 @@ class AiExtension(ExtensionApp):
         (r"api/ai/providers/embeddings?", EmbeddingsModelProviderHandler),
     ]
 
-    @property
-    def ai_engines(self):
-        if "ai_engines" not in self.settings:
-            self.settings["ai_engines"] = {}
-
-        return self.settings["ai_engines"]
-
     def initialize_settings(self):
         ray.init()
 
         # EP := entry point
         eps = entry_points()
 
-        ## step 1: instantiate model engines and bind them to settings
-        model_engine_class_eps = eps.select(group="jupyter_ai.model_engine_classes")
-
-        if not model_engine_class_eps:
-            self.log.error(
-                "No model engines found for jupyter_ai.model_engine_classes group. One or more model engines are required for AI extension to work."
-            )
-            return
-
-        for model_engine_class_ep in model_engine_class_eps:
-            try:
-                Engine = model_engine_class_ep.load()
-            except:
-                self.log.error(
-                    f"Unable to load model engine class from entry point `{model_engine_class_ep.name}`."
-                )
-                continue
-
-            if not inspect.isclass(Engine) or not issubclass(Engine, BaseModelEngine):
-                self.log.error(
-                    f"Unable to instantiate model engine class from entry point `{model_engine_class_ep.name}` as it is not a subclass of `BaseModelEngine`."
-                )
-                continue
-
-            try:
-                self.ai_engines[Engine.id] = Engine(config=self.config, log=self.log)
-            except:
-                self.log.error(
-                    f"Unable to instantiate model engine class from entry point `{model_engine_class_ep.name}`."
-                )
-                continue
-
-            self.log.info(f"Registered engine `{Engine.id}`.")
-
-        ## step 2: load default tasks and bind them to settings
+        ## load default tasks and bind them to settings
         module_default_tasks_eps = eps.select(group="jupyter_ai.default_tasks")
 
         if not module_default_tasks_eps:
@@ -112,8 +70,9 @@ class AiExtension(ExtensionApp):
         self.settings["ai_default_tasks"] = default_tasks
         self.log.info("Registered all default tasks.")
 
-        providers = load_providers(log=self.log)
-        self.settings["chat_providers"] = providers
+        self.settings["lm_providers"] = get_lm_providers(log=self.log)
+        self.settings["em_providers"] = get_em_providers(log=self.log)
+
         self.log.info("Registered providers.")
 
         self.log.info(f"Registered {self.name} server extension")
@@ -140,23 +99,20 @@ class AiExtension(ExtensionApp):
             chat_history=self.settings["chat_history"],
         )
 
-        providers_actor = ProvidersActor.options(
-            name=ACTOR_TYPE.PROVIDERS.value
-        ).remote(
-            log=self.log,
-        )
         config_actor = ConfigActor.options(name=ACTOR_TYPE.CONFIG.value).remote(
             log=self.log,
         )
         chat_provider_actor = ChatProviderActor.options(
-            name=ACTOR_TYPE.CHAT_PROVIDER.value
+            name=ACTOR_TYPE.CHAT_PROVIDER.value,
         ).remote(
             log=self.log,
+            lm_providers=self.settings["lm_providers"]
         )
         embeddings_provider_actor = EmbeddingsProviderActor.options(
-            name=ACTOR_TYPE.EMBEDDINGS_PROVIDER.value
+            name=ACTOR_TYPE.EMBEDDINGS_PROVIDER.value,
         ).remote(
             log=self.log,
+            em_providers=self.settings["em_providers"]
         )
         learn_actor = LearnActor.options(name=ACTOR_TYPE.LEARN.value).remote(
             reply_queue=reply_queue,
@@ -174,7 +130,6 @@ class AiExtension(ExtensionApp):
         )
 
         self.settings["router"] = router
-        self.settings["providers_actor"] = providers_actor
         self.settings["config_actor"] = config_actor
         self.settings["chat_provider_actor"] = chat_provider_actor
         self.settings["embeddings_provider_actor"] = embeddings_provider_actor

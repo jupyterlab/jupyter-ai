@@ -1,22 +1,21 @@
 import ray
 from jupyter_ai.actors.base import ACTOR_TYPE, Logger
 from jupyter_ai.models import GlobalConfig
+from jupyter_ai_magics.utils import EmProvidersDict, get_em_provider
 
 
 @ray.remote
 class EmbeddingsProviderActor:
-    def __init__(self, log: Logger):
+    def __init__(self, log: Logger, em_providers: EmProvidersDict):
         self.log = log
         self.provider = None
         self.provider_params = None
         self.model_id = None
+        self.em_providers = em_providers
 
     def update(self, config: GlobalConfig):
         model_id = config.embeddings_provider_id
-        actor = ray.get_actor(ACTOR_TYPE.PROVIDERS.value)
-        local_model_id, provider = ray.get(
-            actor.get_embeddings_provider_data.remote(model_id)
-        )
+        local_model_id, provider = get_em_provider(model_id, self.em_providers)
 
         if not provider:
             raise ValueError(f"No provider and model found with '{model_id}'")

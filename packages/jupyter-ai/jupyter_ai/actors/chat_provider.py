@@ -1,21 +1,20 @@
 import ray
 from jupyter_ai.actors.base import ACTOR_TYPE, Logger
 from jupyter_ai.models import GlobalConfig
+from jupyter_ai_magics.utils import LmProvidersDict, get_lm_provider
 
 
 @ray.remote
 class ChatProviderActor:
-    def __init__(self, log: Logger):
+    def __init__(self, log: Logger, lm_providers: LmProvidersDict):
         self.log = log
         self.provider = None
         self.provider_params = None
+        self.lm_providers = lm_providers
 
     def update(self, config: GlobalConfig):
         model_id = config.model_provider_id
-        actor = ray.get_actor(ACTOR_TYPE.PROVIDERS.value)
-        local_model_id, provider = ray.get(
-            actor.get_model_provider_data.remote(model_id)
-        )
+        local_model_id, provider = get_lm_provider(model_id, self.lm_providers)
 
         if not provider:
             raise ValueError(f"No provider and model found with '{model_id}'")

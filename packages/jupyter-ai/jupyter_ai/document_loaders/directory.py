@@ -1,4 +1,4 @@
-from typing import List, Tuple, Type
+from typing import List
 from pathlib import Path
 import hashlib
 import itertools
@@ -11,8 +11,6 @@ from langchain.text_splitter import (
     TextSplitter,
 )
 
-from jupyter_ai_magics.utils import decompose_model_id, load_embedding_providers, load_providers
-from jupyter_ai_magics.embedding_providers import BaseEmbeddingsProvider
 
 def path_to_doc(path):
     with open(str(path)) as f:
