@@ -5,8 +5,22 @@ import time
 from typing import List
 
 import ray
+from ray.util.queue import Queue
+
+from dask.distributed import Client as DaskClient
+
+from jupyter_core.paths import jupyter_data_dir
+
+from langchain import FAISS
+from langchain.text_splitter import (
+    RecursiveCharacterTextSplitter, PythonCodeTextSplitter,
+    MarkdownTextSplitter, LatexTextSplitter
+)
+from langchain.schema import Document
+
+from jupyter_ai.models import HumanChatMessage, IndexedDir, IndexMetadata
 from jupyter_ai.actors.base import BaseActor, Logger
-from jupyter_ai.document_loaders.directory import RayRecursiveDirectoryLoader
+from jupyter_ai.document_loaders.directory import split, get_embeddings
 from jupyter_ai.document_loaders.splitter import ExtensionSplitter, NotebookSplitter
 from jupyter_ai.models import HumanChatMessage, IndexedDir, IndexMetadata
 from jupyter_core.paths import jupyter_data_dir
@@ -24,6 +38,9 @@ INDEX_SAVE_DIR = os.path.join(jupyter_data_dir(), "jupyter_ai", "indices")
 METADATA_SAVE_PATH = os.path.join(INDEX_SAVE_DIR, "metadata.json")
 
 
+def compute_delayed(delayed):
+    return delayed.compute()
+
 @ray.remote
 class LearnActor(BaseActor):
     def __init__(self, reply_queue: Queue, log: Logger, root_dir: str):
@@ -39,6 +56,9 @@ class LearnActor(BaseActor):
         self.index_name = "default"
         self.index = None
         self.metadata = IndexMetadata(dirs=[])
+        
+        # initialize dask client
+        self.dask_client = DaskClient()
 
         if not os.path.exists(INDEX_SAVE_DIR):
             os.makedirs(INDEX_SAVE_DIR)
@@ -100,19 +120,12 @@ class LearnActor(BaseActor):
         return message
 
     def learn_dir(self, path: str):
-        splitters = {
-            ".py": PythonCodeTextSplitter(
-                chunk_size=self.chunk_size, chunk_overlap=self.chunk_overlap
-            ),
-            ".md": MarkdownTextSplitter(
-                chunk_size=self.chunk_size, chunk_overlap=self.chunk_overlap
-            ),
-            ".tex": LatexTextSplitter(
-                chunk_size=self.chunk_size, chunk_overlap=self.chunk_overlap
-            ),
-            ".ipynb": NotebookSplitter(
-                chunk_size=self.chunk_size, chunk_overlap=self.chunk_overlap
-            ),
+        start = time.time()
+        splitters={
+            '.py': PythonCodeTextSplitter(chunk_size=self.chunk_size, chunk_overlap=self.chunk_overlap),
+            '.md': MarkdownTextSplitter(chunk_size=self.chunk_size, chunk_overlap=self.chunk_overlap),
+            '.tex': LatexTextSplitter(chunk_size=self.chunk_size, chunk_overlap=self.chunk_overlap),
+            '.ipynb': NotebookSplitter(chunk_size=self.chunk_size, chunk_overlap=self.chunk_overlap)
         }
         splitter = ExtensionSplitter(
             splitters=splitters,
@@ -121,11 +134,23 @@ class LearnActor(BaseActor):
             ),
         )
 
-        loader = RayRecursiveDirectoryLoader(path)
-        texts = loader.load_and_split(text_splitter=splitter)
-        self.index.add_documents(texts)
-        self._add_dir_to_metadata(path)
+        delayed = split(path, splitter=splitter)
+        future = self.dask_client.submit(compute_delayed, delayed)
+        doc_chunks = future.result()
 
+        self.log.error(f"[/learn] Finished chunking documents. Time: {round((time.time() - start) * 1000)}ms")
+
+        em = self.get_embeddings()
+        delayed = get_embeddings(doc_chunks, em)
+        future = self.dask_client.submit(compute_delayed, delayed)
+        embedding_records = future.result()
+        self.log.error(f"[/learn] Finished computing embeddings. Time: {round((time.time() - start) * 1000)}ms")
+
+        self.index.add_embeddings(*embedding_records)
+        self._add_dir_to_metadata(path)
+        
+        self.log.error(f"[/learn] Complete. Time: {round((time.time() - start) * 1000)}ms")
+    
     def _add_dir_to_metadata(self, path: str):
         dirs = self.metadata.dirs
         index = next((i for i, dir in enumerate(dirs) if dir.path == path), None)

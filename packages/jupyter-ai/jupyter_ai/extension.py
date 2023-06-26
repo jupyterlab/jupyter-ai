@@ -163,7 +163,7 @@ class AiExtension(ExtensionApp):
         learn_actor = LearnActor.options(name=ACTOR_TYPE.LEARN.value).remote(
             reply_queue=reply_queue,
             log=self.log,
-            root_dir=self.serverapp.root_dir,
+            root_dir=self.serverapp.root_dir
         )
         ask_actor = AskActor.options(name=ACTOR_TYPE.ASK.value).remote(
             reply_queue=reply_queue,
