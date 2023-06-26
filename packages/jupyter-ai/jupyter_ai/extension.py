@@ -7,7 +7,6 @@ from jupyter_ai.actors.base import ACTOR_TYPE
 from jupyter_ai.actors.default import DefaultActor
 from jupyter_ai.actors.generate import GenerateActor
 from jupyter_ai.actors.learn import LearnActor
-from jupyter_ai.actors.router import Router
 from jupyter_ai.reply_processor import ReplyProcessor
 from jupyter_ai.config_manager import ConfigManager
 from jupyter_ai_magics.utils import get_lm_providers, get_em_providers
@@ -92,11 +91,6 @@ class AiExtension(ExtensionApp):
         reply_queue = Queue()
         self.settings["reply_queue"] = reply_queue
 
-        router = Router.options(name=ACTOR_TYPE.ROUTER).remote(
-            reply_queue=reply_queue,
-            log=self.log,
-            config_manager=self.settings["jai_config_manager"]
-        )
         default_actor = DefaultActor.options(name=ACTOR_TYPE.DEFAULT.value).remote(
             reply_queue=reply_queue,
             log=self.log,
@@ -122,7 +116,6 @@ class AiExtension(ExtensionApp):
             config_manager=self.settings["jai_config_manager"]
         )
 
-        self.settings["router"] = router
         self.settings["default_actor"] = default_actor
         self.settings["learn_actor"] = learn_actor
         self.settings["ask_actor"] = ask_actor

@@ -7,7 +7,7 @@ from typing import Dict, List
 
 import ray
 import tornado
-from jupyter_ai.actors.base import ACTOR_TYPE
+from jupyter_ai.actors.base import ACTOR_TYPE, COMMANDS
 from jupyter_server.base.handlers import APIHandler as BaseAPIHandler
 from jupyter_server.base.handlers import JupyterHandler
 from jupyter_server.utils import ensure_async
@@ -109,7 +109,6 @@ class ChatHistoryHandler(BaseAPIHandler):
     async def get(self):
         history = ChatHistory(messages=self.chat_history)
         self.finish(history.json())
-
 
 class ChatHandler(JupyterHandler, websocket.WebSocketHandler):
     """
@@ -242,9 +241,25 @@ class ChatHandler(JupyterHandler, websocket.WebSocketHandler):
             if command == "/clear":
                 self.chat_history.clear()
 
-        # process through the router
-        router = ray.get_actor("router")
-        router.process_message.remote(chat_message)
+        self._route(chat_message)
+    
+    def _route(self, message):
+        """Method that routes an incoming message to the appropriate handler."""
+
+        # assign default actor
+        default = ray.get_actor(ACTOR_TYPE.DEFAULT)
+
+        if message.body.startswith("/"):
+            command = message.body.split(" ", 1)[0]
+            if command in COMMANDS.keys():
+                actor = ray.get_actor(COMMANDS[command].value)
+                actor.process_message.remote(message)
+            if command == "/clear":
+                actor = ray.get_actor(ACTOR_TYPE.DEFAULT)
+                actor.clear_memory.remote()
+        else:
+            default.process_message.remote(message)
+
 
     def on_close(self):
         self.log.debug("Disconnecting client with user %s", self.client_id)

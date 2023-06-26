@@ -14,9 +14,6 @@ from ray.util.queue import Queue
 
 
 class ACTOR_TYPE(str, Enum):
-    # the top level actor that routes incoming messages to the appropriate actor
-    ROUTER = "router"
-
     # the default actor that responds to messages using a language model
     DEFAULT = "default"
 
