@@ -177,7 +177,7 @@ To compose a message, type it in the text box at the bottom of the chat interfac
     alt='Screen shot of an example "Hello world" message sent to Jupyternaut, who responds with "Hello world, how are you today?"'
     class="screenshot" />
 
-The chat backend remembers the last 2 conversations and passes this history to the language model. This enables you to ask follow up questions without repeating the information from your previous conversations. Here is an example of a chat conversation with a follow up question.
+The chat backend remembers the last two exchanges in your conversation and passes them to the language model. You can ask follow up questions without repeating information from your previous conversations. Here is an example of a chat conversation with a follow up question:
 
 #### Initial question
 <img src="../_static/chat-history-context-1.png"
