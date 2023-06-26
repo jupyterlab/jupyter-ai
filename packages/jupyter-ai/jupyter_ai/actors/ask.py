@@ -19,8 +19,8 @@ class AskActor(BaseActor):
     to the LLM to generate the final reply.
     """
 
-    def __init__(self, reply_queue: Queue, log: Logger):
-        super().__init__(reply_queue=reply_queue, log=log)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
         self.parser.prog = "/ask"
         self.parser.add_argument("query", nargs=argparse.REMAINDER)

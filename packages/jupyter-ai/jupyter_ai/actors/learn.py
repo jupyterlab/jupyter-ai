@@ -19,7 +19,7 @@ from langchain.text_splitter import (
 from langchain.schema import Document
 
 from jupyter_ai.models import HumanChatMessage, IndexedDir, IndexMetadata
-from jupyter_ai.actors.base import BaseActor, Logger
+from jupyter_ai.actors.base import BaseActor
 from jupyter_ai.document_loaders.directory import split, get_embeddings
 from jupyter_ai.document_loaders.splitter import ExtensionSplitter, NotebookSplitter
 from jupyter_ai.models import HumanChatMessage, IndexedDir, IndexMetadata
@@ -43,8 +43,8 @@ def compute_delayed(delayed):
 
 @ray.remote
 class LearnActor(BaseActor):
-    def __init__(self, reply_queue: Queue, log: Logger, root_dir: str):
-        super().__init__(reply_queue=reply_queue, log=log)
+    def __init__(self, root_dir: str, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.root_dir = root_dir
         self.chunk_size = 2000
         self.chunk_overlap = 100

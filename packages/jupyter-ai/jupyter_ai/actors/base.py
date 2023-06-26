@@ -3,15 +3,14 @@ import logging
 import time
 import traceback
 from enum import Enum
-from typing import Dict, Optional, Type, Union
+from typing import Dict, Optional, Type
 from uuid import uuid4
 
 import ray
 from jupyter_ai.models import AgentChatMessage, HumanChatMessage
 from jupyter_ai_magics.providers import BaseProvider
+from jupyter_ai.config_manager import ConfigManager, Logger
 from ray.util.queue import Queue
-
-Logger = Union[logging.Logger, logging.LoggerAdapter]
 
 
 class ACTOR_TYPE(str, Enum):
@@ -24,7 +23,6 @@ class ACTOR_TYPE(str, Enum):
     ASK = "ask"
     LEARN = "learn"
     GENERATE = "generate"
-    CONFIG = "config"
 
 
 COMMANDS = {
@@ -37,8 +35,9 @@ COMMANDS = {
 class BaseActor:
     """Base actor implemented by actors that are called by the `Router`"""
 
-    def __init__(self, log: Logger, reply_queue: Queue):
+    def __init__(self, log: Logger, config_manager: ConfigManager, reply_queue: Queue):
         self.log = log
+        self.config_manager = config_manager
         self.reply_queue = reply_queue
         self.parser = argparse.ArgumentParser()
         self.llm = None
@@ -71,9 +70,8 @@ class BaseActor:
         self.reply_queue.put(m)
 
     def get_llm_chain(self):
-        actor = ray.get_actor(ACTOR_TYPE.CONFIG)
-        lm_provider = ray.get(actor.get_lm_provider.remote())
-        lm_provider_params = ray.get(actor.get_lm_provider_params.remote())
+        lm_provider = self.config_manager.get_lm_provider()
+        lm_provider_params = self.config_manager.get_lm_provider_params()
 
         curr_lm_id = (
             f'{self.llm.id}:{lm_provider_params["model_id"]}' if self.llm else None
@@ -99,9 +97,8 @@ class BaseActor:
         return self.llm_chain
 
     def get_embeddings(self):
-        actor = ray.get_actor(ACTOR_TYPE.CONFIG)
-        em_provider = ray.get(actor.get_em_provider.remote())
-        em_provider_params = ray.get(actor.get_em_provider_params.remote())
+        em_provider = self.config_manager.get_em_provider()
+        em_provider_params = self.config_manager.get_em_provider_params()
         curr_em_id = em_provider_params["model_id"]
 
         if not provider or not embedding_params:

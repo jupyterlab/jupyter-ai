@@ -1,16 +1,15 @@
 import json
 import os
-from typing import Any, Dict
+from typing import Any, Dict, Union
+import logging
 
-import ray
-from jupyter_ai.actors.base import ACTOR_TYPE, Logger
 from jupyter_ai.models import GlobalConfig
 from jupyter_core.paths import jupyter_data_dir
 from jupyter_ai_magics.utils import get_lm_provider, get_em_provider, AnyProvider, LmProvidersDict, EmProvidersDict
 
+Logger = Union[logging.Logger, logging.LoggerAdapter]
 
-@ray.remote
-class ConfigActor:
+class ConfigManager:
     """Provides model and embedding provider id along
     with the credentials to authenticate providers.
     """
@@ -116,3 +115,4 @@ class ConfigActor:
 
         # otherwise, create a new empty config file
         self.update(GlobalConfig(), True)
+

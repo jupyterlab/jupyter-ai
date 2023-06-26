@@ -200,8 +200,8 @@ def create_notebook(outline):
 class GenerateActor(BaseActor):
     """A Ray actor to generate a Jupyter notebook given a description."""
 
-    def __init__(self, reply_queue: Queue, root_dir: str, log: Logger):
-        super().__init__(log=log, reply_queue=reply_queue)
+    def __init__(self, root_dir: str, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.root_dir = os.path.abspath(os.path.expanduser(root_dir))
         self.llm = None
 

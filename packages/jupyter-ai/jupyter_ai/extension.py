@@ -4,12 +4,12 @@ import ray
 from importlib_metadata import entry_points
 from jupyter_ai.actors.ask import AskActor
 from jupyter_ai.actors.base import ACTOR_TYPE
-from jupyter_ai.actors.config import ConfigActor
 from jupyter_ai.actors.default import DefaultActor
 from jupyter_ai.actors.generate import GenerateActor
 from jupyter_ai.actors.learn import LearnActor
 from jupyter_ai.actors.router import Router
 from jupyter_ai.reply_processor import ReplyProcessor
+from jupyter_ai.config_manager import ConfigManager
 from jupyter_ai_magics.utils import get_lm_providers, get_em_providers
 from jupyter_server.extension.application import ExtensionApp
 from ray.util.queue import Queue
@@ -69,6 +69,12 @@ class AiExtension(ExtensionApp):
 
         self.settings["lm_providers"] = get_lm_providers(log=self.log)
         self.settings["em_providers"] = get_em_providers(log=self.log)
+        
+        self.settings["jai_config_manager"] = ConfigManager(
+            log=self.log,
+            lm_providers=self.settings["lm_providers"],
+            em_providers=self.settings["em_providers"]
+        )
 
         self.log.info("Registered providers.")
 
@@ -89,35 +95,34 @@ class AiExtension(ExtensionApp):
         router = Router.options(name=ACTOR_TYPE.ROUTER).remote(
             reply_queue=reply_queue,
             log=self.log,
+            config_manager=self.settings["jai_config_manager"]
         )
         default_actor = DefaultActor.options(name=ACTOR_TYPE.DEFAULT.value).remote(
             reply_queue=reply_queue,
             log=self.log,
             chat_history=self.settings["chat_history"],
+            config_manager=self.settings["jai_config_manager"]
         )
 
-        config_actor = ConfigActor.options(name=ACTOR_TYPE.CONFIG.value).remote(
-            log=self.log,
-            lm_providers=self.settings["lm_providers"],
-            em_providers=self.settings["em_providers"]
-        )
         learn_actor = LearnActor.options(name=ACTOR_TYPE.LEARN.value).remote(
             reply_queue=reply_queue,
             log=self.log,
-            root_dir=self.serverapp.root_dir
+            root_dir=self.serverapp.root_dir,
+            config_manager=self.settings["jai_config_manager"]
         )
         ask_actor = AskActor.options(name=ACTOR_TYPE.ASK.value).remote(
             reply_queue=reply_queue,
             log=self.log,
+            config_manager=self.settings["jai_config_manager"]
         )
         generate_actor = GenerateActor.options(name=ACTOR_TYPE.GENERATE.value).remote(
             reply_queue=reply_queue,
             log=self.log,
             root_dir=self.settings["server_root_dir"],
+            config_manager=self.settings["jai_config_manager"]
         )
 
         self.settings["router"] = router
-        self.settings["config_actor"] = config_actor
         self.settings["default_actor"] = default_actor
         self.settings["learn_actor"] = learn_actor
         self.settings["ask_actor"] = ask_actor

@@ -5,14 +5,6 @@ from ray.util.queue import Queue
 
 @ray.remote
 class Router(BaseActor):
-    def __init__(self, reply_queue: Queue, log: Logger):
-        """Routes messages to the correct actor.
-
-        To register new actors, add the actor type in the `ACTOR_TYPE` enum and
-        add a corresponding command in the `COMMANDS` dictionary.
-        """
-        super().__init__(reply_queue=reply_queue, log=log)
-
     def _process_message(self, message):
         # assign default actor
         default = ray.get_actor(ACTOR_TYPE.DEFAULT)

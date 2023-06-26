@@ -316,11 +316,13 @@ class GlobalConfigHandler(BaseAPIHandler):
     """API handler for fetching and setting the
     model and emebddings config.
     """
+    @property
+    def config_manager(self):
+        return self.settings["jai_config_manager"]
 
     @web.authenticated
     def get(self):
-        actor = ray.get_actor(ACTOR_TYPE.CONFIG)
-        config = ray.get(actor.get_config.remote())
+        config = self.config_manager.get_config()
         if not config:
             raise HTTPError(500, "No config found.")
 
@@ -330,12 +332,9 @@ class GlobalConfigHandler(BaseAPIHandler):
     def post(self):
         try:
             config = GlobalConfig(**self.get_json_body())
-            actor = ray.get_actor(ACTOR_TYPE.CONFIG)
-            ray.get(actor.update.remote(config))
-
+            self.config_manager.update(config)
             self.set_status(204)
             self.finish()
-
         except ValidationError as e:
             self.log.exception(e)
             raise HTTPError(500, str(e)) from e
