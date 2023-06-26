@@ -58,7 +58,7 @@ class LearnActor(BaseActor):
         self.metadata = IndexMetadata(dirs=[])
         
         # initialize dask client
-        self.dask_client = DaskClient()
+        self.dask_client = DaskClient(processes=False)
 
         if not os.path.exists(INDEX_SAVE_DIR):
             os.makedirs(INDEX_SAVE_DIR)
