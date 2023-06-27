@@ -177,7 +177,19 @@ To compose a message, type it in the text box at the bottom of the chat interfac
     alt='Screen shot of an example "Hello world" message sent to Jupyternaut, who responds with "Hello world, how are you today?"'
     class="screenshot" />
 
-### Using the chat interrface with SageMaker endpoints
+The chat backend remembers the last two exchanges in your conversation and passes them to the language model. You can ask follow up questions without repeating information from your previous conversations. Here is an example of a chat conversation with a follow up question:
+
+#### Initial question
+<img src="../_static/chat-history-context-1.png"
+    alt='Screen shot of an example coding question sent to Jupyternaut, who responds with the code and explanation.'
+    class="screenshot" />
+
+#### Follow-up question
+<img src="../_static/chat-history-context-2.png"
+    alt='Screen shot of an example follow up question sent to Jupyternaut, who responds with the improved code and explanation.'
+    class="screenshot" />
+
+### Using the chat interface with SageMaker endpoints
 
 Jupyter AI supports language models hosted on SageMaker endpoints that use JSON
 schemas. The first step is to authenticate with AWS via the `boto3` SDK and have
