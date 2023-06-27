@@ -246,18 +246,18 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
             if command == "/clear":
                 self.chat_history.clear()
 
-        self._route(chat_message)
+        await self._route(chat_message)
     
-    def _route(self, message):
+    async def _route(self, message):
         """Method that routes an incoming message to the appropriate handler."""
         default = self.chat_handlers["default"]
         command = message.body.split(" ", 1)[0]
         is_command = message.body.startswith("/") and command != "default" and command in self.chat_handlers.keys()
 
         if is_command:
-            self.chat_handlers[command].process_message(message)
+            await self.chat_handlers[command].process_message(message)
         else:
-            default.process_message(message)
+            await default.process_message(message)
 
 
     def on_close(self):

@@ -1,9 +1,12 @@
+import asyncio
 from importlib_metadata import entry_points
-from jupyter_ai.config_manager import ConfigManager
+from dask.distributed import Client as DaskClient
+
 from jupyter_ai_magics.utils import get_lm_providers, get_em_providers
 from jupyter_server.extension.application import ExtensionApp
-from jupyter_ai.chat_handlers import AskChatHandler, ClearChatHandler, DefaultChatHandler, GenerateChatHandler, LearnChatHandler
 
+from .config_manager import ConfigManager
+from .chat_handlers import AskChatHandler, ClearChatHandler, DefaultChatHandler, GenerateChatHandler, LearnChatHandler
 from .handlers import (
     RootChatHandler,
     ChatHistoryHandler,
@@ -76,16 +79,37 @@ class AiExtension(ExtensionApp):
         # memory object used by the LM chain.
         self.settings["chat_history"] = []
 
+        # initialize dask client
+        self.settings["jai_dask_client"] = DaskClient(processes=False, asynchronous=True)
+
+        # initialize event loop
+        # i'm not why sure the below commented block [without calling
+        # get_event_loop(), which is on a deprecation path] fails. we'll have to
+        # investigate how the event loop is managed by Jupyter Server.
+        #
+        # try:
+        #     loop = asyncio.get_running_loop()
+        # except RuntimeError:
+        #     loop = asyncio.new_event_loop()
+        #     asyncio.set_event_loop(loop)
+        #     loop.run_forever()
+        loop = asyncio.get_event_loop()
+
         # initialize chat handlers
         chat_handler_kwargs = {
             "log": self.log,
+            "loop": loop,
             "config_manager": self.settings["jai_config_manager"],
             "root_chat_handlers": self.settings["jai_root_chat_handlers"]
         }
         default_chat_handler = DefaultChatHandler(**chat_handler_kwargs, chat_history=self.settings["chat_history"])
         clear_chat_handler = ClearChatHandler(**chat_handler_kwargs)
         generate_chat_handler = GenerateChatHandler(**chat_handler_kwargs, root_dir=self.serverapp.root_dir)
-        learn_chat_handler = LearnChatHandler(**chat_handler_kwargs, root_dir=self.serverapp.root_dir)
+        learn_chat_handler = LearnChatHandler(
+            **chat_handler_kwargs,
+            root_dir=self.serverapp.root_dir,
+            dask_client=self.settings["jai_dask_client"],
+        )
         ask_chat_handler = AskChatHandler(**chat_handler_kwargs, retriever=learn_chat_handler)
         self.settings["jai_chat_handlers"] = {
             "default": default_chat_handler,

@@ -38,9 +38,10 @@ def compute_delayed(delayed):
     return delayed.compute()
 
 class LearnChatHandler(BaseChatHandler, BaseRetriever):
-    def __init__(self, root_dir: str, *args, **kwargs):
+    def __init__(self, root_dir: str, dask_client: DaskClient, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.root_dir = root_dir
+        self.dask_client = dask_client
         self.chunk_size = 2000
         self.chunk_overlap = 100
         self.parser.prog = "/learn"
@@ -54,15 +55,12 @@ class LearnChatHandler(BaseChatHandler, BaseRetriever):
         self.prev_em_id = None
         self.embeddings = None
         
-        # initialize dask client
-        self.dask_client = DaskClient(processes=False)
-
         if not os.path.exists(INDEX_SAVE_DIR):
             os.makedirs(INDEX_SAVE_DIR)
 
         self.load_or_create()
 
-    def _process_message(self, message: HumanChatMessage):
+    async def _process_message(self, message: HumanChatMessage):
         if not self.index:
             self.load_or_create()
 
@@ -99,7 +97,7 @@ class LearnChatHandler(BaseChatHandler, BaseRetriever):
         if args.verbose:
             self.reply(f"Loading and splitting files for {load_path}", message)
 
-        self.learn_dir(load_path)
+        await self.learn_dir(load_path)
         self.save()
 
         response = f"""🎉 I have learned documents at **{load_path}** and I am ready to answer questions about them.
@@ -116,7 +114,7 @@ class LearnChatHandler(BaseChatHandler, BaseRetriever):
         {dir_list}"""
         return message
 
-    def learn_dir(self, path: str):
+    async def learn_dir(self, path: str):
         start = time.time()
         splitters={
             '.py': PythonCodeTextSplitter(chunk_size=self.chunk_size, chunk_overlap=self.chunk_overlap),
@@ -132,15 +130,13 @@ class LearnChatHandler(BaseChatHandler, BaseRetriever):
         )
 
         delayed = split(path, splitter=splitter)
-        future = self.dask_client.submit(compute_delayed, delayed)
-        doc_chunks = future.result()
+        doc_chunks = await self.dask_client.submit(compute_delayed, delayed)
 
         self.log.error(f"[/learn] Finished chunking documents. Time: {round((time.time() - start) * 1000)}ms")
 
         em = self.get_embedding_model()
         delayed = get_embeddings(doc_chunks, em)
-        future = self.dask_client.submit(compute_delayed, delayed)
-        embedding_records = future.result()
+        embedding_records = await self.dask_client.submit(compute_delayed, delayed)
         self.log.error(f"[/learn] Finished computing embeddings. Time: {round((time.time() - start) * 1000)}ms")
 
         self.index.add_embeddings(*embedding_records)
@@ -247,8 +243,8 @@ class LearnChatHandler(BaseChatHandler, BaseRetriever):
             return docs
         return []
     
-    def aget_relevant_documents(self, query: str) -> Coroutine[Any, Any, List[Document]]:
-        raise NotImplementedError()
+    async def aget_relevant_documents(self, query: str) -> Coroutine[Any, Any, List[Document]]:
+        return self.get_relevant_documents(query)
 
     def get_embedding_model(self):
         em_provider = self.config_manager.get_em_provider()

@@ -1,4 +1,5 @@
 import argparse
+from asyncio import AbstractEventLoop
 import time
 import traceback
 from typing import Dict, Optional, Type
@@ -18,8 +19,9 @@ class BaseChatHandler:
     """Base ChatHandler class containing shared methods and attributes used by
     multiple chat handler classes."""
 
-    def __init__(self, log: Logger, config_manager: ConfigManager, root_chat_handlers: Dict[str, 'RootChatHandler']):
+    def __init__(self, log: Logger, loop: AbstractEventLoop, config_manager: ConfigManager, root_chat_handlers: Dict[str, 'RootChatHandler']):
         self.log = log
+        self.loop = loop
         self.config_manager = config_manager
         self._root_chat_handlers = root_chat_handlers
         self.parser = argparse.ArgumentParser()
@@ -27,16 +29,19 @@ class BaseChatHandler:
         self.llm_params = None
         self.llm_chain = None
 
-    def process_message(self, message: HumanChatMessage):
+    async def process_message(self, message: HumanChatMessage):
         """Processes the message passed by the `Router`"""
         try:
-            self._process_message(message)
+            # do not await this, as it blocks the parent task responsible for
+            # handling messages from a websocket.
+            # instead, process each message a separate concurrent task.
+            self.loop.create_task(self._process_message(message))
         except Exception as e:
             formatted_e = traceback.format_exc()
             response = f"Sorry, something went wrong and I wasn't able to index that path.\n\n```\n{formatted_e}\n```"
             self.reply(response, message)
-
-    def _process_message(self, message: HumanChatMessage):
+        
+    async def _process_message(self, message: HumanChatMessage):
         """Processes the message passed by the `Router`"""
         raise NotImplementedError("Should be implemented by subclasses.")
 

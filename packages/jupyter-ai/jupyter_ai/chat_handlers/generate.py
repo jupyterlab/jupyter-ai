@@ -56,10 +56,10 @@ class NotebookOutlineChain(LLMChain):
         return cls(prompt=prompt, llm=llm, verbose=verbose)
 
 
-def generate_outline(description, llm=None, verbose=False):
+async def generate_outline(description, llm=None, verbose=False):
     """Generate an outline of sections given a description of a notebook."""
     chain = NotebookOutlineChain.from_llm(llm=llm, verbose=verbose)
-    outline = chain.predict(description=description, schema=schema)
+    outline = await chain.apredict(description=description, schema=schema)
     return json.loads(outline)
 
 
@@ -81,10 +81,10 @@ class CodeImproverChain(LLMChain):
         return cls(prompt=prompt, llm=llm, verbose=verbose)
 
 
-def improve_code(code, llm=None, verbose=False):
+async def improve_code(code, llm=None, verbose=False):
     """Improve source code using an LLM."""
     chain = CodeImproverChain.from_llm(llm=llm, verbose=verbose)
-    improved_code = chain.predict(code=code)
+    improved_code = await chain.apredict(code=code)
     improved_code = "\n".join(
         [line for line in improved_code.split("/n") if not line.startswith("```")]
     )
@@ -113,18 +113,18 @@ class NotebookSectionCodeChain(LLMChain):
         return cls(prompt=prompt, llm=llm, verbose=verbose)
 
 
-def generate_code(outline, llm=None, verbose=False):
+async def generate_code(outline, llm=None, verbose=False):
     """Generate source code for a section given a description of the notebook and section."""
     chain = NotebookSectionCodeChain.from_llm(llm=llm, verbose=verbose)
     code_so_far = []
     for section in outline["sections"]:
-        code = chain.predict(
+        code = await chain.apredict(
             description=outline["description"],
             title=section["title"],
             content=section["content"],
             code_so_far="\n".join(code_so_far),
         )
-        section["code"] = improve_code(code, llm=llm, verbose=verbose)
+        section["code"] = await improve_code(code, llm=llm, verbose=verbose)
         code_so_far.append(section["code"])
     return outline
 
@@ -166,12 +166,12 @@ class NotebookTitleChain(LLMChain):
         return cls(prompt=prompt, llm=llm, verbose=verbose)
 
 
-def generate_title_and_summary(outline, llm=None, verbose=False):
+async def generate_title_and_summary(outline, llm=None, verbose=False):
     """Generate a title and summary of a notebook outline using an LLM."""
     summary_chain = NotebookSummaryChain.from_llm(llm=llm, verbose=verbose)
     title_chain = NotebookTitleChain.from_llm(llm=llm, verbose=verbose)
-    summary = summary_chain.predict(content=outline)
-    title = title_chain.predict(content=outline)
+    summary = await summary_chain.apredict(content=outline)
+    title = await title_chain.apredict(content=outline)
     outline["summary"] = summary
     outline["title"] = title.strip('"')
     return outline
@@ -209,18 +209,18 @@ class GenerateChatHandler(BaseChatHandler):
         self.llm = llm
         return llm
 
-    def _process_message(self, message: HumanChatMessage):
+    async def _process_message(self, message: HumanChatMessage):
         self.get_llm_chain()
 
         response = "👍 Great, I will get started on your notebook. It may take a few minutes, but I will reply here when the notebook is ready. In the meantime, you can continue to ask me other questions."
         self.reply(response, message)
 
         prompt = message.body
-        outline = generate_outline(prompt, llm=self.llm, verbose=True)
+        outline = await generate_outline(prompt, llm=self.llm, verbose=True)
         # Save the user input prompt, the description property is now LLM generated.
         outline["prompt"] = prompt
-        outline = generate_code(outline, llm=self.llm, verbose=True)
-        outline = generate_title_and_summary(outline, llm=self.llm)
+        outline = await generate_code(outline, llm=self.llm, verbose=True)
+        outline = await generate_title_and_summary(outline, llm=self.llm)
         notebook = create_notebook(outline)
         final_path = os.path.join(self.root_dir, outline["title"] + ".ipynb")
         nbformat.write(notebook, final_path)

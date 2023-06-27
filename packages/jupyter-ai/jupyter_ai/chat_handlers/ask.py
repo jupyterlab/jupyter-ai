@@ -29,7 +29,7 @@ class AskChatHandler(BaseChatHandler):
         self.chat_history = []
         self.llm_chain = ConversationalRetrievalChain.from_llm(self.llm, self._retriever)
 
-    def _process_message(self, message: HumanChatMessage):
+    async def _process_message(self, message: HumanChatMessage):
         args = self.parse_args(message)
         if args is None:
             return
@@ -43,7 +43,8 @@ class AskChatHandler(BaseChatHandler):
         try:
             # limit chat history to last 2 exchanges
             self.chat_history = self.chat_history[-2:]
-            result = self.llm_chain(
+
+            result = await self.llm_chain.acall(
                 {"question": query, "chat_history": self.chat_history}
             )
             response = result["answer"]
