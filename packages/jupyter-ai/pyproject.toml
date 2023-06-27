@@ -30,7 +30,6 @@ dependencies = [
     "langchain==0.0.159",
     "tiktoken", # required for OpenAIEmbeddings
     "jupyter_ai_magics",
-    "ray~=2.4.0", # Requires grpcio installation from conda
     "dask[distributed]",
     "faiss-cpu", # Not distributed by official repo
     "typing_extensions==4.5.0"
