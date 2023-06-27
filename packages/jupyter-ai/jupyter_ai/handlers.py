@@ -241,12 +241,6 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
         # broadcast the message to other clients
         self.broadcast_message(message=chat_message)
 
-        # Clear the message history if given the /clear command
-        if chat_request.prompt.startswith("/"):
-            command = chat_request.prompt.split(" ", 1)[0]
-            if command == "/clear":
-                self.chat_history.clear()
-
         await self._route(chat_message)
 
     async def _route(self, message):

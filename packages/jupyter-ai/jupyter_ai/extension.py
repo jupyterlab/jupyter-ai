@@ -80,7 +80,7 @@ class AiExtension(ExtensionApp):
         self.settings["chat_clients"] = {}
         self.settings["jai_root_chat_handlers"] = {}
 
-        # store chat messages in memory for now
+        # list of chat messages to broadcast to new clients
         # this is only used to render the UI, and is not the conversational
         # memory object used by the LM chain.
         self.settings["chat_history"] = []
@@ -113,7 +113,10 @@ class AiExtension(ExtensionApp):
         default_chat_handler = DefaultChatHandler(
             **chat_handler_kwargs, chat_history=self.settings["chat_history"]
         )
-        clear_chat_handler = ClearChatHandler(**chat_handler_kwargs)
+        clear_chat_handler = ClearChatHandler(
+            **chat_handler_kwargs,
+            chat_history=self.settings["chat_history"]
+        )
         generate_chat_handler = GenerateChatHandler(
             **chat_handler_kwargs, root_dir=self.serverapp.root_dir
         )
