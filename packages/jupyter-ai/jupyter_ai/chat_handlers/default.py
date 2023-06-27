@@ -1,7 +1,6 @@
 from typing import Dict, List, Type
 
-import ray
-from jupyter_ai.actors.base import ACTOR_TYPE, BaseActor
+from .base import BaseChatHandler
 from jupyter_ai.models import ChatMessage, ClearMessage, HumanChatMessage
 from jupyter_ai_magics.providers import BaseProvider
 from langchain import ConversationChain
@@ -26,8 +25,7 @@ The following is a friendly conversation between you and a human.
 """.strip()
 
 
-@ray.remote
-class DefaultActor(BaseActor):
+class DefaultChatHandler(BaseChatHandler):
     def __init__(self, chat_history: List[ChatMessage], *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.memory = ConversationBufferWindowMemory(return_messages=True, k=2)
@@ -59,7 +57,7 @@ class DefaultActor(BaseActor):
 
         # clear transcript for existing chat clients
         reply_message = ClearMessage()
-        self.reply_queue.put(reply_message)
+        self.reply(reply_message)
 
         # clear transcript for new chat clients
         if self.chat_history:

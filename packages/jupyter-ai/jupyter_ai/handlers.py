@@ -5,9 +5,8 @@ import uuid
 from dataclasses import asdict
 from typing import Dict, List
 
-import ray
 import tornado
-from jupyter_ai.actors.base import ACTOR_TYPE, COMMANDS
+from jupyter_ai.chat_handlers import BaseChatHandler
 from jupyter_server.base.handlers import APIHandler as BaseAPIHandler
 from jupyter_server.base.handlers import JupyterHandler
 from jupyter_server.utils import ensure_async
@@ -110,16 +109,22 @@ class ChatHistoryHandler(BaseAPIHandler):
         history = ChatHistory(messages=self.chat_history)
         self.finish(history.json())
 
-class ChatHandler(JupyterHandler, websocket.WebSocketHandler):
+class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
     """
     A websocket handler for chat.
     """
 
     @property
-    def chat_handlers(self) -> Dict[str, "ChatHandler"]:
-        """Dictionary mapping client IDs to their WebSocket handler
+    def root_chat_handlers(self) -> Dict[str, "RootChatHandler"]:
+        """Dictionary mapping client IDs to their corresponding RootChatHandler
         instances."""
-        return self.settings["chat_handlers"]
+        return self.settings["jai_root_chat_handlers"]
+
+    @property
+    def chat_handlers(self) -> Dict[str, 'BaseChatHandler']:
+        """Dictionary mapping chat commands to their corresponding
+        BaseChatHandler instances."""
+        return self.settings["jai_chat_handlers"]
 
     @property
     def chat_clients(self) -> Dict[str, ChatClient]:
@@ -186,13 +191,13 @@ class ChatHandler(JupyterHandler, websocket.WebSocketHandler):
         current_user = self.get_chat_user().dict()
         client_id = self.generate_client_id()
 
-        self.chat_handlers[client_id] = self
+        self.root_chat_handlers[client_id] = self
         self.chat_clients[client_id] = ChatClient(**current_user, id=client_id)
         self.client_id = client_id
         self.write_message(ConnectionMessage(client_id=client_id).dict())
 
         self.log.info(f"Client connected. ID: {client_id}")
-        self.log.debug("Clients are : %s", self.chat_handlers.keys())
+        self.log.debug("Clients are : %s", self.root_chat_handlers.keys())
 
     def broadcast_message(self, message: Message):
         """Broadcasts message to all connected clients.
@@ -200,10 +205,10 @@ class ChatHandler(JupyterHandler, websocket.WebSocketHandler):
         """
 
         self.log.debug("Broadcasting message: %s to all clients...", message)
-        client_ids = self.chat_handlers.keys()
+        client_ids = self.root_chat_handlers.keys()
 
         for client_id in client_ids:
-            client = self.chat_handlers[client_id]
+            client = self.root_chat_handlers[client_id]
             if client:
                 client.write_message(message.dict())
 
@@ -245,30 +250,24 @@ class ChatHandler(JupyterHandler, websocket.WebSocketHandler):
     
     def _route(self, message):
         """Method that routes an incoming message to the appropriate handler."""
+        default = self.chat_handlers["default"]
+        command = message.body.split(" ", 1)[0]
+        is_command = message.body.startswith("/") and command != "default" and command in self.chat_handlers.keys()
 
-        # assign default actor
-        default = ray.get_actor(ACTOR_TYPE.DEFAULT)
-
-        if message.body.startswith("/"):
-            command = message.body.split(" ", 1)[0]
-            if command in COMMANDS.keys():
-                actor = ray.get_actor(COMMANDS[command].value)
-                actor.process_message.remote(message)
-            if command == "/clear":
-                actor = ray.get_actor(ACTOR_TYPE.DEFAULT)
-                actor.clear_memory.remote()
+        if is_command:
+            self.chat_handlers[command].process_message(message)
         else:
-            default.process_message.remote(message)
+            default.process_message(message)
 
 
     def on_close(self):
         self.log.debug("Disconnecting client with user %s", self.client_id)
 
-        self.chat_handlers.pop(self.client_id, None)
+        self.root_chat_handlers.pop(self.client_id, None)
         self.chat_clients.pop(self.client_id, None)
 
         self.log.info(f"Client disconnected. ID: {self.client_id}")
-        self.log.debug("Chat clients: %s", self.chat_handlers.keys())
+        self.log.debug("Chat clients: %s", self.root_chat_handlers.keys())
 
 
 class ModelProviderHandler(BaseAPIHandler):

@@ -1,21 +1,11 @@
-import asyncio
-
-import ray
 from importlib_metadata import entry_points
-from jupyter_ai.actors.ask import AskActor
-from jupyter_ai.actors.base import ACTOR_TYPE
-from jupyter_ai.actors.default import DefaultActor
-from jupyter_ai.actors.generate import GenerateActor
-from jupyter_ai.actors.learn import LearnActor
-from jupyter_ai.reply_processor import ReplyProcessor
 from jupyter_ai.config_manager import ConfigManager
 from jupyter_ai_magics.utils import get_lm_providers, get_em_providers
 from jupyter_server.extension.application import ExtensionApp
-from ray.util.queue import Queue
+from jupyter_ai.chat_handlers import AskChatHandler, ClearChatHandler, DefaultChatHandler, GenerateChatHandler, LearnChatHandler
 
-from .engine import BaseModelEngine
 from .handlers import (
-    ChatHandler,
+    RootChatHandler,
     ChatHistoryHandler,
     EmbeddingsModelProviderHandler,
     GlobalConfigHandler,
@@ -32,15 +22,13 @@ class AiExtension(ExtensionApp):
         ("api/ai/prompt", PromptAPIHandler),
         (r"api/ai/tasks/?", TaskAPIHandler),
         (r"api/ai/tasks/([\w\-:]*)", TaskAPIHandler),
-        (r"api/ai/chats/?", ChatHandler),
+        (r"api/ai/chats/?", RootChatHandler),
         (r"api/ai/chats/history?", ChatHistoryHandler),
         (r"api/ai/providers?", ModelProviderHandler),
         (r"api/ai/providers/embeddings?", EmbeddingsModelProviderHandler),
     ]
 
     def initialize_settings(self):
-        ray.init()
-
         # EP := entry point
         eps = entry_points()
 
@@ -81,48 +69,28 @@ class AiExtension(ExtensionApp):
 
         # Store chat clients in a dictionary
         self.settings["chat_clients"] = {}
-        self.settings["chat_handlers"] = {}
+        self.settings["jai_root_chat_handlers"] = {}
 
         # store chat messages in memory for now
         # this is only used to render the UI, and is not the conversational
         # memory object used by the LM chain.
         self.settings["chat_history"] = []
 
-        reply_queue = Queue()
-        self.settings["reply_queue"] = reply_queue
-
-        default_actor = DefaultActor.options(name=ACTOR_TYPE.DEFAULT.value).remote(
-            reply_queue=reply_queue,
-            log=self.log,
-            chat_history=self.settings["chat_history"],
-            config_manager=self.settings["jai_config_manager"]
-        )
-
-        learn_actor = LearnActor.options(name=ACTOR_TYPE.LEARN.value).remote(
-            reply_queue=reply_queue,
-            log=self.log,
-            root_dir=self.serverapp.root_dir,
-            config_manager=self.settings["jai_config_manager"]
-        )
-        ask_actor = AskActor.options(name=ACTOR_TYPE.ASK.value).remote(
-            reply_queue=reply_queue,
-            log=self.log,
-            config_manager=self.settings["jai_config_manager"]
-        )
-        generate_actor = GenerateActor.options(name=ACTOR_TYPE.GENERATE.value).remote(
-            reply_queue=reply_queue,
-            log=self.log,
-            root_dir=self.settings["server_root_dir"],
-            config_manager=self.settings["jai_config_manager"]
-        )
-
-        self.settings["default_actor"] = default_actor
-        self.settings["learn_actor"] = learn_actor
-        self.settings["ask_actor"] = ask_actor
-        self.settings["generate_actor"] = generate_actor
-
-        reply_processor = ReplyProcessor(
-            self.settings["chat_handlers"], reply_queue, log=self.log
-        )
-        loop = asyncio.get_event_loop()
-        loop.create_task(reply_processor.start())
+        # initialize chat handlers
+        chat_handler_kwargs = {
+            "log": self.log,
+            "config_manager": self.settings["jai_config_manager"],
+            "root_chat_handlers": self.settings["jai_root_chat_handlers"]
+        }
+        default_chat_handler = DefaultChatHandler(**chat_handler_kwargs, chat_history=self.settings["chat_history"])
+        clear_chat_handler = ClearChatHandler(**chat_handler_kwargs)
+        generate_chat_handler = GenerateChatHandler(**chat_handler_kwargs, root_dir=self.serverapp.root_dir)
+        learn_chat_handler = LearnChatHandler(**chat_handler_kwargs, root_dir=self.serverapp.root_dir)
+        ask_chat_handler = AskChatHandler(**chat_handler_kwargs, retriever=learn_chat_handler)
+        self.settings["jai_chat_handlers"] = {
+            "default": default_chat_handler,
+            "/ask": ask_chat_handler,
+            "/clear": clear_chat_handler,
+            "/generate": generate_chat_handler,
+            "/learn": learn_chat_handler,
+        }

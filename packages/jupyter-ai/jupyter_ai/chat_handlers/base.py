@@ -1,47 +1,31 @@
 import argparse
-import logging
 import time
 import traceback
-from enum import Enum
 from typing import Dict, Optional, Type
 from uuid import uuid4
 
-import ray
 from jupyter_ai.models import AgentChatMessage, HumanChatMessage
 from jupyter_ai_magics.providers import BaseProvider
 from jupyter_ai.config_manager import ConfigManager, Logger
-from ray.util.queue import Queue
+
+# necessary to prevent circular import
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from jupyter_ai.handlers import RootChatHandler
 
 
-class ACTOR_TYPE(str, Enum):
-    # the default actor that responds to messages using a language model
-    DEFAULT = "default"
+class BaseChatHandler:
+    """Base ChatHandler class containing shared methods and attributes used by
+    multiple chat handler classes."""
 
-    ASK = "ask"
-    LEARN = "learn"
-    GENERATE = "generate"
-
-
-COMMANDS = {
-    "/ask": ACTOR_TYPE.ASK,
-    "/learn": ACTOR_TYPE.LEARN,
-    "/generate": ACTOR_TYPE.GENERATE,
-}
-
-
-class BaseActor:
-    """Base actor implemented by actors that are called by the `Router`"""
-
-    def __init__(self, log: Logger, config_manager: ConfigManager, reply_queue: Queue):
+    def __init__(self, log: Logger, config_manager: ConfigManager, root_chat_handlers: Dict[str, 'RootChatHandler']):
         self.log = log
         self.config_manager = config_manager
-        self.reply_queue = reply_queue
+        self._root_chat_handlers = root_chat_handlers
         self.parser = argparse.ArgumentParser()
         self.llm = None
         self.llm_params = None
         self.llm_chain = None
-        self.embeddings = None
-        self.embeddings_params = None
 
     def process_message(self, message: HumanChatMessage):
         """Processes the message passed by the `Router`"""
@@ -56,14 +40,20 @@ class BaseActor:
         """Processes the message passed by the `Router`"""
         raise NotImplementedError("Should be implemented by subclasses.")
 
-    def reply(self, response, message: Optional[HumanChatMessage] = None):
-        m = AgentChatMessage(
+    def reply(self, response, human_msg: Optional[HumanChatMessage] = None):
+        agent_msg = AgentChatMessage(
             id=uuid4().hex,
             time=time.time(),
             body=response,
-            reply_to=message.id if message else "",
+            reply_to=human_msg.id if human_msg else "",
         )
-        self.reply_queue.put(m)
+
+        for handler in self._root_chat_handlers.values():
+            if not handler:
+                continue
+
+            handler.broadcast_message(agent_msg)
+            break
 
     def get_llm_chain(self):
         lm_provider = self.config_manager.get_lm_provider()

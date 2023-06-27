@@ -3,14 +3,12 @@ import os
 from typing import Dict, Type
 
 import nbformat
-import ray
-from jupyter_ai.actors.base import BaseActor, Logger
+from jupyter_ai.chat_handlers import BaseChatHandler
 from jupyter_ai.models import HumanChatMessage
-from jupyter_ai_magics.providers import BaseProvider, ChatOpenAINewProvider
+from jupyter_ai_magics.providers import BaseProvider
 from langchain.chains import LLMChain
 from langchain.llms import BaseLLM
 from langchain.prompts import PromptTemplate
-from ray.util.queue import Queue
 
 schema = """{
   "$schema": "http://json-schema.org/draft-07/schema#",
@@ -196,9 +194,8 @@ def create_notebook(outline):
     return nb
 
 
-@ray.remote
-class GenerateActor(BaseActor):
-    """A Ray actor to generate a Jupyter notebook given a description."""
+class GenerateChatHandler(BaseChatHandler):
+    """Generates a Jupyter notebook given a description."""
 
     def __init__(self, root_dir: str, *args, **kwargs):
         super().__init__(*args, **kwargs)

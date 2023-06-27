@@ -2,9 +2,7 @@ import argparse
 import json
 import os
 import time
-from typing import List
-
-import ray
+from typing import List, Coroutine, Any
 
 from dask.distributed import Client as DaskClient
 
@@ -17,14 +15,14 @@ from langchain.text_splitter import (
 )
 from langchain.schema import Document
 
+from .base import BaseChatHandler
 from jupyter_ai.models import HumanChatMessage, IndexedDir, IndexMetadata
-from jupyter_ai.actors.base import BaseActor
 from jupyter_ai.document_loaders.directory import split, get_embeddings
 from jupyter_ai.document_loaders.splitter import ExtensionSplitter, NotebookSplitter
 from jupyter_ai.models import HumanChatMessage, IndexedDir, IndexMetadata
 from jupyter_core.paths import jupyter_data_dir
 from langchain import FAISS
-from langchain.schema import Document
+from langchain.schema import BaseRetriever, Document
 from langchain.text_splitter import (
     LatexTextSplitter,
     MarkdownTextSplitter,
@@ -39,8 +37,7 @@ METADATA_SAVE_PATH = os.path.join(INDEX_SAVE_DIR, "metadata.json")
 def compute_delayed(delayed):
     return delayed.compute()
 
-@ray.remote
-class LearnActor(BaseActor):
+class LearnChatHandler(BaseChatHandler, BaseRetriever):
     def __init__(self, root_dir: str, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.root_dir = root_dir
@@ -55,6 +52,7 @@ class LearnActor(BaseActor):
         self.index = None
         self.metadata = IndexMetadata(dirs=[])
         self.prev_em_id = None
+        self.embeddings = None
         
         # initialize dask client
         self.dask_client = DaskClient(processes=False)
@@ -248,6 +246,9 @@ class LearnActor(BaseActor):
             docs = self.index.similarity_search(question)
             return docs
         return []
+    
+    def aget_relevant_documents(self, query: str) -> Coroutine[Any, Any, List[Document]]:
+        raise NotImplementedError()
 
     def get_embedding_model(self):
         em_provider = self.config_manager.get_em_provider()
