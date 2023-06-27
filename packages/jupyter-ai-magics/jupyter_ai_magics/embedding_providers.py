@@ -58,6 +58,7 @@ class BaseEmbeddingsProvider(BaseModel):
 
         super().__init__(*args, **kwargs, **model_kwargs)
 
+
 class OpenAIEmbeddingsProvider(BaseEmbeddingsProvider, OpenAIEmbeddings):
     id = "openai"
     name = "OpenAI"

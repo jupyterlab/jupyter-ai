@@ -1,9 +1,9 @@
 from typing import Dict, List, Type
 
-from .base import BaseChatHandler
 from jupyter_ai.models import ChatMessage, ClearMessage, HumanChatMessage
 from jupyter_ai_magics.providers import BaseProvider
 from langchain import ConversationChain
+from langchain.memory import ConversationBufferWindowMemory
 from langchain.prompts import (
     ChatPromptTemplate,
     HumanMessagePromptTemplate,
@@ -11,7 +11,8 @@ from langchain.prompts import (
     SystemMessagePromptTemplate,
 )
 from langchain.schema import AIMessage
-from langchain.memory import ConversationBufferWindowMemory
+
+from .base import BaseChatHandler
 
 SYSTEM_PROMPT = """
 You are Jupyternaut, a conversational assistant living in JupyterLab to help users.

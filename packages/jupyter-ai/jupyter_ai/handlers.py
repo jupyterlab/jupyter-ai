@@ -109,6 +109,7 @@ class ChatHistoryHandler(BaseAPIHandler):
         history = ChatHistory(messages=self.chat_history)
         self.finish(history.json())
 
+
 class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
     """
     A websocket handler for chat.
@@ -121,7 +122,7 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
         return self.settings["jai_root_chat_handlers"]
 
     @property
-    def chat_handlers(self) -> Dict[str, 'BaseChatHandler']:
+    def chat_handlers(self) -> Dict[str, "BaseChatHandler"]:
         """Dictionary mapping chat commands to their corresponding
         BaseChatHandler instances."""
         return self.settings["jai_chat_handlers"]
@@ -247,18 +248,21 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
                 self.chat_history.clear()
 
         await self._route(chat_message)
-    
+
     async def _route(self, message):
         """Method that routes an incoming message to the appropriate handler."""
         default = self.chat_handlers["default"]
         command = message.body.split(" ", 1)[0]
-        is_command = message.body.startswith("/") and command != "default" and command in self.chat_handlers.keys()
+        is_command = (
+            message.body.startswith("/")
+            and command != "default"
+            and command in self.chat_handlers.keys()
+        )
 
         if is_command:
             await self.chat_handlers[command].process_message(message)
         else:
             await default.process_message(message)
-
 
     def on_close(self):
         self.log.debug("Disconnecting client with user %s", self.client_id)
@@ -330,6 +334,7 @@ class GlobalConfigHandler(BaseAPIHandler):
     """API handler for fetching and setting the
     model and emebddings config.
     """
+
     @property
     def config_manager(self):
         return self.settings["jai_config_manager"]

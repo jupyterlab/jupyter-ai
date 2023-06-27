@@ -1,5 +1,7 @@
-from .base import BaseChatHandler
 from jupyter_ai.models import ClearMessage
+
+from .base import BaseChatHandler
+
 
 class ClearChatHandler(BaseChatHandler):
     async def _process_message(self, _):
@@ -9,4 +11,3 @@ class ClearChatHandler(BaseChatHandler):
 
             handler.broadcast_message(ClearMessage())
             break
-    

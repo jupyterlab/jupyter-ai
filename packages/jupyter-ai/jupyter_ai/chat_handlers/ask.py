@@ -1,10 +1,11 @@
 import argparse
 from typing import Dict, Type
 
-from .base import BaseChatHandler
 from jupyter_ai.models import HumanChatMessage
 from jupyter_ai_magics.providers import BaseProvider
 from langchain.chains import ConversationalRetrievalChain
+
+from .base import BaseChatHandler
 
 
 class AskChatHandler(BaseChatHandler):
@@ -27,7 +28,9 @@ class AskChatHandler(BaseChatHandler):
     ):
         self.llm = provider(**provider_params)
         self.chat_history = []
-        self.llm_chain = ConversationalRetrievalChain.from_llm(self.llm, self._retriever)
+        self.llm_chain = ConversationalRetrievalChain.from_llm(
+            self.llm, self._retriever
+        )
 
     async def _process_message(self, message: HumanChatMessage):
         args = self.parse_args(message)

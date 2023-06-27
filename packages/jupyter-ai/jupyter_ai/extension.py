@@ -1,19 +1,25 @@
 import asyncio
-from importlib_metadata import entry_points
-from dask.distributed import Client as DaskClient
 
-from jupyter_ai_magics.utils import get_lm_providers, get_em_providers
+from dask.distributed import Client as DaskClient
+from importlib_metadata import entry_points
+from jupyter_ai_magics.utils import get_em_providers, get_lm_providers
 from jupyter_server.extension.application import ExtensionApp
 
+from .chat_handlers import (
+    AskChatHandler,
+    ClearChatHandler,
+    DefaultChatHandler,
+    GenerateChatHandler,
+    LearnChatHandler,
+)
 from .config_manager import ConfigManager
-from .chat_handlers import AskChatHandler, ClearChatHandler, DefaultChatHandler, GenerateChatHandler, LearnChatHandler
 from .handlers import (
-    RootChatHandler,
     ChatHistoryHandler,
     EmbeddingsModelProviderHandler,
     GlobalConfigHandler,
     ModelProviderHandler,
     PromptAPIHandler,
+    RootChatHandler,
     TaskAPIHandler,
 )
 
@@ -59,11 +65,11 @@ class AiExtension(ExtensionApp):
 
         self.settings["lm_providers"] = get_lm_providers(log=self.log)
         self.settings["em_providers"] = get_em_providers(log=self.log)
-        
+
         self.settings["jai_config_manager"] = ConfigManager(
             log=self.log,
             lm_providers=self.settings["lm_providers"],
-            em_providers=self.settings["em_providers"]
+            em_providers=self.settings["em_providers"],
         )
 
         self.log.info("Registered providers.")
@@ -80,7 +86,9 @@ class AiExtension(ExtensionApp):
         self.settings["chat_history"] = []
 
         # initialize dask client
-        self.settings["jai_dask_client"] = DaskClient(processes=False, asynchronous=True)
+        self.settings["jai_dask_client"] = DaskClient(
+            processes=False, asynchronous=True
+        )
 
         # initialize event loop
         # i'm not why sure the below commented block [without calling
@@ -100,17 +108,23 @@ class AiExtension(ExtensionApp):
             "log": self.log,
             "loop": loop,
             "config_manager": self.settings["jai_config_manager"],
-            "root_chat_handlers": self.settings["jai_root_chat_handlers"]
+            "root_chat_handlers": self.settings["jai_root_chat_handlers"],
         }
-        default_chat_handler = DefaultChatHandler(**chat_handler_kwargs, chat_history=self.settings["chat_history"])
+        default_chat_handler = DefaultChatHandler(
+            **chat_handler_kwargs, chat_history=self.settings["chat_history"]
+        )
         clear_chat_handler = ClearChatHandler(**chat_handler_kwargs)
-        generate_chat_handler = GenerateChatHandler(**chat_handler_kwargs, root_dir=self.serverapp.root_dir)
+        generate_chat_handler = GenerateChatHandler(
+            **chat_handler_kwargs, root_dir=self.serverapp.root_dir
+        )
         learn_chat_handler = LearnChatHandler(
             **chat_handler_kwargs,
             root_dir=self.serverapp.root_dir,
             dask_client=self.settings["jai_dask_client"],
         )
-        ask_chat_handler = AskChatHandler(**chat_handler_kwargs, retriever=learn_chat_handler)
+        ask_chat_handler = AskChatHandler(
+            **chat_handler_kwargs, retriever=learn_chat_handler
+        )
         self.settings["jai_chat_handlers"] = {
             "default": default_chat_handler,
             "/ask": ask_chat_handler,

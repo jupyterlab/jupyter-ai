@@ -1,20 +1,29 @@
 import json
+import logging
 import os
 from typing import Any, Dict, Union
-import logging
 
 from jupyter_ai.models import GlobalConfig
+from jupyter_ai_magics.utils import (
+    AnyProvider,
+    EmProvidersDict,
+    LmProvidersDict,
+    get_em_provider,
+    get_lm_provider,
+)
 from jupyter_core.paths import jupyter_data_dir
-from jupyter_ai_magics.utils import get_lm_provider, get_em_provider, AnyProvider, LmProvidersDict, EmProvidersDict
 
 Logger = Union[logging.Logger, logging.LoggerAdapter]
+
 
 class ConfigManager:
     """Provides model and embedding provider id along
     with the credentials to authenticate providers.
     """
 
-    def __init__(self, log: Logger, lm_providers: LmProvidersDict, em_providers: EmProvidersDict):
+    def __init__(
+        self, log: Logger, lm_providers: LmProvidersDict, em_providers: EmProvidersDict
+    ):
         self.log = log
         self.save_dir = os.path.join(jupyter_data_dir(), "jupyter_ai")
         self.save_path = os.path.join(self.save_dir, "config.json")
@@ -36,20 +45,25 @@ class ConfigManager:
 
     def get_config(self):
         return self.config
-    
+
     def get_lm_provider(self):
         return self.lm_provider
-    
+
     def get_lm_provider_params(self):
         return self.lm_provider_params
-    
+
     def get_em_provider(self):
         return self.em_provider
-    
+
     def get_em_provider_params(self):
         return self.em_provider_params
 
-    def _authenticate_provider(self, provider: AnyProvider, provider_params: Dict[str, Any], config: GlobalConfig):
+    def _authenticate_provider(
+        self,
+        provider: AnyProvider,
+        provider_params: Dict[str, Any],
+        config: GlobalConfig,
+    ):
         auth_strategy = provider.auth_strategy
         if auth_strategy and auth_strategy.type == "env":
             api_keys = config.api_keys
@@ -79,7 +93,7 @@ class ConfigManager:
         self._authenticate_provider(provider, provider_params, config)
         self.lm_provider = provider
         self.lm_provider_params = provider_params
-    
+
     def _update_em_provider(self, config: GlobalConfig):
         model_id = config.embeddings_provider_id
 
@@ -93,7 +107,7 @@ class ConfigManager:
         if not provider:
             raise ValueError(f"No provider and model found with '{model_id}'")
 
-        provider_params = { "model_id": local_model_id }
+        provider_params = {"model_id": local_model_id}
 
         self._authenticate_provider(provider, provider_params, config)
         self.em_provider = provider
@@ -115,4 +129,3 @@ class ConfigManager:
 
         # otherwise, create a new empty config file
         self.update(GlobalConfig(), True)
-

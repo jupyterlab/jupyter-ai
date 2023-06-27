@@ -1,16 +1,16 @@
 import argparse
-from asyncio import AbstractEventLoop
 import time
 import traceback
-from typing import Dict, Optional, Type
-from uuid import uuid4
-
-from jupyter_ai.models import AgentChatMessage, HumanChatMessage
-from jupyter_ai_magics.providers import BaseProvider
-from jupyter_ai.config_manager import ConfigManager, Logger
+from asyncio import AbstractEventLoop
 
 # necessary to prevent circular import
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict, Optional, Type
+from uuid import uuid4
+
+from jupyter_ai.config_manager import ConfigManager, Logger
+from jupyter_ai.models import AgentChatMessage, HumanChatMessage
+from jupyter_ai_magics.providers import BaseProvider
+
 if TYPE_CHECKING:
     from jupyter_ai.handlers import RootChatHandler
 
@@ -19,7 +19,13 @@ class BaseChatHandler:
     """Base ChatHandler class containing shared methods and attributes used by
     multiple chat handler classes."""
 
-    def __init__(self, log: Logger, loop: AbstractEventLoop, config_manager: ConfigManager, root_chat_handlers: Dict[str, 'RootChatHandler']):
+    def __init__(
+        self,
+        log: Logger,
+        loop: AbstractEventLoop,
+        config_manager: ConfigManager,
+        root_chat_handlers: Dict[str, "RootChatHandler"],
+    ):
         self.log = log
         self.loop = loop
         self.config_manager = config_manager
@@ -40,7 +46,7 @@ class BaseChatHandler:
             formatted_e = traceback.format_exc()
             response = f"Sorry, something went wrong and I wasn't able to index that path.\n\n```\n{formatted_e}\n```"
             self.reply(response, message)
-        
+
     async def _process_message(self, message: HumanChatMessage):
         """Processes the message passed by the `Router`"""
         raise NotImplementedError("Should be implemented by subclasses.")

@@ -1,5 +1,5 @@
 import logging
-from typing import Dict, Optional, Tuple, Union, Type
+from typing import Dict, Optional, Tuple, Type, Union
 
 from importlib_metadata import entry_points
 from jupyter_ai_magics.aliases import MODEL_ID_ALIASES
@@ -11,6 +11,7 @@ LmProvidersDict = Dict[str, BaseProvider]
 EmProvidersDict = Dict[str, BaseEmbeddingsProvider]
 AnyProvider = Union[BaseProvider, BaseEmbeddingsProvider]
 ProviderDict = Dict[str, AnyProvider]
+
 
 def get_lm_providers(log: Optional[Logger] = None) -> LmProvidersDict:
     if not log:
@@ -32,6 +33,7 @@ def get_lm_providers(log: Optional[Logger] = None) -> LmProvidersDict:
         log.info(f"Registered model provider `{provider.id}`.")
 
     return providers
+
 
 def get_em_providers(
     log: Optional[Logger] = None,
@@ -78,15 +80,22 @@ def decompose_model_id(
     provider_id, local_model_id = model_id.split(":", 1)
     return (provider_id, local_model_id)
 
-def get_lm_provider(model_id: str, lm_providers: LmProvidersDict) -> Tuple[str, Type[BaseProvider]]:
+
+def get_lm_provider(
+    model_id: str, lm_providers: LmProvidersDict
+) -> Tuple[str, Type[BaseProvider]]:
     """Gets a two-tuple (<local-model-id>, <provider-class>) specified by a
     global model ID."""
     return _get_provider(model_id, lm_providers)
 
-def get_em_provider(model_id: str, em_providers: EmProvidersDict) -> Tuple[str, Type[BaseEmbeddingsProvider]]:
+
+def get_em_provider(
+    model_id: str, em_providers: EmProvidersDict
+) -> Tuple[str, Type[BaseEmbeddingsProvider]]:
     """Gets a two-tuple (<local-model-id>, <provider-class>) specified by a
     global model ID."""
     return _get_provider(model_id, em_providers)
+
 
 def _get_provider(model_id: str, providers: ProviderDict):
     provider_id, local_model_id = decompose_model_id(model_id, providers)

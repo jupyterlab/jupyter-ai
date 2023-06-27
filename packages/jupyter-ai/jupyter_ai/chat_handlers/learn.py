@@ -2,22 +2,10 @@ import argparse
 import json
 import os
 import time
-from typing import List, Coroutine, Any
+from typing import Any, Coroutine, List
 
 from dask.distributed import Client as DaskClient
-
-from jupyter_core.paths import jupyter_data_dir
-
-from langchain import FAISS
-from langchain.text_splitter import (
-    RecursiveCharacterTextSplitter, PythonCodeTextSplitter,
-    MarkdownTextSplitter, LatexTextSplitter
-)
-from langchain.schema import Document
-
-from .base import BaseChatHandler
-from jupyter_ai.models import HumanChatMessage, IndexedDir, IndexMetadata
-from jupyter_ai.document_loaders.directory import split, get_embeddings
+from jupyter_ai.document_loaders.directory import get_embeddings, split
 from jupyter_ai.document_loaders.splitter import ExtensionSplitter, NotebookSplitter
 from jupyter_ai.models import HumanChatMessage, IndexedDir, IndexMetadata
 from jupyter_core.paths import jupyter_data_dir
@@ -30,12 +18,15 @@ from langchain.text_splitter import (
     RecursiveCharacterTextSplitter,
 )
 
+from .base import BaseChatHandler
+
 INDEX_SAVE_DIR = os.path.join(jupyter_data_dir(), "jupyter_ai", "indices")
 METADATA_SAVE_PATH = os.path.join(INDEX_SAVE_DIR, "metadata.json")
 
 
 def compute_delayed(delayed):
     return delayed.compute()
+
 
 class LearnChatHandler(BaseChatHandler, BaseRetriever):
     def __init__(self, root_dir: str, dask_client: DaskClient, *args, **kwargs):
@@ -54,7 +45,7 @@ class LearnChatHandler(BaseChatHandler, BaseRetriever):
         self.metadata = IndexMetadata(dirs=[])
         self.prev_em_id = None
         self.embeddings = None
-        
+
         if not os.path.exists(INDEX_SAVE_DIR):
             os.makedirs(INDEX_SAVE_DIR)
 
@@ -116,11 +107,19 @@ class LearnChatHandler(BaseChatHandler, BaseRetriever):
 
     async def learn_dir(self, path: str):
         start = time.time()
-        splitters={
-            '.py': PythonCodeTextSplitter(chunk_size=self.chunk_size, chunk_overlap=self.chunk_overlap),
-            '.md': MarkdownTextSplitter(chunk_size=self.chunk_size, chunk_overlap=self.chunk_overlap),
-            '.tex': LatexTextSplitter(chunk_size=self.chunk_size, chunk_overlap=self.chunk_overlap),
-            '.ipynb': NotebookSplitter(chunk_size=self.chunk_size, chunk_overlap=self.chunk_overlap)
+        splitters = {
+            ".py": PythonCodeTextSplitter(
+                chunk_size=self.chunk_size, chunk_overlap=self.chunk_overlap
+            ),
+            ".md": MarkdownTextSplitter(
+                chunk_size=self.chunk_size, chunk_overlap=self.chunk_overlap
+            ),
+            ".tex": LatexTextSplitter(
+                chunk_size=self.chunk_size, chunk_overlap=self.chunk_overlap
+            ),
+            ".ipynb": NotebookSplitter(
+                chunk_size=self.chunk_size, chunk_overlap=self.chunk_overlap
+            ),
         }
         splitter = ExtensionSplitter(
             splitters=splitters,
@@ -132,18 +131,24 @@ class LearnChatHandler(BaseChatHandler, BaseRetriever):
         delayed = split(path, splitter=splitter)
         doc_chunks = await self.dask_client.submit(compute_delayed, delayed)
 
-        self.log.error(f"[/learn] Finished chunking documents. Time: {round((time.time() - start) * 1000)}ms")
+        self.log.error(
+            f"[/learn] Finished chunking documents. Time: {round((time.time() - start) * 1000)}ms"
+        )
 
         em = self.get_embedding_model()
         delayed = get_embeddings(doc_chunks, em)
         embedding_records = await self.dask_client.submit(compute_delayed, delayed)
-        self.log.error(f"[/learn] Finished computing embeddings. Time: {round((time.time() - start) * 1000)}ms")
+        self.log.error(
+            f"[/learn] Finished computing embeddings. Time: {round((time.time() - start) * 1000)}ms"
+        )
 
         self.index.add_embeddings(*embedding_records)
         self._add_dir_to_metadata(path)
-        
-        self.log.error(f"[/learn] Complete. Time: {round((time.time() - start) * 1000)}ms")
-    
+
+        self.log.error(
+            f"[/learn] Complete. Time: {round((time.time() - start) * 1000)}ms"
+        )
+
     def _add_dir_to_metadata(self, path: str):
         dirs = self.metadata.dirs
         index = next((i for i, dir in enumerate(dirs) if dir.path == path), None)
@@ -242,8 +247,10 @@ class LearnChatHandler(BaseChatHandler, BaseRetriever):
             docs = self.index.similarity_search(question)
             return docs
         return []
-    
-    async def aget_relevant_documents(self, query: str) -> Coroutine[Any, Any, List[Document]]:
+
+    async def aget_relevant_documents(
+        self, query: str
+    ) -> Coroutine[Any, Any, List[Document]]:
         return self.get_relevant_documents(query)
 
     def get_embedding_model(self):
