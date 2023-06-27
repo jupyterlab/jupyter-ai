@@ -246,17 +246,23 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
     async def _route(self, message):
         """Method that routes an incoming message to the appropriate handler."""
         default = self.chat_handlers["default"]
-        command = message.body.split(" ", 1)[0]
+        maybe_command = message.body.split(" ", 1)[0]
         is_command = (
             message.body.startswith("/")
-            and command != "default"
-            and command in self.chat_handlers.keys()
+            and maybe_command in self.chat_handlers.keys()
+            and maybe_command != "default"
         )
+        command = maybe_command if is_command else "default"
 
+        start = time.time()
         if is_command:
             await self.chat_handlers[command].process_message(message)
         else:
             await default.process_message(message)
+
+        latency_ms = round((time.time() - start) * 1000)
+        command_readable = "Default" if command == "default" else command
+        self.log.info(f"{command_readable} chat handler resolved in {latency_ms} ms.")
 
     def on_close(self):
         self.log.debug("Disconnecting client with user %s", self.client_id)

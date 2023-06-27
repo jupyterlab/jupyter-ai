@@ -126,24 +126,11 @@ class LearnChatHandler(BaseChatHandler, BaseRetriever):
 
         delayed = split(path, splitter=splitter)
         doc_chunks = await self.dask_client.compute(delayed)
-
-        self.log.error(
-            f"[/learn] Finished chunking documents. Time: {round((time.time() - start) * 1000)}ms"
-        )
-
         em = self.get_embedding_model()
         delayed = get_embeddings(doc_chunks, em)
         embedding_records = await self.dask_client.compute(delayed)
-        self.log.error(
-            f"[/learn] Finished computing embeddings. Time: {round((time.time() - start) * 1000)}ms"
-        )
-
         self.index.add_embeddings(*embedding_records)
         self._add_dir_to_metadata(path)
-
-        self.log.error(
-            f"[/learn] Complete. Time: {round((time.time() - start) * 1000)}ms"
-        )
 
     def _add_dir_to_metadata(self, path: str):
         dirs = self.metadata.dirs

@@ -36,12 +36,12 @@ class BaseChatHandler:
         self.llm_chain = None
 
     async def process_message(self, message: HumanChatMessage):
-        """Processes the message passed by the `Router`"""
+        """Processes the message passed by the root chat handler."""
         try:
-            # do not await this, as it blocks the parent task responsible for
-            # handling messages from a websocket.
-            # instead, process each message a separate concurrent task.
-            self.loop.create_task(self._process_message(message))
+            # do not await the coroutine object directly, as it blocks the
+            # parent task responsible for handling messages from a websocket.
+            # instead, process each message as a distinct concurrent task.
+            await self.loop.create_task(self._process_message(message))
         except Exception as e:
             formatted_e = traceback.format_exc()
             response = f"Sorry, something went wrong and I wasn't able to index that path.\n\n```\n{formatted_e}\n```"
