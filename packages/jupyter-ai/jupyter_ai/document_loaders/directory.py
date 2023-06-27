@@ -100,10 +100,3 @@ def get_embeddings(chunks, em):
         embeddings.append(embedding)
 
     return dask.delayed(join)(embeddings)
-
-
-# def get_ep(self, model_id: str) -> Tuple[str, Type[BaseEmbeddingsProvider]]:
-#     """Returns the embedding provider class that matches the provider id"""
-#     provider_id, local_model_id = decompose_model_id(model_id, self.embeddings_providers)
-#     provider = self.embeddings_providers.get(provider_id, None)
-#     return local_model_id, provider
