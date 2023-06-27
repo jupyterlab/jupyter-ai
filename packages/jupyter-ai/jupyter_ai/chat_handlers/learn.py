@@ -24,10 +24,6 @@ INDEX_SAVE_DIR = os.path.join(jupyter_data_dir(), "jupyter_ai", "indices")
 METADATA_SAVE_PATH = os.path.join(INDEX_SAVE_DIR, "metadata.json")
 
 
-def compute_delayed(delayed):
-    return delayed.compute()
-
-
 class LearnChatHandler(BaseChatHandler, BaseRetriever):
     def __init__(self, root_dir: str, dask_client: DaskClient, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -129,7 +125,7 @@ class LearnChatHandler(BaseChatHandler, BaseRetriever):
         )
 
         delayed = split(path, splitter=splitter)
-        doc_chunks = await self.dask_client.submit(compute_delayed, delayed)
+        doc_chunks = await self.dask_client.compute(delayed)
 
         self.log.error(
             f"[/learn] Finished chunking documents. Time: {round((time.time() - start) * 1000)}ms"
@@ -137,7 +133,7 @@ class LearnChatHandler(BaseChatHandler, BaseRetriever):
 
         em = self.get_embedding_model()
         delayed = get_embeddings(doc_chunks, em)
-        embedding_records = await self.dask_client.submit(compute_delayed, delayed)
+        embedding_records = await self.dask_client.compute(delayed)
         self.log.error(
             f"[/learn] Finished computing embeddings. Time: {round((time.time() - start) * 1000)}ms"
         )
