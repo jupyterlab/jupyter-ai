@@ -118,7 +118,8 @@ class AiExtension(ExtensionApp):
             chat_history=self.settings["chat_history"]
         )
         generate_chat_handler = GenerateChatHandler(
-            **chat_handler_kwargs, root_dir=self.serverapp.root_dir
+            **chat_handler_kwargs,
+            root_dir=self.serverapp.root_dir,
         )
         learn_chat_handler = LearnChatHandler(
             **chat_handler_kwargs,
