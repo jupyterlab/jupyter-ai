@@ -16,7 +16,7 @@ Documentation is available on [ReadTheDocs](https://jupyter-ai.readthedocs.io/en
 
 You can use `conda` or `pip` to install Jupyter AI. If you're using macOS on an Apple Silicon-based Mac (M1, M1 Pro, M2, etc.), we strongly recommend using `conda`.
 
-Python 3.8 or newer is required; older versions of Python do not support the `typing` module we use, and as of June 30, 2023, have reached end of life. Because of Ray's incompatibility with Python 3.11, you must use Python 3.8, 3.9, or 3.10 with Jupyter AI. The instructions below presume that you are using Python 3.10.
+Python 3.8 or newer is required; older versions of Python do not support the `typing` module we use, and as of June 30, 2023, have reached end of life.
 
 Before you can use Jupyter AI, you will need to install any packages and set environment variables with API keys for the model providers that you will use. See [our documentation](https://jupyter-ai.readthedocs.io/en/latest/users/index.html) for details about what you'll need.
 
@@ -33,9 +33,11 @@ If you are not using JupyterLab and you only want to install the Jupyter AI `%%a
 
 ### With conda
 
-First, install [conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html) and create an environment that uses Python 3.10:
+First, install
+[conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html)
+and create an environment that uses Python 3.11:
 
-    $ conda create -n jupyter-ai python=3.10
+    $ conda create -n jupyter-ai python=3.11
     $ conda activate jupyter-ai
     $ pip install jupyter_ai
 
