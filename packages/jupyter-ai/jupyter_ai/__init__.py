@@ -6,6 +6,7 @@ from ._version import __version__
 # imports to expose entry points. DO NOT REMOVE.
 from .extension import AiExtension
 
+
 def _jupyter_labextension_paths():
     return [{"src": "labextension", "dest": "@jupyter-ai/core"}]
 

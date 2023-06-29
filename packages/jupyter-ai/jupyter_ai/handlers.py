@@ -29,6 +29,7 @@ from .models import (
     Message,
 )
 
+
 class ChatHistoryHandler(BaseAPIHandler):
     """Handler to return message history"""
 
