@@ -1,6 +1,7 @@
 from typing import List
 
-from jupyter_ai.models import ClearMessage, ChatMessage
+from jupyter_ai.models import ChatMessage, ClearMessage
+
 from .base import BaseChatHandler
 
 

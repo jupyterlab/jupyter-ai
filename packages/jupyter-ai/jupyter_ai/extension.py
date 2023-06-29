@@ -87,12 +87,9 @@ class AiExtension(ExtensionApp):
 
         # get reference to event loop
         # `asyncio.get_event_loop()` is deprecated in Python 3.11+, in favor of
-        # the more readable `asyncio.get_event_loop_policy().get_event_loop()`. 
+        # the more readable `asyncio.get_event_loop_policy().get_event_loop()`.
         # it's easier to just reference the loop directly.
         loop = self.serverapp.io_loop.asyncio_loop
-        self.log.error(
-            loop is asyncio.get_event_loop_policy().get_event_loop()
-        )
 
         # We cannot instantiate the Dask client directly here because it
         # requires the event loop to be running on init. So instead we schedule
@@ -111,8 +108,7 @@ class AiExtension(ExtensionApp):
             **chat_handler_kwargs, chat_history=self.settings["chat_history"]
         )
         clear_chat_handler = ClearChatHandler(
-            **chat_handler_kwargs,
-            chat_history=self.settings["chat_history"]
+            **chat_handler_kwargs, chat_history=self.settings["chat_history"]
         )
         generate_chat_handler = GenerateChatHandler(
             **chat_handler_kwargs,
@@ -135,6 +131,4 @@ class AiExtension(ExtensionApp):
         }
 
     async def _get_dask_client(self):
-        return DaskClient(
-            processes=False, asynchronous=True
-        )
+        return DaskClient(processes=False, asynchronous=True)

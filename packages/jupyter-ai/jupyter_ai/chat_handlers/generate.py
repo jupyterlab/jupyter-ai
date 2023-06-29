@@ -179,17 +179,15 @@ async def generate_summary(outline, llm=None, verbose: bool = False):
 
 
 async def fill_outline(outline, llm, verbose=False):
-    shared_kwargs = {
-        "outline": outline,
-        "llm": llm,
-        "verbose": verbose
-    }
-    
+    shared_kwargs = {"outline": outline, "llm": llm, "verbose": verbose}
+
     all_coros = []
     all_coros.append(generate_title(**shared_kwargs))
     all_coros.append(generate_summary(**shared_kwargs))
     for section in outline["sections"]:
-        all_coros.append(generate_code(section, outline["description"], llm=llm, verbose=verbose))
+        all_coros.append(
+            generate_code(section, outline["description"], llm=llm, verbose=verbose)
+        )
     await asyncio.gather(*all_coros)
 
 
@@ -227,7 +225,7 @@ class GenerateChatHandler(BaseChatHandler):
 
     async def _process_message(self, message: HumanChatMessage):
         self.get_llm_chain()
-        
+
         # first send a verification message to user
         response = "👍 Great, I will get started on your notebook. It may take a few minutes, but I will reply here when the notebook is ready. In the meantime, you can continue to ask me other questions."
         self.reply(response, message)

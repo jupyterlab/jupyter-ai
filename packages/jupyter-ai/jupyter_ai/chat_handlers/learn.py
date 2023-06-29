@@ -24,7 +24,9 @@ METADATA_SAVE_PATH = os.path.join(INDEX_SAVE_DIR, "metadata.json")
 
 
 class LearnChatHandler(BaseChatHandler, BaseRetriever):
-    def __init__(self, root_dir: str, dask_client_future: Awaitable[DaskClient], *args, **kwargs):
+    def __init__(
+        self, root_dir: str, dask_client_future: Awaitable[DaskClient], *args, **kwargs
+    ):
         super().__init__(*args, **kwargs)
         self.root_dir = root_dir
         self.dask_client_future = dask_client_future
