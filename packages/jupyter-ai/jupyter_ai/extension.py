@@ -1,7 +1,6 @@
 import time
 
 from dask.distributed import Client as DaskClient
-from importlib_metadata import entry_points
 from jupyter_ai_magics.utils import get_em_providers, get_lm_providers
 from jupyter_server.extension.application import ExtensionApp
 
@@ -18,9 +17,7 @@ from .handlers import (
     EmbeddingsModelProviderHandler,
     GlobalConfigHandler,
     ModelProviderHandler,
-    PromptAPIHandler,
     RootChatHandler,
-    TaskAPIHandler,
 )
 
 
@@ -28,9 +25,6 @@ class AiExtension(ExtensionApp):
     name = "jupyter_ai"
     handlers = [
         ("api/ai/config", GlobalConfigHandler),
-        ("api/ai/prompt", PromptAPIHandler),
-        (r"api/ai/tasks/?", TaskAPIHandler),
-        (r"api/ai/tasks/([\w\-:]*)", TaskAPIHandler),
         (r"api/ai/chats/?", RootChatHandler),
         (r"api/ai/chats/history?", ChatHistoryHandler),
         (r"api/ai/providers?", ModelProviderHandler),
@@ -39,31 +33,6 @@ class AiExtension(ExtensionApp):
 
     def initialize_settings(self):
         start = time.time()
-
-        # EP := entry point
-        eps = entry_points()
-
-        ## load default tasks and bind them to settings
-        module_default_tasks_eps = eps.select(group="jupyter_ai.default_tasks")
-
-        if not module_default_tasks_eps:
-            self.settings["ai_default_tasks"] = []
-            return
-
-        default_tasks = []
-        for module_default_tasks_ep in module_default_tasks_eps:
-            try:
-                module_default_tasks = module_default_tasks_ep.load()
-            except:
-                self.log.error(
-                    f"Unable to load task from entry point `{module_default_tasks_ep.name}`"
-                )
-                continue
-
-            default_tasks += module_default_tasks
-
-        self.settings["ai_default_tasks"] = default_tasks
-        self.log.info("Registered all default tasks.")
 
         self.settings["lm_providers"] = get_lm_providers(log=self.log)
         self.settings["em_providers"] = get_em_providers(log=self.log)

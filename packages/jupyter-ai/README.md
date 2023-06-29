@@ -36,31 +36,6 @@ To remove the extension, execute:
 
     $ pip uninstall jupyter_ai
 
-## Usage with GPT-3
-
-To use the `GPT3ModelEngine` in `jupyter_ai`, you will need an OpenAI API key.
-Copy the API key and then create a Jupyter config file locally at `config.py` to
-store the API key.
-
-```python
-c.GPT3ModelEngine.api_key = "<your-api-key>"
-```
-
-Finally, start a new JupyterLab instance pointing to this configuration file.
-
-```bash
-jupyter lab --config=config.py
-```
-
-If you are doing this in a Git repository, you can ensure you never commit this
-file on accident by adding it to `.git/info/exclude`.
-
-Alternately, you can also specify your API key while launching JupyterLab.
-
-```bash
-jupyter lab --GPT3ModelEngine.api_key=<api-key>
-```
-
 ## Troubleshoot
 
 If you can see the extension UI, but it is not working, check
