@@ -85,23 +85,20 @@ class AiExtension(ExtensionApp):
         # memory object used by the LM chain.
         self.settings["chat_history"] = []
 
-        # initialize dask client
-        self.settings["jai_dask_client"] = DaskClient(
-            processes=False, asynchronous=True
+        # get reference to event loop
+        # `asyncio.get_event_loop()` is deprecated in Python 3.11+, in favor of
+        # the more readable `asyncio.get_event_loop_policy().get_event_loop()`. 
+        # it's easier to just reference the loop directly.
+        loop = self.serverapp.io_loop.asyncio_loop
+        self.log.error(
+            loop is asyncio.get_event_loop_policy().get_event_loop()
         )
 
-        # initialize event loop
-        # i'm not why sure the below commented block [without calling
-        # get_event_loop(), which is on a deprecation path] fails. we'll have to
-        # investigate how the event loop is managed by Jupyter Server.
-        #
-        # try:
-        #     loop = asyncio.get_running_loop()
-        # except RuntimeError:
-        #     loop = asyncio.new_event_loop()
-        #     asyncio.set_event_loop(loop)
-        #     loop.run_forever()
-        loop = asyncio.get_event_loop()
+        # We cannot instantiate the Dask client directly here because it
+        # requires the event loop to be running on init. So instead we schedule
+        # this as a task that is run as soon as the loop starts, and pass
+        # consumers a Future that resolves to the Dask client when awaited.
+        dask_client_future = loop.create_task(self._get_dask_client())
 
         # initialize chat handlers
         chat_handler_kwargs = {
@@ -124,7 +121,7 @@ class AiExtension(ExtensionApp):
         learn_chat_handler = LearnChatHandler(
             **chat_handler_kwargs,
             root_dir=self.serverapp.root_dir,
-            dask_client=self.settings["jai_dask_client"],
+            dask_client_future=dask_client_future,
         )
         ask_chat_handler = AskChatHandler(
             **chat_handler_kwargs, retriever=learn_chat_handler
@@ -136,3 +133,8 @@ class AiExtension(ExtensionApp):
             "/generate": generate_chat_handler,
             "/learn": learn_chat_handler,
         }
+
+    async def _get_dask_client(self):
+        return DaskClient(
+            processes=False, asynchronous=True
+        )

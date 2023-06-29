@@ -1,8 +1,7 @@
 import argparse
 import json
 import os
-import time
-from typing import Any, Coroutine, List
+from typing import Any, Awaitable, Coroutine, List
 
 from dask.distributed import Client as DaskClient
 from jupyter_ai.document_loaders.directory import get_embeddings, split
@@ -25,10 +24,10 @@ METADATA_SAVE_PATH = os.path.join(INDEX_SAVE_DIR, "metadata.json")
 
 
 class LearnChatHandler(BaseChatHandler, BaseRetriever):
-    def __init__(self, root_dir: str, dask_client: DaskClient, *args, **kwargs):
+    def __init__(self, root_dir: str, dask_client_future: Awaitable[DaskClient], *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.root_dir = root_dir
-        self.dask_client = dask_client
+        self.dask_client_future = dask_client_future
         self.chunk_size = 2000
         self.chunk_overlap = 100
         self.parser.prog = "/learn"
@@ -102,7 +101,7 @@ class LearnChatHandler(BaseChatHandler, BaseRetriever):
         return message
 
     async def learn_dir(self, path: str):
-        start = time.time()
+        dask_client = await self.dask_client_future
         splitters = {
             ".py": PythonCodeTextSplitter(
                 chunk_size=self.chunk_size, chunk_overlap=self.chunk_overlap
@@ -125,10 +124,10 @@ class LearnChatHandler(BaseChatHandler, BaseRetriever):
         )
 
         delayed = split(path, splitter=splitter)
-        doc_chunks = await self.dask_client.compute(delayed)
+        doc_chunks = await dask_client.compute(delayed)
         em = self.get_embedding_model()
         delayed = get_embeddings(doc_chunks, em)
-        embedding_records = await self.dask_client.compute(delayed)
+        embedding_records = await dask_client.compute(delayed)
         self.index.add_embeddings(*embedding_records)
         self._add_dir_to_metadata(path)
 
