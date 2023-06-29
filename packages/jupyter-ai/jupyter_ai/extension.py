@@ -1,4 +1,4 @@
-import asyncio
+import time
 
 from dask.distributed import Client as DaskClient
 from importlib_metadata import entry_points
@@ -38,6 +38,8 @@ class AiExtension(ExtensionApp):
     ]
 
     def initialize_settings(self):
+        start = time.time()
+
         # EP := entry point
         eps = entry_points()
 
@@ -129,6 +131,9 @@ class AiExtension(ExtensionApp):
             "/generate": generate_chat_handler,
             "/learn": learn_chat_handler,
         }
+
+        latency_ms = round((time.time() - start) * 1000)
+        self.log.info(f"Initialized Jupyter AI server extension in {latency_ms} ms.")
 
     async def _get_dask_client(self):
         return DaskClient(processes=False, asynchronous=True)
