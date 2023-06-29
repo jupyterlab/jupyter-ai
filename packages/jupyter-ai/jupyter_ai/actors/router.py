@@ -21,9 +21,9 @@ class Router(BaseActor):
             command = message.body.split(" ", 1)[0]
             if command in COMMANDS.keys():
                 actor = ray.get_actor(COMMANDS[command].value)
-                actor.process_message.remote(message)
+                ray.get(actor.process_message.remote(message))
             if command == "/clear":
                 actor = ray.get_actor(ACTOR_TYPE.DEFAULT)
-                actor.clear_memory.remote()
+                ray.get(actor.clear_memory.remote())
         else:
-            default.process_message.remote(message)
+            ray.get(default.process_message.remote(message))

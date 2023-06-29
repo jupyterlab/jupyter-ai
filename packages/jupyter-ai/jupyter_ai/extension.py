@@ -1,5 +1,6 @@
 import asyncio
 import inspect
+import time
 
 import ray
 from importlib_metadata import entry_points
@@ -53,6 +54,7 @@ class AiExtension(ExtensionApp):
         return self.settings["ai_engines"]
 
     def initialize_settings(self):
+        start = time.time()
         ray.init()
 
         # EP := entry point
@@ -195,3 +197,6 @@ class AiExtension(ExtensionApp):
         )
         loop = asyncio.get_event_loop()
         loop.create_task(reply_processor.start())
+
+        latency_ms = round((time.time() - start) * 1000)
+        self.log.info(f"Initialized Jupyter AI server extension in {latency_ms} ms.")

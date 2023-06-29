@@ -7,7 +7,7 @@ from typing import Dict, List
 
 import ray
 import tornado
-from jupyter_ai.actors.base import ACTOR_TYPE
+from jupyter_ai.actors.base import ACTOR_TYPE, COMMANDS
 from jupyter_server.base.handlers import APIHandler as BaseAPIHandler
 from jupyter_server.base.handlers import JupyterHandler
 from jupyter_server.utils import ensure_async
@@ -243,8 +243,20 @@ class ChatHandler(JupyterHandler, websocket.WebSocketHandler):
                 self.chat_history.clear()
 
         # process through the router
+        start = time.time()
+        maybe_command = chat_message.body.split(" ", 1)[0]
+        is_command = (
+            chat_message.body.startswith("/")
+            and maybe_command in COMMANDS.keys()
+            and maybe_command != "default"
+        )
+        command = maybe_command if is_command else "default"
         router = ray.get_actor("router")
-        router.process_message.remote(chat_message)
+        ray.get(router.process_message.remote(chat_message))
+
+        latency_ms = round((time.time() - start) * 1000)
+        command_readable = "Default" if command == "default" else command
+        self.log.info(f"{command_readable} chat handler resolved in {latency_ms} ms.")
 
     def on_close(self):
         self.log.debug("Disconnecting client with user %s", self.client_id)
