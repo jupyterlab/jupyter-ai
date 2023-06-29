@@ -1,7 +1,6 @@
 import argparse
 import time
 import traceback
-from asyncio import AbstractEventLoop
 
 # necessary to prevent circular import
 from typing import TYPE_CHECKING, Dict, Optional, Type
@@ -22,12 +21,10 @@ class BaseChatHandler:
     def __init__(
         self,
         log: Logger,
-        loop: AbstractEventLoop,
         config_manager: ConfigManager,
         root_chat_handlers: Dict[str, "RootChatHandler"],
     ):
         self.log = log
-        self.loop = loop
         self.config_manager = config_manager
         self._root_chat_handlers = root_chat_handlers
         self.parser = argparse.ArgumentParser()
@@ -38,10 +35,7 @@ class BaseChatHandler:
     async def process_message(self, message: HumanChatMessage):
         """Processes the message passed by the root chat handler."""
         try:
-            # do not await the coroutine object directly, as it blocks the
-            # parent task responsible for handling messages from a websocket.
-            # instead, process each message as a distinct concurrent task.
-            await self.loop.create_task(self._process_message(message))
+            await self._process_message(message)
         except Exception as e:
             formatted_e = traceback.format_exc()
             response = f"Sorry, something went wrong and I wasn't able to index that path.\n\n```\n{formatted_e}\n```"

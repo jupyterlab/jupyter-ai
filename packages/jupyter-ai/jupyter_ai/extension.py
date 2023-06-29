@@ -90,6 +90,7 @@ class AiExtension(ExtensionApp):
         # the more readable `asyncio.get_event_loop_policy().get_event_loop()`.
         # it's easier to just reference the loop directly.
         loop = self.serverapp.io_loop.asyncio_loop
+        self.settings["jai_event_loop"] = loop
 
         # We cannot instantiate the Dask client directly here because it
         # requires the event loop to be running on init. So instead we schedule
@@ -100,7 +101,6 @@ class AiExtension(ExtensionApp):
         # initialize chat handlers
         chat_handler_kwargs = {
             "log": self.log,
-            "loop": loop,
             "config_manager": self.settings["jai_config_manager"],
             "root_chat_handlers": self.settings["jai_root_chat_handlers"],
         }

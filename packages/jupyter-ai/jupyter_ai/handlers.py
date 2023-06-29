@@ -2,6 +2,7 @@ import getpass
 import json
 import time
 import uuid
+from asyncio import AbstractEventLoop
 from dataclasses import asdict
 from typing import Dict, List
 
@@ -142,6 +143,10 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
     def chat_history(self) -> List[ChatMessage]:
         return self.settings["chat_history"]
 
+    @property
+    def loop(self) -> AbstractEventLoop:
+        return self.settings["jai_event_loop"]
+
     def initialize(self):
         self.log.debug("Initializing websocket connection %s", self.request.path)
 
@@ -241,7 +246,10 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
         # broadcast the message to other clients
         self.broadcast_message(message=chat_message)
 
-        await self._route(chat_message)
+        # do not await this, as it blocks the parent task responsible for
+        # handling messages from a websocket.  instead, process each message
+        # as a distinct concurrent task.
+        self.loop.create_task(self._route(chat_message))
 
     async def _route(self, message):
         """Method that routes an incoming message to the appropriate handler."""
