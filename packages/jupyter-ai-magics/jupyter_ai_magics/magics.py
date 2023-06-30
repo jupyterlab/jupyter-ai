@@ -48,6 +48,9 @@ class TextWithMetadata:
     def __init__(self, text, metadata):
         self.text = text
         self.metadata = metadata
+    
+    def __str__(self):
+        return self.text
 
     def _repr_mimebundle_(self, include=None, exclude=None):
         return ({"text/plain": self.text}, self.metadata)
