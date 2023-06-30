@@ -98,7 +98,9 @@ function ChatBody({
     // no need to append to messageGroups state variable, since that's already
     // handled in the effect hooks.
     const reply = await chatHandler.replyFor(messageId);
-    if (replaceSelection && selection) {
+    // Need to check that the selection is both non-null and has text, so as not to replace
+    // the active cell with no selection in it
+    if (replaceSelection && selection && selection.text) {
       const { cellId, ...selectionProps } = selection;
       replaceSelectionFn({
         ...selectionProps,
