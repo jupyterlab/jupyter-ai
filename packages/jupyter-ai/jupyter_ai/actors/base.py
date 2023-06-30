@@ -99,7 +99,7 @@ class BaseActor:
         elif self.llm_params != lm_provider_params:
             self.log.info("Chat model params changed, updating the llm chain.")
             self.create_llm_chain(lm_provider, lm_provider_params)
-            
+
         return self.llm_chain
 
     def get_embeddings(self):
@@ -111,7 +111,10 @@ class BaseActor:
         if not provider or not embedding_params:
             return None
 
-        if embedding_model_id != self.embedding_model_id or self.embeddings_params != embedding_params:
+        if (
+            embedding_model_id != self.embedding_model_id
+            or self.embeddings_params != embedding_params
+        ):
             self.embeddings = provider(**embedding_params)
 
         return self.embeddings
