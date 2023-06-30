@@ -48,7 +48,7 @@ class TextWithMetadata:
     def __init__(self, text, metadata):
         self.text = text
         self.metadata = metadata
-    
+
     def __str__(self):
         return self.text
 
