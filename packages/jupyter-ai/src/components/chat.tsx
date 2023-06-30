@@ -145,6 +145,9 @@ function ChatBody({
     );
   }
 
+  // If there is no selection, the "replace selection" button will not be
+  // visible; treat it as disabled
+  const hasSelection = !!selection?.text;
   return (
     <>
       <ScrollContainer sx={{ flexGrow: 1 }}>
@@ -154,12 +157,12 @@ function ChatBody({
         value={input}
         onChange={setInput}
         onSend={onSend}
-        hasSelection={!!selection?.text}
+        hasSelection={hasSelection}
         includeSelection={includeSelection}
         toggleIncludeSelection={() =>
           setIncludeSelection(includeSelection => !includeSelection)
         }
-        replaceSelection={replaceSelection}
+        replaceSelection={hasSelection && replaceSelection}
         toggleReplaceSelection={() =>
           setReplaceSelection(replaceSelection => !replaceSelection)
         }
