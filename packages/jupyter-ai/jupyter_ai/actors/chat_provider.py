@@ -16,7 +16,7 @@ class ChatProviderActor:
         local_model_id, provider = ray.get(
             actor.get_model_provider_data.remote(model_id)
         )
-
+        
         if not provider:
             raise ValueError(f"No provider and model found with '{model_id}'")
 
