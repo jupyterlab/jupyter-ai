@@ -289,7 +289,8 @@ export function ChatSettings(): JSX.Element {
       sx={{
         padding: 4,
         boxSizing: 'border-box',
-        '& > .MuiAlert-root': { marginBottom: 2 }
+        '& > .MuiAlert-root': { marginBottom: 2 },
+        overflowY: 'auto'
       }}
     >
       {state === ChatSettingsState.SubmitError && (

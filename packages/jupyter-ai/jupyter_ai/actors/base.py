@@ -88,7 +88,7 @@ class BaseActor:
             else None
         )
 
-        if not lm_provider:
+        if not lm_provider or not lm_provider_params:
             return None
 
         if curr_lm_id != next_lm_id:
@@ -96,6 +96,10 @@ class BaseActor:
                 f"Switching chat language model from {curr_lm_id} to {next_lm_id}."
             )
             self.create_llm_chain(lm_provider, lm_provider_params)
+        elif self.llm_params != lm_provider_params:
+            self.log.info("Chat model params changed, updating the llm chain.")
+            self.create_llm_chain(lm_provider, lm_provider_params)
+
         return self.llm_chain
 
     def get_embeddings(self):
@@ -104,10 +108,13 @@ class BaseActor:
         embedding_params = ray.get(actor.get_provider_params.remote())
         embedding_model_id = ray.get(actor.get_model_id.remote())
 
-        if not provider:
+        if not provider or not embedding_params:
             return None
 
-        if embedding_model_id != self.embedding_model_id:
+        if (
+            embedding_model_id != self.embedding_model_id
+            or self.embeddings_params != embedding_params
+        ):
             self.embeddings = provider(**embedding_params)
 
         return self.embeddings
