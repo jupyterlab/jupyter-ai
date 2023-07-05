@@ -143,8 +143,6 @@ function ChatBody({
     );
   }
 
-  // If there is no selection, the "replace selection" button will not be
-  // visible; treat it as disabled
   return (
     <>
       <ScrollContainer sx={{ flexGrow: 1 }}>
