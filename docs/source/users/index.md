@@ -45,14 +45,20 @@ Jupyter AI supports the following model providers:
 | AI21                | `ai21`               | `AI21_API_KEY`             | `ai21`                          |
 | Anthropic           | `anthropic`          | `ANTHROPIC_API_KEY`        | `anthropic`                     |
 | Cohere              | `cohere`             | `COHERE_API_KEY`           | `cohere`                        |
-| HuggingFace Hub     | `huggingface_hub`    | `HUGGINGFACEHUB_API_TOKEN` | `huggingface_hub`, `ipywidgets`, `pillow` |
+| Hugging Face Hub    | `huggingface_hub`    | `HUGGINGFACEHUB_API_TOKEN` | `huggingface_hub`, `ipywidgets`, `pillow` |
 | OpenAI              | `openai`             | `OPENAI_API_KEY`           | `openai`                        |
 | OpenAI (chat)       | `openai-chat`        | `OPENAI_API_KEY`           | `openai`                        |
-| SageMaker          | `sagemaker-endpoint` | N/A                        | `boto3`                         |
+| SageMaker           | `sagemaker-endpoint` | N/A                        | `boto3`                         |
 
 The environment variable names shown above are also the names of the settings keys used when setting up the chat interface.
 
 You need the `pillow` Python package to use HuggingFace Hub's text-to-image models.
+
+You can find a list of Hugging Face's models at https://huggingface.co/models.
+
+SageMaker endpoint names are created when you deploy a model. For more information, see
+["Create your endpoint and deploy your model"](https://docs.aws.amazon.com/sagemaker/latest/dg/realtime-endpoints-deployment.html)
+in the SageMaker documentation.
 
 To use SageMaker's models, you will need to authenticate via
 [boto3](https://github.com/boto/boto3).
