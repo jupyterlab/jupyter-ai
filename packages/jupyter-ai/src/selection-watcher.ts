@@ -58,6 +58,11 @@ function getTextSelection(widget: Widget | null): Selection | null {
     .getSource()
     .substring(startOffset, endOffset);
 
+  // Do not return a Selection object if no text is selected
+  if (!text) {
+    return null;
+  }
+
   // ensure start <= end
   // required for editor.model.sharedModel.updateSource()
   if (startOffset > endOffset) {
