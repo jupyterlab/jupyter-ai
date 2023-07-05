@@ -1,10 +1,13 @@
+import asyncio
 import base64
+from concurrent.futures import ThreadPoolExecutor
 import copy
+import functools
 import io
 import json
-from typing import Any, ClassVar, Dict, List, Literal, Optional, Union
+from typing import Any, ClassVar, Coroutine, Dict, List, Literal, Optional, Union
 
-from jsonpath_ng import jsonpath, parse
+from jsonpath_ng import parse
 from langchain.chat_models import ChatOpenAI
 from langchain.llms import (
     AI21,
@@ -120,6 +123,15 @@ class BaseProvider(BaseModel):
 
         super().__init__(*args, **kwargs, **model_kwargs)
 
+    async def _call_in_executor(self, *args, **kwargs) -> Coroutine[Any, Any, str]:
+        """
+        Calls self._call() asynchronously in a separate thread for providers
+        without an async implementation. Requires the event loop to be running.
+        """
+        executor = ThreadPoolExecutor(max_workers=1)
+        loop = asyncio.get_running_loop()
+        _call_with_args = functools.partial(self._call, *args, **kwargs)
+        return await loop.run_in_executor(executor, _call_with_args)
 
 class AI21Provider(BaseProvider, AI21):
     id = "ai21"
@@ -138,6 +150,9 @@ class AI21Provider(BaseProvider, AI21):
     model_id_key = "model"
     pypi_package_deps = ["ai21"]
     auth_strategy = EnvAuthStrategy(name="AI21_API_KEY")
+
+    async def _acall(self, *args, **kwargs) -> Coroutine[Any, Any, str]:
+        return await self._call_in_executor(*args, **kwargs)
 
 
 class AnthropicProvider(BaseProvider, Anthropic):
@@ -162,6 +177,9 @@ class CohereProvider(BaseProvider, Cohere):
     model_id_key = "model"
     pypi_package_deps = ["cohere"]
     auth_strategy = EnvAuthStrategy(name="COHERE_API_KEY")
+
+    async def _acall(self, *args, **kwargs) -> Coroutine[Any, Any, str]:
+        return await self._call_in_executor(*args, **kwargs)
 
 
 HUGGINGFACE_HUB_VALID_TASKS = (
