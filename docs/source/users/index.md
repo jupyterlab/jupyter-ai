@@ -52,7 +52,7 @@ Jupyter AI supports the following model providers:
 
 The environment variable names shown above are also the names of the settings keys used when setting up the chat interface.
 
-You need the `pillow` Python package to use HuggingFace Hub's text-to-image models.
+You need the `pillow` Python package to use Hugging Face Hub's text-to-image models.
 
 You can find a list of Hugging Face's models at https://huggingface.co/models.
 
@@ -412,9 +412,9 @@ in notebooks while keeping the same concise syntax for invoking a language model
 
 The `%ai list` subcommand prints a list of available providers and models. Some
 providers explicitly define a list of supported models in their API. However,
-other providers, like HuggingFace Hub, lack a well-defined list of available
+other providers, like Hugging Face Hub, lack a well-defined list of available
 models. In such cases, it's best to consult the provider's upstream
-documentation. The [HuggingFace website](https://huggingface.co/) includes a
+documentation. The [Hugging Face website](https://huggingface.co/) includes a
 list of models, for example.
 
 Optionally, you can specify a provider ID as a positional argument to `%ai list`
@@ -446,7 +446,7 @@ an `%%ai` command will be formatted as markdown by default. You can override thi
 using the `-f` or `--format` argument to your magic command. Valid formats include:
 
 - `code`
-- `image` (for HuggingFace Hub's text-to-image models only)
+- `image` (for Hugging Face Hub's text-to-image models only)
 - `markdown`
 - `math`
 - `html`

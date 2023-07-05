@@ -174,7 +174,7 @@ HUGGINGFACE_HUB_VALID_TASKS = (
 
 class HfHubProvider(BaseProvider, HuggingFaceHub):
     id = "huggingface_hub"
-    name = "HuggingFace Hub"
+    name = "Hugging Face Hub"
     models = ["*"]
     model_id_key = "repo_id"
     # ipywidgets needed to suppress tqdm warning
@@ -215,7 +215,7 @@ class HfHubProvider(BaseProvider, HuggingFaceHub):
 
     # Handle image outputs
     def _call(self, prompt: str, stop: Optional[List[str]] = None) -> str:
-        """Call out to HuggingFace Hub's inference endpoint.
+        """Call out to Hugging Face Hub's inference endpoint.
 
         Args:
             prompt: The prompt to pass into the model.
