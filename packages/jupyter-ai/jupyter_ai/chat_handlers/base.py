@@ -85,6 +85,7 @@ class BaseChatHandler:
             self.log.info("Chat model params changed, updating the llm chain.")
             self.create_llm_chain(lm_provider, lm_provider_params)
 
+        self.llm_params = lm_provider_params
         return self.llm_chain
 
     def create_llm_chain(
