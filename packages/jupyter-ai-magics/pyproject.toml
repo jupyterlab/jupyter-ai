@@ -44,7 +44,7 @@ test = [
 
 all = [
     "ai21",
-    "anthropic",
+    "anthropic~=0.2.10",
     "cohere",
     "huggingface_hub",
     "ipywidgets",
