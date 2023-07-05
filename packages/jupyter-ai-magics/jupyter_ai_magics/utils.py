@@ -9,7 +9,8 @@ from jupyter_ai_magics.providers import BaseProvider
 Logger = Union[logging.Logger, logging.LoggerAdapter]
 LmProvidersDict = Dict[str, BaseProvider]
 EmProvidersDict = Dict[str, BaseEmbeddingsProvider]
-ProviderDict = Dict[str, Union[BaseProvider, BaseEmbeddingsProvider]]
+AnyProvider = Union[BaseProvider, BaseEmbeddingsProvider]
+ProviderDict = Dict[str, AnyProvider]
 
 def get_lm_providers(log: Optional[Logger] = None) -> LmProvidersDict:
     if not log:

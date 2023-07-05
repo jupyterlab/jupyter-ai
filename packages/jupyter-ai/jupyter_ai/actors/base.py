@@ -24,10 +24,7 @@ class ACTOR_TYPE(str, Enum):
     ASK = "ask"
     LEARN = "learn"
     GENERATE = "generate"
-    PROVIDERS = "providers"
     CONFIG = "config"
-    CHAT_PROVIDER = "chat_provider"
-    EMBEDDINGS_PROVIDER = "embeddings_provider"
 
 
 COMMANDS = {
@@ -49,7 +46,7 @@ class BaseActor:
         self.llm_chain = None
         self.embeddings = None
         self.embeddings_params = None
-        self.embedding_model_id = None
+        self.prev_em_id = None
 
     def process_message(self, message: HumanChatMessage):
         """Processes the message passed by the `Router`"""
@@ -74,9 +71,9 @@ class BaseActor:
         self.reply_queue.put(m)
 
     def get_llm_chain(self):
-        actor = ray.get_actor(ACTOR_TYPE.CHAT_PROVIDER)
-        lm_provider = ray.get(actor.get_provider.remote())
-        lm_provider_params = ray.get(actor.get_provider_params.remote())
+        actor = ray.get_actor(ACTOR_TYPE.CONFIG)
+        lm_provider = ray.get(actor.get_lm_provider.remote())
+        lm_provider_params = ray.get(actor.get_lm_provider_params.remote())
 
         curr_lm_id = (
             f'{self.llm.id}:{lm_provider_params["model_id"]}' if self.llm else None
@@ -102,10 +99,10 @@ class BaseActor:
         return self.llm_chain
 
     def get_embeddings(self):
-        actor = ray.get_actor(ACTOR_TYPE.EMBEDDINGS_PROVIDER)
-        provider = ray.get(actor.get_provider.remote())
-        embedding_params = ray.get(actor.get_provider_params.remote())
-        embedding_model_id = ray.get(actor.get_model_id.remote())
+        actor = ray.get_actor(ACTOR_TYPE.CONFIG)
+        em_provider = ray.get(actor.get_em_provider.remote())
+        em_provider_params = ray.get(actor.get_em_provider_params.remote())
+        curr_em_id = em_provider_params["model_id"]
 
         if not provider or not embedding_params:
             return None
@@ -116,6 +113,16 @@ class BaseActor:
         ):
             self.embeddings = provider(**embedding_params)
 
+        if self.prev_em_id != curr_em_id:
+            if self.prev_em_id:
+                # delete the index
+                actor = ray.get_actor(ACTOR_TYPE.LEARN)
+                actor.delete_and_relearn.remote()
+
+            # instantiate new embedding provider
+            self.embeddings = em_provider(**em_provider_params)
+
+        self.prev_em_id = curr_em_id
         return self.embeddings
 
     def create_llm_chain(

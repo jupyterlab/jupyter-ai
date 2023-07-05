@@ -1,14 +1,11 @@
 import asyncio
-import inspect
 
 import ray
 from importlib_metadata import entry_points
 from jupyter_ai.actors.ask import AskActor
 from jupyter_ai.actors.base import ACTOR_TYPE
-from jupyter_ai.actors.chat_provider import ChatProviderActor
 from jupyter_ai.actors.config import ConfigActor
 from jupyter_ai.actors.default import DefaultActor
-from jupyter_ai.actors.embeddings_provider import EmbeddingsProviderActor
 from jupyter_ai.actors.generate import GenerateActor
 from jupyter_ai.actors.learn import LearnActor
 from jupyter_ai.actors.router import Router
@@ -101,17 +98,7 @@ class AiExtension(ExtensionApp):
 
         config_actor = ConfigActor.options(name=ACTOR_TYPE.CONFIG.value).remote(
             log=self.log,
-        )
-        chat_provider_actor = ChatProviderActor.options(
-            name=ACTOR_TYPE.CHAT_PROVIDER.value,
-        ).remote(
-            log=self.log,
-            lm_providers=self.settings["lm_providers"]
-        )
-        embeddings_provider_actor = EmbeddingsProviderActor.options(
-            name=ACTOR_TYPE.EMBEDDINGS_PROVIDER.value,
-        ).remote(
-            log=self.log,
+            lm_providers=self.settings["lm_providers"],
             em_providers=self.settings["em_providers"]
         )
         learn_actor = LearnActor.options(name=ACTOR_TYPE.LEARN.value).remote(
@@ -131,8 +118,6 @@ class AiExtension(ExtensionApp):
 
         self.settings["router"] = router
         self.settings["config_actor"] = config_actor
-        self.settings["chat_provider_actor"] = chat_provider_actor
-        self.settings["embeddings_provider_actor"] = embeddings_provider_actor
         self.settings["default_actor"] = default_actor
         self.settings["learn_actor"] = learn_actor
         self.settings["ask_actor"] = ask_actor
