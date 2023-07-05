@@ -1,10 +1,10 @@
 import asyncio
 import base64
-from concurrent.futures import ThreadPoolExecutor
 import copy
 import functools
 import io
 import json
+from concurrent.futures import ThreadPoolExecutor
 from typing import Any, ClassVar, Coroutine, Dict, List, Literal, Optional, Union
 
 from jsonpath_ng import parse
@@ -132,6 +132,7 @@ class BaseProvider(BaseModel):
         loop = asyncio.get_running_loop()
         _call_with_args = functools.partial(self._call, *args, **kwargs)
         return await loop.run_in_executor(executor, _call_with_args)
+
 
 class AI21Provider(BaseProvider, AI21):
     id = "ai21"
