@@ -2,6 +2,32 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 0.9.0
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@0.8.0...b62c8160f8e078fe8f7145be4d12c7982d9eafdb))
+
+### Bugs fixed
+
+- Fixes "replace selection" behavior when nothing is selected [#251](https://github.com/jupyterlab/jupyter-ai/pull/251) ([@JasonWeill](https://github.com/JasonWeill))
+- Adds __str__ method for TextWithMetadata [#250](https://github.com/jupyterlab/jupyter-ai/pull/250) ([@JasonWeill](https://github.com/JasonWeill))
+- Fix settings update and vertical scroll [#249](https://github.com/jupyterlab/jupyter-ai/pull/249) ([@3coins](https://github.com/3coins))
+- Truncate chat history to last 2 conversations [#240](https://github.com/jupyterlab/jupyter-ai/pull/240) ([@3coins](https://github.com/3coins))
+
+### Maintenance and upkeep improvements
+
+- Use pre-commit [#237](https://github.com/jupyterlab/jupyter-ai/pull/237) ([@dlqqq](https://github.com/dlqqq))
+- Removes unused dialog code [#234](https://github.com/jupyterlab/jupyter-ai/pull/234) ([@JasonWeill](https://github.com/JasonWeill))
+- Change sagemaker example to make more sense [#231](https://github.com/jupyterlab/jupyter-ai/pull/231) ([@JasonWeill](https://github.com/JasonWeill))
+- add JS lint workflow [#230](https://github.com/jupyterlab/jupyter-ai/pull/230) ([@JasonWeill](https://github.com/JasonWeill))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2023-06-16&to=2023-07-05&type=c))
+
+[@3coins](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3A3coins+updated%3A2023-06-16..2023-07-05&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2023-06-16..2023-07-05&type=Issues) | [@JasonWeill](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AJasonWeill+updated%3A2023-06-16..2023-07-05&type=Issues) | [@pre-commit-ci](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Apre-commit-ci+updated%3A2023-06-16..2023-07-05&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 0.8.0
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@0.7.3...4169ebf0274b177573dce43197d2c2e5169fc71b))
@@ -36,8 +62,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2023-05-26&to=2023-06-16&type=c))
 
 [@3coins](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3A3coins+updated%3A2023-05-26..2023-06-16&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2023-05-26..2023-06-16&type=Issues) | [@JasonWeill](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AJasonWeill+updated%3A2023-05-26..2023-06-16&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 0.7.3
 
