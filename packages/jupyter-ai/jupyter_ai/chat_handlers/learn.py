@@ -245,16 +245,13 @@ class LearnChatHandler(BaseChatHandler, BaseRetriever):
         if not em_provider:
             return None
 
-        if curr_em_id != self.prev_em_id:
+        prev_em_id = self.prev_em_id
+        if prev_em_id != curr_em_id:
+            self.log.info(f"Switching embedding model from {prev_em_id} to {curr_em_id}.")
             self.embeddings = em_provider(**em_provider_params)
-
-        if self.prev_em_id != curr_em_id:
-            if self.prev_em_id:
+            self.prev_em_id = curr_em_id
+            if prev_em_id:
                 # delete the index
                 self.delete_and_relearn()
 
-            # instantiate new embedding provider
-            self.embeddings = em_provider(**em_provider_params)
-
-        self.prev_em_id = curr_em_id
         return self.embeddings
