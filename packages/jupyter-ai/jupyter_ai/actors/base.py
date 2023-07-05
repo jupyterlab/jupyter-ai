@@ -42,7 +42,6 @@ class BaseActor:
         self.llm_chain = None
         self.embeddings = None
         self.embeddings_params = None
-        self.prev_em_id = None
 
     def process_message(self, message: HumanChatMessage):
         """Processes the message passed by the `Router`"""
@@ -92,32 +91,6 @@ class BaseActor:
             self.create_llm_chain(lm_provider, lm_provider_params)
 
         return self.llm_chain
-
-    def get_embeddings(self):
-        em_provider = self.config_manager.get_em_provider()
-        em_provider_params = self.config_manager.get_em_provider_params()
-        curr_em_id = em_provider_params["model_id"]
-
-        if not provider or not embedding_params:
-            return None
-
-        if (
-            embedding_model_id != self.embedding_model_id
-            or self.embeddings_params != embedding_params
-        ):
-            self.embeddings = provider(**embedding_params)
-
-        if self.prev_em_id != curr_em_id:
-            if self.prev_em_id:
-                # delete the index
-                actor = ray.get_actor(ACTOR_TYPE.LEARN)
-                actor.delete_and_relearn.remote()
-
-            # instantiate new embedding provider
-            self.embeddings = em_provider(**em_provider_params)
-
-        self.prev_em_id = curr_em_id
-        return self.embeddings
 
     def create_llm_chain(
         self, provider: Type[BaseProvider], provider_params: Dict[str, str]

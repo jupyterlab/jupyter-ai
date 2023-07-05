@@ -5,7 +5,6 @@ import time
 from typing import List
 
 import ray
-from ray.util.queue import Queue
 
 from dask.distributed import Client as DaskClient
 
@@ -32,7 +31,6 @@ from langchain.text_splitter import (
     PythonCodeTextSplitter,
     RecursiveCharacterTextSplitter,
 )
-from ray.util.queue import Queue
 
 INDEX_SAVE_DIR = os.path.join(jupyter_data_dir(), "jupyter_ai", "indices")
 METADATA_SAVE_PATH = os.path.join(INDEX_SAVE_DIR, "metadata.json")
@@ -56,6 +54,7 @@ class LearnActor(BaseActor):
         self.index_name = "default"
         self.index = None
         self.metadata = IndexMetadata(dirs=[])
+        self.prev_em_id = None
         
         # initialize dask client
         self.dask_client = DaskClient(processes=False)
@@ -140,7 +139,7 @@ class LearnActor(BaseActor):
 
         self.log.error(f"[/learn] Finished chunking documents. Time: {round((time.time() - start) * 1000)}ms")
 
-        em = self.get_embeddings()
+        em = self.get_embedding_model()
         delayed = get_embeddings(doc_chunks, em)
         future = self.dask_client.submit(compute_delayed, delayed)
         embedding_records = future.result()
@@ -202,7 +201,7 @@ class LearnActor(BaseActor):
         self.reply(message)
 
     def create(self):
-        embeddings = self.get_embeddings()
+        embeddings = self.get_embedding_model()
         if not embeddings:
             return
         self.index = FAISS.from_texts(
@@ -224,7 +223,7 @@ class LearnActor(BaseActor):
             f.write(self.metadata.json())
 
     def load_or_create(self):
-        embeddings = self.get_embeddings()
+        embeddings = self.get_embedding_model()
         if not embeddings:
             return
         if self.index is None:
@@ -249,3 +248,25 @@ class LearnActor(BaseActor):
             docs = self.index.similarity_search(question)
             return docs
         return []
+
+    def get_embedding_model(self):
+        em_provider = self.config_manager.get_em_provider()
+        em_provider_params = self.config_manager.get_em_provider_params()
+        curr_em_id = em_provider_params["model_id"]
+
+        if not em_provider:
+            return None
+
+        if curr_em_id != self.prev_em_id:
+            self.embeddings = em_provider(**em_provider_params)
+
+        if self.prev_em_id != curr_em_id:
+            if self.prev_em_id:
+                # delete the index
+                self.delete_and_relearn()
+
+            # instantiate new embedding provider
+            self.embeddings = em_provider(**em_provider_params)
+
+        self.prev_em_id = curr_em_id
+        return self.embeddings
