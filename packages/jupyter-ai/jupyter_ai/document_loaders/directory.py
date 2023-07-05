@@ -81,7 +81,8 @@ def join(embeddings):
     return (embedding_records, metadatas)
 
 
-def embed_chunk(chunk, em):
+def embed_chunk(chunk, em_provider_cls, em_provider_args):
+    em = em_provider_cls(**em_provider_args)
     metadata = chunk.metadata
     content = chunk.page_content
     embedding = em.embed_query(content)
@@ -90,13 +91,13 @@ def embed_chunk(chunk, em):
 
 # TODO: figure out how to declare the typing of this fn
 # dask.delayed.Delayed doesn't work, nor does dask.Delayed
-def get_embeddings(chunks, em):
+def get_embeddings(chunks, em_provider_cls, em_provider_args):
     # split documents in parallel w.r.t. each file
     embeddings = []
 
     # compute embeddings in parallel
     for chunk in chunks:
-        embedding = dask.delayed(embed_chunk)(chunk, em)
+        embedding = dask.delayed(embed_chunk)(chunk, em_provider_cls, em_provider_args)
         embeddings.append(embedding)
 
     return dask.delayed(join)(embeddings)
