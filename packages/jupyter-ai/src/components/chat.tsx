@@ -98,9 +98,7 @@ function ChatBody({
     // no need to append to messageGroups state variable, since that's already
     // handled in the effect hooks.
     const reply = await chatHandler.replyFor(messageId);
-    // Need to check that the selection is both non-null and has text, so as not to replace
-    // the active cell with no selection in it
-    if (replaceSelection && selection && selection.text) {
+    if (replaceSelection && selection) {
       const { cellId, ...selectionProps } = selection;
       replaceSelectionFn({
         ...selectionProps,
@@ -147,7 +145,6 @@ function ChatBody({
 
   // If there is no selection, the "replace selection" button will not be
   // visible; treat it as disabled
-  const hasSelection = !!selection?.text;
   return (
     <>
       <ScrollContainer sx={{ flexGrow: 1 }}>
@@ -157,12 +154,12 @@ function ChatBody({
         value={input}
         onChange={setInput}
         onSend={onSend}
-        hasSelection={hasSelection}
+        hasSelection={!!selection?.text}
         includeSelection={includeSelection}
         toggleIncludeSelection={() =>
           setIncludeSelection(includeSelection => !includeSelection)
         }
-        replaceSelection={hasSelection && replaceSelection}
+        replaceSelection={replaceSelection}
         toggleReplaceSelection={() =>
           setReplaceSelection(replaceSelection => !replaceSelection)
         }
