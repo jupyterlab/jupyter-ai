@@ -83,7 +83,7 @@ class LearnChatHandler(BaseChatHandler, BaseRetriever):
         if args.list:
             self.reply(self._build_list_response())
             return
-        
+
         # Make sure the path exists.
         if not len(args.path) == 1:
             self.reply(f"{self.parser.format_usage()}", message)
@@ -165,7 +165,7 @@ class LearnChatHandler(BaseChatHandler, BaseRetriever):
         if not self.metadata.dirs:
             self.delete()
             return
-        
+
         em_provider_cls, em_provider_args = self.get_embedding_provider()
         curr_em_id = em_provider_cls.id + ":" + em_provider_args["model_id"]
         prev_em_id = self.prev_em_id
@@ -176,8 +176,10 @@ class LearnChatHandler(BaseChatHandler, BaseRetriever):
         # directly and break their instance.
         if (prev_em_id is None) or (prev_em_id == curr_em_id):
             return
-        
-        self.log.info(f"Switching embedding provider from {prev_em_id} to {curr_em_id}.")
+
+        self.log.info(
+            f"Switching embedding provider from {prev_em_id} to {curr_em_id}."
+        )
         message = f"""🔔 Hi there, it seems like you have updated the embeddings
         model from `{prev_em_id}` to `{curr_em_id}`. I have to re-learn the
         documents you had previously submitted for learning. Please wait to use
@@ -270,7 +272,7 @@ class LearnChatHandler(BaseChatHandler, BaseRetriever):
         em_provider_args = self.config_manager.get_em_provider_params()
 
         return em_provider_cls, em_provider_args
-    
+
     def get_embedding_model(self):
         em_provider_cls, em_provider_args = self.get_embedding_provider()
         return em_provider_cls(**em_provider_args)
