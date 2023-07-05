@@ -252,16 +252,18 @@ class LearnChatHandler(BaseChatHandler, BaseRetriever):
             j = json.loads(f.read())
             self.metadata = IndexMetadata(**j)
 
-    def get_relevant_documents(self, question: str) -> List[Document]:
-        if self.index:
-            docs = self.index.similarity_search(question)
-            return docs
-        return []
+    def get_relevant_documents(self, query: str) -> List[Document]:
+        raise NotImplementedError()
 
     async def aget_relevant_documents(
         self, query: str
     ) -> Coroutine[Any, Any, List[Document]]:
-        return self.get_relevant_documents(query)
+        if not self.index:
+            return []
+
+        await self.delete_and_relearn()
+        docs = self.index.similarity_search(query)
+        return docs
 
     def get_embedding_provider(self):
         em_provider_cls = self.config_manager.get_em_provider()
