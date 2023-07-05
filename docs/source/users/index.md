@@ -370,6 +370,8 @@ and re-run `%load_ext jupyter_ai_magics`.
 
 Once the extension has loaded, you can run `%%ai` cell magic commands and
 `%ai` line magic commands. Run `%%ai help` or `%ai help` for help with syntax.
+You can also pass `--help` as an argument to any line magic command (for example,
+`%ai list --help`) to learn about what the command does and how to use it.
 
 ### Choosing a provider and model
 
