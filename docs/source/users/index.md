@@ -362,9 +362,8 @@ installed in your server's environment. In a notebook, run
 and re-run `%load_ext jupyter_ai_magics`.
 :::
 
-
-The `%%ai` magic command is user-friendly and enables you to quickly pick which
-model you want to use and specify natural language prompts.
+Once the extension has loaded, you can run `%%ai` cell magic commands and
+`%ai` line magic commands. Run `%%ai help` or `%ai help` for help with syntax.
 
 ### Choosing a provider and model
 
@@ -475,6 +474,21 @@ include calls to nonexistent (hallucinated) APIs.
 %%ai chatgpt -f code
 A function that computes the lowest common multiples of two integers, and
 a function that runs 5 test cases of the lowest common multiple function
+```
+
+### Clearing the OpenAI chat history
+
+With the `openai-chat` provider *only*, you can run a cell magic command using the `-r` or
+`--reset` option to clear the chat history. After you do this, past magic commands you've
+run with the `openai-chat` provider will no longer be provided as prefix messages in
+requests to this provider.
+
+Because the `%%ai` command is a cell magic, you must provide a prompt on the second line.
+This prompt will not be sent to the provider. A reset command will not generate any output.
+
+```
+%%ai openai-chat:gpt-3.5-turbo -r
+reset the chat history
 ```
 
 ### Interpolating in prompts
