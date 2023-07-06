@@ -52,18 +52,17 @@ AuthStrategy = Optional[
     ]
 ]
 
+class Field(BaseModel):
+    key: str
+    label: str
+    # "text" accepts any text
+    format: Literal["json", "jsonpath", "text"]
 
-class TextField(BaseModel):
+class TextField(Field):
     type: Literal["text"] = "text"
-    key: str
-    label: str
 
-
-class MultilineTextField(BaseModel):
+class MultilineTextField(Field):
     type: Literal["text-multiline"] = "text-multiline"
-    key: str
-    label: str
-
 
 Field = Union[TextField, MultilineTextField]
 
@@ -409,14 +408,17 @@ class SmEndpointProvider(BaseProvider, SagemakerEndpoint):
         TextField(
             key="region_name",
             label="Region name",
+            format="text"
         ),
         MultilineTextField(
             key="request_schema",
             label="Request schema",
+            format="json"
         ),
         TextField(
             key="response_path",
             label="Response path",
+            format="jsonpath"
         ),
     ]
 

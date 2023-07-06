@@ -28,10 +28,15 @@ export function ModelField(props: ModelFieldProps): JSX.Element {
     });
   }
 
+  // Handle validation
+  const label = props.field.label + ' (' + props.field.format + ')';
+
+  // Set errors, handle errors in each field type
+
   if (props.field.type === 'text') {
     return (
       <TextField
-        label={props.field.label}
+        label={label}
         value={props.config.fields[props.gmid]?.[props.field.key]}
         onChange={handleChange}
         fullWidth
@@ -42,7 +47,7 @@ export function ModelField(props: ModelFieldProps): JSX.Element {
   if (props.field.type === 'text-multiline') {
     return (
       <TextField
-        label={props.field.label}
+        label={label}
         value={props.config.fields[props.gmid]?.[props.field.key]}
         onChange={handleChange}
         fullWidth

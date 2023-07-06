@@ -135,12 +135,14 @@ export namespace AiService {
     type: 'text';
     key: string;
     label: string;
+    format: string;
   };
 
   export type MultilineTextField = {
     type: 'text-multiline';
     key: string;
     label: string;
+    format: string;
   };
 
   export type Field = TextField | MultilineTextField;
