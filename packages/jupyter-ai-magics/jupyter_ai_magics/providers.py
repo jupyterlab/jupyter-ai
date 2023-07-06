@@ -374,7 +374,7 @@ class SmEndpointProvider(BaseProvider, SagemakerEndpoint):
     model_help = ("SageMaker endpoint names are created when you deploy a model. "
         "For more information, see "
         '["Create your endpoint and deploy your model"]'
-        '(https://docs.aws.amazon.com/sagemaker/latest/dg/realtime-endpoints-deployment.html)'
+        "(https://docs.aws.amazon.com/sagemaker/latest/dg/realtime-endpoints-deployment.html) "
         "in the SageMaker documentation.")
 
     pypi_package_deps = ["boto3"]
