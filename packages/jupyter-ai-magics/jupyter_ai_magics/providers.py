@@ -371,11 +371,13 @@ class SmEndpointProvider(BaseProvider, SagemakerEndpoint):
     models = ["*"]
     model_id_key = "endpoint_name"
     # This all needs to be on one line of markdown, for use in a table
-    model_help = ("SageMaker endpoint names are created when you deploy a model. "
+    model_help = (
+        "SageMaker endpoint names are created when you deploy a model. "
         "For more information, see "
         '["Create your endpoint and deploy your model"]'
         "(https://docs.aws.amazon.com/sagemaker/latest/dg/realtime-endpoints-deployment.html) "
-        "in the SageMaker documentation.")
+        "in the SageMaker documentation."
+    )
 
     pypi_package_deps = ["boto3"]
     auth_strategy = AwsAuthStrategy()
