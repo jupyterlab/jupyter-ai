@@ -391,7 +391,7 @@ class JsonContentHandler(LLMContentHandler):
 
 class SmEndpointProvider(BaseProvider, SagemakerEndpoint):
     id = "sagemaker-endpoint"
-    name = "Sagemaker Endpoint"
+    name = "SageMaker endpoint"
     models = ["*"]
     model_id_key = "endpoint_name"
     # This all needs to be on one line of markdown, for use in a table
