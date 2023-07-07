@@ -146,10 +146,10 @@ class AiMagics(Magics):
     def _ai_bulleted_list_models_for_provider(self, provider_id, Provider):
         output = ""
         if len(Provider.models) == 1 and Provider.models[0] == "*":
-            if Provider.model_help is None:
+            if Provider.help is None:
                 output += f"* {PROVIDER_NO_MODELS}\n"
             else:
-                output += f"* {Provider.model_help}\n"
+                output += f"* {Provider.help}\n"
         else:
             for model_id in Provider.models:
                 output += f"* {provider_id}:{model_id}\n"
@@ -161,10 +161,10 @@ class AiMagics(Magics):
         output = ""
 
         if len(Provider.models) == 1 and Provider.models[0] == "*":
-            if Provider.model_help is None:
+            if Provider.help is None:
                 return PROVIDER_NO_MODELS
             else:
-                return Provider.model_help
+                return Provider.help
 
         for model_id in Provider.models:
             output += f", `{provider_id}:{model_id}`"

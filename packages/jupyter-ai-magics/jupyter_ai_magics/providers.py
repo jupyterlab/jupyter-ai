@@ -86,7 +86,7 @@ class BaseProvider(BaseLangchainProvider):
     """List of supported models by their IDs. For registry providers, this will
     be just ["*"]."""
 
-    model_help: ClassVar[str] = None
+    help: ClassVar[str] = None
     """Text to display in lieu of a model list for a registry provider that does
     not provide a list of models."""
 
@@ -181,7 +181,7 @@ class HfHubProvider(BaseProvider, HuggingFaceHub):
     name = "Hugging Face Hub"
     models = ["*"]
     model_id_key = "repo_id"
-    model_help = "See https://huggingface.co/models for a list of models."
+    help = "See https://huggingface.co/models for a list of models."
     # ipywidgets needed to suppress tqdm warning
     # https://stackoverflow.com/questions/67998191
     # tqdm is a dependency of huggingface_hub
@@ -371,7 +371,7 @@ class SmEndpointProvider(BaseProvider, SagemakerEndpoint):
     models = ["*"]
     model_id_key = "endpoint_name"
     # This all needs to be on one line of markdown, for use in a table
-    model_help = (
+    help = (
         "SageMaker endpoint names are created when you deploy a model. "
         "For more information, see "
         '["Create your endpoint and deploy your model"]'
