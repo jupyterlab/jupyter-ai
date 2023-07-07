@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { AiService } from '../../handler';
 import { TextField } from '@mui/material';
 
@@ -13,9 +13,31 @@ export type ModelFieldProps = {
 };
 
 export function ModelField(props: ModelFieldProps): JSX.Element {
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
   function handleChange(
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    format: string
   ) {
+    // Perform validation based on the field format
+    switch (format) {
+      case 'json':
+        try {
+          // JSON.parse does not allow single quotes or trailing commas
+          JSON.parse(e.target.value);
+          setErrorMessage(null);
+        } catch (exc) {
+          setErrorMessage('You must specify a value in JSON format.');
+        }
+        break;
+      case 'jsonpath':
+        // TODO: Do JSONPath validation
+        break;
+      default:
+        // No validation performed
+        break;
+    }
+
     props.setConfig({
       ...props.config,
       fields: {
@@ -28,17 +50,14 @@ export function ModelField(props: ModelFieldProps): JSX.Element {
     });
   }
 
-  // Handle validation
-  const label = props.field.label + ' (' + props.field.format + ')';
-
-  // Set errors, handle errors in each field type
-
   if (props.field.type === 'text') {
     return (
       <TextField
-        label={label}
+        label={props.field.label}
         value={props.config.fields[props.gmid]?.[props.field.key]}
-        onChange={handleChange}
+        onChange={e => handleChange(e, props.field.format)}
+        error={!!errorMessage}
+        helperText={errorMessage ?? undefined}
         fullWidth
       />
     );
@@ -47,11 +66,13 @@ export function ModelField(props: ModelFieldProps): JSX.Element {
   if (props.field.type === 'text-multiline') {
     return (
       <TextField
-        label={label}
+        label={props.field.label}
         value={props.config.fields[props.gmid]?.[props.field.key]}
-        onChange={handleChange}
+        onChange={e => handleChange(e, props.field.format)}
         fullWidth
         multiline
+        error={!!errorMessage}
+        helperText={errorMessage ?? undefined}
         minRows={2}
       />
     );
