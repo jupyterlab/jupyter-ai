@@ -181,7 +181,10 @@ class HfHubProvider(BaseProvider, HuggingFaceHub):
     name = "Hugging Face Hub"
     models = ["*"]
     model_id_key = "repo_id"
-    help = "See https://huggingface.co/models for a list of models."
+    help = (
+        "See https://huggingface.co/models for a list of models. "
+        "Pass a model's repository ID as the model ID; for example, `huggingface_hub:ExampleOwner/example-model`."
+    )
     # ipywidgets needed to suppress tqdm warning
     # https://stackoverflow.com/questions/67998191
     # tqdm is a dependency of huggingface_hub
