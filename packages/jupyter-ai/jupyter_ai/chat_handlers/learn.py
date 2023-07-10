@@ -275,4 +275,7 @@ class LearnChatHandler(BaseChatHandler, BaseRetriever):
 
     def get_embedding_model(self):
         em_provider_cls, em_provider_args = self.get_embedding_provider()
+        if em_provider_cls is None:
+            return None
+
         return em_provider_cls(**em_provider_args)
