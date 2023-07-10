@@ -70,6 +70,7 @@ class LearnChatHandler(BaseChatHandler, BaseRetriever):
             self.reply(
                 "Sorry, please select an embedding provider before using the `/learn` command."
             )
+            return
 
         args = self.parse_args(message)
         if args is None:
