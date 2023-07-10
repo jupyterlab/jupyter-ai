@@ -169,6 +169,7 @@ async def generate_title(outline, llm=None, verbose: bool = False):
     title_chain = NotebookTitleChain.from_llm(llm=llm, verbose=verbose)
     title = await title_chain.apredict(content=outline)
     title = title.strip()
+    title = title.strip("'\"")
     outline["title"] = title
 
 
