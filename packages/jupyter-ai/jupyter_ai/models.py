@@ -4,12 +4,6 @@ from jupyter_ai_magics.providers import AuthStrategy, Field
 from pydantic import BaseModel
 
 
-class PromptRequest(BaseModel):
-    task_id: str
-    engine_id: str
-    prompt_variables: Dict[str, str]
-
-
 # the type of message used to chat with the agent
 class ChatRequest(BaseModel):
     prompt: str
@@ -65,27 +59,6 @@ ChatMessage = Union[
 ]
 
 Message = Union[AgentChatMessage, HumanChatMessage, ConnectionMessage, ClearMessage]
-
-
-class ListEnginesEntry(BaseModel):
-    id: str
-    name: str
-
-
-class ListTasksEntry(BaseModel):
-    id: str
-    name: str
-
-
-class ListTasksResponse(BaseModel):
-    tasks: List[ListTasksEntry]
-
-
-class DescribeTaskResponse(BaseModel):
-    name: str
-    insertion_mode: str
-    prompt_template: str
-    engines: List[ListEnginesEntry]
 
 
 class ChatHistory(BaseModel):

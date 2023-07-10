@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 name = "jupyter_ai"
 readme = "README.md"
 license = { file = "LICENSE" }
-requires-python = ">=3.8,<3.11"
+requires-python = ">=3.8"
 classifiers = [
     "Framework :: Jupyter",
     "Framework :: Jupyter :: JupyterLab",
@@ -19,6 +19,7 @@ classifiers = [
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
 ]
 dependencies = [
     "jupyter_server>=1.6,<3",
@@ -27,18 +28,15 @@ dependencies = [
     "openai~=0.26",
     "aiosqlite~=0.18",
     "importlib_metadata~=5.2.0",
-    "langchain==0.0.159",
+    "langchain==0.0.220",
     "tiktoken", # required for OpenAIEmbeddings
     "jupyter_ai_magics",
-    "ray~=2.4.0", # Requires grpcio installation from conda
+    "dask[distributed]",
     "faiss-cpu", # Not distributed by official repo
     "typing_extensions==4.5.0"
 ]
 
 dynamic = ["version", "description", "authors", "urls", "keywords"]
-
-[project.entry-points."jupyter_ai.model_engine_classes"]
-gpt3 = "jupyter_ai:GPT3ModelEngine"
 
 [project.entry-points."jupyter_ai.default_tasks"]
 core_default_tasks = "jupyter_ai:tasks"

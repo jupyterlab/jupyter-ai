@@ -1,10 +1,13 @@
+import asyncio
 import base64
 import copy
+import functools
 import io
 import json
-from typing import Any, ClassVar, Dict, List, Literal, Optional, Union
+from concurrent.futures import ThreadPoolExecutor
+from typing import Any, ClassVar, Coroutine, Dict, List, Literal, Optional, Union
 
-from jsonpath_ng import jsonpath, parse
+from jsonpath_ng import parse
 from langchain.chat_models import ChatOpenAI
 from langchain.llms import (
     AI21,
@@ -17,7 +20,6 @@ from langchain.llms import (
 )
 from langchain.llms.sagemaker_endpoint import LLMContentHandler
 from langchain.llms.utils import enforce_stop_tokens
-from langchain.schema import BaseModel as BaseLangchainProvider
 from langchain.utils import get_from_dict_or_env
 from pydantic import BaseModel, Extra, root_validator
 
@@ -66,7 +68,7 @@ class MultilineTextField(BaseModel):
 Field = Union[TextField, MultilineTextField]
 
 
-class BaseProvider(BaseLangchainProvider):
+class BaseProvider(BaseModel):
     #
     # pydantic config
     #
@@ -121,6 +123,16 @@ class BaseProvider(BaseLangchainProvider):
 
         super().__init__(*args, **kwargs, **model_kwargs)
 
+    async def _call_in_executor(self, *args, **kwargs) -> Coroutine[Any, Any, str]:
+        """
+        Calls self._call() asynchronously in a separate thread for providers
+        without an async implementation. Requires the event loop to be running.
+        """
+        executor = ThreadPoolExecutor(max_workers=1)
+        loop = asyncio.get_running_loop()
+        _call_with_args = functools.partial(self._call, *args, **kwargs)
+        return await loop.run_in_executor(executor, _call_with_args)
+
 
 class AI21Provider(BaseProvider, AI21):
     id = "ai21"
@@ -139,6 +151,9 @@ class AI21Provider(BaseProvider, AI21):
     model_id_key = "model"
     pypi_package_deps = ["ai21"]
     auth_strategy = EnvAuthStrategy(name="AI21_API_KEY")
+
+    async def _acall(self, *args, **kwargs) -> Coroutine[Any, Any, str]:
+        return await self._call_in_executor(*args, **kwargs)
 
 
 class AnthropicProvider(BaseProvider, Anthropic):
@@ -163,6 +178,9 @@ class CohereProvider(BaseProvider, Cohere):
     model_id_key = "model"
     pypi_package_deps = ["cohere"]
     auth_strategy = EnvAuthStrategy(name="COHERE_API_KEY")
+
+    async def _acall(self, *args, **kwargs) -> Coroutine[Any, Any, str]:
+        return await self._call_in_executor(*args, **kwargs)
 
 
 HUGGINGFACE_HUB_VALID_TASKS = (
@@ -268,6 +286,9 @@ class HfHubProvider(BaseProvider, HuggingFaceHub):
             # stop tokens when making calls to huggingface_hub.
             text = enforce_stop_tokens(text, stop)
         return text
+
+    async def _acall(self, *args, **kwargs) -> Coroutine[Any, Any, str]:
+        return await self._call_in_executor(*args, **kwargs)
 
 
 class OpenAIProvider(BaseProvider, OpenAI):
@@ -390,3 +411,6 @@ class SmEndpointProvider(BaseProvider, SagemakerEndpoint):
             request_schema=request_schema, response_path=response_path
         )
         super().__init__(*args, **kwargs, content_handler=content_handler)
+
+    async def _acall(self, *args, **kwargs) -> Coroutine[Any, Any, str]:
+        return await self._call_in_executor(*args, **kwargs)

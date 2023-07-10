@@ -1,16 +1,15 @@
+import asyncio
 import json
 import os
 from typing import Dict, Type
 
 import nbformat
-import ray
-from jupyter_ai.actors.base import BaseActor, Logger
+from jupyter_ai.chat_handlers import BaseChatHandler
 from jupyter_ai.models import HumanChatMessage
-from jupyter_ai_magics.providers import BaseProvider, ChatOpenAINewProvider
+from jupyter_ai_magics.providers import BaseProvider
 from langchain.chains import LLMChain
 from langchain.llms import BaseLLM
 from langchain.prompts import PromptTemplate
-from ray.util.queue import Queue
 
 schema = """{
   "$schema": "http://json-schema.org/draft-07/schema#",
@@ -58,10 +57,10 @@ class NotebookOutlineChain(LLMChain):
         return cls(prompt=prompt, llm=llm, verbose=verbose)
 
 
-def generate_outline(description, llm=None, verbose=False):
+async def generate_outline(description, llm=None, verbose=False):
     """Generate an outline of sections given a description of a notebook."""
     chain = NotebookOutlineChain.from_llm(llm=llm, verbose=verbose)
-    outline = chain.predict(description=description, schema=schema)
+    outline = await chain.apredict(description=description, schema=schema)
     return json.loads(outline)
 
 
@@ -83,16 +82,6 @@ class CodeImproverChain(LLMChain):
         return cls(prompt=prompt, llm=llm, verbose=verbose)
 
 
-def improve_code(code, llm=None, verbose=False):
-    """Improve source code using an LLM."""
-    chain = CodeImproverChain.from_llm(llm=llm, verbose=verbose)
-    improved_code = chain.predict(code=code)
-    improved_code = "\n".join(
-        [line for line in improved_code.split("/n") if not line.startswith("```")]
-    )
-    return improved_code
-
-
 class NotebookSectionCodeChain(LLMChain):
     """Chain to generate source code for a notebook section."""
 
@@ -105,30 +94,12 @@ class NotebookSectionCodeChain(LLMChain):
             "Description of the notebok section: {content}\n"
             "Given this information, write all the code for this section and this section only."
             " Your output should be valid code with inline comments.\n"
-            "Code in the notebook so far:\n"
-            "{code_so_far}"
         )
         prompt = PromptTemplate(
             template=task_creation_template,
-            input_variables=["description", "title", "content", "code_so_far"],
+            input_variables=["description", "title", "content"],
         )
         return cls(prompt=prompt, llm=llm, verbose=verbose)
-
-
-def generate_code(outline, llm=None, verbose=False):
-    """Generate source code for a section given a description of the notebook and section."""
-    chain = NotebookSectionCodeChain.from_llm(llm=llm, verbose=verbose)
-    code_so_far = []
-    for section in outline["sections"]:
-        code = chain.predict(
-            description=outline["description"],
-            title=section["title"],
-            content=section["content"],
-            code_so_far="\n".join(code_so_far),
-        )
-        section["code"] = improve_code(code, llm=llm, verbose=verbose)
-        code_so_far.append(section["code"])
-    return outline
 
 
 class NotebookSummaryChain(LLMChain):
@@ -168,15 +139,57 @@ class NotebookTitleChain(LLMChain):
         return cls(prompt=prompt, llm=llm, verbose=verbose)
 
 
-def generate_title_and_summary(outline, llm=None, verbose=False):
+async def improve_code(code, llm=None, verbose=False):
+    """Improve source code using an LLM."""
+    chain = CodeImproverChain.from_llm(llm=llm, verbose=verbose)
+    improved_code = await chain.apredict(code=code)
+    improved_code = "\n".join(
+        [line for line in improved_code.split("/n") if not line.startswith("```")]
+    )
+    return improved_code
+
+
+async def generate_code(section, description, llm=None, verbose=False) -> None:
+    """
+    Function that accepts a section and adds code under the "code" key when
+    awaited.
+    """
+    chain = NotebookSectionCodeChain.from_llm(llm=llm, verbose=verbose)
+    code = await chain.apredict(
+        description=description,
+        title=section["title"],
+        content=section["content"],
+    )
+    improved_code = await improve_code(code, llm=llm, verbose=verbose)
+    section["code"] = improved_code
+
+
+async def generate_title(outline, llm=None, verbose: bool = False):
     """Generate a title and summary of a notebook outline using an LLM."""
-    summary_chain = NotebookSummaryChain.from_llm(llm=llm, verbose=verbose)
     title_chain = NotebookTitleChain.from_llm(llm=llm, verbose=verbose)
-    summary = summary_chain.predict(content=outline)
-    title = title_chain.predict(content=outline)
+    title = await title_chain.apredict(content=outline)
+    title = title.strip()
+    title = title.strip("'\"")
+    outline["title"] = title
+
+
+async def generate_summary(outline, llm=None, verbose: bool = False):
+    summary_chain = NotebookSummaryChain.from_llm(llm=llm, verbose=verbose)
+    summary = await summary_chain.apredict(content=outline)
     outline["summary"] = summary
-    outline["title"] = title.strip('"')
-    return outline
+
+
+async def fill_outline(outline, llm, verbose=False):
+    shared_kwargs = {"outline": outline, "llm": llm, "verbose": verbose}
+
+    all_coros = []
+    all_coros.append(generate_title(**shared_kwargs))
+    all_coros.append(generate_summary(**shared_kwargs))
+    for section in outline["sections"]:
+        all_coros.append(
+            generate_code(section, outline["description"], llm=llm, verbose=verbose)
+        )
+    await asyncio.gather(*all_coros)
 
 
 def create_notebook(outline):
@@ -196,12 +209,11 @@ def create_notebook(outline):
     return nb
 
 
-@ray.remote
-class GenerateActor(BaseActor):
-    """A Ray actor to generate a Jupyter notebook given a description."""
+class GenerateChatHandler(BaseChatHandler):
+    """Generates a Jupyter notebook given a description."""
 
-    def __init__(self, reply_queue: Queue, root_dir: str, log: Logger):
-        super().__init__(log=log, reply_queue=reply_queue)
+    def __init__(self, root_dir: str, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.root_dir = os.path.abspath(os.path.expanduser(root_dir))
         self.llm = None
 
@@ -212,18 +224,23 @@ class GenerateActor(BaseActor):
         self.llm = llm
         return llm
 
-    def _process_message(self, message: HumanChatMessage):
+    async def _process_message(self, message: HumanChatMessage):
         self.get_llm_chain()
 
+        # first send a verification message to user
         response = "👍 Great, I will get started on your notebook. It may take a few minutes, but I will reply here when the notebook is ready. In the meantime, you can continue to ask me other questions."
         self.reply(response, message)
 
+        # generate notebook outline
         prompt = message.body
-        outline = generate_outline(prompt, llm=self.llm, verbose=True)
+        outline = await generate_outline(prompt, llm=self.llm, verbose=True)
         # Save the user input prompt, the description property is now LLM generated.
         outline["prompt"] = prompt
-        outline = generate_code(outline, llm=self.llm, verbose=True)
-        outline = generate_title_and_summary(outline, llm=self.llm)
+
+        # fill the outline concurrently
+        await fill_outline(outline, llm=self.llm, verbose=True)
+
+        # create and write the notebook to disk
         notebook = create_notebook(outline)
         final_path = os.path.join(self.root_dir, outline["title"] + ".ipynb")
         nbformat.write(notebook, final_path)

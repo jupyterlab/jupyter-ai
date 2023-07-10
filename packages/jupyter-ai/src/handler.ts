@@ -51,15 +51,6 @@ export namespace AiService {
     serverSettings?: ServerConnection.ISettings;
   }
 
-  export interface IPromptRequest {
-    task_id: string;
-    engine_id: string;
-    prompt_variables: {
-      body: string;
-      [key: string]: string;
-    };
-  }
-
   export type ChatRequest = {
     prompt: string;
   };
@@ -112,58 +103,6 @@ export namespace AiService {
   export type ChatHistory = {
     messages: ChatMessage[];
   };
-
-  export interface IPromptResponse {
-    output: string;
-    insertion_mode: 'above' | 'below' | 'replace';
-  }
-
-  export async function sendPrompt(
-    request: IPromptRequest
-  ): Promise<IPromptResponse> {
-    let data;
-
-    try {
-      data = await requestAPI('prompt', {
-        method: 'POST',
-        body: JSON.stringify(request)
-      });
-    } catch (e) {
-      return Promise.reject(e);
-    }
-    return data as IPromptResponse;
-  }
-
-  export type ListTasksEntry = {
-    id: string;
-    name: string;
-  };
-
-  export type ListTasksResponse = {
-    tasks: ListTasksEntry[];
-  };
-
-  export async function listTasks(): Promise<ListTasksResponse> {
-    return requestAPI<ListTasksResponse>('tasks');
-  }
-
-  export type ListEnginesEntry = {
-    id: string;
-    name: string;
-  };
-
-  export type DescribeTaskResponse = {
-    name: string;
-    insertion_mode: string;
-    prompt_template: string;
-    engines: ListEnginesEntry[];
-  };
-
-  export async function describeTask(
-    id: string
-  ): Promise<DescribeTaskResponse> {
-    return requestAPI<DescribeTaskResponse>(`tasks/${id}`);
-  }
 
   export type Config = {
     model_provider_id: string | null;

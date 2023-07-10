@@ -24,7 +24,7 @@ dependencies = [
     "ipython",
     "pydantic",
     "importlib_metadata~=5.2.0",
-    "langchain==0.0.159",
+    "langchain==0.0.220",
     "typing_extensions==4.5.0",
     "click~=8.0",
     "jsonpath-ng~=1.5.3",
@@ -44,7 +44,7 @@ test = [
 
 all = [
     "ai21",
-    "anthropic",
+    "anthropic~=0.2.10",
     "cohere",
     "huggingface_hub",
     "ipywidgets",

@@ -16,8 +16,6 @@ for the frontend extension.
 
 You can use `conda` or `pip` to install Jupyter AI. If you're using macOS on an Apple Silicon-based Mac (M1, M1 Pro, M2, etc.), we strongly recommend using `conda`.
 
-Because of Ray's incompatibility with Python 3.11, you must use Python 3.9, or 3.10 with Jupyter AI. The instructions below presume that you are using Python 3.10.
-
 Before you can use Jupyter AI, you will need to install any packages and set environment variables with API keys for the model providers that you will use. See [our documentation](https://jupyter-ai.readthedocs.io/en/latest/users/index.html) for details about what you'll need.
 
 ### With pip
@@ -26,46 +24,17 @@ Before you can use Jupyter AI, you will need to install any packages and set env
 
 ### With conda
 
-First, install [conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html) and create an environment that uses Python 3.10:
+First, install [conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html) and create an environment that uses Python 3.11:
 
-    $ conda create -n jupyter-ai python=3.10
+    $ conda create -n jupyter-ai python=3.11
     $ conda activate jupyter-ai
     $ pip install jupyter_ai
-
-If you are using an Apple Silicon-based Mac (M1, M1 Pro, M2, etc.), you need to uninstall the `pip` provided version of `grpcio` and install the version provided by `conda` instead.
-
-    $ pip uninstall grpcio; conda install grpcio
 
 ## Uninstall
 
 To remove the extension, execute:
 
     $ pip uninstall jupyter_ai
-
-## Usage with GPT-3
-
-To use the `GPT3ModelEngine` in `jupyter_ai`, you will need an OpenAI API key.
-Copy the API key and then create a Jupyter config file locally at `config.py` to
-store the API key.
-
-```python
-c.GPT3ModelEngine.api_key = "<your-api-key>"
-```
-
-Finally, start a new JupyterLab instance pointing to this configuration file.
-
-```bash
-jupyter lab --config=config.py
-```
-
-If you are doing this in a Git repository, you can ensure you never commit this
-file on accident by adding it to `.git/info/exclude`.
-
-Alternately, you can also specify your API key while launching JupyterLab.
-
-```bash
-jupyter lab --GPT3ModelEngine.api_key=<api-key>
-```
 
 ## Troubleshoot
 
