@@ -408,3 +408,6 @@ class SmEndpointProvider(BaseProvider, SagemakerEndpoint):
             request_schema=request_schema, response_path=response_path
         )
         super().__init__(*args, **kwargs, content_handler=content_handler)
+
+    async def _acall(self, *args, **kwargs) -> Coroutine[Any, Any, str]:
+        return await self._call_in_executor(*args, **kwargs)
