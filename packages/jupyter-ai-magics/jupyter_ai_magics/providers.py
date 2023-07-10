@@ -287,6 +287,9 @@ class HfHubProvider(BaseProvider, HuggingFaceHub):
             text = enforce_stop_tokens(text, stop)
         return text
 
+    async def _acall(self, *args, **kwargs) -> Coroutine[Any, Any, str]:
+        return await self._call_in_executor(*args, **kwargs)
+
 
 class OpenAIProvider(BaseProvider, OpenAI):
     id = "openai"
