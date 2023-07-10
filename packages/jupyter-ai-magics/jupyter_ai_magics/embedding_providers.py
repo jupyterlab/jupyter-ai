@@ -79,7 +79,7 @@ class CohereEmbeddingsProvider(BaseEmbeddingsProvider, CohereEmbeddings):
 
 class HfHubEmbeddingsProvider(BaseEmbeddingsProvider, HuggingFaceHubEmbeddings):
     id = "huggingface_hub"
-    name = "HuggingFace Hub"
+    name = "Hugging Face Hub"
     models = ["*"]
     model_id_key = "repo_id"
     # ipywidgets needed to suppress tqdm warning

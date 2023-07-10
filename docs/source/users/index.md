@@ -40,14 +40,20 @@ Jupyter AI supports the following model providers:
 | AI21                | `ai21`               | `AI21_API_KEY`             | `ai21`                          |
 | Anthropic           | `anthropic`          | `ANTHROPIC_API_KEY`        | `anthropic`                     |
 | Cohere              | `cohere`             | `COHERE_API_KEY`           | `cohere`                        |
-| HuggingFace Hub     | `huggingface_hub`    | `HUGGINGFACEHUB_API_TOKEN` | `huggingface_hub`, `ipywidgets`, `pillow` |
+| Hugging Face Hub    | `huggingface_hub`    | `HUGGINGFACEHUB_API_TOKEN` | `huggingface_hub`, `ipywidgets`, `pillow` |
 | OpenAI              | `openai`             | `OPENAI_API_KEY`           | `openai`                        |
 | OpenAI (chat)       | `openai-chat`        | `OPENAI_API_KEY`           | `openai`                        |
-| SageMaker          | `sagemaker-endpoint` | N/A                        | `boto3`                         |
+| SageMaker           | `sagemaker-endpoint` | N/A                        | `boto3`                         |
 
 The environment variable names shown above are also the names of the settings keys used when setting up the chat interface.
 
-You need the `pillow` Python package to use HuggingFace Hub's text-to-image models.
+You need the `pillow` Python package to use Hugging Face Hub's text-to-image models.
+
+You can find a list of Hugging Face's models at https://huggingface.co/models.
+
+SageMaker endpoint names are created when you deploy a model. For more information, see
+["Create your endpoint and deploy your model"](https://docs.aws.amazon.com/sagemaker/latest/dg/realtime-endpoints-deployment.html)
+in the SageMaker documentation.
 
 To use SageMaker's models, you will need to authenticate via
 [boto3](https://github.com/boto/boto3).
@@ -354,9 +360,10 @@ installed in your server's environment. In a notebook, run
 and re-run `%load_ext jupyter_ai_magics`.
 :::
 
-
-The `%%ai` magic command is user-friendly and enables you to quickly pick which
-model you want to use and specify natural language prompts.
+Once the extension has loaded, you can run `%%ai` cell magic commands and
+`%ai` line magic commands. Run `%%ai help` or `%ai help` for help with syntax.
+You can also pass `--help` as an argument to any line magic command (for example,
+`%ai list --help`) to learn about what the command does and how to use it.
 
 ### Choosing a provider and model
 
@@ -397,9 +404,9 @@ in notebooks while keeping the same concise syntax for invoking a language model
 
 The `%ai list` subcommand prints a list of available providers and models. Some
 providers explicitly define a list of supported models in their API. However,
-other providers, like HuggingFace Hub, lack a well-defined list of available
+other providers, like Hugging Face Hub, lack a well-defined list of available
 models. In such cases, it's best to consult the provider's upstream
-documentation. The [HuggingFace website](https://huggingface.co/) includes a
+documentation. The [Hugging Face website](https://huggingface.co/) includes a
 list of models, for example.
 
 Optionally, you can specify a provider ID as a positional argument to `%ai list`
@@ -431,7 +438,7 @@ an `%%ai` command will be formatted as markdown by default. You can override thi
 using the `-f` or `--format` argument to your magic command. Valid formats include:
 
 - `code`
-- `image` (for HuggingFace Hub's text-to-image models only)
+- `image` (for Hugging Face Hub's text-to-image models only)
 - `markdown`
 - `math`
 - `html`
@@ -467,6 +474,21 @@ include calls to nonexistent (hallucinated) APIs.
 %%ai chatgpt -f code
 A function that computes the lowest common multiples of two integers, and
 a function that runs 5 test cases of the lowest common multiple function
+```
+
+### Clearing the OpenAI chat history
+
+With the `openai-chat` provider *only*, you can run a cell magic command using the `-r` or
+`--reset` option to clear the chat history. After you do this, previous magic commands you've
+run with the `openai-chat` provider will no longer be added as context in
+requests to this provider.
+
+Because the `%%ai` command is a cell magic, you must provide a prompt on the second line.
+This prompt will not be sent to the provider. A reset command will not generate any output.
+
+```
+%%ai openai-chat:gpt-3.5-turbo -r
+reset the chat history
 ```
 
 ### Interpolating in prompts

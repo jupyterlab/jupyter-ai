@@ -88,6 +88,10 @@ class BaseProvider(BaseModel):
     """List of supported models by their IDs. For registry providers, this will
     be just ["*"]."""
 
+    help: ClassVar[str] = None
+    """Text to display in lieu of a model list for a registry provider that does
+    not provide a list of models."""
+
     model_id_key: ClassVar[str] = ...
     """Kwarg expected by the upstream LangChain provider."""
 
@@ -192,9 +196,13 @@ HUGGINGFACE_HUB_VALID_TASKS = (
 
 class HfHubProvider(BaseProvider, HuggingFaceHub):
     id = "huggingface_hub"
-    name = "HuggingFace Hub"
+    name = "Hugging Face Hub"
     models = ["*"]
     model_id_key = "repo_id"
+    help = (
+        "See https://huggingface.co/models for a list of models. "
+        "Pass a model's repository ID as the model ID; for example, `huggingface_hub:ExampleOwner/example-model`."
+    )
     # ipywidgets needed to suppress tqdm warning
     # https://stackoverflow.com/questions/67998191
     # tqdm is a dependency of huggingface_hub
@@ -233,7 +241,7 @@ class HfHubProvider(BaseProvider, HuggingFaceHub):
 
     # Handle image outputs
     def _call(self, prompt: str, stop: Optional[List[str]] = None) -> str:
-        """Call out to HuggingFace Hub's inference endpoint.
+        """Call out to Hugging Face Hub's inference endpoint.
 
         Args:
             prompt: The prompt to pass into the model.
@@ -386,6 +394,14 @@ class SmEndpointProvider(BaseProvider, SagemakerEndpoint):
     name = "Sagemaker Endpoint"
     models = ["*"]
     model_id_key = "endpoint_name"
+    # This all needs to be on one line of markdown, for use in a table
+    help = (
+        "Specify an endpoint name as the model ID. "
+        "In addition, you must include the `--region_name`, `--request_schema`, and the `--response_path` arguments. "
+        "For more information, see the documentation about [SageMaker endpoints deployment](https://docs.aws.amazon.com/sagemaker/latest/dg/realtime-endpoints-deployment.html) "
+        "and about [using magic commands with SageMaker endpoints](https://jupyter-ai.readthedocs.io/en/latest/users/index.html#using-magic-commands-with-sagemaker-endpoints)."
+    )
+
     pypi_package_deps = ["boto3"]
     auth_strategy = AwsAuthStrategy()
     registry = True
