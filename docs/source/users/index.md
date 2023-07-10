@@ -487,8 +487,8 @@ a function that runs 5 test cases of the lowest common multiple function
 ### Clearing the OpenAI chat history
 
 With the `openai-chat` provider *only*, you can run a cell magic command using the `-r` or
-`--reset` option to clear the chat history. After you do this, past magic commands you've
-run with the `openai-chat` provider will no longer be provided as prefix messages in
+`--reset` option to clear the chat history. After you do this, previous magic commands you've
+run with the `openai-chat` provider will no longer be added as context in
 requests to this provider.
 
 Because the `%%ai` command is a cell magic, you must provide a prompt on the second line.
