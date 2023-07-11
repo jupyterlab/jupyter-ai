@@ -52,17 +52,21 @@ AuthStrategy = Optional[
     ]
 ]
 
+
 class Field(BaseModel):
     key: str
     label: str
     # "text" accepts any text
     format: Literal["json", "jsonpath", "text"]
 
+
 class TextField(Field):
     type: Literal["text"] = "text"
 
+
 class MultilineTextField(Field):
     type: Literal["text-multiline"] = "text-multiline"
+
 
 Field = Union[TextField, MultilineTextField]
 
@@ -405,21 +409,9 @@ class SmEndpointProvider(BaseProvider, SagemakerEndpoint):
     auth_strategy = AwsAuthStrategy()
     registry = True
     fields = [
-        TextField(
-            key="region_name",
-            label="Region name",
-            format="text"
-        ),
-        MultilineTextField(
-            key="request_schema",
-            label="Request schema",
-            format="json"
-        ),
-        TextField(
-            key="response_path",
-            label="Response path",
-            format="jsonpath"
-        ),
+        TextField(key="region_name", label="Region name", format="text"),
+        MultilineTextField(key="request_schema", label="Request schema", format="json"),
+        TextField(key="response_path", label="Response path", format="jsonpath"),
     ]
 
     def __init__(self, *args, **kwargs):
