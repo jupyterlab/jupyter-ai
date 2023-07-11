@@ -533,7 +533,7 @@ class AiMagics(Magics):
             # Validate that the request schema is well-formed JSON
             try:
                 json.loads(args.request_schema)
-            except JSONDecodeError as e:
+            except json.JSONDecodeError as e:
                 raise ValueError(
                     "request-schema must be valid JSON. "
                     f"Error at line {e.lineno}, column {e.colno}: {e.msg}"
