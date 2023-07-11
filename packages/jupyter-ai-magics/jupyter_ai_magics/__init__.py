@@ -14,13 +14,13 @@ from .providers import (
     AI21Provider,
     AnthropicProvider,
     BaseProvider,
+    BedrockProvider,
     ChatOpenAINewProvider,
     ChatOpenAIProvider,
     CohereProvider,
     HfHubProvider,
     OpenAIProvider,
     SmEndpointProvider,
-    BedrockProvider
 )
 
 

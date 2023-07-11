@@ -442,7 +442,7 @@ class BedrockProvider(BaseProvider, Bedrock):
         "anthropic.claude-v1",
         "anthropic.claude-instant-v1",
         "ai21.j2-jumbo-instruct",
-        "ai21.j2-grande-instruct"
+        "ai21.j2-grande-instruct",
     ]
     model_id_key = "model_id"
     pypi_package_deps = ["boto3"]
