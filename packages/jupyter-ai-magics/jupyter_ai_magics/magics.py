@@ -537,7 +537,7 @@ class AiMagics(Magics):
                 raise ValueError(
                     "request-schema must be valid JSON. "
                     f"Error at line {e.lineno}, column {e.colno}: {e.msg}"
-                );
+                )
 
         provider = Provider(**provider_params)
 
