@@ -20,6 +20,7 @@ from .providers import (
     HfHubProvider,
     OpenAIProvider,
     SmEndpointProvider,
+    BedrockProvider
 )
 
 

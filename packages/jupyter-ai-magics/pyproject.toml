@@ -62,6 +62,7 @@ openai = "jupyter_ai_magics:OpenAIProvider"
 openai-chat = "jupyter_ai_magics:ChatOpenAIProvider"
 openai-chat-new = "jupyter_ai_magics:ChatOpenAINewProvider"
 sagemaker-endpoint = "jupyter_ai_magics:SmEndpointProvider"
+amazon-bedrock = "jupyter_ai_magics:BedrockProvider"
 
 [project.entry-points."jupyter_ai.embeddings_model_providers"]
 cohere = "jupyter_ai_magics:CohereEmbeddingsProvider"
