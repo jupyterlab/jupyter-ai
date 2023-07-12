@@ -39,6 +39,7 @@ Jupyter AI supports the following model providers:
 |---------------------|----------------------|----------------------------|---------------------------------|
 | AI21                | `ai21`               | `AI21_API_KEY`             | `ai21`                          |
 | Anthropic           | `anthropic`          | `ANTHROPIC_API_KEY`        | `anthropic`                     |
+| Bedrock             | `amazon-bedrock`     | N/A                        | `boto3`                         |
 | Cohere              | `cohere`             | `COHERE_API_KEY`           | `cohere`                        |
 | Hugging Face Hub    | `huggingface_hub`    | `HUGGINGFACEHUB_API_TOKEN` | `huggingface_hub`, `ipywidgets`, `pillow` |
 | OpenAI              | `openai`             | `OPENAI_API_KEY`           | `openai`                        |
@@ -46,6 +47,12 @@ Jupyter AI supports the following model providers:
 | SageMaker           | `sagemaker-endpoint` | N/A                        | `boto3`                         |
 
 The environment variable names shown above are also the names of the settings keys used when setting up the chat interface.
+
+Bedrock service is not GA at this time. To use the Bedrock models, you need to get access to the Bedrock service. For more information, see
+[Amazon Bedrock Homepage](https://aws.amazon.com/bedrock/).
+
+To use Bedrock models, you will need to authenticate via 
+[boto3](https://github.com/boto/boto3).
 
 You need the `pillow` Python package to use Hugging Face Hub's text-to-image models.
 
