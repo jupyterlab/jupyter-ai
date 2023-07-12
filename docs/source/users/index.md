@@ -48,7 +48,7 @@ Jupyter AI supports the following model providers:
 
 The environment variable names shown above are also the names of the settings keys used when setting up the chat interface.
 
-Bedrock service is not GA at this time. To use the Bedrock models, you need to get access to the Bedrock service. For more information, see
+To use the Bedrock models, you need access to the Bedrock service. For more information, see the
 [Amazon Bedrock Homepage](https://aws.amazon.com/bedrock/).
 
 To use Bedrock models, you will need to authenticate via
