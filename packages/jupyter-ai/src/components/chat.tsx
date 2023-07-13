@@ -125,7 +125,7 @@ function ChatBody({
         }}
       >
         <Stack spacing={4}>
-          <p>
+          <p className="jp-ai-ChatSettings-welcome">
             Welcome to Jupyter AI! To get started, please select a language
             model to chat with from the settings panel. You will also likely
             need to provide API credentials, so be sure to have those handy.
