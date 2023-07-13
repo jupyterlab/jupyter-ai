@@ -14,6 +14,7 @@ from .providers import (
     AI21Provider,
     AnthropicProvider,
     BaseProvider,
+    BedrockProvider,
     ChatOpenAINewProvider,
     ChatOpenAIProvider,
     CohereProvider,

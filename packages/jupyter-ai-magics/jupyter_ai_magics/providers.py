@@ -12,6 +12,7 @@ from langchain.chat_models import ChatOpenAI
 from langchain.llms import (
     AI21,
     Anthropic,
+    Bedrock,
     Cohere,
     HuggingFaceHub,
     OpenAI,
@@ -123,7 +124,8 @@ class BaseProvider(BaseModel):
             )
 
         model_kwargs = {}
-        model_kwargs[self.__class__.model_id_key] = kwargs["model_id"]
+        if self.__class__.model_id_key != "model_id":
+            model_kwargs[self.__class__.model_id_key] = kwargs["model_id"]
 
         super().__init__(*args, **kwargs, **model_kwargs)
 
@@ -427,6 +429,24 @@ class SmEndpointProvider(BaseProvider, SagemakerEndpoint):
             request_schema=request_schema, response_path=response_path
         )
         super().__init__(*args, **kwargs, content_handler=content_handler)
+
+    async def _acall(self, *args, **kwargs) -> Coroutine[Any, Any, str]:
+        return await self._call_in_executor(*args, **kwargs)
+
+
+class BedrockProvider(BaseProvider, Bedrock):
+    id = "bedrock"
+    name = "Amazon Bedrock"
+    models = [
+        "amazon.titan-tg1-large",
+        "anthropic.claude-v1",
+        "anthropic.claude-instant-v1",
+        "ai21.j2-jumbo-instruct",
+        "ai21.j2-grande-instruct",
+    ]
+    model_id_key = "model_id"
+    pypi_package_deps = ["boto3"]
+    auth_strategy = AwsAuthStrategy()
 
     async def _acall(self, *args, **kwargs) -> Coroutine[Any, Any, str]:
         return await self._call_in_executor(*args, **kwargs)
