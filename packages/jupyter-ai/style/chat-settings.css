@@ -3,3 +3,7 @@
   font-weight: 400;
   color: var(--jp-ui-font-color1);
 }
+
+.jp-ai-ChatSettings-welcome {
+  color: var(--jp-ui-font-color1);
+}
