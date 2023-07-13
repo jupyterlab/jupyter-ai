@@ -16,11 +16,10 @@ export function ModelField(props: ModelFieldProps): JSX.Element {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   function handleChange(
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-    format: string
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) {
     // Perform validation based on the field format
-    switch (format) {
+    switch (props.field.format) {
       case 'json':
         try {
           // JSON.parse does not allow single quotes or trailing commas
@@ -55,7 +54,7 @@ export function ModelField(props: ModelFieldProps): JSX.Element {
       <TextField
         label={props.field.label}
         value={props.config.fields[props.gmid]?.[props.field.key]}
-        onChange={e => handleChange(e, props.field.format)}
+        onChange={handleChange}
         error={!!errorMessage}
         helperText={errorMessage ?? undefined}
         fullWidth
@@ -68,7 +67,7 @@ export function ModelField(props: ModelFieldProps): JSX.Element {
       <TextField
         label={props.field.label}
         value={props.config.fields[props.gmid]?.[props.field.key]}
-        onChange={e => handleChange(e, props.field.format)}
+        onChange={handleChange}
         fullWidth
         multiline
         error={!!errorMessage}
