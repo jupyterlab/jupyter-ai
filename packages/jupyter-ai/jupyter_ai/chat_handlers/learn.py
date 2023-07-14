@@ -7,11 +7,11 @@ from dask.distributed import Client as DaskClient
 from jupyter_ai.document_loaders.directory import get_embeddings, split
 from jupyter_ai.document_loaders.splitter import ExtensionSplitter, NotebookSplitter
 from jupyter_ai.models import (
-    DEFAULT_CHUNK_OVERLAP, 
-    DEFAULT_CHUNK_SIZE, 
-    HumanChatMessage, 
-    IndexedDir, 
-    IndexMetadata
+    DEFAULT_CHUNK_OVERLAP,
+    DEFAULT_CHUNK_SIZE,
+    HumanChatMessage,
+    IndexedDir,
+    IndexMetadata,
 )
 from jupyter_core.paths import jupyter_data_dir
 from langchain import FAISS
@@ -40,8 +40,16 @@ class LearnChatHandler(BaseChatHandler, BaseRetriever):
         self.parser.add_argument("-v", "--verbose", action="store_true")
         self.parser.add_argument("-d", "--delete", action="store_true")
         self.parser.add_argument("-l", "--list", action="store_true")
-        self.parser.add_argument("-c", "--chunk-size", action="store", default=DEFAULT_CHUNK_SIZE, type=int)
-        self.parser.add_argument("-o", "--chunk-overlap", action="store", default=DEFAULT_CHUNK_OVERLAP, type=int)
+        self.parser.add_argument(
+            "-c", "--chunk-size", action="store", default=DEFAULT_CHUNK_SIZE, type=int
+        )
+        self.parser.add_argument(
+            "-o",
+            "--chunk-overlap",
+            action="store",
+            default=DEFAULT_CHUNK_OVERLAP,
+            type=int,
+        )
         self.parser.add_argument("path", nargs=argparse.REMAINDER)
         self.index_name = "default"
         self.index = None
@@ -125,7 +133,9 @@ class LearnChatHandler(BaseChatHandler, BaseRetriever):
         {dir_list}"""
         return message
 
-    async def learn_dir(self, path: str, chunk_size: int =2000, chunk_overlap: int = 100):
+    async def learn_dir(
+        self, path: str, chunk_size: int = 2000, chunk_overlap: int = 100
+    ):
         dask_client = await self.dask_client_future
         splitters = {
             ".py": PythonCodeTextSplitter(
@@ -162,7 +172,11 @@ class LearnChatHandler(BaseChatHandler, BaseRetriever):
         dirs = self.metadata.dirs
         index = next((i for i, dir in enumerate(dirs) if dir.path == path), None)
         if not index:
-            dirs.append(IndexedDir(path=path, chunk_size=chunk_size, chunk_overlap=chunk_overlap))
+            dirs.append(
+                IndexedDir(
+                    path=path, chunk_size=chunk_size, chunk_overlap=chunk_overlap
+                )
+            )
         self.metadata.dirs = dirs
 
     async def delete_and_relearn(self):
