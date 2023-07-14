@@ -4,6 +4,9 @@ from jupyter_ai_magics.providers import AuthStrategy, Field
 from pydantic import BaseModel
 
 
+DEFAULT_CHUNK_SIZE = 2000
+DEFAULT_CHUNK_OVERLAP = 100
+
 # the type of message used to chat with the agent
 class ChatRequest(BaseModel):
     prompt: str
@@ -86,6 +89,8 @@ class ListProvidersResponse(BaseModel):
 
 class IndexedDir(BaseModel):
     path: str
+    chunk_size: int = DEFAULT_CHUNK_SIZE
+    chunk_overlap: int = DEFAULT_CHUNK_OVERLAP
 
 
 class IndexMetadata(BaseModel):
