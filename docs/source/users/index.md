@@ -328,6 +328,20 @@ To clear the local vector database, you can run `/learn -d` and Jupyter AI will 
     alt='Screen shot of a "/learn -d" command and a response.'
     class="screenshot" />
 
+With the `/learn` command, some models work better with custom chunk sizes and chunk overlaps. To override the defaults,
+use the `-c` or `--chunk-size` option and the `-o` or `--chunk-overlap` option.
+
+```
+# default chunk size and chunk overlap
+/learn <directory>
+
+# chunk size of 500, and chunk overlap of 50
+/learn -c 500 -o 50 <directory>
+
+# chunk size of 1000, and chunk overlap of 200
+/learn --chunk-size 1000 --chunk-overlap 200 <directory>
+```
+
 ### Additional chat commands
 
 To clear the chat panel, use the `/clear` command. This does not reset the AI model; the model may still remember previous messages that you sent it, and it may use them to inform its responses.
