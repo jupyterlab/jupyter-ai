@@ -134,27 +134,31 @@ class LearnChatHandler(BaseChatHandler, BaseRetriever):
         return message
 
     async def learn_dir(
-        self, path: str, chunk_size: int = 2000, chunk_overlap: int = 100
+        self, path: str, chunk_size: int, chunk_overlap: int
     ):
         dask_client = await self.dask_client_future
+        splitter_kwargs = {
+            chunk_size: chunk_size,
+            chunk_overlap: chunk_overlap
+        }
         splitters = {
             ".py": PythonCodeTextSplitter(
-                chunk_size=chunk_size, chunk_overlap=chunk_overlap
+                **splitter_kwargs
             ),
             ".md": MarkdownTextSplitter(
-                chunk_size=chunk_size, chunk_overlap=chunk_overlap
+                **splitter_kwargs
             ),
             ".tex": LatexTextSplitter(
-                chunk_size=chunk_size, chunk_overlap=chunk_overlap
+                **splitter_kwargs
             ),
             ".ipynb": NotebookSplitter(
-                chunk_size=chunk_size, chunk_overlap=chunk_overlap
+                **splitter_kwargs
             ),
         }
         splitter = ExtensionSplitter(
             splitters=splitters,
             default_splitter=RecursiveCharacterTextSplitter(
-                chunk_size=chunk_size, chunk_overlap=chunk_overlap
+                **splitter_kwargs
             ),
         )
 
