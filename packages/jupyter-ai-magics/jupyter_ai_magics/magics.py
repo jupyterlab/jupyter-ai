@@ -530,6 +530,15 @@ class AiMagics(Magics):
             provider_params["request_schema"] = args.request_schema
             provider_params["response_path"] = args.response_path
 
+            # Validate that the request schema is well-formed JSON
+            try:
+                json.loads(args.request_schema)
+            except json.JSONDecodeError as e:
+                raise ValueError(
+                    "request-schema must be valid JSON. "
+                    f"Error at line {e.lineno}, column {e.colno}: {e.msg}"
+                ) from None
+
         provider = Provider(**provider_params)
 
         # generate output from model via provider

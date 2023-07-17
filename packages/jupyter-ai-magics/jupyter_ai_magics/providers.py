@@ -54,16 +54,19 @@ AuthStrategy = Optional[
 ]
 
 
-class TextField(BaseModel):
+class Field(BaseModel):
+    key: str
+    label: str
+    # "text" accepts any text
+    format: Literal["json", "jsonpath", "text"]
+
+
+class TextField(Field):
     type: Literal["text"] = "text"
-    key: str
-    label: str
 
 
-class MultilineTextField(BaseModel):
+class MultilineTextField(Field):
     type: Literal["text-multiline"] = "text-multiline"
-    key: str
-    label: str
 
 
 Field = Union[TextField, MultilineTextField]
@@ -393,7 +396,7 @@ class JsonContentHandler(LLMContentHandler):
 
 class SmEndpointProvider(BaseProvider, SagemakerEndpoint):
     id = "sagemaker-endpoint"
-    name = "Sagemaker Endpoint"
+    name = "SageMaker endpoint"
     models = ["*"]
     model_id_key = "endpoint_name"
     # This all needs to be on one line of markdown, for use in a table
@@ -408,18 +411,9 @@ class SmEndpointProvider(BaseProvider, SagemakerEndpoint):
     auth_strategy = AwsAuthStrategy()
     registry = True
     fields = [
-        TextField(
-            key="region_name",
-            label="Region name",
-        ),
-        MultilineTextField(
-            key="request_schema",
-            label="Request schema",
-        ),
-        TextField(
-            key="response_path",
-            label="Response path",
-        ),
+        TextField(key="region_name", label="Region name", format="text"),
+        MultilineTextField(key="request_schema", label="Request schema", format="json"),
+        TextField(key="response_path", label="Response path", format="jsonpath"),
     ]
 
     def __init__(self, *args, **kwargs):
