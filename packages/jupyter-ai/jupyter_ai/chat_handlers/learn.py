@@ -6,7 +6,13 @@ from typing import Any, Awaitable, Coroutine, List
 from dask.distributed import Client as DaskClient
 from jupyter_ai.document_loaders.directory import get_embeddings, split
 from jupyter_ai.document_loaders.splitter import ExtensionSplitter, NotebookSplitter
-from jupyter_ai.models import HumanChatMessage, IndexedDir, IndexMetadata
+from jupyter_ai.models import (
+    DEFAULT_CHUNK_OVERLAP,
+    DEFAULT_CHUNK_SIZE,
+    HumanChatMessage,
+    IndexedDir,
+    IndexMetadata,
+)
 from jupyter_core.paths import jupyter_data_dir
 from langchain import FAISS
 from langchain.schema import BaseRetriever, Document
@@ -30,12 +36,20 @@ class LearnChatHandler(BaseChatHandler, BaseRetriever):
         super().__init__(*args, **kwargs)
         self.root_dir = root_dir
         self.dask_client_future = dask_client_future
-        self.chunk_size = 2000
-        self.chunk_overlap = 100
         self.parser.prog = "/learn"
         self.parser.add_argument("-v", "--verbose", action="store_true")
         self.parser.add_argument("-d", "--delete", action="store_true")
         self.parser.add_argument("-l", "--list", action="store_true")
+        self.parser.add_argument(
+            "-c", "--chunk-size", action="store", default=DEFAULT_CHUNK_SIZE, type=int
+        )
+        self.parser.add_argument(
+            "-o",
+            "--chunk-overlap",
+            action="store",
+            default=DEFAULT_CHUNK_OVERLAP,
+            type=int,
+        )
         self.parser.add_argument("path", nargs=argparse.REMAINDER)
         self.index_name = "default"
         self.index = None
@@ -102,7 +116,7 @@ class LearnChatHandler(BaseChatHandler, BaseRetriever):
         if args.verbose:
             self.reply(f"Loading and splitting files for {load_path}", message)
 
-        await self.learn_dir(load_path)
+        await self.learn_dir(load_path, args.chunk_size, args.chunk_overlap)
         self.save()
 
         response = f"""🎉 I have learned documents at **{load_path}** and I am ready to answer questions about them.
@@ -119,27 +133,18 @@ class LearnChatHandler(BaseChatHandler, BaseRetriever):
         {dir_list}"""
         return message
 
-    async def learn_dir(self, path: str):
+    async def learn_dir(self, path: str, chunk_size: int, chunk_overlap: int):
         dask_client = await self.dask_client_future
+        splitter_kwargs = {chunk_size: chunk_size, chunk_overlap: chunk_overlap}
         splitters = {
-            ".py": PythonCodeTextSplitter(
-                chunk_size=self.chunk_size, chunk_overlap=self.chunk_overlap
-            ),
-            ".md": MarkdownTextSplitter(
-                chunk_size=self.chunk_size, chunk_overlap=self.chunk_overlap
-            ),
-            ".tex": LatexTextSplitter(
-                chunk_size=self.chunk_size, chunk_overlap=self.chunk_overlap
-            ),
-            ".ipynb": NotebookSplitter(
-                chunk_size=self.chunk_size, chunk_overlap=self.chunk_overlap
-            ),
+            ".py": PythonCodeTextSplitter(**splitter_kwargs),
+            ".md": MarkdownTextSplitter(**splitter_kwargs),
+            ".tex": LatexTextSplitter(**splitter_kwargs),
+            ".ipynb": NotebookSplitter(**splitter_kwargs),
         }
         splitter = ExtensionSplitter(
             splitters=splitters,
-            default_splitter=RecursiveCharacterTextSplitter(
-                chunk_size=self.chunk_size, chunk_overlap=self.chunk_overlap
-            ),
+            default_splitter=RecursiveCharacterTextSplitter(**splitter_kwargs),
         )
 
         delayed = split(path, splitter=splitter)
@@ -149,14 +154,18 @@ class LearnChatHandler(BaseChatHandler, BaseRetriever):
         delayed = get_embeddings(doc_chunks, em_provider_cls, em_provider_args)
         embedding_records = await dask_client.compute(delayed)
         self.index.add_embeddings(*embedding_records)
-        self._add_dir_to_metadata(path)
+        self._add_dir_to_metadata(path, chunk_size, chunk_overlap)
         self.prev_em_id = em_provider_cls.id + ":" + em_provider_args["model_id"]
 
-    def _add_dir_to_metadata(self, path: str):
+    def _add_dir_to_metadata(self, path: str, chunk_size: int, chunk_overlap: int):
         dirs = self.metadata.dirs
         index = next((i for i, dir in enumerate(dirs) if dir.path == path), None)
         if not index:
-            dirs.append(IndexedDir(path=path))
+            dirs.append(
+                IndexedDir(
+                    path=path, chunk_size=chunk_size, chunk_overlap=chunk_overlap
+                )
+            )
         self.metadata.dirs = dirs
 
     async def delete_and_relearn(self):
@@ -213,7 +222,7 @@ class LearnChatHandler(BaseChatHandler, BaseRetriever):
         for dir in metadata.dirs:
             # TODO: do not relearn directories in serial, but instead
             # concurrently or in parallel
-            await self.learn_dir(dir.path)
+            await self.learn_dir(dir.path, dir.chunk_size, dir.chunk_overlap)
 
         self.save()
 
