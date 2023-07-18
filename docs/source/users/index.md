@@ -328,7 +328,7 @@ To clear the local vector database, you can run `/learn -d` and Jupyter AI will 
     alt='Screen shot of a "/learn -d" command and a response.'
     class="screenshot" />
 
-With the `/learn` command, some models work better with custom chunk sizes and chunk overlaps. To override the defaults,
+With the `/learn` command, some models work better with custom chunk size and chunk overlap values. To override the defaults,
 use the `-c` or `--chunk-size` option and the `-o` or `--chunk-overlap` option.
 
 ```
