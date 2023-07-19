@@ -13,6 +13,7 @@ from langchain.prompts import (
 from langchain.schema import AIMessage
 
 from .base import BaseChatHandler
+from .help import HelpMessage
 
 SYSTEM_PROMPT = """
 You are Jupyternaut, a conversational assistant living in JupyterLab to help users.
@@ -30,7 +31,13 @@ class DefaultChatHandler(BaseChatHandler):
     def __init__(self, chat_history: List[ChatMessage], *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.memory = ConversationBufferWindowMemory(return_messages=True, k=2)
-        self.chat_history = chat_history
+
+        # If there's nothing in the history, add a help message.
+        if (len(chat_history) == 0):
+            self.chat_history = [HelpMessage()]
+        else:
+            self.chat_history = chat_history
+
 
     def create_llm_chain(
         self, provider: Type[BaseProvider], provider_params: Dict[str, str]

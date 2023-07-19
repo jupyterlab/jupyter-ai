@@ -19,21 +19,22 @@ For more information about Jupyternaut, see the
 [Jupyter AI documentation](https://jupyter-ai.readthedocs.io).
 """
 
+def HelpMessage():
+    return AgentChatMessage(
+        id=uuid4().hex,
+        time=time.time(),
+        body=HELP_MESSAGE,
+        reply_to="",
+    )
+
 class HelpChatHandler(BaseChatHandler):
-    def __init__(self, chat_history: List[ChatMessage], *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._chat_history = chat_history
 
     async def _process_message(self, _):
-        self._chat_history.clear()
         for handler in self._root_chat_handlers.values():
             if not handler:
                 continue
 
-            handler.broadcast_message(AgentChatMessage(
-                id=uuid4().hex,
-                time=time.time(),
-                body=HELP_MESSAGE,
-                reply_to="",
-            ))
+            handler.broadcast_message(HelpMessage())
             break

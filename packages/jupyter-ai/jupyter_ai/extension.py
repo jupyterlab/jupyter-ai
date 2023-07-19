@@ -91,9 +91,7 @@ class AiExtension(ExtensionApp):
             root_dir=self.serverapp.root_dir,
             dask_client_future=dask_client_future,
         )
-        help_chat_handler = HelpChatHandler(
-            **chat_handler_kwargs, chat_history=self.settings["chat_history"]
-        )
+        help_chat_handler = HelpChatHandler(**chat_handler_kwargs)
         ask_chat_handler = AskChatHandler(
             **chat_handler_kwargs, retriever=learn_chat_handler
         )
