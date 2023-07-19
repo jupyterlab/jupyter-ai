@@ -14,6 +14,9 @@ You can send me a message using the text box below. You can also send me command
 * `/generate` — Generate a Jupyter notebook from a text prompt
 * `/clear` — Clear the chat window
 * `/help` — Display this help message
+
+For more information about Jupyternaut, see the 
+[Jupyter AI documentation](https://jupyter-ai.readthedocs.io).
 """
 
 class HelpChatHandler(BaseChatHandler):
