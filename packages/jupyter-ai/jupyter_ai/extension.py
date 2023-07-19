@@ -12,6 +12,7 @@ from .chat_handlers import (
     HelpChatHandler,
     LearnChatHandler,
 )
+from .chat_handlers.help import HelpMessage
 from .config_manager import ConfigManager
 from .handlers import (
     ChatHistoryHandler,
@@ -55,7 +56,7 @@ class AiExtension(ExtensionApp):
         # list of chat messages to broadcast to new clients
         # this is only used to render the UI, and is not the conversational
         # memory object used by the LM chain.
-        self.settings["chat_history"] = []
+        self.settings["chat_history"] = [HelpMessage()]
 
         # get reference to event loop
         # `asyncio.get_event_loop()` is deprecated in Python 3.11+, in favor of

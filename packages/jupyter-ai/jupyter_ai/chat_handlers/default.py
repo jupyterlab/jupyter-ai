@@ -31,12 +31,7 @@ class DefaultChatHandler(BaseChatHandler):
     def __init__(self, chat_history: List[ChatMessage], *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.memory = ConversationBufferWindowMemory(return_messages=True, k=2)
-
-        # If there's nothing in the history, add a help message.
-        if (len(chat_history) == 0):
-            self.chat_history = [HelpMessage()]
-        else:
-            self.chat_history = chat_history
+        self.chat_history = chat_history
 
 
     def create_llm_chain(
