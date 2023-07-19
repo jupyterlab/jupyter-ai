@@ -9,6 +9,7 @@ from .chat_handlers import (
     ClearChatHandler,
     DefaultChatHandler,
     GenerateChatHandler,
+    HelpChatHandler,
     LearnChatHandler,
 )
 from .config_manager import ConfigManager
@@ -90,6 +91,9 @@ class AiExtension(ExtensionApp):
             root_dir=self.serverapp.root_dir,
             dask_client_future=dask_client_future,
         )
+        help_chat_handler = HelpChatHandler(
+            **chat_handler_kwargs, chat_history=self.settings["chat_history"]
+        )
         ask_chat_handler = AskChatHandler(
             **chat_handler_kwargs, retriever=learn_chat_handler
         )
@@ -99,6 +103,7 @@ class AiExtension(ExtensionApp):
             "/clear": clear_chat_handler,
             "/generate": generate_chat_handler,
             "/learn": learn_chat_handler,
+            "/help": help_chat_handler,
         }
 
         latency_ms = round((time.time() - start) * 1000)
