@@ -60,7 +60,7 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
           variant="outlined"
           multiline
           onKeyDown={handleKeyDown}
-          placeholder="Ask Jupyternaut anything"
+          placeholder="Ask Jupyternaut"
           InputProps={{
             endAdornment: (
               <InputAdornment position="end">
