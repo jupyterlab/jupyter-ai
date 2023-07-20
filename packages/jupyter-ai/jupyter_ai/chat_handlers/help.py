@@ -2,7 +2,7 @@ import time
 from typing import List
 from uuid import uuid4
 
-from jupyter_ai.models import AgentChatMessage, ChatMessage
+from jupyter_ai.models import AgentChatMessage, HumanChatMessage
 
 from .base import BaseChatHandler
 
@@ -32,10 +32,5 @@ class HelpChatHandler(BaseChatHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    async def _process_message(self, _):
-        for handler in self._root_chat_handlers.values():
-            if not handler:
-                continue
-
-            handler.broadcast_message(HelpMessage())
-            break
+    async def _process_message(self, message: HumanChatMessage):
+        self.reply(HELP_MESSAGE, message)
