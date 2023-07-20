@@ -9,7 +9,7 @@ from .base import BaseChatHandler
 HELP_MESSAGE = """Hi there! I'm Jupyternaut, your programming assistant.
 You can ask me a question using the text box below. You can also send me commands:
 * `/learn` — Teach Jupyternaut about files on your system
-* `/ask` — Ask a question to be answered using learned data
+* `/ask` — Ask a question about your learned data
 * `/generate` — Generate a Jupyter notebook from a text prompt
 * `/clear` — Clear the chat window
 * `/help` — Display this help message
