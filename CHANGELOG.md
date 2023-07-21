@@ -2,6 +2,22 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 0.10.1
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@0.10.0...4049084fc1c62bc00bdd2eeddd1b4630094a5a57))
+
+### Bugs fixed
+
+- fix /learn TypeError [#286](https://github.com/jupyterlab/jupyter-ai/pull/286) ([@dlqqq](https://github.com/dlqqq))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2023-07-18&to=2023-07-21&type=c))
+
+[@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2023-07-18..2023-07-21&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 0.10.0
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@0.9.0...70725c0ff9b5eb313294bdab6e3ff183a6aad88b))
@@ -30,8 +46,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2023-07-05&to=2023-07-18&type=c))
 
 [@3coins](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3A3coins+updated%3A2023-07-05..2023-07-18&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2023-07-05..2023-07-18&type=Issues) | [@JasonWeill](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AJasonWeill+updated%3A2023-07-05..2023-07-18&type=Issues) | [@pre-commit-ci](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Apre-commit-ci+updated%3A2023-07-05..2023-07-18&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 0.9.0
 
