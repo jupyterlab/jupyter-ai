@@ -14,7 +14,7 @@ You can ask me a question using the text box below. You can also use these comma
 * `/clear` — Clear the chat window
 * `/help` — Display this help message
 
-Jupyter AI includes magic commands that you can use in your notebook.
+Jupyter AI includes magic commands that you can use in your notebooks.
 For more information, see the [documentation](https://jupyter-ai.readthedocs.io).
 """
 
