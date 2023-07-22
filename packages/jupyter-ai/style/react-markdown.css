@@ -6,6 +6,10 @@
   padding: 0;
 }
 
+.jp-RenderedHTMLCommon.jp-ai-react-markdown ul:not(.list-inline) {
+  padding-left: 1em;
+}
+
 /* !important specifier required to override inline styles from Prism */
 .jp-ai-code {
   font-family: var(--jp-code-font-family) !important;

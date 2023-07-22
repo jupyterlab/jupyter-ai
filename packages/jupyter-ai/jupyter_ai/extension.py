@@ -9,8 +9,10 @@ from .chat_handlers import (
     ClearChatHandler,
     DefaultChatHandler,
     GenerateChatHandler,
+    HelpChatHandler,
     LearnChatHandler,
 )
+from .chat_handlers.help import HelpMessage
 from .config_manager import ConfigManager
 from .handlers import (
     ChatHistoryHandler,
@@ -54,7 +56,7 @@ class AiExtension(ExtensionApp):
         # list of chat messages to broadcast to new clients
         # this is only used to render the UI, and is not the conversational
         # memory object used by the LM chain.
-        self.settings["chat_history"] = []
+        self.settings["chat_history"] = [HelpMessage()]
 
         # get reference to event loop
         # `asyncio.get_event_loop()` is deprecated in Python 3.11+, in favor of
@@ -90,6 +92,7 @@ class AiExtension(ExtensionApp):
             root_dir=self.serverapp.root_dir,
             dask_client_future=dask_client_future,
         )
+        help_chat_handler = HelpChatHandler(**chat_handler_kwargs)
         ask_chat_handler = AskChatHandler(
             **chat_handler_kwargs, retriever=learn_chat_handler
         )
@@ -99,6 +102,7 @@ class AiExtension(ExtensionApp):
             "/clear": clear_chat_handler,
             "/generate": generate_chat_handler,
             "/learn": learn_chat_handler,
+            "/help": help_chat_handler,
         }
 
         latency_ms = round((time.time() - start) * 1000)
