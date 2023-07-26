@@ -19,7 +19,7 @@ function getEditor(widget: Widget | null) {
     return null;
   }
 
-  let editor: CodeEditor.IEditor | undefined;
+  let editor: CodeEditor.IEditor | null | undefined;
   const { content } = widget;
 
   if (content instanceof FileEditor) {

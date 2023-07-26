@@ -36,7 +36,7 @@
     "watch": "lerna run watch --parallel --stream"
   },
   "devDependencies": {
-    "@jupyterlab/builder": "^3.1.0",
+    "@jupyterlab/builder": "^4",
     "lerna": "^6.4.1",
     "nx": "^15.9.2"
   },
