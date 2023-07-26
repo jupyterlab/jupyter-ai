@@ -7,7 +7,8 @@ that provides a frontend labextension registering inserters.
 
 ## Requirements
 
-- JupyterLab >= 3.0
+- Python 3.8+
+- JupyterLab 4
 
 ## Install
 

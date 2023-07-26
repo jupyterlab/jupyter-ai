@@ -7,7 +7,8 @@ please see our {doc}`contributor's guide </contributors/index>`.
 
 ## Prerequisites
 
-You can run Jupyter AI on any system that can run a supported Python version from 3.8 to 3.11, including recent Windows, macOS, and Linux versions.
+You can run Jupyter AI on any system that can run a supported Python version
+from 3.8 to 3.11, including recent Windows, macOS, and Linux versions.
 
 If you use `conda`, you can install Python 3.11 in your environment by running:
 
@@ -15,19 +16,29 @@ If you use `conda`, you can install Python 3.11 in your environment by running:
 conda install python=3.11
 ```
 
-To use the `jupyter_ai` package, you will also need to have a currently-maintained version of JupyterLab 3 installed. We do not yet support JupyterLab 4. If you use `conda`, you can install JupyterLab in your environment by running:
+The `jupyter_ai` package, which provides the lab extension and user interface in
+JupyterLab, depends on JupyterLab 4. JupyterLab 4 may be installed two ways.
+
+1. via `pip`:
 
 ```
-conda install jupyterlab
+pip install jupyterlab~=4.0
 ```
 
-You should have Jupyter Server 2.x (not 1.x) installed. A fresh install of JupyterLab 3.6.x should come with Server 2.x. You can find your current Server version by running `jupyter --version` and checking for a line beginning with `jupyter_server`. To upgrade your version of Jupyter Server, run:
+2. via `conda`:
 
 ```
-pip install jupyter_server --upgrade
+conda config --add channels conda-forge
+conda config --set channel_priority strict
+conda install jupyterlab~=4.0
 ```
 
-You can use the `jupyter_ai_magics` package without JupyterLab, but you will need a compatible interface, such as [IPython](https://ipython.org/).
+`jupyter_ai` depends on `jupyter_ai_magics`, so installing `jupyter_ai`
+automatically installs `jupyter_ai_magics`.
+
+The `jupyter_ai_magics` package, which provides exclusively the IPython magics,
+does not depend on JupyterLab or `jupyter_ai`. `jupyter_ai_magics` may be
+installed without `jupyterlab` or `jupyter_ai`.
 
 ## Model providers
 
