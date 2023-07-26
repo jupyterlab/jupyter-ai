@@ -17,28 +17,92 @@ conda install python=3.11
 ```
 
 The `jupyter_ai` package, which provides the lab extension and user interface in
-JupyterLab, depends on JupyterLab 4. JupyterLab 4 may be installed two ways.
+JupyterLab, depends on JupyterLab 4. If upgrading to JupyterLab 4 is not
+possible in your environment, you can instead install `jupyter_ai` v1.x instead.
+See "Installation" for more details.
+
+JupyterLab may be installed two ways.
 
 1. via `pip`:
 
 ```
+# change 4.0 to 3.0 if you need JupyterLab 3
 pip install jupyterlab~=4.0
 ```
 
 2. via `conda`:
 
 ```
+# change 4.0 to 3.0 if you need JupyterLab 3
 conda config --add channels conda-forge
 conda config --set channel_priority strict
 conda install jupyterlab~=4.0
 ```
 
-`jupyter_ai` depends on `jupyter_ai_magics`, so installing `jupyter_ai`
-automatically installs `jupyter_ai_magics`.
-
 The `jupyter_ai_magics` package, which provides exclusively the IPython magics,
 does not depend on JupyterLab or `jupyter_ai`. `jupyter_ai_magics` may be
 installed without `jupyterlab` or `jupyter_ai`.
+
+## Installation
+
+### Installation via `pip`
+
+If you want to install the JupyterLab extension, you can run:
+
+```
+pip install jupyter_ai
+```
+
+The latest major version of `jupyter_ai` is currently v2, and supports
+exclusively JupyterLab 4.  If you need support for JupyterLab 3, you should use
+`jupyter_ai` v1 instead, which can be installed via:
+
+```
+pip install jupyter_ai~=1.0
+```
+
+If you are not using JupyterLab and you only want to install the Jupyter AI `%%ai` magic, you can run:
+
+```
+$ pip install jupyter_ai_magics
+```
+
+`jupyter_ai` depends on `jupyter_ai_magics`, so installing `jupyter_ai`
+automatically installs `jupyter_ai_magics`.
+
+### Installation via `pip` within Conda environment (recommended)
+
+We highly recommend installing both JupyterLab and Jupyter AI within an isolated
+Conda environment to avoid clobbering Python packages in your existing Python
+environment.
+
+First, install
+[conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html)
+and create an environment that uses Python 3.11:
+
+    $ conda create -n jupyter-ai python=3.11
+    $ conda activate jupyter-ai
+    $ pip install jupyter_ai
+
+Then, the steps from "Requirements" and "Installation via `pip`" may be followed
+to install JupyterLab and Jupyter AI within this Conda environment.
+
+When starting JupyterLab with Jupyter AI, make sure to activate the Conda
+environment first:
+
+```
+conda activate jupyter-ai
+```
+
+## Uninstallation
+
+To remove the extension, run:
+
+    $ pip uninstall jupyter_ai
+
+or
+
+    $ pip uninstall jupyter_ai_magics
 
 ## Model providers
 
@@ -90,56 +154,6 @@ Model providers may charge users for API usage. Jupyter AI users are
 responsible for all charges they incur when they make API requests. Review your model
 provider's pricing information before submitting requests via Jupyter AI.
 :::
-
-## Installing
-
-You can use `conda` or `pip` to install Jupyter AI. If you're using macOS on an Apple Silicon-based Mac (M1, M1 Pro, M2, etc.), we strongly recommend using `conda`.
-
-Python 3.8 or newer is required; older versions of Python do not support the
-`typing` module we use, and as of June 30, 2023, have reached end of life.
-
-Before you can use Jupyter AI, you will need to install any packages and set environment variables with API keys for the model providers that you will use. See [our documentation](https://jupyter-ai.readthedocs.io/en/latest/users/index.html) for details about what you'll need.
-
-### With pip
-
-If you want to install both the `%%ai` magic and the JupyterLab extension, you can run:
-
-    $ pip install jupyter_ai
-
-If you are not using JupyterLab and you only want to install the Jupyter AI `%%ai` magic, you can run:
-
-    $ pip install jupyter_ai_magics
-
-
-### With conda
-
-First, install [conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html) and create an environment that uses Python 3.11:
-
-    $ conda create -n jupyter-ai python=3.11
-    $ conda activate jupyter-ai
-    $ pip install jupyter_ai
-
-If you are not using JupyterLab and you only want to install the Jupyter AI `%%ai` magic, you can run:
-
-    $ pip install jupyter_ai_magics
-
-The `%%ai` magic will work anywhere the IPython kernel runs (JupyterLab, Jupyter Notebook, Google Colab, VSCode, etc.).
-
-You can check that the Jupyter AI server extension is enabled by running:
-
-    $ jupyter server extension list
-
-To verify that the frontend extension is installed, run:
-
-    $ jupyter labextension list
-
-To remove the extension, run:
-
-    $ pip uninstall jupyter_ai
-
-or
-
-    $ pip uninstall jupyter_ai_magics
 
 ## The chat interface
 
