@@ -12,7 +12,7 @@ jobs:
         with:
           python_version: "3.11.x"
       - name: Install JupyterLab
-        run: pip install jupyterlab~=3.6
+        run: pip install jupyterlab~=4.0
       - name: Install JS dependencies
         run: jlpm
       - name: Run JS Lint
