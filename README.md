@@ -14,7 +14,7 @@ Documentation is available on [ReadTheDocs](https://jupyter-ai.readthedocs.io/en
 
 ## Requirements
 
-- Python 3.8+
+- Python 3.8 - 3.11
 - JupyterLab 4
 
 ## Installation

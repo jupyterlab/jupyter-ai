@@ -18,10 +18,10 @@ conda install python=3.11
 
 The `jupyter_ai` package, which provides the lab extension and user interface in
 JupyterLab, depends on JupyterLab 4. If upgrading to JupyterLab 4 is not
-possible in your environment, you can instead install `jupyter_ai` v1.x instead.
+possible in your environment, you should install `jupyter_ai` v1.x instead.
 See "Installation" for more details.
 
-JupyterLab may be installed two ways.
+You can install JupyterLab using `pip` or `conda`.
 
 1. via `pip`:
 
@@ -40,22 +40,21 @@ conda install jupyterlab~=4.0
 ```
 
 The `jupyter_ai_magics` package, which provides exclusively the IPython magics,
-does not depend on JupyterLab or `jupyter_ai`. `jupyter_ai_magics` may be
-installed without `jupyterlab` or `jupyter_ai`.
+does not depend on JupyterLab or `jupyter_ai`. You can install
+`jupyter_ai_magics` without installing `jupyterlab` or `jupyter_ai`.
 
 ## Installation
 
 ### Installation via `pip`
 
-If you want to install the JupyterLab extension, you can run:
+To install the JupyterLab extension, you can run:
 
 ```
 pip install jupyter_ai
 ```
 
-The latest major version of `jupyter_ai` is currently v2, and supports
-exclusively JupyterLab 4.  If you need support for JupyterLab 3, you should use
-`jupyter_ai` v1 instead, which can be installed via:
+The latest major version of `jupyter_ai`, v2, only supports JupyterLab 4. If you
+need support for JupyterLab 3, you should install `jupyter_ai` v1 instead:
 
 ```
 pip install jupyter_ai~=1.0
@@ -84,14 +83,15 @@ and create an environment that uses Python 3.11:
     $ conda activate jupyter-ai
     $ pip install jupyter_ai
 
-Then, the steps from "Requirements" and "Installation via `pip`" may be followed
-to install JupyterLab and Jupyter AI within this Conda environment.
+Then, follow the steps from "Requirements" and "Installation via `pip`" to
+install JupyterLab and Jupyter AI in this Conda environment.
 
 When starting JupyterLab with Jupyter AI, make sure to activate the Conda
 environment first:
 
 ```
 conda activate jupyter-ai
+jupyter lab
 ```
 
 ## Uninstallation
