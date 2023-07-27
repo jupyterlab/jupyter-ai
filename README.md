@@ -12,13 +12,16 @@ in JupyterLab and the Jupyter Notebook. More specifically, Jupyter AI offers:
 
 Documentation is available on [ReadTheDocs](https://jupyter-ai.readthedocs.io/en/latest/).
 
+## Requirements
+
+- Python 3.8 - 3.11
+- JupyterLab 4
+
 ## Installation
 
-You can use `conda` or `pip` to install Jupyter AI. If you're using macOS on an Apple Silicon-based Mac (M1, M1 Pro, M2, etc.), we strongly recommend using `conda`.
-
-Python 3.8 or newer is required; older versions of Python do not support the `typing` module we use, and as of June 30, 2023, have reached end of life.
-
-Before you can use Jupyter AI, you will need to install any packages and set environment variables with API keys for the model providers that you will use. See [our documentation](https://jupyter-ai.readthedocs.io/en/latest/users/index.html) for details about what you'll need.
+Below is a simplified overview of the installation and usage process.
+See [our official documentation](https://jupyter-ai.readthedocs.io/en/latest/users/index.html)
+for details on installing and using Jupyter AI.
 
 ### With pip
 

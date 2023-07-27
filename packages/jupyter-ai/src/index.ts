@@ -6,7 +6,7 @@ import {
 
 import { IWidgetTracker, ReactWidget } from '@jupyterlab/apputils';
 import { IDocumentWidget } from '@jupyterlab/docregistry';
-import { IGlobalAwareness } from '@jupyterlab/collaboration';
+import { IGlobalAwareness } from '@jupyter/collaboration';
 import type { Awareness } from 'y-protocols/awareness';
 import { buildChatSidebar } from './widgets/chat-sidebar';
 import { SelectionWatcher } from './selection-watcher';
@@ -25,7 +25,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
   activate: async (
     app: JupyterFrontEnd,
     globalAwareness: Awareness | null,
-    restorer: ILayoutRestorer
+    restorer: ILayoutRestorer | null
   ) => {
     /**
      * Initialize selection watcher singleton

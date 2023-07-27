@@ -26,8 +26,10 @@ export function getTextSelection(widget: Widget): string {
 /**
  * Get editor instance from an editor widget (i.e. `DocumentWidget#content`).
  */
-export function getEditor(widget: Widget): CodeEditor.IEditor | undefined {
-  let editor: CodeEditor.IEditor | undefined;
+export function getEditor(
+  widget: Widget
+): CodeEditor.IEditor | null | undefined {
+  let editor: CodeEditor.IEditor | null | undefined;
   if (widget instanceof FileEditor) {
     editor = widget.editor;
   } else if (widget instanceof Notebook) {

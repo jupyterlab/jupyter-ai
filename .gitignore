@@ -130,3 +130,5 @@ dev.sh
 .vscode
 
 .jupyter_ystore.db
+
+.yarn

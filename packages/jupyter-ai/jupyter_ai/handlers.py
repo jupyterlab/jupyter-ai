@@ -107,9 +107,12 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
         await res
 
     def get_chat_user(self) -> ChatUser:
-        """Retrieves the current user. If collaborative mode is disabled, one
-        is synthesized from the login."""
-        collaborative = self.config.get("LabApp", {}).get("collaborative", False)
+        """Retrieves the current user. If `jupyter_collaboration` is not
+        installed, one is synthesized from the server's current shell
+        environment."""
+        collaborative = self.config.ServerApp.jpserver_extensions.get_value({}).get(
+            "jupyter_collaboration", False
+        )
 
         if collaborative:
             return ChatUser(**asdict(self.current_user))

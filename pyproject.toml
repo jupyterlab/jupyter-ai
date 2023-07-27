@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling>=1.4.0", "jupyterlab~=3.4", "hatch-nodejs-version"]
+requires = ["hatchling>=1.4.0", "jupyterlab~=4.0", "hatch-nodejs-version"]
 build-backend = "hatchling.build"
 
 [project]
