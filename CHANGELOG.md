@@ -2,6 +2,28 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+This is currently the latest major version, and supports exclusively JupyterLab 4.
+
+Existing users who are unable to migrate to JupyterLab 3 immediately should use v1.x. However, feature releases and bug fixes will only be backported to v1.x as we deem necessary, so we highly encourage existing Jupyter AI users to migrate to JupyterLab 4 and Jupyter AI v2 as soon as possible to enjoy all of the latest features we are currently developing.
+
+Thank you all for your support of Jupyter AI! 🎉
+
+## 2.0.0
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@1.0.0...4ad7fa695b89abc0df4d510f20e9036b6907fd51))
+
+### Enhancements made
+
+- Upgrade to JupyterLab 4 [#296](https://github.com/jupyterlab/jupyter-ai/pull/296) ([@dlqqq](https://github.com/dlqqq))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2023-07-27&to=2023-07-27&type=c))
+
+[@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2023-07-27..2023-07-27&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 1.0.0
 
 This release serves exclusively to dedicate a major version to the 1.x branch providing JupyterLab 3 support.
@@ -17,8 +39,6 @@ This release serves exclusively to dedicate a major version to the 1.x branch pr
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2023-07-21&to=2023-07-27&type=c))
 
 [@andrii-i](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aandrii-i+updated%3A2023-07-21..2023-07-27&type=Issues) | [@JasonWeill](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AJasonWeill+updated%3A2023-07-21..2023-07-27&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 0.10.1
 
