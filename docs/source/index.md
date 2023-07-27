@@ -17,8 +17,9 @@ JupyterLab 3.x, and Jupyter AI 2.x supports JupyterLab 4.x. The feature sets of 
 are the same. We will maintain support for JupyterLab 3 for as long as it remains maintained; that is,
 until JupyterLab 5.0.0 is available.
 
-The `main` branch of Jupyter AI will target JupyterLab 4. All new features and most bug fixes will be
-fixed in this branch, and will be available in JupyterLab 4. Features and bug fixes will be backported
+The `main` branch of Jupyter AI targets the newest supported major version of JupyterLab, which, as of
+July 2023, is version 4. All new features and most bug fixes will be
+committed to this branch. Features and bug fixes will be backported
 to work on JupyterLab 3 only if developers determine that they will add sufficient value.
 **We recommend that JupyterLab users who want the most advanced Jupyter AI functionality upgrade to JupyterLab 4.**
 
