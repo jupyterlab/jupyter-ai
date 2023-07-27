@@ -6,7 +6,7 @@ This page is intended for people interested in building new or modified function
 
 You can develop Jupyter AI on any system that can run a supported Python version up to and including 3.11, including recent Windows, macOS, and Linux versions.
 
-Each Jupyter AI major version works with only one major version of JupyterLab. Jupyter AI 1.x supports JupyterLab 3.x, and Jupyter AI 2.x supports JupyterLab 4.x. The `main` branch supports the newest released major version of JupyterLab, which, as of July 2023, is 4.
+Each Jupyter AI major version works with only one major version of JupyterLab. Jupyter AI 1.x supports JupyterLab 3.x, and Jupyter AI 2.x supports JupyterLab 4.x.
 
 We highly recommend that you install [conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html) to start developing on Jupyter AI, especially if you are developing on macOS on an Apple Silicon-based Mac (M1, M1 Pro, M2, etc.).
 
