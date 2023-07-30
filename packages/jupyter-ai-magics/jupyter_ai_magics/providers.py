@@ -14,10 +14,10 @@ from langchain.llms import (
     Anthropic,
     Bedrock,
     Cohere,
+    GPT4All,
     HuggingFaceHub,
     OpenAI,
     OpenAIChat,
-    GPT4All,
     SagemakerEndpoint,
 )
 from langchain.llms.sagemaker_endpoint import LLMContentHandler
@@ -74,6 +74,7 @@ class IntegerField(BaseModel):
     type: Literal["integer"] = "integer"
     key: str
     label: str
+
 
 Field = Union[TextField, MultilineTextField, IntegerField]
 
@@ -200,7 +201,6 @@ class CohereProvider(BaseProvider, Cohere):
 
 
 class GPT4AllProvider(BaseProvider, GPT4All):
-
     def __init__(self, **kwargs):
         model = kwargs.get("model_id")
         if model == "ggml-gpt4all-l13b-snoozy":
@@ -208,10 +208,10 @@ class GPT4AllProvider(BaseProvider, GPT4All):
         else:
             kwargs["backend"] = "gptj"
 
-        kwargs['allow_download'] = False
-        n_threads = kwargs.get('n_threads', None)
+        kwargs["allow_download"] = False
+        n_threads = kwargs.get("n_threads", None)
         if n_threads is not None:
-            kwargs['n_threads'] = max(int(n_threads), 1)
+            kwargs["n_threads"] = max(int(n_threads), 1)
         super().__init__(**kwargs)
 
     id = "gpt4all"
@@ -221,17 +221,12 @@ class GPT4AllProvider(BaseProvider, GPT4All):
         "ggml-gpt4all-j-v1.2-jazzy",
         "ggml-gpt4all-j-v1.3-groovy",
         # this one needs llama backend and has licence restriction
-        "ggml-gpt4all-l13b-snoozy"
+        "ggml-gpt4all-l13b-snoozy",
     ]
     model_id_key = "model"
     pypi_package_deps = ["gpt4all"]
     auth_strategy = None
-    fields = [
-        IntegerField(
-            key="n_threads",
-            label="Threads"
-        )
-    ]
+    fields = [IntegerField(key="n_threads", label="Threads")]
 
 
 HUGGINGFACE_HUB_VALID_TASKS = (
