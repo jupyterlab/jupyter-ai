@@ -478,24 +478,6 @@ class AiMagics(Magics):
         )
 
     def run_ai_cell(self, args: CellArgs, prompt: str):
-        # Apply a prompt template.
-        prompt = PROMPT_TEMPLATES_BY_FORMAT[args.format].format(prompt=prompt)
-
-        # interpolate user namespace into prompt
-        ip = get_ipython()
-        prompt = prompt.format_map(FormatDict(ip.user_ns))
-
-        # Determine provider and local model IDs
-        # If this is a custom chain, send the message to the custom chain.
-        if args.model_id in self.custom_model_registry and isinstance(
-            self.custom_model_registry[args.model_id], LLMChain
-        ):
-            return self.display_output(
-                self.custom_model_registry[args.model_id].run(prompt),
-                args.format,
-                {"jupyter_ai": {"custom_chain_id": args.model_id}},
-            )
-
         provider_id, local_model_id = self._decompose_model_id(args.model_id)
         Provider = self._get_provider(provider_id)
         if Provider is None:
@@ -512,6 +494,24 @@ class AiMagics(Magics):
         if provider_id == "openai-chat" and args.reset:
             self.transcript_openai = []
             return
+
+        # Apply a prompt template. TODO: Apply the provider's own prompt template, if possible.
+        prompt = PROMPT_TEMPLATES_BY_FORMAT[args.format].format(prompt=prompt)
+
+        # interpolate user namespace into prompt
+        ip = get_ipython()
+        prompt = prompt.format_map(FormatDict(ip.user_ns))
+
+        # Determine provider and local model IDs
+        # If this is a custom chain, send the message to the custom chain.
+        if args.model_id in self.custom_model_registry and isinstance(
+            self.custom_model_registry[args.model_id], LLMChain
+        ):
+            return self.display_output(
+                self.custom_model_registry[args.model_id].run(prompt),
+                args.format,
+                {"jupyter_ai": {"custom_chain_id": args.model_id}},
+            )
 
         # validate presence of authn credentials
         auth_strategy = self.providers[provider_id].auth_strategy
