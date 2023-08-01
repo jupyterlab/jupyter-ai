@@ -470,7 +470,9 @@ class AiMagics(Magics):
             return
 
         # Apply a prompt template.
-        prompt = Provider.prompt_template(args.format, local_model_id).format(prompt=prompt)
+        prompt = Provider.prompt_template(args.format, local_model_id).format(
+            prompt=prompt
+        )
 
         # interpolate user namespace into prompt
         ip = get_ipython()

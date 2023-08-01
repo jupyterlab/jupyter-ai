@@ -153,7 +153,7 @@ class BaseProvider(BaseModel):
             "{prompt}\n\nProduce output in markdown format only."
         )
 
-        basicTemplate = PromptTemplate.from_template("{prompt}") # No customization
+        basicTemplate = PromptTemplate.from_template("{prompt}")  # No customization
 
         # These are defaults, which can be overridden by model providers,
         # including at the model level
@@ -183,7 +183,7 @@ class BaseProvider(BaseModel):
             "text": basicTemplate,
         }
 
-        if (format in promptTemplates):
+        if format in promptTemplates:
             return promptTemplates[format]
         else:
             return basicTemplate
