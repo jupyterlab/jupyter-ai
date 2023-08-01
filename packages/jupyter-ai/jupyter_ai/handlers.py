@@ -195,7 +195,8 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
     async def _route(self, message):
         """Method that routes an incoming message to the appropriate handler."""
         default = self.chat_handlers["default"]
-        maybe_command = message.body.split(" ", 1)[0]
+        # Split on any whitespace, either spaces or newlines
+        maybe_command = message.body.split(None, 1)[0]
         is_command = (
             message.body.startswith("/")
             and maybe_command in self.chat_handlers.keys()
