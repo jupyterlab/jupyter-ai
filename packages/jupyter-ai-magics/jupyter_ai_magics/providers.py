@@ -8,6 +8,7 @@ from concurrent.futures import ThreadPoolExecutor
 from typing import Any, ClassVar, Coroutine, Dict, List, Literal, Optional, Union
 
 from jsonpath_ng import parse
+from langchain import PromptTemplate
 from langchain.chat_models import ChatOpenAI
 from langchain.llms import (
     AI21,
@@ -141,6 +142,51 @@ class BaseProvider(BaseModel):
         loop = asyncio.get_running_loop()
         _call_with_args = functools.partial(self._call, *args, **kwargs)
         return await loop.run_in_executor(executor, _call_with_args)
+
+    def prompt_template(format, model_id) -> PromptTemplate:
+        """
+        Produce a prompt template suitable for use with a particular model, to
+        produce output in a desired format.
+        """
+
+        markdownTemplate = PromptTemplate.from_template(
+            "{prompt}\n\nProduce output in markdown format only."
+        )
+
+        basicTemplate = PromptTemplate.from_template("{prompt}") # No customization
+
+        # These are defaults, which can be overridden by model providers,
+        # including at the model level
+        promptTemplates = {
+            "code": PromptTemplate.from_template(
+                "{prompt}\n\nProduce output as source code only, "
+                "with no text or explanation before or after it."
+            ),
+            "html": PromptTemplate.from_template(
+                "{prompt}\n\nProduce output in HTML format only, "
+                "with no markup before or afterward."
+            ),
+            "image": PromptTemplate.from_template(
+                "{prompt}\n\nProduce output as an image only, "
+                "with no text before or after it."
+            ),
+            "markdown": markdownTemplate,
+            "md": markdownTemplate,
+            "math": PromptTemplate.from_template(
+                "{prompt}\n\nProduce output in LaTeX format only, "
+                "with $$ at the beginning and end."
+            ),
+            "json": PromptTemplate.from_template(
+                "{prompt}\n\nProduce output in JSON format only, "
+                "with nothing before or after it."
+            ),
+            "text": basicTemplate,
+        }
+
+        if (format in promptTemplates):
+            return promptTemplates[format]
+        else:
+            return basicTemplate
 
 
 class AI21Provider(BaseProvider, AI21):

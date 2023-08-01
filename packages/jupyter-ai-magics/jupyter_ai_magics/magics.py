@@ -12,7 +12,6 @@ from IPython import get_ipython
 from IPython.core.magic import Magics, line_cell_magic, magics_class
 from IPython.display import HTML, JSON, Markdown, Math
 from jupyter_ai_magics.utils import decompose_model_id, get_lm_providers
-from langchain import PromptTemplate
 from langchain.chains import LLMChain
 
 from .parsers import (
@@ -81,10 +80,6 @@ DISPLAYS_BY_FORMAT = {
 
 NA_MESSAGE = '<abbr title="Not applicable">N/A</abbr>'
 
-MARKDOWN_PROMPT_TEMPLATE = PromptTemplate.from_template(
-    "{prompt}\n\nProduce output in markdown format only."
-)
-
 PROVIDER_NO_MODELS = "This provider does not define a list of models."
 
 CANNOT_DETERMINE_MODEL_TEXT = """Cannot determine model provider from model ID '{0}'.
@@ -95,27 +90,6 @@ CANNOT_DETERMINE_MODEL_MARKDOWN = """Cannot determine model provider from model 
 
 To see a list of models you can use, run `%ai list`"""
 
-# These are defaults, which can be overridden by model providers
-PROMPT_TEMPLATES_BY_FORMAT = {
-    "code": PromptTemplate.from_template(
-        "{prompt}\n\nProduce output as source code only, with no text or explanation before or after it."
-    ),
-    "html": PromptTemplate.from_template(
-        "{prompt}\n\nProduce output in HTML format only, with no markup before or afterward."
-    ),
-    "image": PromptTemplate.from_template(
-        "{prompt}\n\nProduce output as an image only, with no text before or after it."
-    ),
-    "markdown": MARKDOWN_PROMPT_TEMPLATE,
-    "md": MARKDOWN_PROMPT_TEMPLATE,
-    "math": PromptTemplate.from_template(
-        "{prompt}\n\nProduce output in LaTeX format only, with $$ at the beginning and end."
-    ),
-    "json": PromptTemplate.from_template(
-        "{prompt}\n\nProduce output in JSON format only, with nothing before or after it."
-    ),
-    "text": PromptTemplate.from_template("{prompt}"),  # No customization
-}
 
 AI_COMMANDS = {"delete", "error", "help", "list", "register", "update"}
 
@@ -495,8 +469,8 @@ class AiMagics(Magics):
             self.transcript_openai = []
             return
 
-        # Apply a prompt template. TODO: Apply the provider's own prompt template, if possible.
-        prompt = PROMPT_TEMPLATES_BY_FORMAT[args.format].format(prompt=prompt)
+        # Apply a prompt template.
+        prompt = Provider.prompt_template(args.format, local_model_id).format(prompt=prompt)
 
         # interpolate user namespace into prompt
         ip = get_ipython()
