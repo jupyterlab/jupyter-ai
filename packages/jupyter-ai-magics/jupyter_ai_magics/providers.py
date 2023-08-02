@@ -114,43 +114,14 @@ class BaseProvider(BaseModel):
     """User inputs expected by this provider when initializing it. Each `Field` `f`
     should be passed in the constructor as a keyword argument, keyed by `f.key`."""
 
-    prompt_templates: ClassVar[Dict[str, PromptTemplate]] = {
-        "code": PromptTemplate.from_template(
-            "{prompt}\n\nProduce output as source code only, "
-            "with no text or explanation before or after it."
-        ),
-        "html": PromptTemplate.from_template(
-            "{prompt}\n\nProduce output in HTML format only, "
-            "with no markup before or afterward."
-        ),
-        "image": PromptTemplate.from_template(
-            "{prompt}\n\nProduce output as an image only, "
-            "with no text before or after it."
-        ),
-        "markdown": PromptTemplate.from_template(
-            "{prompt}\n\nProduce output in markdown format only."
-        ),
-        "md": PromptTemplate.from_template(
-            "{prompt}\n\nProduce output in markdown format only."
-        ),
-        "math": PromptTemplate.from_template(
-            "{prompt}\n\nProduce output in LaTeX format only, "
-            "with $$ at the beginning and end."
-        ),
-        "json": PromptTemplate.from_template(
-            "{prompt}\n\nProduce output in JSON format only, "
-            "with nothing before or after it."
-        ),
-        "text": PromptTemplate.from_template("{prompt}"),  # No customization
-    }
-    """Default prompt templates for each output type. Can be overridden with
-    `update_prompt_template`. The function `prompt_template`, by default,
-    refers to this."""
-
     #
     # instance attrs
     #
     model_id: str
+    prompt_templates: Dict[str, PromptTemplate]
+    """Prompt templates for each output type. Can be overridden with
+    `update_prompt_template`. The function `prompt_template`, in the base class,
+    refers to this."""
 
     def __init__(self, *args, **kwargs):
         try:
@@ -164,6 +135,36 @@ class BaseProvider(BaseModel):
         if self.__class__.model_id_key != "model_id":
             model_kwargs[self.__class__.model_id_key] = kwargs["model_id"]
 
+        self.prompt_templates = {
+            "code": PromptTemplate.from_template(
+                "{prompt}\n\nProduce output as source code only, "
+                "with no text or explanation before or after it."
+            ),
+            "html": PromptTemplate.from_template(
+                "{prompt}\n\nProduce output in HTML format only, "
+                "with no markup before or afterward."
+            ),
+            "image": PromptTemplate.from_template(
+                "{prompt}\n\nProduce output as an image only, "
+                "with no text before or after it."
+            ),
+            "markdown": PromptTemplate.from_template(
+                "{prompt}\n\nProduce output in markdown format only."
+            ),
+            "md": PromptTemplate.from_template(
+                "{prompt}\n\nProduce output in markdown format only."
+            ),
+            "math": PromptTemplate.from_template(
+                "{prompt}\n\nProduce output in LaTeX format only, "
+                "with $$ at the beginning and end."
+            ),
+            "json": PromptTemplate.from_template(
+                "{prompt}\n\nProduce output in JSON format only, "
+                "with nothing before or after it."
+            ),
+            "text": PromptTemplate.from_template("{prompt}"),  # No customization
+        }
+
         super().__init__(*args, **kwargs, **model_kwargs)
 
     async def _call_in_executor(self, *args, **kwargs) -> Coroutine[Any, Any, str]:
@@ -176,11 +177,11 @@ class BaseProvider(BaseModel):
         _call_with_args = functools.partial(self._call, *args, **kwargs)
         return await loop.run_in_executor(executor, _call_with_args)
 
-    def update_prompt_template(format: str, template: str):
+    def update_prompt_template(self, format: str, template: str):
         """
         Changes the class-level prompt template for a given format.
         """
-        prompt_templates[format] = PromptTemplate.from_template(template)
+        self.prompt_templates[format] = PromptTemplate.from_template(template)
 
     def prompt_template(self, format) -> PromptTemplate:
         """
