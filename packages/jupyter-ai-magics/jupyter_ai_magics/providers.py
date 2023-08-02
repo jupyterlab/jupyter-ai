@@ -191,7 +191,7 @@ class BaseProvider(BaseModel):
         if format in self.prompt_templates:
             return self.prompt_templates[format]
         else:
-            return self.prompt_templates['text']  # Default to plain format
+            return self.prompt_templates["text"]  # Default to plain format
 
 
 class AI21Provider(BaseProvider, AI21):
