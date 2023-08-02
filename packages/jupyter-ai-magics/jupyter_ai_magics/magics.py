@@ -522,7 +522,7 @@ class AiMagics(Magics):
         provider = Provider(**provider_params)
 
         # Apply a prompt template.
-        prompt = provider.prompt_template(args.format).format(prompt=prompt)
+        prompt = provider.get_prompt_template(args.format).format(prompt=prompt)
 
         # interpolate user namespace into prompt
         ip = get_ipython()

@@ -183,7 +183,7 @@ class BaseProvider(BaseModel):
         """
         self.prompt_templates[format] = PromptTemplate.from_template(template)
 
-    def prompt_template(self, format) -> PromptTemplate:
+    def get_prompt_template(self, format) -> PromptTemplate:
         """
         Produce a prompt template suitable for use with a particular model, to
         produce output in a desired format.
