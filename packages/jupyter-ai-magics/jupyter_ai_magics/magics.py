@@ -469,15 +469,6 @@ class AiMagics(Magics):
             self.transcript_openai = []
             return
 
-        # Apply a prompt template.
-        prompt = Provider.prompt_template(args.format, local_model_id).format(
-            prompt=prompt
-        )
-
-        # interpolate user namespace into prompt
-        ip = get_ipython()
-        prompt = prompt.format_map(FormatDict(ip.user_ns))
-
         # Determine provider and local model IDs
         # If this is a custom chain, send the message to the custom chain.
         if args.model_id in self.custom_model_registry and isinstance(
@@ -529,6 +520,13 @@ class AiMagics(Magics):
                 ) from None
 
         provider = Provider(**provider_params)
+
+        # Apply a prompt template.
+        prompt = provider.prompt_template(args.format).format(prompt=prompt)
+
+        # interpolate user namespace into prompt
+        ip = get_ipython()
+        prompt = prompt.format_map(FormatDict(ip.user_ns))
 
         # generate output from model via provider
         result = provider.generate([prompt])
