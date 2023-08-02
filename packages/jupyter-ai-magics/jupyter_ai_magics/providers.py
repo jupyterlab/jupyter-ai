@@ -176,6 +176,12 @@ class BaseProvider(BaseModel):
         _call_with_args = functools.partial(self._call, *args, **kwargs)
         return await loop.run_in_executor(executor, _call_with_args)
 
+    def update_prompt_template(format: str, template: str):
+        """
+        Changes the class-level prompt template for a given format.
+        """
+        prompt_templates[format] = PromptTemplate.from_template(template)
+
     def prompt_template(self, format) -> PromptTemplate:
         """
         Produce a prompt template suitable for use with a particular model, to
