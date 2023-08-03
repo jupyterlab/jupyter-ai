@@ -118,7 +118,7 @@ class BaseProvider(BaseModel):
     # instance attrs
     #
     model_id: str
-    _prompt_templates: Dict[str, PromptTemplate]
+    prompt_templates: Dict[str, PromptTemplate]
     """Prompt templates for each output type. Can be overridden with
     `update_prompt_template`. The function `prompt_template`, in the base class,
     refers to this."""
@@ -135,9 +135,7 @@ class BaseProvider(BaseModel):
         if self.__class__.model_id_key != "model_id":
             model_kwargs[self.__class__.model_id_key] = kwargs["model_id"]
 
-        super().__init__(*args, **kwargs, **model_kwargs)
-
-        self._prompt_templates = {
+        model_kwargs["prompt_templates"] = {
             "code": PromptTemplate.from_template(
                 "{prompt}\n\nProduce output as source code only, "
                 "with no text or explanation before or after it."
@@ -167,6 +165,9 @@ class BaseProvider(BaseModel):
             "text": PromptTemplate.from_template("{prompt}"),  # No customization
         }
 
+        super().__init__(*args, **kwargs, **model_kwargs)
+
+
     async def _call_in_executor(self, *args, **kwargs) -> Coroutine[Any, Any, str]:
         """
         Calls self._call() asynchronously in a separate thread for providers
@@ -181,7 +182,7 @@ class BaseProvider(BaseModel):
         """
         Changes the class-level prompt template for a given format.
         """
-        self._prompt_templates[format] = PromptTemplate.from_template(template)
+        self.prompt_templates[format] = PromptTemplate.from_template(template)
 
     def get_prompt_template(self, format) -> PromptTemplate:
         """
@@ -189,10 +190,10 @@ class BaseProvider(BaseModel):
         produce output in a desired format.
         """
 
-        if format in self._prompt_templates:
-            return self._prompt_templates[format]
+        if format in self.prompt_templates:
+            return self.prompt_templates[format]
         else:
-            return self._prompt_templates["text"]  # Default to plain format
+            return self.prompt_templates["text"]  # Default to plain format
 
 
 class AI21Provider(BaseProvider, AI21):
