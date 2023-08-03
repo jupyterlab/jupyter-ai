@@ -522,6 +522,20 @@ A function that computes the lowest common multiples of two integers, and
 a function that runs 5 test cases of the lowest common multiple function
 ```
 
+### Prompt templates
+
+Each provider can define **prompt templates** for each supported format. A prompt
+template guides the language model to produce output in a particular
+format. The default prompt templates are a
+[Python dictionary mapping formats to templates](https://github.com/jupyterlab/jupyter-ai/blob/57a758fa5cdd5a87da5519987895aa688b3766a8/packages/jupyter-ai-magics/jupyter_ai_magics/providers.py#L138-L166).
+Developers who write subclasses of `BaseProvider` can override templates per
+output format, per model, and based on the prompt being submitted, by
+implementing their own
+[`get_prompt_template` function](https://github.com/jupyterlab/jupyter-ai/blob/57a758fa5cdd5a87da5519987895aa688b3766a8/packages/jupyter-ai-magics/jupyter_ai_magics/providers.py#L186-L195).
+Each prompt template includes the string `{prompt}`, which is replaced with
+the user-provided prompt when the user runs a magic command.
+
+
 ### Clearing the OpenAI chat history
 
 With the `openai-chat` provider *only*, you can run a cell magic command using the `-r` or
