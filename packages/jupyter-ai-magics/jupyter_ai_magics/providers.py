@@ -167,7 +167,6 @@ class BaseProvider(BaseModel):
 
         super().__init__(*args, **kwargs, **model_kwargs)
 
-
     async def _call_in_executor(self, *args, **kwargs) -> Coroutine[Any, Any, str]:
         """
         Calls self._call() asynchronously in a separate thread for providers
