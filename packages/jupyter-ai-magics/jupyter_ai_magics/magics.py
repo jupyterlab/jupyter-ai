@@ -80,8 +80,6 @@ DISPLAYS_BY_FORMAT = {
 
 NA_MESSAGE = '<abbr title="Not applicable">N/A</abbr>'
 
-MARKDOWN_PROMPT_TEMPLATE = "{prompt}\n\nProduce output in markdown format only."
-
 PROVIDER_NO_MODELS = "This provider does not define a list of models."
 
 CANNOT_DETERMINE_MODEL_TEXT = """Cannot determine model provider from model ID '{0}'.
@@ -92,17 +90,6 @@ CANNOT_DETERMINE_MODEL_MARKDOWN = """Cannot determine model provider from model 
 
 To see a list of models you can use, run `%ai list`"""
 
-
-PROMPT_TEMPLATES_BY_FORMAT = {
-    "code": "{prompt}\n\nProduce output as source code only, with no text or explanation before or after it.",
-    "html": "{prompt}\n\nProduce output in HTML format only, with no markup before or afterward.",
-    "image": "{prompt}\n\nProduce output as an image only, with no text before or after it.",
-    "markdown": MARKDOWN_PROMPT_TEMPLATE,
-    "md": MARKDOWN_PROMPT_TEMPLATE,
-    "math": "{prompt}\n\nProduce output in LaTeX format only, with $$ at the beginning and end.",
-    "json": "{prompt}\n\nProduce output in JSON format only, with nothing before or after it.",
-    "text": "{prompt}",  # No customization
-}
 
 AI_COMMANDS = {"delete", "error", "help", "list", "register", "update"}
 
@@ -465,24 +452,6 @@ class AiMagics(Magics):
         )
 
     def run_ai_cell(self, args: CellArgs, prompt: str):
-        # Apply a prompt template.
-        prompt = PROMPT_TEMPLATES_BY_FORMAT[args.format].format(prompt=prompt)
-
-        # interpolate user namespace into prompt
-        ip = get_ipython()
-        prompt = prompt.format_map(FormatDict(ip.user_ns))
-
-        # Determine provider and local model IDs
-        # If this is a custom chain, send the message to the custom chain.
-        if args.model_id in self.custom_model_registry and isinstance(
-            self.custom_model_registry[args.model_id], LLMChain
-        ):
-            return self.display_output(
-                self.custom_model_registry[args.model_id].run(prompt),
-                args.format,
-                {"jupyter_ai": {"custom_chain_id": args.model_id}},
-            )
-
         provider_id, local_model_id = self._decompose_model_id(args.model_id)
         Provider = self._get_provider(provider_id)
         if Provider is None:
@@ -499,6 +468,17 @@ class AiMagics(Magics):
         if provider_id == "openai-chat" and args.reset:
             self.transcript_openai = []
             return
+
+        # Determine provider and local model IDs
+        # If this is a custom chain, send the message to the custom chain.
+        if args.model_id in self.custom_model_registry and isinstance(
+            self.custom_model_registry[args.model_id], LLMChain
+        ):
+            return self.display_output(
+                self.custom_model_registry[args.model_id].run(prompt),
+                args.format,
+                {"jupyter_ai": {"custom_chain_id": args.model_id}},
+            )
 
         # validate presence of authn credentials
         auth_strategy = self.providers[provider_id].auth_strategy
@@ -540,6 +520,13 @@ class AiMagics(Magics):
                 ) from None
 
         provider = Provider(**provider_params)
+
+        # Apply a prompt template.
+        prompt = provider.get_prompt_template(args.format).format(prompt=prompt)
+
+        # interpolate user namespace into prompt
+        ip = get_ipython()
+        prompt = prompt.format_map(FormatDict(ip.user_ns))
 
         # generate output from model via provider
         result = provider.generate([prompt])

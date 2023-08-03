@@ -8,6 +8,7 @@ from concurrent.futures import ThreadPoolExecutor
 from typing import Any, ClassVar, Coroutine, Dict, List, Literal, Optional, Union
 
 from jsonpath_ng import parse
+from langchain import PromptTemplate
 from langchain.chat_models import ChatOpenAI
 from langchain.llms import (
     AI21,
@@ -117,6 +118,10 @@ class BaseProvider(BaseModel):
     # instance attrs
     #
     model_id: str
+    prompt_templates: Dict[str, PromptTemplate]
+    """Prompt templates for each output type. Can be overridden with
+    `update_prompt_template`. The function `prompt_template`, in the base class,
+    refers to this."""
 
     def __init__(self, *args, **kwargs):
         try:
@@ -130,6 +135,36 @@ class BaseProvider(BaseModel):
         if self.__class__.model_id_key != "model_id":
             model_kwargs[self.__class__.model_id_key] = kwargs["model_id"]
 
+        model_kwargs["prompt_templates"] = {
+            "code": PromptTemplate.from_template(
+                "{prompt}\n\nProduce output as source code only, "
+                "with no text or explanation before or after it."
+            ),
+            "html": PromptTemplate.from_template(
+                "{prompt}\n\nProduce output in HTML format only, "
+                "with no markup before or afterward."
+            ),
+            "image": PromptTemplate.from_template(
+                "{prompt}\n\nProduce output as an image only, "
+                "with no text before or after it."
+            ),
+            "markdown": PromptTemplate.from_template(
+                "{prompt}\n\nProduce output in markdown format only."
+            ),
+            "md": PromptTemplate.from_template(
+                "{prompt}\n\nProduce output in markdown format only."
+            ),
+            "math": PromptTemplate.from_template(
+                "{prompt}\n\nProduce output in LaTeX format only, "
+                "with $$ at the beginning and end."
+            ),
+            "json": PromptTemplate.from_template(
+                "{prompt}\n\nProduce output in JSON format only, "
+                "with nothing before or after it."
+            ),
+            "text": PromptTemplate.from_template("{prompt}"),  # No customization
+        }
+
         super().__init__(*args, **kwargs, **model_kwargs)
 
     async def _call_in_executor(self, *args, **kwargs) -> Coroutine[Any, Any, str]:
@@ -141,6 +176,23 @@ class BaseProvider(BaseModel):
         loop = asyncio.get_running_loop()
         _call_with_args = functools.partial(self._call, *args, **kwargs)
         return await loop.run_in_executor(executor, _call_with_args)
+
+    def update_prompt_template(self, format: str, template: str):
+        """
+        Changes the class-level prompt template for a given format.
+        """
+        self.prompt_templates[format] = PromptTemplate.from_template(template)
+
+    def get_prompt_template(self, format) -> PromptTemplate:
+        """
+        Produce a prompt template suitable for use with a particular model, to
+        produce output in a desired format.
+        """
+
+        if format in self.prompt_templates:
+            return self.prompt_templates[format]
+        else:
+            return self.prompt_templates["text"]  # Default to plain format
 
 
 class AI21Provider(BaseProvider, AI21):
