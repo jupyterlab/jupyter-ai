@@ -172,6 +172,7 @@ class AnthropicProvider(BaseProvider, Anthropic):
         "claude-v1",
         "claude-v1.0",
         "claude-v1.2",
+        "claude-2",
         "claude-instant-v1",
         "claude-instant-v1.0",
     ]
@@ -435,6 +436,7 @@ class BedrockProvider(BaseProvider, Bedrock):
         "amazon.titan-tg1-large",
         "anthropic.claude-v1",
         "anthropic.claude-instant-v1",
+        "anthropic.claude-v2",
         "ai21.j2-jumbo-instruct",
         "ai21.j2-grande-instruct",
     ]
