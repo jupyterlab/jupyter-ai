@@ -111,10 +111,9 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
         is synthesized from the login."""
         collaborative = self.config.get("LabApp", {}).get("collaborative", False)
 
-        login = getpass.getuser()
-        initials = login[0].capitalize()
-
         if collaborative:
+            names = self.current_user.name.split(" ", maxsplit=2)
+            initials = "".join([(name[0] if len(name) > 0 else "") for name in names])
             chat_user_kwargs = {
                 # set in case IdentityProvider doesn't return initials, e.g.
                 # JupyterHub (#302)
@@ -123,6 +122,8 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
             }
             return ChatUser(**chat_user_kwargs)
 
+        login = getpass.getuser()
+        initials = login[0].capitalize()
         return ChatUser(
             username=login,
             initials=initials,
