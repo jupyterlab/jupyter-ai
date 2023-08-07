@@ -150,6 +150,7 @@ export namespace AiService {
   export type ListProvidersEntry = {
     id: string;
     name: string;
+    model_id_label?: string;
     models: string[];
     auth_strategy: AuthStrategy;
     registry: boolean;

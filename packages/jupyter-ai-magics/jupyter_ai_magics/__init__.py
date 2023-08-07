@@ -13,6 +13,7 @@ from .magics import AiMagics
 from .providers import (
     AI21Provider,
     AnthropicProvider,
+    AzureChatOpenAIProvider,
     BaseProvider,
     BedrockProvider,
     ChatOpenAINewProvider,
