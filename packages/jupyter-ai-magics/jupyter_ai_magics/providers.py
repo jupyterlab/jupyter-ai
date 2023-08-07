@@ -9,7 +9,7 @@ from typing import Any, ClassVar, Coroutine, Dict, List, Literal, Optional, Unio
 
 from jsonpath_ng import parse
 from langchain import PromptTemplate
-from langchain.chat_models import ChatOpenAI, AzureChatOpenAI
+from langchain.chat_models import AzureChatOpenAI, ChatOpenAI
 from langchain.llms import (
     AI21,
     Anthropic,
@@ -419,10 +419,15 @@ class ChatOpenAINewProvider(BaseProvider, ChatOpenAI):
     auth_strategy = EnvAuthStrategy(name="OPENAI_API_KEY")
 
     fields = [
-        TextField(key="openai_api_base", label="Base API URL (optional)", format="text"),
-        TextField(key="openai_organization", label="Organization (optional)", format="text"),
+        TextField(
+            key="openai_api_base", label="Base API URL (optional)", format="text"
+        ),
+        TextField(
+            key="openai_organization", label="Organization (optional)", format="text"
+        ),
         TextField(key="openai_proxy", label="Proxy (optional)", format="text"),
     ]
+
 
 class AzureChatOpenAIProvider(BaseProvider, AzureChatOpenAI):
     id = "azure-chat-openai"
@@ -435,11 +440,18 @@ class AzureChatOpenAIProvider(BaseProvider, AzureChatOpenAI):
     registry = True
 
     fields = [
-        TextField(key="openai_api_base", label="Base API URL (required)", format="text"),
-        TextField(key="openai_api_version", label="API version (required)", format="text"),
-        TextField(key="openai_organization", label="Organization (optional)", format="text"),
+        TextField(
+            key="openai_api_base", label="Base API URL (required)", format="text"
+        ),
+        TextField(
+            key="openai_api_version", label="API version (required)", format="text"
+        ),
+        TextField(
+            key="openai_organization", label="Organization (optional)", format="text"
+        ),
         TextField(key="openai_proxy", label="Proxy (optional)", format="text"),
     ]
+
 
 class JsonContentHandler(LLMContentHandler):
     content_type = "application/json"
@@ -491,8 +503,12 @@ class SmEndpointProvider(BaseProvider, SagemakerEndpoint):
     registry = True
     fields = [
         TextField(key="region_name", label="Region name (required)", format="text"),
-        MultilineTextField(key="request_schema", label="Request schema (required)", format="json"),
-        TextField(key="response_path", label="Response path (required)", format="jsonpath"),
+        MultilineTextField(
+            key="request_schema", label="Request schema (required)", format="json"
+        ),
+        TextField(
+            key="response_path", label="Response path (required)", format="jsonpath"
+        ),
     ]
 
     def __init__(self, *args, **kwargs):
