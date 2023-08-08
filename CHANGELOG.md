@@ -2,6 +2,27 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 1.0.1
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@1.0.0...68f28bacb20f42b9c88acd89c3c3f459a85581da))
+
+### Enhancements made
+
+- Backport #314 to 1.x [#317](https://github.com/jupyterlab/jupyter-ai/pull/317) ([@dlqqq](https://github.com/dlqqq))
+
+### Bugs fixed
+
+- Backport #316 to 1.x [#318](https://github.com/jupyterlab/jupyter-ai/pull/318) ([@dlqqq](https://github.com/dlqqq))
+- backport #307 to 1.x [#312](https://github.com/jupyterlab/jupyter-ai/pull/312) ([@JasonWeill](https://github.com/JasonWeill))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2023-07-27&to=2023-08-08&type=c))
+
+[@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2023-07-27..2023-08-08&type=Issues) | [@JasonWeill](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AJasonWeill+updated%3A2023-07-27..2023-08-08&type=Issues) | [@welcome](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Awelcome+updated%3A2023-07-27..2023-08-08&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 1.0.0
 
 This release serves exclusively to dedicate a major version to the 1.x branch providing JupyterLab 3 support.
@@ -17,8 +38,6 @@ This release serves exclusively to dedicate a major version to the 1.x branch pr
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2023-07-21&to=2023-07-27&type=c))
 
 [@andrii-i](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aandrii-i+updated%3A2023-07-21..2023-07-27&type=Issues) | [@JasonWeill](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AJasonWeill+updated%3A2023-07-21..2023-07-27&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 0.10.1
 
