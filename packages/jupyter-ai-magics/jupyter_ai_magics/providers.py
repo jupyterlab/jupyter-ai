@@ -278,7 +278,10 @@ class GPT4AllProvider(BaseProvider, GPT4All):
     model_id_key = "model"
     pypi_package_deps = ["gpt4all"]
     auth_strategy = None
-    fields = [IntegerField(key="n_threads", label="Threads")]
+    fields = [IntegerField(key="n_threads", label="CPU thread count (optional)")]
+
+    async def _acall(self, *args, **kwargs) -> Coroutine[Any, Any, str]:
+        return await self._call_in_executor(*args, **kwargs)
 
 
 HUGGINGFACE_HUB_VALID_TASKS = (
