@@ -18,6 +18,10 @@ export function ModelField(props: ModelFieldProps): JSX.Element {
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) {
+    if (!('format' in props.field)) {
+      return;
+    }
+
     // Perform validation based on the field format
     switch (props.field.format) {
       case 'json':
