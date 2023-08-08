@@ -2,6 +2,39 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 2.0.1
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.0.0...f38d7f4a5b38ae1583c97bc8a0bb58ab09cdabdd))
+
+### Enhancements made
+
+- add claude 2 to anthropic models [#314](https://github.com/jupyterlab/jupyter-ai/pull/314) ([@jmkuebler](https://github.com/jmkuebler))
+- Prompt template override in BaseProvider [#309](https://github.com/jupyterlab/jupyter-ai/pull/309) ([@JasonWeill](https://github.com/JasonWeill))
+- Updates docs to refer to JupyterLab versions [#300](https://github.com/jupyterlab/jupyter-ai/pull/300) ([@JasonWeill](https://github.com/JasonWeill))
+
+### Bugs fixed
+
+- handle IDPs that don't return initials [#316](https://github.com/jupyterlab/jupyter-ai/pull/316) ([@dlqqq](https://github.com/dlqqq))
+- Handles /clear command with selection [#307](https://github.com/jupyterlab/jupyter-ai/pull/307) ([@JasonWeill](https://github.com/JasonWeill))
+
+### Maintenance and upkeep improvements
+
+### Documentation improvements
+
+- Updates docs to refer to JupyterLab versions [#300](https://github.com/jupyterlab/jupyter-ai/pull/300) ([@JasonWeill](https://github.com/JasonWeill))
+
+### Other merged PRs
+
+- Update magics.ipynb [#320](https://github.com/jupyterlab/jupyter-ai/pull/320) ([@eltociear](https://github.com/eltociear))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2023-07-27&to=2023-08-08&type=c))
+
+[@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2023-07-27..2023-08-08&type=Issues) | [@eltociear](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aeltociear+updated%3A2023-07-27..2023-08-08&type=Issues) | [@JasonWeill](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AJasonWeill+updated%3A2023-07-27..2023-08-08&type=Issues) | [@jmkuebler](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ajmkuebler+updated%3A2023-07-27..2023-08-08&type=Issues) | [@pre-commit-ci](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Apre-commit-ci+updated%3A2023-07-27..2023-08-08&type=Issues) | [@welcome](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Awelcome+updated%3A2023-07-27..2023-08-08&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 This is currently the latest major version, and supports exclusively JupyterLab 4.
 
 Existing users who are unable to migrate to JupyterLab 3 immediately should use v1.x. However, feature releases and bug fixes will only be backported to v1.x as we deem necessary, so we highly encourage existing Jupyter AI users to migrate to JupyterLab 4 and Jupyter AI v2 as soon as possible to enjoy all of the latest features we are currently developing.
@@ -21,8 +54,6 @@ Thank you all for your support of Jupyter AI! 🎉
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2023-07-27&to=2023-07-27&type=c))
 
 [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2023-07-27..2023-07-27&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 1.0.0
 
