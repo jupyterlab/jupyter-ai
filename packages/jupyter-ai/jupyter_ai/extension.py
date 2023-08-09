@@ -1,5 +1,5 @@
-import time
 import os
+import time
 
 from dask.distributed import Client as DaskClient
 from jupyter_ai_magics.utils import get_em_providers, get_lm_providers
@@ -73,7 +73,7 @@ class AiExtension(ExtensionApp):
         dask_client_future = loop.create_task(self._get_dask_client())
 
         # get root directory for read and writing
-        save_dir = os.environ.get('JUPYTERAI_SAVEDIR')
+        save_dir = os.environ.get("JUPYTERAI_SAVEDIR")
         if not save_dir:
             save_dir = self.serverapp.root_dir
             if not os.access(save_dir, os.W_OK):
