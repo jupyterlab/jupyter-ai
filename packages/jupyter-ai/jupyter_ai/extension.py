@@ -1,5 +1,5 @@
 import time
-from os import environ, access, W_OK, getcwd
+import os
 
 from dask.distributed import Client as DaskClient
 from jupyter_ai_magics.utils import get_em_providers, get_lm_providers
