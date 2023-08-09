@@ -73,11 +73,11 @@ class AiExtension(ExtensionApp):
         dask_client_future = loop.create_task(self._get_dask_client())
 
         # get root directory for read and writing
-        root_wdir = os.environ.get('JUPYTERAI_ROOTDIR')
-        if not root_wdir:
-            root_wdir = self.serverapp.root_dir
-            if not os.access(root_wdir, os.W_OK):
-                root_wdir = os.getcwd()
+        save_dir = os.environ.get('JUPYTERAI_SAVEDIR')
+        if not save_dir:
+            save_dir = self.serverapp.root_dir
+            if not os.access(save_dir, os.W_OK):
+                save_dir = os.getcwd()
 
         # initialize chat handlers
         chat_handler_kwargs = {
@@ -93,11 +93,11 @@ class AiExtension(ExtensionApp):
         )
         generate_chat_handler = GenerateChatHandler(
             **chat_handler_kwargs,
-            root_dir=root_wdir,
+            root_dir=save_dir,
         )
         learn_chat_handler = LearnChatHandler(
             **chat_handler_kwargs,
-            root_dir=root_wdir,
+            root_dir=save_dir,
             dask_client_future=dask_client_future,
         )
         help_chat_handler = HelpChatHandler(**chat_handler_kwargs)
