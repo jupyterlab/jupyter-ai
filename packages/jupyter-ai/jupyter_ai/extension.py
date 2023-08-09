@@ -1,4 +1,5 @@
 import time
+from os import environ, access, W_OK, getcwd
 
 from dask.distributed import Client as DaskClient
 from jupyter_ai_magics.utils import get_em_providers, get_lm_providers
@@ -71,6 +72,13 @@ class AiExtension(ExtensionApp):
         # consumers a Future that resolves to the Dask client when awaited.
         dask_client_future = loop.create_task(self._get_dask_client())
 
+        # get root directory for read and writing
+        root_wdir = os.environ.get('JUPYTERAI_ROOTDIR')
+        if not root_wdir:
+            root_wdir = self.serverapp.root_dir
+            if not os.access(root_wdir, os.W_OK):
+                root_wdir = os.getcwd()
+
         # initialize chat handlers
         chat_handler_kwargs = {
             "log": self.log,
@@ -85,11 +93,11 @@ class AiExtension(ExtensionApp):
         )
         generate_chat_handler = GenerateChatHandler(
             **chat_handler_kwargs,
-            root_dir=self.serverapp.root_dir,
+            root_dir=root_wdir,
         )
         learn_chat_handler = LearnChatHandler(
             **chat_handler_kwargs,
-            root_dir=self.serverapp.root_dir,
+            root_dir=root_wdir,
             dask_client_future=dask_client_future,
         )
         help_chat_handler = HelpChatHandler(**chat_handler_kwargs)
