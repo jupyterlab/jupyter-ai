@@ -18,6 +18,10 @@ export function ModelField(props: ModelFieldProps): JSX.Element {
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) {
+    if (!('format' in props.field)) {
+      return;
+    }
+
     // Perform validation based on the field format
     switch (props.field.format) {
       case 'json':
@@ -47,6 +51,18 @@ export function ModelField(props: ModelFieldProps): JSX.Element {
         }
       }
     });
+  }
+
+  if (props.field.type === 'integer') {
+    return (
+      <TextField
+        label={props.field.label}
+        value={props.config.fields[props.gmid]?.[props.field.key]}
+        onChange={handleChange}
+        inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+        fullWidth
+      />
+    );
   }
 
   if (props.field.type === 'text') {

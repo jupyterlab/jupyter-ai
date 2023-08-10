@@ -219,7 +219,7 @@ The chat backend remembers the last two exchanges in your conversation and passe
     alt='Screen shot of an example follow up question sent to Jupyternaut, who responds with the improved code and explanation.'
     class="screenshot" />
 
-### Using the chat interface with SageMaker endpoints
+### SageMaker endpoints usage
 
 Jupyter AI supports language models hosted on SageMaker endpoints that use JSON
 schemas. The first step is to authenticate with AWS via the `boto3` SDK and have
@@ -254,6 +254,37 @@ string that retrieves the language model's output from the endpoint's JSON
 response.  In this example, the endpoint returns an object with the schema
 `{"generated_texts":["<output>"]}`, hence the response path is
 `generated_texts.[0]`.
+
+### GPT4All usage (early-stage)
+
+Currently, we offer experimental support for GPT4All. To get started, first
+decide which models you will use. We currently offer three models from GPT4All:
+
+| Model name                   | Model size | Model bin URL                                              |
+|------------------------------|------------|------------------------------------------------------------|
+| `ggml-gpt4all-l13b-snoozy`   | 7.6 GB     | `http://gpt4all.io/models/ggml-gpt4all-l13b-snoozy.bin`    |
+| `ggml-gpt4all-j-v1.2-jazzy`  | 3.8 GB     | `https://gpt4all.io/models/ggml-gpt4all-j-v1.2-jazzy.bin`  |
+| `ggml-gpt4all-j-v1.3-groovy` | 3.8 GB     | `https://gpt4all.io/models/ggml-gpt4all-j-v1.3-groovy.bin` |
+
+
+Note that each model comes with its own license, and that users are themselves
+responsible for verifying that their usage complies with the license. You can
+find licensing details on the [GPT4All official site](https://gpt4all.io/index.html).
+
+For each model you use, you will have to run the command
+
+```
+curl -LO --output-dir ~/.cache/gpt4all "<model-bin-url>"
+```
+
+, where `<model-bin-url>` should be substituted with the corresponding URL
+hosting the model binary (within the double quotes). After restarting the
+server, the GPT4All models installed in the previous step should be available to
+use in the chat interface.
+
+GPT4All support is still an early-stage feature, so some bugs may be encountered
+during usage. Our team is still actively improving support for locally-hosted
+models.
 
 ### Asking about something in your notebook
 
