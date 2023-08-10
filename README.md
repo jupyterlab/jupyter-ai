@@ -63,6 +63,21 @@ or:
 
 The screenshots below are from notebooks in the `examples/` directory of this package.
 
+## Setting Up ChatGPT in a Notebook
+
+To use ChatGPT in this notebook, you'll need to set your OpenAI API key.
+
+Follow these steps:
+
+1. Obtain your API key from the OpenAI platform.
+2. In a new cell, set your key as follows:
+
+```python
+import os
+
+# NOTE: Replace 'YOUR_API_KEY_HERE' with your actual API key.
+os.environ["OPENAI_API_KEY"] = 'YOUR_API_KEY_HERE'
+
 Then, you can use the `%%ai` magic command to specify a model and natural language prompt:
 
 ![Sample with code generation](./docs/source/_static/sample-code.png)
