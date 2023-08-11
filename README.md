@@ -17,6 +17,21 @@ Documentation is available on [ReadTheDocs](https://jupyter-ai.readthedocs.io/en
 - Python 3.8 - 3.11
 - JupyterLab 4
 
+## Setting Up ChatGPT in a Notebook
+
+To use ChatGPT in this notebook, you'll need to set your OpenAI API key.
+
+Follow these steps:
+
+1. Obtain your API key from the OpenAI platform.
+2. In a new cell, set your key as follows:
+
+```python
+import os
+
+# NOTE: Replace 'YOUR_API_KEY_HERE' with your actual API key.
+os.environ["OPENAI_API_KEY"] = 'YOUR_API_KEY_HERE'
+
 ## Installation
 
 Below is a simplified overview of the installation and usage process.
@@ -62,21 +77,6 @@ or:
     %load_ext jupyter_ai
 
 The screenshots below are from notebooks in the `examples/` directory of this package.
-
-## Setting Up ChatGPT in a Notebook
-
-To use ChatGPT in this notebook, you'll need to set your OpenAI API key.
-
-Follow these steps:
-
-1. Obtain your API key from the OpenAI platform.
-2. In a new cell, set your key as follows:
-
-```python
-import os
-
-# NOTE: Replace 'YOUR_API_KEY_HERE' with your actual API key.
-os.environ["OPENAI_API_KEY"] = 'YOUR_API_KEY_HERE'
 
 Then, you can use the `%%ai` magic command to specify a model and natural language prompt:
 
