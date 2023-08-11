@@ -17,6 +17,27 @@ Documentation is available on [ReadTheDocs](https://jupyter-ai.readthedocs.io/en
 - Python 3.8 - 3.11
 - JupyterLab 4
 
+## Setting Up Model Providers in a Notebook
+
+To use any AI model provider within this notebook, you'll need the appropriate credentials, such as API keys.
+
+Obtain the necessary credentials (e.g., API keys) from your model provider's platform.
+
+You can set your keys using environment variables or in a code cell in your notebook.
+In a code cell, you can set the credentials as follows:
+
+```python
+import os
+
+# NOTE: Replace 'PROVIDER_API_KEY' with the credential key's name,
+# and replace 'YOUR_API_KEY_HERE' with the key.
+os.environ["PROVIDER_API_KEY"] = 'YOUR_API_KEY_HERE'
+```
+
+For more specific instructions for each model provider, refer to [the model providers documentation](https://jupyter-ai.readthedocs.io/en/latest/users/index.html#model-providers).
+
+
+
 ## Installation
 
 Below is a simplified overview of the installation and usage process.
