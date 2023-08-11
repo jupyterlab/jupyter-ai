@@ -28,17 +28,11 @@ In a new cell, set the credentials as follows:
 ```python
 import os
 
-# NOTE: Replace 'YOUR_CREDENTIAL_HERE' with your actual credential.
-# And replace 'YOUR_ENVIRONMENT_VARIABLE' with the appropriate name.
-os.environ["YOUR_ENVIRONMENT_VARIABLE"] = 'YOUR_CREDENTIAL_HERE'
+# NOTE: Replace 'PROVIDER_API_KEY' with your actual credential.
+# And replace 'YOUR_API_KEY_HERE' with the appropriate name.
+os.environ["PROVIDER_API_KEY"] = 'YOUR_API_KEY_HERE'
 ```
 
-If you're using ChatGPT from OpenAI, it would look like:
-```python
-import os
-
-os.environ["OPENAI_API_KEY"] = 'YOUR_API_KEY_HERE'
-```
 Adjust the environment variable name and the placeholder for your specific model provider.
 For more specific instructions for each model provider, refer to [the model providers documentation](https://jupyter-ai.readthedocs.io/en/latest/users/index.html#model-providers).
 
