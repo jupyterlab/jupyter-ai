@@ -28,8 +28,8 @@ In a new cell, set the credentials as follows:
 ```python
 import os
 
-# NOTE: Replace 'PROVIDER_API_KEY' with your actual credential.
-# And replace 'YOUR_API_KEY_HERE' with the appropriate name.
+# NOTE: Replace 'PROVIDER_API_KEY' with the credential key's name,
+# and replace 'YOUR_API_KEY_HERE' with the key.
 os.environ["PROVIDER_API_KEY"] = 'YOUR_API_KEY_HERE'
 ```
 
