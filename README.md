@@ -17,20 +17,32 @@ Documentation is available on [ReadTheDocs](https://jupyter-ai.readthedocs.io/en
 - Python 3.8 - 3.11
 - JupyterLab 4
 
-## Setting Up ChatGPT in a Notebook
+## Setting Up Model Providers in a Notebook
 
-To use ChatGPT in this notebook, you'll need to set your OpenAI API key.
+To use any AI model provider within this notebook, you'll need the appropriate credentials, such as API keys.
 
-Follow these steps:
+Obtain the necessary credentials (e.g., API keys) from your model provider's platform.
 
-1. Obtain your API key from the OpenAI platform.
-2. In a new cell, set your key as follows:
+In a new cell, set the credentials as follows:
 
 ```python
 import os
 
-# NOTE: Replace 'YOUR_API_KEY_HERE' with your actual API key.
+# NOTE: Replace 'YOUR_CREDENTIAL_HERE' with your actual credential.
+# And replace 'YOUR_ENVIRONMENT_VARIABLE' with the appropriate name.
+os.environ["YOUR_ENVIRONMENT_VARIABLE"] = 'YOUR_CREDENTIAL_HERE'
+```
+
+If you're using ChatGPT from OpenAI, it would look like:
+```python
+import os
+
 os.environ["OPENAI_API_KEY"] = 'YOUR_API_KEY_HERE'
+```
+Adjust the environment variable name and the placeholder for your specific model provider. 
+For more specific instructions for each model provider, refer to [the model providers documentation](https://jupyter-ai.readthedocs.io/en/latest/users/index.html#model-providers).
+
+
 
 ## Installation
 
