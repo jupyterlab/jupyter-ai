@@ -23,7 +23,8 @@ To use any AI model provider within this notebook, you'll need the appropriate c
 
 Obtain the necessary credentials (e.g., API keys) from your model provider's platform.
 
-In a new cell, set the credentials as follows:
+You can set your keys using environment variables or in a code cell in your notebook.
+In a code cell, you can set the credentials as follows:
 
 ```python
 import os
