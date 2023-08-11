@@ -39,7 +39,7 @@ import os
 
 os.environ["OPENAI_API_KEY"] = 'YOUR_API_KEY_HERE'
 ```
-Adjust the environment variable name and the placeholder for your specific model provider. 
+Adjust the environment variable name and the placeholder for your specific model provider.
 For more specific instructions for each model provider, refer to [the model providers documentation](https://jupyter-ai.readthedocs.io/en/latest/users/index.html#model-providers).
 
 
