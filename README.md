@@ -24,14 +24,12 @@ To use any AI model provider within this notebook, you'll need the appropriate c
 Obtain the necessary credentials (e.g., API keys) from your model provider's platform.
 
 You can set your keys using environment variables or in a code cell in your notebook.
-In a code cell, you can set the credentials as follows:
+In a code cell, you can use the %env magic command to set the credentials as follows:
 
 ```python
-import os
-
 # NOTE: Replace 'PROVIDER_API_KEY' with the credential key's name,
 # and replace 'YOUR_API_KEY_HERE' with the key.
-os.environ["PROVIDER_API_KEY"] = 'YOUR_API_KEY_HERE'
+%env PROVIDER_API_KEY=YOUR_API_KEY_HERE
 ```
 
 For more specific instructions for each model provider, refer to [the model providers documentation](https://jupyter-ai.readthedocs.io/en/latest/users/index.html#model-providers).
