@@ -376,9 +376,8 @@ class ChatOpenAIProvider(BaseProvider, OpenAIChat):
         "gpt-4-0314",
         "gpt-4-0613",
         "gpt-4-32k",
-        "gpt-4-32k-0613",
-        "gpt-4-0314",
         "gpt-4-32k-0314",
+        "gpt-4-32k-0613",
     ]
     model_id_key = "model_name"
     pypi_package_deps = ["openai"]
@@ -406,9 +405,8 @@ class ChatOpenAINewProvider(BaseProvider, ChatOpenAI):
         "gpt-4-0314",
         "gpt-4-0613",
         "gpt-4-32k",
-        "gpt-4-32k-0613",
-        "gpt-4-0314",
         "gpt-4-32k-0314",
+        "gpt-4-32k-0613",
     ]
     model_id_key = "model_name"
     pypi_package_deps = ["openai"]
