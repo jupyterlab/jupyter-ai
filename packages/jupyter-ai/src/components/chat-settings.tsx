@@ -338,7 +338,7 @@ export function ChatSettings(): JSX.Element {
       </Select>
       {showLmLocalId && (
         <TextField
-          label="Local model ID"
+          label={lmProvider?.model_id_label || 'Local model ID'}
           value={lmLocalId}
           onChange={e => setLmLocalId(e.target.value)}
           fullWidth

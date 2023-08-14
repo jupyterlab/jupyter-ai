@@ -63,6 +63,7 @@ huggingface_hub = "jupyter_ai_magics:HfHubProvider"
 openai = "jupyter_ai_magics:OpenAIProvider"
 openai-chat = "jupyter_ai_magics:ChatOpenAIProvider"
 openai-chat-new = "jupyter_ai_magics:ChatOpenAINewProvider"
+azure-chat-openai = "jupyter_ai_magics:AzureChatOpenAIProvider"
 sagemaker-endpoint = "jupyter_ai_magics:SmEndpointProvider"
 amazon-bedrock = "jupyter_ai_magics:BedrockProvider"
 

@@ -4,7 +4,7 @@ import time
 import uuid
 from asyncio import AbstractEventLoop
 from dataclasses import asdict
-from typing import Dict, List
+from typing import TYPE_CHECKING, Dict, List
 
 import tornado
 from jupyter_ai.chat_handlers import BaseChatHandler
@@ -28,6 +28,10 @@ from .models import (
     ListProvidersResponse,
     Message,
 )
+
+if TYPE_CHECKING:
+    from jupyter_ai_magics.embedding_providers import BaseEmbeddingsProvider
+    from jupyter_ai_magics.providers import BaseProvider
 
 
 class ChatHistoryHandler(BaseAPIHandler):
@@ -237,7 +241,7 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
 
 class ModelProviderHandler(BaseAPIHandler):
     @property
-    def lm_providers(self):
+    def lm_providers(self) -> Dict[str, "BaseProvider"]:
         return self.settings["lm_providers"]
 
     @web.authenticated
@@ -248,6 +252,10 @@ class ModelProviderHandler(BaseAPIHandler):
             if provider.id == "openai-chat":
                 continue
 
+            optionals = {}
+            if provider.model_id_label:
+                optionals["model_id_label"] = provider.model_id_label
+
             providers.append(
                 ListProvidersEntry(
                     id=provider.id,
@@ -256,6 +264,7 @@ class ModelProviderHandler(BaseAPIHandler):
                     auth_strategy=provider.auth_strategy,
                     registry=provider.registry,
                     fields=provider.fields,
+                    **optionals,
                 )
             )
 
@@ -267,7 +276,7 @@ class ModelProviderHandler(BaseAPIHandler):
 
 class EmbeddingsModelProviderHandler(BaseAPIHandler):
     @property
-    def em_providers(self):
+    def em_providers(self) -> Dict[str, "BaseEmbeddingsProvider"]:
         return self.settings["em_providers"]
 
     @web.authenticated
