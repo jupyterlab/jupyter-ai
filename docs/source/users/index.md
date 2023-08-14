@@ -213,7 +213,7 @@ see the following interface:
 Each of the additional fields under "Language model" is required. These fields
 should contain the following data:
 
-- **Local model ID**: The name of your endpoint. This can be retrieved from the
+- **Endpoint name**: The name of your endpoint. This can be retrieved from the
 AWS Console at the URL
 `https://<region>.console.aws.amazon.com/sagemaker/home?region=<region>#/endpoints`.
 

@@ -8,7 +8,7 @@ from concurrent.futures import ThreadPoolExecutor
 from typing import Any, ClassVar, Coroutine, Dict, List, Literal, Optional, Union
 
 from jsonpath_ng import parse
-from langchain.chat_models import ChatOpenAI
+from langchain.chat_models import ChatOpenAI, AzureChatOpenAI
 from langchain.llms import (
     AI21,
     Anthropic,
@@ -105,6 +105,9 @@ class BaseProvider(BaseModel):
 
     model_id_key: ClassVar[str] = ...
     """Kwarg expected by the upstream LangChain provider."""
+
+    model_id_label: ClassVar[str] = ""
+    """Human-readable label of the model ID."""
 
     pypi_package_deps: ClassVar[List[str]] = []
     """List of PyPi package dependencies."""
@@ -402,6 +405,28 @@ class ChatOpenAINewProvider(BaseProvider, ChatOpenAI):
     pypi_package_deps = ["openai"]
     auth_strategy = EnvAuthStrategy(name="OPENAI_API_KEY")
 
+    fields = [
+        TextField(key="openai_api_base", label="Base API URL (optional)", format="text"),
+        TextField(key="openai_organization", label="Organization (optional)", format="text"),
+        TextField(key="openai_proxy", label="Proxy (optional)", format="text"),
+    ]
+
+class AzureChatOpenAIProvider(BaseProvider, AzureChatOpenAI):
+    id = "azure-chat-openai"
+    name = "Azure OpenAI"
+    models = ["*"]
+    model_id_key = "deployment_name"
+    model_id_label = "Deployment name"
+    pypi_package_deps = ["openai"]
+    auth_strategy = EnvAuthStrategy(name="OPENAI_API_KEY")
+    registry = True
+
+    fields = [
+        TextField(key="openai_api_base", label="Base API URL (required)", format="text"),
+        TextField(key="openai_api_version", label="API version (required)", format="text"),
+        TextField(key="openai_organization", label="Organization (optional)", format="text"),
+        TextField(key="openai_proxy", label="Proxy (optional)", format="text"),
+    ]
 
 class JsonContentHandler(LLMContentHandler):
     content_type = "application/json"
@@ -439,6 +464,7 @@ class SmEndpointProvider(BaseProvider, SagemakerEndpoint):
     name = "SageMaker endpoint"
     models = ["*"]
     model_id_key = "endpoint_name"
+    model_id_label = "Endpoint name"
     # This all needs to be on one line of markdown, for use in a table
     help = (
         "Specify an endpoint name as the model ID. "
@@ -451,9 +477,9 @@ class SmEndpointProvider(BaseProvider, SagemakerEndpoint):
     auth_strategy = AwsAuthStrategy()
     registry = True
     fields = [
-        TextField(key="region_name", label="Region name", format="text"),
-        MultilineTextField(key="request_schema", label="Request schema", format="json"),
-        TextField(key="response_path", label="Response path", format="jsonpath"),
+        TextField(key="region_name", label="Region name (required)", format="text"),
+        MultilineTextField(key="request_schema", label="Request schema (required)", format="json"),
+        TextField(key="response_path", label="Response path (required)", format="jsonpath"),
     ]
 
     def __init__(self, *args, **kwargs):
