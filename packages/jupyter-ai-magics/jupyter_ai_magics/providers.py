@@ -419,12 +419,17 @@ class ChatOpenAIProvider(BaseProvider, OpenAIChat):
     id = "openai-chat"
     name = "OpenAI"
     models = [
+        "gpt-3.5-turbo",
+        "gpt-3.5-turbo-16k",
+        "gpt-3.5-turbo-0301",
+        "gpt-3.5-turbo-0613",
+        "gpt-3.5-turbo-16k-0613",
         "gpt-4",
         "gpt-4-0314",
+        "gpt-4-0613",
         "gpt-4-32k",
         "gpt-4-32k-0314",
-        "gpt-3.5-turbo",
-        "gpt-3.5-turbo-0301",
+        "gpt-4-32k-0613",
     ]
     model_id_key = "model_name"
     pypi_package_deps = ["openai"]
@@ -443,12 +448,17 @@ class ChatOpenAINewProvider(BaseProvider, ChatOpenAI):
     id = "openai-chat-new"
     name = "OpenAI"
     models = [
+        "gpt-3.5-turbo",
+        "gpt-3.5-turbo-16k",
+        "gpt-3.5-turbo-0301",
+        "gpt-3.5-turbo-0613",
+        "gpt-3.5-turbo-16k-0613",
         "gpt-4",
         "gpt-4-0314",
+        "gpt-4-0613",
         "gpt-4-32k",
         "gpt-4-32k-0314",
-        "gpt-3.5-turbo",
-        "gpt-3.5-turbo-0301",
+        "gpt-4-32k-0613",
     ]
     model_id_key = "model_name"
     pypi_package_deps = ["openai"]
