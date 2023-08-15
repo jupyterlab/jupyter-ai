@@ -2,6 +2,30 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 2.1.0
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.0.1...c689c6c0cce5212238943ec2ff1559f6ad2f63d5))
+
+### Enhancements made
+
+- Add new 0613 GPT-3.5 and GPT-4 models [#337](https://github.com/jupyterlab/jupyter-ai/pull/337) ([@bjornjorgensen](https://github.com/bjornjorgensen))
+- howto add key [#330](https://github.com/jupyterlab/jupyter-ai/pull/330) ([@bjornjorgensen](https://github.com/bjornjorgensen))
+- Azure OpenAI and OpenAI proxy support [#322](https://github.com/jupyterlab/jupyter-ai/pull/322) ([@dlqqq](https://github.com/dlqqq))
+- Add GPT4All local provider [#209](https://github.com/jupyterlab/jupyter-ai/pull/209) ([@krassowski](https://github.com/krassowski))
+
+### Documentation improvements
+
+- Update README.md [#338](https://github.com/jupyterlab/jupyter-ai/pull/338) ([@3coins](https://github.com/3coins))
+- howto add key [#330](https://github.com/jupyterlab/jupyter-ai/pull/330) ([@bjornjorgensen](https://github.com/bjornjorgensen))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2023-08-08&to=2023-08-15&type=c))
+
+[@3coins](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3A3coins+updated%3A2023-08-08..2023-08-15&type=Issues) | [@anammari](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aanammari+updated%3A2023-08-08..2023-08-15&type=Issues) | [@bjornjorgensen](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Abjornjorgensen+updated%3A2023-08-08..2023-08-15&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2023-08-08..2023-08-15&type=Issues) | [@JasonWeill](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AJasonWeill+updated%3A2023-08-08..2023-08-15&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2023-08-08..2023-08-15&type=Issues) | [@welcome](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Awelcome+updated%3A2023-08-08..2023-08-15&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 2.0.1
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.0.0...f38d7f4a5b38ae1583c97bc8a0bb58ab09cdabdd))
@@ -32,8 +56,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2023-07-27&to=2023-08-08&type=c))
 
 [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2023-07-27..2023-08-08&type=Issues) | [@eltociear](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aeltociear+updated%3A2023-07-27..2023-08-08&type=Issues) | [@JasonWeill](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AJasonWeill+updated%3A2023-07-27..2023-08-08&type=Issues) | [@jmkuebler](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ajmkuebler+updated%3A2023-07-27..2023-08-08&type=Issues) | [@pre-commit-ci](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Apre-commit-ci+updated%3A2023-07-27..2023-08-08&type=Issues) | [@welcome](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Awelcome+updated%3A2023-07-27..2023-08-08&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 This is currently the latest major version, and supports exclusively JupyterLab 4.
 
