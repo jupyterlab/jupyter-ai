@@ -12,7 +12,7 @@ in JupyterLab and the Jupyter Notebook. More specifically, Jupyter AI offers:
 
 Documentation is available on [ReadTheDocs](https://jupyter-ai.readthedocs.io/en/latest/).
 
-![A screen shot of Jupyter AI showing the chat interface and the magic commands](docs/source/_static/jupyter-ai-screenshot.png)
+![A screenshot of Jupyter AI showing the chat interface and the magic commands](docs/source/_static/jupyter-ai-screenshot.png)
 
 ## Requirements
 
