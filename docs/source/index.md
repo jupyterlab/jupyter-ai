@@ -10,7 +10,9 @@ in JupyterLab and the Jupyter Notebook. More specifically, Jupyter AI offers:
 * Support for a wide range of generative model providers and models
   (AI21, Anthropic, Cohere, Hugging Face, OpenAI, SageMaker, etc.).
 
-![A screenshot of Jupyter AI showing the chat interface and the magic commands](docs/source/_static/jupyter-ai-screenshot.png)
+<img src="../_static/jupyter-ai-screenshot.png"
+    alt='A screenshot of Jupyter AI showing the chat interface and the magic commands'
+    class="screenshot" />
 
 ## JupyterLab support
 
