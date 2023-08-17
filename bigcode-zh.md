@@ -483,7 +483,7 @@ export const handleKeyDown = (app: JupyterFrontEnd) => {
 
           // 理论上不可能出现越界
           if (lineLenght && lastLineLenght){
-            // 我们在这里先这只执行操作之前的鼠标位置
+            // 我们在这里获取展示代码前的鼠标位置
             const prePosition = editor.getCursorPosition()
             editor.setSelection({start:{line:0, column: 0}, end:{line: lineLenght - 1, column: lastLineLenght}});
             
@@ -503,7 +503,7 @@ export const handleKeyDown = (app: JupyterFrontEnd) => {
   });
 };
 ```
-不好做图
+这个测试，图不好做就没做
 
 #### 获取当前单元格输出
 ```typescript
