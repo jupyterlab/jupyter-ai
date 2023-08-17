@@ -80,14 +80,9 @@
 ##  制作则边栏配置页面
 
 ### 图片说明
-<div style="display: flex;">
-  <div style="flex: 50%; padding: 10px;">
-    <img src="c0ae4582a5f942754877106b8873413.png" style="max-width: 100%; height: auto;">
-  </div>
-  <div style="flex: 50%; padding: 10px;">
-    <img src="4da66ef8e0eb414d6bb66715184ac7c.png" style="max-width: 100%; height: auto;">
-  </div>
-</div>
+| ![image1](c0ae4582a5f942754877106b8873413.png) | ![image2](4da66ef8e0eb414d6bb66715184ac7c.png) |
+|:-------------------------------------------:|:-------------------------------------------:|
+
 
 在上述两个图片中，左图是jupyter-ai的配置页面，我们可以在它的下边制作一个新的点击框，如右图
 
