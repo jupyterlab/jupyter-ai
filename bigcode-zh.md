@@ -160,6 +160,7 @@ export const handleKeyDown = (app: JupyterFrontEnd) => {
       if (!(widget instanceof DocumentWidget)) {
           return null;
       }
+      // content的类型也是widget，只不过是被widget容器包裹起来的
       const { content } = widget
       // 当前操作的单元格
       const activeCell = content.activeCell;
@@ -214,6 +215,7 @@ import { Widget } from '@lumino/widgets';
 #### getContent
 
 ```typescript
+// 获取 widget 实例
 const getContent = (widget: DocumentWidget): Widget => {
   const { content } = widget;
   return content
@@ -222,9 +224,11 @@ const getContent = (widget: DocumentWidget): Widget => {
 
 #### getEditorByWidget
 ```typescript
+// 通过实例获取 editor
 const getEditorByWidget = (content: Widget): CodeEditor.IEditor | null | undefined => {
   let editor: CodeEditor.IEditor | null | undefined;
 
+  // 两种类型
   if (content instanceof FileEditor) {
     editor = content.editor;
   } else if (content instanceof Notebook) {
@@ -237,6 +241,7 @@ const getEditorByWidget = (content: Widget): CodeEditor.IEditor | null | undefin
 
 #### getTextByEditor
 ```typescript
+// 获取 editor 单元格的代码文本
 const getTextByEditor = (editor: CodeEditor.IEditor): string => {
     return editor.model.sharedModel.getSource()
 }
@@ -274,13 +279,15 @@ export const handleKeyDown = (app: JupyterFrontEnd) => {
 
 #### 获取当前单元格的代码（位于鼠标指针之前的）
 ```typescript
-// 由于我没找到内置的方法，索引我们需要定义一个新的方法，
+// 获取指定 editor 中，指针之前的所有代码
+// 由于我没找到内置的方法，所以我们需要定义一个新的方法，
 const getCellTextByPosition = (editor: CodeEditor.IEditor) => {
   const position = editor.getCursorPosition()
   const text = getTextByEditor(editor)
   const codeLines = splitString(text)
 
   const codeLinesPositionBefore = []
+  // 从第一个单元格遍历到活动单元格的位置
   for (let index = 0; index <= position.line; index++){
     if (index == position.line){
       codeLinesPositionBefore.push(codeLines[index].slice(0, position.column))
@@ -330,9 +337,11 @@ export const handleKeyDown = (app: JupyterFrontEnd) => {
       }
 
       const content = getContent(currentWidget)
-         
+      
+      // 暂时固定，没找到其他实例类型
       if (content instanceof Notebook){
         const allCellText = []        
+        // 获取所有的实例化 widget
         for (const widget of content.widgets){
           const editor = widget.editor
           if (editor){
@@ -372,6 +381,7 @@ export const handleKeyDown = (app: JupyterFrontEnd) => {
           const widget = widgets[index]
           const editor = widget.editor
           if (editor){
+            // 如果是当前的单元格
             if (index == activeCellIndex){
               const cellLines= getCellTextByPosition(editor)
               allCellText.push(cellLines.join("\n"))
@@ -445,6 +455,7 @@ export const handleKeyDown = (app: JupyterFrontEnd) => {
       const content = getContent(currentWidget)
       const editor = getEditorByWidget(content)
       if (editor){
+        // 直接替换codemirror中的值
         editor.model.sharedModel.setSource("This replace string\nthis second line")
       }
     }
@@ -509,9 +520,12 @@ export const handleKeyDown = (app: JupyterFrontEnd) => {
 ```typescript
 const getCellOutput = (currentWidget: DocumentWidget)=>{
   const notebook = currentWidget.content as Notebook;
+  // 获取当前单元格
   const activeCell = notebook.activeCell;
-
+  
+  // 不同的实例有不同的获取方式
   if (activeCell instanceof CodeCell) {
+    // 获取输出
     return activeCell.model.sharedModel.outputs
   }  
 
@@ -521,8 +535,10 @@ const getCellOutput = (currentWidget: DocumentWidget)=>{
 export const handleKeyDown = (app: JupyterFrontEnd) => {
   document.addEventListener('keydown', event => {
     if (event.ctrlKey) {
+      // 获取当前的Widget
       const currentWidget = app.shell.currentWidget;
 
+      // Widget必须是DocumentWidget，我们才可以操作
       if (!currentWidget || !(currentWidget instanceof DocumentWidget)) {
         return
       }
@@ -543,12 +559,14 @@ export const handleKeyDown = (app: JupyterFrontEnd) => {
 import { observable, makeObservable, action } from "mobx";
 
 class GlobalStore {
+    // 定义变量
     @observable count: number = 0;
 
     constructor() {
         makeObservable(this);
     }
 
+    // 可以被立即响应的操作函数
     @action
     increment() {
         this.count += 1;
@@ -563,6 +581,7 @@ export default new GlobalStore();
 export interface IGlobalStore extends GlobalStore { }
 
 // other1.ts
+// 引入globalStore
 import globalStore from "./context"
 setInterval(()=>{
   console.log(globalStore.count);
