@@ -1,7 +1,7 @@
 # 整合bigcode续写逻辑说明
 
 
-## 代码逻辑（以下内容与现有的代码完全兼容）
+## 代码逻辑（以下内容与现有的jupyter-ai代码完全兼容）
 1. 制作侧边栏并将实例化对象注入到 extension 的容器中
 
 - 在这个侧边栏中，提供一些选项，如 huggingface token，是否打开此功能等
@@ -583,3 +583,9 @@ export const handleKeyDown = (app: JupyterFrontEnd) => {
 每当按下ctrl时，数据都会更新
 
 ![Alt text](1832d8b22d533b541c760768294f62a.png)
+
+
+## merge to jupyter-ai
+
+在已有的"jupyter-ai"前端扩展中，添加一个新的js适配程序，然后在项目启动时加载这个程序就好了。
+参考 "https://github.com/jupyterlab/jupyter-ai/blob/main/packages/jupyter-ai/src/index.ts" 中 plugin 的 activate 方法
