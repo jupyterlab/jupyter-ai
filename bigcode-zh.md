@@ -161,7 +161,7 @@ export const handleKeyDown = (app: JupyterFrontEnd) => {
       // 以下是获取单元格的示例
       
       
-      // 获取当前活动的文档窗口
+      // 获取当前活动的文档窗口，它可以是任何可视化的组件，如文档窗口、文件浏览器、绘图工具等
       // app： This type is useful as a generic application against which front-end plugins * can be authored. It inherits from the Lumino `Application`.
       // shell：The shell widget is the root "container" widget for the entire application. It will typically expose an API which allows the application plugins to insert content in a variety of places.
       // DocumentWidget: DocumentWidget 在源码中继承了 MainAreaWidget，是指整个右侧的窗口（一个notebook）
@@ -169,7 +169,7 @@ export const handleKeyDown = (app: JupyterFrontEnd) => {
       if (!(currentWidget instanceof DocumentWidget)) {
           return null;
       }
-      // 这个 content 通常是主要的编辑区域，对于notebook，它表示包含所有单元格的区域，但是它的类型也是 Widget
+      // 这个 content 通常是主要的编辑区域，对于notebook，它表示包含所有单元格的区域，也可以被成为当前文档，它的类型也是 Widget
       const { content } = currentWidget
       // 当前操作的单元格
       const activeCell = content.activeCell;
@@ -227,7 +227,7 @@ const getContent = (widget: DocumentWidget): Widget => {
 
 ### getEditorByWidget
 ```typescript
-// 通过 widget 实例获取当前 cell 的 editor，CodeEditor.IEditor 是指接口，具体实现类为 CodeMirrorEditor
+// 通过文档 widget 实例获取当前 cell 的 editor，CodeEditor.IEditor 是指接口，具体实现类为 CodeMirrorEditor
 const getEditorByWidget = (content: Widget): CodeEditor.IEditor | null | undefined => {
   let editor: CodeEditor.IEditor | null | undefined;
 
@@ -256,7 +256,7 @@ const getTextByEditor = (editor: CodeEditor.IEditor): string => {
 
 #### 文字说明逻辑
 1. 获取当前打开的 notebook 窗口的实例（currentWidget）
-2. 检查 currentWidget 类型是否为 DocumentWidget，如果不是则终止此操作（其余类型类似与文本等）
+2. 检查 currentWidget 类型是否为 DocumentWidget，如果不是则终止此操作
 3. 获取 CodeMirrorEditor
 4. 通过 CodeMirrorEditor 获取当前单元格代码
 
