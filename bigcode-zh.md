@@ -28,7 +28,7 @@
 
         1. [获取当前单元格的代码](#获取当前单元格的代码)
 
-        2. 将 return-code 变成灰色 + cell 中的代码写入到cell中（暂时未找到方案）
+        2. 将 return-code 变成灰色 + cell 中的代码写入到cell中（参考[更改代码颜色](#更改代码颜色)）
 
     6. 将 return-code 保存到 globalstate 中（ 参考[注册全局变量池](#注册全局变量池)）
 
@@ -228,7 +228,7 @@ const getContent = (widget: DocumentWidget): Widget => {
 const getEditorByWidget = (content: Widget): CodeEditor.IEditor | null | undefined => {
   let editor: CodeEditor.IEditor | null | undefined;
 
-  // 两种类型
+  // content存在多种类型
   if (content instanceof FileEditor) {
     editor = content.editor;
   } else if (content instanceof Notebook) {
@@ -602,6 +602,106 @@ export const handleKeyDown = (app: JupyterFrontEnd) => {
 每当按下ctrl时，数据都会更新
 
 ![Alt text](1832d8b22d533b541c760768294f62a.png)
+
+
+#### 更改代码颜色
+
+```typescript
+// 以下例子是将新增的代码变成红色
+// 首先定义一个Effect用来保存转换颜色之前的字符以及对应的主题
+const clearRedTextEffect = StateEffect.define({});
+
+// 通过clearRedTextEffect还原之前代码的颜色
+export function removeRedTextStatus(view: EditorView) {
+  view.dispatch({
+    effects: clearRedTextEffect.of(null)
+  });
+}
+
+// 制作标记的状态（就是说们标记了一个字符串，那么这个字符串 dom 的 class 是"red-color"）
+const redTexteMark = Decoration.mark({ class: "red-color" })
+
+// 标记的 css 主题
+const redTextTheme = EditorView.baseTheme(
+  { 
+    ".red-color > span": { color: "red !important" },
+    ".red-color ": { color: "red !important" }
+  }
+)
+
+// 保存我们需要更改的字符和主题对应的容器（我们需要先计算那些是字符是我们需要的）
+const changeRangeTextStatus = StateEffect.define<{ from: number, to: number }>({ map: ({ from, to }, change) => ({ from: change.mapPos(from), to: change.mapPos(to) }) })
+
+// codemirror 中 editorView 的 extension
+const redTextField = StateField.define<DecorationSet>({
+  create() { return Decoration.none },
+  update(redTexts, tr) {
+    redTexts = redTexts.map(tr.changes)
+    for (let e of tr.effects) {
+      if (e.is(changeRangeTextStatus)) {
+        redTexts = redTexts.update({
+          add: [redTexteMark.range(e.value.from, e.value.to)]
+        })
+      }
+    }
+    if (tr.effects.some(e => e.is(clearRedTextEffect))) {
+      return Decoration.none;
+    }
+    
+    return redTexts
+  },
+  provide: f => EditorView.decorations.from(f)
+})
+
+// 将 EditorView 的指定范围的字符更改成红色
+export function redTexSelection(view: EditorView, start: number, end: number) {
+  if (start == end) return false
+  let effects: StateEffect<unknown>[] = [changeRangeTextStatus.of({ from: start, to: end })]
+
+  if (!view.state.field(redTextField, false)) effects.push(StateEffect.appendConfig.of([redTextField, redTextTheme]))
+
+  view.dispatch({ effects })
+  return true
+}
+
+export const handleKeyDown = (app: JupyterFrontEnd) => {
+  document.addEventListener('keydown', event => {
+    if (event.ctrlKey) {
+      // 获取当前活动的文档窗口
+      const currentWidget = app.shell.currentWidget;
+      if (!(currentWidget instanceof DocumentWidget)) {
+        return null;
+      }
+      // content的类型也是widget，只不过是被widget容器包裹起来的
+      const { content } = currentWidget;
+      // 当前操作的单元格
+      const activeCell = content.activeCell;
+      // 当前操作的单元格的 codemirror 实例对象
+      const editor = activeCell.editor as CodeMirrorEditor;
+      if (editor) {
+        const view = editor.editor
+        
+        // 获取原先cell中的代码
+        const oldCodeText = editor.model.sharedModel.getSource()
+        // 我们需要添加的代码（非必要）
+        const newCodeText = "\n    print('hello world!')\nhello()"
+        // 更新当前的代码
+        editor.model.sharedModel.setSource(oldCodeText + newCodeText)
+
+        // 将新增加的代码颜色变成红色
+        redTexSelection(view, oldCodeText.length, (oldCodeText+newCodeText).length)
+        // 还原成之前的样子
+        removeRedTextStatus(view)
+      }
+    }
+  })
+};
+
+```
+
+左图没有调用 removeRedTextStatus 函数，右图反之
+| ![Alt text](fc633cebddaeb5a2cdb1c678b90e407.png) | ![Alt text](d0e99b6c858d103cc0485be7eac50a6.png)|
+|:-------------------------------------------:|:-------------------------------------------:|
 
 
 ## merge to jupyter-ai
