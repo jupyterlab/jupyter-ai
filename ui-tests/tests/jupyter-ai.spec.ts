@@ -1,4 +1,9 @@
 import { expect, test } from '@jupyterlab/galata';
+import { AIHelper } from './helpers/AIHelper';
+
+enum FILENAMES {
+  SIDEBAR = 'sidebar.png',
+}
 
 /**
  * Don't load JupyterLab webpage before running the tests.
@@ -7,7 +12,14 @@ import { expect, test } from '@jupyterlab/galata';
 test.use({ autoGoto: false });
 
 test.describe('Jupyter AI', () => {
-  test('one equals one', async () => {
-    expect(1 === 1);
+  let ai: AIHelper;
+  test.beforeEach(async ({ page }) => {
+    ai = new AIHelper(page);
+    await page.goto();
+  });
+
+  test('shows sidebar chat icon', async ({page}) => {
+    const sidebar = ai.sidebar;
+    expect(await sidebar.screenshot()).toMatchSnapshot(FILENAMES.SIDEBAR);
   });
 });
