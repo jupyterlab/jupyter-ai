@@ -45,7 +45,7 @@ jobs:
         working-directory: ui-tests
         run: jlpm install-chromium
 
-      - name: Execute integration tests
+      - name: Execute e2e tests
         working-directory: ui-tests
         run: jlpm test
 
