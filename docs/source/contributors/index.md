@@ -9,7 +9,7 @@ Maintainers of Jupyter AI have adopted principles that contributors should also 
 1. Jupyter AI is **vendor-agnostic**. Its chat and magic commands should work with models from all providers that have APIs available. We should avoid introducing features that rely exclusively on one model provider.
 2. Jupyter AI **only responds to an explicit prompt**; it does not watch files and it does not send prompts automatically. Any change that watches user files must be opt-in only.
 3. Jupyter AI is **transparent** with its chat prompts. The chat interface and magic commands use system messages and prompt templates that are open source, so that users know what gets sent to language models.
-4. **We identify, in metadata,** which cells in a notebook were created as a result of %%ai magic commands.
+4. **We identify, in metadata,** which cells in a notebook were created as a result of `%%ai` magic commands.
 5. Jupyter AI uses a **human-centered design**. The chat interface should look and feel like chat applications that are generally available. The magic commands should look and work like other IPython magic commands. Settings screens should be used minimally, and wherever they are used, they should be readable and understandable, even for users not fluent in the user interface language.
 
 Issues and pull requests that violate the above principles may be declined. If you are unsure about whether your idea is a good fit for Jupyter AI, please [open an issue](https://github.com/jupyterlab/jupyter-ai/issues/new/choose) so that our maintainers can discuss it with you.
