@@ -79,6 +79,13 @@
 
 ##  制作则边栏配置页面
 
+### 文字说明逻辑
+
+1. 定义Widget构造器方法 ```export function buildBigcodeSidebar(): ReactWidget {}```
+2. 在构造器中构造Widget ```const BigCodeWidget = ReactWidget.create( dom结构... );```
+3. 配置如id，图标，标题等基本信息 ```BigCodeWidget.xxx = xxx```
+5. labextension 前端入口点添加这个侧边栏（Widget）到jupyterlab中 ```app.shell.add(bigcodeWidget, 'left', { rank: 2401 })```
+
 ### 图片说明
 | ![image1](c0ae4582a5f942754877106b8873413.png) | ![image2](4da66ef8e0eb414d6bb66715184ac7c.png) |
 |:-------------------------------------------:|:-------------------------------------------:|
@@ -129,44 +136,46 @@ const plugin: JupyterFrontEndPlugin<void> = {
 export default plugin;
 ```
 
-#### 文字说明
-
-1. 定义Widget构造器方法 ```export function buildBigcodeSidebar(): ReactWidget {}```
-2. 在构造器中构造Widget ```const BigCodeWidget = ReactWidget.create( dom结构... );```
-3. 配置如id，图标，标题等基本信息 ```BigCodeWidget.xxx = xxx```
-4. return BigCodeWidget
-5. labextension 前端入口点添加这个侧边栏到jupyterlab中 ```app.shell.add(bigcodeWidget, 'left', { rank: 2401 })```
 
 ## 配置键盘处理程序
 
-### 具体实现方式
+### 文字说明逻辑
 
-#### 代码说明
+1. 构造handler处理程序，如"src/handler/handleKeyDown.ts"
+2. 在app加载此处理程序，如"src/index.ts"
+
+### 代码说明
 
 ```typescript
 // src/handler/handleKeyDown.ts
 // 监听键盘事件处理程序
 export const handleKeyDown = (app: JupyterFrontEnd) => {
   /*
-  在这个说明版本中我们添加监听器到全局中，
+  在这个说明版本中我们添加监听器到全局document中，
   实际开发中我们应该换成在 jupyterlab 的右侧代码填写区dom中，
   并且我们需要根据配置页面是否打开此功能来动态启动此处理程序
   */   
   document.addEventListener('keydown', event => {
     // 检测到 Ctrl 键被按下，此处可以进行进一步处理
     if (event.ctrlKey) {
+      // 以下是获取单元格的示例
+      
+      
       // 获取当前活动的文档窗口
+      // app： This type is useful as a generic application against which front-end plugins * can be authored. It inherits from the Lumino `Application`.
+      // shell：The shell widget is the root "container" widget for the entire application. It will typically expose an API which allows the application plugins to insert content in a variety of places.
+      // DocumentWidget: DocumentWidget 在源码中继承了 MainAreaWidget，是指整个右侧的窗口（一个notebook）
       const currentWidget = app.shell.currentWidget;
-      if (!(widget instanceof DocumentWidget)) {
+      if (!(currentWidget instanceof DocumentWidget)) {
           return null;
       }
-      // content的类型也是widget，只不过是被widget容器包裹起来的
-      const { content } = widget
+      // 这个 content 通常是主要的编辑区域，对于notebook，它表示包含所有单元格的区域，但是它的类型也是 Widget
+      const { content } = currentWidget
       // 当前操作的单元格
       const activeCell = content.activeCell;
       // 当前操作的单元格的 codemirror 实例对象
       const editor = activeCell.editor as CodeMirrorEditor;
-      // 所有的单元格  
+      // 所有的单元格（list）
       const allCell = content.cellsArray
     }
   });
@@ -192,16 +201,10 @@ const plugin: JupyterFrontEndPlugin<void> = {
 export default plugin;
 ```
 
-#### 文字说明
 
-1. 构造handler处理程序，如"src/handler/handleKeyDown.ts"
-2. 在app加载此处理程序，如"src/index.ts"
+### 工具方法（以下方法均参考jupyter-ai）
 
-
-
-### 工具方法(以下方法均参考jupyter-ai)
-
-#### 首先我们引入jupyter的类型
+### 首先我们引入jupyter的类型
 ```typescript
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { DocumentWidget } from '@jupyterlab/docregistry';
@@ -212,7 +215,7 @@ import { Widget } from '@lumino/widgets';
 ```
 
 
-#### getContent
+### getContent
 
 ```typescript
 // 获取 widget 实例
@@ -222,13 +225,13 @@ const getContent = (widget: DocumentWidget): Widget => {
 }
 ```
 
-#### getEditorByWidget
+### getEditorByWidget
 ```typescript
-// 通过实例获取 editor
+// 通过 widget 实例获取当前 cell 的 editor，CodeEditor.IEditor 是指接口，具体实现类为 CodeMirrorEditor
 const getEditorByWidget = (content: Widget): CodeEditor.IEditor | null | undefined => {
   let editor: CodeEditor.IEditor | null | undefined;
 
-  // content存在多种类型
+  // content 存在多种类型
   if (content instanceof FileEditor) {
     editor = content.editor;
   } else if (content instanceof Notebook) {
@@ -239,7 +242,7 @@ const getEditorByWidget = (content: Widget): CodeEditor.IEditor | null | undefin
 }
 ```
 
-#### getTextByEditor
+### getTextByEditor
 ```typescript
 // 获取 editor 单元格的代码文本
 const getTextByEditor = (editor: CodeEditor.IEditor): string => {
@@ -247,9 +250,15 @@ const getTextByEditor = (editor: CodeEditor.IEditor): string => {
 }
 ```
 
-### 实用方法（以下的代码均由键盘事件监听器完成）
+## 实用方法（以下的代码均由键盘事件监听器进行测试）
 
-#### 获取当前单元格的代码
+### 获取当前单元格的代码
+
+#### 文字说明逻辑
+1. 获取当前打开的 notebook 窗口的实例（currentWidget）
+2. 检查 currentWidget 类型是否为 DocumentWidget，如果不是则终止此操作（其余类型类似与文本等）
+3. 获取 CodeMirrorEditor
+4. 通过 CodeMirrorEditor 获取当前单元格代码
 
 ```typescript
 export const handleKeyDown = (app: JupyterFrontEnd) => {
@@ -277,18 +286,37 @@ export const handleKeyDown = (app: JupyterFrontEnd) => {
 ![Alt text](d6dd5cffcf0c9feabd58d7cd4127075.png)
 
 
-#### 获取当前单元格的代码（位于鼠标指针之前的）
+### 获取当前单元格的代码-位于鼠标指针之前的
+
+#### 文字说明逻辑
+1. 获取当前打开的 notebook 窗口的实例（currentWidget）
+2. 检查 currentWidget 类型是否为 DocumentWidget，如果不是则终止此操作（其余类型类似与文本等）
+3. 获取 CodeMirrorEditor
+4. 通过 CodeMirrorEditor 获取鼠标定位
+5. 获取当前单元格文本（以下简称code）
+6. 通过行拆分 code
+7. 遍历行到当前的行并把内容放到返回的容器中
+8. 如果是当前行，则拿到当前行中鼠标位置行之前代码
+
 ```typescript
-// 获取指定 editor 中，指针之前的所有代码
-// 由于我没找到内置的方法，所以我们需要定义一个新的方法，
+// 通过行拆分string
+const splitString = (input: string): string[] => {
+  return input.split(/(?<!\\)\n/).map(part => part.replace('\\\\n', '\\n'));
+};
+
+// 获取指定 editor（一个cell）中，指针之前的所有代码
 const getCellTextByPosition = (editor: CodeEditor.IEditor) => {
+  // 获取鼠标定位，例如 {column: 2, line: 1}
   const position = editor.getCursorPosition()
   const text = getTextByEditor(editor)
+
+  // 通过\n进行拆分
   const codeLines = splitString(text)
 
   const codeLinesPositionBefore = []
   // 从第一个单元格遍历到活动单元格的位置
   for (let index = 0; index <= position.line; index++){
+    // 如果遍历到当前单元格
     if (index == position.line){
       codeLinesPositionBefore.push(codeLines[index].slice(0, position.column))
       continue
@@ -324,7 +352,10 @@ export const handleKeyDown = (app: JupyterFrontEnd) => {
 
 
 #### 获取所有单元格的代码-不指定当前cell处于何处
-
+1. 获取当前打开的 notebook 窗口的实例（currentWidget）
+2. 检查 currentWidget 类型是否为 DocumentWidget，如果不是则终止此操作（其余类型类似与文本等）
+3. 通过 currentWidget 找到所有的cell
+4. 提取所有cell中的代码，并返回
 
 ```typescript
 export const handleKeyDown = (app: JupyterFrontEnd) => {
@@ -337,13 +368,12 @@ export const handleKeyDown = (app: JupyterFrontEnd) => {
       }
 
       const content = getContent(currentWidget)
-      
-      // 暂时固定，没找到其他实例类型
+
       if (content instanceof Notebook){
         const allCellText = []        
-        // 获取所有的实例化 widget
-        for (const widget of content.widgets){
-          const editor = widget.editor
+        // 获取所有的实例化 Cell，和 DocumentWidget.content.activeCell 类型相同，类型依旧为 Widget
+        for (const cell of content.widgets){
+          const editor = cell.editor
           if (editor){
             const text = getTextByEditor(editor)
             allCellText.push(text)
@@ -360,7 +390,7 @@ export const handleKeyDown = (app: JupyterFrontEnd) => {
 ![Alt text](d4d68d587cbe2176cad3c1ea35b7963.png)
 
 #### 获取所有单元格的代码-在当前单元格的指针之前的代码
-
+整合[获取当前单元格的代码-位于鼠标指针之前的](#获取当前单元格的代码-位于鼠标指针之前的)和[获取所有单元格的代码-不指定当前cell处于何处](#获取所有单元格的代码-不指定当前cell处于何处)
 ```typescript
 export const handleKeyDown = (app: JupyterFrontEnd) => {
   document.addEventListener('keydown', event => {
@@ -377,7 +407,8 @@ export const handleKeyDown = (app: JupyterFrontEnd) => {
         const widgets = content.widgets
         const activeCellIndex = content.activeCellIndex
 
-        for (let index = 0;index <= activeCellIndex; index++){
+        // 遍历到当前单元格
+        for (let index = 0; index <= activeCellIndex; index++){
           const widget = widgets[index]
           const editor = widget.editor
           if (editor){
@@ -407,6 +438,14 @@ export const handleKeyDown = (app: JupyterFrontEnd) => {
 
 
 #### 替换单元格内所有字符
+1. 同以上...
+2. 同以上...
+3. 方案1: 
+    - 通过当前 cell 的 editor 拿到这这cell中的行数和最后一行的长度
+    - 选择上述行数与长度选择单元格的代码（类似与ctrl+a）
+    - 使用 CodeMirrorEditor 的 replaceSelection 函数进行替换
+4. 方案2: 直接通过 editor.model.sharedModel.setSource() 进行替换
+
 ```typescript
 // 做法一
 export const handleKeyDown = (app: JupyterFrontEnd) => {
@@ -423,7 +462,7 @@ export const handleKeyDown = (app: JupyterFrontEnd) => {
 
       if (editor && "replaceSelection" in editor){
         if (editor){
-          // 首先我依旧没找到内置方法，所以我们先计算行数于最后一行的长度
+          // 我们先计算行数于最后一行的长度
           const lineLenght = editor.lineCount
           const lastLineLenght = editor.getLine(lineLenght - 1)?.length
 
@@ -432,8 +471,8 @@ export const handleKeyDown = (app: JupyterFrontEnd) => {
             // 选择cell中的代码，这里是选择了全部的
             editor.setSelection({start:{line:0, column: 0}, end:{line: lineLenght - 1, column: lastLineLenght}});
             
-            // 因为我们之前判断过"replaceSelection"函数是否在editor，但是过不了ts类型检查，所以强制转化成any
-            (editor as any).replaceSelection("This replace string\nthis second line");
+            // 只有 CodeMirrorEditor 实现了 replaceSelection函数，其余 editor 类型并没有实现 replaceSelection
+            (editor as CodeMirrorEditor).replaceSelection("This replace string\nthis second line");
           }
         }
       }
@@ -472,6 +511,10 @@ export const handleKeyDown = (app: JupyterFrontEnd) => {
 
  (这里沿用了 [替换单元格内所有字符](#替换单元格内所有字符)的代码)
 
+1. 通过editor获取鼠标定位保存到变量中
+2. editor.undo()：此函数类型于ctrl+z
+3. 将鼠标指针指向"1."条中获取的鼠标位置
+
 ```typescript
 // 有两种方案可选，这里演示的是"撤销上次的更改"，还有一种方式是通过历史api来寻找
 export const handleKeyDown = (app: JupyterFrontEnd) => {
@@ -488,24 +531,20 @@ export const handleKeyDown = (app: JupyterFrontEnd) => {
 
       if (editor && "replaceSelection" in editor){
         if (editor){
-          // 首先我依旧没找到内置方法，所以我们先计算行数于最后一行的长度
           const lineLenght = editor.lineCount
           const lastLineLenght = editor.getLine(lineLenght - 1)?.length
 
-          // 理论上不可能出现越界
           if (lineLenght && lastLineLenght){
             // 我们在这里获取展示代码前的鼠标位置
             const prePosition = editor.getCursorPosition()
             editor.setSelection({start:{line:0, column: 0}, end:{line: lineLenght - 1, column: lastLineLenght}});
             
-            // 因为我们之前判断过"replaceSelection"函数是否在editor，但是过不了ts类型检查，所以强制转化成any
-            (editor as any).replaceSelection("This replace string\nthis second line");
+            (editor as CodeMirrorEditor).replaceSelection("This replace string\nthis second line");
            
             // 撤销上次的更改 
             editor.undo()
-            // 使鼠标指针恢复到之前的位置
+            // 使鼠标指针恢复到之前的位置，否则会指向0位
             editor.setCursorPosition(prePosition)
-            
           }
         }
       }
@@ -531,7 +570,6 @@ const getCellOutput = (currentWidget: DocumentWidget)=>{
 
 }
 
-
 export const handleKeyDown = (app: JupyterFrontEnd) => {
   document.addEventListener('keydown', event => {
     if (event.ctrlKey) {
@@ -555,6 +593,13 @@ export const handleKeyDown = (app: JupyterFrontEnd) => {
 
 #### 注册全局变量池
 ```typescript
+此方案不同于 jupyter-ai 的做法
+jupyter-ai 做法：用户填写完 model/apikey 等信息，点击保存后，会进行请求到后端（py文件地址为："packages/jupyter-ai/jupyter-ai/handlers.py"），由后端保存到".loacl"中
+我当前想的做法：
+方案1. 每次用户打开必须重新填写，因为我们只需要前端进行网络请求（jupyter-ai是后端），在只有前端情况下，任何持久化都是不安全的。
+方案2. 修改 jupyter-ai 的后端，使其可以接受我们新的配置参数，并提供get接口，以确保每次加载 jupyterlab 时，我们都可以从后端读取配置
+方案3. 我们也使用后端进行请求，这样是最安全的，并且在前端用户还可以看到代码在一点点增加
+
 // context.ts
 import { observable, makeObservable, action } from "mobx";
 
