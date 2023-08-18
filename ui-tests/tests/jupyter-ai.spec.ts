@@ -3,6 +3,7 @@ import { AIHelper } from './helpers/AIHelper';
 
 enum FILENAMES {
   SIDEBAR = 'sidebar.png',
+  CHAT = 'chat.png'
 }
 
 /**
@@ -18,8 +19,11 @@ test.describe('Jupyter AI', () => {
     await page.goto();
   });
 
-  test('shows sidebar chat icon', async ({page}) => {
-    const sidebar = ai.sidebar;
-    expect(await sidebar.screenshot()).toMatchSnapshot(FILENAMES.SIDEBAR);
+  test('shows sidebar chat icon', async () => {
+    await ai.assertSnapshot(FILENAMES.SIDEBAR, { locator: ai.sidebar});
+  });
+
+  test('opens chat sidepanel', async () => {
+    await ai.assertSnapshot(FILENAMES.CHAT);
   });
 });
