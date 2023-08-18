@@ -87,7 +87,7 @@
 5. labextension 前端入口点添加这个侧边栏（Widget）到jupyterlab中 ```app.shell.add(bigcodeWidget, 'left', { rank: 2401 })```
 
 ### 图片说明
-| ![image1](c0ae4582a5f942754877106b8873413.png) | ![image2](4da66ef8e0eb414d6bb66715184ac7c.png) |
+| ![image1](mdImages/c0ae4582a5f942754877106b8873413.png) | ![image2](mdImages/4da66ef8e0eb414d6bb66715184ac7c.png) |
 |:-------------------------------------------:|:-------------------------------------------:|
 
 
@@ -283,7 +283,7 @@ export const handleKeyDown = (app: JupyterFrontEnd) => {
 
 ```
 
-![Alt text](d6dd5cffcf0c9feabd58d7cd4127075.png)
+![Alt text](mdImages/d6dd5cffcf0c9feabd58d7cd4127075.png)
 
 
 ### 获取当前单元格的代码-位于鼠标指针之前的
@@ -348,7 +348,7 @@ export const handleKeyDown = (app: JupyterFrontEnd) => {
   });
 ```
 **这个图片中我只指针位于第一个a之后，但是截图不到指针。**
-![Alt text](ebfa682888d9d5ee23a83b3d040d9cf.png)
+![Alt text](mdImages/ebfa682888d9d5ee23a83b3d040d9cf.png)
 
 
 #### 获取所有单元格的代码-不指定当前cell处于何处
@@ -387,7 +387,7 @@ export const handleKeyDown = (app: JupyterFrontEnd) => {
 };
 
 ```
-![Alt text](d4d68d587cbe2176cad3c1ea35b7963.png)
+![Alt text](mdImages/d4d68d587cbe2176cad3c1ea35b7963.png)
 
 #### 获取所有单元格的代码-在当前单元格的指针之前的代码
 整合[获取当前单元格的代码-位于鼠标指针之前的](#获取当前单元格的代码-位于鼠标指针之前的)和[获取所有单元格的代码-不指定当前cell处于何处](#获取所有单元格的代码-不指定当前cell处于何处)
@@ -434,7 +434,7 @@ export const handleKeyDown = (app: JupyterFrontEnd) => {
 ```
 
 **鼠标放在aaa之后**
-![Alt text](25e92f7ca6584b8a8ed08edbeb6091c.png)
+![Alt text](mdImages/25e92f7ca6584b8a8ed08edbeb6091c.png)
 
 
 #### 替换单元格内所有字符
@@ -503,7 +503,7 @@ export const handleKeyDown = (app: JupyterFrontEnd) => {
 
 ```
 按下ctrl后
-| ![Alt text](a078a5dde3707cedbc3e8dfc9139bfe.png) | ![Alt text](a27f22e60010ea84d5598122e5ffc4b.png)|
+| ![Alt text](mdImages/a078a5dde3707cedbc3e8dfc9139bfe.png) | ![Alt text](mdImages/a27f22e60010ea84d5598122e5ffc4b.png)|
 |:-------------------------------------------:|:-------------------------------------------:|
 
 
@@ -588,17 +588,19 @@ export const handleKeyDown = (app: JupyterFrontEnd) => {
 };
 
 ```
-![Alt text](4b76618d42d0eca97916f6803fc897e.png)
+![Alt text](mdImages/4b76618d42d0eca97916f6803fc897e.png)
 
 
 #### 注册全局变量池
 ```typescript
 此方案不同于 jupyter-ai 的做法
-jupyter-ai 做法：用户填写完 model/apikey 等信息，点击保存后，会进行请求到后端（py文件地址为："packages/jupyter-ai/jupyter-ai/handlers.py"），由后端保存到".loacl"中
+
+jupyter-ai 做法：用户填写完 model/apikey 等信息，点击保存后，会进行请求到后端（py文件地址为："packages/jupyter-ai/jupyter-ai/handlers.py"），由后端保存到"~/.loacl"目录中
+
 我当前想的做法：
 方案1. 每次用户打开必须重新填写，因为我们只需要前端进行网络请求（jupyter-ai是后端），在只有前端情况下，任何持久化都是不安全的。
 方案2. 修改 jupyter-ai 的后端，使其可以接受我们新的配置参数，并提供get接口，以确保每次加载 jupyterlab 时，我们都可以从后端读取配置
-方案3. 我们也使用后端进行请求，这样是最安全的，并且在前端用户还可以看到代码在一点点增加
+方案3. 我们也使用后端进行请求，这样是最安全的
 
 // context.ts
 import { observable, makeObservable, action } from "mobx";
@@ -646,7 +648,7 @@ export const handleKeyDown = (app: JupyterFrontEnd) => {
 ```
 每当按下ctrl时，数据都会更新
 
-![Alt text](1832d8b22d533b541c760768294f62a.png)
+![Alt text](mdImages/1832d8b22d533b541c760768294f62a.png)
 
 
 #### 更改代码颜色
@@ -745,7 +747,7 @@ export const handleKeyDown = (app: JupyterFrontEnd) => {
 ```
 
 左图没有调用 removeRedTextStatus 函数，右图反之
-| ![Alt text](fc633cebddaeb5a2cdb1c678b90e407.png) | ![Alt text](d0e99b6c858d103cc0485be7eac50a6.png)|
+| ![Alt text](mdImages/fc633cebddaeb5a2cdb1c678b90e407.png) | ![Alt text](mdImages/d0e99b6c858d103cc0485be7eac50a6.png)|
 |:-------------------------------------------:|:-------------------------------------------:|
 
 
