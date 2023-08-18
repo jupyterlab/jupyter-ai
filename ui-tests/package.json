@@ -1,0 +1,16 @@
+{
+  "name": "jupyter-ai-e2e-tests",
+  "version": "1.0.0",
+  "description": "Jupyter AI E2E tests",
+  "private": true,
+  "scripts": {
+    "start": "jupyter lab --config jupyter_server_test_config.py",
+    "install-chromium": "jlpm playwright install chromium",
+    "test": "jlpm playwright test",
+    "test:update": "jlpm playwright test --update-snapshots"
+  },
+  "devDependencies": {
+    "@jupyterlab/galata": "^5.0.5",
+    "@playwright/test": "^1.37.0"
+  }
+}
