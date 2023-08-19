@@ -18,6 +18,7 @@ import { AiService } from '../handler';
 import { ModelFields } from './settings/model-fields';
 import { ServerInfoState, useServerInfo } from './settings/use-server-info';
 import { ExistingApiKeys } from './settings/existing-api-keys';
+import { minifyUpdate } from './settings/minify';
 
 enum SaveStatus {
   Success,
@@ -58,10 +59,9 @@ export function ChatSettings(): JSX.Element {
   const [sendWse, setSendWse] = useState<boolean>(false);
   const [fields, setFields] = useState<Record<string, any>>({});
 
-  // @ts-ignore
+  // status of the current save
   const [saveStatus, setSaveStatus] = useState<SaveStatus>();
   // error message from submission
-  // @ts-ignore
   const [saveEmsg, setSaveEmsg] = useState<string>();
 
   /**
@@ -120,7 +120,27 @@ export function ChatSettings(): JSX.Element {
   }, [server, lmProvider]);
 
   const handleSave = async () => {
-    const updateRequest: AiService.UpdateConfigRequest = {
+    // compress fields with JSON values
+    if (server.state !== ServerInfoState.Ready) {
+      return;
+    }
+
+    for (const fieldKey in fields) {
+      const fieldVal = fields[fieldKey];
+      if (typeof fieldVal !== 'string' || !fieldVal.trim().startsWith('{')) {
+        continue;
+      }
+
+      try {
+        const parsedFieldVal = JSON.parse(fieldVal);
+        const compressedFieldVal = JSON.stringify(parsedFieldVal);
+        fields[fieldKey] = compressedFieldVal;
+      } catch (e) {
+        continue;
+      }
+    }
+
+    let updateRequest: AiService.UpdateConfigRequest = {
       model_provider_id: lmGlobalId,
       embeddings_provider_id: emGlobalId,
       api_keys: apiKeys,
@@ -131,45 +151,20 @@ export function ChatSettings(): JSX.Element {
       }),
       send_with_shift_enter: sendWse
     };
+    updateRequest = minifyUpdate(server.config, updateRequest);
 
-    // delete any empty api keys
-    for (const apiKey in updateRequest.api_keys) {
-      if (updateRequest.api_keys[apiKey] === '') {
-        delete updateRequest.api_keys[apiKey];
+    setSaveStatus(SaveStatus.Saving);
+    try {
+      await AiService.updateConfig(updateRequest);
+    } catch (e) {
+      console.error(e);
+      if (e instanceof Error) {
+        setSaveEmsg(e.message);
       }
+      setSaveStatus(SaveStatus.Fail);
+      return;
     }
-
-    // compress fields with JSON values
-    for (const gmid in updateRequest.fields) {
-      for (const fieldKey in updateRequest.fields[gmid]) {
-        const fieldVal = updateRequest.fields[gmid][fieldKey];
-        if (typeof fieldVal !== 'string') {
-          continue;
-        }
-
-        try {
-          const parsedFieldVal = JSON.parse(fieldVal);
-          const compressedFieldVal = JSON.stringify(parsedFieldVal);
-          updateRequest.fields[gmid][fieldKey] = compressedFieldVal;
-        } catch (e) {
-          continue;
-        }
-      }
-    }
-
-    console.log({ updateRequest });
-    // setSaving(true);
-    // try {
-    //   await AiService.updateConfig(updateRequest);
-    // } catch (e) {
-    //   console.error(e);
-    //   if (e instanceof Error) {
-    //     setSaveEmsg(e.message);
-    //   }
-    //   setState(ChatSettingsState.SubmitError);
-    // }
-    // setState(ChatSettingsState.Success);
-    // setSaving(false);
+    setSaveStatus(SaveStatus.Success);
   };
 
   if (server.state === ServerInfoState.Loading) {
