@@ -3,17 +3,14 @@ import { AiService } from '../../handler';
 import { TextField } from '@mui/material';
 
 export type ModelFieldProps = {
-  /**
-   * The global model ID to which these fields belong.
-   */
-  gmid: string;
   field: AiService.Field;
-  config: AiService.Config;
-  setConfig: (newConfig: AiService.Config) => unknown;
+  values: Record<string, any>;
+  onChange: (newValues: Record<string, any>) => unknown;
 };
 
 export function ModelField(props: ModelFieldProps): JSX.Element {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const value = props.values?.[props.field.key];
 
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -41,15 +38,9 @@ export function ModelField(props: ModelFieldProps): JSX.Element {
         break;
     }
 
-    props.setConfig({
-      ...props.config,
-      fields: {
-        ...props.config.fields,
-        [props.gmid]: {
-          ...props.config.fields[props.gmid],
-          [props.field.key]: e.target.value
-        }
-      }
+    props.onChange({
+      ...props.values,
+      [props.field.key]: e.target.value
     });
   }
 
@@ -69,7 +60,7 @@ export function ModelField(props: ModelFieldProps): JSX.Element {
     return (
       <TextField
         label={props.field.label}
-        value={props.config.fields[props.gmid]?.[props.field.key]}
+        value={value ?? ''}
         onChange={handleChange}
         error={!!errorMessage}
         helperText={errorMessage ?? undefined}
@@ -82,7 +73,7 @@ export function ModelField(props: ModelFieldProps): JSX.Element {
     return (
       <TextField
         label={props.field.label}
-        value={props.config.fields[props.gmid]?.[props.field.key]}
+        value={value ?? ''}
         onChange={handleChange}
         fullWidth
         multiline
@@ -98,6 +89,8 @@ export function ModelField(props: ModelFieldProps): JSX.Element {
 
 export type ModelFieldsProps = Omit<ModelFieldProps, 'field'> & {
   fields?: AiService.Field[];
+  values: Record<string, any>;
+  onChange: (newValues: Record<string, any>) => unknown;
 };
 
 export function ModelFields(props: ModelFieldsProps): JSX.Element | null {
@@ -108,7 +101,13 @@ export function ModelFields(props: ModelFieldsProps): JSX.Element | null {
   return (
     <>
       {props.fields.map((field, idx) => (
-        <ModelField {...props} field={field} key={idx} />
+        <ModelField
+          {...props}
+          field={field}
+          key={idx}
+          values={props.values}
+          onChange={props.onChange}
+        />
       ))}
     </>
   );
