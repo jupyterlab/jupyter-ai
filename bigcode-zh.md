@@ -10,9 +10,9 @@
 
 2. 构造键盘监听器
 
-- 实现逻辑如下方 [配置键盘处理程序](#配置键盘处理程序)（在这里也展示了我们如何拿到 codemirror 实例以及获取所有的 cell ）
+- 实现逻辑如下方 [绑定键盘事件](#绑定键盘事件)
 
-3. 构造键盘监听器的处理程序
+1. 构造键盘监听器的处理程序
 
 - 续写（ctrl+space）
   
@@ -749,6 +749,111 @@ export const handleKeyDown = (app: JupyterFrontEnd) => {
 左图没有调用 removeRedTextStatus 函数，右图反之
 | ![Alt text](mdImages/fc633cebddaeb5a2cdb1c678b90e407.png) | ![Alt text](mdImages/d0e99b6c858d103cc0485be7eac50a6.png)|
 |:-------------------------------------------:|:-------------------------------------------:|
+
+### 绑定键盘事件
+
+1. 首先创建一个关于键盘点击并且是 ediorView 的 extension
+2. 在第一次加载时给所有单元格添加此 extension, 并且设置监听函数, 用于监听新增的单元格时给新增的单元格添加此 extension
+3. 将主函数放到jupyter-lab-extension的入口点函数中
+
+```typescript
+// src/handler/handleKeyDown.ts
+// 制作一个关于 keydown 的 extension, 并将其置于所有默认键盘时间最上方
+const extension = Prec.highest(
+  keymap.of([
+    {
+      key: "Enter", run: () => {
+        return false;
+      }
+    }
+  ])
+)
+
+// 每当有一个新的单元格新增时
+const handleCellAdded = async (notebookPanel: NotebookPanel) => {
+  const notebook = notebookPanel.content;
+  if (!notebook || !notebook.model) {
+    return
+  }
+
+  notebook.model.cells.changed.connect(async (sender, args) => {
+    if (args.type === 'add') {
+      const addedCells = args.newValues;
+      addedCells.forEach(async (cell) => {
+        const widgetIndex = notebookPanel.content.widgets.findIndex(widget => widget.model.id === cell.id);
+        if (widgetIndex !== -1) {
+          const cellWidget = notebookPanel.content.widgets[widgetIndex];
+          // 等待 notebook 完成新增单元格的初始化
+          await notebookPanel.context.ready;
+          const editor = cellWidget.editor as CodeMirrorEditor;
+          const view = editor.editor as EditorView;
+          const tr = view.state.update({
+            effects: StateEffect.appendConfig.of(extension)
+          });
+
+          view.dispatch(tr);
+        }
+      });
+    }
+  });
+};
+
+// 当改变 notebook 窗口时(如果第一次打开jupyter-lab也会执行此函数)
+const init = (app: JupyterFrontEnd) => {
+  if (!(app.shell instanceof LabShell)) {
+    throw 'Shell is not an instance of LabShell. Jupyter AI does not currently support custom shells.';
+  }
+
+  app.shell.currentChanged.connect((sender, args) => {
+    const currentWidget = args.newValue
+    if (!currentWidget || !(currentWidget instanceof NotebookPanel)) {
+      return
+    }
+
+    handleCellAdded(currentWidget)
+    const content = getContent(currentWidget)
+
+    if (content instanceof Notebook) {
+      for (const cell of content.widgets) {
+        const editor = cell.editor as CodeMirrorEditor
+        const view = editor.editor as EditorView;
+        const tr = view.state.update({
+          effects: StateEffect.appendConfig.of(extension)
+        });
+
+        view.dispatch(tr);
+      }
+    }
+
+  });
+}
+
+
+export const handleKeyDown = async (app: JupyterFrontEnd) => {
+  await app.start()
+  init(app)
+};
+
+```
+```typescript
+// src/index.ts
+// 引入上方ts文件的函数
+import { handleKeyDown } from './handler/onKeyDown';
+// labextension 前端入口点
+const plugin: JupyterFrontEndPlugin<void> = {
+  id: 'jupyter_ai:plugin',
+  autoStart: true,
+  optional: [IGlobalAwareness, ILayoutRestorer],
+  activate: async (
+    app: JupyterFrontEnd
+  ) => {
+    // 启动此处理程序
+    handleKeyDown(app);
+  }
+};
+
+export default plugin;
+```
 
 
 ## merge to jupyter-ai
