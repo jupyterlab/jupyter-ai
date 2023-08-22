@@ -65,5 +65,4 @@ export class AIHelper {
     await target.waitFor({ state: 'visible' });
     expect(await target.screenshot()).toMatchSnapshot(filename);
   }
-
 }
