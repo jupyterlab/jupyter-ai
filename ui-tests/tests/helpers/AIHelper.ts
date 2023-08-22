@@ -52,8 +52,8 @@ export class AIHelper {
   }
 
   /**
-   * Asserts a screenshot against the snapshot at `filename`. By default, 
-   * crops the screenshot to the chat sidepanel. See `SnapshotOptions` for 
+   * Asserts a screenshot against the snapshot at `filename`. By default,
+   * crops the screenshot to the chat sidepanel. See `SnapshotOptions` for
    * more configuration options.
    */
   async assertSnapshot(
