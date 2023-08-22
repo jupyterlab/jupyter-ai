@@ -52,9 +52,9 @@ export class AIHelper {
   }
 
   /**
-   * Asserts a screenshot against the snapshot at `filename`. By default, this
-   * method closes the sidebar prior to taking the screenshot. See
-   * `SnapshotOptions` for more configuration options.
+   * Asserts a screenshot against the snapshot at `filename`. By default, 
+   * crops the screenshot to the chat sidepanel. See `SnapshotOptions` for 
+   * more configuration options.
    */
   async assertSnapshot(
     filename: string,

@@ -3,7 +3,7 @@ import { AIHelper } from './helpers/AIHelper';
 
 enum FILENAMES {
   SIDEBAR = 'sidebar.png',
-  CHAT = 'chat.png'
+  CHAT_WELCOME_MESSAGE = 'chat-welcome-message.png'
 }
 
 /**
@@ -23,7 +23,7 @@ test.describe('Jupyter AI', () => {
     await ai.assertSnapshot(FILENAMES.SIDEBAR, { locator: ai.sidebar});
   });
 
-  test('opens chat sidepanel', async () => {
-    await ai.assertSnapshot(FILENAMES.CHAT);
+  test('shows welcome message when chat is first opened', async () => {
+    await ai.assertSnapshot(FILENAMES.CHAT_WELCOME_MESSAGE);
   });
 });
