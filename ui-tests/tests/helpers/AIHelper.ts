@@ -45,7 +45,7 @@ export class AIHelper {
   /**
    *  Opens Jupyter AI chat sidepanel if it is closed
    */
-  async openChat() {
+  async openChatPanel() {
     if (!await this.chat.isVisible()) {
       await this.chatIcon.click();
     }
@@ -61,7 +61,7 @@ export class AIHelper {
     customOpts?: Partial<SnapshotOptions>
   ) {
     const opts: SnapshotOptions = { ...customOpts };
-    const target = opts.locator ?? (this.openChat(), this.chat);
+    const target = opts.locator ?? (this.openChatPanel(), this.chat);
     await target.waitFor({ state: 'visible' });
     expect(await target.screenshot()).toMatchSnapshot(filename);
   }

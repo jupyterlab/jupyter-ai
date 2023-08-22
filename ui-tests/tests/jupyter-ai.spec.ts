@@ -20,10 +20,10 @@ test.describe('Jupyter AI', () => {
   });
 
   test('shows sidebar chat icon', async () => {
-    await ai.assertSnapshot(FILENAMES.SIDEBAR, { locator: ai.sidebar});
+    await ai.assertSnapshot(FILENAMES.SIDEBAR, { locator: ai.sidebar });
   });
 
-  test('shows welcome message when chat is first opened', async () => {
+  test('shows chat welcome message', async () => {
     await ai.assertSnapshot(FILENAMES.CHAT_WELCOME_MESSAGE);
   });
 });
