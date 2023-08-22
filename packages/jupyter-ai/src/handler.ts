@@ -187,4 +187,10 @@ export namespace AiService {
       body: JSON.stringify(config)
     });
   }
+
+  export async function deleteApiKey(keyName: string): Promise<void> {
+    return requestAPI<void>(`api_keys/${keyName}`, {
+      method: 'DELETE'
+    });
+  }
 }

@@ -20,16 +20,42 @@ import { ServerInfoState, useServerInfo } from './settings/use-server-info';
 import { ExistingApiKeys } from './settings/existing-api-keys';
 import { minifyUpdate } from './settings/minify';
 
-enum SaveStatus {
-  Success,
-  Saving,
-  Fail
+enum AlertState {
+  Empty,
+  PrevSuccess,
+  Failure
 }
+
+/**
+ * Wrapper around the main ChatSettingsBody component that remounts on a
+ * successful save to refresh the view. Remounting is done via changing the key
+ * of the JSX element.
+ */
+export function ChatSettings(): JSX.Element {
+  const [key, setKey] = useState(0);
+
+  return (
+    <ChatSettingsBody
+      key={key}
+      onSuccess={() => setKey(key => key + 1)}
+      prevSuccess={key !== 0}
+    />
+  );
+}
+
+type ChatSettingsBodyProps = {
+  onSuccess: () => unknown;
+  /**
+   * Whether this component successfully updated the configuration in the
+   * previous mount. Only read at initial render.
+   */
+  prevSuccess: boolean;
+};
 
 /**
  * Component that returns the settings view in the chat panel.
  */
-export function ChatSettings(): JSX.Element {
+function ChatSettingsBody(props: ChatSettingsBodyProps): JSX.Element {
   // state fetched on initial render
   const server = useServerInfo();
 
@@ -59,8 +85,12 @@ export function ChatSettings(): JSX.Element {
   const [sendWse, setSendWse] = useState<boolean>(false);
   const [fields, setFields] = useState<Record<string, any>>({});
 
-  // status of the current save
-  const [saveStatus, setSaveStatus] = useState<SaveStatus>();
+  // controls what alert to show, if any.
+  const [alertState, setAlertState] = useState<AlertState>(
+    props.prevSuccess ? AlertState.PrevSuccess : AlertState.Empty
+  );
+  // whether the form is currently saving
+  const [saving, setSaving] = useState(false);
   // error message from submission
   const [saveEmsg, setSaveEmsg] = useState<string>();
 
@@ -153,7 +183,7 @@ export function ChatSettings(): JSX.Element {
     };
     updateRequest = minifyUpdate(server.config, updateRequest);
 
-    setSaveStatus(SaveStatus.Saving);
+    setSaving(true);
     try {
       await AiService.updateConfig(updateRequest);
     } catch (e) {
@@ -161,10 +191,12 @@ export function ChatSettings(): JSX.Element {
       if (e instanceof Error) {
         setSaveEmsg(e.message);
       }
-      setSaveStatus(SaveStatus.Fail);
+      setAlertState(AlertState.Failure);
       return;
+    } finally {
+      setSaving(false);
     }
-    setSaveStatus(SaveStatus.Success);
+    props.onSuccess();
   };
 
   if (server.state === ServerInfoState.Loading) {
@@ -212,14 +244,14 @@ export function ChatSettings(): JSX.Element {
         overflowY: 'auto'
       }}
     >
-      {saveStatus === SaveStatus.Fail && (
+      {alertState === AlertState.Failure && (
         <Alert severity="error">
           {saveEmsg
             ? `An error occurred. Error details:\n\n${saveEmsg}`
             : 'An unknown error occurred. Check the console for more details.'}
         </Alert>
       )}
-      {saveStatus === SaveStatus.Success && (
+      {alertState === AlertState.PrevSuccess && (
         <Alert severity="success">Settings saved successfully.</Alert>
       )}
 
@@ -351,12 +383,8 @@ export function ChatSettings(): JSX.Element {
         </RadioGroup>
       </FormControl>
       <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-        <Button
-          variant="contained"
-          onClick={handleSave}
-          disabled={saveStatus === SaveStatus.Saving}
-        >
-          {saveStatus === SaveStatus.Saving ? 'Saving...' : 'Save changes'}
+        <Button variant="contained" onClick={handleSave} disabled={saving}>
+          {saving ? 'Saving...' : 'Save changes'}
         </Button>
       </Box>
     </Box>

@@ -7,6 +7,7 @@ from dataclasses import asdict
 from typing import TYPE_CHECKING, Dict, List
 
 import tornado
+from jupyter_ai.config_manager import ConfigManager
 from jupyter_ai.chat_handlers import BaseChatHandler
 from jupyter_server.base.handlers import APIHandler as BaseAPIHandler
 from jupyter_server.base.handlers import JupyterHandler
@@ -332,3 +333,17 @@ class GlobalConfigHandler(BaseAPIHandler):
             raise HTTPError(
                 500, "Unexpected error occurred while updating the config."
             ) from e
+
+class ApiKeysHandler(BaseAPIHandler):
+
+    @property
+    def config_manager(self) -> ConfigManager:
+        return self.settings["jai_config_manager"]
+    
+    @web.authenticated
+    def delete(self, api_key_name: str):
+        try:
+            self.config_manager.delete_api_key(api_key_name)
+        except Exception as e:
+            raise HTTPError(500, str(e))
+    
