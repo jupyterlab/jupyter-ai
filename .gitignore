@@ -132,3 +132,5 @@ dev.sh
 .jupyter_ystore.db
 
 .yarn
+
+.venv

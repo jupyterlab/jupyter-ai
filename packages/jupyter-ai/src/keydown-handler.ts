@@ -8,7 +8,7 @@ import { Notebook } from '@jupyterlab/notebook';
 import { NotebookPanel } from '@jupyterlab/notebook';
 import { Extension } from '@codemirror/state';
 import { getContent } from "./utils/instance"
-
+import { continueWriting, removeColor, handleAnyKeyPress } from "./bigcode/bigcode-continue-writing"
 
 // 创建一个软引用集合存放 editor
 const mountedEditors = new WeakSet<CodeMirrorEditor>();
@@ -39,13 +39,18 @@ const generateKeyDownExtension = (app: JupyterFrontEnd): Extension => {
       {
         key: 'Ctrl-Space',
         run: () => {
-          // 当你按下 Ctrl 和 Space，console 会打印如下字符串
-          console.log("Ctrl and Space keys are pressed");
-          /*
-          * 我们使用了 highest，如果return true，则不会触发除此事件外任何事件，否则反之，会继续触发其他事件。
-          * 例如：如果此事件为 Enter 事件，return true 之后，在单元格中不会新起一行
-          */
-          return true
+          return continueWriting(app)
+        }
+      },
+      {
+        key: 'Enter',
+        run: (view: EditorView) => {
+          return removeColor(view);
+        }
+      },
+      {
+        any: (view: EditorView, event: KeyboardEvent) => {
+          return handleAnyKeyPress(view, event);
         }
       }
     ])
@@ -98,5 +103,5 @@ export const keyDownHandle = async (app: JupyterFrontEnd): Promise<void> => {
   // 等待 notebook 完成初始化
   await app.start();
   init(app);
-  console.log('keyDownHandle is start');
+  console.log('keyDownHandle is start...');
 };
