@@ -22,13 +22,16 @@ export function addLoadingAnimation(view: EditorView): void {
 export function requestSuccess(view: EditorView): void {
     const circle = view.dom.closest('.jp-Cell')?.querySelector('.circle-loading-animation');
     if (!circle) return;
-
+    
     // Update class for success state
     circle.classList.add("circle-success");
     
     // After the animation is complete, remove the circle
     setTimeout(() => {
-        circle.remove();
+        const circles = view.dom.closest('.jp-Cell')?.querySelectorAll('.circle-loading-animation');
+        circles?.forEach(circle => {
+            circle.remove();
+        })
     }, 1500);
 }
 
@@ -41,6 +44,9 @@ export function requestFailed(view: EditorView): void {
 
     // After the animation is complete, remove the circle
     setTimeout(() => {
-        circle.remove();
+        const circles = view.dom.closest('.jp-Cell')?.querySelectorAll('.circle-loading-animation');
+        circles?.forEach(circle => {
+            circle.remove();
+        })
     }, 1500);
 }

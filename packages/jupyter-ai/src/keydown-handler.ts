@@ -7,8 +7,12 @@ import { StateEffect } from '@codemirror/state';
 import { Notebook } from '@jupyterlab/notebook';
 import { NotebookPanel } from '@jupyterlab/notebook';
 import { Extension } from '@codemirror/state';
-import { getContent } from "./utils/instance"
-import { continueWriting, removeColor, handleAnyKeyPress } from "./bigcode/bigcode-continue-writing"
+import { getContent } from './utils/instance';
+import {
+  continueWriting,
+  removeColor,
+  handleAnyKeyPress
+} from './bigcode/bigcode-continue-writing';
 
 // 创建一个软引用集合存放 editor
 const mountedEditors = new WeakSet<CodeMirrorEditor>();
@@ -39,7 +43,7 @@ const generateKeyDownExtension = (app: JupyterFrontEnd): Extension => {
       {
         key: 'Ctrl-Space',
         run: (view: EditorView) => {
-          return continueWriting(app, view)
+          return continueWriting(app, view);
         }
       },
       {
