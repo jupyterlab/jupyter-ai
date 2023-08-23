@@ -29,6 +29,9 @@ packages/jupyter-ai
 
 ## develop
 推荐 python 使用 venv 来运行，node 使用 nvm
+推荐版本：
+- python: 3.10.12
+- node: 18.17.0
 
 ```shell
 ./scripts/install.sh
@@ -36,6 +39,9 @@ packages/jupyter-ai
 
 ```shell
 npm run dev
+
+# 如果想要在修改代码时编译，将下述指令和以上指令一起运行
+npm run watch
 ```
 
 ## 逻辑梳理
@@ -68,7 +74,6 @@ npm run dev
 3. 展示在单元格中（以写入状态保存到单元格）[前三步代码：continueWriting 函数](./packages/jupyter-ai/src/bigcode/bigcode-continue-writing.ts)
 4. 当用户按下 Enter 后，取消代码的灰色状态 [代码：removeColor 函数](./packages/jupyter-ai/src/bigcode/bigcode-continue-writing.ts)
 5. 当用户按下其他键后，删除灰色的代码 [代码：handleAnyKeyPress 函数](./packages/jupyter-ai/src/bigcode/bigcode-continue-writing.ts)
-
 
 
 
