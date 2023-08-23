@@ -41,6 +41,10 @@ const generateKeyDownExtension = (app: JupyterFrontEnd): Extension => {
         run: () => {
           // 当你按下 Ctrl 和 Space，console 会打印如下字符串
           console.log("Ctrl and Space keys are pressed");
+          /*
+          * 我们使用了 highest，如果return true，则不会触发除此事件外任何事件，否则反之，会继续触发其他事件。
+          * 例如：如果此事件为 Enter 事件，return true 之后，在单元格中不会新起一行
+          */
           return true
         }
       }
@@ -66,7 +70,7 @@ const init = (app: JupyterFrontEnd) => {
     const content = getContent(currentWidget);
 
     if (content instanceof Notebook) {
-      // 优先挂载加载时默认选中的 Cell
+      // 优先挂载加载 notebook 时默认选中的 Cell。在"content.activeCellChanged.connect"中，默认选中的 Cell 的 editor 为空
       const firstCell = content.activeCell;
       if (firstCell) {
         const firstCellEditor = firstCell.editor as CodeMirrorEditor;
@@ -79,7 +83,7 @@ const init = (app: JupyterFrontEnd) => {
           return;
         }
 
-        // 在新增单元格时，editor 可能没有被实例化，所以我们需将挂载事件放在异步队列最低端
+        // 在新增单元格时，editor 可能没有被实例化，所以我们需将挂载事件放在异步队列最低端，以用来保证 editor 实例化完成
         const waitCellInitTimer = setTimeout(() => {
           const editor = cell.editor as CodeMirrorEditor;
           mountExtension(editor, extension);
@@ -90,9 +94,9 @@ const init = (app: JupyterFrontEnd) => {
   });
 };
 
-export const keyDownhandle = async (app: JupyterFrontEnd): Promise<void> => {
+export const keyDownHandle = async (app: JupyterFrontEnd): Promise<void> => {
   // 等待 notebook 完成初始化
   await app.start();
   init(app);
-  console.log('keyDownhandle is start');
+  console.log('keyDownHandle is start');
 };
