@@ -12,6 +12,7 @@ import { buildChatSidebar } from './widgets/chat-sidebar';
 import { SelectionWatcher } from './selection-watcher';
 import { ChatHandler } from './chat_handler';
 import { buildErrorWidget } from './widgets/chat-error';
+import { keyDownhandle } from "./keydown-handler"
 
 export type DocumentTracker = IWidgetTracker<IDocumentWidget>;
 
@@ -48,6 +49,11 @@ const plugin: JupyterFrontEndPlugin<void> = {
     } catch (e) {
       chatWidget = buildErrorWidget();
     }
+
+    /**
+     * Initialize keydown handler
+     */
+    keyDownhandle(app)
 
     /**
      * Add Chat widget to right sidebar
