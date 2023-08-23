@@ -27,16 +27,19 @@ packages/jupyter-ai
 
 ```
 
-## develop
+## Develop and preview
 推荐 python 使用 venv 来运行，node 使用 nvm
 推荐版本：
 - python: 3.10.12
 - node: 18.17.0
 
+### install
 ```shell
 ./scripts/install.sh
 ```
 
+
+### run
 ```shell
 npm run dev
 
