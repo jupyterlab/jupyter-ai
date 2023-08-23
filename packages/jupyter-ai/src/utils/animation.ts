@@ -1,6 +1,6 @@
 import { EditorView } from '@codemirror/view';
 /**
- * 添加旋转圆环加载动画到EditorView左侧。
+ * 添加旋转圆环加载动画到EditorView（codemirror 的 dom）左侧。
  * 
  * @param view - ProseMirror的EditorView实例。
  */

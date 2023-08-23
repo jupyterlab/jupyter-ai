@@ -74,9 +74,10 @@ npm run watch
 
 1. 获取前面所有单元格的代码（鼠标指针之前的）
 2. 格式化后发送给 bigcode
-3. 展示在单元格中（以写入状态保存到单元格）[前三步代码：continueWriting 函数](./packages/jupyter-ai/src/bigcode/bigcode-continue-writing.ts)
-4. 当用户按下 Enter 后，取消代码的灰色状态 [代码：removeColor 函数](./packages/jupyter-ai/src/bigcode/bigcode-continue-writing.ts)
-5. 当用户按下其他键后，删除灰色的代码 [代码：handleAnyKeyPress 函数](./packages/jupyter-ai/src/bigcode/bigcode-continue-writing.ts)
+3. 开始请求动画 [代码](./packages/jupyter-ai/src/utils/animation.ts)
+4. 展示在单元格中（以写入状态保存到单元格）[1.2.4步代码：continueWriting 函数](./packages/jupyter-ai/src/bigcode/bigcode-continue-writing.ts)
+5. 当用户按下 Enter 后，取消代码的灰色状态 [代码：removeColor 函数](./packages/jupyter-ai/src/bigcode/bigcode-continue-writing.ts)
+6. 当用户按下其他键后，删除灰色的代码 [代码：handleAnyKeyPress 函数](./packages/jupyter-ai/src/bigcode/bigcode-continue-writing.ts)
 
 
 
