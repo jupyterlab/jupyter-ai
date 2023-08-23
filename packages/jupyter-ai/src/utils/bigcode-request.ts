@@ -17,6 +17,7 @@ export const sendToBigCode = async (prompt: string | null): Promise<{ generated_
     alert('BigCode service URL or Huggingface Access Token not set.');
     return new Promise((resolve, reject) => { reject('BigCode service URL or Huggingface Access Token not set.') });
   }
+  
   if (!prompt) {
     return new Promise((resolve, reject) => { reject('Prompt is null') });
   }

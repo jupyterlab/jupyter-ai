@@ -1,0 +1,32 @@
+.circle-loading-animation {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    border-top-color: #FFCA28; /* This determines the ring color */
+    animation: spin 1s linear infinite;
+    position: absolute;
+    right: 15px;
+    bottom: 5px;
+    z-index: 1000;
+}
+
+.circle-success {
+    border-color: green;
+    animation: fadeInOut 2s forwards, spin 0s;
+}
+
+.circle-failed {
+    border-color: red;
+    animation: fadeInOut 2s forwards, spin 0s;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes fadeInOut {
+    0% { opacity: 1; }
+    100% { opacity: 0; }
+}

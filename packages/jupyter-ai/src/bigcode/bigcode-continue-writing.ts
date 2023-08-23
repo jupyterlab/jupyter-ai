@@ -1,26 +1,41 @@
 import { JupyterFrontEnd } from '@jupyterlab/application';
-// import { DocumentWidget } from '@jupyterlab/docregistry';
-// import { CodeMirrorEditor } from "@jupyterlab/codemirror"
 import { EditorView } from '@codemirror/view';
 import { getAllCellTextByBeforePointer } from "../utils/context"
 import { sendToBigCode, processCompletionResult, constructContinuationPrompt } from "../utils/bigcode-request"
 import { insertAndHighlightCode, removeTextStatus, moveCursorToEnd, replaceText } from "../utils/cell-modification"
+import { addLoadingAnimation, requestSuccess, requestFailed } from "../utils/animation"
 
 import GlobalStore from '../contexts/continue-writing-context';
 
 
-export const continueWriting = (app: JupyterFrontEnd): boolean => {
+export const continueWriting = (app: JupyterFrontEnd, view:EditorView): boolean => {
     const contexts = getAllCellTextByBeforePointer(app)
     if (!contexts) {
         return false
     }
 
+    addLoadingAnimation(view);
+
     GlobalStore.setCodeOnRequest(contexts[contexts.length - 1])
     const prompt = constructContinuationPrompt(contexts)
-
+    // 设置正在请求中
+    GlobalStore.changeIsRequest();
     sendToBigCode(prompt).then(result => {
         const resultCode = processCompletionResult(result)
-        insertAndHighlightCode(app, GlobalStore.codeOnRequest, resultCode)
+
+        if (resultCode == ""){
+            GlobalStore.setCodeOnRequest("")
+        }else{
+            insertAndHighlightCode(app, GlobalStore.codeOnRequest, resultCode)
+        }
+
+        GlobalStore.changeIsRequest();
+        requestSuccess(view)
+    }).catch(err=>{
+        console.log(err)
+        GlobalStore.setCodeOnRequest("")
+        GlobalStore.changeIsRequest();
+        requestFailed(view)
     })
 
     return true;
@@ -39,6 +54,10 @@ export const removeColor = (view: EditorView): boolean => {
 }
 
 export const handleAnyKeyPress = (view: EditorView, event: KeyboardEvent) => {
+    if (GlobalStore.isRequest){
+        return true
+    }
+
     if (GlobalStore.codeOnRequest != "") {
         removeTextStatus(view)
         replaceText(view, GlobalStore.codeOnRequest)

@@ -4,6 +4,7 @@ class GlobalStore {
   @observable accessToken: string = "";
   @observable bigcodeUrl: string = "";
   @observable codeOnRequest: string = "";
+  @observable isRequest: boolean = false;
 
   constructor() {
     makeObservable(this);
@@ -23,6 +24,11 @@ class GlobalStore {
   @action
   setCodeOnRequest(code: string): void {
     this.codeOnRequest = code;
+  }
+
+  @action
+  changeIsRequest(): void {
+    this.isRequest = !this.isRequest;
   }
 
 }
