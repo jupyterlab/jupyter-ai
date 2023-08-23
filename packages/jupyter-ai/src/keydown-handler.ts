@@ -38,8 +38,8 @@ const generateKeyDownExtension = (app: JupyterFrontEnd): Extension => {
     keymap.of([
       {
         key: 'Ctrl-Space',
-        run: () => {
-          return continueWriting(app)
+        run: (view: EditorView) => {
+          return continueWriting(app, view)
         }
       },
       {
