@@ -1,5 +1,8 @@
 # 整合bigcode续写逻辑说明
 
+## 依赖项
+- "mobx" and "mobx-react": react的一个全局变量管理库
+- typescript: ~4.1.3 -> 5.1.6，之前的ts版本会打包失败，原因为ts语法检查依赖项中的代码不通过
 
 ## 逻辑梳理
 我们目前的做法是基于现有的 jupyter-ai 代码做的扩展（属于 jupyter-ai 的一部分）
@@ -22,7 +25,7 @@
 
 代码参考[keydown-handler.ts](./packages/jupyter-ai/src/keydown-handler.ts)
 
-### 后端
+### 后端（最后做）
 
 在 jupyter-ai 中，用户填写的信息后，会进行请求到后端[handlers](./packages/jupyter-ai/jupyter_ai/handlers.py)，由后端保存到"~/.loacl"目录中。
 
