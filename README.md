@@ -1,21 +1,27 @@
 # Jupyter AI
 
-Welcome to Jupyter AI, which brings generative AI to Jupyter. Jupyter AI provides a user-friendly
+Jupyter AI connects generative AI with Jupyter notebooks. Jupyter AI provides a user-friendly
 and powerful way to explore generative AI models in notebooks and improve your productivity
 in JupyterLab and the Jupyter Notebook. More specifically, Jupyter AI offers:
 
 * An `%%ai` magic that turns the Jupyter notebook into a reproducible generative AI playground.
   This works anywhere the IPython kernel runs (JupyterLab, Jupyter Notebook, Google Colab, VSCode, etc.).
 * A native chat UI in JupyterLab that enables you to work with generative AI as a conversational assistant.
-* Support for a wide range of generative model providers and models
-  (AI21, Anthropic, Cohere, Hugging Face, OpenAI, SageMaker, etc.).
+* Support for a wide range of generative model providers, including AI21, Anthropic, AWS, Cohere,
+  Hugging Face, and OpenAI.
 
 Documentation is available on [ReadTheDocs](https://jupyter-ai.readthedocs.io/en/latest/).
 
+![A screenshot of Jupyter AI showing the chat interface and the magic commands](docs/source/_static/jupyter-ai-screenshot.png)
+
 ## Requirements
+
+You will need to have installed the following software to use Jupyter AI:
 
 - Python 3.8 - 3.11
 - JupyterLab 4
+
+In addition, you will need access to at least one model provider.
 
 ## Setting Up Model Providers in a Notebook
 
@@ -33,8 +39,6 @@ In a code cell, you can use the %env magic command to set the credentials as fol
 ```
 
 For more specific instructions for each model provider, refer to [the model providers documentation](https://jupyter-ai.readthedocs.io/en/latest/users/index.html#model-providers).
-
-
 
 ## Installation
 
@@ -63,14 +67,9 @@ and create an environment that uses Python 3.11:
     $ conda activate jupyter-ai
     $ pip install jupyter_ai
 
-If you are not using JupyterLab and you only want to install the Jupyter AI `%%ai` magic, skip the `pip install jupyter_ai` step above, and instead, run:
-
-    $ pip install jupyter_ai_magics
-
-
 ## The `%%ai` magic command
 
-The `%%ai` magic works anywhere the IPython kernel runs (JupyterLab, Jupyter Notebook, Google Colab, Visual Studio Code, etc.).
+The `%%ai` magic works anywhere the IPython kernel runs, including JupyterLab, Jupyter Notebook, Google Colab, and Visual Studio Code.
 
 Once you have installed the `%%ai` magic, you can enable it in any notebook or the IPython shell by running:
 
