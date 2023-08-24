@@ -17,6 +17,7 @@ import {
   requestSuccess as loadRequestSuccessAnimation,
   requestFailed as loadRequestFailedAnimation
 } from '../utils/animation';
+import { ICell } from '../types/cell';
 
 import GlobalStore from '../contexts/continue-writing-context';
 
@@ -25,8 +26,8 @@ const requestState = {
   viewResult: false
 };
 
-const isContextEmpty = (context: string[]): boolean => {
-  return context.every(code => code === '');
+const isContextEmpty = (context: ICell[]): boolean => {
+  return context.every(cell => cell.content === '');
 };
 
 const requestSuccess = (
@@ -76,7 +77,7 @@ export const continueWriting = (
 
   requestState.loading = true;
   addLoadingAnimation(view);
-  GlobalStore.setCodeOnRequest(context[context.length - 1]);
+  GlobalStore.setCodeOnRequest(context[context.length - 1].content);
   const prompt = constructContinuationPrompt(context);
 
   sendToBigCode(prompt)

@@ -3,6 +3,8 @@ import { CodeEditor } from '@jupyterlab/codeeditor';
 import { DocumentWidget } from '@jupyterlab/docregistry';
 import { Notebook } from '@jupyterlab/notebook';
 import { getTextByEditor, getContent, getEditorByWidget } from './instance';
+import { ICell, ICellType } from '../types/cell';
+import { CodeCell, MarkdownCell } from '@jupyterlab/cells';
 
 export const splitString = (input: string): string[] => {
   // Split by newline, but ignore escaped newlines
@@ -67,7 +69,7 @@ export const getCellTextByApp = (app: JupyterFrontEnd): string[] | null => {
 
 export const getAllCellTextByPosition = (
   app: JupyterFrontEnd
-): string[] | null => {
+): ICell[] | null => {
   const currentWidget = app.shell.currentWidget;
   if (!currentWidget || !(currentWidget instanceof DocumentWidget)) {
     return null;
@@ -75,27 +77,40 @@ export const getAllCellTextByPosition = (
 
   const content = getContent(currentWidget);
   if (content instanceof Notebook) {
-    const allCellText = [];
+    const allCellBase: ICell[] = [];
     const widgets = content.widgets;
     const activeCellIndex = content.activeCellIndex;
 
     // 遍历到当前单元格
     for (let index = 0; index <= activeCellIndex; index++) {
       const widget = widgets[index];
+      const cellType: ICellType =
+        widget instanceof CodeCell
+          ? 'code'
+          : widget instanceof MarkdownCell
+          ? 'markdown'
+          : null;
+
       const editor = widget.editor;
       if (editor) {
         // 如果是当前的单元格
         if (index === activeCellIndex) {
           const cellLines = getCellTextByBeforePointer(editor);
-          allCellText.push(cellLines.join('\n'));
+          allCellBase.push({
+            type: cellType,
+            content: cellLines.join('\n')
+          });
           break;
         }
 
-        const text = getTextByEditor(editor);
-        allCellText.push(text);
+        const codeText = getTextByEditor(editor);
+        allCellBase.push({
+          type: cellType,
+          content: codeText
+        });
       }
     }
-    return allCellText;
+    return allCellBase;
   }
   return null;
 };
