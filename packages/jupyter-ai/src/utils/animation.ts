@@ -28,10 +28,7 @@ export function requestSuccess(view: EditorView): void {
     
     // After the animation is complete, remove the circle
     setTimeout(() => {
-        const circles = view.dom.closest('.jp-Cell')?.querySelectorAll('.circle-loading-animation');
-        circles?.forEach(circle => {
-            circle.remove();
-        })
+        removeLoadingAnimation(view)
     }, 1500);
 }
 
@@ -44,9 +41,13 @@ export function requestFailed(view: EditorView): void {
 
     // After the animation is complete, remove the circle
     setTimeout(() => {
-        const circles = view.dom.closest('.jp-Cell')?.querySelectorAll('.circle-loading-animation');
-        circles?.forEach(circle => {
-            circle.remove();
-        })
+        removeLoadingAnimation(view)
     }, 1500);
+}
+
+const removeLoadingAnimation = (view: EditorView) => {
+    const circles = view.dom.closest('.jp-Cell')?.querySelectorAll('.circle-loading-animation');
+    circles?.forEach(circle => {
+        circle.remove();
+    })
 }
