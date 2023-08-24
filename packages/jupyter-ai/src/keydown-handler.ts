@@ -40,19 +40,19 @@ const generateKeyDownExtension = (app: JupyterFrontEnd): Extension => {
   return Prec.highest(
     keymap.of([
       {
-        key: 'Ctrl-Space',
-        run: (view: EditorView) => {
-          return continueWriting(app, view);
-        }
-      },
-      {
-        key: 'Enter',
-        run: (view: EditorView) => {
-          return removeColor(view);
-        }
-      },
-      {
         any: (view: EditorView, event: KeyboardEvent) => {
+          /*
+           * The reason for using "any" instead of "key" here is that when the system has a default shortcut key,
+           * only the run method with the key parameter cannot enter, so any is used here to judge event.code
+           */
+          if (event.ctrlKey && event.code === 'Space') {
+            return continueWriting(app, view);
+          }
+
+          if (event.code === 'Enter') {
+            return removeColor(view);
+          }
+
           return handleAnyKeyPress(view);
         }
       }
