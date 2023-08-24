@@ -36,7 +36,6 @@ const mountExtension = (
   mountedEditors.add(editor);
 };
 
-
 const generateKeyDownExtension = (app: JupyterFrontEnd): Extension => {
   return Prec.highest(
     keymap.of([
@@ -54,7 +53,7 @@ const generateKeyDownExtension = (app: JupyterFrontEnd): Extension => {
       },
       {
         any: (view: EditorView, event: KeyboardEvent) => {
-          return handleAnyKeyPress(view, event);
+          return handleAnyKeyPress(view);
         }
       }
     ])
