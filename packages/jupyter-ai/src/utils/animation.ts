@@ -5,6 +5,7 @@ import { EditorView } from '@codemirror/view';
  * @param view - ProseMirror的EditorView实例。
  */
 export function addLoadingAnimation(view: EditorView): void {
+  removeLoadingAnimation(view);
   // 获取单元格的DOM节点。
   const cellNode = view.dom.closest('.jp-Cell');
 
