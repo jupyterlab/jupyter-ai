@@ -92,6 +92,10 @@ export const continueWriting = (
 };
 
 export const removeColor = (view: EditorView): boolean => {
+  if (GlobalStore.codeOnRequest === '' && !requestState.viewResult) {
+    return false;
+  }
+
   requestState.viewResult = false;
   removeTextStatus(view);
   GlobalStore.setCodeOnRequest('');
