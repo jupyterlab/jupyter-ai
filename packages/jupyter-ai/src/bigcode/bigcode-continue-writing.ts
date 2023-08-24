@@ -1,6 +1,6 @@
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { EditorView } from '@codemirror/view';
-import { getAllCellTextByBeforePointer } from '../utils/context';
+import { getAllCellTextByPosition } from '../utils/context';
 import {
   sendToBigCode,
   processCompletionResult,
@@ -60,7 +60,7 @@ export const continueWriting = (
   app: JupyterFrontEnd,
   view: EditorView
 ): boolean => {
-  const context = getAllCellTextByBeforePointer(app);
+  const context = getAllCellTextByPosition(app);
   if (!context) {
     return false;
   }
@@ -76,7 +76,6 @@ export const continueWriting = (
 
   requestState.loading = true;
   addLoadingAnimation(view);
-
   GlobalStore.setCodeOnRequest(context[context.length - 1]);
   const prompt = constructContinuationPrompt(context);
 
