@@ -61,11 +61,7 @@ export const continueWriting = (
   view: EditorView
 ): boolean => {
   const context = getAllCellTextByPosition(app);
-  if (!context) {
-    return false;
-  }
-
-  if (isContextEmpty(context)) {
+  if (!context || isContextEmpty(context)) {
     loadRequestFailedAnimation(view);
     return false;
   }
