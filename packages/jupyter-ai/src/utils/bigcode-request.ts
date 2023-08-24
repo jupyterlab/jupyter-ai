@@ -1,13 +1,29 @@
 import GlobalStore from '../contexts/continue-writing-context';
+import { ICell } from '../types/cell';
+
+const getPromptForCell = (cell: ICell): string => {
+  let cellPrompt = '';
+  switch (cell.type) {
+    case 'code':
+      cellPrompt += '<jupyter_code>';
+      break;
+    case 'markdown':
+      cellPrompt += '<jupyter_text>';
+      break;
+  }
+  return cellPrompt + cell.content;
+};
 
 export const constructContinuationPrompt = (
-  context: string[]
+  context: ICell[] | null
 ): string | null => {
-  if (context === null) {
+  if (!context || context.length === 0) {
     return null;
   }
 
-  const prompt = '<start_jupyter>' + context.join('\n');
+  const prompt = '<start_jupyter>' + context.map(getPromptForCell).join('');
+
+  console.log('prompt', prompt);
   return prompt;
 };
 
