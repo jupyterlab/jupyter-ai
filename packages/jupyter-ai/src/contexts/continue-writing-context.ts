@@ -1,9 +1,9 @@
 import { makeObservable, observable, action } from 'mobx';
 
 class GlobalStore {
-  @observable accessToken: string = "";
-  @observable bigcodeUrl: string = "";
-  @observable codeOnRequest: string = "";
+  @observable accessToken = '';
+  @observable bigcodeUrl = '';
+  @observable codeOnRequest = '';
 
   constructor() {
     makeObservable(this);
@@ -14,7 +14,6 @@ class GlobalStore {
     this.accessToken = token;
   }
 
-
   @action
   setBigcodeUrl(url: string): void {
     this.bigcodeUrl = url;
@@ -24,7 +23,6 @@ class GlobalStore {
   setCodeOnRequest(code: string): void {
     this.codeOnRequest = code;
   }
-
 }
 
 export default new GlobalStore();

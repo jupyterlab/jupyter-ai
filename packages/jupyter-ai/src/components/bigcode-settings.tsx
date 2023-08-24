@@ -1,29 +1,26 @@
 // import React, { useEffect } from 'react';
 import React, { useEffect } from 'react';
 import { Box, TextField } from '@mui/material';
-import GlobalStore from "../contexts/continue-writing-context"
+import GlobalStore from '../contexts/continue-writing-context';
 import { observer } from 'mobx-react-lite';
 
-type BigcodeSettingProps = {
-
-};
-
-
-export const BigCodeSetting = observer(({ }: BigcodeSettingProps) => {
-  const { bigcodeUrl } = GlobalStore
-  const { accessToken } = GlobalStore
+export const BigCodeSetting = observer(() => {
+  const { bigcodeUrl } = GlobalStore;
+  const { accessToken } = GlobalStore;
 
   const setBigcodeUrlWrapper = (value: string) => {
-    GlobalStore.setBigcodeUrl(value)
-  }
-  
-  const setAccessTokenWrapper = (value: string) => {
-    GlobalStore.setAccessToken(value)
-  }
+    GlobalStore.setBigcodeUrl(value);
+  };
 
-  useEffect(()=>{
-    GlobalStore.setBigcodeUrl("https://api-inference.huggingface.co/models/bigcode/starcoderbase/")
-  }, [])
+  const setAccessTokenWrapper = (value: string) => {
+    GlobalStore.setAccessToken(value);
+  };
+
+  useEffect(() => {
+    GlobalStore.setBigcodeUrl(
+      'https://api-inference.huggingface.co/models/bigcode/starcoderbase/'
+    );
+  }, []);
 
   return (
     <Box
@@ -51,7 +48,6 @@ export const BigCodeSetting = observer(({ }: BigcodeSettingProps) => {
         type="password"
         onChange={e => setAccessTokenWrapper(e.target.value)}
       />
-
     </Box>
   );
-})
+});

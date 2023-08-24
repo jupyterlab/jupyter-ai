@@ -2,8 +2,7 @@ import { JupyterFrontEnd } from '@jupyterlab/application';
 import { CodeEditor } from '@jupyterlab/codeeditor';
 import { DocumentWidget } from '@jupyterlab/docregistry';
 
-
-import { getTextByEditor, getContent, getEditorByWidget } from "./instance"
+import { getTextByEditor, getContent, getEditorByWidget } from './instance';
 
 export const splitString = (input: string): string[] => {
   // Split by newline, but ignore escaped newlines
@@ -27,7 +26,9 @@ export const getCellCode = (app: JupyterFrontEnd): string | null => {
   return null;
 };
 
-export const getCellTextByBeforePointer = (editor: CodeEditor.IEditor) => {
+export const getCellTextByBeforePointer = (
+  editor: CodeEditor.IEditor
+): string[] => {
   // Get the cursor position, e.g., {column: 2, line: 1}
   const position = editor.getCursorPosition();
   const text = getTextByEditor(editor);
@@ -50,7 +51,9 @@ export const getCellTextByBeforePointer = (editor: CodeEditor.IEditor) => {
   return codeLinesPositionBefore;
 };
 
-export const getAllCellTextByBeforePointer = (app: JupyterFrontEnd): string[] | null => {
+export const getAllCellTextByBeforePointer = (
+  app: JupyterFrontEnd
+): string[] | null => {
   const currentWidget = app.shell.currentWidget;
 
   if (!currentWidget || !(currentWidget instanceof DocumentWidget)) {

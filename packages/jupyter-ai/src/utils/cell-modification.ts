@@ -5,7 +5,7 @@ import { EditorView } from '@codemirror/view';
 import { StateEffect, StateField } from '@codemirror/state';
 import { Decoration, DecorationSet } from '@codemirror/view';
 import { CodeEditor } from '@jupyterlab/codeeditor';
-import { splitString } from "./context"
+import { splitString } from './context';
 
 const clearTextEffectState = StateEffect.define({});
 
@@ -69,24 +69,28 @@ export function applyGrayTextToSelection(
   ];
 
   if (!view.state.field(grayTextStateField, false)) {
-    effects.push(StateEffect.appendConfig.of([grayTextStateField, grayTextTheme]));
+    effects.push(
+      StateEffect.appendConfig.of([grayTextStateField, grayTextTheme])
+    );
   }
 
   view.dispatch({ effects });
   return true;
 }
 
-export const calculatePointerPosition = (code: string): CodeEditor.IPosition => {
-  const lines = splitString(code)
+export const calculatePointerPosition = (
+  code: string
+): CodeEditor.IPosition => {
+  const lines = splitString(code);
   return {
     line: lines.length - 1,
     column: lines[lines.length - 1].length
-  }
-}
+  };
+};
 
 export const insertAndHighlightCode = (
   app: JupyterFrontEnd,
-  oldCode:string,
+  oldCode: string,
   newCode: string
 ): boolean => {
   // Get the currently active document window
@@ -102,7 +106,7 @@ export const insertAndHighlightCode = (
   // The CodeMirror instance object of the cell being currently operated on
   const editor = activeCell.editor as CodeMirrorEditor;
   if (editor) {
-    const prePosition = calculatePointerPosition(oldCode)
+    const prePosition = calculatePointerPosition(oldCode);
     const view = editor.editor;
     // Update the current code
     editor.model.sharedModel.setSource(oldCode + newCode);
@@ -121,23 +125,22 @@ export const insertAndHighlightCode = (
   return false;
 };
 
-
 export const moveCursorToEnd = (view: EditorView): void => {
   const endPos = view.state.doc.length; // Get the document's length
   const transaction = view.state.update({
-      selection: { anchor: endPos, head: endPos }, // Set both anchor and head to the end position
-      scrollIntoView: true  // Optionally scroll the view to show the cursor
+    selection: { anchor: endPos, head: endPos }, // Set both anchor and head to the end position
+    scrollIntoView: true // Optionally scroll the view to show the cursor
   });
 
   view.dispatch(transaction);
-}
+};
 
-export const replaceText = (view: EditorView, newText: string) => {
+export const replaceText = (view: EditorView, newText: string): void => {
   // Create a new transaction to replace all text and move the cursor
   const tr = view.state.update({
-      changes: { from: 0, to: view.state.doc.length, insert: newText },  // Replace all text with newText
-      selection: { anchor: newText.length, head: newText.length },  // Move cursor to the end of newText
-      scrollIntoView: true  // Optionally scroll to show the cursor
+    changes: { from: 0, to: view.state.doc.length, insert: newText }, // Replace all text with newText
+    selection: { anchor: newText.length, head: newText.length }, // Move cursor to the end of newText
+    scrollIntoView: true // Optionally scroll to show the cursor
   });
 
   view.dispatch(tr);

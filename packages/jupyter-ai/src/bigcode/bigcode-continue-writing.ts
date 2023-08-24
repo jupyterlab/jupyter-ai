@@ -1,6 +1,6 @@
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { EditorView } from '@codemirror/view';
-import { getAllCellTextByBeforePointer } from "../utils/context"
+import { getAllCellTextByBeforePointer } from '../utils/context';
 import {
   sendToBigCode,
   processCompletionResult,
@@ -12,86 +12,109 @@ import {
   moveCursorToEnd,
   replaceText
 } from '../utils/cell-modification';
-import { addLoadingAnimation, requestSuccess, requestFailed } from "../utils/animation"
+import {
+  addLoadingAnimation,
+  requestSuccess as loadRequestSuccessAnimation,
+  requestFailed as loadRequestFailedAnimation
+} from '../utils/animation';
 
 import GlobalStore from '../contexts/continue-writing-context';
 
-let isRequest: boolean = false;
+const requestState = {
+  loading: false,
+  viewResult: false
+};
 
 const isContextEmpty = (context: string[]): boolean => {
-    for(const code of context) {
-        if (code != '') {
-            return false;
-        }
-    }
-    return true;
+  return context.every(code => code === '');
 };
 
-export const continueWriting = (app: JupyterFrontEnd, view:EditorView): boolean => {
-    const context = getAllCellTextByBeforePointer(app)
-    if (!context) {
-        return false
-    }
+const requestSuccess = (
+  app: JupyterFrontEnd,
+  view: EditorView,
+  result: { generated_text: string }[]
+) => {
+  const resultCode = processCompletionResult(result);
+  requestState.viewResult = true;
 
-    if (isContextEmpty(context)) {
-        requestFailed(view)
-        return false
-    }
+  if (resultCode === '') {
+    requestState.viewResult = false;
+    GlobalStore.setCodeOnRequest('');
+  } else {
+    insertAndHighlightCode(app, GlobalStore.codeOnRequest, resultCode);
+  }
 
-    if (isRequest) {
-        return true;
-    }
+  loadRequestSuccessAnimation(view);
+  requestState.loading = false;
+};
 
-    isRequest = true;
-    addLoadingAnimation(view);
+const requestFailed = (view: EditorView) => {
+  GlobalStore.setCodeOnRequest('');
 
-    GlobalStore.setCodeOnRequest(context[context.length - 1])
-    const prompt = constructContinuationPrompt(context)
+  loadRequestFailedAnimation(view);
+  requestState.viewResult = false;
+  requestState.loading = false;
+};
 
-    sendToBigCode(prompt).then(result => {
-        const resultCode = processCompletionResult(result)
-        
-        if (resultCode == ""){
-            GlobalStore.setCodeOnRequest("")
-        }else{
-            insertAndHighlightCode(app, GlobalStore.codeOnRequest, resultCode)
-        }
+export const continueWriting = (
+  app: JupyterFrontEnd,
+  view: EditorView
+): boolean => {
+  const context = getAllCellTextByBeforePointer(app);
+  if (!context) {
+    return false;
+  }
 
-        requestSuccess(view)
-        isRequest = false
-    }).catch(err=>{
-        console.error(err)
-        GlobalStore.setCodeOnRequest("")
-        
-        requestFailed(view)
-        isRequest = false
-    })
+  if (isContextEmpty(context)) {
+    loadRequestFailedAnimation(view);
+    return false;
+  }
 
+  if (requestState.loading || requestState.viewResult) {
     return true;
-}
+  }
 
+  requestState.loading = true;
+  addLoadingAnimation(view);
+
+  GlobalStore.setCodeOnRequest(context[context.length - 1]);
+  const prompt = constructContinuationPrompt(context);
+
+  sendToBigCode(prompt)
+    .then(result => {
+      requestSuccess(app, view, result);
+    })
+    .catch(err => {
+      console.error(err);
+      requestFailed(view);
+    });
+
+  return true;
+};
 
 export const removeColor = (view: EditorView): boolean => {
-    if (GlobalStore.codeOnRequest == "") {
-        return false
-    }
+  if (GlobalStore.codeOnRequest === '') {
+    return false;
+  }
 
-    removeTextStatus(view)
-    GlobalStore.setCodeOnRequest("")
-    moveCursorToEnd(view)
-    return true
+  requestState.viewResult = false;
+  removeTextStatus(view);
+  GlobalStore.setCodeOnRequest('');
+  moveCursorToEnd(view);
+  return true;
 };
 
-export const handleAnyKeyPress = (view: EditorView, event: KeyboardEvent) => {
-    if (isRequest){
-        return true
-    }
+export const handleAnyKeyPress = (view: EditorView): boolean => {
+  if (requestState.loading) {
+    return true;
+  }
 
-    if (GlobalStore.codeOnRequest != "") {
-        removeTextStatus(view)
-        replaceText(view, GlobalStore.codeOnRequest)
-        GlobalStore.setCodeOnRequest("")
-    }
+  if (GlobalStore.codeOnRequest !== '') {
+    removeTextStatus(view);
+    replaceText(view, GlobalStore.codeOnRequest);
+    GlobalStore.setCodeOnRequest('');
+    requestState.viewResult = false;
+  }
 
-    return false
-}
+  return false;
+};

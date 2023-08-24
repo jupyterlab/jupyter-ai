@@ -1,25 +1,33 @@
 import GlobalStore from '../contexts/continue-writing-context';
 
-export const constructContinuationPrompt = (context: string[]): string|null => {
-  if (context == null) {
-      return null;
+export const constructContinuationPrompt = (
+  context: string[]
+): string | null => {
+  if (context === null) {
+    return null;
   }
 
   const prompt = '<start_jupyter>' + context.join('\n');
   return prompt;
-}
+};
 
-export const sendToBigCode = async (prompt: string | null): Promise<{ generated_text: string }[]> => {
+export const sendToBigCode = async (
+  prompt: string | null
+): Promise<{ generated_text: string }[]> => {
   const { bigcodeUrl } = GlobalStore;
   const { accessToken } = GlobalStore;
 
   if (!bigcodeUrl || !accessToken) {
     alert('BigCode service URL or Huggingface Access Token not set.');
-    return new Promise((resolve, reject) => { reject('BigCode service URL or Huggingface Access Token not set.') });
+    return new Promise((resolve, reject) => {
+      reject('BigCode service URL or Huggingface Access Token not set.');
+    });
   }
-  
+
   if (!prompt) {
-    return new Promise((resolve, reject) => { reject('Prompt is null') });
+    return new Promise((resolve, reject) => {
+      reject('Prompt is null');
+    });
   }
 
   const bodyData = {
@@ -45,10 +53,12 @@ export const sendToBigCode = async (prompt: string | null): Promise<{ generated_
   return data;
 };
 
-export const processCompletionResult = (result: { generated_text: string }[]): string => {
-  if (result.length == 0) {
-    return ""
+export const processCompletionResult = (
+  result: { generated_text: string }[]
+): string => {
+  if (result.length === 0) {
+    return '';
   }
 
-  return result[0].generated_text.replace("<jupyter_output>", "")
-}
+  return result[0].generated_text.replace('<jupyter_output>', '');
+};
