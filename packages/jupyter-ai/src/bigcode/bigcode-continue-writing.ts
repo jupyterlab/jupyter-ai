@@ -105,7 +105,7 @@ export const handleAnyKeyPress = (view: EditorView): boolean => {
     return true;
   }
 
-  if (GlobalStore.codeOnRequest !== '') {
+  if (GlobalStore.codeOnRequest !== '' || requestState.viewResult) {
     removeTextStatus(view);
     replaceText(view, GlobalStore.codeOnRequest);
     GlobalStore.setCodeOnRequest('');
