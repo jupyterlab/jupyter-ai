@@ -43,8 +43,9 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           start_server_script: 'null'
           test_folder: packages/jupyter-ai/ui-tests
-          artifact_name: updated-galata-snapshots
-          report_name: update-galata-report
+          artifact_name: updated-playwright-snapshots
+          report_name: update-playwright-report
+          npm_client: jlpm
 
       - name: Comment back on the PR
         run: |
