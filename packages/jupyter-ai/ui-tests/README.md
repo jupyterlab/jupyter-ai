@@ -12,6 +12,8 @@ in [jupyter_server_test_config.py](./jupyter_server_test_config.py).
 
 The default configuration will produce video for failing tests and an HTML report.
 
+> There is a new experimental UI mode that you may fall in love with; see [that video](https://www.youtube.com/watch?v=jF0yA-JLQW0).
+
 ## Run the tests
 
 > All commands are assumed to be executed from the root directory
@@ -109,7 +111,14 @@ jlpm playwright install
 cd ..
 ```
 
-3. Execute the [Playwright code generator](https://playwright.dev/docs/codegen):
+3. Start the server:
+
+```sh
+cd ./ui-tests
+jlpm start
+```
+
+4. Execute the [Playwright code generator](https://playwright.dev/docs/codegen) in **another terminal**:
 
 ```sh
 cd ./ui-tests
@@ -144,5 +153,15 @@ cd ..
 
 ```sh
 cd ./ui-tests
-PWDEBUG=1 jlpm playwright test
+jlpm playwright test --debug
+```
+
+## Upgrade Playwright and the browsers
+
+To update the web browser versions, you must update the package `@playwright/test`:
+
+```sh
+cd ./ui-tests
+jlpm up "@playwright/test"
+jlpm playwright install
 ```
