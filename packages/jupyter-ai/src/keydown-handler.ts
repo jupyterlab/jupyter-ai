@@ -15,6 +15,7 @@ import {
 } from './bigcode/bigcode-continue-writing';
 import { parseKeyboardEventToShortcut } from './utils/keyboard';
 import GlobalStore from './contexts/continue-writing-context';
+import { CodeEditor } from '@jupyterlab/codeeditor';
 
 // 创建一个软引用集合存放 editor
 const mountedEditors = new WeakSet<CodeMirrorEditor>();
@@ -29,6 +30,11 @@ const mountExtension = (
     return;
   }
 
+  // editor 还没有正常的完成初始化
+  if (!('editor' in editor)) {
+    return;
+  }
+
   const view = editor.editor as EditorView;
   const tr = view.state.update({
     effects: StateEffect.appendConfig.of(extension)
@@ -36,6 +42,20 @@ const mountExtension = (
 
   view.dispatch(tr);
   mountedEditors.add(editor);
+};
+
+// 在新增单元格时，editor 可能没有被实例化，所以我们需将挂载事件放在异步队列最低端，以用来保证 editor 实例化完成
+const mountEditorWithDelay = (
+  editor: CodeEditor.IEditor | null,
+  extension: Extension
+) => {
+  if (editor && editor instanceof CodeMirrorEditor) {
+    const waitCellInitTimer = setTimeout(() => {
+      const codeMirrorEditor = editor as CodeMirrorEditor;
+      mountExtension(codeMirrorEditor, extension);
+      clearTimeout(waitCellInitTimer);
+    }, 0);
+  }
 };
 
 const generateKeyDownExtension = (app: JupyterFrontEnd): Extension => {
@@ -87,7 +107,7 @@ const init = (app: JupyterFrontEnd) => {
       const firstCell = content.activeCell;
       if (firstCell) {
         const firstCellEditor = firstCell.editor as CodeMirrorEditor;
-        mountExtension(firstCellEditor, extension);
+        mountEditorWithDelay(firstCellEditor, extension);
       }
 
       // 监听选中的 cell 发生变化时
@@ -96,12 +116,7 @@ const init = (app: JupyterFrontEnd) => {
           return;
         }
 
-        // 在新增单元格时，editor 可能没有被实例化，所以我们需将挂载事件放在异步队列最低端，以用来保证 editor 实例化完成
-        const waitCellInitTimer = setTimeout(() => {
-          const editor = cell.editor as CodeMirrorEditor;
-          mountExtension(editor, extension);
-          clearTimeout(waitCellInitTimer);
-        }, 0);
+        mountEditorWithDelay(cell.editor, extension);
       });
     }
   });

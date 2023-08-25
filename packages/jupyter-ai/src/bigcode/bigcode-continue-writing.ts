@@ -93,8 +93,8 @@ export const continueWriting = (
       console.debug('continueWriting() => state is success, result: ', result);
       requestSuccess(app, view, result);
     })
-    .catch(err => {
-      console.error(err);
+    .catch(async err => {
+      console.error(await err);
       requestFailed(view);
     });
 

@@ -64,8 +64,15 @@ export const sendToBigCode = async (
     body: JSON.stringify(bodyData)
   });
 
-  const data = (await response).json();
-  return data;
+  const responseResult = await response;
+  // Check if response status code is in the range 200-299
+  if (!responseResult.ok) {
+    return new Promise((resolve, reject) => {
+      reject(responseResult.json());
+    });
+  }
+
+  return responseResult.json();
 };
 
 export const processCompletionResult = (

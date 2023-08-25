@@ -61,7 +61,7 @@ export const BigCodeSetting = observer(() => {
 
       <h2 className="jp-ai-ChatSettings-header">Hotkey for continue writing</h2>
       <TextField
-        label="Hotkey for continue writing"
+        label="Please press the hotkey you need"
         value={GlobalStore.shortcutStr}
         fullWidth
         type="text"
