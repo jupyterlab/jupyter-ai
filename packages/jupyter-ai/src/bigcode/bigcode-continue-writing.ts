@@ -14,8 +14,7 @@ import {
 } from '../utils/cell-modification';
 import {
   addLoadingAnimation,
-  requestSuccess as loadRequestSuccessAnimation,
-  requestFailed as loadRequestFailedAnimation,
+  updateAnimation,
   removeLoadingAnimation
 } from '../utils/animation';
 import { ICell } from '../types/cell';
@@ -28,7 +27,12 @@ const requestState = {
 };
 
 const isContextEmpty = (context: ICell[]): boolean => {
-  return context.every(cell => cell.content === '');
+  if (!context || context.length === 0) {
+    return true; // 如果context为空或未定义，我们认为它是空的
+  }
+
+  const combinedContent = context.reduce((acc, cell) => acc + cell.content, '');
+  return combinedContent.trim() === '';
 };
 
 const requestSuccess = (
@@ -46,14 +50,14 @@ const requestSuccess = (
     insertAndHighlightCode(app, GlobalStore.codeOnRequest, resultCode);
   }
 
-  loadRequestSuccessAnimation(view);
+  updateAnimation(view, 'success');
   requestState.loading = false;
 };
 
 const requestFailed = (view: EditorView) => {
   GlobalStore.setCodeOnRequest('');
 
-  loadRequestFailedAnimation(view);
+  updateAnimation(view, 'failed');
   requestState.viewResult = false;
   requestState.loading = false;
 };
@@ -64,7 +68,7 @@ export const continueWriting = (
 ): boolean => {
   const context = getAllCellTextByPosition(app);
   if (!context || isContextEmpty(context)) {
-    loadRequestFailedAnimation(view);
+    updateAnimation(view, 'failed');
     console.error('continueWriting() => context is null');
     return false;
   }
@@ -128,6 +132,5 @@ export const handleAnyKeyPress = (view: EditorView): boolean => {
     GlobalStore.setCodeOnRequest('');
     requestState.viewResult = false;
   }
-
   return false;
 };

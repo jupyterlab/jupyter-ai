@@ -4,6 +4,7 @@ class GlobalStore {
   @observable accessToken = '';
   @observable bigcodeUrl = '';
   @observable codeOnRequest = '';
+  @observable shortcutStr = 'Ctrl + Space';
 
   constructor() {
     makeObservable(this);
@@ -22,6 +23,11 @@ class GlobalStore {
   @action
   setCodeOnRequest(code: string): void {
     this.codeOnRequest = code;
+  }
+
+  @action
+  setShortcutStr(keyDownStr: string): void {
+    this.shortcutStr = keyDownStr;
   }
 }
 

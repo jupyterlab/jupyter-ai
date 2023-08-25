@@ -13,6 +13,8 @@ import {
   removeColor,
   handleAnyKeyPress
 } from './bigcode/bigcode-continue-writing';
+import { parseKeyboardEventToShortcut } from './utils/keyboard';
+import GlobalStore from './contexts/continue-writing-context';
 
 // 创建一个软引用集合存放 editor
 const mountedEditors = new WeakSet<CodeMirrorEditor>();
@@ -41,12 +43,10 @@ const generateKeyDownExtension = (app: JupyterFrontEnd): Extension => {
     keymap.of([
       {
         any: (view: EditorView, event: KeyboardEvent) => {
-          console.debug('keyboard press: key.code: ', event.code);
-          /*
-           * The reason for using "any" instead of "key" here is that when the system has a default shortcut key,
-           * only the run method with the key parameter cannot enter, so any is used here to judge event.code
-           */
-          if (event.shiftKey && event.code === 'Space') {
+          const parsedShortcut = parseKeyboardEventToShortcut(event);
+          console.debug('keyboard press: ', parsedShortcut);
+
+          if (parsedShortcut === GlobalStore.shortcutStr) {
             console.debug(
               'keyboard press: continueWriting function is Running'
             );
