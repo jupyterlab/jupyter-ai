@@ -46,7 +46,7 @@ export class AIHelper {
    *  Opens Jupyter AI chat sidepanel if it is closed
    */
   async openChatPanel() {
-    if (!await this.chat.isVisible()) {
+    if (!(await this.chat.isVisible())) {
       await this.chatIcon.click();
     }
   }
