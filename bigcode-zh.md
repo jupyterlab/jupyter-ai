@@ -14,6 +14,8 @@ packages/jupyter-ai
 │   │   └── bigcode-continue-writing.ts  # Code continuation logic
 │   ├── components  # UI components
 │   │   └── bigcode-settings.tsx  # Settings related to bigcode
+|   ├── types
+|   |   └── cell.ts # Used to call the cell structure in the link
 │   ├── contexts
 │   │   └── continue-writing-context.ts  # Context for the continue writing feature
 │   ├── keydown-handler.ts  # Global keydown handlers
@@ -21,7 +23,8 @@ packages/jupyter-ai
 │   │   ├── bigcode-request.ts  # Bigcode API requests
 │   │   ├── cell-modification.ts  # Cell modification
 │   │   ├── context.ts  # Cell context
-│   │   └── instance.ts  # Instance related utilities
+│   │   ├── instance.ts  # Instance related utilities
+│   │   └── keyboard.ts # Tool method to monitor the keyboard
 │   └── widgets 
 │       └── bigcode-sidebar.tsx  # Sidebar for bigcode features
 
@@ -46,6 +49,10 @@ npm run dev
 # 如果想要在修改代码时编译，将下述指令和以上指令一起运行
 npm run watch
 ```
+### debug 
+在F12(开发者工具)中将日志级别中所有的选项都勾选上
+![](./docs/source/_static/debug-levels.jpg)
+
 
 ## 逻辑梳理
 我们目前的做法是基于现有的 jupyter-ai 代码做的扩展（属于 jupyter-ai 的一部分）

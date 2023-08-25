@@ -15,12 +15,15 @@ export const BigCodeSetting = observer(() => {
 
   const setAccessTokenWrapper = (value: string) => {
     GlobalStore.setAccessToken(value);
+    console.debug('setAccessToken()');
   };
 
-  const setHotKey = (event: React.KeyboardEvent<HTMLInputElement>) => {
+  const setHotKeyWrapper = (event: React.KeyboardEvent<HTMLInputElement>) => {
     event.preventDefault();
     const shortcutStr = parseKeyboardEventToShortcut(event);
     GlobalStore.setShortcutStr(shortcutStr);
+    localStorage.setItem('shortcutStr', shortcutStr);
+    console.debug('setHotKey() => The current hotkey is ', shortcutStr);
   };
 
   useEffect(() => {
@@ -58,11 +61,11 @@ export const BigCodeSetting = observer(() => {
 
       <h2 className="jp-ai-ChatSettings-header">Hotkey for continue writing</h2>
       <TextField
-        label="Huggingface Access Token"
+        label="Hotkey for continue writing"
         value={GlobalStore.shortcutStr}
         fullWidth
         type="text"
-        onKeyDown={setHotKey}
+        onKeyDown={setHotKeyWrapper}
       />
     </Box>
   );

@@ -8,6 +8,11 @@ class GlobalStore {
 
   constructor() {
     makeObservable(this);
+    // 设置初始值从localStorage
+    const storedShortcutStr = localStorage.getItem('shortcutStr');
+    if (storedShortcutStr) {
+      this.shortcutStr = storedShortcutStr;
+    }
   }
 
   @action
