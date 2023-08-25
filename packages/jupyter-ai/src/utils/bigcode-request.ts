@@ -23,7 +23,6 @@ export const constructContinuationPrompt = (
 
   const prompt = '<start_jupyter>' + context.map(getPromptForCell).join('');
 
-  console.log('prompt', prompt);
   return prompt;
 };
 

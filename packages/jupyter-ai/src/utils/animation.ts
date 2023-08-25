@@ -60,7 +60,7 @@ export function requestFailed(view: EditorView): void {
   }, 1500);
 }
 
-const removeLoadingAnimation = (view: EditorView) => {
+export const removeLoadingAnimation = (view: EditorView): void => {
   const circles = view.dom
     .closest('.jp-Cell')
     ?.querySelectorAll('.circle-loading-animation');

@@ -41,15 +41,20 @@ const generateKeyDownExtension = (app: JupyterFrontEnd): Extension => {
     keymap.of([
       {
         any: (view: EditorView, event: KeyboardEvent) => {
+          console.debug('keyboard press: key.code: ', event.code);
           /*
            * The reason for using "any" instead of "key" here is that when the system has a default shortcut key,
            * only the run method with the key parameter cannot enter, so any is used here to judge event.code
            */
-          if (event.ctrlKey && event.code === 'Space') {
+          if (event.shiftKey && event.code === 'Space') {
+            console.debug(
+              'keyboard press: continueWriting function is Running'
+            );
             return continueWriting(app, view);
           }
 
           if (event.code === 'Enter') {
+            console.debug('keyboard press: removeColor function is Running');
             return removeColor(view);
           }
 
