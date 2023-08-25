@@ -15,7 +15,8 @@ import {
 import {
   addLoadingAnimation,
   requestSuccess as loadRequestSuccessAnimation,
-  requestFailed as loadRequestFailedAnimation
+  requestFailed as loadRequestFailedAnimation,
+  removeLoadingAnimation
 } from '../utils/animation';
 import { ICell } from '../types/cell';
 
@@ -64,20 +65,28 @@ export const continueWriting = (
   const context = getAllCellTextByPosition(app);
   if (!context || isContextEmpty(context)) {
     loadRequestFailedAnimation(view);
+    console.error('continueWriting() => context is null');
     return false;
   }
 
   if (requestState.loading || requestState.viewResult) {
+    console.error('continueWriting() => request is running');
     return true;
   }
 
+  console.debug('continueWriting() => context: ', context);
+
   requestState.loading = true;
+  removeLoadingAnimation(view);
   addLoadingAnimation(view);
   GlobalStore.setCodeOnRequest(context[context.length - 1].content);
   const prompt = constructContinuationPrompt(context);
 
+  console.debug('continueWriting() => prompt: ', prompt);
+
   sendToBigCode(prompt)
     .then(result => {
+      console.debug('continueWriting() => state is success, result: ', result);
       requestSuccess(app, view, result);
     })
     .catch(err => {
@@ -90,6 +99,9 @@ export const continueWriting = (
 
 export const removeColor = (view: EditorView): boolean => {
   if (GlobalStore.codeOnRequest === '' && !requestState.viewResult) {
+    console.debug(
+      'removeColor() => No request is running or no continuation code is showing'
+    );
     return false;
   }
 
@@ -97,15 +109,20 @@ export const removeColor = (view: EditorView): boolean => {
   removeTextStatus(view);
   GlobalStore.setCodeOnRequest('');
   moveCursorToEnd(view);
+  console.debug('removeColor() => remove code customize color');
   return true;
 };
 
 export const handleAnyKeyPress = (view: EditorView): boolean => {
   if (requestState.loading) {
+    console.debug('handleAnyKeyPress() => request is loading');
     return true;
   }
 
   if (GlobalStore.codeOnRequest !== '' || requestState.viewResult) {
+    console.debug(
+      'handleAnyKeyPress() => code for the user to cancel the display'
+    );
     removeTextStatus(view);
     replaceText(view, GlobalStore.codeOnRequest);
     GlobalStore.setCodeOnRequest('');
