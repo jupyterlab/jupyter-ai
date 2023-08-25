@@ -39,7 +39,7 @@ jobs:
         with:
           path: |
             ${{ github.workspace }}/pw-browsers
-          key: ${{ runner.os }}-${{ hashFiles('ui-tests/yarn.lock') }}
+          key: ${{ runner.os }}-${{ hashFiles('packages/jupyter-ai/ui-tests/yarn.lock') }}
 
       - name: Install browser
         working-directory: packages/jupyter-ai/ui-tests
