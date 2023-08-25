@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import { Box, TextField } from '@mui/material';
 import GlobalStore from '../contexts/continue-writing-context';
 import { observer } from 'mobx-react-lite';
+import { parseKeyboardEventToShortcut } from '../utils/keyboard';
 
 export const BigCodeSetting = observer(() => {
   const { bigcodeUrl } = GlobalStore;
@@ -14,6 +15,12 @@ export const BigCodeSetting = observer(() => {
 
   const setAccessTokenWrapper = (value: string) => {
     GlobalStore.setAccessToken(value);
+  };
+
+  const setHotKey = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    event.preventDefault();
+    const shortcutStr = parseKeyboardEventToShortcut(event);
+    GlobalStore.setShortcutStr(shortcutStr);
   };
 
   useEffect(() => {
@@ -47,6 +54,15 @@ export const BigCodeSetting = observer(() => {
         fullWidth
         type="password"
         onChange={e => setAccessTokenWrapper(e.target.value)}
+      />
+
+      <h2 className="jp-ai-ChatSettings-header">Hotkey for continue writing</h2>
+      <TextField
+        label="Huggingface Access Token"
+        value={GlobalStore.shortcutStr}
+        fullWidth
+        type="text"
+        onKeyDown={setHotKey}
       />
     </Box>
   );
