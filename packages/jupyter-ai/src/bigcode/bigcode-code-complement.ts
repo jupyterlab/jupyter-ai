@@ -19,7 +19,7 @@ import {
 } from '../utils/animation';
 import { ICell } from '../types/cell';
 
-import GlobalStore from '../contexts/continue-writing-context';
+import GlobalStore from '../contexts/code-cmplement-context';
 
 const requestState = {
   loading: false,
@@ -62,7 +62,7 @@ const requestFailed = (view: EditorView) => {
   requestState.loading = false;
 };
 
-export const continueWriting = (
+export const codeComplement = (
   app: JupyterFrontEnd,
   view: EditorView
 ): boolean => {
@@ -86,7 +86,7 @@ export const continueWriting = (
   GlobalStore.setCodeOnRequest(context[context.length - 1].content);
   const prompt = constructContinuationPrompt(context);
 
-  console.debug('continueWriting() => prompt: ', prompt);
+  console.debug('codeComplement() => prompt: ', prompt);
 
   sendToBigCode(prompt)
     .then(result => {

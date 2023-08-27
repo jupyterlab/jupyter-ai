@@ -1,7 +1,7 @@
 // import React, { useEffect } from 'react';
 import React, { useEffect } from 'react';
 import { Box, TextField } from '@mui/material';
-import GlobalStore from '../contexts/continue-writing-context';
+import GlobalStore from '../contexts/code-cmplement-context';
 import { observer } from 'mobx-react-lite';
 import { parseKeyboardEventToShortcut } from '../utils/keyboard';
 

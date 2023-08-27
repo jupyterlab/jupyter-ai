@@ -7,15 +7,16 @@ import { StateEffect } from '@codemirror/state';
 import { Notebook } from '@jupyterlab/notebook';
 import { NotebookPanel } from '@jupyterlab/notebook';
 import { Extension } from '@codemirror/state';
+import { CodeEditor } from '@jupyterlab/codeeditor';
+
 import { getContent } from './utils/instance';
 import {
-  continueWriting,
+  codeComplement,
   removeColor,
   handleAnyKeyPress
-} from './bigcode/bigcode-continue-writing';
+} from './bigcode/bigcode-code-complement';
 import { parseKeyboardEventToShortcut } from './utils/keyboard';
-import GlobalStore from './contexts/continue-writing-context';
-import { CodeEditor } from '@jupyterlab/codeeditor';
+import GlobalStore from './contexts/code-cmplement-context';
 
 // 创建一个软引用集合存放 editor
 const mountedEditors = new WeakSet<CodeMirrorEditor>();
@@ -67,10 +68,8 @@ const generateKeyDownExtension = (app: JupyterFrontEnd): Extension => {
           console.debug('keyboard press: ', parsedShortcut);
 
           if (parsedShortcut === GlobalStore.shortcutStr) {
-            console.debug(
-              'keyboard press: continueWriting function is Running'
-            );
-            return continueWriting(app, view);
+            console.debug('keyboard press: codeComplement function is Running');
+            return codeComplement(app, view);
           }
 
           if (event.code === 'Enter') {
@@ -122,7 +121,9 @@ const init = (app: JupyterFrontEnd) => {
   });
 };
 
-export const keyDownHandle = async (app: JupyterFrontEnd): Promise<void> => {
+export const codeComplementkeyDownHandle = async (
+  app: JupyterFrontEnd
+): Promise<void> => {
   // 等待 notebook 完成初始化
   await app.start();
   init(app);

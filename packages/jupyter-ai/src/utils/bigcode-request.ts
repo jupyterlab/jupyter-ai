@@ -1,4 +1,4 @@
-import GlobalStore from '../contexts/continue-writing-context';
+import GlobalStore from '../contexts/code-cmplement-context';
 import { ICell } from '../types/cell';
 
 const getPromptForCell = (cell: ICell): string => {
