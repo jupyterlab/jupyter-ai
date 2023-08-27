@@ -2,9 +2,15 @@ import { JupyterFrontEnd } from '@jupyterlab/application';
 import { CodeEditor } from '@jupyterlab/codeeditor';
 import { DocumentWidget } from '@jupyterlab/docregistry';
 import { Notebook } from '@jupyterlab/notebook';
-import { getTextByEditor, getContent, getEditorByWidget } from './instance';
-import { ICell, ICellType } from '../types/cell';
 import { CodeCell, MarkdownCell } from '@jupyterlab/cells';
+
+import { ICell, ICellType } from '../types/cell';
+
+import {
+  getTextByEditor,
+  getSpecificWidget,
+  getEditorByWidget
+} from './instance';
 
 export const splitString = (input: string): string[] => {
   // Split by newline, but ignore escaped newlines
@@ -18,7 +24,7 @@ export const getCellCode = (app: JupyterFrontEnd): string | null => {
     return null;
   }
 
-  const content = getContent(currentWidget);
+  const content = getSpecificWidget(currentWidget);
   const editor = getEditorByWidget(content);
 
   if (editor) {
@@ -57,7 +63,7 @@ export const getCellTextByApp = (app: JupyterFrontEnd): string[] | null => {
     return null;
   }
 
-  const content = getContent(currentWidget);
+  const content = getSpecificWidget(currentWidget);
   const editor = getEditorByWidget(content);
 
   if (editor) {
@@ -75,13 +81,13 @@ export const getAllCellTextByPosition = (
     return null;
   }
 
-  const content = getContent(currentWidget);
+  const content = getSpecificWidget(currentWidget);
   if (content instanceof Notebook) {
     const allCellBase: ICell[] = [];
     const widgets = content.widgets;
     const activeCellIndex = content.activeCellIndex;
 
-    // 遍历到当前单元格
+    // traverse to the current cell
     for (let index = 0; index <= activeCellIndex; index++) {
       const widget = widgets[index];
       const cellType: ICellType =
@@ -93,7 +99,7 @@ export const getAllCellTextByPosition = (
 
       const editor = widget.editor;
       if (editor) {
-        // 如果是当前的单元格
+        // If the current cell
         if (index === activeCellIndex) {
           const cellLines = getCellTextByBeforePointer(editor);
           allCellBase.push({

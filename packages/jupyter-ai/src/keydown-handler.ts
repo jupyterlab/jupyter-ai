@@ -11,22 +11,26 @@ import { CodeEditor } from '@jupyterlab/codeeditor';
 
 import { getContent } from './utils/instance';
 import {
-  codeComplement,
+  codeCompletion,
   removeColor,
   handleAnyKeyPress
-} from './bigcode/bigcode-code-complement';
+} from './bigcode/bigcode-code-completion';
 import { parseKeyboardEventToShortcut } from './utils/keyboard';
-import GlobalStore from './contexts/code-cmplement-context';
+import GlobalStore from './contexts/code-completion-context-store';
 
-// 创建一个软引用集合存放 editor
+// Create a weak reference set to store the editor
 const mountedEditors = new WeakSet<CodeMirrorEditor>();
 
-// 挂载"键盘按下 extension"到 editor 实例中
+/**
+ * Mounts a given extension to the editor instance.
+ * @param {CodeMirrorEditor} editor - The editor instance.
+ * @param {Extension} extension - The extension to be mounted.
+ */
 const mountExtension = (
   editor: CodeMirrorEditor,
   extension: Extension
 ): void => {
-  // 如果 editor 已经被处理过
+  // If the editor has already been processed
   if (mountedEditors.has(editor)) {
     return;
   }
@@ -45,7 +49,11 @@ const mountExtension = (
   mountedEditors.add(editor);
 };
 
-// 在新增单元格时，editor 可能没有被实例化，所以我们需将挂载事件放在异步队列最低端，以用来保证 editor 实例化完成
+/**
+ * Mounts the editor with a delay to ensure its instantiation is complete.
+ * @param {CodeEditor.IEditor | null} editor - The editor instance, might be null.
+ * @param {Extension} extension - The extension to be mounted.
+ */
 const mountEditorWithDelay = (
   editor: CodeEditor.IEditor | null,
   extension: Extension
@@ -59,6 +67,7 @@ const mountEditorWithDelay = (
   }
 };
 
+/// Generates a keydown extension for handling various keypress events.
 const generateKeyDownExtension = (app: JupyterFrontEnd): Extension => {
   return Prec.highest(
     keymap.of([
@@ -68,8 +77,8 @@ const generateKeyDownExtension = (app: JupyterFrontEnd): Extension => {
           console.debug('keyboard press: ', parsedShortcut);
 
           if (parsedShortcut === GlobalStore.shortcutStr) {
-            console.debug('keyboard press: codeComplement function is Running');
-            return codeComplement(app, view);
+            console.debug('keyboard press: codeCompletion function is Running');
+            return codeCompletion(app, view);
           }
 
           if (event.code === 'Enter') {
@@ -84,14 +93,19 @@ const generateKeyDownExtension = (app: JupyterFrontEnd): Extension => {
   );
 };
 
-const init = (app: JupyterFrontEnd) => {
+/**
+ * Initializes keydown event handlers for the JupyterFrontEnd application.
+ * This function sets up listeners for changes in the current widget and mounts the editor accordingly.
+ * @param {JupyterFrontEnd} app - The JupyterFrontEnd application instance.
+ */
+const initializeKeyDownHandlers = (app: JupyterFrontEnd) => {
   if (!(app.shell instanceof LabShell)) {
     throw 'Shell is not an instance of LabShell. Jupyter AI does not currently support custom shells.';
   }
 
   const extension = generateKeyDownExtension(app);
 
-  // 监听当前的 weiget 发生变化时
+  // Listen for changes in the current weiget
   app.shell.currentChanged.connect(async (sender, args) => {
     const currentWidget = args.newValue;
     if (!currentWidget || !(currentWidget instanceof NotebookPanel)) {
@@ -102,14 +116,14 @@ const init = (app: JupyterFrontEnd) => {
     const content = getContent(currentWidget);
 
     if (content instanceof Notebook) {
-      // 优先挂载加载 notebook 时默认选中的 Cell。在"content.activeCellChanged.connect"中，默认选中的 Cell 的 editor 为空
+      // Prioritize the cell selected by default when loading the notebook. In "content.activeCellChanged.connect", the editor of the cell selected by default is empty
       const firstCell = content.activeCell;
       if (firstCell) {
         const firstCellEditor = firstCell.editor as CodeMirrorEditor;
         mountEditorWithDelay(firstCellEditor, extension);
       }
 
-      // 监听选中的 cell 发生变化时
+      // When the selected cell changes
       content.activeCellChanged.connect(async (sender, cell) => {
         if (!cell) {
           return;
@@ -121,11 +135,17 @@ const init = (app: JupyterFrontEnd) => {
   });
 };
 
-export const codeComplementkeyDownHandle = async (
+/**
+ * The main function to handle code completion on keydown events.
+ * It initializes the keydown handlers after ensuring that the notebook is fully loaded.
+ * @param {JupyterFrontEnd} app - The JupyterFrontEnd application instance.
+ * @returns {Promise<void>}
+ */
+export const handleCodeCompletionKeyDown = async (
   app: JupyterFrontEnd
 ): Promise<void> => {
-  // 等待 notebook 完成初始化
+  // Wait for the notebook to finish initializing
   await app.start();
-  init(app);
-  console.log('keyDownHandle is start...');
+  initializeKeyDownHandlers(app);
+  console.log('handleCodeCompletionKeyDown is start...');
 };

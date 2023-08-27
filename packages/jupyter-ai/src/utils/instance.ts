@@ -3,7 +3,7 @@ import { Widget } from '@lumino/widgets';
 import { CodeEditor } from '@jupyterlab/codeeditor';
 import { Notebook } from '@jupyterlab/notebook';
 
-export const getContent = (widget: DocumentWidget): Widget => {
+export const getSpecificWidget = (widget: DocumentWidget): Widget => {
   const { content } = widget;
   return content;
 };

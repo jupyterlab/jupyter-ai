@@ -1,33 +1,32 @@
 // import React, { useEffect } from 'react';
 import React, { useEffect } from 'react';
 import { Box, TextField } from '@mui/material';
-import GlobalStore from '../contexts/code-cmplement-context';
+import CodeCompletionContextstore from '../contexts/code-completion-context-store';
 import { observer } from 'mobx-react-lite';
 import { parseKeyboardEventToShortcut } from '../utils/keyboard';
 
 export const BigCodeSetting = observer(() => {
-  const { bigcodeUrl } = GlobalStore;
-  const { accessToken } = GlobalStore;
+  const { bigcodeUrl } = CodeCompletionContextstore;
+  const { accessToken } = CodeCompletionContextstore;
 
   const setBigcodeUrlWrapper = (value: string) => {
-    GlobalStore.setBigcodeUrl(value);
+    CodeCompletionContextstore.setBigcodeUrl(value);
   };
 
   const setAccessTokenWrapper = (value: string) => {
-    GlobalStore.setAccessToken(value);
+    CodeCompletionContextstore.setAccessToken(value);
     console.debug('setAccessToken()');
   };
 
   const setHotKeyWrapper = (event: React.KeyboardEvent<HTMLInputElement>) => {
     event.preventDefault();
     const shortcutStr = parseKeyboardEventToShortcut(event);
-    GlobalStore.setShortcutStr(shortcutStr);
-    localStorage.setItem('shortcutStr', shortcutStr);
+    CodeCompletionContextstore.setShortcutStr(shortcutStr);
     console.debug('setHotKey() => The current hotkey is ', shortcutStr);
   };
 
   useEffect(() => {
-    GlobalStore.setBigcodeUrl(
+    CodeCompletionContextstore.setBigcodeUrl(
       'https://api-inference.huggingface.co/models/bigcode/starcoderbase/'
     );
   }, []);
@@ -62,7 +61,7 @@ export const BigCodeSetting = observer(() => {
       <h2 className="jp-ai-ChatSettings-header">Hotkey for continue writing</h2>
       <TextField
         label="Please press the hotkey you need"
-        value={GlobalStore.shortcutStr}
+        value={CodeCompletionContextstore.shortcutStr}
         fullWidth
         type="text"
         onKeyDown={setHotKeyWrapper}

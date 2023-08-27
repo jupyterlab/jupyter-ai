@@ -19,22 +19,38 @@ import {
 } from '../utils/animation';
 import { ICell } from '../types/cell';
 
-import GlobalStore from '../contexts/code-cmplement-context';
+import CodeCompletionContextstore from '../contexts/code-completion-context-store';
 
+/**
+ * An object to track the state of the request and the visibility of the result.
+ * @property {boolean} loading - Indicates if a request is currently being made.
+ * @property {boolean} viewResult - Indicates if the result of a request is currently being displayed.
+ */
 const requestState = {
   loading: false,
   viewResult: false
 };
 
+/**
+ * Checks if the provided context is empty or not.
+ * @param {ICell[]} context - An array of cells representing the context.
+ * @returns {boolean} Returns true if the context is empty or undefined, otherwise false.
+ */
 const isContextEmpty = (context: ICell[]): boolean => {
   if (!context || context.length === 0) {
-    return true; // 如果context为空或未定义，我们认为它是空的
+    return true; // If the context is empty or undefined, we assume that the user did not write code
   }
 
   const combinedContent = context.reduce((acc, cell) => acc + cell.content, '');
   return combinedContent.trim() === '';
 };
 
+/**
+ * Handles the success response of the code completion request.
+ * @param {JupyterFrontEnd} app - The JupyterFrontEnd application instance.
+ * @param {EditorView} view - The editor view instance.
+ * @param {{ generated_text: string }[]} result - The result array containing generated text.
+ */
 const requestSuccess = (
   app: JupyterFrontEnd,
   view: EditorView,
@@ -45,24 +61,38 @@ const requestSuccess = (
 
   if (resultCode === '') {
     requestState.viewResult = false;
-    GlobalStore.setCodeOnRequest('');
+    CodeCompletionContextstore.setCodeOnRequest('');
   } else {
-    insertAndHighlightCode(app, GlobalStore.codeOnRequest, resultCode);
+    insertAndHighlightCode(
+      app,
+      CodeCompletionContextstore.codeOnRequest,
+      resultCode
+    );
   }
 
   updateAnimation(view, 'success');
   requestState.loading = false;
 };
 
+/**
+ * Handles the failure of the code completion request.
+ * @param {EditorView} view - The editor view instance.
+ */
 const requestFailed = (view: EditorView) => {
-  GlobalStore.setCodeOnRequest('');
+  CodeCompletionContextstore.setCodeOnRequest('');
 
   updateAnimation(view, 'failed');
   requestState.viewResult = false;
   requestState.loading = false;
 };
 
-export const codeComplement = (
+/**
+ * Initiates code completion based on the provided context.
+ * @param {JupyterFrontEnd} app - The JupyterFrontEnd application instance.
+ * @param {EditorView} view - The editor view instance.
+ * @returns {boolean} Indicates whether the function completed successfully.
+ */
+export const codeCompletion = (
   app: JupyterFrontEnd,
   view: EditorView
 ): boolean => {
@@ -83,10 +113,12 @@ export const codeComplement = (
   requestState.loading = true;
   removeLoadingAnimation(view);
   addLoadingAnimation(view);
-  GlobalStore.setCodeOnRequest(context[context.length - 1].content);
+  CodeCompletionContextstore.setCodeOnRequest(
+    context[context.length - 1].content
+  );
   const prompt = constructContinuationPrompt(context);
 
-  console.debug('codeComplement() => prompt: ', prompt);
+  console.debug('codeCompletion() => prompt: ', prompt);
 
   sendToBigCode(prompt)
     .then(result => {
@@ -101,8 +133,16 @@ export const codeComplement = (
   return true;
 };
 
+/**
+ * Removes custom colors from the text in the editor.
+ * @param {EditorView} view - The editor view instance.
+ * @returns {boolean} Indicates whether the function completed successfully.
+ */
 export const removeColor = (view: EditorView): boolean => {
-  if (GlobalStore.codeOnRequest === '' && !requestState.viewResult) {
+  if (
+    CodeCompletionContextstore.codeOnRequest === '' &&
+    !requestState.viewResult
+  ) {
     console.debug(
       'removeColor() => No request is running or no continuation code is showing'
     );
@@ -111,25 +151,33 @@ export const removeColor = (view: EditorView): boolean => {
 
   requestState.viewResult = false;
   removeTextStatus(view);
-  GlobalStore.setCodeOnRequest('');
+  CodeCompletionContextstore.setCodeOnRequest('');
   moveCursorToEnd(view);
   console.debug('removeColor() => remove code customize color');
   return true;
 };
 
+/**
+ * Handles any keypress events when a request is loading or a result is being displayed.
+ * @param {EditorView} view - The editor view instance.
+ * @returns {boolean} Indicates whether the function completed successfully.
+ */
 export const handleAnyKeyPress = (view: EditorView): boolean => {
   if (requestState.loading) {
     console.debug('handleAnyKeyPress() => request is loading');
     return true;
   }
 
-  if (GlobalStore.codeOnRequest !== '' || requestState.viewResult) {
+  if (
+    CodeCompletionContextstore.codeOnRequest !== '' ||
+    requestState.viewResult
+  ) {
     console.debug(
       'handleAnyKeyPress() => code for the user to cancel the display'
     );
     removeTextStatus(view);
-    replaceText(view, GlobalStore.codeOnRequest);
-    GlobalStore.setCodeOnRequest('');
+    replaceText(view, CodeCompletionContextstore.codeOnRequest);
+    CodeCompletionContextstore.setCodeOnRequest('');
     requestState.viewResult = false;
   }
   return false;

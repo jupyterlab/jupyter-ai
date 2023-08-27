@@ -10,8 +10,8 @@ export function buildBigcodeSidebar(): ReactWidget {
     </div>
   );
 
-  BigCodeWidget.id = 'jupyter-ai::bigcode-code-complement';
+  BigCodeWidget.id = 'jupyter-ai::bigcode-code-Completion';
   BigCodeWidget.title.icon = chatIcon;
-  BigCodeWidget.title.caption = 'bigcode code complement';
+  BigCodeWidget.title.caption = 'bigcode code Completion';
   return BigCodeWidget;
 }

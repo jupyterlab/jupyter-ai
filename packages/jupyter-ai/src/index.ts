@@ -13,7 +13,7 @@ import { buildBigcodeSidebar } from './widgets/bigcode-sidebar';
 import { SelectionWatcher } from './selection-watcher';
 import { ChatHandler } from './chat_handler';
 import { buildErrorWidget } from './widgets/chat-error';
-import { codeComplementkeyDownHandle } from './keydown-handler';
+import { handleCodeCompletionKeyDown } from './keydown-handler';
 
 export type DocumentTracker = IWidgetTracker<IDocumentWidget>;
 
@@ -59,7 +59,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
     /**
      * Initialize keydown handler
      */
-    codeComplementkeyDownHandle(app);
+    handleCodeCompletionKeyDown(app);
 
     /**
      * Add Chat widget to right sidebar
@@ -73,7 +73,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
 
     if (restorer) {
       restorer.add(chatWidget, 'jupyter-ai-chat');
-      restorer.add(bigcodeWidget, 'bigcode-code-complement');
+      restorer.add(bigcodeWidget, 'bigcode-code-completion');
     }
   }
 };
