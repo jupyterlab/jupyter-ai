@@ -9,7 +9,7 @@ import { NotebookPanel } from '@jupyterlab/notebook';
 import { Extension } from '@codemirror/state';
 import { CodeEditor } from '@jupyterlab/codeeditor';
 
-import { getContent } from './utils/instance';
+import { getSpecificWidget } from './utils/instance';
 import {
   codeCompletion,
   removeColor,
@@ -113,7 +113,7 @@ const initializeKeyDownHandlers = (app: JupyterFrontEnd) => {
     }
 
     await currentWidget.context.ready;
-    const content = getContent(currentWidget);
+    const content = getSpecificWidget(currentWidget);
 
     if (content instanceof Notebook) {
       // Prioritize the cell selected by default when loading the notebook. In "content.activeCellChanged.connect", the editor of the cell selected by default is empty

@@ -1,6 +1,6 @@
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { EditorView } from '@codemirror/view';
-import { getAllCellTextByPosition } from '../utils/context';
+import { getTextInActiveCellUpToCursor } from '../utils/cell-context';
 import {
   sendToBigCode,
   processCompletionResult,
@@ -19,7 +19,7 @@ import {
 } from '../utils/animation';
 import { ICell } from '../types/cell';
 
-import CodeCompletionContextstore from '../contexts/code-completion-context-store';
+import CodeCompletionContextStore from '../contexts/code-completion-context-store';
 
 /**
  * An object to track the state of the request and the visibility of the result.
@@ -61,11 +61,11 @@ const requestSuccess = (
 
   if (resultCode === '') {
     requestState.viewResult = false;
-    CodeCompletionContextstore.setCodeOnRequest('');
+    CodeCompletionContextStore.setCodeOnRequest('');
   } else {
     insertAndHighlightCode(
       app,
-      CodeCompletionContextstore.codeOnRequest,
+      CodeCompletionContextStore.codeOnRequest,
       resultCode
     );
   }
@@ -79,7 +79,7 @@ const requestSuccess = (
  * @param {EditorView} view - The editor view instance.
  */
 const requestFailed = (view: EditorView) => {
-  CodeCompletionContextstore.setCodeOnRequest('');
+  CodeCompletionContextStore.setCodeOnRequest('');
 
   updateAnimation(view, 'failed');
   requestState.viewResult = false;
@@ -96,7 +96,7 @@ export const codeCompletion = (
   app: JupyterFrontEnd,
   view: EditorView
 ): boolean => {
-  const context = getAllCellTextByPosition(app);
+  const context = getTextInActiveCellUpToCursor(app);
   if (!context || isContextEmpty(context)) {
     updateAnimation(view, 'failed');
     console.error('continueWriting() => context is null');
@@ -113,7 +113,7 @@ export const codeCompletion = (
   requestState.loading = true;
   removeLoadingAnimation(view);
   addLoadingAnimation(view);
-  CodeCompletionContextstore.setCodeOnRequest(
+  CodeCompletionContextStore.setCodeOnRequest(
     context[context.length - 1].content
   );
   const prompt = constructContinuationPrompt(context);
@@ -140,7 +140,7 @@ export const codeCompletion = (
  */
 export const removeColor = (view: EditorView): boolean => {
   if (
-    CodeCompletionContextstore.codeOnRequest === '' &&
+    CodeCompletionContextStore.codeOnRequest === '' &&
     !requestState.viewResult
   ) {
     console.debug(
@@ -151,7 +151,7 @@ export const removeColor = (view: EditorView): boolean => {
 
   requestState.viewResult = false;
   removeTextStatus(view);
-  CodeCompletionContextstore.setCodeOnRequest('');
+  CodeCompletionContextStore.setCodeOnRequest('');
   moveCursorToEnd(view);
   console.debug('removeColor() => remove code customize color');
   return true;
@@ -169,15 +169,15 @@ export const handleAnyKeyPress = (view: EditorView): boolean => {
   }
 
   if (
-    CodeCompletionContextstore.codeOnRequest !== '' ||
+    CodeCompletionContextStore.codeOnRequest !== '' ||
     requestState.viewResult
   ) {
     console.debug(
       'handleAnyKeyPress() => code for the user to cancel the display'
     );
     removeTextStatus(view);
-    replaceText(view, CodeCompletionContextstore.codeOnRequest);
-    CodeCompletionContextstore.setCodeOnRequest('');
+    replaceText(view, CodeCompletionContextStore.codeOnRequest);
+    CodeCompletionContextStore.setCodeOnRequest('');
     requestState.viewResult = false;
   }
   return false;

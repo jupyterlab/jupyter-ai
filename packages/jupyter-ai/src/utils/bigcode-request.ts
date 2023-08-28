@@ -1,4 +1,4 @@
-import GlobalStore from '../contexts/code-completion-context-store';
+import CodeCompletionContextStore from '../contexts/code-completion-context-store';
 import { ICell } from '../types/cell';
 
 /**
@@ -42,7 +42,7 @@ export const constructContinuationPrompt = (
 
 /**
  * Sends the given prompt to the BigCode service for code completion.
- * It requires the BigCode service URL and the Huggingface Access Token to be set in the GlobalStore.
+ * It requires the BigCode service URL and the Huggingface Access Token to be set in the CodeCompletionContextStore.
  *
  * @param {string | null} prompt - The prompt string to be sent for code completion.
  * @returns {Promise<{ generated_text: string }[]>} A promise that resolves with the generated text or rejects with an error.
@@ -50,8 +50,8 @@ export const constructContinuationPrompt = (
 export const sendToBigCode = async (
   prompt: string | null
 ): Promise<{ generated_text: string }[]> => {
-  const { bigcodeUrl } = GlobalStore;
-  const { accessToken } = GlobalStore;
+  const { bigcodeUrl } = CodeCompletionContextStore;
+  const { accessToken } = CodeCompletionContextStore;
 
   if (!bigcodeUrl || !accessToken) {
     alert('BigCode service URL or Huggingface Access Token not set.');
