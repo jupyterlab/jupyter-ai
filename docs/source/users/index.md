@@ -42,6 +42,8 @@ conda install jupyterlab~=4.0
 The `jupyter_ai_magics` package, which provides exclusively the IPython magics,
 does not depend on JupyterLab or `jupyter_ai`. You can install
 `jupyter_ai_magics` without installing `jupyterlab` or `jupyter_ai`.
+If you have both `jupyter_ai_magics` and `jupyter_ai` installed, you should
+have the same version of each, to avoid errors.
 
 ## Installation
 
