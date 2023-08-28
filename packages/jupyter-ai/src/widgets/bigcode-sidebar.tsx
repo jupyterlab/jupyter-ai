@@ -1,7 +1,7 @@
 import React from 'react';
 import { ReactWidget } from '@jupyterlab/apputils';
 import { BigCodeSetting } from '../components/bigcode-settings';
-import { chatIcon } from '../icons';
+import { bigCodeIcon } from '../icons';
 
 export function buildBigcodeSidebar(): ReactWidget {
   const BigCodeWidget = ReactWidget.create(
@@ -11,7 +11,7 @@ export function buildBigcodeSidebar(): ReactWidget {
   );
 
   BigCodeWidget.id = 'jupyter-ai::bigcode-code-Completion';
-  BigCodeWidget.title.icon = chatIcon;
+  BigCodeWidget.title.icon = bigCodeIcon;
   BigCodeWidget.title.caption = 'bigcode code Completion';
   return BigCodeWidget;
 }
