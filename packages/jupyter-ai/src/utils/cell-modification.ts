@@ -5,26 +5,40 @@ import { EditorView } from '@codemirror/view';
 import { StateEffect, StateField } from '@codemirror/state';
 import { Decoration, DecorationSet } from '@codemirror/view';
 import { CodeEditor } from '@jupyterlab/codeeditor';
-import { splitString } from './context';
+import { splitString } from './cell-context';
 
+/**
+ * State effect definition for clearing text effects.
+ */
 const clearTextEffectState = StateEffect.define({});
 
+/**
+ * Removes any text status effects from the provided editor view.
+ *
+ * @param {EditorView} view - The EditorView instance where text statuses are to be removed.
+ */
 export function removeTextStatus(view: EditorView): void {
   view.dispatch({
     effects: clearTextEffectState.of(null)
   });
 }
 
-// Create a mark status (meaning we've marked a string, so the class of this string's DOM is "gray-color")
+/**
+ * Decoration definition for marking text with a 'gray-color' CSS class.
+ */
 const grayTextMark = Decoration.mark({ class: 'gray-color' });
 
-// Marked css theme
+/**
+ * Base theme for gray text decorations.
+ */
 const grayTextTheme = EditorView.baseTheme({
   '.gray-color > span': { color: 'gray !important' },
   '.gray-color ': { color: 'gray !important' }
 });
 
-// Container to save the characters and theme we need to change (we need to first calculate which characters are what we need)
+/**
+ * State effect definition for changing the text status over a specified range.
+ */
 const changeRangeTextStatus = StateEffect.define<{ from: number; to: number }>({
   map: ({ from, to }, change) => ({
     from: change.mapPos(from),
@@ -32,7 +46,9 @@ const changeRangeTextStatus = StateEffect.define<{ from: number; to: number }>({
   })
 });
 
-// codemirror's editorView extension
+/**
+ * State field definition for tracking gray text decorations.
+ */
 const grayTextStateField = StateField.define<DecorationSet>({
   create() {
     return Decoration.none;
@@ -55,7 +71,14 @@ const grayTextStateField = StateField.define<DecorationSet>({
   provide: f => EditorView.decorations.from(f)
 });
 
-// Change the specified range of characters in EditorView to gray
+/**
+ * Applies gray text decoration to a specified range within an editor view.
+ *
+ * @param {EditorView} view - The EditorView instance where the decoration is to be applied.
+ * @param {number} start - The start position of the range.
+ * @param {number} end - The end position of the range.
+ * @returns {boolean} Indicates whether the operation was successful.
+ */
 export function applyGrayTextToSelection(
   view: EditorView,
   start: number,
@@ -78,6 +101,12 @@ export function applyGrayTextToSelection(
   return true;
 }
 
+/**
+ * Calculates the line and column position of the cursor based on the provided code string.
+ *
+ * @param {string} code - The code string.
+ * @returns {CodeEditor.IPosition} The calculated position of the cursor.
+ */
 export const calculatePointerPosition = (
   code: string
 ): CodeEditor.IPosition => {
@@ -88,6 +117,14 @@ export const calculatePointerPosition = (
   };
 };
 
+/**
+ * Inserts the new code into the active cell of the Jupyter environment, highlighting the inserted portion.
+ *
+ * @param {JupyterFrontEnd} app - The JupyterFrontEnd application instance.
+ * @param {string} oldCode - The original code string.
+ * @param {string} newCode - The new code string to be appended.
+ * @returns {boolean} Indicates whether the operation was successful.
+ */
 export const insertAndHighlightCode = (
   app: JupyterFrontEnd,
   oldCode: string,
@@ -125,6 +162,11 @@ export const insertAndHighlightCode = (
   return false;
 };
 
+/**
+ * Moves the cursor to the end of the document in the provided editor view.
+ *
+ * @param {EditorView} view - The EditorView instance where the cursor is to be moved.
+ */
 export const moveCursorToEnd = (view: EditorView): void => {
   const endPos = view.state.doc.length; // Get the document's length
   const transaction = view.state.update({
@@ -135,6 +177,12 @@ export const moveCursorToEnd = (view: EditorView): void => {
   view.dispatch(transaction);
 };
 
+/**
+ * Replaces all the text in the provided editor view with the given new text.
+ *
+ * @param {EditorView} view - The EditorView instance where text is to be replaced.
+ * @param {string} newText - The new text to replace the existing content.
+ */
 export const replaceText = (view: EditorView, newText: string): void => {
   // Create a new transaction to replace all text and move the cursor
   const tr = view.state.update({

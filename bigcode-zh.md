@@ -11,18 +11,18 @@
 packages/jupyter-ai
 ├── src  # Source code root
 │   ├── bigcode  # Bigcode related functionality
-│   │   └── bigcode-continue-writing.ts  # Code continuation logic
+│   │   └── bigcode-code-completion.ts  # Code continuation logic
 │   ├── components  # UI components
 │   │   └── bigcode-settings.tsx  # Settings related to bigcode
 |   ├── types
 |   |   └── cell.ts # Used to call the cell structure in the link
 │   ├── contexts
-│   │   └── continue-writing-context.ts  # Context for the continue writing feature
+│   │   └── code-completion-context-store.ts  # Context for the continue writing feature
 │   ├── keydown-handler.ts  # Global keydown handlers
 │   ├── utils  # Utility functions for bigcode feature
 │   │   ├── bigcode-request.ts  # Bigcode API requests
 │   │   ├── cell-modification.ts  # Cell modification
-│   │   ├── context.ts  # Cell context
+│   │   ├── cell-context.ts  # Cell context
 │   │   ├── instance.ts  # Instance related utilities
 │   │   └── keyboard.ts # Tool method to monitor the keyboard
 │   └── widgets 
@@ -31,26 +31,21 @@ packages/jupyter-ai
 ```
 
 ## Develop and preview
-推荐 python 使用 venv 来运行，node 使用 nvm
-推荐版本：
-- python: 3.10.12
-- node: 18.17.0
 
 ### install
 ```shell
 ./scripts/install.sh
 ```
 
-
 ### run
 ```shell
 npm run dev
 
-# 如果想要在修改代码时编译，将下述指令和以上指令一起运行
+# If you want to compile when you modify the code, run the following command with the above command
 npm run watch
 ```
 ### debug 
-在F12(开发者工具)中将日志级别中所有的选项都勾选上
+Check all the options in the log level in F12 (Developer Tools)
 ![](./docs/source/_static/debug-levels.jpg)
 
 
