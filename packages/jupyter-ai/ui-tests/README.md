@@ -60,8 +60,8 @@ the reference snapshots stored in the repository. To do that, you need to:
 1. Compile the extension:
 
 ```sh
-jlpm install
-jlpm build:prod
+./scripts/install.sh
+jlpm build
 ```
 
 > Check the extension is installed in JupyterLab.
@@ -69,16 +69,15 @@ jlpm build:prod
 2. Install test dependencies (needed only once):
 
 ```sh
-cd ./ui-tests
+cd ./packages/jupyter-ai/ui-tests/
 jlpm install
 jlpm playwright install
-cd ..
 ```
 
 3. Execute the [Playwright](https://playwright.dev/docs/intro) command:
 
 ```sh
-cd ./ui-tests
+cd ./packages/jupyter-ai/ui-tests/
 jlpm playwright test -u
 ```
 
@@ -96,8 +95,8 @@ To create tests, the easiest way is to use the code generator tool of playwright
 1. Compile the extension:
 
 ```sh
-jlpm install
-jlpm build:prod
+./scripts/install.sh
+jlpm build
 ```
 
 > Check the extension is installed in JupyterLab.
@@ -105,23 +104,22 @@ jlpm build:prod
 2. Install test dependencies (needed only once):
 
 ```sh
-cd ./ui-tests
+cd ./packages/jupyter-ai/ui-tests/
 jlpm install
 jlpm playwright install
-cd ..
 ```
 
 3. Start the server:
 
 ```sh
-cd ./ui-tests
+cd ./packages/jupyter-ai/ui-tests/
 jlpm start
 ```
 
 4. Execute the [Playwright code generator](https://playwright.dev/docs/codegen) in **another terminal**:
 
 ```sh
-cd ./ui-tests
+cd ./packages/jupyter-ai/ui-tests/
 jlpm playwright codegen localhost:8888
 ```
 
@@ -143,16 +141,15 @@ jlpm build:prod
 2. Install test dependencies (needed only once):
 
 ```sh
-cd ./ui-tests
+cd ./packages/jupyter-ai/ui-tests/
 jlpm install
 jlpm playwright install
-cd ..
 ```
 
 3. Execute the Playwright tests in [debug mode](https://playwright.dev/docs/debug):
 
 ```sh
-cd ./ui-tests
+cd ./packages/jupyter-ai/ui-tests/
 jlpm playwright test --debug
 ```
 
@@ -161,7 +158,7 @@ jlpm playwright test --debug
 To update the web browser versions, you must update the package `@playwright/test`:
 
 ```sh
-cd ./ui-tests
+cd cd ./packages/jupyter-ai/ui-tests/
 jlpm up "@playwright/test"
 jlpm playwright install
 ```
