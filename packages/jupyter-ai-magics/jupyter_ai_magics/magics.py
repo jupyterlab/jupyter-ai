@@ -32,6 +32,7 @@ MODEL_ID_ALIASES = {
     "gpt3": "openai:text-davinci-003",
     "chatgpt": "openai-chat:gpt-3.5-turbo",
     "gpt4": "openai-chat:gpt-4",
+    "titan": "bedrock:amazon.titan-tg1-large"
 }
 
 
