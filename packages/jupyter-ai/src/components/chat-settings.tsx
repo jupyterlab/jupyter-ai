@@ -1,4 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
+
+import ReactMarkdown from 'react-markdown';
+
 import { Box } from '@mui/system';
 import {
   Alert,
@@ -37,7 +40,7 @@ export function ChatSettings(): JSX.Element {
   const [lmProvider, setLmProvider] =
     useState<AiService.ListProvidersEntry | null>(null);
   const [showLmLocalId, setShowLmLocalId] = useState<boolean>(false);
-  const [helpText, setHelpText] = useState<string | null>(null);
+  const [helpMarkdown, setHelpMarkdown] = useState<string | null>(null);
   const [lmLocalId, setLmLocalId] = useState<string>('');
   const lmGlobalId = useMemo<string | null>(() => {
     if (!lmProvider) {
@@ -76,7 +79,7 @@ export function ChatSettings(): JSX.Element {
     setSendWse(server.config.send_with_shift_enter);
     if (server.lmProvider?.registry) {
       setShowLmLocalId(true);
-      setHelpText(server.lmProvider?.help ?? null);
+      setHelpMarkdown(server.lmProvider?.help ?? null);
     }
     setLmProvider(server.lmProvider);
   }, [server]);
@@ -243,11 +246,11 @@ export function ChatSettings(): JSX.Element {
           if (nextLmProvider.registry) {
             setLmLocalId('');
             setShowLmLocalId(true);
-            setHelpText(nextLmProvider?.help ?? null);
+            setHelpMarkdown(nextLmProvider?.help ?? null);
           } else {
             setLmLocalId(nextLmLocalId);
             setShowLmLocalId(false);
-            setHelpText(null);
+            setHelpMarkdown(null);
           }
         }}
         MenuProps={{ sx: { maxHeight: '50%', minHeight: 400 } }}
@@ -269,7 +272,11 @@ export function ChatSettings(): JSX.Element {
             onChange={e => setLmLocalId(e.target.value)}
             fullWidth
           />
-          {helpText && <Typography>{helpText}</Typography>}
+          {helpMarkdown && (
+            <Typography className="jp-ai-ChatSettings-model-help">
+              <ReactMarkdown linkTarget="_blank">{helpMarkdown}</ReactMarkdown>
+            </Typography>
+          )}
         </>
       )}
       {lmGlobalId && (
