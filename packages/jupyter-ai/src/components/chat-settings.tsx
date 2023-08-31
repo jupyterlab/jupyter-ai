@@ -19,45 +19,18 @@ import { ModelFields } from './settings/model-fields';
 import { ServerInfoState, useServerInfo } from './settings/use-server-info';
 import { ExistingApiKeys } from './settings/existing-api-keys';
 import { minifyUpdate } from './settings/minify';
-
-enum AlertState {
-  Empty,
-  PrevSuccess,
-  Failure
-}
-
-/**
- * Wrapper around the main ChatSettingsBody component that remounts on a
- * successful save to refresh the view. Remounting is done via changing the key
- * of the JSX element.
- */
-export function ChatSettings(): JSX.Element {
-  const [key, setKey] = useState(0);
-
-  return (
-    <ChatSettingsBody
-      key={key}
-      onSuccess={() => setKey(key => key + 1)}
-      prevSuccess={key !== 0}
-    />
-  );
-}
-
-type ChatSettingsBodyProps = {
-  onSuccess: () => unknown;
-  /**
-   * Whether this component successfully updated the configuration in the
-   * previous mount. Only read at initial render.
-   */
-  prevSuccess: boolean;
-};
+import { useStackingAlert } from './mui-extras/stacking-alert';
 
 /**
  * Component that returns the settings view in the chat panel.
  */
-function ChatSettingsBody(props: ChatSettingsBodyProps): JSX.Element {
+export function ChatSettings(): JSX.Element {
   // state fetched on initial render
   const server = useServerInfo();
+
+  // initialize alert helper
+  const alert = useStackingAlert();
+  const apiKeysAlert = useStackingAlert();
 
   // user inputs
   const [lmProvider, setLmProvider] =
@@ -85,14 +58,9 @@ function ChatSettingsBody(props: ChatSettingsBodyProps): JSX.Element {
   const [sendWse, setSendWse] = useState<boolean>(false);
   const [fields, setFields] = useState<Record<string, any>>({});
 
-  // controls what alert to show, if any.
-  const [alertState, setAlertState] = useState<AlertState>(
-    props.prevSuccess ? AlertState.PrevSuccess : AlertState.Empty
-  );
   // whether the form is currently saving
   const [saving, setSaving] = useState(false);
   // error message from submission
-  const [saveEmsg, setSaveEmsg] = useState<string>();
 
   /**
    * Effect: initialize inputs after fetching server info.
@@ -185,18 +153,21 @@ function ChatSettingsBody(props: ChatSettingsBodyProps): JSX.Element {
 
     setSaving(true);
     try {
+      await apiKeysAlert.clear();
       await AiService.updateConfig(updateRequest);
     } catch (e) {
       console.error(e);
-      if (e instanceof Error) {
-        setSaveEmsg(e.message);
-      }
-      setAlertState(AlertState.Failure);
+      const msg =
+        e instanceof Error || typeof e === 'string'
+          ? `An error occurred. Error details:\n\n${e.toString()}`
+          : 'An unknown error occurred. Check the console for more details.';
+      alert.show('error', msg);
       return;
     } finally {
       setSaving(false);
     }
-    props.onSuccess();
+    await server.refetchAll();
+    alert.show('success', 'Settings saved successfully.');
   };
 
   if (server.state === ServerInfoState.Loading) {
@@ -240,21 +211,12 @@ function ChatSettingsBody(props: ChatSettingsBodyProps): JSX.Element {
       sx={{
         padding: 4,
         boxSizing: 'border-box',
-        '& > .MuiAlert-root': { marginBottom: 2 },
+        '& .MuiAlert-root': {
+          marginTop: 2
+        },
         overflowY: 'auto'
       }}
     >
-      {alertState === AlertState.Failure && (
-        <Alert severity="error">
-          {saveEmsg
-            ? `An error occurred. Error details:\n\n${saveEmsg}`
-            : 'An unknown error occurred. Check the console for more details.'}
-        </Alert>
-      )}
-      {alertState === AlertState.PrevSuccess && (
-        <Alert severity="success">Settings saved successfully.</Alert>
-      )}
-
       {/* Language model section */}
       <h2 className="jp-ai-ChatSettings-header">Language model</h2>
       <Select
@@ -350,7 +312,11 @@ function ChatSettingsBody(props: ChatSettingsBodyProps): JSX.Element {
         />
       ))}
       {/* Pre-existing API keys */}
-      <ExistingApiKeys apiKeys={server.config.api_keys} />
+      <ExistingApiKeys
+        alert={apiKeysAlert}
+        apiKeys={server.config.api_keys}
+        onSuccess={server.refetchApiKeys}
+      />
 
       {/* Input */}
       <h2 className="jp-ai-ChatSettings-header">Input</h2>
@@ -387,6 +353,7 @@ function ChatSettingsBody(props: ChatSettingsBodyProps): JSX.Element {
           {saving ? 'Saving...' : 'Save changes'}
         </Button>
       </Box>
+      {alert.jsx}
     </Box>
   );
 }
