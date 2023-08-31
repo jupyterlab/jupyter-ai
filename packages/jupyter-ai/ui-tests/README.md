@@ -23,8 +23,8 @@ To run the tests, you need to:
 1. Compile the extension:
 
 ```sh
-jlpm install
-jlpm build:prod
+./scripts/install.sh
+jlpm build
 ```
 
 > Check the extension is installed in JupyterLab.
@@ -32,17 +32,18 @@ jlpm build:prod
 2. Install test dependencies (needed only once):
 
 ```sh
-cd ./ui-tests
+cd ./packages/jupyter-ai/ui-tests/
 jlpm install
 jlpm playwright install
-cd ..
+cd ../../../
 ```
 
 3. Execute the [Playwright](https://playwright.dev/docs/intro) tests:
 
 ```sh
-cd ./ui-tests
+cd ./packages/jupyter-ai/ui-tests/
 jlpm playwright test
+cd ../../../
 ```
 
 Test results will be shown in the terminal. In case of any test failures, the test report
@@ -72,13 +73,15 @@ jlpm build
 cd ./packages/jupyter-ai/ui-tests/
 jlpm install
 jlpm playwright install
+cd ../../../
 ```
 
 3. Execute the [Playwright](https://playwright.dev/docs/intro) command:
 
 ```sh
 cd ./packages/jupyter-ai/ui-tests/
-jlpm playwright test -u
+jlpm playwright test
+cd ../../../
 ```
 
 > Some discrepancy may occurs between the snapshots generated on your computer and
@@ -161,4 +164,5 @@ To update the web browser versions, you must update the package `@playwright/tes
 cd cd ./packages/jupyter-ai/ui-tests/
 jlpm up "@playwright/test"
 jlpm playwright install
+cd ../../../
 ```
