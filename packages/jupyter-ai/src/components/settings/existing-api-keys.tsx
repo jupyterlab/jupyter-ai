@@ -1,47 +1,34 @@
-import React, { useState } from 'react';
-import { Alert, Box, IconButton, Typography } from '@mui/material';
-import { Edit, Delete } from '@mui/icons-material';
+import React from 'react';
+import { Box, IconButton, Typography } from '@mui/material';
+import { Edit, DeleteOutline } from '@mui/icons-material';
 import { AsyncIconButton } from '../mui-extras/async-icon-button';
 
 import { AiService } from '../../handler';
+import { StackingAlert } from '../mui-extras/stacking-alert';
 
 export type ExistingApiKeysProps = {
+  alert: StackingAlert;
   apiKeys: string[];
+  onSuccess: () => unknown;
 };
 
-enum DeleteStatus {
-  Initial,
-  Success,
-  Failure
-}
-
 export function ExistingApiKeys(props: ExistingApiKeysProps): JSX.Element {
-  const [deleteStatus, setDeleteStatus] = useState<DeleteStatus>(
-    DeleteStatus.Initial
-  );
-  const [emsg, setEmsg] = useState<string>();
-
   return (
     <Box>
-      {deleteStatus === DeleteStatus.Failure && (
-        <Alert severity="error">{emsg}</Alert>
-      )}
-      {deleteStatus === DeleteStatus.Success && (
-        <Alert severity="success">API key deleted successfully.</Alert>
-      )}
       {props.apiKeys.map((apiKey, idx) => (
         <ExistingApiKey
           apiKey={apiKey}
           key={idx}
           onSuccess={() => {
-            setDeleteStatus(DeleteStatus.Success);
+            props.alert.show('success', 'API key deleted successfully.');
+            props.onSuccess();
           }}
           onError={newEmsg => {
-            setDeleteStatus(DeleteStatus.Failure);
-            setEmsg(newEmsg);
+            props.alert.show('error', newEmsg);
           }}
         />
       ))}
+      {props.alert.jsx}
     </Box>
   );
 }
@@ -74,8 +61,9 @@ function ExistingApiKey(props: ExistingApiKeyProps) {
           onClick={() => AiService.deleteApiKey(props.apiKey)}
           onError={props.onError}
           onSuccess={props.onSuccess}
+          confirm={true}
         >
-          <Delete />
+          <DeleteOutline color="error" />
         </AsyncIconButton>
       </Box>
     </Box>

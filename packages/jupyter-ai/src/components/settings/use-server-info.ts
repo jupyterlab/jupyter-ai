@@ -1,13 +1,18 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { AiService } from '../../handler';
 
-export type ServerInfo = {
+type ServerInfoProperties = {
   config: AiService.DescribeConfigResponse;
   lmProviders: AiService.ListProvidersResponse;
   emProviders: AiService.ListProvidersResponse;
   lmProvider: AiService.ListProvidersEntry | null;
   emProvider: AiService.ListProvidersEntry | null;
   lmLocalId: string;
+};
+
+type ServerInfoMethods = {
+  refetchAll: () => Promise<void>;
+  refetchApiKeys: () => Promise<void>;
 };
 
 export enum ServerInfoState {
@@ -30,72 +35,95 @@ type ServerInfoError = {
   state: ServerInfoState.Error;
   error?: string;
 };
-type ServerInfoReady = { state: ServerInfoState.Ready } & ServerInfo;
+type ServerInfoReady = { state: ServerInfoState.Ready } & ServerInfoProperties &
+  ServerInfoMethods;
 
-type UseServerInfoReturn =
-  | ServerInfoLoading
-  | ServerInfoError
-  | ServerInfoReady;
+type ServerInfo = ServerInfoLoading | ServerInfoError | ServerInfoReady;
 
 /**
  * A hook that fetches the current configuration and provider lists from the
- * server. The status of the network request is expressed in `serverInfo.state`.
+ * server. Returns a `ServerInfo` object that includes methods.
  */
-export function useServerInfo(): UseServerInfoReturn {
+export function useServerInfo(): ServerInfo {
   const [state, setState] = useState<ServerInfoState>(ServerInfoState.Loading);
-  const [serverInfo, setServerInfo] = useState<ServerInfo>();
+  const [serverInfoProps, setServerInfoProps] =
+    useState<ServerInfoProperties>();
   const [error, setError] = useState<string>();
 
-  useEffect(() => {
-    async function getConfig() {
-      try {
-        const [config, lmProviders, emProviders] = await Promise.all([
-          AiService.getConfig(),
-          AiService.listLmProviders(),
-          AiService.listEmProviders()
-        ]);
-        const lmGid = config.model_provider_id;
-        const emGid = config.embeddings_provider_id;
-        const lmProvider =
-          lmGid === null ? null : getProvider(lmGid, lmProviders);
-        const emProvider =
-          emGid === null ? null : getProvider(emGid, emProviders);
-        const lmLocalId = lmGid === null ? '' : getLocalId(lmGid);
-        setServerInfo({
-          config,
-          lmProviders,
-          emProviders,
-          lmProvider,
-          emProvider,
-          lmLocalId
-        });
+  const fetchServerInfo = useCallback(async () => {
+    try {
+      const [config, lmProviders, emProviders] = await Promise.all([
+        AiService.getConfig(),
+        AiService.listLmProviders(),
+        AiService.listEmProviders()
+      ]);
+      const lmGid = config.model_provider_id;
+      const emGid = config.embeddings_provider_id;
+      const lmProvider =
+        lmGid === null ? null : getProvider(lmGid, lmProviders);
+      const emProvider =
+        emGid === null ? null : getProvider(emGid, emProviders);
+      const lmLocalId = lmGid === null ? '' : getLocalId(lmGid);
+      setServerInfoProps({
+        config,
+        lmProviders,
+        emProviders,
+        lmProvider,
+        emProvider,
+        lmLocalId
+      });
 
-        setState(ServerInfoState.Ready);
-      } catch (e) {
-        console.error(e);
-        if (e instanceof Error) {
-          setError(e.message);
-        }
-        setState(ServerInfoState.Error);
+      setState(ServerInfoState.Ready);
+    } catch (e) {
+      console.error(e);
+      if (e instanceof Error) {
+        setError(e.message);
+      } else {
+        setError('An unknown error occurred.');
       }
+      setState(ServerInfoState.Error);
     }
-    getConfig();
   }, []);
 
-  return useMemo<UseServerInfoReturn>(() => {
+  const refetchApiKeys = useCallback(async () => {
+    if (!serverInfoProps) {
+      // this should never happen.
+      return;
+    }
+
+    const config = await AiService.getConfig();
+    setServerInfoProps({
+      ...serverInfoProps,
+      config: {
+        ...serverInfoProps.config,
+        api_keys: config.api_keys
+      }
+    });
+  }, [serverInfoProps]);
+
+  /**
+   * Effect: fetch server info on initial render
+   */
+  useEffect(() => {
+    fetchServerInfo();
+  }, []);
+
+  return useMemo<ServerInfo>(() => {
     if (state === ServerInfoState.Loading) {
       return { state };
     }
 
-    if (state === ServerInfoState.Error || !serverInfo) {
+    if (state === ServerInfoState.Error || !serverInfoProps) {
       return { state: ServerInfoState.Error, error };
     }
 
     return {
       state,
-      ...serverInfo
+      ...serverInfoProps,
+      refetchAll: fetchServerInfo,
+      refetchApiKeys
     };
-  }, [state, serverInfo, error]);
+  }, [state, serverInfoProps, error, refetchApiKeys]);
 }
 
 function getProvider(

@@ -1,11 +1,16 @@
 import React, { useMemo, useState } from 'react';
 import { Box, CircularProgress, IconButton } from '@mui/material';
+import { ContrastingTooltip } from './contrasting-tooltip';
 
 type AsyncIconButtonProps = {
   onClick: () => Promise<unknown>;
   onError: (emsg: string) => unknown;
   onSuccess: () => unknown;
   children: JSX.Element;
+  /**
+   * Whether this component should require confirmation from the user before
+   * calling `props.onClick()`. This is only read on initial render.
+   */
   confirm?: boolean;
 };
 
@@ -53,9 +58,17 @@ export function AsyncIconButton(props: AsyncIconButtonProps): JSX.Element {
         boxSizing: 'content-box'
       }}
     >
-      <IconButton disabled={loading} onClick={handleClick}>
-        {props.children}
-      </IconButton>
+      <ContrastingTooltip
+        title="Click again to confirm"
+        open={showConfirm}
+        onClose={() => setShowConfirm(false)}
+        arrow
+        placement="top"
+      >
+        <IconButton disabled={loading} onClick={handleClick}>
+          {props.children}
+        </IconButton>
+      </ContrastingTooltip>
       {loading && (
         <CircularProgress
           size="100%"
