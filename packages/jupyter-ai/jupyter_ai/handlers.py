@@ -10,7 +10,7 @@ import tornado
 from jupyter_ai.chat_handlers import BaseChatHandler
 from jupyter_server.base.handlers import APIHandler as BaseAPIHandler
 from jupyter_server.base.handlers import JupyterHandler
-from pydantic import ValidationError
+from langchain.pydantic_v1 import ValidationError
 from tornado import web, websocket
 from tornado.web import HTTPError
 

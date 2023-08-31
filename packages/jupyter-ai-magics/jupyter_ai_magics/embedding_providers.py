@@ -7,7 +7,7 @@ from langchain.embeddings import (
     OpenAIEmbeddings,
 )
 from langchain.embeddings.base import Embeddings
-from pydantic import BaseModel, Extra
+from langchain.pydantic_v1 import BaseModel, Extra
 
 
 class BaseEmbeddingsProvider(BaseModel):
