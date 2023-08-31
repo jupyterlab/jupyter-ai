@@ -1,7 +1,7 @@
 from typing import Any, Dict, List, Literal, Optional, Union
 
 from jupyter_ai_magics.providers import AuthStrategy, Field
-from pydantic import BaseModel
+from langchain.pydantic_v1 import BaseModel
 
 DEFAULT_CHUNK_SIZE = 2000
 DEFAULT_CHUNK_OVERLAP = 100
