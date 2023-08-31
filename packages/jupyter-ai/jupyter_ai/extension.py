@@ -1,6 +1,7 @@
 import time
 
 from dask.distributed import Client as DaskClient
+from jupyter_ai.chat_handlers.learn import Retriever
 from jupyter_ai_magics.utils import get_em_providers, get_lm_providers
 from jupyter_server.extension.application import ExtensionApp
 
@@ -93,9 +94,8 @@ class AiExtension(ExtensionApp):
             dask_client_future=dask_client_future,
         )
         help_chat_handler = HelpChatHandler(**chat_handler_kwargs)
-        ask_chat_handler = AskChatHandler(
-            **chat_handler_kwargs, retriever=learn_chat_handler
-        )
+        retriever = Retriever(learn_chat_handler=learn_chat_handler)
+        ask_chat_handler = AskChatHandler(**chat_handler_kwargs, retriever=retriever)
         self.settings["jai_chat_handlers"] = {
             "default": default_chat_handler,
             "/ask": ask_chat_handler,

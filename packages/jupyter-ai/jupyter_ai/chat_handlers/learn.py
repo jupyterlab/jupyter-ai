@@ -4,6 +4,7 @@ import os
 from typing import Any, Awaitable, Coroutine, List, Optional, Tuple
 
 from dask.distributed import Client as DaskClient
+from jupyter_ai.config_manager import ConfigManager
 from jupyter_ai.document_loaders.directory import get_embeddings, split
 from jupyter_ai.document_loaders.splitter import ExtensionSplitter, NotebookSplitter
 from jupyter_ai.models import (
@@ -29,7 +30,7 @@ INDEX_SAVE_DIR = os.path.join(jupyter_data_dir(), "jupyter_ai", "indices")
 METADATA_SAVE_PATH = os.path.join(INDEX_SAVE_DIR, "metadata.json")
 
 
-class LearnChatHandler(BaseChatHandler, BaseRetriever):
+class LearnChatHandler(BaseChatHandler):
     def __init__(
         self, root_dir: str, dask_client_future: Awaitable[DaskClient], *args, **kwargs
     ):
@@ -266,9 +267,6 @@ class LearnChatHandler(BaseChatHandler, BaseRetriever):
             j = json.loads(f.read())
             self.metadata = IndexMetadata(**j)
 
-    def get_relevant_documents(self, query: str) -> List[Document]:
-        raise NotImplementedError()
-
     async def aget_relevant_documents(
         self, query: str
     ) -> Coroutine[Any, Any, List[Document]]:
@@ -291,3 +289,16 @@ class LearnChatHandler(BaseChatHandler, BaseRetriever):
             return None
 
         return em_provider_cls(**em_provider_args)
+
+
+class Retriever(BaseRetriever):
+    learn_chat_handler: LearnChatHandler = None
+
+    def _get_relevant_documents(self, query: str) -> List[Document]:
+        raise NotImplementedError()
+
+    async def _aget_relevant_documents(
+        self, query: str
+    ) -> Coroutine[Any, Any, List[Document]]:
+        docs = await self.learn_chat_handler.aget_relevant_documents(query)
+        return docs
