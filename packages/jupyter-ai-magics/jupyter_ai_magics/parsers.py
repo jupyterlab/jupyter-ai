@@ -1,7 +1,7 @@
 from typing import Literal, Optional, get_args
 
 import click
-from langchain.pydantic_v1 import BaseModel
+from pydantic import BaseModel
 
 FORMAT_CHOICES_TYPE = Literal[
     "code", "html", "image", "json", "markdown", "math", "md", "text"
