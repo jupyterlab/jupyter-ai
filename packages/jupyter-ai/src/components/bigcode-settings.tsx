@@ -5,6 +5,7 @@ import CodeCompletionContextstore from '../contexts/code-completion-context-stor
 import { observer } from 'mobx-react-lite';
 import { parseKeyboardEventToShortcut } from '../utils/keyboard';
 import Switch from '@mui/material/Switch';
+import Slider from '@mui/material/Slider';
 
 export const BigCodeSetting = observer(() => {
   const { bigcodeUrl } = CodeCompletionContextstore;
@@ -36,6 +37,28 @@ export const BigCodeSetting = observer(() => {
     );
   }, []);
 
+  const changeMaxPromptTokens = (
+    event: Event,
+    newValue: number | number[],
+    activeThumb: number
+  ) => {
+    // For the current scene, it can only be number
+    if (typeof newValue === 'number') {
+      CodeCompletionContextstore.setMaxPromptTokens(newValue);
+    }
+  };
+
+  const changeMaxResponseokens = (
+    event: Event,
+    newValue: number | number[],
+    activeThumb: number
+  ) => {
+    // For the current scene, it can only be number
+    if (typeof newValue === 'number') {
+      CodeCompletionContextstore.setMaxResponseTokens(newValue);
+    }
+  };
+
   return (
     <Box
       sx={{
@@ -45,13 +68,13 @@ export const BigCodeSetting = observer(() => {
         overflowY: 'auto'
       }}
     >
-      <h2 className="jp-ai-ChatSettings-header">
+      <h1 className="jp-ai-ChatSettings-header bigcode-setting-level-1-title">
         Enable code completion
         <Switch
           checked={CodeCompletionContextstore.enableCodeCompletion}
           onChange={toggleCodeCompletionWrapper}
         />
-      </h2>
+      </h1>
       <div
         className={
           CodeCompletionContextstore.enableCodeCompletion
@@ -75,16 +98,43 @@ export const BigCodeSetting = observer(() => {
           type="password"
           onChange={e => setAccessTokenWrapper(e.target.value)}
         />
-        <h2 className="jp-ai-ChatSettings-header">
-          Hotkey for continue writing
-        </h2>
+        <h2 className="jp-ai-ChatSettings-header">Short cut for completion</h2>
         <TextField
-          label="Please press the hotkey you need"
+          label="Please press the short cut you need"
           value={CodeCompletionContextstore.shortcutStr}
           fullWidth
           type="text"
           onKeyDown={setHotKeyWrapper}
         />
+        <h1 className="jp-ai-ChatSettings-header bigcode-setting-level-1-title">
+          Advanced Settings
+        </h1>
+        <div className="bigcode-setting-configuration">
+          <h2 className="jp-ai-ChatSettings-header">Max prompt tokens</h2>
+          <div className="bigcode-settings-token">
+            <Slider
+              className="token-slider"
+              value={CodeCompletionContextstore.maxPromptToken}
+              onChange={changeMaxPromptTokens}
+              aria-label="Default"
+              valueLabelDisplay="auto"
+              min={100}
+              max={1000}
+            />
+          </div>
+          <h2 className="jp-ai-ChatSettings-header">Max response tokens</h2>
+          <div className="bigcode-settings-token">
+            <Slider
+              className="token-slider"
+              value={CodeCompletionContextstore.maxResponseToken}
+              onChange={changeMaxResponseokens}
+              aria-label="Default"
+              valueLabelDisplay="auto"
+              min={10}
+              max={200}
+            />
+          </div>
+        </div>
       </div>
     </Box>
   );

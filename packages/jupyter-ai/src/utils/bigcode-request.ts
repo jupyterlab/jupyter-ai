@@ -17,9 +17,17 @@ const getPromptForCell = (cell: ICell): string => {
     case 'markdown':
       cellPrompt += '<jupyter_text>';
       break;
+    case 'output':
+      cellPrompt += '<jupyter_output>';
+      break;
   }
   return cellPrompt + cell.content;
 };
+
+function countSpaces(str: string) {
+  const matches = str.match(/ /g);
+  return matches ? matches.length : 0;
+}
 
 /**
  * Constructs a continuation prompt based on the provided context.
@@ -29,15 +37,22 @@ const getPromptForCell = (cell: ICell): string => {
  * @returns {string | null} The constructed continuation prompt or null if context is empty.
  */
 export const constructContinuationPrompt = (
-  context: ICell[] | null
+  context: ICell[] | null,
+  maxTokens: number
 ): string | null => {
   if (!context || context.length === 0) {
     return null;
   }
 
-  const prompt = '<start_jupyter>' + context.map(getPromptForCell).join('');
+  let prompt = '';
+  for (let i = context.length - 1; i >= 0; i--) {
+    prompt = getPromptForCell(context[i]) + prompt;
+    if (countSpaces(prompt) > maxTokens) {
+      break;
+    }
+  }
 
-  return prompt;
+  return '<start_jupyter>' + prompt;
 };
 
 /**
@@ -48,11 +63,12 @@ export const constructContinuationPrompt = (
  * @returns {Promise<{ generated_text: string }[]>} A promise that resolves with the generated text or rejects with an error.
  */
 export const sendToBigCode = async (
-  prompt: string | null
+  prompt: string | null,
+  max_tokens: number
 ): Promise<{ generated_text: string }[]> => {
   const { bigcodeUrl } = CodeCompletionContextStore;
   const { accessToken } = CodeCompletionContextStore;
-
+  console.log(prompt);
   if (!bigcodeUrl || !accessToken) {
     alert('BigCode service URL or Huggingface Access Token not set.');
     return new Promise((resolve, reject) => {
@@ -72,6 +88,7 @@ export const sendToBigCode = async (
     parameters: {
       temperature: 0.01,
       return_full_text: false,
+      max_tokens,
       stop: ['<jupyter_output>']
     }
   };
