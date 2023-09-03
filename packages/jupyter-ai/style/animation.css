@@ -3,7 +3,7 @@
   height: 15px;
   border-radius: 50%;
   border: 2px solid transparent;
-  border-top-color: #FFCA28;
+  border-top-color: #ffca28;
   animation: spin 1s linear infinite;
   position: absolute;
   right: 15px;
@@ -13,12 +13,12 @@
 
 .circle-success {
   border-color: green;
-  animation: fadeInOut 2s forwards, spin 0s;
+  animation: fade-in-out 2s forwards, spin 0s;
 }
 
 .circle-failed {
   border-color: red;
-  animation: fadeInOut 2s forwards, spin 0s;
+  animation: fade-in-out 2s forwards, spin 0s;
 }
 
 @keyframes spin {
@@ -31,7 +31,7 @@
   }
 }
 
-@keyframes fadeInOut {
+@keyframes fade-in-out {
   0% {
     opacity: 1;
   }
