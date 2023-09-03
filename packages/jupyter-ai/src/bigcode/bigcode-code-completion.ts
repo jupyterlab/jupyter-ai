@@ -1,6 +1,6 @@
 import { JupyterFrontEnd } from '@jupyterlab/application';
 import { EditorView } from '@codemirror/view';
-import { getTextInActiveCellUpToCursor } from '../utils/cell-context';
+import { getNotebookContentUntilCursor } from '../utils/cell-context';
 import {
   sendToBigCode,
   processCompletionResult,
@@ -96,7 +96,8 @@ export const codeCompletion = (
   app: JupyterFrontEnd,
   view: EditorView
 ): boolean => {
-  const context = getTextInActiveCellUpToCursor(app);
+  const context = getNotebookContentUntilCursor(app);
+
   if (!context || isContextEmpty(context)) {
     updateAnimation(view, 'failed');
     console.error('continueWriting() => context is null');
@@ -116,11 +117,14 @@ export const codeCompletion = (
   CodeCompletionContextStore.setCodeOnRequest(
     context[context.length - 1].content
   );
-  const prompt = constructContinuationPrompt(context);
+  const prompt = constructContinuationPrompt(
+    context,
+    CodeCompletionContextStore.maxPromptToken
+  );
 
   console.debug('codeCompletion() => prompt: ', prompt);
 
-  sendToBigCode(prompt)
+  sendToBigCode(prompt, CodeCompletionContextStore.maxResponseToken)
     .then(result => {
       console.debug('continueWriting() => state is success, result: ', result);
       requestSuccess(app, view, result);

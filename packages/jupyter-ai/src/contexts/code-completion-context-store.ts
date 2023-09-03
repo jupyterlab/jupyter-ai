@@ -27,22 +27,45 @@ class CodeCompletionContextstore {
    */
   @observable shortcutStr = 'Ctrl + Space';
 
+  /**
+   * Maximum prompt tokens when requested
+   */
+  @observable maxPromptToken = 400;
+
+  /**
+   * Maximum response tokens when requested
+   */
+  @observable maxResponseToken = 20;
+
   constructor() {
     makeObservable(this);
 
-    const storedShortcutStr = localStorage.getItem(
-      '@jupyterlab-ai/CodeCompletionState:ShortcutStr'
+    const dataPersistenceStr = localStorage.getItem(
+      '@jupyterlab-ai/CodeCompletionState'
     );
-    if (storedShortcutStr) {
-      this.shortcutStr = storedShortcutStr;
-    }
 
-    const enableCodeCompletion = localStorage.getItem(
-      '@jupyterlab-ai/CodeCompletionState:EnableCodeCompletion'
-    );
-    if (enableCodeCompletion) {
-      this.enableCodeCompletion = Boolean(Number(enableCodeCompletion));
+    if (dataPersistenceStr) {
+      const dataPersistence: IGlobalStore = JSON.parse(dataPersistenceStr);
+      this.enableCodeCompletion = dataPersistence.enableCodeCompletion;
+      this.bigcodeUrl = dataPersistence.bigcodeUrl;
+      this.shortcutStr = dataPersistence.shortcutStr;
+      this.maxPromptToken = dataPersistence.maxPromptToken;
+      this.maxResponseToken = dataPersistence.maxResponseToken;
     }
+  }
+
+  saveDataToLoaclStorage() {
+    // Do not store sensitive information
+    localStorage.setItem(
+      '@jupyterlab-ai/CodeCompletionState',
+      JSON.stringify({
+        enableCodeCompletion: this.enableCodeCompletion,
+        bigcodeUrl: this.bigcodeUrl,
+        shortcutStr: this.shortcutStr,
+        maxPromptToken: this.maxPromptToken,
+        maxResponseToken: this.maxResponseToken
+      })
+    );
   }
 
   @action
@@ -53,15 +76,13 @@ class CodeCompletionContextstore {
   @action
   setBigcodeUrl(url: string): void {
     this.bigcodeUrl = url;
+    this.saveDataToLoaclStorage();
   }
 
   @action
   toggleCodeCompletion(): void {
     this.enableCodeCompletion = !this.enableCodeCompletion;
-    localStorage.setItem(
-      '@jupyterlab-ai/CodeCompletionState:EnableCodeCompletion',
-      `${+this.enableCodeCompletion}`
-    );
+    this.saveDataToLoaclStorage();
   }
 
   @action
@@ -71,11 +92,20 @@ class CodeCompletionContextstore {
 
   @action
   setShortcutStr(shortcutStr: string): void {
-    localStorage.setItem(
-      '@jupyterlab-ai/CodeCompletionState:ShortcutStr',
-      shortcutStr
-    );
     this.shortcutStr = shortcutStr;
+    this.saveDataToLoaclStorage();
+  }
+
+  @action
+  setMaxPromptTokens(newValue: number): void {
+    this.maxPromptToken = newValue;
+    this.saveDataToLoaclStorage();
+  }
+
+  @action
+  setMaxResponseTokens(newValue: number): void {
+    this.maxResponseToken = newValue;
+    this.saveDataToLoaclStorage();
   }
 }
 

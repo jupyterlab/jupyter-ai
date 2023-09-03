@@ -2,7 +2,7 @@ import { JupyterFrontEnd } from '@jupyterlab/application';
 import { CodeEditor } from '@jupyterlab/codeeditor';
 import { DocumentWidget } from '@jupyterlab/docregistry';
 import { Notebook } from '@jupyterlab/notebook';
-import { CodeCell, MarkdownCell } from '@jupyterlab/cells';
+import { CodeCell, MarkdownCell, Cell } from '@jupyterlab/cells';
 
 import { ICell, ICellType } from '../types/cell';
 
@@ -106,55 +106,101 @@ export const getTextBeforeCursorFromApp = (
 };
 
 /**
+ * Retrieves the output text from a given cell based on its type.
+ *
+ * The function extracts outputs from CodeCell instances based on their output type:
+ * - For 'execute_result' type, it retrieves the data.
+ * - For 'stream' type, it retrieves the text.
+ * - For 'error' type, it retrieves the error value (evalue).
+ *
+ * If the cell is not an instance of CodeCell or has no valid output type, an empty string is returned.
+ *
+ * @param {Cell} cell - The cell from which to extract the output.
+ * @returns {string} - The combined output text from the cell.
+ */
+const getCellOutput = (cell: Cell): string => {
+  if (!(cell instanceof CodeCell)) {
+    return '';
+  }
+
+  return cell.model.sharedModel.outputs.reduce((acc, output) => {
+    console.log(output);
+    switch (output.output_type) {
+      case 'execute_result':
+        if (output.data) {
+          // Maybe there are other ways, but I didn't find it
+          const outputData = JSON.parse(JSON.stringify(output.data));
+          if ('text/plain' in outputData) {
+            return acc + outputData['text/plain'];
+          }
+        }
+        return output.data ? acc + JSON.stringify(output.data) : acc;
+      case 'stream':
+        return acc + output.text;
+      case 'error':
+        return acc + output.evalue;
+      default:
+        return acc;
+    }
+  }, '');
+};
+
+const getCellDetails = (cell: Cell, isActiveCell: boolean): ICell[] => {
+  const cellType: ICellType =
+    cell instanceof CodeCell
+      ? 'code'
+      : cell instanceof MarkdownCell
+      ? 'markdown'
+      : null;
+
+  const results: ICell[] = [];
+
+  const editor = cell.editor;
+  if (editor) {
+    const text = isActiveCell
+      ? getTextBeforeCursor(editor).join('\n')
+      : getTextByEditor(editor);
+    results.push({ type: cellType, content: text });
+  }
+
+  results.push({ type: 'output', content: getCellOutput(cell) });
+
+  return results;
+};
+
+/**
  * Retrieves all cell content up to the current active cell position.
  *
  * @param {JupyterFrontEnd} app - The JupyterFrontEnd application instance.
  * @returns {ICell[] | null} - An array of ICell objects with their content or null if not available.
  */
-export const getTextInActiveCellUpToCursor = (
+export const getNotebookContentUntilCursor = (
   app: JupyterFrontEnd
 ): ICell[] | null => {
   const currentWidget = app.shell.currentWidget;
+
   if (!currentWidget || !(currentWidget instanceof DocumentWidget)) {
     return null;
   }
 
   const content = getSpecificWidget(currentWidget);
-  if (content instanceof Notebook) {
-    const allCellBase: ICell[] = [];
-    const widgets = content.widgets;
-    const activeCellIndex = content.activeCellIndex;
-
-    // traverse to the current cell
-    for (let index = 0; index <= activeCellIndex; index++) {
-      const widget = widgets[index];
-      const cellType: ICellType =
-        widget instanceof CodeCell
-          ? 'code'
-          : widget instanceof MarkdownCell
-          ? 'markdown'
-          : null;
-
-      const editor = widget.editor;
-      if (editor) {
-        // If the current cell
-        if (index === activeCellIndex) {
-          const cellLines = getTextBeforeCursor(editor);
-          allCellBase.push({
-            type: cellType,
-            content: cellLines.join('\n')
-          });
-          break;
-        }
-
-        const codeText = getTextByEditor(editor);
-        allCellBase.push({
-          type: cellType,
-          content: codeText
-        });
-      }
-    }
-    return allCellBase;
+  if (!(content instanceof Notebook)) {
+    return null;
   }
-  return null;
+
+  const activeCellIndex = content.activeCellIndex;
+
+  const cellsUpToCursor = content.widgets
+    .slice(0, activeCellIndex + 1)
+    .flatMap((cell, index) => getCellDetails(cell, index === activeCellIndex));
+
+  // Check if the last cell type is 'output' and remove it
+  if (
+    cellsUpToCursor.length > 0 &&
+    cellsUpToCursor[cellsUpToCursor.length - 1].type === 'output'
+  ) {
+    cellsUpToCursor.pop();
+  }
+
+  return cellsUpToCursor;
 };
