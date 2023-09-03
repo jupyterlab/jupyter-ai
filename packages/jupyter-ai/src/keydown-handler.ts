@@ -73,6 +73,10 @@ const generateKeyDownExtension = (app: JupyterFrontEnd): Extension => {
     keymap.of([
       {
         any: (view: EditorView, event: KeyboardEvent) => {
+          if (!GlobalStore.enableCodeCompletion) {
+            return false;
+          }
+
           const parsedShortcut = parseKeyboardEventToShortcut(event);
           console.debug('keyboard press: ', parsedShortcut);
 

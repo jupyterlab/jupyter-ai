@@ -4,6 +4,7 @@ import { Box, TextField } from '@mui/material';
 import CodeCompletionContextstore from '../contexts/code-completion-context-store';
 import { observer } from 'mobx-react-lite';
 import { parseKeyboardEventToShortcut } from '../utils/keyboard';
+import Switch from '@mui/material/Switch';
 
 export const BigCodeSetting = observer(() => {
   const { bigcodeUrl } = CodeCompletionContextstore;
@@ -25,6 +26,10 @@ export const BigCodeSetting = observer(() => {
     console.debug('setHotKey() => The current hotkey is ', shortcutStr);
   };
 
+  const toggleCodeCompletionWrapper = () => {
+    CodeCompletionContextstore.toggleCodeCompletion();
+  };
+
   useEffect(() => {
     CodeCompletionContextstore.setBigcodeUrl(
       'https://api-inference.huggingface.co/models/bigcode/starcoderbase/'
@@ -40,32 +45,47 @@ export const BigCodeSetting = observer(() => {
         overflowY: 'auto'
       }}
     >
-      <h2 className="jp-ai-ChatSettings-header">Bigcode service url</h2>
-      <TextField
-        label="Bigcode service url"
-        value={bigcodeUrl}
-        fullWidth
-        type="text"
-        onChange={e => setBigcodeUrlWrapper(e.target.value)}
-      />
-
-      <h2 className="jp-ai-ChatSettings-header">Huggingface Access Token</h2>
-      <TextField
-        label="Huggingface Access Token"
-        value={accessToken}
-        fullWidth
-        type="password"
-        onChange={e => setAccessTokenWrapper(e.target.value)}
-      />
-
-      <h2 className="jp-ai-ChatSettings-header">Hotkey for continue writing</h2>
-      <TextField
-        label="Please press the hotkey you need"
-        value={CodeCompletionContextstore.shortcutStr}
-        fullWidth
-        type="text"
-        onKeyDown={setHotKeyWrapper}
-      />
+      <h2 className="jp-ai-ChatSettings-header">
+        Enable code completion
+        <Switch
+          checked={CodeCompletionContextstore.enableCodeCompletion}
+          onChange={toggleCodeCompletionWrapper}
+        />
+      </h2>
+      <div
+        className={
+          CodeCompletionContextstore.enableCodeCompletion
+            ? 'code-completion-setting-entered'
+            : 'code-completion-setting-exiting'
+        }
+      >
+        <h2 className="jp-ai-ChatSettings-header">Bigcode service url</h2>
+        <TextField
+          label="Bigcode service url"
+          value={bigcodeUrl}
+          fullWidth
+          type="text"
+          onChange={e => setBigcodeUrlWrapper(e.target.value)}
+        />
+        <h2 className="jp-ai-ChatSettings-header">Huggingface Access Token</h2>
+        <TextField
+          label="Huggingface Access Token"
+          value={accessToken}
+          fullWidth
+          type="password"
+          onChange={e => setAccessTokenWrapper(e.target.value)}
+        />
+        <h2 className="jp-ai-ChatSettings-header">
+          Hotkey for continue writing
+        </h2>
+        <TextField
+          label="Please press the hotkey you need"
+          value={CodeCompletionContextstore.shortcutStr}
+          fullWidth
+          type="text"
+          onKeyDown={setHotKeyWrapper}
+        />
+      </div>
     </Box>
   );
 });
