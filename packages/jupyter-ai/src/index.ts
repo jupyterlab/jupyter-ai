@@ -9,9 +9,11 @@ import { IDocumentWidget } from '@jupyterlab/docregistry';
 import { IGlobalAwareness } from '@jupyter/collaboration';
 import type { Awareness } from 'y-protocols/awareness';
 import { buildChatSidebar } from './widgets/chat-sidebar';
+import { buildBigcodeSidebar } from './widgets/bigcode-sidebar';
 import { SelectionWatcher } from './selection-watcher';
 import { ChatHandler } from './chat_handler';
 import { buildErrorWidget } from './widgets/chat-error';
+import { handleCodeCompletionKeyDown } from './keydown-handler';
 
 export type DocumentTracker = IWidgetTracker<IDocumentWidget>;
 
@@ -50,12 +52,28 @@ const plugin: JupyterFrontEndPlugin<void> = {
     }
 
     /**
+     * Initialize bigcode settings widget
+     */
+    const bigcodeWidget = buildBigcodeSidebar();
+
+    /**
+     * Initialize keydown handler
+     */
+    handleCodeCompletionKeyDown(app);
+
+    /**
      * Add Chat widget to right sidebar
      */
     app.shell.add(chatWidget, 'left', { rank: 2000 });
 
+    /**
+     * Add Bigcode settings widget to right sidebar
+     */
+    app.shell.add(bigcodeWidget, 'left', { rank: 2001 });
+
     if (restorer) {
       restorer.add(chatWidget, 'jupyter-ai-chat');
+      restorer.add(bigcodeWidget, 'bigcode-code-completion');
     }
   }
 };

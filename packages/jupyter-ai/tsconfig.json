@@ -18,8 +18,9 @@
     "strict": true,
     "strictNullChecks": true,
     "skipLibCheck": true,
-    "target": "ES2018",
-    "types": ["jest"]
+    "target": "ES2019",
+    "types": ["jest"],
+    "experimentalDecorators": true
   },
   "include": ["src/**/*"]
 }
