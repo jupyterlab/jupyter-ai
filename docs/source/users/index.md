@@ -741,3 +741,43 @@ The `--region-name` parameter is set to the [AWS region code](https://docs.aws.a
 The `--request-schema` parameter is the JSON object the endpoint expects as input, with the prompt being substituted into any value that matches the string literal `"<prompt>"`. For example, the request schema `{"text_inputs":"<prompt>"}` will submit a JSON object with the prompt stored under the `text_inputs` key.
 
 The `--response-path` option is a [JSONPath](https://goessner.net/articles/JsonPath/index.html) string that retrieves the language model's output from the endpoint's JSON response. For example, if your endpoint returns an object with the schema `{"generated_texts":["<output>"]}`, its response path is `generated_texts.[0]`.
+
+
+## Code completion
+
+### Usage
+
+We first need to configure the huggingface token and short cut
+
+![](../_static/code-completion-setting.jpg)
+
+In a cell, press {The short cut configured in the image above} to trigger
+
+![](../_static/code-completion-setting-key-down.jpg)
+
+Press "enter" to accpet the proposition.
+
+![](../_static/code-completion-setting-completion.jpg)
+
+
+### Configure
+
+Bigcode service url: 
+
+- The endpoint URL of the Bigcode service. This is the base URL that the code completion system will connect to when requesting code completions.
+
+Huggingface Access Token:
+
+- Your personal access token for Huggingface's service. This token authenticates and authorizes your requests to the Huggingface API.
+
+Short cut for completion:
+
+- A shortcut or key combination that, when pressed, triggers the code completion feature. 
+
+Max prompt tokens:
+
+- The maximum number of tokens that can be sent in the prompt to the code completion API. 
+
+Max response tokens:
+
+- Set 'Max Response Tokens' judiciously; a higher value can slow response times, and since we don't support streaming, you'll await the entire response.
