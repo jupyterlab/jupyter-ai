@@ -30,3 +30,17 @@
     0% { opacity: 1; }
     100% { opacity: 0; }
 }
+
+.code-completion-setting-entering,
+.code-completion-setting-exiting,
+.code-completion-setting-exited {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 300ms, transform 300ms;
+}
+
+.code-completion-setting-entered {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 300ms, transform 300ms;
+}

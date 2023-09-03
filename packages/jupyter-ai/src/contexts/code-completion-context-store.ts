@@ -2,6 +2,11 @@ import { makeObservable, observable, action } from 'mobx';
 
 class CodeCompletionContextstore {
   /**
+   * Whether to enable code completion function.
+   */
+  @observable enableCodeCompletion = false;
+
+  /**
    * Observable huggingface token for authentication purposes.
    */
   @observable accessToken = '';
@@ -25,9 +30,18 @@ class CodeCompletionContextstore {
   constructor() {
     makeObservable(this);
 
-    const storedShortcutStr = localStorage.getItem('shortcutStr');
+    const storedShortcutStr = localStorage.getItem(
+      '@jupyterlab-ai/CodeCompletionState:ShortcutStr'
+    );
     if (storedShortcutStr) {
       this.shortcutStr = storedShortcutStr;
+    }
+
+    const enableCodeCompletion = localStorage.getItem(
+      '@jupyterlab-ai/CodeCompletionState:EnableCodeCompletion'
+    );
+    if (enableCodeCompletion) {
+      this.enableCodeCompletion = Boolean(Number(enableCodeCompletion));
     }
   }
 
@@ -42,13 +56,25 @@ class CodeCompletionContextstore {
   }
 
   @action
+  toggleCodeCompletion(): void {
+    this.enableCodeCompletion = !this.enableCodeCompletion;
+    localStorage.setItem(
+      '@jupyterlab-ai/CodeCompletionState:EnableCodeCompletion',
+      `${+this.enableCodeCompletion}`
+    );
+  }
+
+  @action
   setCodeOnRequest(code: string): void {
     this.codeOnRequest = code;
   }
 
   @action
   setShortcutStr(shortcutStr: string): void {
-    localStorage.setItem('shortcutStr', shortcutStr);
+    localStorage.setItem(
+      '@jupyterlab-ai/CodeCompletionState:ShortcutStr',
+      shortcutStr
+    );
     this.shortcutStr = shortcutStr;
   }
 }
