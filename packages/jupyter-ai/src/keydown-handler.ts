@@ -35,7 +35,7 @@ const mountExtension = (
     return;
   }
 
-  // editor 还没有正常的完成初始化
+  // It is possible that the editor has not been initialized normally
   if (!('editor' in editor)) {
     return;
   }
