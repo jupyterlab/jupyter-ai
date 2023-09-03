@@ -30,6 +30,7 @@ const mountExtension = (
   editor: CodeMirrorEditor,
   extension: Extension
 ): void => {
+  console.log(editor);
   // If the editor has already been processed
   if (mountedEditors.has(editor)) {
     return;
@@ -133,6 +134,7 @@ const initializeKeyDownHandlers = (app: JupyterFrontEnd) => {
           return;
         }
 
+        await cell.ready;
         mountEditorWithDelay(cell.editor, extension);
       });
     }
