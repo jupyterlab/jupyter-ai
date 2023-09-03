@@ -133,6 +133,7 @@ const initializeKeyDownHandlers = (app: JupyterFrontEnd) => {
           return;
         }
 
+        await cell.ready;
         mountEditorWithDelay(cell.editor, extension);
       });
     }
