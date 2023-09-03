@@ -94,6 +94,17 @@ that include variable values.
 
 ![Sample with code interpolation and markdown output](./docs/source/_static/sample-markdown.png)
 
+
+## Code completion
+
+In a cell, press {Short cut configured in the bigcode sidebar} to trigger
+
+![Sample of pressing a shortcut key in code completion](./docs/source/_static/code-completion-setting-key-down.jpg)
+
+Press "enter" to accpet the proposition.
+
+![Sample of pressing enter after a successful request in code completion](./docs/source/_static/code-completion-setting-completion.jpg)
+
 ## JupyterLab extension
 
 The Jupyter AI extension for JupyterLab offers a native UI that enables multiple users
