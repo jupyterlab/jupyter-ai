@@ -30,7 +30,6 @@ const mountExtension = (
   editor: CodeMirrorEditor,
   extension: Extension
 ): void => {
-  console.log(editor);
   // If the editor has already been processed
   if (mountedEditors.has(editor)) {
     return;
