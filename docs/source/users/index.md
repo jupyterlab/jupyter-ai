@@ -762,7 +762,7 @@ Press "enter" to accpet the proposition.
 
 ### Configure
 
-Bigcode service url: 
+Bigcode service url:
 
 - The endpoint URL of the Bigcode service. This is the base URL that the code completion system will connect to when requesting code completions.
 
@@ -772,11 +772,11 @@ Huggingface Access Token:
 
 Short cut for completion:
 
-- A shortcut or key combination that, when pressed, triggers the code completion feature. 
+- A shortcut or key combination that, when pressed, triggers the code completion feature.
 
 Max prompt tokens:
 
-- The maximum number of tokens that can be sent in the prompt to the code completion API. 
+- The maximum number of tokens that can be sent in the prompt to the code completion API.
 
 Max response tokens:
 
