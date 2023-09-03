@@ -144,7 +144,7 @@ async def improve_code(code, llm=None, verbose=False):
     chain = CodeImproverChain.from_llm(llm=llm, verbose=verbose)
     improved_code = await chain.apredict(code=code)
     improved_code = "\n".join(
-        [line for line in improved_code.split("/n") if not line.startswith("```")]
+        [line for line in improved_code.split("\n") if not line.startswith("```")]
     )
     return improved_code
 

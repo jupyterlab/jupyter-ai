@@ -1,9 +1,10 @@
 import argparse
 import json
 import os
-from typing import Any, Awaitable, Coroutine, List
+from typing import Any, Awaitable, Coroutine, List, Optional, Tuple
 
 from dask.distributed import Client as DaskClient
+from jupyter_ai.config_manager import ConfigManager
 from jupyter_ai.document_loaders.directory import get_embeddings, split
 from jupyter_ai.document_loaders.splitter import ExtensionSplitter, NotebookSplitter
 from jupyter_ai.models import (
@@ -29,7 +30,7 @@ INDEX_SAVE_DIR = os.path.join(jupyter_data_dir(), "jupyter_ai", "indices")
 METADATA_SAVE_PATH = os.path.join(INDEX_SAVE_DIR, "metadata.json")
 
 
-class LearnChatHandler(BaseChatHandler, BaseRetriever):
+class LearnChatHandler(BaseChatHandler):
     def __init__(
         self, root_dir: str, dask_client_future: Awaitable[DaskClient], *args, **kwargs
     ):
@@ -59,10 +60,10 @@ class LearnChatHandler(BaseChatHandler, BaseRetriever):
         if not os.path.exists(INDEX_SAVE_DIR):
             os.makedirs(INDEX_SAVE_DIR)
 
-        self._load_or_create()
+        self._load()
 
-    def _load_or_create(self):
-        """Loads the vector store and creates a new one if none exists."""
+    def _load(self):
+        """Loads the vector store."""
         embeddings = self.get_embedding_model()
         if not embeddings:
             return
@@ -73,14 +74,12 @@ class LearnChatHandler(BaseChatHandler, BaseRetriever):
                 )
                 self.load_metadata()
             except Exception as e:
-                self.create()
+                self.log.error("Could not load vector index from disk.")
 
     async def _process_message(self, message: HumanChatMessage):
-        if not self.index:
-            self._load_or_create()
-
-        # If index is not still there, embeddings are not present
-        if not self.index:
+        # If no embedding provider has been selected
+        em_provider_cls, em_provider_args = self.get_embedding_provider()
+        if not em_provider_cls:
             self.reply(
                 "Sorry, please select an embedding provider before using the `/learn` command."
             )
@@ -153,7 +152,11 @@ class LearnChatHandler(BaseChatHandler, BaseRetriever):
         em_provider_cls, em_provider_args = self.get_embedding_provider()
         delayed = get_embeddings(doc_chunks, em_provider_cls, em_provider_args)
         embedding_records = await dask_client.compute(delayed)
-        self.index.add_embeddings(*embedding_records)
+        if self.index:
+            self.index.add_embeddings(*embedding_records)
+        else:
+            self.create(*embedding_records)
+
         self._add_dir_to_metadata(path, chunk_size, chunk_overlap)
         self.prev_em_id = em_provider_cls.id + ":" + em_provider_args["model_id"]
 
@@ -212,7 +215,6 @@ class LearnChatHandler(BaseChatHandler, BaseRetriever):
         for path in paths:
             if os.path.isfile(path):
                 os.remove(path)
-        self.create()
 
     async def relearn(self, metadata: IndexMetadata):
         # Index all dirs in the metadata
@@ -234,15 +236,16 @@ class LearnChatHandler(BaseChatHandler, BaseRetriever):
         You can ask questions about these docs by prefixing your message with **/ask**."""
         self.reply(message)
 
-    def create(self):
+    def create(
+        self,
+        embedding_records: List[Tuple[str, List[float]]],
+        metadatas: Optional[List[dict]] = None,
+    ):
         embeddings = self.get_embedding_model()
         if not embeddings:
             return
-        self.index = FAISS.from_texts(
-            [
-                "Jupyternaut knows about your filesystem, to ask questions first use the /learn command."
-            ],
-            embeddings,
+        self.index = FAISS.from_embeddings(
+            text_embeddings=embedding_records, embedding=embeddings, metadatas=metadatas
         )
         self.save()
 
@@ -263,9 +266,6 @@ class LearnChatHandler(BaseChatHandler, BaseRetriever):
         with open(METADATA_SAVE_PATH, encoding="utf-8") as f:
             j = json.loads(f.read())
             self.metadata = IndexMetadata(**j)
-
-    def get_relevant_documents(self, query: str) -> List[Document]:
-        raise NotImplementedError()
 
     async def aget_relevant_documents(
         self, query: str
@@ -289,3 +289,16 @@ class LearnChatHandler(BaseChatHandler, BaseRetriever):
             return None
 
         return em_provider_cls(**em_provider_args)
+
+
+class Retriever(BaseRetriever):
+    learn_chat_handler: LearnChatHandler = None
+
+    def _get_relevant_documents(self, query: str) -> List[Document]:
+        raise NotImplementedError()
+
+    async def _aget_relevant_documents(
+        self, query: str
+    ) -> Coroutine[Any, Any, List[Document]]:
+        docs = await self.learn_chat_handler.aget_relevant_documents(query)
+        return docs
