@@ -41,9 +41,9 @@ export function ExistingApiKeys(props: ExistingApiKeysProps): JSX.Element {
         }
       }}
     >
-      {props.apiKeys.map((apiKey, idx) => (
+      {props.apiKeys.map(apiKey => (
         <ExistingApiKey
-          key={idx}
+          key={apiKey}
           alert={props.alert}
           apiKey={apiKey}
           editable={editableApiKey === apiKey}
@@ -110,7 +110,7 @@ function ExistingApiKey(props: ExistingApiKeyProps) {
     return AiService.updateConfig({
       api_keys: { [props.apiKey]: input }
     });
-  }, []);
+  }, [input]);
 
   const onError = useCallback(
     emsg => {
