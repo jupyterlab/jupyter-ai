@@ -7,6 +7,7 @@ type AsyncIconButtonProps = {
   onError: (emsg: string) => unknown;
   onSuccess: () => unknown;
   children: JSX.Element;
+  onMouseDown?: React.MouseEventHandler<HTMLButtonElement>;
   /**
    * Whether this component should require confirmation from the user before
    * calling `props.onClick()`. This is only read on initial render.
@@ -65,7 +66,11 @@ export function AsyncIconButton(props: AsyncIconButtonProps): JSX.Element {
         arrow
         placement="top"
       >
-        <IconButton disabled={loading} onClick={handleClick}>
+        <IconButton
+          disabled={loading}
+          onClick={handleClick}
+          onMouseDown={props.onMouseDown}
+        >
           {props.children}
         </IconButton>
       </ContrastingTooltip>
