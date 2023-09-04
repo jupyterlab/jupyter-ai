@@ -34,6 +34,8 @@ dependencies = [
     "dask[distributed]",
     "faiss-cpu", # Not distributed by official repo
     "typing_extensions>=4.5.0",
+    "traitlets>=5.0",
+    "deepmerge>=1.0"
 ]
 
 dynamic = ["version", "description", "authors", "urls", "keywords"]
@@ -48,7 +50,8 @@ test = [
     "pytest",
     "pytest-asyncio",
     "pytest-cov",
-    "pytest-tornasync"
+    "pytest-tornasync",
+    "syrupy~=4.0.8"
 ]
 
 dev = [

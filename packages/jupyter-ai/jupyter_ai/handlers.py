@@ -22,11 +22,11 @@ from .models import (
     ChatRequest,
     ChatUser,
     ConnectionMessage,
-    GlobalConfig,
     HumanChatMessage,
     ListProvidersEntry,
     ListProvidersResponse,
     Message,
+    UpdateConfigRequest,
 )
 
 if TYPE_CHECKING:
@@ -317,8 +317,8 @@ class GlobalConfigHandler(BaseAPIHandler):
     @web.authenticated
     def post(self):
         try:
-            config = GlobalConfig(**self.get_json_body())
-            self.config_manager.update(config)
+            config = UpdateConfigRequest(**self.get_json_body())
+            self.config_manager.update_config(config)
             self.set_status(204)
             self.finish()
         except ValidationError as e:

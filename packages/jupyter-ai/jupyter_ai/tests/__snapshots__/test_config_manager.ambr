@@ -1,0 +1,12 @@
+# serializer version: 1
+# name: test_snapshot_default_config
+  dict({
+    'api_keys': list([
+    ]),
+    'embeddings_provider_id': None,
+    'fields': dict({
+    }),
+    'model_provider_id': None,
+    'send_with_shift_enter': False,
+  })
+# ---
