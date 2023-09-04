@@ -50,6 +50,9 @@ class WriteConflictError(Exception):
 class KeyInUseError(Exception):
     pass
 
+class KeyEmptyError(Exception):
+    pass
+
 
 def _validate_provider_authn(config: GlobalConfig, provider: AnyProvider):
     # TODO: handle non-env auth strategies
@@ -228,6 +231,13 @@ class ConfigManager(Configurable):
             raise WriteConflictError(
                 "Configuration was modified after it was read from disk."
             )
+
+        if config_update.api_keys:
+            for api_key_value in config_update.api_keys.values():
+                if not api_key_value:
+                    raise KeyEmptyError(
+                        "API key value cannot be empty."
+                    )
 
         config_dict = self._read_config().dict()
         Merger.merge(config_dict, config_update.dict(exclude_unset=True))

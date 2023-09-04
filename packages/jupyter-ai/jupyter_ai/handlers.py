@@ -7,7 +7,7 @@ from dataclasses import asdict
 from typing import TYPE_CHECKING, Dict, List
 
 import tornado
-from jupyter_ai.config_manager import ConfigManager
+from jupyter_ai.config_manager import ConfigManager, WriteConflictError, KeyEmptyError
 from jupyter_ai.chat_handlers import BaseChatHandler
 from jupyter_server.base.handlers import APIHandler as BaseAPIHandler
 from jupyter_server.base.handlers import JupyterHandler
@@ -322,7 +322,7 @@ class GlobalConfigHandler(BaseAPIHandler):
             self.config_manager.update_config(config)
             self.set_status(204)
             self.finish()
-        except ValidationError as e:
+        except (ValidationError, WriteConflictError, KeyEmptyError) as e:
             self.log.exception(e)
             raise HTTPError(500, str(e)) from e
         except ValueError as e:
