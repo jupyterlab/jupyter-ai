@@ -50,6 +50,7 @@ class WriteConflictError(Exception):
 class KeyInUseError(Exception):
     pass
 
+
 class KeyEmptyError(Exception):
     pass
 
@@ -235,9 +236,7 @@ class ConfigManager(Configurable):
         if config_update.api_keys:
             for api_key_value in config_update.api_keys.values():
                 if not api_key_value:
-                    raise KeyEmptyError(
-                        "API key value cannot be empty."
-                    )
+                    raise KeyEmptyError("API key value cannot be empty.")
 
         config_dict = self._read_config().dict()
         Merger.merge(config_dict, config_update.dict(exclude_unset=True))
