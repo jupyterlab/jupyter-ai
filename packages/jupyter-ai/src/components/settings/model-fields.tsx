@@ -48,7 +48,7 @@ export function ModelField(props: ModelFieldProps): JSX.Element {
     return (
       <TextField
         label={props.field.label}
-        value={props.config.fields[props.gmid]?.[props.field.key]}
+        value={value}
         onChange={handleChange}
         inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
         fullWidth
