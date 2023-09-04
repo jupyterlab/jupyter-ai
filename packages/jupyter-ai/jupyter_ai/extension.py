@@ -41,6 +41,8 @@ class AiExtension(ExtensionApp):
         self.settings["em_providers"] = get_em_providers(log=self.log)
 
         self.settings["jai_config_manager"] = ConfigManager(
+            # traitlets configuration, not JAI configuration.
+            config=self.config,
             log=self.log,
             lm_providers=self.settings["lm_providers"],
             em_providers=self.settings["em_providers"],

@@ -278,10 +278,7 @@ class LearnChatHandler(BaseChatHandler):
         return docs
 
     def get_embedding_provider(self):
-        em_provider_cls = self.config_manager.get_em_provider()
-        em_provider_args = self.config_manager.get_em_provider_params()
-
-        return em_provider_cls, em_provider_args
+        return self.config_manager.em_provider, self.config_manager.em_provider_params
 
     def get_embedding_model(self):
         em_provider_cls, em_provider_args = self.get_embedding_provider()
