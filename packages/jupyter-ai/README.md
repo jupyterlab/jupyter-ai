@@ -122,17 +122,6 @@ To execute them, run:
 pytest -vv -r ap --cov jupyter_ai
 ```
 
-#### Frontend tests
-
-This extension is using [Jest](https://jestjs.io/) for JavaScript code testing.
-
-To execute them, execute:
-
-```sh
-jlpm
-jlpm test
-```
-
 #### Integration tests
 
 This extension uses [Playwright](https://playwright.dev/docs/intro/) for the integration tests (aka user level tests).
