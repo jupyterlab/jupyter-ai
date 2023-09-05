@@ -70,10 +70,13 @@ export function ChatSettings(): JSX.Element {
       return;
     }
 
-    setLmProvider(server.lmProvider);
     setLmLocalId(server.lmLocalId);
     setEmGlobalId(server.config.embeddings_provider_id);
     setSendWse(server.config.send_with_shift_enter);
+    if (server.lmProvider?.registry) {
+      setShowLmLocalId(true);
+    }
+    setLmProvider(server.lmProvider);
   }, [server]);
 
   /**
