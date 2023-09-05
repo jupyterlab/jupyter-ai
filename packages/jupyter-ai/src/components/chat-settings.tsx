@@ -60,7 +60,6 @@ export function ChatSettings(): JSX.Element {
 
   // whether the form is currently saving
   const [saving, setSaving] = useState(false);
-  // error message from submission
 
   /**
    * Effect: initialize inputs after fetching server info.
