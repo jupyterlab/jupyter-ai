@@ -96,7 +96,8 @@ export function useServerInfo(): ServerInfo {
       ...serverInfoProps,
       config: {
         ...serverInfoProps.config,
-        api_keys: config.api_keys
+        api_keys: config.api_keys,
+        last_read: config.last_read
       }
     });
   }, [serverInfoProps]);
