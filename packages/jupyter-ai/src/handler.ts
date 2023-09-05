@@ -110,6 +110,7 @@ export namespace AiService {
     api_keys: string[];
     send_with_shift_enter: boolean;
     fields: Record<string, Record<string, any>>;
+    last_read: number;
   };
 
   export type UpdateConfigRequest = {
@@ -118,6 +119,7 @@ export namespace AiService {
     api_keys?: Record<string, string>;
     send_with_shift_enter?: boolean;
     fields?: Record<string, Record<string, any>>;
+    last_read?: number;
   };
 
   export async function getConfig(): Promise<DescribeConfigResponse> {
