@@ -2,6 +2,32 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 1.2.0
+
+See the v2.2.0 changelog for more details on the changes from v1.1.0.
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@1.1.0...93fee0af7578eb6d035abd7a482896e072b9c2c4))
+
+### Enhancements made
+
+- \[1.x\] Backport \[2.1.0, 2.2.0) [#379](https://github.com/jupyterlab/jupyter-ai/pull/379) ([@dlqqq](https://github.com/dlqqq))
+
+### Bugs fixed
+
+- \[1.x\] Backport \[2.1.0, 2.2.0) [#379](https://github.com/jupyterlab/jupyter-ai/pull/379) ([@dlqqq](https://github.com/dlqqq))
+
+### Documentation improvements
+
+- \[1.x\] Backport \[2.1.0, 2.2.0) [#379](https://github.com/jupyterlab/jupyter-ai/pull/379) ([@dlqqq](https://github.com/dlqqq))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2023-08-15&to=2023-09-05&type=c))
+
+[@3coins](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3A3coins+updated%3A2023-08-15..2023-09-05&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2023-08-15..2023-09-05&type=Issues) | [@welcome](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Awelcome+updated%3A2023-08-15..2023-09-05&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 1.1.0
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@1.0.1...210712fbde0aa81f5b858bcaa270b9e6ad88792e))
@@ -17,8 +43,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2023-08-08&to=2023-08-15&type=c))
 
 [@3coins](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3A3coins+updated%3A2023-08-08..2023-08-15&type=Issues) | [@anammari](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aanammari+updated%3A2023-08-08..2023-08-15&type=Issues) | [@bjornjorgensen](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Abjornjorgensen+updated%3A2023-08-08..2023-08-15&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2023-08-08..2023-08-15&type=Issues) | [@JasonWeill](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AJasonWeill+updated%3A2023-08-08..2023-08-15&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2023-08-08..2023-08-15&type=Issues) | [@welcome](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Awelcome+updated%3A2023-08-08..2023-08-15&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 1.0.1
 
