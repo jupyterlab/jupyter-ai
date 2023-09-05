@@ -33,7 +33,7 @@ export enum ServerInfoState {
 type ServerInfoLoading = { state: ServerInfoState.Loading };
 type ServerInfoError = {
   state: ServerInfoState.Error;
-  error?: string;
+  error: string;
 };
 type ServerInfoReady = { state: ServerInfoState.Ready } & ServerInfoProperties &
   ServerInfoMethods;
@@ -48,7 +48,7 @@ export function useServerInfo(): ServerInfo {
   const [state, setState] = useState<ServerInfoState>(ServerInfoState.Loading);
   const [serverInfoProps, setServerInfoProps] =
     useState<ServerInfoProperties>();
-  const [error, setError] = useState<string>();
+  const [error, setError] = useState<string>('');
 
   const fetchServerInfo = useCallback(async () => {
     try {
@@ -77,7 +77,7 @@ export function useServerInfo(): ServerInfo {
     } catch (e) {
       console.error(e);
       if (e instanceof Error) {
-        setError(e.message);
+        setError(e.toString());
       } else {
         setError('An unknown error occurred.');
       }
