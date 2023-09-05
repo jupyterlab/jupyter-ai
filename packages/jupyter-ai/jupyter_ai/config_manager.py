@@ -196,6 +196,9 @@ class ConfigManager(Configurable):
     def _write_config(self, new_config: GlobalConfig):
         """Updates configuration and persists it to disk. This accepts a
         complete `GlobalConfig` object, and should not be called publicly."""
+        # remove any empty field dictionaries
+        new_config.fields = {k: v for k, v in new_config.fields.items() if v}
+
         self._validate_config(new_config)
         with open(self.config_path, "w") as f:
             json.dump(new_config.dict(), f, indent=self.indentation_depth)

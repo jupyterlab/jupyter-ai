@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 
@@ -129,7 +130,7 @@ def test_indentation_depth(common_cm_kwargs, config_path):
     """Asserts that the CM indents the configuration and respects the
     `indentation_depth` trait when specified."""
     INDENT_DEPTH = 7
-    cm = ConfigManager(**common_cm_kwargs, indentation_depth=INDENT_DEPTH)
+    ConfigManager(**common_cm_kwargs, indentation_depth=INDENT_DEPTH)
     with open(config_path) as f:
         config_file = f.read()
         config_lines = config_file.split("\n")
@@ -160,6 +161,15 @@ def test_update(cm: ConfigManager):
     assert new_config.api_keys == ["COHERE_API_KEY"]
     assert cm.lm_provider_params == {**API_PARAMS, "model_id": LM_LID}
     assert cm.em_provider_params == {**API_PARAMS, "model_id": EM_LID}
+
+
+def test_update_no_empty_field_dicts(cm: ConfigManager, config_path):
+    LM_GID, _, _, _, _ = configure_to_cohere(cm)
+    cm.update_config(UpdateConfigRequest(fields={LM_GID: {}}))
+
+    with open(config_path) as f:
+        raw_config = json.loads(f.read())
+        assert raw_config["fields"] == {}
 
 
 def test_update_fails_with_invalid_req():
