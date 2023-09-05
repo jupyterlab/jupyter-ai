@@ -150,6 +150,7 @@ export function ChatSettings(): JSX.Element {
       send_with_shift_enter: sendWse
     };
     updateRequest = minifyUpdate(server.config, updateRequest);
+    updateRequest.last_read = server.config.last_read;
 
     setSaving(true);
     try {
@@ -159,7 +160,7 @@ export function ChatSettings(): JSX.Element {
       console.error(e);
       const msg =
         e instanceof Error || typeof e === 'string'
-          ? `An error occurred. Error details:\n\n${e.toString()}`
+          ? e.toString()
           : 'An unknown error occurred. Check the console for more details.';
       alert.show('error', msg);
       return;
@@ -198,9 +199,8 @@ export function ChatSettings(): JSX.Element {
         }}
       >
         <Alert severity="error">
-          {server.error
-            ? `An error occurred. Error details:\n\n${server.error}`
-            : 'An unknown error occurred. Check the console for more details.'}
+          {server.error ||
+            'An unknown error occurred. Check the console for more details.'}
         </Alert>
       </Box>
     );
