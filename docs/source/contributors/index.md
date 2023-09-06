@@ -117,3 +117,33 @@ To uninstall your Jupyter AI development environment, deactivate and remove the 
 conda deactivate
 conda env remove -n jupyter-ai
 ```
+
+## Testing
+
+### Integration / E2E tests
+
+This extension uses Playwright for the integration / E2E tests (user-level tests).
+More precisely, the JupyterLab helper
+[Galata](https://github.com/jupyterlab/jupyterlab/tree/master/galata) is used to
+test the extension in JupyterLab.
+
+Install test dependencies (needed only once):
+
+```sh
+cd ./packages/jupyter-ai/ui-tests/
+jlpm install
+jlpm playwright install
+cd ../../../
+```
+
+To execute them, run:
+
+```sh
+cd ./packages/jupyter-ai/ui-tests/
+jlpm playwright test
+cd ../../../
+```
+
+You can find more information in the
+[ui-tests](https://github.com/jupyterlab/jupyter-ai/tree/main/packages/jupyter-ai/ui-tests)
+README.
