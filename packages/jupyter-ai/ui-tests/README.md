@@ -161,7 +161,7 @@ jlpm playwright test --debug
 To update the web browser versions, you must update the package `@playwright/test`:
 
 ```sh
-cd cd ./packages/jupyter-ai/ui-tests/
+cd ./packages/jupyter-ai/ui-tests/
 jlpm up "@playwright/test"
 jlpm playwright install
 cd ../../../
