@@ -42,7 +42,7 @@ cd ../../../
 
 ```sh
 cd ./packages/jupyter-ai/ui-tests/
-jlpm playwright test
+jlpm test
 cd ../../../
 ```
 
@@ -80,7 +80,7 @@ cd ../../../
 
 ```sh
 cd ./packages/jupyter-ai/ui-tests/
-jlpm playwright test
+jlpm test:update
 cd ../../../
 ```
 
