@@ -16,6 +16,7 @@ from .chat_handlers import (
 from .chat_handlers.help import HelpMessage
 from .config_manager import ConfigManager
 from .handlers import (
+    ApiKeysHandler,
     ChatHistoryHandler,
     EmbeddingsModelProviderHandler,
     GlobalConfigHandler,
@@ -27,7 +28,8 @@ from .handlers import (
 class AiExtension(ExtensionApp):
     name = "jupyter_ai"
     handlers = [
-        ("api/ai/config", GlobalConfigHandler),
+        (r"api/ai/api_keys/(?P<api_key_name>\w+)", ApiKeysHandler),
+        (r"api/ai/config/?", GlobalConfigHandler),
         (r"api/ai/chats/?", RootChatHandler),
         (r"api/ai/chats/history?", ChatHistoryHandler),
         (r"api/ai/providers?", ModelProviderHandler),
@@ -41,6 +43,8 @@ class AiExtension(ExtensionApp):
         self.settings["em_providers"] = get_em_providers(log=self.log)
 
         self.settings["jai_config_manager"] = ConfigManager(
+            # traitlets configuration, not JAI configuration.
+            config=self.config,
             log=self.log,
             lm_providers=self.settings["lm_providers"],
             em_providers=self.settings["em_providers"],

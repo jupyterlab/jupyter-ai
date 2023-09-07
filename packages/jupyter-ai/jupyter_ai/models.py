@@ -1,7 +1,7 @@
 from typing import Any, Dict, List, Literal, Optional, Union
 
 from jupyter_ai_magics.providers import AuthStrategy, Field
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 
 DEFAULT_CHUNK_SIZE = 2000
 DEFAULT_CHUNK_OVERLAP = 100
@@ -98,9 +98,47 @@ class IndexMetadata(BaseModel):
     dirs: List[IndexedDir]
 
 
+class DescribeConfigResponse(BaseModel):
+    model_provider_id: Optional[str]
+    embeddings_provider_id: Optional[str]
+    send_with_shift_enter: bool
+    fields: Dict[str, Dict[str, Any]]
+    # when sending config over REST API, do not include values of the API keys,
+    # just the names.
+    api_keys: List[str]
+    # timestamp indicating when the configuration file was last read. should be
+    # passed to the subsequent UpdateConfig request.
+    last_read: int
+
+
+def forbid_none(cls, v):
+    assert v is not None, "size may not be None"
+    return v
+
+
+class UpdateConfigRequest(BaseModel):
+    model_provider_id: Optional[str]
+    embeddings_provider_id: Optional[str]
+    send_with_shift_enter: Optional[bool]
+    api_keys: Optional[Dict[str, str]]
+    fields: Optional[Dict[str, Dict[str, Any]]]
+    # if passed, this will raise an Error if the config was written to after the
+    # time specified by `last_read` to prevent write-write conflicts.
+    last_read: Optional[int]
+
+    _validate_send_wse = validator("send_with_shift_enter", allow_reuse=True)(
+        forbid_none
+    )
+    _validate_api_keys = validator("api_keys", allow_reuse=True)(forbid_none)
+    _validate_fields = validator("fields", allow_reuse=True)(forbid_none)
+
+
 class GlobalConfig(BaseModel):
-    model_provider_id: Optional[str] = None
-    embeddings_provider_id: Optional[str] = None
-    api_keys: Dict[str, str] = {}
-    send_with_shift_enter: Optional[bool] = None
-    fields: Dict[str, Dict[str, Any]] = {}
+    """Model used to represent the config by ConfigManager. This is exclusive to
+    the backend and should never be sent to the client."""
+
+    model_provider_id: Optional[str]
+    embeddings_provider_id: Optional[str]
+    send_with_shift_enter: bool
+    fields: Dict[str, Dict[str, Any]]
+    api_keys: Dict[str, str]
