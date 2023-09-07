@@ -18,7 +18,7 @@ module.exports = {
   ...baseConfig,
   automock: false,
   collectCoverageFrom: [
-    // TODO: renable coverage reports when we have more comprehensive testing
+    // TODO: re-enable coverage reports when we have more comprehensive testing
     // 'src/**/*.{ts,tsx}',
     // '!src/**/*.d.ts',
     // '!src/**/.ipynb_checkpoints/*'
