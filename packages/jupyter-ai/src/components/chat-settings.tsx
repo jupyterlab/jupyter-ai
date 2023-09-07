@@ -77,9 +77,9 @@ export function ChatSettings(): JSX.Element {
     setLmLocalId(server.lmLocalId);
     setEmGlobalId(server.config.embeddings_provider_id);
     setSendWse(server.config.send_with_shift_enter);
+    setHelpMarkdown(server.lmProvider?.help ?? null);
     if (server.lmProvider?.registry) {
       setShowLmLocalId(true);
-      setHelpMarkdown(server.lmProvider?.help ?? null);
     }
     setLmProvider(server.lmProvider);
   }, [server]);
@@ -243,14 +243,13 @@ export function ChatSettings(): JSX.Element {
           const nextLmLocalId = getModelLocalId(lmGid)!;
 
           setLmProvider(nextLmProvider);
+          setHelpMarkdown(nextLmProvider?.help ?? null);
           if (nextLmProvider.registry) {
             setLmLocalId('');
             setShowLmLocalId(true);
-            setHelpMarkdown(nextLmProvider?.help ?? null);
           } else {
             setLmLocalId(nextLmLocalId);
             setShowLmLocalId(false);
-            setHelpMarkdown(null);
           }
         }}
         MenuProps={{ sx: { maxHeight: '50%', minHeight: 400 } }}
@@ -265,19 +264,17 @@ export function ChatSettings(): JSX.Element {
         )}
       </Select>
       {showLmLocalId && (
-        <>
-          <TextField
-            label={lmProvider?.model_id_label || 'Local model ID'}
-            value={lmLocalId}
-            onChange={e => setLmLocalId(e.target.value)}
-            fullWidth
-          />
-          {helpMarkdown && (
-            <Typography className="jp-ai-ChatSettings-model-help">
-              <ReactMarkdown linkTarget="_blank">{helpMarkdown}</ReactMarkdown>
-            </Typography>
-          )}
-        </>
+        <TextField
+          label={lmProvider?.model_id_label || 'Local model ID'}
+          value={lmLocalId}
+          onChange={e => setLmLocalId(e.target.value)}
+          fullWidth
+        />
+      )}
+      {helpMarkdown && (
+        <Typography className="jp-ai-ChatSettings-model-help">
+          <ReactMarkdown linkTarget="_blank">{helpMarkdown}</ReactMarkdown>
+        </Typography>
       )}
       {lmGlobalId && (
         <ModelFields
