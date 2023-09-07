@@ -61,8 +61,8 @@ class BaseChatHandler:
             break
 
     def get_llm_chain(self):
-        lm_provider = self.config_manager.get_lm_provider()
-        lm_provider_params = self.config_manager.get_lm_provider_params()
+        lm_provider = self.config_manager.lm_provider
+        lm_provider_params = self.config_manager.lm_provider_params
 
         curr_lm_id = (
             f'{self.llm.id}:{lm_provider_params["model_id"]}' if self.llm else None

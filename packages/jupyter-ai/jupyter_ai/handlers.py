@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Dict, List
 
 import tornado
 from jupyter_ai.chat_handlers import BaseChatHandler
+from jupyter_ai.config_manager import ConfigManager, KeyEmptyError, WriteConflictError
 from jupyter_server.base.handlers import APIHandler as BaseAPIHandler
 from jupyter_server.base.handlers import JupyterHandler
 from pydantic import ValidationError
@@ -22,11 +23,11 @@ from .models import (
     ChatRequest,
     ChatUser,
     ConnectionMessage,
-    GlobalConfig,
     HumanChatMessage,
     ListProvidersEntry,
     ListProvidersResponse,
     Message,
+    UpdateConfigRequest,
 )
 
 if TYPE_CHECKING:
@@ -320,11 +321,11 @@ class GlobalConfigHandler(BaseAPIHandler):
     @web.authenticated
     def post(self):
         try:
-            config = GlobalConfig(**self.get_json_body())
-            self.config_manager.update(config)
+            config = UpdateConfigRequest(**self.get_json_body())
+            self.config_manager.update_config(config)
             self.set_status(204)
             self.finish()
-        except ValidationError as e:
+        except (ValidationError, WriteConflictError, KeyEmptyError) as e:
             self.log.exception(e)
             raise HTTPError(500, str(e)) from e
         except ValueError as e:
@@ -335,3 +336,16 @@ class GlobalConfigHandler(BaseAPIHandler):
             raise HTTPError(
                 500, "Unexpected error occurred while updating the config."
             ) from e
+
+
+class ApiKeysHandler(BaseAPIHandler):
+    @property
+    def config_manager(self) -> ConfigManager:
+        return self.settings["jai_config_manager"]
+
+    @web.authenticated
+    def delete(self, api_key_name: str):
+        try:
+            self.config_manager.delete_api_key(api_key_name)
+        except Exception as e:
+            raise HTTPError(500, str(e))

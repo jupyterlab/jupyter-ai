@@ -1,46 +1,29 @@
 const jestJupyterLab = require('@jupyterlab/testutils/lib/jest-config');
 
 const esModules = [
+  '@codemirror',
+  '@jupyter/ydoc',
   '@jupyterlab/',
   'lib0',
-  'y\\-protocols',
-  'y\\-websocket',
+  'nanoid',
+  'vscode-ws-jsonrpc',
+  'y-protocols',
+  'y-websocket',
   'yjs'
 ].join('|');
 
-const jlabConfig = jestJupyterLab(__dirname);
-
-const {
-  moduleFileExtensions,
-  moduleNameMapper,
-  preset,
-  setupFilesAfterEnv,
-  setupFiles,
-  testPathIgnorePatterns,
-  transform
-} = jlabConfig;
+const baseConfig = jestJupyterLab(__dirname);
 
 module.exports = {
-  moduleFileExtensions,
-  moduleNameMapper,
-  preset,
-  setupFilesAfterEnv,
-  setupFiles,
-  testPathIgnorePatterns,
-  transform,
+  ...baseConfig,
   automock: false,
   collectCoverageFrom: [
-    'src/**/*.{ts,tsx}',
-    '!src/**/*.d.ts',
-    '!src/**/.ipynb_checkpoints/*'
+    // TODO: re-enable coverage reports when we have more comprehensive testing
+    // 'src/**/*.{ts,tsx}',
+    // '!src/**/*.d.ts',
+    // '!src/**/.ipynb_checkpoints/*'
   ],
-  coverageDirectory: 'coverage',
   coverageReporters: ['lcov', 'text'],
-  globals: {
-    'ts-jest': {
-      tsconfig: 'tsconfig.json'
-    }
-  },
   testRegex: 'src/.*/.*.spec.ts[x]?$',
   transformIgnorePatterns: [`/node_modules/(?!${esModules}).+`]
 };
