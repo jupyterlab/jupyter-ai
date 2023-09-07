@@ -248,7 +248,7 @@ class HfHubProvider(BaseProvider, HuggingFaceHub):
     models = ["*"]
     model_id_key = "repo_id"
     help = (
-        "See [https://huggingface.co/models](https://huggingface.co/models) for a list of models. "
+        "See https://huggingface.co/models for a list of models. "
         "Pass a model's repository ID as the model ID; for example, `huggingface_hub:ExampleOwner/example-model`."
     )
     # ipywidgets needed to suppress tqdm warning
@@ -490,7 +490,7 @@ class SmEndpointProvider(BaseProvider, SagemakerEndpoint):
     # This all needs to be on one line of markdown, for use in a table
     help = (
         "Specify an endpoint name as the model ID. "
-        "In addition, you must specify a region name, request schema, and response path. "
+        "In addition, you must include the `--region_name`, `--request_schema`, and the `--response_path` arguments. "
         "For more information, see the documentation about [SageMaker endpoints deployment](https://docs.aws.amazon.com/sagemaker/latest/dg/realtime-endpoints-deployment.html) "
         "and about [using magic commands with SageMaker endpoints](https://jupyter-ai.readthedocs.io/en/latest/users/index.html#using-magic-commands-with-sagemaker-endpoints)."
     )

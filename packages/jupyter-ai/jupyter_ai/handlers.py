@@ -259,7 +259,6 @@ class ModelProviderHandler(BaseAPIHandler):
                     id=provider.id,
                     name=provider.name,
                     models=provider.models,
-                    help=provider.help,
                     auth_strategy=provider.auth_strategy,
                     registry=provider.registry,
                     fields=provider.fields,

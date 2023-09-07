@@ -1,7 +1,4 @@
 import React, { useEffect, useState, useMemo } from 'react';
-
-import ReactMarkdown from 'react-markdown';
-
 import { Box } from '@mui/system';
 import {
   Alert,
@@ -13,8 +10,7 @@ import {
   Radio,
   RadioGroup,
   TextField,
-  CircularProgress,
-  Typography
+  CircularProgress
 } from '@mui/material';
 
 import { Select } from './select';
@@ -40,7 +36,6 @@ export function ChatSettings(): JSX.Element {
   const [lmProvider, setLmProvider] =
     useState<AiService.ListProvidersEntry | null>(null);
   const [showLmLocalId, setShowLmLocalId] = useState<boolean>(false);
-  const [helpMarkdown, setHelpMarkdown] = useState<string | null>(null);
   const [lmLocalId, setLmLocalId] = useState<string>('');
   const lmGlobalId = useMemo<string | null>(() => {
     if (!lmProvider) {
@@ -77,7 +72,6 @@ export function ChatSettings(): JSX.Element {
     setLmLocalId(server.lmLocalId);
     setEmGlobalId(server.config.embeddings_provider_id);
     setSendWse(server.config.send_with_shift_enter);
-    setHelpMarkdown(server.lmProvider?.help ?? null);
     if (server.lmProvider?.registry) {
       setShowLmLocalId(true);
     }
@@ -243,7 +237,6 @@ export function ChatSettings(): JSX.Element {
           const nextLmLocalId = getModelLocalId(lmGid)!;
 
           setLmProvider(nextLmProvider);
-          setHelpMarkdown(nextLmProvider?.help ?? null);
           if (nextLmProvider.registry) {
             setLmLocalId('');
             setShowLmLocalId(true);
@@ -270,11 +263,6 @@ export function ChatSettings(): JSX.Element {
           onChange={e => setLmLocalId(e.target.value)}
           fullWidth
         />
-      )}
-      {helpMarkdown && (
-        <Typography className="jp-ai-ChatSettings-model-help">
-          <ReactMarkdown linkTarget="_blank">{helpMarkdown}</ReactMarkdown>
-        </Typography>
       )}
       {lmGlobalId && (
         <ModelFields

@@ -164,7 +164,6 @@ export namespace AiService {
     name: string;
     model_id_label?: string;
     models: string[];
-    help?: string;
     auth_strategy: AuthStrategy;
     registry: boolean;
     fields: Field[];
