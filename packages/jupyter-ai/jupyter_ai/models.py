@@ -79,6 +79,7 @@ class ListProvidersEntry(BaseModel):
     name: str
     model_id_label: Optional[str]
     models: List[str]
+    help: Optional[str]
     auth_strategy: AuthStrategy
     registry: bool
     fields: List[Field]

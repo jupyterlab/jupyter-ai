@@ -7,3 +7,14 @@
 .jp-ai-ChatSettings-welcome {
   color: var(--jp-ui-font-color1);
 }
+
+/* Defer to browser defaults for links in model help */
+.jp-ai-ChatSettings-model-help a {
+  text-decoration: revert;
+  color: revert;
+}
+
+.jp-ai-ChatSettings-model-help a:hover {
+  text-decoration: revert;
+  color: revert;
+}
