@@ -35,7 +35,6 @@ jlpm build
 cd ./packages/jupyter-ai/ui-tests/
 jlpm install
 jlpm playwright install
-cd ../../../
 ```
 
 3. Execute the [Playwright](https://playwright.dev/docs/intro) tests:
@@ -43,7 +42,6 @@ cd ../../../
 ```sh
 cd ./packages/jupyter-ai/ui-tests/
 jlpm test
-cd ../../../
 ```
 
 Test results will be shown in the terminal. In case of any test failures, the test report
@@ -73,7 +71,6 @@ jlpm build
 cd ./packages/jupyter-ai/ui-tests/
 jlpm install
 jlpm playwright install
-cd ../../../
 ```
 
 3. Execute the [Playwright](https://playwright.dev/docs/intro) command:
@@ -81,7 +78,6 @@ cd ../../../
 ```sh
 cd ./packages/jupyter-ai/ui-tests/
 jlpm test:update
-cd ../../../
 ```
 
 > Some discrepancy may occurs between the snapshots generated on your computer and
@@ -164,5 +160,4 @@ To update the web browser versions, you must update the package `@playwright/tes
 cd ./packages/jupyter-ai/ui-tests/
 jlpm up "@playwright/test"
 jlpm playwright install
-cd ../../../
 ```
