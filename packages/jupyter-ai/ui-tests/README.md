@@ -51,7 +51,7 @@ will be opened in your browser at the end of the tests execution; see
 [Playwright documentation](https://playwright.dev/docs/test-reporters#html-reporter)
 for configuring that behavior.
 
-## Update the tests snapshots {#update-the-tests-snapshots}
+## Update the tests snapshots
 
 If you are comparing snapshots to validate your tests, you may need to update
 the reference snapshots stored in the repository. To do that, you need to execute the [Playwright](https://playwright.dev/docs/intro) command:
