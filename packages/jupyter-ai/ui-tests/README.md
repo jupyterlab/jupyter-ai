@@ -14,9 +14,9 @@ The default configuration will produce video for failing tests and an HTML repor
 
 > There is a new experimental UI mode that you may fall in love with; see [that video](https://www.youtube.com/watch?v=jF0yA-JLQW0).
 
-## Run the tests
-
 > All commands are assumed to be executed from the root directory
+
+## Run the tests
 
 To run the tests, you need to:
 
@@ -51,29 +51,8 @@ for configuring that behavior.
 
 ## Update the tests snapshots
 
-> All commands are assumed to be executed from the root directory
-
 If you are comparing snapshots to validate your tests, you may need to update
-the reference snapshots stored in the repository. To do that, you need to:
-
-1. Compile the extension:
-
-```sh
-./scripts/install.sh
-jlpm build
-```
-
-> Check the extension is installed in JupyterLab.
-
-2. Install test dependencies (needed only once):
-
-```sh
-cd ./packages/jupyter-ai/ui-tests/
-jlpm install
-jlpm playwright install
-```
-
-3. Execute the [Playwright](https://playwright.dev/docs/intro) command:
+the reference snapshots stored in the repository. To do that, you need to execute the [Playwright](https://playwright.dev/docs/intro) command:
 
 ```sh
 cd ./packages/jupyter-ai/ui-tests/
@@ -87,35 +66,16 @@ jlpm test:update
 
 ## Create tests
 
-> All commands are assumed to be executed from the root directory
-
 To create tests, the easiest way is to use the code generator tool of playwright:
 
-1. Compile the extension:
-
-```sh
-./scripts/install.sh
-jlpm build
-```
-
-> Check the extension is installed in JupyterLab.
-
-2. Install test dependencies (needed only once):
-
-```sh
-cd ./packages/jupyter-ai/ui-tests/
-jlpm install
-jlpm playwright install
-```
-
-3. Start the server:
+1. Start the server:
 
 ```sh
 cd ./packages/jupyter-ai/ui-tests/
 jlpm start
 ```
 
-4. Execute the [Playwright code generator](https://playwright.dev/docs/codegen) in **another terminal**:
+2. Execute the [Playwright code generator](https://playwright.dev/docs/codegen) in **another terminal**:
 
 ```sh
 cd ./packages/jupyter-ai/ui-tests/
@@ -123,8 +83,6 @@ jlpm playwright codegen localhost:8888
 ```
 
 ## Debug tests
-
-> All commands are assumed to be executed from the root directory
 
 To debug tests, a good way is to use the inspector tool of playwright:
 
