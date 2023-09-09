@@ -2,6 +2,38 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 2.2.0
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.1.0...56c1f518afd09d0d09a43221f0767aa961e9430f))
+
+### Enhancements made
+
+- Loads vector store index lazily [#374](https://github.com/jupyterlab/jupyter-ai/pull/374) ([@3coins](https://github.com/3coins))
+- Added alias for bedrock titan model [#368](https://github.com/jupyterlab/jupyter-ai/pull/368) ([@3coins](https://github.com/3coins))
+- Update README, docs [#347](https://github.com/jupyterlab/jupyter-ai/pull/347) ([@JasonWeill](https://github.com/JasonWeill))
+
+### Bugs fixed
+
+- fix newline typo in improve_code [#364](https://github.com/jupyterlab/jupyter-ai/pull/364) ([@michaelchia](https://github.com/michaelchia))
+
+### Maintenance and upkeep improvements
+
+- Upgrades LangChain to 0.0.277 [#375](https://github.com/jupyterlab/jupyter-ai/pull/375) ([@3coins](https://github.com/3coins))
+- relax pinning on importlib_metadata, typing_extensions [#363](https://github.com/jupyterlab/jupyter-ai/pull/363) ([@minrk](https://github.com/minrk))
+
+### Documentation improvements
+
+- Remove front end unit tests from code and README.md [#371](https://github.com/jupyterlab/jupyter-ai/pull/371) ([@andrii-i](https://github.com/andrii-i))
+- Update README, docs [#347](https://github.com/jupyterlab/jupyter-ai/pull/347) ([@JasonWeill](https://github.com/JasonWeill))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2023-08-15&to=2023-09-05&type=c))
+
+[@3coins](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3A3coins+updated%3A2023-08-15..2023-09-05&type=Issues) | [@andrii-i](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aandrii-i+updated%3A2023-08-15..2023-09-05&type=Issues) | [@JasonWeill](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AJasonWeill+updated%3A2023-08-15..2023-09-05&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2023-08-15..2023-09-05&type=Issues) | [@michaelchia](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Amichaelchia+updated%3A2023-08-15..2023-09-05&type=Issues) | [@minrk](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aminrk+updated%3A2023-08-15..2023-09-05&type=Issues) | [@welcome](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Awelcome+updated%3A2023-08-15..2023-09-05&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 2.1.0
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.0.1...c689c6c0cce5212238943ec2ff1559f6ad2f63d5))
@@ -23,8 +55,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2023-08-08&to=2023-08-15&type=c))
 
 [@3coins](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3A3coins+updated%3A2023-08-08..2023-08-15&type=Issues) | [@anammari](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aanammari+updated%3A2023-08-08..2023-08-15&type=Issues) | [@bjornjorgensen](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Abjornjorgensen+updated%3A2023-08-08..2023-08-15&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2023-08-08..2023-08-15&type=Issues) | [@JasonWeill](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AJasonWeill+updated%3A2023-08-08..2023-08-15&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2023-08-08..2023-08-15&type=Issues) | [@welcome](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Awelcome+updated%3A2023-08-08..2023-08-15&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 2.0.1
 

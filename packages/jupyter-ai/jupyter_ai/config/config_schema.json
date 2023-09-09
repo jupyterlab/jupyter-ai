@@ -1,0 +1,42 @@
+{
+  "title": "Jupyter AI configuration",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment": "Default values are sourced from `config_manager.py`.",
+  "type": "object",
+  "properties": {
+    "model_provider_id": {
+      "$comment": "Language model global ID.",
+      "type": ["string", "null"],
+      "default": null,
+      "readOnly": false
+    },
+    "embeddings_provider_id": {
+      "$comment": "Embedding model global ID.",
+      "type": ["string", "null"],
+      "default": null,
+      "readOnly": false
+    },
+    "api_keys": {
+      "$comment": "Dictionary of API keys, mapping key names to key values.",
+      "type": "object",
+      "default": {}
+    },
+    "send_with_shift_enter": {
+      "$comment": "Whether to send a message via Shift-Enter instead of Enter.",
+      "type": "boolean",
+      "default": false,
+      "readOnly": false
+    },
+    "fields": {
+      "$comment": "Dictionary of model-specific fields, mapping LM GIDs to sub-dictionaries of field key-value pairs.",
+      "type": "object",
+      "default": {},
+      "patternProperties": {
+        "^.*$": {
+          "anyOf": [{ "type": "object" }]
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

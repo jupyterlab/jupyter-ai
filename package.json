@@ -1,6 +1,6 @@
 {
   "name": "@jupyter-ai/monorepo",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "A generative AI extension for JupyterLab",
   "private": true,
   "keywords": [
@@ -33,7 +33,8 @@
     "dev-uninstall": "lerna run dev-uninstall --stream",
     "lint": "jlpm && lerna run prettier && lerna run eslint",
     "lint:check": "lerna run prettier:check && lerna run eslint:check",
-    "watch": "lerna run watch --parallel --stream"
+    "watch": "lerna run watch --parallel --stream",
+    "test": "lerna run test"
   },
   "devDependencies": {
     "@jupyterlab/builder": "^4",

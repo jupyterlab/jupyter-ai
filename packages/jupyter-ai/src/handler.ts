@@ -104,20 +104,26 @@ export namespace AiService {
     messages: ChatMessage[];
   };
 
-  export type Config = {
+  export type DescribeConfigResponse = {
     model_provider_id: string | null;
     embeddings_provider_id: string | null;
-    api_keys: Record<string, string>;
-    send_with_shift_enter: boolean | null;
+    api_keys: string[];
+    send_with_shift_enter: boolean;
     fields: Record<string, Record<string, any>>;
+    last_read: number;
   };
 
-  export type GetConfigResponse = Config;
+  export type UpdateConfigRequest = {
+    model_provider_id?: string | null;
+    embeddings_provider_id?: string | null;
+    api_keys?: Record<string, string>;
+    send_with_shift_enter?: boolean;
+    fields?: Record<string, Record<string, any>>;
+    last_read?: number;
+  };
 
-  export type UpdateConfigRequest = Config;
-
-  export async function getConfig(): Promise<GetConfigResponse> {
-    return requestAPI<GetConfigResponse>('config');
+  export async function getConfig(): Promise<DescribeConfigResponse> {
+    return requestAPI<DescribeConfigResponse>('config');
   }
 
   export type EnvAuthStrategy = {
@@ -158,6 +164,7 @@ export namespace AiService {
     name: string;
     model_id_label?: string;
     models: string[];
+    help?: string;
     auth_strategy: AuthStrategy;
     registry: boolean;
     fields: Field[];
@@ -181,6 +188,12 @@ export namespace AiService {
     return requestAPI<void>('config', {
       method: 'POST',
       body: JSON.stringify(config)
+    });
+  }
+
+  export async function deleteApiKey(keyName: string): Promise<void> {
+    return requestAPI<void>(`api_keys/${keyName}`, {
+      method: 'DELETE'
     });
   }
 }
