@@ -124,3 +124,8 @@ dmypy.json
 
 # Coverage reports
 coverage/*
+junit.xml
+
+# Ignore all non-linux snapshots
+ui-tests/tests/jupyter-ai.spec.ts-snapshots/*
+!ui-tests/tests/jupyter-ai.spec.ts-snapshots/*-linux.png
