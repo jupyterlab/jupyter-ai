@@ -24,7 +24,6 @@ To run the tests, you need to:
 
 ```sh
 ./scripts/install.sh
-jlpm build
 ```
 
 > Check the extension is installed in JupyterLab.
