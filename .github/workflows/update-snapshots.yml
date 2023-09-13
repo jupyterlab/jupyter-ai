@@ -1,0 +1,52 @@
+name: Update Playwright Snapshots
+
+on:
+  issue_comment:
+    types: [created, edited]
+  workflow_dispatch:
+    inputs:
+      number:
+        description: 'PR number'
+        required: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-snapshots:
+    if: ${{ github.event.inputs || (github.event.issue.pull_request && contains(github.event.comment.body, 'please update playwright snapshots')) }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure git to use https
+        run: git config --global hub.protocol https
+
+      - name: Checkout the branch from the PR that triggered the job
+        run: hub pr checkout ${{ github.event.inputs.number || github.event.issue.number }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Base Setup
+        uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
+
+      - name: Install extension dependencies and build the extension
+        run: ./scripts/install.sh
+
+      - uses: jupyterlab/maintainer-tools/.github/actions/update-snapshots@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          start_server_script: 'null'
+          test_folder: packages/jupyter-ai/ui-tests
+          npm_client: jlpm
+
+      - name: Comment back on the PR
+        run: |
+          hub api repos/${{ github.repository }}/issues/${{ github.event.inputs.number || github.event.issue.number }}/comments --raw-field 'body=Playwright snapshots updated.'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
