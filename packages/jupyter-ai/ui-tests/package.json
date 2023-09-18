@@ -5,6 +5,7 @@
   "private": true,
   "scripts": {
     "start": "jupyter lab --config jupyter_server_test_config.py",
+    "install-chromium": "jlpm playwright install chromium",
     "test": "jlpm playwright test",
     "test:update": "jlpm playwright test --update-snapshots"
   },
