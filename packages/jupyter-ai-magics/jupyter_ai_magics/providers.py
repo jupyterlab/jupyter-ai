@@ -505,6 +505,28 @@ class AzureChatOpenAIProvider(BaseProvider, AzureChatOpenAI):
 class JsonContentHandler(LLMContentHandler):
     content_type = "application/json"
     accepts = "application/json"
+    context = """This is data about patients with breast cancer.
+breast_ads is a pandas dataframe with a list of columns ['birth_date', 'deceased_date', 'sex', 'race', 'ethnicity', 'vital_status','diagnosis_date', 'er_status_diagnosis', 'pr_status_diagnosis','her2_status_diagnosis', 'brca_reported_status']
+
+Below is the description of each column
+birth_date column Patient's year of birth.
+deceased_date column is the date of death of a patient if the patient is dead. It is empty if the patient is alive
+sex column is Patient's sex as recorded in EMR at diagnosis. 
+race column is Primary race as recorded in patient EMR at diagnosis. 
+ethnicity column is Ethnicity as recorded in patient EMR at diagnosis. 
+vital_status column is Patient's vital status based on the composite mortality score. If no evidence of death, patient will be classified as Alive. 
+diagnosis_date column is Date (year, month, day) of initial breast cancer diagnosis.
+er_status_diagnosis column is the Results from test closest to the date of initial diagnosis and up to 14 days after. Categorized as Negative, Low positive, Positive, Equivocal, Unknown. 
+pr_status_diagnosis column is the Results from test closest to the date of initial diagnosis and up to 14 days after. 
+her2_status_diagnosis column Results from test at the time of initial diagnosis and up to 45 days after.  
+brca_reported_status column is Germline or somatic BRCA1/2 mutation (ever). Categories are positive, negative and unknown"""
+    template = {
+        "prompt": "Below is an instruction that describes a task, paired with an input that provides further context. "
+        "Write a response that appropriately completes the request.\n\n"
+        "### Instruction:\n{instruction}\n\n### Input:\n{context}\n\n",
+        "completion": " {response}",
+    }
+    input_output_demarkation_key = "\n\n### Response:\n"
 
     def __init__(self, request_schema, response_path):
         self.request_schema = json.loads(request_schema)
@@ -523,7 +545,11 @@ class JsonContentHandler(LLMContentHandler):
 
     def transform_input(self, prompt: str, model_kwargs: Dict) -> bytes:
         request_obj = copy.deepcopy(self.request_schema)
-        self.replace_values("<prompt>", prompt, request_obj)
+        input_prompt = self.template["prompt"].format(
+            instruction=prompt, context=self.context
+        ) + self.input_output_demarkation_key
+        self.replace_values("<prompt>", input_prompt, request_obj)
+        request_obj['parameters'] = {"max_new_tokens": 100}
         request = json.dumps(request_obj).encode("utf-8")
         return request
 
@@ -566,6 +592,7 @@ class SmEndpointProvider(BaseProvider, SagemakerEndpoint):
         content_handler = JsonContentHandler(
             request_schema=request_schema, response_path=response_path
         )
+        kwargs["endpoint_kwargs"] = {"CustomAttributes": "accept_eula=true"}
         super().__init__(*args, **kwargs, content_handler=content_handler)
 
     async def _acall(self, *args, **kwargs) -> Coroutine[Any, Any, str]:
