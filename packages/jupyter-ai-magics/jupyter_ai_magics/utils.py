@@ -1,5 +1,6 @@
 import logging
 from typing import Dict, Optional, Tuple, Type, Union
+from pandas import json_normalize
 
 from importlib_metadata import entry_points
 from jupyter_ai_magics.aliases import MODEL_ID_ALIASES
@@ -11,6 +12,18 @@ LmProvidersDict = Dict[str, BaseProvider]
 EmProvidersDict = Dict[str, BaseEmbeddingsProvider]
 AnyProvider = Union[BaseProvider, BaseEmbeddingsProvider]
 ProviderDict = Dict[str, AnyProvider]
+
+
+def explode_column(df, col_name):
+    df2 = df.explode(col_name)
+    df3 = json_normalize(df2[col_name].tolist())
+    return df2.join(df3)
+
+def explode_columns(df, columns):
+    new_df = df
+    for col_name in columns:
+        new_df = explode_column(new_df, col_name)
+    return new_df
 
 
 def get_lm_providers(log: Optional[Logger] = None) -> LmProvidersDict:
