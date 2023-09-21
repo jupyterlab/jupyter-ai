@@ -19,19 +19,27 @@ if TYPE_CHECKING:
 class BaseChatHandler(Configurable):
     """Base ChatHandler class containing shared methods and attributes used by
     multiple chat handler classes."""
-    id: str = 'base-chat-handler'  # TODO: make NotImplemented
+    
+    # Class attributes
+    id: str = 'base-chat-handler' 
+    """ID for this chat handler; should be unique"""
+
     name: str = 'Base Chat Handler'  # TODO: make NotImplemented
-    # Description used for routing requests, to be used when dispatching
-    # messages to model providers. Also shown in the UI.
+    """User-facing name of this handler"""
+
     description: str = "Handler for messages that are not commands"  # TODO: make NotImplemented
-    # What this chat handler does, which third-party models it contacts,
-    # the format of the data it returns to the user, etc. Used in the UI.
+    """Description used for routing requests, to be used when dispatching
+    messages to model providers. Also shown in the UI."""
+
     # TODO: make NotImplemented
     help: str = "This is used when the message in the chat interface is not a command"
-    # Slash ID for routing a chat command to this handler. Only one handler
-    # may declare a particular slash ID. Must contain only alphanumerics and
-    # underscores.
+    """What this chat handler does, which third-party models it contacts,
+    the format of the data it returns to the user, etc. Used in the UI."""
+
     slash_id: Optional[str]
+    """Slash ID for routing a chat command to this handler. Only one handler
+    may declare a particular slash ID. Must contain only alphanumerics and
+    underscores."""
 
     def __init__(
         self,
