@@ -35,7 +35,7 @@ class LearnChatHandler(BaseChatHandler):
     name = "Learn Local Data"
     description = "Embed a list of files and directories for use with /ask"
     help = "Pass a list of files and directories. Once converted to vector format, you can ask about them with /ask."
-    slash_id = "ask"
+    slash_id = "learn"
 
     def __init__(
         self, root_dir: str, dask_client_future: Awaitable[DaskClient], *args, **kwargs
