@@ -1,3 +1,5 @@
+from importlib_metadata import entry_points
+import logging
 import time
 
 from dask.distributed import Client as DaskClient
@@ -93,6 +95,9 @@ class AiExtension(ExtensionApp):
     )
 
     def initialize_settings(self):
+        log = logging.getLogger()
+        log.addHandler(logging.NullHandler())
+
         start = time.time()
 
         # Read from allowlist and blocklist
@@ -156,7 +161,31 @@ class AiExtension(ExtensionApp):
         # consumers a Future that resolves to the Dask client when awaited.
         dask_client_future = loop.create_task(self._get_dask_client())
 
+        eps = entry_points()
         # initialize chat handlers
+        chat_handler_eps = eps.select("jupyter_ai.chat_handlers")
+        jai_chat_handlers = {}
+        for chat_handler_ep in chat_handler_eps:
+            # Each slash ID, including None (default), must be used only once.
+            # Slash IDs may contain only alphanumerics and underscores.
+            slash_id = chat_handler_ep.slash_id
+
+            if slash_id:
+                # TODO: Validate slash ID (/^[A-Za-z0-9_]+$/)
+                command_name = f"/{slash_id}"
+            else:
+                command_name = "default"
+            
+            if command_name in jai_chat_handlers:
+                log.error(
+                    f"Unable to register chat handler `{chat_handler.id}` because command `{command_name}` already has a handler"
+                )
+                continue
+            jai_chat_handlers[command_name] = chat_handler_ep  # Instantiate?
+            log.info(f"Registered chat handler `{chat_handler.id}` with command `{command_name}`.")
+            
+        self.settings["jai_chat_handlers"] = jai_chat_handlers
+
         chat_handler_kwargs = {
             "log": self.log,
             "config_manager": self.settings["jai_config_manager"],
@@ -181,7 +210,6 @@ class AiExtension(ExtensionApp):
         help_chat_handler = HelpChatHandler(**chat_handler_kwargs)
         retriever = Retriever(learn_chat_handler=learn_chat_handler)
         ask_chat_handler = AskChatHandler(**chat_handler_kwargs, retriever=retriever)
-        # TODO: use eps.select("jupyter_ai.chat_handlers") to instantiate chat handlers
         self.settings["jai_chat_handlers"] = {
             "default": default_chat_handler,
             "/ask": ask_chat_handler,
