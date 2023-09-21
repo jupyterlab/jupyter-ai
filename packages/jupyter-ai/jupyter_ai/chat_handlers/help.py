@@ -29,6 +29,12 @@ def HelpMessage():
 
 
 class HelpChatHandler(BaseChatHandler):
+    id = "help-chat-handler"
+    name = "Help"
+    description = "Displays information about available commands"
+    help = "Displays a help message in the chat message area"
+    slash_id = "help"
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

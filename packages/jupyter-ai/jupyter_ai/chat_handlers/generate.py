@@ -216,7 +216,11 @@ def create_notebook(outline):
 
 
 class GenerateChatHandler(BaseChatHandler):
-    """Generates a Jupyter notebook given a description."""
+    id = "generate-chat-handler"
+    name = "Generate Notebook"
+    description = "Generates a Jupyter notebook given a description"
+    help = "Generates a Jupyter notebook, including name, outline, and section contents"
+    slash_id = "generate"
 
     def __init__(self, root_dir: str, *args, **kwargs):
         super().__init__(*args, **kwargs)

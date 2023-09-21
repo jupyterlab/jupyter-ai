@@ -25,11 +25,11 @@ class AskChatHandler(BaseChatHandler):
     query the documents from the index, and sends this context
     to the LLM to generate the final reply.
     """
-    id = 'ask-chat-handler'
+    id = "ask-chat-handler"
     name = "Ask with Local Data"
-    description = 'Ask a question augmented with learned data'
-    help = 'Asks a question with retrieval augmented generation (RAG)'
-    slash_id = 'ask'
+    description = "Ask a question augmented with learned data"
+    help = "Asks a question with retrieval augmented generation (RAG)"
+    slash_id = "ask"
 
     def __init__(self, retriever, *args, **kwargs):
         super().__init__(*args, **kwargs)
