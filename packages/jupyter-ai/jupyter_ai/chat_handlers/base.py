@@ -10,13 +10,28 @@ from jupyter_ai.config_manager import ConfigManager, Logger
 from jupyter_ai.models import AgentChatMessage, HumanChatMessage
 from jupyter_ai_magics.providers import BaseProvider
 
+from traitlets.config import Configurable
+
 if TYPE_CHECKING:
     from jupyter_ai.handlers import RootChatHandler
 
 
-class BaseChatHandler:
+class BaseChatHandler(Configurable):
     """Base ChatHandler class containing shared methods and attributes used by
     multiple chat handler classes."""
+    id: str = 'base-chat-handler'  # TODO: make NotImplemented
+    name: str = 'Base Chat Handler'  # TODO: make NotImplemented
+    # Description used for routing requests, to be used when dispatching
+    # messages to model providers. Also shown in the UI.
+    description: str = "Handler for messages that are not commands"  # TODO: make NotImplemented
+    # What this chat handler does, which third-party models it contacts,
+    # the format of the data it returns to the user, etc. Used in the UI.
+    # TODO: make NotImplemented
+    help: str = "This is used when the message in the chat interface is not a command"
+    # Slash ID for routing a chat command to this handler. Only one handler
+    # may declare a particular slash ID. Must contain only alphanumerics and
+    # underscores.
+    slash_id: Optional[str]
 
     def __init__(
         self,

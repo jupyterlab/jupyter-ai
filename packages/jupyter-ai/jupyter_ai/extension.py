@@ -181,6 +181,7 @@ class AiExtension(ExtensionApp):
         help_chat_handler = HelpChatHandler(**chat_handler_kwargs)
         retriever = Retriever(learn_chat_handler=learn_chat_handler)
         ask_chat_handler = AskChatHandler(**chat_handler_kwargs, retriever=retriever)
+        # TODO: use eps.select("jupyter_ai.chat_handlers") to instantiate chat handlers
         self.settings["jai_chat_handlers"] = {
             "default": default_chat_handler,
             "/ask": ask_chat_handler,
