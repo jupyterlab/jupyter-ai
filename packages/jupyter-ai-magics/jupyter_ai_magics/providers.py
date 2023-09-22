@@ -9,7 +9,7 @@ from typing import Any, ClassVar, Coroutine, Dict, List, Literal, Optional, Unio
 
 from jsonpath_ng import parse
 from langchain import PromptTemplate
-from langchain.chat_models import AzureChatOpenAI, ChatOpenAI
+from langchain.chat_models import AzureChatOpenAI, ChatAnthropic, ChatOpenAI
 from langchain.llms import (
     AI21,
     Anthropic,
@@ -235,8 +235,28 @@ class AnthropicProvider(BaseProvider, Anthropic):
         "claude-v1.0",
         "claude-v1.2",
         "claude-2",
+        "claude-2.0",
         "claude-instant-v1",
         "claude-instant-v1.0",
+        "claude-instant-v1.2",
+    ]
+    model_id_key = "model"
+    pypi_package_deps = ["anthropic"]
+    auth_strategy = EnvAuthStrategy(name="ANTHROPIC_API_KEY")
+
+
+class ChatAnthropicProvider(BaseProvider, ChatAnthropic):
+    id = "anthropic-chat"
+    name = "ChatAnthropic"
+    models = [
+        "claude-v1",
+        "claude-v1.0",
+        "claude-v1.2",
+        "claude-2",
+        "claude-2.0",
+        "claude-instant-v1",
+        "claude-instant-v1.0",
+        "claude-instant-v1.2",
     ]
     model_id_key = "model"
     pypi_package_deps = ["anthropic"]
@@ -582,10 +602,20 @@ class BedrockProvider(BaseProvider, Bedrock):
         "anthropic.claude-v2",
         "ai21.j2-jumbo-instruct",
         "ai21.j2-grande-instruct",
+        "ai21.j2-mid",
+        "ai21.j2-ultra",
     ]
     model_id_key = "model_id"
     pypi_package_deps = ["boto3"]
     auth_strategy = AwsAuthStrategy()
+    fields = [
+        TextField(
+            key="credentials_profile_name",
+            label="AWS profile (optional)",
+            format="text",
+        ),
+        TextField(key="region_name", label="Region name (optional)", format="text"),
+    ]
 
     async def _acall(self, *args, **kwargs) -> Coroutine[Any, Any, str]:
         return await self._call_in_executor(*args, **kwargs)
