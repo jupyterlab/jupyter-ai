@@ -116,6 +116,7 @@ Jupyter AI supports the following model providers:
 |---------------------|----------------------|----------------------------|---------------------------------|
 | AI21                | `ai21`               | `AI21_API_KEY`             | `ai21`                          |
 | Anthropic           | `anthropic`          | `ANTHROPIC_API_KEY`        | `anthropic`                     |
+| Anthropic (chat)    | `anthropic-chat`     | `ANTHROPIC_API_KEY`        | `anthropic`                     |
 | Bedrock             | `amazon-bedrock`     | N/A                        | `boto3`                         |
 | Cohere              | `cohere`             | `COHERE_API_KEY`           | `cohere`                        |
 | Hugging Face Hub    | `huggingface_hub`    | `HUGGINGFACEHUB_API_TOKEN` | `huggingface_hub`, `ipywidgets`, `pillow` |
@@ -464,6 +465,7 @@ We currently support the following language model providers:
 
 - `ai21`
 - `anthropic`
+- `anthropic-chat`
 - `cohere`
 - `huggingface_hub`
 - `openai`
