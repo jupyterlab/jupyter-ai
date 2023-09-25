@@ -1,8 +1,12 @@
-from typing import Dict, List, Type
+from typing import Any, Dict, List, Type
 
 from jupyter_ai.models import ChatMessage, ClearMessage, HumanChatMessage
-from jupyter_ai_magics.providers import BaseProvider
-from langchain import ConversationChain
+from jupyter_ai_magics.providers import (
+    BaseProvider,
+    BedrockChatProvider,
+    BedrockProvider,
+)
+from langchain.chains import ConversationChain
 from langchain.memory import ConversationBufferWindowMemory
 from langchain.prompts import (
     ChatPromptTemplate,
@@ -10,7 +14,8 @@ from langchain.prompts import (
     MessagesPlaceholder,
     SystemMessagePromptTemplate,
 )
-from langchain.schema import AIMessage
+from langchain.schema import AIMessage, ChatMessage
+from langchain.schema.messages import BaseMessage
 
 from .base import BaseChatHandler
 
@@ -26,6 +31,20 @@ The following is a friendly conversation between you and a human.
 """.strip()
 
 
+class HistoryPlaceholderTemplate(MessagesPlaceholder):
+    def format_messages(self, **kwargs: Any) -> List[BaseMessage]:
+        values = super().format_messages(**kwargs)
+        corrected_values = []
+        for v in values:
+            if isinstance(v, AIMessage):
+                corrected_values.append(
+                    ChatMessage(role="Assistant", content=v.content)
+                )
+            else:
+                corrected_values.append(v)
+        return corrected_values
+
+
 class DefaultChatHandler(BaseChatHandler):
     def __init__(self, chat_history: List[ChatMessage], *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -36,16 +55,32 @@ class DefaultChatHandler(BaseChatHandler):
         self, provider: Type[BaseProvider], provider_params: Dict[str, str]
     ):
         llm = provider(**provider_params)
-        prompt_template = ChatPromptTemplate.from_messages(
-            [
-                SystemMessagePromptTemplate.from_template(SYSTEM_PROMPT).format(
-                    provider_name=llm.name, local_model_id=llm.model_id
-                ),
-                MessagesPlaceholder(variable_name="history"),
-                HumanMessagePromptTemplate.from_template("{input}"),
-                AIMessage(content=""),
-            ]
-        )
+        if provider == BedrockChatProvider or provider == BedrockProvider:
+            prompt_template = ChatPromptTemplate.from_messages(
+                [
+                    ChatMessage(
+                        role="Instructions",
+                        content=SYSTEM_PROMPT.format(
+                            provider_name=llm.name, local_model_id=llm.model_id
+                        ),
+                    ),
+                    HistoryPlaceholderTemplate(variable_name="history"),
+                    HumanMessagePromptTemplate.from_template("{input}"),
+                    ChatMessage(role="Assistant", content=""),
+                ]
+            )
+        else:
+            prompt_template = ChatPromptTemplate.from_messages(
+                [
+                    SystemMessagePromptTemplate.from_template(SYSTEM_PROMPT).format(
+                        provider_name=llm.name, local_model_id=llm.model_id
+                    ),
+                    MessagesPlaceholder(variable_name="history"),
+                    HumanMessagePromptTemplate.from_template("{input}"),
+                    AIMessage(content=""),
+                ]
+            )
+
         self.llm = llm
         self.llm_chain = ConversationChain(
             llm=llm, prompt=prompt_template, verbose=True, memory=self.memory
