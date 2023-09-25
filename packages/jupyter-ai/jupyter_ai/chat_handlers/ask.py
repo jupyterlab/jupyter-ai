@@ -11,7 +11,7 @@ from .base import BaseChatHandler
 class AskChatHandler(BaseChatHandler):
     """Processes messages prefixed with /ask. This actor will
     send the message as input to a RetrieverQA chain, that
-    follows the Retrieval and Generation (RAG) tehnique to
+    follows the Retrieval and Generation (RAG) technique to
     query the documents from the index, and sends this context
     to the LLM to generate the final reply.
     """
@@ -29,7 +29,7 @@ class AskChatHandler(BaseChatHandler):
         self.llm = provider(**provider_params)
         self.chat_history = []
         self.llm_chain = ConversationalRetrievalChain.from_llm(
-            self.llm, self._retriever
+            self.llm, self._retriever, verbose=True
         )
 
     async def _process_message(self, message: HumanChatMessage):

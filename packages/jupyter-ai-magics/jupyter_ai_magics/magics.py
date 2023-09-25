@@ -430,6 +430,9 @@ class AiMagics(Magics):
 
         return self.providers[provider_id]
 
+    def _is_chat_model(self, provider_id: str) -> bool:
+        return provider_id in ["anthropic-chat", "bedrock-chat"]
+
     def display_output(self, output, display_format, md):
         # build output display
         DisplayClass = DISPLAYS_BY_FORMAT[display_format]
@@ -556,7 +559,7 @@ class AiMagics(Magics):
         ip = get_ipython()
         prompt = prompt.format_map(FormatDict(ip.user_ns))
 
-        if provider_id == "anthropic-chat":
+        if self._is_chat_model(provider.id):
             result = provider.generate([[HumanMessage(content=prompt)]])
         else:
             # generate output from model via provider
