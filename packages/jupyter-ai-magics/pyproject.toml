@@ -44,7 +44,7 @@ test = [
 
 all = [
     "ai21",
-    "anthropic~=0.2.10",
+    "anthropic~=0.3.0",
     "cohere",
     "gpt4all",
     "huggingface_hub",
@@ -66,6 +66,7 @@ openai-chat-new = "jupyter_ai_magics:ChatOpenAINewProvider"
 azure-chat-openai = "jupyter_ai_magics:AzureChatOpenAIProvider"
 sagemaker-endpoint = "jupyter_ai_magics:SmEndpointProvider"
 amazon-bedrock = "jupyter_ai_magics:BedrockProvider"
+anthropic-chat = "jupyter_ai_magics:ChatAnthropicProvider"
 
 [project.entry-points."jupyter_ai.embeddings_model_providers"]
 cohere = "jupyter_ai_magics:CohereEmbeddingsProvider"
