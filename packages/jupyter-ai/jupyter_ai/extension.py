@@ -163,7 +163,7 @@ class AiExtension(ExtensionApp):
 
         eps = entry_points()
         # initialize chat handlers
-        chat_handler_eps = eps.select("jupyter_ai.chat_handlers")
+        chat_handler_eps = eps.select(group="jupyter_ai.chat_handlers")
         jai_chat_handlers = {}
         for chat_handler_ep in chat_handler_eps:
             # Each slash ID, including None (default), must be used only once.
