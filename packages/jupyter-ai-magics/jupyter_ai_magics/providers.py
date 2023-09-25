@@ -8,8 +8,14 @@ from concurrent.futures import ThreadPoolExecutor
 from typing import Any, ClassVar, Coroutine, Dict, List, Literal, Optional, Union
 
 from jsonpath_ng import parse
-from langchain import PromptTemplate
-from langchain.chat_models import AzureChatOpenAI, ChatAnthropic, ChatOpenAI
+
+from langchain.chat_models import (
+    AzureChatOpenAI,
+    BedrockChat,
+    ChatAnthropic,
+    ChatOpenAI,
+)
+
 from langchain.llms import (
     AI21,
     Anthropic,
@@ -23,6 +29,8 @@ from langchain.llms import (
 )
 from langchain.llms.sagemaker_endpoint import LLMContentHandler
 from langchain.llms.utils import enforce_stop_tokens
+from langchain.prompts import PromptTemplate
+from langchain.schema import LLMResult
 from langchain.utils import get_from_dict_or_env
 from pydantic import BaseModel, Extra, root_validator
 
@@ -185,6 +193,18 @@ class BaseProvider(BaseModel):
         executor = ThreadPoolExecutor(max_workers=1)
         loop = asyncio.get_running_loop()
         _call_with_args = functools.partial(self._call, *args, **kwargs)
+        return await loop.run_in_executor(executor, _call_with_args)
+
+    async def _generate_in_executor(
+        self, *args, **kwargs
+    ) -> Coroutine[Any, Any, LLMResult]:
+        """
+        Calls self._call() asynchronously in a separate thread for providers
+        without an async implementation. Requires the event loop to be running.
+        """
+        executor = ThreadPoolExecutor(max_workers=1)
+        loop = asyncio.get_running_loop()
+        _call_with_args = functools.partial(self._generate, *args, **kwargs)
         return await loop.run_in_executor(executor, _call_with_args)
 
     def update_prompt_template(self, format: str, template: str):
@@ -596,14 +616,13 @@ class BedrockProvider(BaseProvider, Bedrock):
     id = "bedrock"
     name = "Amazon Bedrock"
     models = [
-        "amazon.titan-tg1-large",
+        "amazon.titan-text-express-v1",
         "anthropic.claude-v1",
-        "anthropic.claude-instant-v1",
         "anthropic.claude-v2",
-        "ai21.j2-jumbo-instruct",
-        "ai21.j2-grande-instruct",
-        "ai21.j2-mid",
-        "ai21.j2-ultra",
+        "anthropic.claude-instant-v1",
+        "ai21.j2-ultra-v1",
+        "ai21.j2-mid-v1",
+        "cohere.command-text-v14",
     ]
     model_id_key = "model_id"
     pypi_package_deps = ["boto3"]
@@ -619,3 +638,34 @@ class BedrockProvider(BaseProvider, Bedrock):
 
     async def _acall(self, *args, **kwargs) -> Coroutine[Any, Any, str]:
         return await self._call_in_executor(*args, **kwargs)
+
+
+class BedrockChatProvider(BaseProvider, BedrockChat):
+    id = "bedrock-chat"
+    name = "Amazon Bedrock Chat"
+    models = [
+        "amazon.titan-text-express-v1",
+        "anthropic.claude-v1",
+        "anthropic.claude-v2",
+        "anthropic.claude-instant-v1",
+        "ai21.j2-ultra-v1",
+        "ai21.j2-mid-v1",
+        "cohere.command-text-v14",
+    ]
+    model_id_key = "model_id"
+    pypi_package_deps = ["boto3"]
+    auth_strategy = AwsAuthStrategy()
+    fields = [
+        TextField(
+            key="credentials_profile_name",
+            label="AWS profile (optional)",
+            format="text",
+        ),
+        TextField(key="region_name", label="Region name (optional)", format="text"),
+    ]
+
+    async def _acall(self, *args, **kwargs) -> Coroutine[Any, Any, str]:
+        return await self._call_in_executor(*args, **kwargs)
+
+    async def _agenerate(self, *args, **kwargs) -> Coroutine[Any, Any, LLMResult]:
+        return await self._generate_in_executor(*args, **kwargs)

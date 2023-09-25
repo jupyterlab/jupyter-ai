@@ -15,6 +15,7 @@ from .providers import (
     AnthropicProvider,
     AzureChatOpenAIProvider,
     BaseProvider,
+    BedrockChatProvider,
     BedrockProvider,
     ChatAnthropicProvider,
     ChatOpenAINewProvider,
