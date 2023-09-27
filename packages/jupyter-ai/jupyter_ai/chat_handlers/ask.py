@@ -25,6 +25,7 @@ class AskChatHandler(BaseChatHandler):
     query the documents from the index, and sends this context
     to the LLM to generate the final reply.
     """
+
     id = "ask-chat-handler"
     name = "Ask with Local Data"
     description = "Ask a question augmented with learned data"

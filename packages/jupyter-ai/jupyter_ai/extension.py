@@ -1,8 +1,8 @@
-from importlib_metadata import entry_points
 import logging
 import time
 
 from dask.distributed import Client as DaskClient
+from importlib_metadata import entry_points
 from jupyter_ai.chat_handlers.learn import Retriever
 from jupyter_ai_magics.utils import get_em_providers, get_lm_providers
 from jupyter_server.extension.application import ExtensionApp
@@ -175,7 +175,7 @@ class AiExtension(ExtensionApp):
             "root_dir": self.serverapp.root_dir,
             "dask_client_future": dask_client_future,
             # TODO: Set ask_chat_handler based on a retriever related to the learn_chat_handler
-            "retriever": None
+            "retriever": None,
         }
 
         for chat_handler_ep in chat_handler_eps:
@@ -196,8 +196,10 @@ class AiExtension(ExtensionApp):
                 command_name = f"/{slash_id}"
             else:
                 command_name = "default"
-            self.log.info(f"Trying to register chat handler `{chat_handler.id}` with command `{command_name}`")
-            
+            self.log.info(
+                f"Trying to register chat handler `{chat_handler.id}` with command `{command_name}`"
+            )
+
             if command_name in jai_chat_handlers:
                 self.log.error(
                     f"Unable to register chat handler `{chat_handler.id}` because command `{command_name}` already has a handler"
@@ -205,8 +207,10 @@ class AiExtension(ExtensionApp):
                 continue
 
             jai_chat_handlers[command_name] = chat_handler
-            self.log.info(f"Registered chat handler `{chat_handler.id}` with command `{command_name}`.")
-            
+            self.log.info(
+                f"Registered chat handler `{chat_handler.id}` with command `{command_name}`."
+            )
+
         self.settings["jai_chat_handlers"] = jai_chat_handlers
 
         chat_handler_kwargs = {

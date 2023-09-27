@@ -19,15 +19,17 @@ if TYPE_CHECKING:
 class BaseChatHandler(Configurable):
     """Base ChatHandler class containing shared methods and attributes used by
     multiple chat handler classes."""
-    
+
     # Class attributes
-    id: str = 'base-chat-handler' 
+    id: str = "base-chat-handler"
     """ID for this chat handler; should be unique"""
 
-    name: str = 'Base Chat Handler'  # TODO: make NotImplemented
+    name: str = "Base Chat Handler"  # TODO: make NotImplemented
     """User-facing name of this handler"""
 
-    description: str = "Handler for messages that are not commands"  # TODO: make NotImplemented
+    description: str = (
+        "Handler for messages that are not commands"  # TODO: make NotImplemented
+    )
     """Description used for routing requests, to be used when dispatching
     messages to model providers. Also shown in the UI."""
 
