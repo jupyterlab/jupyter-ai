@@ -53,6 +53,14 @@ all = [
     "boto3"
 ]
 
+[project.entry-points."jupyter_ai.chat_handlers"]
+ask = "jupyter_ai:AskChatHandler"
+clear = "jupyter_ai:ClearChatHandler"
+default = "jupyter_ai:DefaultChatHandler"
+generate = "jupyter_ai:GenerateChatHandler"
+help = "jupyter_ai:HelpChatHandler"
+learn = "jupyter_ai:LearnChatHandler"
+
 [project.entry-points."jupyter_ai.model_providers"]
 ai21 = "jupyter_ai_magics:AI21Provider"
 anthropic = "jupyter_ai_magics:AnthropicProvider"

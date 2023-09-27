@@ -95,9 +95,6 @@ class AiExtension(ExtensionApp):
     )
 
     def initialize_settings(self):
-        log = logging.getLogger()
-        log.addHandler(logging.NullHandler())
-
         start = time.time()
 
         # Read from allowlist and blocklist
@@ -163,26 +160,52 @@ class AiExtension(ExtensionApp):
 
         eps = entry_points()
         # initialize chat handlers
+        self.log.info("Found entry point groups " + ", ".join(sorted(eps.groups)))
         chat_handler_eps = eps.select(group="jupyter_ai.chat_handlers")
+
         jai_chat_handlers = {}
+
+        chat_handler_kwargs = {
+            "log": self.log,
+            "config_manager": self.settings["jai_config_manager"],
+            "root_chat_handlers": self.settings["jai_root_chat_handlers"],
+            # Everything below this line is the union of all arguments used to
+            # instantiate chat handlers.
+            "chat_history": self.settings["chat_history"],
+            "root_dir": self.serverapp.root_dir,
+            "dask_client_future": dask_client_future,
+            # TODO: Set ask_chat_handler based on a retriever related to the learn_chat_handler
+            "retriever": None
+        }
+
         for chat_handler_ep in chat_handler_eps:
+            try:
+                chat_handler = chat_handler_ep.load()
+            except:
+                self.log.error(
+                    f"Unable to load chat handler class from entry point `{chat_handler_ep.name}`."
+                )
+                continue
+
             # Each slash ID, including None (default), must be used only once.
             # Slash IDs may contain only alphanumerics and underscores.
-            slash_id = chat_handler_ep.slash_id
+            slash_id = chat_handler.slash_id
 
             if slash_id:
                 # TODO: Validate slash ID (/^[A-Za-z0-9_]+$/)
                 command_name = f"/{slash_id}"
             else:
                 command_name = "default"
+            self.log.info(f"Trying to register chat handler `{chat_handler.id}` with command `{command_name}`")
             
             if command_name in jai_chat_handlers:
-                log.error(
+                self.log.error(
                     f"Unable to register chat handler `{chat_handler.id}` because command `{command_name}` already has a handler"
                 )
                 continue
-            jai_chat_handlers[command_name] = chat_handler_ep  # Instantiate?
-            log.info(f"Registered chat handler `{chat_handler.id}` with command `{command_name}`.")
+
+            jai_chat_handlers[command_name] = chat_handler
+            self.log.info(f"Registered chat handler `{chat_handler.id}` with command `{command_name}`.")
             
         self.settings["jai_chat_handlers"] = jai_chat_handlers
 
@@ -208,17 +231,10 @@ class AiExtension(ExtensionApp):
             dask_client_future=dask_client_future,
         )
         help_chat_handler = HelpChatHandler(**chat_handler_kwargs)
+        """
         retriever = Retriever(learn_chat_handler=learn_chat_handler)
         ask_chat_handler = AskChatHandler(**chat_handler_kwargs, retriever=retriever)
-        self.settings["jai_chat_handlers"] = {
-            "default": default_chat_handler,
-            "/ask": ask_chat_handler,
-            "/clear": clear_chat_handler,
-            "/generate": generate_chat_handler,
-            "/learn": learn_chat_handler,
-            "/help": help_chat_handler,
-        }
-
+        """
         latency_ms = round((time.time() - start) * 1000)
         self.log.info(f"Initialized Jupyter AI server extension in {latency_ms} ms.")
 

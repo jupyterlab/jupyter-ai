@@ -39,14 +39,6 @@ dependencies = [
 
 dynamic = ["version", "description", "authors", "urls", "keywords"]
 
-[project.entry-points."jupyter_ai.chat_handlers"]
-ask = "jupyter_ai:AskChatHandler"
-clear = "jupyter_ai:ClearChatHandler"
-default = "jupyter_ai:DefaultChatHandler"
-generate = "jupyter_ai:GenerateChatHandler"
-help = "jupyter_ai:HelpChatHandler"
-learn = "jupyter_ai:LearnChatHandler"
-
 [project.entry-points."jupyter_ai.default_tasks"]
 core_default_tasks = "jupyter_ai:tasks"
 
