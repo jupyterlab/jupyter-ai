@@ -181,9 +181,10 @@ class AiExtension(ExtensionApp):
         for chat_handler_ep in chat_handler_eps:
             try:
                 chat_handler = chat_handler_ep.load()
-            except:
+            except Exception as err:
                 self.log.error(
-                    f"Unable to load chat handler class from entry point `{chat_handler_ep.name}`."
+                    f"Unable to load chat handler class from entry point `{chat_handler_ep.name}`: "
+                    + f"Unexpected {err=}, {type(err)=}"
                 )
                 continue
 
