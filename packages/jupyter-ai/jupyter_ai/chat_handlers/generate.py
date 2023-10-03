@@ -1,6 +1,7 @@
 import asyncio
 import json
 import os
+import re
 from typing import Dict, Type
 
 import nbformat
@@ -48,7 +49,7 @@ class NotebookOutlineChain(LLMChain):
             "Generate the outline as JSON data that will validate against this JSON schema:\n"
             "{schema}\n"
             "Here is a description of the notebook you will create an outline for: {description}\n"
-            "Don't include an introduction or conclusion section in the outline, focus only on sections that will need code."
+            "Don't include an introduction or conclusion section in the outline, focus only on description and sections that will need code.\n"
         )
         prompt = PromptTemplate(
             template=task_creation_template,
@@ -57,10 +58,22 @@ class NotebookOutlineChain(LLMChain):
         return cls(prompt=prompt, llm=llm, verbose=verbose)
 
 
+def extract_json(text: str) -> str:
+    """Extract json from text using Regex."""
+    # The pattern to find json string enclosed in ```json````
+    pattern = r"```json\n(.*?)\n```"
+
+    # Find all matches in the input text
+    matches = re.findall(pattern, text, re.DOTALL)
+
+    return matches[0] if matches else text
+
+
 async def generate_outline(description, llm=None, verbose=False):
     """Generate an outline of sections given a description of a notebook."""
     chain = NotebookOutlineChain.from_llm(llm=llm, verbose=verbose)
     outline = await chain.apredict(description=description, schema=schema)
+    outline = extract_json(outline)
     return json.loads(outline)
 
 
@@ -182,14 +195,10 @@ async def generate_summary(outline, llm=None, verbose: bool = False):
 async def fill_outline(outline, llm, verbose=False):
     shared_kwargs = {"outline": outline, "llm": llm, "verbose": verbose}
 
-    all_coros = []
-    all_coros.append(generate_title(**shared_kwargs))
-    all_coros.append(generate_summary(**shared_kwargs))
+    await generate_title(**shared_kwargs)
+    await generate_summary(**shared_kwargs)
     for section in outline["sections"]:
-        all_coros.append(
-            generate_code(section, outline["description"], llm=llm, verbose=verbose)
-        )
-    await asyncio.gather(*all_coros)
+        await generate_code(section, outline["description"], llm=llm, verbose=verbose)
 
 
 def create_notebook(outline):
