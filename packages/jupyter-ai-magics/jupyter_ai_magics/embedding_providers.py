@@ -1,7 +1,13 @@
 from typing import ClassVar, List, Type
 
-from jupyter_ai_magics.providers import AuthStrategy, EnvAuthStrategy, Field
+from jupyter_ai_magics.providers import (
+    AuthStrategy,
+    AwsAuthStrategy,
+    EnvAuthStrategy,
+    Field,
+)
 from langchain.embeddings import (
+    BedrockEmbeddings,
     CohereEmbeddings,
     HuggingFaceHubEmbeddings,
     OpenAIEmbeddings,
@@ -54,7 +60,8 @@ class BaseEmbeddingsProvider(BaseModel):
             )
 
         model_kwargs = {}
-        model_kwargs[self.__class__.model_id_key] = kwargs["model_id"]
+        if self.__class__.model_id_key != "model_id":
+            model_kwargs[self.__class__.model_id_key] = kwargs["model_id"]
 
         super().__init__(*args, **kwargs, **model_kwargs)
 
@@ -88,3 +95,12 @@ class HfHubEmbeddingsProvider(BaseEmbeddingsProvider, HuggingFaceHubEmbeddings):
     pypi_package_deps = ["huggingface_hub", "ipywidgets"]
     auth_strategy = EnvAuthStrategy(name="HUGGINGFACEHUB_API_TOKEN")
     registry = True
+
+
+class BedrockEmbeddingsProvider(BaseEmbeddingsProvider, BedrockEmbeddings):
+    id = "bedrock"
+    name = "Bedrock"
+    models = ["amazon.titan-embed-text-v1"]
+    model_id_key = "model_id"
+    pypi_package_deps = ["boto3"]
+    auth_strategy = AwsAuthStrategy()
