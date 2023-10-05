@@ -1,21 +1,17 @@
-from typing import Any, Dict, List, Type
+from typing import Dict, List, Type
 
 from jupyter_ai.models import ChatMessage, ClearMessage, HumanChatMessage
-from jupyter_ai_magics.providers import (
-    BaseProvider,
-    BedrockChatProvider,
-    BedrockProvider,
-)
+from jupyter_ai_magics.providers import BaseProvider
 from langchain.chains import ConversationChain
+from langchain.chat_models.base import BaseChatModel
 from langchain.memory import ConversationBufferWindowMemory
 from langchain.prompts import (
     ChatPromptTemplate,
     HumanMessagePromptTemplate,
     MessagesPlaceholder,
+    PromptTemplate,
     SystemMessagePromptTemplate,
 )
-from langchain.schema import AIMessage, ChatMessage
-from langchain.schema.messages import BaseMessage
 
 from .base import BaseChatHandler
 
@@ -30,19 +26,10 @@ If you do not know the answer to a question, answer truthfully by responding tha
 The following is a friendly conversation between you and a human.
 """.strip()
 
-
-class HistoryPlaceholderTemplate(MessagesPlaceholder):
-    def format_messages(self, **kwargs: Any) -> List[BaseMessage]:
-        values = super().format_messages(**kwargs)
-        corrected_values = []
-        for v in values:
-            if isinstance(v, AIMessage):
-                corrected_values.append(
-                    ChatMessage(role="Assistant", content=v.content)
-                )
-            else:
-                corrected_values.append(v)
-        return corrected_values
+DEFAULT_TEMPLATE = """Current conversation:
+{history}
+Human: {input}
+AI:"""
 
 
 class DefaultChatHandler(BaseChatHandler):
@@ -55,21 +42,8 @@ class DefaultChatHandler(BaseChatHandler):
         self, provider: Type[BaseProvider], provider_params: Dict[str, str]
     ):
         llm = provider(**provider_params)
-        if provider == BedrockChatProvider or provider == BedrockProvider:
-            prompt_template = ChatPromptTemplate.from_messages(
-                [
-                    ChatMessage(
-                        role="Instructions",
-                        content=SYSTEM_PROMPT.format(
-                            provider_name=llm.name, local_model_id=llm.model_id
-                        ),
-                    ),
-                    HistoryPlaceholderTemplate(variable_name="history"),
-                    HumanMessagePromptTemplate.from_template("{input}"),
-                    ChatMessage(role="Assistant", content=""),
-                ]
-            )
-        else:
+
+        if llm.is_chat_provider:
             prompt_template = ChatPromptTemplate.from_messages(
                 [
                     SystemMessagePromptTemplate.from_template(SYSTEM_PROMPT).format(
@@ -77,9 +51,19 @@ class DefaultChatHandler(BaseChatHandler):
                     ),
                     MessagesPlaceholder(variable_name="history"),
                     HumanMessagePromptTemplate.from_template("{input}"),
-                    AIMessage(content=""),
                 ]
             )
+            self.memory = ConversationBufferWindowMemory(return_messages=True, k=2)
+        else:
+            prompt_template = PromptTemplate(
+                input_variables=["history", "input"],
+                template=SYSTEM_PROMPT.format(
+                    provider_name=llm.name, local_model_id=llm.model_id
+                )
+                + "\n\n"
+                + DEFAULT_TEMPLATE,
+            )
+            self.memory = ConversationBufferWindowMemory(k=2)
 
         self.llm = llm
         self.llm_chain = ConversationChain(
