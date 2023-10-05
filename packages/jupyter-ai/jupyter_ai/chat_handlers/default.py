@@ -3,7 +3,6 @@ from typing import Dict, List, Type
 from jupyter_ai.models import ChatMessage, ClearMessage, HumanChatMessage
 from jupyter_ai_magics.providers import BaseProvider
 from langchain.chains import ConversationChain
-from langchain.chat_models.base import BaseChatModel
 from langchain.memory import ConversationBufferWindowMemory
 from langchain.prompts import (
     ChatPromptTemplate,
