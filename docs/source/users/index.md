@@ -467,6 +467,8 @@ We currently support the following language model providers:
 - `ai21`
 - `anthropic`
 - `anthropic-chat`
+- `bedrock`
+- `bedrock-chat`
 - `cohere`
 - `huggingface_hub`
 - `openai`
