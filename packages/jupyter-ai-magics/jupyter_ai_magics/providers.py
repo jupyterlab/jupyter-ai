@@ -135,6 +135,10 @@ class BaseProvider(BaseModel):
     # instance attrs
     #
     model_id: str
+    prompt_templates: Dict[str, PromptTemplate]
+    """Prompt templates for each output type. Can be overridden with
+    `update_prompt_template`. The function `prompt_template`, in the base class,
+    refers to this."""
 
     def __init__(self, *args, **kwargs):
         try:
@@ -147,6 +151,36 @@ class BaseProvider(BaseModel):
         model_kwargs = {}
         if self.__class__.model_id_key != "model_id":
             model_kwargs[self.__class__.model_id_key] = kwargs["model_id"]
+
+        model_kwargs["prompt_templates"] = {
+            "code": PromptTemplate.from_template(
+                "{prompt}\n\nProduce output as source code only, "
+                "with no text or explanation before or after it."
+            ),
+            "html": PromptTemplate.from_template(
+                "{prompt}\n\nProduce output in HTML format only, "
+                "with no markup before or afterward."
+            ),
+            "image": PromptTemplate.from_template(
+                "{prompt}\n\nProduce output as an image only, "
+                "with no text before or after it."
+            ),
+            "markdown": PromptTemplate.from_template(
+                "{prompt}\n\nProduce output in markdown format only."
+            ),
+            "md": PromptTemplate.from_template(
+                "{prompt}\n\nProduce output in markdown format only."
+            ),
+            "math": PromptTemplate.from_template(
+                "{prompt}\n\nProduce output in LaTeX format only, "
+                "with $$ at the beginning and end."
+            ),
+            "json": PromptTemplate.from_template(
+                "{prompt}\n\nProduce output in JSON format only, "
+                "with nothing before or after it."
+            ),
+            "text": PromptTemplate.from_template("{prompt}"),  # No customization
+        }
 
         super().__init__(*args, **kwargs, **model_kwargs)
 
