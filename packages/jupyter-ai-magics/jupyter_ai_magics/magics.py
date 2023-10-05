@@ -536,7 +536,7 @@ class AiMagics(Magics):
         ip = get_ipython()
         prompt = prompt.format_map(FormatDict(ip.user_ns))
 
-        if provider.is_chat_provider(provider):
+        if provider.is_chat_provider:
             result = provider.generate([[HumanMessage(content=prompt)]])
         else:
             # generate output from model via provider
