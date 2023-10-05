@@ -8,14 +8,13 @@ from concurrent.futures import ThreadPoolExecutor
 from typing import Any, ClassVar, Coroutine, Dict, List, Literal, Optional, Union
 
 from jsonpath_ng import parse
-
 from langchain.chat_models import (
     AzureChatOpenAI,
     BedrockChat,
     ChatAnthropic,
     ChatOpenAI,
 )
-
+from langchain.chat_models.base import BaseChatModel
 from langchain.llms import (
     AI21,
     Anthropic,
@@ -165,7 +164,7 @@ class BaseProvider(BaseModel):
         self, *args, **kwargs
     ) -> Coroutine[Any, Any, LLMResult]:
         """
-        Calls self._call() asynchronously in a separate thread for providers
+        Calls self._generate() asynchronously in a separate thread for providers
         without an async implementation. Requires the event loop to be running.
         """
         executor = ThreadPoolExecutor(max_workers=1)
@@ -189,6 +188,10 @@ class BaseProvider(BaseModel):
             return self.prompt_templates[format]
         else:
             return self.prompt_templates["text"]  # Default to plain format
+
+    @property
+    def is_chat_provider(self):
+        return isinstance(self, BaseChatModel)
 
 
 class AI21Provider(BaseProvider, AI21):
@@ -583,9 +586,6 @@ class BedrockProvider(BaseProvider, Bedrock):
     name = "Amazon Bedrock"
     models = [
         "amazon.titan-text-express-v1",
-        "anthropic.claude-v1",
-        "anthropic.claude-v2",
-        "anthropic.claude-instant-v1",
         "ai21.j2-ultra-v1",
         "ai21.j2-mid-v1",
         "cohere.command-text-v14",
@@ -610,13 +610,9 @@ class BedrockChatProvider(BaseProvider, BedrockChat):
     id = "bedrock-chat"
     name = "Amazon Bedrock Chat"
     models = [
-        "amazon.titan-text-express-v1",
         "anthropic.claude-v1",
         "anthropic.claude-v2",
         "anthropic.claude-instant-v1",
-        "ai21.j2-ultra-v1",
-        "ai21.j2-mid-v1",
-        "cohere.command-text-v14",
     ]
     model_id_key = "model_id"
     pypi_package_deps = ["boto3"]
