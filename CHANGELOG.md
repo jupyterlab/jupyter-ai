@@ -2,6 +2,50 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 2.3.0
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.2.0...7f854007263f1a9393e41611028d7cc57313c577))
+
+Hey Jupyternauts! We're excited to announce the 2.3.0 release of Jupyter AI, which includes better support for Anthropic models and integration with Amazon Bedrock.
+
+There is also a significant change to how Jupyter AI settings are handled (see #353). The most significant changes are:
+
+1. **API key values can no longer be read from the client.** This was taken as a security measure to prevent accidental leakage of keys. You can still update existing API keys if you do decide to change your key in the future.
+1. **The settings can not be updated if they were updated by somebody else after you opened the settings panel.** This prevents different users connecting to the same server from clobbering updates from each other.
+1. **There is now a much better UI for updating and deleting API keys.** We hope you enjoy it.
+
+Updating to 2.3.0 shouldn't require any changes on your end. However, if you notice an error, please submit a bug report with the server logs emitted in the terminal from the `jupyter lab` process. Renaming the config file `$JUPYTER_DATA_DIR/jupyter_ai/config.json` to some other name and then restarting `jupyter lab` may fix the issue if it is a result of the new config changes.
+
+### Enhancements made
+
+- Adds chat anthropic provider, new models [#391](https://github.com/jupyterlab/jupyter-ai/pull/391) ([@3coins](https://github.com/3coins))
+- Adds help text for registry model providers in chat UI settings [#373](https://github.com/jupyterlab/jupyter-ai/pull/373) ([@JasonWeill](https://github.com/JasonWeill))
+- jupyter_ai and jupyter_ai_magics version match [#367](https://github.com/jupyterlab/jupyter-ai/pull/367) ([@JasonWeill](https://github.com/JasonWeill))
+- Config V2 [#353](https://github.com/jupyterlab/jupyter-ai/pull/353) ([@dlqqq](https://github.com/dlqqq))
+- Add E2E tests [#350](https://github.com/jupyterlab/jupyter-ai/pull/350) ([@andrii-i](https://github.com/andrii-i))
+
+### Bugs fixed
+
+- Upgraded LangChain, fixed prompts for Bedrock [#401](https://github.com/jupyterlab/jupyter-ai/pull/401) ([@3coins](https://github.com/3coins))
+- Adds chat anthropic provider, new models [#391](https://github.com/jupyterlab/jupyter-ai/pull/391) ([@3coins](https://github.com/3coins))
+
+### Maintenance and upkeep improvements
+
+- Upgraded LangChain, fixed prompts for Bedrock [#401](https://github.com/jupyterlab/jupyter-ai/pull/401) ([@3coins](https://github.com/3coins))
+- Add E2E tests [#350](https://github.com/jupyterlab/jupyter-ai/pull/350) ([@andrii-i](https://github.com/andrii-i))
+
+### Documentation improvements
+
+- jupyter_ai and jupyter_ai_magics version match [#367](https://github.com/jupyterlab/jupyter-ai/pull/367) ([@JasonWeill](https://github.com/JasonWeill))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2023-09-05&to=2023-10-09&type=c))
+
+[@3coins](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3A3coins+updated%3A2023-09-05..2023-10-09&type=Issues) | [@andrii-i](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aandrii-i+updated%3A2023-09-05..2023-10-09&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2023-09-05..2023-10-09&type=Issues) | [@JasonWeill](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AJasonWeill+updated%3A2023-09-05..2023-10-09&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2023-09-05..2023-10-09&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 2.2.0
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.1.0...56c1f518afd09d0d09a43221f0767aa961e9430f))
@@ -31,8 +75,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2023-08-15&to=2023-09-05&type=c))
 
 [@3coins](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3A3coins+updated%3A2023-08-15..2023-09-05&type=Issues) | [@andrii-i](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aandrii-i+updated%3A2023-08-15..2023-09-05&type=Issues) | [@JasonWeill](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AJasonWeill+updated%3A2023-08-15..2023-09-05&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2023-08-15..2023-09-05&type=Issues) | [@michaelchia](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Amichaelchia+updated%3A2023-08-15..2023-09-05&type=Issues) | [@minrk](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aminrk+updated%3A2023-08-15..2023-09-05&type=Issues) | [@welcome](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Awelcome+updated%3A2023-08-15..2023-09-05&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 2.1.0
 
