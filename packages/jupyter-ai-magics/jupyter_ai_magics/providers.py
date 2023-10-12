@@ -227,6 +227,10 @@ class BaseProvider(BaseModel):
     def is_chat_provider(self):
         return isinstance(self, BaseChatModel)
 
+    @property
+    def allows_concurrency(self):
+        return True
+
 
 class AI21Provider(BaseProvider, AI21):
     id = "ai21"
@@ -267,6 +271,10 @@ class AnthropicProvider(BaseProvider, Anthropic):
     pypi_package_deps = ["anthropic"]
     auth_strategy = EnvAuthStrategy(name="ANTHROPIC_API_KEY")
 
+    @property
+    def allows_concurrency(self):
+        return False
+
 
 class ChatAnthropicProvider(BaseProvider, ChatAnthropic):
     id = "anthropic-chat"
@@ -284,6 +292,10 @@ class ChatAnthropicProvider(BaseProvider, ChatAnthropic):
     model_id_key = "model"
     pypi_package_deps = ["anthropic"]
     auth_strategy = EnvAuthStrategy(name="ANTHROPIC_API_KEY")
+
+    @property
+    def allows_concurrency(self):
+        return False
 
 
 class CohereProvider(BaseProvider, Cohere):
@@ -665,3 +677,7 @@ class BedrockChatProvider(BaseProvider, BedrockChat):
 
     async def _agenerate(self, *args, **kwargs) -> Coroutine[Any, Any, LLMResult]:
         return await self._generate_in_executor(*args, **kwargs)
+
+    @property
+    def allows_concurrency(self):
+        return not "anthropic" in self.model_id
