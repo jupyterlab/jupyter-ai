@@ -62,13 +62,13 @@ export const constructContinuationPrompt = (
  * @param {string | null} prompt - The prompt string to be sent for code completion.
  * @returns {Promise<{ generated_text: string }[]>} A promise that resolves with the generated text or rejects with an error.
  */
-export const sendToBigCode = async (
+export const sendToBigCodeStream = async (
   prompt: string | null,
   max_tokens: number
-): Promise<{ generated_text: string }[]> => {
+): Promise<ReadableStream<Uint8Array>> => {
   const { bigcodeUrl } = CodeCompletionContextStore;
   const { accessToken } = CodeCompletionContextStore;
-  console.log(prompt);
+
   if (!bigcodeUrl || !accessToken) {
     alert('BigCode service URL or Huggingface Access Token not set.');
     return new Promise((resolve, reject) => {
@@ -93,7 +93,7 @@ export const sendToBigCode = async (
     }
   };
 
-  const response = fetch(bigcodeUrl, {
+  const response = await fetch(bigcodeUrl, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -102,30 +102,20 @@ export const sendToBigCode = async (
     body: JSON.stringify(bodyData)
   });
 
-  const responseResult = await response;
   // Check if response status code is in the range 200-299
-  if (!responseResult.ok) {
+  if (!response || !response.ok) {
     return new Promise((resolve, reject) => {
-      reject(responseResult.json());
+      reject(response.json());
     });
   }
 
-  return responseResult.json();
-};
+  const streamData = response.body;
 
-/**
- * Processes the result received from the BigCode service.
- * It extracts the generated text from the result and removes any placeholder strings.
- *
- * @param {{ generated_text: string }[]} result - The result array containing generated text.
- * @returns {string} The processed generated text.
- */
-export const processCompletionResult = (
-  result: { generated_text: string }[]
-): string => {
-  if (result.length === 0) {
-    return '';
+  if (!streamData) {
+    return new Promise((resolve, reject) => {
+      reject(response.json());
+    });
   }
 
-  return result[0].generated_text.replace('<jupyter_output>', '');
+  return streamData;
 };

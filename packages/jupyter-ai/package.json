@@ -66,6 +66,7 @@
     "@jupyterlab/codeeditor": "^4",
     "@jupyterlab/codemirror": "^4",
     "@jupyterlab/collaboration": "^3",
+    "@jupyterlab/completer": "file:../../../jupyterlab/packages/completer",
     "@jupyterlab/coreutils": "^6",
     "@jupyterlab/fileeditor": "^4",
     "@jupyterlab/notebook": "^4",

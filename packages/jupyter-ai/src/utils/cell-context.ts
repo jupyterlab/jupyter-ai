@@ -1,12 +1,10 @@
-import { JupyterFrontEnd } from '@jupyterlab/application';
 import { CodeEditor } from '@jupyterlab/codeeditor';
-import { DocumentWidget } from '@jupyterlab/docregistry';
-import { Notebook } from '@jupyterlab/notebook';
+import { Notebook, NotebookPanel } from '@jupyterlab/notebook';
 import { CodeCell, MarkdownCell, Cell } from '@jupyterlab/cells';
 
 import { ICell, ICellType } from '../types/cell';
 
-import { getSpecificWidget, getEditorByWidget } from './instance';
+import { getSpecificWidget } from './instance';
 
 /**
  * Get the text from the current editor.
@@ -27,29 +25,6 @@ export const getTextByEditor = (editor: CodeEditor.IEditor): string => {
 export const splitString = (input: string): string[] => {
   // Split by newline, but ignore escaped newlines
   return input.split(/(?<!\\)\n/).map(part => part.replace('\\\\n', '\\n'));
-};
-
-/**
- * Retrieves the code of the current cell in the Jupyter environment.
- *
- * @param {JupyterFrontEnd} app - The JupyterFrontEnd application instance.
- * @returns {string | null} - The code from the current cell or null if not available.
- */
-export const getCellCode = (app: JupyterFrontEnd): string | null => {
-  const currentWidget = app.shell.currentWidget;
-
-  if (!currentWidget || !(currentWidget instanceof DocumentWidget)) {
-    return null;
-  }
-
-  const content = getSpecificWidget(currentWidget);
-  const editor = getEditorByWidget(content);
-
-  if (editor) {
-    return getTextByEditor(editor);
-  }
-
-  return null;
 };
 
 /**
@@ -81,31 +56,6 @@ const getTextBeforeCursor = (editor: CodeEditor.IEditor): string[] => {
 };
 
 /**
- * Retrieves the text of the current cell up to the cursor position.
- *
- * @param {JupyterFrontEnd} app - The JupyterFrontEnd application instance.
- * @returns {string[] | null} - An array of lines up to the cursor position or null if not available.
- */
-export const getTextBeforeCursorFromApp = (
-  app: JupyterFrontEnd
-): string[] | null => {
-  const currentWidget = app.shell.currentWidget;
-
-  if (!currentWidget || !(currentWidget instanceof DocumentWidget)) {
-    return null;
-  }
-
-  const content = getSpecificWidget(currentWidget);
-  const editor = getEditorByWidget(content);
-
-  if (editor) {
-    return getTextBeforeCursor(editor);
-  }
-
-  return null;
-};
-
-/**
  * Retrieves the output text from a given cell based on its type.
  *
  * The function extracts outputs from CodeCell instances based on their output type:
@@ -124,7 +74,6 @@ const getCellOutput = (cell: Cell): string => {
   }
 
   return cell.model.sharedModel.outputs.reduce((acc, output) => {
-    console.log(output);
     switch (output.output_type) {
       case 'execute_result':
         if (output.data) {
@@ -168,22 +117,10 @@ const getCellDetails = (cell: Cell, isActiveCell: boolean): ICell[] => {
   return results;
 };
 
-/**
- * Retrieves all cell content up to the current active cell position.
- *
- * @param {JupyterFrontEnd} app - The JupyterFrontEnd application instance.
- * @returns {ICell[] | null} - An array of ICell objects with their content or null if not available.
- */
-export const getNotebookContentUntilCursor = (
-  app: JupyterFrontEnd
+export const getNotebookContentCursor = (
+  widget: NotebookPanel
 ): ICell[] | null => {
-  const currentWidget = app.shell.currentWidget;
-
-  if (!currentWidget || !(currentWidget instanceof DocumentWidget)) {
-    return null;
-  }
-
-  const content = getSpecificWidget(currentWidget);
+  const content = getSpecificWidget(widget);
   if (!(content instanceof Notebook)) {
     return null;
   }
