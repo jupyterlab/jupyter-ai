@@ -11,19 +11,19 @@ import { NotebookPanel } from '@jupyterlab/notebook';
 import { nullTranslator, TranslationBundle } from '@jupyterlab/translation';
 import { getNotebookContentCursor } from './utils/cell-context';
 import { constructContinuationPrompt } from './utils/bigcode-request';
-// import { sendToBigCodeStream } from './utils/bigcode-request';
+import { sendToBigCodeStream } from './utils/bigcode-request';
 import CodeCompletionContextStore from './contexts/code-completion-context-store';
 
-// type BigCodeStream = {
-//   token: {
-//     id: number;
-//     text: string;
-//     logprob: number;
-//     special: boolean;
-//   };
-//   generated_text: string | null;
-//   details: null;
-// };
+type BigCodeStream = {
+  token: {
+    id: number;
+    text: string;
+    logprob: number;
+    special: boolean;
+  };
+  generated_text: string | null;
+  details: null;
+};
 
 export class BigcodeInlineCompletionProvider
   implements IInlineCompletionProvider
@@ -163,106 +163,106 @@ export class BigcodeInlineCompletionProvider
     };
   }
 
-  async *stream(
-    token: string
-  ): AsyncGenerator<{ response: IInlineCompletionItem }, undefined, unknown> {
-    const delay = (ms: number) =>
-      new Promise(resolve => setTimeout(resolve, ms));
-    const testResultText =
-      'print("Hello World")\nhello_world()\n    print("Hello World")\nhello_world()\n    print("Hello World")\nhello_world()\n    print("Hello World")\nhello_world()';
-    this._requesting = true;
-    for (let i = 1; i < testResultText.length - 1; i++) {
-      await delay(25);
-
-      if (this._stop) {
-        console.debug('_stop');
-        this.setRequestFinish(false);
-        yield {
-          response: {
-            token,
-            isIncomplete: false,
-            insertText: this._lastRequestInfo.insertText
-          }
-        };
-        return;
-      }
-
-      const insertChar = testResultText.slice(i - 1, i);
-      this._lastRequestInfo.insertText += insertChar;
-
-      yield {
-        response: {
-          token,
-          isIncomplete: i !== testResultText.length - 1,
-          insertText: this._lastRequestInfo.insertText
-        }
-      };
-    }
-
-    this.setRequestFinish(false);
-  }
-
   // async *stream(
   //   token: string
   // ): AsyncGenerator<{ response: IInlineCompletionItem }, undefined, unknown> {
-  //   if (token === '' || this._requesting) {
-  //     return;
-  //   }
-
+  //   const delay = (ms: number) =>
+  //     new Promise(resolve => setTimeout(resolve, ms));
+  //   const testResultText =
+  //     'print("Hello World")\nhello_world()\n    print("Hello World")\nhello_world()\n    print("Hello World")\nhello_world()\n    print("Hello World")\nhello_world()';
   //   this._requesting = true;
-  //   this._finish = false;
-  //   let reponseData: ReadableStream<Uint8Array> | null = null;
+  //   for (let i = 1; i < testResultText.length - 1; i++) {
+  //     await delay(25);
 
-  //   try {
-  //     reponseData = await sendToBigCodeStream(
-  //       token,
-  //       CodeCompletionContextStore.maxResponseToken
-  //     );
-  //   } catch {
+  //     if (this._stop) {
+  //       console.debug('_stop');
+  //       this.setRequestFinish(false);
+  //       yield {
+  //         response: {
+  //           token,
+  //           isIncomplete: false,
+  //           insertText: this._lastRequestInfo.insertText
+  //         }
+  //       };
+  //       return;
+  //     }
+
+  //     const insertChar = testResultText.slice(i - 1, i);
+  //     this._lastRequestInfo.insertText += insertChar;
+
   //     yield {
   //       response: {
-  //         isIncomplete: false,
-  //         insertText: ''
+  //         token,
+  //         isIncomplete: i !== testResultText.length - 1,
+  //         insertText: this._lastRequestInfo.insertText
   //       }
   //     };
-  //     this.setRequestFinish(true);
-  //     return;
   //   }
 
-  //   const decoder = new TextDecoder();
-  //   const reader = reponseData.getReader();
-
-  //   while (true) {
-  //     const { value, done } = await reader.read();
-
-  //     if (done || this._stop) {
-  //       this.setRequestFinish(false);
-  //       break;
-  //     }
-
-  //     const strValue = decoder.decode(value, { stream: true });
-
-  //     const jsonStrList = strValue.split('data:');
-
-  //     for (const chunk of jsonStrList) {
-  //       if (chunk !== '') {
-  //         const chunkData = JSON.parse(chunk) as BigCodeStream;
-  //         const done = chunkData.token.special;
-
-  //         if (done) {
-  //           this.setRequestFinish(false);
-  //         } else {
-  //           this._lastRequestInfo.insertText += chunkData.token.text;
-  //         }
-
-  //         yield {
-  //           response: {
-  //             isIncomplete: !chunkData.token.special,
-  //             insertText: this._lastRequestInfo.insertText
-  //           }
-  //         };
-  //       }
-  //     }
-  //   }
+  //   this.setRequestFinish(false);
   // }
+
+  async *stream(
+    token: string
+  ): AsyncGenerator<{ response: IInlineCompletionItem }, undefined, unknown> {
+    if (token === '' || this._requesting) {
+      return;
+    }
+
+    this._requesting = true;
+    this._finish = false;
+    let reponseData: ReadableStream<Uint8Array> | null = null;
+
+    try {
+      reponseData = await sendToBigCodeStream(
+        token,
+        CodeCompletionContextStore.maxResponseToken
+      );
+    } catch {
+      yield {
+        response: {
+          isIncomplete: false,
+          insertText: ''
+        }
+      };
+      this.setRequestFinish(true);
+      return;
+    }
+
+    const decoder = new TextDecoder();
+    const reader = reponseData.getReader();
+
+    while (true) {
+      const { value, done } = await reader.read();
+
+      if (done || this._stop) {
+        this.setRequestFinish(false);
+        break;
+      }
+
+      const strValue = decoder.decode(value, { stream: true });
+
+      const jsonStrList = strValue.split('data:');
+
+      for (const chunk of jsonStrList) {
+        if (chunk !== '') {
+          const chunkData = JSON.parse(chunk) as BigCodeStream;
+          const done = chunkData.token.special;
+
+          if (done) {
+            this.setRequestFinish(false);
+          } else {
+            this._lastRequestInfo.insertText += chunkData.token.text;
+          }
+
+          yield {
+            response: {
+              isIncomplete: !chunkData.token.special,
+              insertText: this._lastRequestInfo.insertText
+            }
+          };
+        }
+      }
+    }
+  }
 }
