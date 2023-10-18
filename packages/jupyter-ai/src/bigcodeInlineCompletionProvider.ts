@@ -47,25 +47,25 @@ export class BigcodeInlineCompletionProvider
     return this._finish;
   }
 
-  set finish(val: boolean) {
-    this._finish = val;
-  }
+  // set finish(val: boolean) {
+  //   this._finish = val;
+  // }
 
-  get stop(): boolean {
-    return this._stop;
-  }
+  // get stop(): boolean {
+  //   return this._stop;
+  // }
 
-  set stop(val: boolean) {
-    this._stop = val;
-  }
+  // set stop(val: boolean) {
+  //   this._stop = val;
+  // }
 
   get requesting(): boolean {
     return this._requesting;
   }
 
-  set requesting(val: boolean) {
-    this._requesting = val;
-  }
+  // set requesting(val: boolean) {
+  //   this._requesting = val;
+  // }
 
   constructor(protected options: HistoryInlineCompletionProvider.IOptions) {
     const translator = options.translator || nullTranslator;
