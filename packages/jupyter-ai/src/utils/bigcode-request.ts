@@ -84,7 +84,7 @@ export const sendToBigCodeStream = async (
 
   const bodyData = {
     inputs: prompt,
-    stream: false,
+    stream: true,
     parameters: {
       temperature: 0.01,
       return_full_text: false,
