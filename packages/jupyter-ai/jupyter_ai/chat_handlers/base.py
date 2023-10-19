@@ -9,7 +9,6 @@ from uuid import uuid4
 from jupyter_ai.config_manager import ConfigManager, Logger
 from jupyter_ai.models import AgentChatMessage, HumanChatMessage
 from jupyter_ai_magics.providers import BaseProvider
-
 from traitlets.config import Configurable
 
 if TYPE_CHECKING:
