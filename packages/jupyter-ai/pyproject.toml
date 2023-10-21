@@ -51,6 +51,7 @@ test = [
     "pytest-asyncio",
     "pytest-cov",
     "pytest-tornasync",
+    "pytest-jupyter",
     "syrupy~=4.0.8"
 ]
 
