@@ -36,6 +36,7 @@ def common_cm_kwargs(config_path, schema_path):
         "em_providers": em_providers,
         "config_path": config_path,
         "schema_path": schema_path,
+        "restrictions": {"allowed_providers": None, "blocked_providers": None},
     }
 
 
@@ -112,6 +113,7 @@ def test_init_with_existing_config(
         em_providers=em_providers,
         config_path=config_path,
         schema_path=schema_path,
+        restrictions={"allowed_providers": None, "blocked_providers": None},
     )
 
 

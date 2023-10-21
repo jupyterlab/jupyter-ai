@@ -73,6 +73,7 @@ class AiExtension(ExtensionApp):
             log=self.log,
             lm_providers=self.settings["lm_providers"],
             em_providers=self.settings["em_providers"],
+            restrictions=restrictions,
         )
 
         self.log.info("Registered providers.")

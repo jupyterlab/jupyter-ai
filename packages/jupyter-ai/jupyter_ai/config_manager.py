@@ -12,8 +12,10 @@ from jupyter_ai_magics.utils import (
     AnyProvider,
     EmProvidersDict,
     LmProvidersDict,
+    ProviderRestrictions,
     get_em_provider,
     get_lm_provider,
+    is_provider_allowed,
 )
 from jupyter_core.paths import jupyter_data_dir
 from traitlets import Integer, Unicode
@@ -97,6 +99,7 @@ class ConfigManager(Configurable):
         log: Logger,
         lm_providers: LmProvidersDict,
         em_providers: EmProvidersDict,
+        restrictions: ProviderRestrictions,
         *args,
         **kwargs,
     ):
@@ -106,6 +109,8 @@ class ConfigManager(Configurable):
         self._lm_providers = lm_providers
         """List of EM providers."""
         self._em_providers = em_providers
+        """Provider restrictions."""
+        self._restrictions = restrictions
 
         """When the server last read the config file. If the file was not
         modified after this time, then we can return the cached
@@ -176,6 +181,10 @@ class ConfigManager(Configurable):
             _, lm_provider = get_lm_provider(
                 config.model_provider_id, self._lm_providers
             )
+            # do not check config for blocked providers
+            if not is_provider_allowed(config.model_provider_id, self._restrictions):
+                assert not lm_provider
+                return
             if not lm_provider:
                 raise ValueError(
                     f"No language model is associated with '{config.model_provider_id}'."
@@ -187,6 +196,12 @@ class ConfigManager(Configurable):
             _, em_provider = get_em_provider(
                 config.embeddings_provider_id, self._em_providers
             )
+            # do not check config for blocked providers
+            if not is_provider_allowed(
+                config.embeddings_provider_id, self._restrictions
+            ):
+                assert not em_provider
+                return
             if not em_provider:
                 raise ValueError(
                     f"No embedding model is associated with '{config.embeddings_provider_id}'."
