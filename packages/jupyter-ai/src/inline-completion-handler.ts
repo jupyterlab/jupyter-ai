@@ -13,7 +13,7 @@ import { parseKeyboardEventToShortcut } from './utils/keyboard';
 import { ICompletionProviderManager } from '@jupyterlab/completer';
 
 import CodeCompletionContextStore from './contexts/code-completion-context-store';
-import { BigcodeInlineCompletionProvider } from './bigcodeInlineCompletionProvider';
+import { BigcodeInlineCompletionProvider } from './bigcode-Inline-completion-provider';
 
 // Create a weak reference set to store the editor
 const mountedEditors = new WeakSet<CodeMirrorEditor>();

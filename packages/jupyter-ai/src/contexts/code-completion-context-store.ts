@@ -1,6 +1,6 @@
 import { makeObservable, observable, action } from 'mobx';
 
-class CodeCompletionContextstore {
+class CodeCompletionContextStore {
   /**
    * Whether to enable code completion function.
    */
@@ -109,5 +109,5 @@ class CodeCompletionContextstore {
   }
 }
 
-export default new CodeCompletionContextstore();
-export type IGlobalStore = CodeCompletionContextstore;
+export default new CodeCompletionContextStore();
+export type IGlobalStore = CodeCompletionContextStore;

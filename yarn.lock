@@ -2769,7 +2769,7 @@ __metadata:
 
 "@jupyterlab/completer@file:../../../jupyterlab/packages/completer::locator=%40jupyter-ai%2Fcore%40workspace%3Apackages%2Fjupyter-ai":
   version: 4.1.0-alpha.2
-  resolution: "@jupyterlab/completer@file:../../../jupyterlab/packages/completer#../../../jupyterlab/packages/completer::hash=7ca279&locator=%40jupyter-ai%2Fcore%40workspace%3Apackages%2Fjupyter-ai"
+  resolution: "@jupyterlab/completer@file:../../../jupyterlab/packages/completer#../../../jupyterlab/packages/completer::hash=119569&locator=%40jupyter-ai%2Fcore%40workspace%3Apackages%2Fjupyter-ai"
   dependencies:
     "@codemirror/state": ^6.2.0
     "@codemirror/view": ^6.9.6
@@ -2791,7 +2791,7 @@ __metadata:
     "@lumino/messaging": ^2.0.1
     "@lumino/signaling": ^2.1.2
     "@lumino/widgets": ^2.3.1-alpha.0
-  checksum: 66fd04ee7b474fb4b08d26235e05b81991cd6402a4a2e1ef8359ebf157e31b214b6f704900741fae50eb8968f075f59c7f594a30eeb3b914aa4e7efd3a4fca34
+  checksum: ca2edc34c019bd9d75ac7ddc5ebd6b45d3ce8a6e4cd0a48835cdbf9993239d3bd077a6b269e5991c68d2423c26e6fb0b7688a88a10f2c52a79bd384ca1abe5b0
   languageName: node
   linkType: hard
 

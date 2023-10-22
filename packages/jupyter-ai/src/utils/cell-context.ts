@@ -7,38 +7,38 @@ import { ICell, ICellType } from '../types/cell';
 import { getSpecificWidget } from './instance';
 
 /**
- * Get the text from the current editor.
+ * Retrieves the text content from a given editor.
  *
  * @param {CodeEditor.IEditor} editor - The editor instance.
  * @returns {string} - The text data of the current cell.
  */
-export const getTextByEditor = (editor: CodeEditor.IEditor): string => {
+const extractTextFromEditor = (editor: CodeEditor.IEditor): string => {
   return editor.model.sharedModel.getSource();
 };
 
 /**
- * Splits a string into lines, accounting for escaped newlines.
+ * Divides a string by lines, considering escaped newlines.
  *
  * @param {string} input - The string to split.
  * @returns {string[]} - An array of split lines.
  */
-export const splitString = (input: string): string[] => {
+const divideStringByLines = (input: string): string[] => {
   // Split by newline, but ignore escaped newlines
   return input.split(/(?<!\\)\n/).map(part => part.replace('\\\\n', '\\n'));
 };
 
 /**
- * Gets the text from the current editor up to the current cursor position.
+ * Fetches the text from an editor up to the current cursor's location.
  *
  * @param {CodeEditor.IEditor} editor - The editor instance.
  * @returns {string[]} - An array of lines up to the cursor position.
  */
-const getTextBeforeCursor = (editor: CodeEditor.IEditor): string[] => {
+const fetchTextUpToCursor = (editor: CodeEditor.IEditor): string[] => {
   // Get the cursor position, e.g. {column: 2, line: 1}
   const position = editor.getCursorPosition();
-  const text = getTextByEditor(editor);
+  const text = extractTextFromEditor(editor);
   // Split by newline
-  const codeLines = splitString(text);
+  const codeLines = divideStringByLines(text);
 
   const codeLinesPositionBefore = [];
   // Iterate from the first cell to the position of the active cell
@@ -68,7 +68,7 @@ const getTextBeforeCursor = (editor: CodeEditor.IEditor): string[] => {
  * @param {Cell} cell - The cell from which to extract the output.
  * @returns {string} - The combined output text from the cell.
  */
-const getCellOutput = (cell: Cell): string => {
+const extractOutputFromCell = (cell: Cell): string => {
   if (!(cell instanceof CodeCell)) {
     return '';
   }
@@ -94,7 +94,14 @@ const getCellOutput = (cell: Cell): string => {
   }, '');
 };
 
-const getCellDetails = (cell: Cell, isActiveCell: boolean): ICell[] => {
+/**
+ * Gathers details about a cell: its type, content, and output.
+ *
+ * @param cell - The target cell.
+ * @param isCurrentlyActive - Whether the cell is the active one.
+ * @returns An array of cell details.
+ */
+const gatherCellDetails = (cell: Cell, isActiveCell: boolean): ICell[] => {
   const cellType: ICellType =
     cell instanceof CodeCell
       ? 'code'
@@ -107,17 +114,23 @@ const getCellDetails = (cell: Cell, isActiveCell: boolean): ICell[] => {
   const editor = cell.editor;
   if (editor) {
     const text = isActiveCell
-      ? getTextBeforeCursor(editor).join('\n')
-      : getTextByEditor(editor);
+      ? fetchTextUpToCursor(editor).join('\n')
+      : extractTextFromEditor(editor);
     results.push({ type: cellType, content: text });
   }
 
-  results.push({ type: 'output', content: getCellOutput(cell) });
+  results.push({ type: 'output', content: extractOutputFromCell(cell) });
 
   return results;
 };
 
-export const getNotebookContentCursor = (
+/**
+ * Fetches the content of the notebook up to the current cursor position.
+ *
+ * @param widget - The notebook panel widget.
+ * @returns An array of cell contents up to the cursor, or null.
+ */
+export const retrieveNotebookContentUntilCursor = (
   widget: NotebookPanel
 ): ICell[] | null => {
   const content = getSpecificWidget(widget);
@@ -129,7 +142,9 @@ export const getNotebookContentCursor = (
 
   const cellsUpToCursor = content.widgets
     .slice(0, activeCellIndex + 1)
-    .flatMap((cell, index) => getCellDetails(cell, index === activeCellIndex));
+    .flatMap((cell, index) =>
+      gatherCellDetails(cell, index === activeCellIndex)
+    );
 
   // Check if the last cell type is 'output' and remove it
   if (

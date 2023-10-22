@@ -13,10 +13,10 @@ import { buildBigcodeSidebar } from './widgets/bigcode-sidebar';
 import { SelectionWatcher } from './selection-watcher';
 import { ChatHandler } from './chat_handler';
 import { buildErrorWidget } from './widgets/chat-error';
-import { handleCodeCompletionKeyDown } from './keydown-handler';
+import { handleCodeCompletionKeyDown } from './inline-completion-handler';
 import { ICompletionProviderManager } from '@jupyterlab/completer';
 import { ITranslator, nullTranslator } from '@jupyterlab/translation';
-import { BigcodeInlineCompletionProvider } from './bigcodeInlineCompletionProvider';
+import { BigcodeInlineCompletionProvider } from './bigcode-Inline-completion-provider';
 
 export type DocumentTracker = IWidgetTracker<IDocumentWidget>;
 
