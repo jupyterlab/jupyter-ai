@@ -748,3 +748,32 @@ The `--region-name` parameter is set to the [AWS region code](https://docs.aws.a
 The `--request-schema` parameter is the JSON object the endpoint expects as input, with the prompt being substituted into any value that matches the string literal `"<prompt>"`. For example, the request schema `{"text_inputs":"<prompt>"}` will submit a JSON object with the prompt stored under the `text_inputs` key.
 
 The `--response-path` option is a [JSONPath](https://goessner.net/articles/JsonPath/index.html) string that retrieves the language model's output from the endpoint's JSON response. For example, if your endpoint returns an object with the schema `{"generated_texts":["<output>"]}`, its response path is `generated_texts.[0]`.
+
+
+## Configuration
+
+### Block-listing providers
+This configuration allows for blocking specific providers in the settings panel. This list takes precedence over the allowlist in the next section.
+
+```
+jupyter lab --Ai.blocked_providers=openai
+```
+
+To block more than one provider in the block-list, repeat the runtime configuration.
+
+```
+jupyter lab --Ai.blocked_providers=openai --Ai.blocked_providers=ai21
+```
+
+### Allow-listing providers
+This configuration allows for filtering the list of providers in the settings panel to only an allow-listed set of providers.
+
+```
+jupyter lab --Ai.allowed_providers=openai
+```
+
+To allow more than one provider in the allow-list, repeat the runtime configuration.
+
+```
+jupyter lab --Ai.allowed_providers=openai --Ai.allowed_providers=ai21
+```
