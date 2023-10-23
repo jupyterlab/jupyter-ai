@@ -78,6 +78,7 @@ export class BigcodeInlineCompletionProvider
         ''
       );
       if (this._lastRequestInfo.insertText.startsWith(newAddedCodeText)) {
+        this._finish = true;
         return {
           items: [
             {
