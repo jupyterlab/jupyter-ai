@@ -752,6 +752,8 @@ The `--response-path` option is a [JSONPath](https://goessner.net/articles/JsonP
 
 ## Configuration
 
+You can specify an allowlist, to only allow a certain list of providers, or a blocklist, to block some providers.
+
 ### Blocklisting providers
 This configuration allows for blocking specific providers in the settings panel. This list takes precedence over the allowlist in the next section.
 
