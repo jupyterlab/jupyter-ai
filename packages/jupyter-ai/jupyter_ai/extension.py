@@ -4,6 +4,7 @@ from dask.distributed import Client as DaskClient
 from jupyter_ai.chat_handlers.learn import Retriever
 from jupyter_ai_magics.utils import get_em_providers, get_lm_providers
 from jupyter_server.extension.application import ExtensionApp
+from traitlets import List, Unicode
 
 from .chat_handlers import (
     AskChatHandler,
@@ -36,11 +37,35 @@ class AiExtension(ExtensionApp):
         (r"api/ai/providers/embeddings?", EmbeddingsModelProviderHandler),
     ]
 
+    allowed_providers = List(
+        Unicode(),
+        default_value=None,
+        help="Identifiers of allow-listed providers. If `None`, all are allowed.",
+        allow_none=True,
+        config=True,
+    )
+
+    blocked_providers = List(
+        Unicode(),
+        default_value=None,
+        help="Identifiers of block-listed providers. If `None`, none are blocked.",
+        allow_none=True,
+        config=True,
+    )
+
     def initialize_settings(self):
         start = time.time()
+        restrictions = {
+            "allowed_providers": self.allowed_providers,
+            "blocked_providers": self.blocked_providers,
+        }
 
-        self.settings["lm_providers"] = get_lm_providers(log=self.log)
-        self.settings["em_providers"] = get_em_providers(log=self.log)
+        self.settings["lm_providers"] = get_lm_providers(
+            log=self.log, restrictions=restrictions
+        )
+        self.settings["em_providers"] = get_em_providers(
+            log=self.log, restrictions=restrictions
+        )
 
         self.settings["jai_config_manager"] = ConfigManager(
             # traitlets configuration, not JAI configuration.
@@ -48,6 +73,7 @@ class AiExtension(ExtensionApp):
             log=self.log,
             lm_providers=self.settings["lm_providers"],
             em_providers=self.settings["em_providers"],
+            restrictions=restrictions,
         )
 
         self.log.info("Registered providers.")
