@@ -1,5 +1,5 @@
 import logging
-from typing import Dict, Optional, Tuple, Type, Union
+from typing import Dict, List, Literal, Optional, Tuple, Type, Union
 
 from importlib_metadata import entry_points
 from jupyter_ai_magics.aliases import MODEL_ID_ALIASES
@@ -11,13 +11,19 @@ LmProvidersDict = Dict[str, BaseProvider]
 EmProvidersDict = Dict[str, BaseEmbeddingsProvider]
 AnyProvider = Union[BaseProvider, BaseEmbeddingsProvider]
 ProviderDict = Dict[str, AnyProvider]
+ProviderRestrictions = Dict[
+    Literal["allowed_providers", "blocked_providers"], Optional[List[str]]
+]
 
 
-def get_lm_providers(log: Optional[Logger] = None) -> LmProvidersDict:
+def get_lm_providers(
+    log: Optional[Logger] = None, restrictions: Optional[ProviderRestrictions] = None
+) -> LmProvidersDict:
     if not log:
         log = logging.getLogger()
         log.addHandler(logging.NullHandler())
-
+    if not restrictions:
+        restrictions = {"allowed_providers": None, "blocked_providers": None}
     providers = {}
     eps = entry_points()
     model_provider_eps = eps.select(group="jupyter_ai.model_providers")
@@ -29,6 +35,9 @@ def get_lm_providers(log: Optional[Logger] = None) -> LmProvidersDict:
                 f"Unable to load model provider class from entry point `{model_provider_ep.name}`."
             )
             continue
+        if not is_provider_allowed(provider.id, restrictions):
+            log.info(f"Skipping blocked provider `{provider.id}`.")
+            continue
         providers[provider.id] = provider
         log.info(f"Registered model provider `{provider.id}`.")
 
@@ -36,11 +45,13 @@ def get_lm_providers(log: Optional[Logger] = None) -> LmProvidersDict:
 
 
 def get_em_providers(
-    log: Optional[Logger] = None,
+    log: Optional[Logger] = None, restrictions: Optional[ProviderRestrictions] = None
 ) -> EmProvidersDict:
     if not log:
         log = logging.getLogger()
         log.addHandler(logging.NullHandler())
+    if not restrictions:
+        restrictions = {"allowed_providers": None, "blocked_providers": None}
     providers = {}
     eps = entry_points()
     model_provider_eps = eps.select(group="jupyter_ai.embeddings_model_providers")
@@ -51,6 +62,9 @@ def get_em_providers(
             log.error(
                 f"Unable to load embeddings model provider class from entry point `{model_provider_ep.name}`."
             )
+            continue
+        if not is_provider_allowed(provider.id, restrictions):
+            log.info(f"Skipping blocked provider `{provider.id}`.")
             continue
         providers[provider.id] = provider
         log.info(f"Registered embeddings model provider `{provider.id}`.")
@@ -95,6 +109,16 @@ def get_em_provider(
     """Gets a two-tuple (<local-model-id>, <provider-class>) specified by a
     global model ID."""
     return _get_provider(model_id, em_providers)
+
+
+def is_provider_allowed(provider_id: str, restrictions: ProviderRestrictions) -> bool:
+    allowed = restrictions["allowed_providers"]
+    blocked = restrictions["blocked_providers"]
+    if blocked and provider_id in blocked:
+        return False
+    if allowed and provider_id not in allowed:
+        return False
+    return True
 
 
 def _get_provider(model_id: str, providers: ProviderDict):
