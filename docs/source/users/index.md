@@ -752,7 +752,7 @@ The `--response-path` option is a [JSONPath](https://goessner.net/articles/JsonP
 
 ## Configuration
 
-### Block-listing providers
+### Blocklisting providers
 This configuration allows for blocking specific providers in the settings panel. This list takes precedence over the allowlist in the next section.
 
 ```
@@ -765,14 +765,14 @@ To block more than one provider in the block-list, repeat the runtime configurat
 jupyter lab --Ai.blocked_providers=openai --Ai.blocked_providers=ai21
 ```
 
-### Allow-listing providers
-This configuration allows for filtering the list of providers in the settings panel to only an allow-listed set of providers.
+### Allowlisting providers
+This configuration allows for filtering the list of providers in the settings panel to only an allowlisted set of providers.
 
 ```
 jupyter lab --Ai.allowed_providers=openai
 ```
 
-To allow more than one provider in the allow-list, repeat the runtime configuration.
+To allow more than one provider in the allowlist, repeat the runtime configuration.
 
 ```
 jupyter lab --Ai.allowed_providers=openai --Ai.allowed_providers=ai21
