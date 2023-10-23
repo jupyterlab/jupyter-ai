@@ -91,7 +91,7 @@ export class BigcodeInlineCompletionProvider
           ]
         };
       } else {
-        this.setRequestFinish(false);
+        this.setRequestFinish(true);
         return {
           items: []
         };
@@ -152,9 +152,9 @@ export class BigcodeInlineCompletionProvider
     const delay = (ms: number) =>
       new Promise(resolve => setTimeout(resolve, ms));
     const testResultText =
-      'print("Hello World")\nhello_world()\n    print("Hello World")\nhello_world()\n    print("Hello World")\nhello_world()\n    print("Hello World")\nhello_world()';
+      '_world():\n    print("Hello World!")\nhello_world()';
     this._requesting = true;
-    for (let i = 1; i < testResultText.length - 1; i++) {
+    for (let i = 1; i <= testResultText.length; i++) {
       await delay(25);
 
       if (this._stop) {
