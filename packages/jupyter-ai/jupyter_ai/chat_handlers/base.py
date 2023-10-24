@@ -20,10 +20,10 @@ class BaseChatHandler(Configurable):
     multiple chat handler classes."""
 
     # Class attributes
-    id: ClassVar[str] = "base"
+    id: ClassVar[str] = ...
     """ID for this chat handler; should be unique"""
 
-    name: ClassVar[str] = "Base Chat Handler"  # TODO: make NotImplemented
+    name: ClassVar[str] = ...
     """User-facing name of this handler"""
 
     description: ClassVar[Optional[str]]
@@ -32,15 +32,13 @@ class BaseChatHandler(Configurable):
     optimized for model interpretation, not human-facing help.
     Not necessary when the routing method is "slash_command"."""
 
-    # TODO: make NotImplemented
-    help: ClassVar[
-        str
-    ] = "This is used when the message in the chat interface is not a command"
+    help: ClassVar[str] = ...
     """What this chat handler does, which third-party models it contacts,
     the format of the data it returns to the user, etc. Used in the UI."""
 
-    # TODO: make NotImplemented
-    routing_method: ClassVar[str] = "slash_command"
+    routing_method: ClassVar[str] = ...
+    """The routing method that sends commands to this handler.
+    Either "natural_language" or "slash_command"."""
 
     slash_id: ClassVar[Optional[str]]
     """Slash ID for routing a chat command to this handler. Only one handler

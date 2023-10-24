@@ -160,7 +160,6 @@ class AiExtension(ExtensionApp):
 
         eps = entry_points()
         # initialize chat handlers
-        self.log.info("Found entry point groups " + ", ".join(sorted(eps.groups)))
         chat_handler_eps = eps.select(group="jupyter_ai.chat_handlers")
 
         chat_handler_kwargs = {
@@ -211,14 +210,9 @@ class AiExtension(ExtensionApp):
             # Slash IDs may contain only alphanumerics and underscores.
             slash_id = chat_handler.slash_id
 
-            if slash_id:
-                # TODO: Validate slash ID (/^[A-Za-z0-9_]+$/)
-                command_name = f"/{slash_id}"
-            else:
-                command_name = "default"
-            self.log.info(
-                f"Trying to register chat handler `{chat_handler.id}` with command `{command_name}`"
-            )
+            # TODO: Validate slash ID (/^[A-Za-z0-9_]+$/)
+            # The "default" handler above takes precedence over any "default" command here
+            command_name = f"/{chat_handler.slash_id}" if chat_handler.slash_id else "default"
 
             if command_name in jai_chat_handlers:
                 self.log.error(
@@ -233,8 +227,6 @@ class AiExtension(ExtensionApp):
 
         self.settings["jai_chat_handlers"] = jai_chat_handlers
 
-        retriever = Retriever(learn_chat_handler=learn_chat_handler)
-        ask_chat_handler = AskChatHandler(**chat_handler_kwargs, retriever=retriever)
         latency_ms = round((time.time() - start) * 1000)
         self.log.info(f"Initialized Jupyter AI server extension in {latency_ms} ms.")
 
