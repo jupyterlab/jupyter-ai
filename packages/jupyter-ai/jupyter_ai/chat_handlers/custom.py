@@ -8,6 +8,7 @@ from .base import BaseChatHandler
 
 CUSTOM_MESSAGE = "This handler displays a custom message in response to any prompt."
 
+
 def CustomMessage():
     return AgentChatMessage(
         id=uuid4().hex,
@@ -16,9 +17,12 @@ def CustomMessage():
         reply_to="",
     )
 
+
 """
 This is a sample custom chat handler class to demonstrate entry points.
 """
+
+
 class CustomChatHandler(BaseChatHandler):
     id = "custom"
     name = "Custom"

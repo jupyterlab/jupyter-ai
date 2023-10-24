@@ -33,7 +33,9 @@ class BaseChatHandler(Configurable):
     Not necessary when the routing method is "slash_command"."""
 
     # TODO: make NotImplemented
-    help: ClassVar[str] = "This is used when the message in the chat interface is not a command"
+    help: ClassVar[
+        str
+    ] = "This is used when the message in the chat interface is not a command"
     """What this chat handler does, which third-party models it contacts,
     the format of the data it returns to the user, etc. Used in the UI."""
 
