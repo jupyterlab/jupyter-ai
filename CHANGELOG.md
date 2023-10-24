@@ -2,6 +2,24 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 1.4.0
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@1.3.0...52c9339d332749b58bc87528801537ad77705e6f))
+
+See [v2.4.0](https://github.com/jupyterlab/jupyter-ai/releases/tag/v2.4.0) release notes for details on all changes in this release.
+
+### Maintenance and upkeep improvements
+
+- Backport PRs 344, 407, 415 [#417](https://github.com/jupyterlab/jupyter-ai/pull/417) ([@3coins](https://github.com/3coins))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2023-10-09&to=2023-10-24&type=c))
+
+[@3coins](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3A3coins+updated%3A2023-10-09..2023-10-24&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 1.3.0
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@1.2.0...f95f0b8b6573d6caab4158b134ba731efdb058be))
@@ -30,8 +48,6 @@ This is a backport of v2.3.0 to 1.x. Please see the v2.3.0 changelog for a more 
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2023-09-05&to=2023-10-09&type=c))
 
 [@3coins](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3A3coins+updated%3A2023-09-05..2023-10-09&type=Issues) | [@andrii-i](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aandrii-i+updated%3A2023-09-05..2023-10-09&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2023-09-05..2023-10-09&type=Issues) | [@JasonWeill](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AJasonWeill+updated%3A2023-09-05..2023-10-09&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2023-09-05..2023-10-09&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 1.2.0
 
