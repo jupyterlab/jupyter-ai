@@ -3,7 +3,7 @@ import time
 import traceback
 
 # necessary to prevent circular import
-from typing import TYPE_CHECKING, Any, Dict, Optional, Type
+from typing import TYPE_CHECKING, ClassVar, Dict, Optional, Type
 from uuid import uuid4
 
 from jupyter_ai.config_manager import ConfigManager, Logger
@@ -20,27 +20,30 @@ class BaseChatHandler(Configurable):
     multiple chat handler classes."""
 
     # Class attributes
-    id: str = "base-chat-handler"
+    id: ClassVar[str] = "base"
     """ID for this chat handler; should be unique"""
 
-    name: str = "Base Chat Handler"  # TODO: make NotImplemented
+    name: ClassVar[str] = "Base Chat Handler"  # TODO: make NotImplemented
     """User-facing name of this handler"""
 
-    description: str = (
-        "Handler for messages that are not commands"  # TODO: make NotImplemented
-    )
+    description: ClassVar[Optional[str]]
     """Description used for routing requests, to be used when dispatching
-    messages to model providers. Also shown in the UI."""
+    messages to model providers. Also shown in the UI for transparency;
+    optimized for model interpretation, not human-facing help.
+    Not necessary when the routing method is "slash_command"."""
 
     # TODO: make NotImplemented
-    help: str = "This is used when the message in the chat interface is not a command"
+    help: ClassVar[str] = "This is used when the message in the chat interface is not a command"
     """What this chat handler does, which third-party models it contacts,
     the format of the data it returns to the user, etc. Used in the UI."""
 
-    slash_id: Optional[str]
+    # TODO: make NotImplemented
+    routing_method: ClassVar[str] = "slash_command"
+
+    slash_id: ClassVar[Optional[str]]
     """Slash ID for routing a chat command to this handler. Only one handler
     may declare a particular slash ID. Must contain only alphanumerics and
-    underscores."""
+    underscores. Must not be specified if routing method is "natural_language"."""
 
     def __init__(
         self,

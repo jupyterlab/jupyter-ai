@@ -29,10 +29,10 @@ def HelpMessage():
 
 
 class HelpChatHandler(BaseChatHandler):
-    id = "help-chat-handler"
+    id = "help"
     name = "Help"
-    description = "Displays information about available commands"
     help = "Displays a help message in the chat message area"
+    routing_method = "slash_command"
     slash_id = "help"
 
     def __init__(self, *args, **kwargs):

@@ -26,10 +26,10 @@ class AskChatHandler(BaseChatHandler):
     to the LLM to generate the final reply.
     """
 
-    id = "ask-chat-handler"
+    id = "ask"
     name = "Ask with Local Data"
-    description = "Ask a question augmented with learned data"
     help = "Asks a question with retrieval augmented generation (RAG)"
+    routing_method = "slash_command"
     slash_id = "ask"
 
     def __init__(self, retriever, *args, **kwargs):

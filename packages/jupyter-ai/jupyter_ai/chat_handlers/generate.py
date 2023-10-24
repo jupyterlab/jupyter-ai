@@ -216,10 +216,10 @@ def create_notebook(outline):
 
 
 class GenerateChatHandler(BaseChatHandler):
-    id = "generate-chat-handler"
+    id = "generate"
     name = "Generate Notebook"
-    description = "Generates a Jupyter notebook given a description"
     help = "Generates a Jupyter notebook, including name, outline, and section contents"
+    routing_method = "slash_command"
     slash_id = "generate"
 
     def __init__(self, root_dir: str, *args, **kwargs):

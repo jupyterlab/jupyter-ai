@@ -31,10 +31,10 @@ METADATA_SAVE_PATH = os.path.join(INDEX_SAVE_DIR, "metadata.json")
 
 
 class LearnChatHandler(BaseChatHandler):
-    id = "learn-chat-handler"
+    id = "learn"
     name = "Learn Local Data"
-    description = "Embed a list of files and directories for use with /ask"
     help = "Pass a list of files and directories. Once converted to vector format, you can ask about them with /ask."
+    routing_method = "slash_command"
     slash_id = "learn"
 
     def __init__(

@@ -42,7 +42,7 @@ class AiExtension(ExtensionApp):
     allowed_providers = List(
         Unicode(),
         default_value=None,
-        help="Identifiers of allow-listed providers. If `None`, all are allowed.",
+        help="Identifiers of allowlisted providers. If `None`, all are allowed.",
         allow_none=True,
         config=True,
     )
@@ -50,7 +50,7 @@ class AiExtension(ExtensionApp):
     blocked_providers = List(
         Unicode(),
         default_value=None,
-        help="Identifiers of block-listed providers. If `None`, none are blocked.",
+        help="Identifiers of blocklisted providers. If `None`, none are blocked.",
         allow_none=True,
         config=True,
     )
@@ -163,19 +163,38 @@ class AiExtension(ExtensionApp):
         self.log.info("Found entry point groups " + ", ".join(sorted(eps.groups)))
         chat_handler_eps = eps.select(group="jupyter_ai.chat_handlers")
 
-        jai_chat_handlers = {}
-
         chat_handler_kwargs = {
             "log": self.log,
             "config_manager": self.settings["jai_config_manager"],
             "root_chat_handlers": self.settings["jai_root_chat_handlers"],
-            # Everything below this line is the union of all arguments used to
-            # instantiate chat handlers.
-            "chat_history": self.settings["chat_history"],
-            "root_dir": self.serverapp.root_dir,
-            "dask_client_future": dask_client_future,
-            # TODO: Set ask_chat_handler based on a retriever related to the learn_chat_handler
-            "retriever": None,
+        }
+
+        default_chat_handler = DefaultChatHandler(
+            **chat_handler_kwargs, chat_history=self.settings["chat_history"]
+        )
+        clear_chat_handler = ClearChatHandler(
+            **chat_handler_kwargs, chat_history=self.settings["chat_history"]
+        )
+        generate_chat_handler = GenerateChatHandler(
+            **chat_handler_kwargs,
+            root_dir=self.serverapp.root_dir,
+        )
+        learn_chat_handler = LearnChatHandler(
+            **chat_handler_kwargs,
+            root_dir=self.serverapp.root_dir,
+            dask_client_future=dask_client_future,
+        )
+        help_chat_handler = HelpChatHandler(**chat_handler_kwargs)
+        retriever = Retriever(learn_chat_handler=learn_chat_handler)
+        ask_chat_handler = AskChatHandler(**chat_handler_kwargs, retriever=retriever)
+
+        jai_chat_handlers = {
+            "default": default_chat_handler,
+            "/ask": ask_chat_handler,
+            "/clear": clear_chat_handler,
+            "/generate": generate_chat_handler,
+            "/learn": learn_chat_handler,
+            "/help": help_chat_handler,
         }
 
         for chat_handler_ep in chat_handler_eps:
@@ -214,32 +233,8 @@ class AiExtension(ExtensionApp):
 
         self.settings["jai_chat_handlers"] = jai_chat_handlers
 
-        chat_handler_kwargs = {
-            "log": self.log,
-            "config_manager": self.settings["jai_config_manager"],
-            "root_chat_handlers": self.settings["jai_root_chat_handlers"],
-            "model_parameters": self.settings["model_parameters"],
-        }
-        default_chat_handler = DefaultChatHandler(
-            **chat_handler_kwargs, chat_history=self.settings["chat_history"]
-        )
-        clear_chat_handler = ClearChatHandler(
-            **chat_handler_kwargs, chat_history=self.settings["chat_history"]
-        )
-        generate_chat_handler = GenerateChatHandler(
-            **chat_handler_kwargs,
-            root_dir=self.serverapp.root_dir,
-        )
-        learn_chat_handler = LearnChatHandler(
-            **chat_handler_kwargs,
-            root_dir=self.serverapp.root_dir,
-            dask_client_future=dask_client_future,
-        )
-        help_chat_handler = HelpChatHandler(**chat_handler_kwargs)
-        """
         retriever = Retriever(learn_chat_handler=learn_chat_handler)
         ask_chat_handler = AskChatHandler(**chat_handler_kwargs, retriever=retriever)
-        """
         latency_ms = round((time.time() - start) * 1000)
         self.log.info(f"Initialized Jupyter AI server extension in {latency_ms} ms.")
 
