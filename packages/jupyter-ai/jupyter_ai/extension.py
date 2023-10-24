@@ -212,7 +212,9 @@ class AiExtension(ExtensionApp):
 
             # TODO: Validate slash ID (/^[A-Za-z0-9_]+$/)
             # The "default" handler above takes precedence over any "default" command here
-            command_name = f"/{chat_handler.slash_id}" if chat_handler.slash_id else "default"
+            command_name = (
+                f"/{chat_handler.slash_id}" if chat_handler.slash_id else "default"
+            )
 
             if command_name in jai_chat_handlers:
                 self.log.error(
