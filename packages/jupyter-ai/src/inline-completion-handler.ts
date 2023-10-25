@@ -100,14 +100,11 @@ const generateKeyDownExtension = (
 
             if (currentWidget) {
               completionManager.inline?.accept(app.shell.currentWidget?.id);
-              // app.commands.execute('inline-completer:accept');
-              bigcodeInlineCompletionProvider.accept();
+              bigcodeInlineCompletionProvider.clearState();
+
               console.debug(
                 'keyboard press: codeCompletion accept function is Running'
               );
-              // setTimeout(() => {
-              //   void providerInvoke();
-              // }, 800);
               return true;
             }
           }

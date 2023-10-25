@@ -1,7 +1,6 @@
 import {
   CompletionHandler,
   HistoryInlineCompletionProvider,
-  // ICompletionContext,
   IInlineCompletionContext,
   IInlineCompletionItem,
   IInlineCompletionList,
@@ -10,7 +9,8 @@ import {
 import { NotebookPanel } from '@jupyterlab/notebook';
 import { nullTranslator, TranslationBundle } from '@jupyterlab/translation';
 import { retrieveNotebookContentUntilCursor } from './utils/cell-context';
-import BigcodeInstance from './utils/bigcode-request';
+
+import bigcodeRequestInstance from './utils/bigcode-request';
 import CodeCompletionContextStore from './contexts/code-completion-context-store';
 
 // type BigCodeStream = {
@@ -30,17 +30,17 @@ export class BigcodeInlineCompletionProvider
   readonly identifier = '@jupyterlab/inline-completer:bigcode';
   private _trans: TranslationBundle;
   private _lastRequestInfo: {
-    prompt: string;
     insertText: string;
     cellCode: string;
   } = {
-    prompt: '',
     insertText: '',
     cellCode: ''
   };
   private _requesting = false;
-  private _stop = false;
+  private _streamStop = false;
   private _finish = false;
+  private _timeoutId: number | null = null;
+  private _callCounter = 0;
 
   get finish(): boolean {
     return this._finish;
@@ -59,67 +59,62 @@ export class BigcodeInlineCompletionProvider
     return this._trans.__('Bigcode');
   }
 
-  async fetch(
-    request: CompletionHandler.IRequest,
-    context: IInlineCompletionContext
-  ): Promise<IInlineCompletionList<IInlineCompletionItem>> {
-    console.debug('context.triggerKind', context.triggerKind);
-    if (!CodeCompletionContextStore.enableCodeCompletion) {
-      return { items: [] };
+  shouldClearStateAndPerformAutoRequest(addedString: string): {
+    shouldClearState: boolean;
+    shouldAutoRequest: boolean;
+  } {
+    if (this._lastRequestInfo.cellCode === '') {
+      return { shouldClearState: false, shouldAutoRequest: true };
     }
 
-    if (context.triggerKind !== 0) {
-      console.debug('this._requesting && context.triggerKind === 0');
-      this._stop = true;
-      const lastRoundCellCodeText = this._lastRequestInfo.cellCode;
-      const currentRoundCellCodeText = request.text;
-      const newAddedCodeText = currentRoundCellCodeText.replace(
-        lastRoundCellCodeText,
-        ''
-      );
-      if (this._lastRequestInfo.insertText.startsWith(newAddedCodeText)) {
-        this._finish = true;
-        return {
-          items: [
-            {
-              token: this._lastRequestInfo.prompt,
-              isIncomplete: false,
-              insertText: this._lastRequestInfo.insertText.replace(
-                newAddedCodeText,
-                ''
-              )
-            }
-          ]
-        };
-      } else {
-        this.setRequestFinish(true);
-        return {
-          items: []
-        };
-      }
+    if (addedString.length <= 5) {
+      return { shouldClearState: false, shouldAutoRequest: false };
     }
 
-    if (!CodeCompletionContextStore.accessToken) {
-      alert('Huggingface Access Token not set.');
-      return { items: [] };
+    const previousInsertText = this._lastRequestInfo.insertText;
+
+    let diffPosition = 0;
+    while (
+      diffPosition < addedString.length &&
+      previousInsertText[diffPosition] === addedString[diffPosition]
+    ) {
+      diffPosition++;
     }
 
-    const items: IInlineCompletionItem[] = [];
+    const shouldClearState =
+      previousInsertText.length - diffPosition >=
+      addedString.length - diffPosition + 4;
+
+    return {
+      shouldClearState: shouldClearState,
+      shouldAutoRequest: shouldClearState
+    };
+  }
+
+  constructContinuationPrompt(context: IInlineCompletionContext): string {
     if (context.widget instanceof NotebookPanel) {
       const widget = context.widget as NotebookPanel;
       const notebookCellContent = retrieveNotebookContentUntilCursor(widget);
-      BigcodeInstance.constructContinuationPrompt(notebookCellContent);
-      const prompt = BigcodeInstance.prompt;
-      if (!prompt) {
-        return {
-          items: []
-        };
-      }
+
+      bigcodeRequestInstance.constructContinuationPrompt(notebookCellContent);
+      return bigcodeRequestInstance.prompt;
+    }
+
+    return '';
+  }
+
+  async shortCutHandler(
+    request: CompletionHandler.IRequest,
+    context: IInlineCompletionContext
+  ): Promise<IInlineCompletionList<IInlineCompletionItem>> {
+    const items: IInlineCompletionItem[] = [];
+    const prompt = this.constructContinuationPrompt(context);
+
+    if (prompt) {
       this.setRequestFinish(true);
       this._lastRequestInfo = {
-        prompt,
         insertText: '',
-        cellCode: request.text
+        cellCode: request.text.slice(0, request.offset)
       };
       items.push({
         token: prompt,
@@ -127,43 +122,163 @@ export class BigcodeInlineCompletionProvider
         insertText: ''
       });
     }
+
     return { items };
+  }
+
+  async autoCompletionHandler(
+    request: CompletionHandler.IRequest,
+    context: IInlineCompletionContext
+  ): Promise<IInlineCompletionList<IInlineCompletionItem>> {
+    console.debug('autoCompletionHandler');
+    this._streamStop = true;
+
+    const lastRoundCellCodeText = this._lastRequestInfo.cellCode;
+    const currentRoundCellCodeText = request.text.slice(0, request.offset);
+
+    const newAddedCodeText = currentRoundCellCodeText.replace(
+      lastRoundCellCodeText,
+      ''
+    );
+
+    const items: IInlineCompletionItem[] = [];
+    if (this._lastRequestInfo.insertText.startsWith(newAddedCodeText)) {
+      items.push({
+        isIncomplete: false,
+        insertText: this._lastRequestInfo.insertText.replace(
+          newAddedCodeText,
+          ''
+        )
+      });
+      return { items };
+    } else {
+      const { shouldClearState, shouldAutoRequest } =
+        this.shouldClearStateAndPerformAutoRequest(newAddedCodeText);
+
+      if (shouldClearState) {
+        this.clearState();
+      }
+
+      if (shouldAutoRequest) {
+        const prompt = this.constructContinuationPrompt(context);
+        if (!prompt) {
+          return { items: [] };
+        }
+
+        const result = await this.simulateSingleRequest(prompt);
+
+        if (result === '<debounce>') {
+          return { items: [] };
+        } else {
+          this._lastRequestInfo = {
+            insertText: result,
+            cellCode: currentRoundCellCodeText
+          };
+
+          this.setRequestFinish(false);
+
+          return {
+            items: [
+              {
+                isIncomplete: false,
+                insertText: result
+              }
+            ]
+          };
+        }
+      }
+    }
+
+    this._requesting = false;
+    return { items };
+  }
+
+  async fetch(
+    request: CompletionHandler.IRequest,
+    context: IInlineCompletionContext
+  ): Promise<IInlineCompletionList<IInlineCompletionItem>> {
+    if (!CodeCompletionContextStore.enableCodeCompletion) {
+      return { items: [] };
+    }
+
+    if (!CodeCompletionContextStore.accessToken) {
+      alert('Huggingface Access Token not set.');
+      return { items: [] };
+    }
+
+    if (context.triggerKind === 1) {
+      return await this.autoCompletionHandler(request, context);
+    }
+
+    if (context.triggerKind === 0) {
+      return await this.shortCutHandler(request, context);
+    }
+
+    return { items: [] };
   }
 
   setRequestFinish(error: boolean): void {
     this._requesting = false;
-    this._stop = false;
+    this._streamStop = false;
     this._finish = !error;
   }
 
-  accept(): void {
-    this._stop = true;
+  clearState(): void {
+    this._streamStop = true;
     this._finish = false;
     this._requesting = false;
     this._lastRequestInfo = {
-      prompt: '',
       insertText: '',
       cellCode: ''
     };
   }
 
+  delay = async (ms: number): Promise<void> =>
+    new Promise(resolve => setTimeout(resolve, ms));
+
+  simulateSingleRequest(prompt: string): Promise<string> {
+    this._callCounter++;
+
+    if (this._requesting) {
+      return Promise.resolve('<debounce>');
+    }
+
+    if (this._timeoutId) {
+      clearTimeout(this._timeoutId);
+      this._timeoutId = null;
+    }
+
+    const currentCallCount = this._callCounter;
+
+    return new Promise(resolve => {
+      this._timeoutId = setTimeout(() => {
+        if (this._callCounter === currentCallCount && !this._requesting) {
+          this._callCounter = 0;
+          this._requesting = true;
+          resolve('"""This is the result of a simulated automatic request"""');
+          this._timeoutId = null;
+        } else {
+          resolve('<debounce>');
+        }
+      }, 2000);
+    });
+  }
+
   async *stream(
     token: string
   ): AsyncGenerator<{ response: IInlineCompletionItem }, undefined, unknown> {
-    const delay = (ms: number) =>
-      new Promise(resolve => setTimeout(resolve, ms));
     const testResultText =
       '_world():\n    print("Hello World!")\nhello_world()';
     this._requesting = true;
     for (let i = 1; i <= testResultText.length; i++) {
-      await delay(25);
+      await this.delay(25);
 
-      if (this._stop) {
-        console.debug('_stop');
+      if (this._streamStop) {
+        console.debug('_streamStop');
         this.setRequestFinish(false);
+
         yield {
           response: {
-            token,
             isIncomplete: false,
             insertText: this._lastRequestInfo.insertText
           }
@@ -176,7 +291,6 @@ export class BigcodeInlineCompletionProvider
 
       yield {
         response: {
-          token,
           isIncomplete: i !== testResultText.length - 1,
           insertText: this._lastRequestInfo.insertText
         }
@@ -216,7 +330,7 @@ export class BigcodeInlineCompletionProvider
   //   while (true) {
   //     const { value, done } = await reader.read();
 
-  //     if (done || this._stop) {
+  //     if (done || this._streamStop) {
   //       this.setRequestFinish(false);
   //       break;
   //     }
