@@ -1,21 +1,8 @@
-import time
-from typing import List
-from uuid import uuid4
-
-from jupyter_ai.models import AgentChatMessage, HumanChatMessage
+from jupyter_ai.models import HumanChatMessage
 
 from .base import BaseChatHandler
 
 CUSTOM_MESSAGE = "This handler displays a custom message in response to any prompt."
-
-
-def CustomMessage():
-    return AgentChatMessage(
-        id=uuid4().hex,
-        time=time.time(),
-        body=CUSTOM_MESSAGE,
-        reply_to="",
-    )
 
 
 """
