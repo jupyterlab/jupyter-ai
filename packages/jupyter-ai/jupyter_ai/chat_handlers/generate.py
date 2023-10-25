@@ -222,9 +222,8 @@ class GenerateChatHandler(BaseChatHandler):
     routing_method = "slash_command"
     slash_id = "generate"
 
-    def __init__(self, root_dir: str, *args, **kwargs):
+    def __init__(self,  *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.root_dir = os.path.abspath(os.path.expanduser(root_dir))
         self.llm = None
 
     def create_llm_chain(

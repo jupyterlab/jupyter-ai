@@ -32,10 +32,9 @@ AI:"""
 
 
 class DefaultChatHandler(BaseChatHandler):
-    def __init__(self, chat_history: List[ChatMessage], *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.memory = ConversationBufferWindowMemory(return_messages=True, k=2)
-        self.chat_history = chat_history
 
     def create_llm_chain(
         self, provider: Type[BaseProvider], provider_params: Dict[str, str]
@@ -80,8 +79,8 @@ class DefaultChatHandler(BaseChatHandler):
         self.reply(reply_message)
 
         # clear transcript for new chat clients
-        if self.chat_history:
-            self.chat_history.clear()
+        if self._chat_history:
+            self._chat_history.clear()
 
     async def process_message(self, message: HumanChatMessage):
         self.get_llm_chain()

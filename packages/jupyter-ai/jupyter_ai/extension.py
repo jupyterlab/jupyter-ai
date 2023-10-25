@@ -167,23 +167,15 @@ class AiExtension(ExtensionApp):
             "log": self.log,
             "config_manager": self.settings["jai_config_manager"],
             "root_chat_handlers": self.settings["jai_root_chat_handlers"],
+            "chat_history": self.settings["chat_history"],
+            "root_dir": self.serverapp.root_dir,
+            "dask_client_future": dask_client_future,
         }
 
-        default_chat_handler = DefaultChatHandler(
-            **chat_handler_kwargs, chat_history=self.settings["chat_history"]
-        )
-        clear_chat_handler = ClearChatHandler(
-            **chat_handler_kwargs, chat_history=self.settings["chat_history"]
-        )
-        generate_chat_handler = GenerateChatHandler(
-            **chat_handler_kwargs,
-            root_dir=self.serverapp.root_dir,
-        )
-        learn_chat_handler = LearnChatHandler(
-            **chat_handler_kwargs,
-            root_dir=self.serverapp.root_dir,
-            dask_client_future=dask_client_future,
-        )
+        default_chat_handler = DefaultChatHandler(**chat_handler_kwargs)
+        clear_chat_handler = ClearChatHandler(**chat_handler_kwargs)
+        generate_chat_handler = GenerateChatHandler(**chat_handler_kwargs)
+        learn_chat_handler = LearnChatHandler(**chat_handler_kwargs)
         help_chat_handler = HelpChatHandler(**chat_handler_kwargs)
         retriever = Retriever(learn_chat_handler=learn_chat_handler)
         ask_chat_handler = AskChatHandler(**chat_handler_kwargs, retriever=retriever)

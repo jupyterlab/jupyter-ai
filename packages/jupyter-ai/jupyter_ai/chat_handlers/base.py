@@ -1,13 +1,15 @@
 import argparse
+import os
 import time
 import traceback
 
 # necessary to prevent circular import
-from typing import TYPE_CHECKING, ClassVar, Dict, Optional, Type
+from typing import TYPE_CHECKING, Awaitable, ClassVar, Dict, List, Optional, Type
 from uuid import uuid4
 
+from dask.distributed import Client as DaskClient
 from jupyter_ai.config_manager import ConfigManager, Logger
-from jupyter_ai.models import AgentChatMessage, HumanChatMessage
+from jupyter_ai.models import AgentChatMessage, ChatMessage, HumanChatMessage
 from jupyter_ai_magics.providers import BaseProvider
 from traitlets.config import Configurable
 
@@ -51,12 +53,18 @@ class BaseChatHandler(Configurable):
         config_manager: ConfigManager,
         root_chat_handlers: Dict[str, "RootChatHandler"],
         model_parameters: Dict[str, Dict],
+        chat_history: List[ChatMessage],
+        root_dir: str,
+        dask_client_future: Awaitable[DaskClient],
     ):
         self.log = log
         self.config_manager = config_manager
         self._root_chat_handlers = root_chat_handlers
         self.model_parameters = model_parameters
+        self._chat_history = chat_history
         self.parser = argparse.ArgumentParser()
+        self.root_dir = os.path.abspath(os.path.expanduser(root_dir))
+        self.dask_client_future = dask_client_future
         self.llm = None
         self.llm_params = None
         self.llm_chain = None

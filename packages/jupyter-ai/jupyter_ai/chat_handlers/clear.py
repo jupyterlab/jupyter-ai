@@ -12,9 +12,8 @@ class ClearChatHandler(BaseChatHandler):
     routing_method = "slash_command"
     slash_id = "clear"
 
-    def __init__(self, chat_history: List[ChatMessage], *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._chat_history = chat_history
 
     async def process_message(self, _):
         self._chat_history.clear()

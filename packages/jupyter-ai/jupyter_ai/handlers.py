@@ -168,7 +168,7 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
 
     def broadcast_message(self, message: Message):
         """Broadcasts message to all connected clients.
-        Appends message to `self.chat_history`.
+        Appends message to chat history.
         """
 
         self.log.debug("Broadcasting message: %s to all clients...", message)

@@ -37,12 +37,8 @@ class LearnChatHandler(BaseChatHandler):
     routing_method = "slash_command"
     slash_id = "learn"
 
-    def __init__(
-        self, root_dir: str, dask_client_future: Awaitable[DaskClient], *args, **kwargs
-    ):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.root_dir = root_dir
-        self.dask_client_future = dask_client_future
         self.parser.prog = "/learn"
         self.parser.add_argument("-a", "--all-files", action="store_true")
         self.parser.add_argument("-v", "--verbose", action="store_true")
