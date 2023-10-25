@@ -1,4 +1,5 @@
 import logging
+import re
 import time
 
 from dask.distributed import Client as DaskClient
@@ -196,6 +197,7 @@ class AiExtension(ExtensionApp):
             "/help": help_chat_handler,
         }
 
+        slash_command_pattern = r'^[a-zA-Z0-9_]+$'
         for chat_handler_ep in chat_handler_eps:
             try:
                 chat_handler = chat_handler_ep.load()
@@ -210,11 +212,21 @@ class AiExtension(ExtensionApp):
             # Slash IDs may contain only alphanumerics and underscores.
             slash_id = chat_handler.slash_id
 
-            # TODO: Validate slash ID (/^[A-Za-z0-9_]+$/)
-            # The "default" handler above takes precedence over any "default" command here
-            command_name = (
-                f"/{chat_handler.slash_id}" if chat_handler.slash_id else "default"
-            )
+            if chat_handler.routing_method == 'slash_command':
+                if chat_handler.slash_id:
+                    # Validate slash ID (/^[A-Za-z0-9_]+$/)
+                    if re.match(slash_command_pattern, chat_handler.slash_id):
+                        command_name = f"/{chat_handler.slash_id}"
+                    else:
+                        self.log.error(
+                            f"Handler `{chat_handler_ep.name}` has an invalid slash command "
+                            + f"`{chat_handler.slash_id}`; must contain only letters, numbers, "
+                            + "and underscores"
+                        )
+                        continue
+                else:  # No slash ID provided; assume default
+                    # The "default" handler above takes precedence over any "default" command here
+                    command_name = "default"
 
             if command_name in jai_chat_handlers:
                 self.log.error(
