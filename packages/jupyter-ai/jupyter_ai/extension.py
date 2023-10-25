@@ -197,7 +197,7 @@ class AiExtension(ExtensionApp):
             "/help": help_chat_handler,
         }
 
-        slash_command_pattern = r'^[a-zA-Z0-9_]+$'
+        slash_command_pattern = r"^[a-zA-Z0-9_]+$"
         for chat_handler_ep in chat_handler_eps:
             try:
                 chat_handler = chat_handler_ep.load()
@@ -212,7 +212,7 @@ class AiExtension(ExtensionApp):
             # Slash IDs may contain only alphanumerics and underscores.
             slash_id = chat_handler.slash_id
 
-            if chat_handler.routing_method == 'slash_command':
+            if chat_handler.routing_method == "slash_command":
                 if chat_handler.slash_id:
                     # Validate slash ID (/^[A-Za-z0-9_]+$/)
                     if re.match(slash_command_pattern, chat_handler.slash_id):
