@@ -222,7 +222,7 @@ class GenerateChatHandler(BaseChatHandler):
     routing_method = "slash_command"
     slash_id = "generate"
 
-    def __init__(self,  *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.llm = None
 
