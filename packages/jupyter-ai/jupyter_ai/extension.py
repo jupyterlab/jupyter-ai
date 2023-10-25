@@ -222,7 +222,8 @@ class AiExtension(ExtensionApp):
                 )
                 continue
 
-            jai_chat_handlers[command_name] = chat_handler
+            # The entry point is a class; we need to instantiate the class to send messages to it
+            jai_chat_handlers[command_name] = chat_handler(**chat_handler_kwargs)
             self.log.info(
                 f"Registered chat handler `{chat_handler.id}` with command `{command_name}`."
             )
