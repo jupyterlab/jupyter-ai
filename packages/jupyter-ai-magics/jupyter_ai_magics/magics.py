@@ -13,6 +13,7 @@ from IPython.core.magic import Magics, line_cell_magic, magics_class
 from IPython.display import HTML, JSON, Markdown, Math
 from jupyter_ai_magics.utils import decompose_model_id, get_lm_providers
 from langchain.chains import LLMChain
+from langchain.schema import HumanMessage
 
 from .parsers import (
     CellArgs,
@@ -124,6 +125,12 @@ class AiMagics(Magics):
             message="You are trying to use a chat model. This way of initializing it is "
             "no longer supported. Instead, please use: "
             "`from langchain.chat_models import ChatOpenAI`",
+        )
+        # suppress warning when using old Anthropic provider
+        warnings.filterwarnings(
+            "ignore",
+            message="This Anthropic LLM is deprecated. Please use "
+            "`from langchain.chat_models import ChatAnthropic` instead",
         )
 
         self.providers = get_lm_providers()
@@ -529,8 +536,12 @@ class AiMagics(Magics):
         ip = get_ipython()
         prompt = prompt.format_map(FormatDict(ip.user_ns))
 
-        # generate output from model via provider
-        result = provider.generate([prompt])
+        if provider.is_chat_provider:
+            result = provider.generate([[HumanMessage(content=prompt)]])
+        else:
+            # generate output from model via provider
+            result = provider.generate([prompt])
+
         output = result.generations[0][0].text
 
         # if openai-chat, append exchange to transcript

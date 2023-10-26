@@ -9,6 +9,7 @@ from uuid import uuid4
 from jupyter_ai.config_manager import ConfigManager, Logger
 from jupyter_ai.models import AgentChatMessage, HumanChatMessage
 from jupyter_ai_magics.providers import BaseProvider
+from langchain.chat_models.base import BaseChatModel
 
 if TYPE_CHECKING:
     from jupyter_ai.handlers import RootChatHandler

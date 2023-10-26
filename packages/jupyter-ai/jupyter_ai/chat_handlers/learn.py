@@ -15,7 +15,6 @@ from jupyter_ai.models import (
     IndexMetadata,
 )
 from jupyter_core.paths import jupyter_data_dir
-from langchain import FAISS
 from langchain.schema import BaseRetriever, Document
 from langchain.text_splitter import (
     LatexTextSplitter,
@@ -23,6 +22,7 @@ from langchain.text_splitter import (
     PythonCodeTextSplitter,
     RecursiveCharacterTextSplitter,
 )
+from langchain.vectorstores import FAISS
 
 from .base import BaseChatHandler
 

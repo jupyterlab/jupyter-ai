@@ -116,7 +116,9 @@ Jupyter AI supports the following model providers:
 |---------------------|----------------------|----------------------------|---------------------------------|
 | AI21                | `ai21`               | `AI21_API_KEY`             | `ai21`                          |
 | Anthropic           | `anthropic`          | `ANTHROPIC_API_KEY`        | `anthropic`                     |
+| Anthropic (chat)    | `anthropic-chat`     | `ANTHROPIC_API_KEY`        | `anthropic`                     |
 | Bedrock             | `amazon-bedrock`     | N/A                        | `boto3`                         |
+| Bedrock (chat)      | `amazon-bedrock-chat`| N/A                        | `boto3`                         |
 | Cohere              | `cohere`             | `COHERE_API_KEY`           | `cohere`                        |
 | Hugging Face Hub    | `huggingface_hub`    | `HUGGINGFACEHUB_API_TOKEN` | `huggingface_hub`, `ipywidgets`, `pillow` |
 | OpenAI              | `openai`             | `OPENAI_API_KEY`           | `openai`                        |
@@ -464,6 +466,9 @@ We currently support the following language model providers:
 
 - `ai21`
 - `anthropic`
+- `anthropic-chat`
+- `bedrock`
+- `bedrock-chat`
 - `cohere`
 - `huggingface_hub`
 - `openai`
@@ -783,3 +788,33 @@ Max prompt tokens:
 Max response tokens:
 
 - Set 'Max Response Tokens' judiciously; a higher value can slow response times, and since we don't support streaming, you'll await the entire response.
+
+## Configuration
+
+You can specify an allowlist, to only allow only a certain list of providers, or a blocklist, to block some providers.
+
+### Blocklisting providers
+This configuration allows for blocking specific providers in the settings panel. This list takes precedence over the allowlist in the next section.
+
+```
+jupyter lab --AiExtension.blocked_providers=openai
+```
+
+To block more than one provider in the block-list, repeat the runtime configuration.
+
+```
+jupyter lab --AiExtension.blocked_providers=openai --AiExtension.blocked_providers=ai21
+```
+
+### Allowlisting providers
+This configuration allows for filtering the list of providers in the settings panel to only an allowlisted set of providers.
+
+```
+jupyter lab --AiExtension.allowed_providers=openai
+```
+
+To allow more than one provider in the allowlist, repeat the runtime configuration.
+
+```
+jupyter lab --AiExtension.allowed_providers=openai --AiExtension.allowed_providers=ai21
+```
