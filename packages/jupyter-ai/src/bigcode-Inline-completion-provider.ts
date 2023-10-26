@@ -4,7 +4,8 @@ import {
   IInlineCompletionContext,
   IInlineCompletionItem,
   IInlineCompletionList,
-  IInlineCompletionProvider
+  IInlineCompletionProvider,
+  InlineCompletionTriggerKind
 } from '@jupyterlab/completer';
 import { NotebookPanel } from '@jupyterlab/notebook';
 import { nullTranslator, TranslationBundle } from '@jupyterlab/translation';
@@ -37,6 +38,7 @@ export class BigcodeInlineCompletionProvider
     cellCode: ''
   };
   private _requesting = false;
+  private _requestMode: InlineCompletionTriggerKind = 0;
   private _streamStop = false;
   private _finish = false;
   private _timeoutId: number | null = null;
@@ -112,6 +114,7 @@ export class BigcodeInlineCompletionProvider
 
     if (prompt) {
       this.setRequestFinish(true);
+      this._requestMode = 0;
       this._lastRequestInfo = {
         insertText: '',
         cellCode: request.text.slice(0, request.offset)
@@ -166,22 +169,23 @@ export class BigcodeInlineCompletionProvider
         }
 
         const result = await this.simulateSingleRequest(prompt);
-
+        console.debug(result);
         if (result === '<debounce>') {
           return { items: [] };
-        } else {
+        }
+
+        if (result === '<auto_stream>') {
           this._lastRequestInfo = {
-            insertText: result,
+            insertText: '',
             cellCode: currentRoundCellCodeText
           };
-
-          this.setRequestFinish(false);
-
+          this._requestMode = 1;
           return {
             items: [
               {
-                isIncomplete: false,
-                insertText: result
+                token: prompt,
+                isIncomplete: true,
+                insertText: ''
               }
             ]
           };
@@ -255,7 +259,8 @@ export class BigcodeInlineCompletionProvider
         if (this._callCounter === currentCallCount && !this._requesting) {
           this._callCounter = 0;
           this._requesting = true;
-          resolve('"""This is the result of a simulated automatic request"""');
+          // resolve('"""This is the result of a simulated automatic request"""');
+          resolve('<auto_stream>');
           this._timeoutId = null;
         } else {
           resolve('<debounce>');
@@ -267,37 +272,53 @@ export class BigcodeInlineCompletionProvider
   async *stream(
     token: string
   ): AsyncGenerator<{ response: IInlineCompletionItem }, undefined, unknown> {
-    const testResultText =
-      '_world():\n    print("Hello World!")\nhello_world()';
     this._requesting = true;
-    for (let i = 1; i <= testResultText.length; i++) {
-      await this.delay(25);
 
-      if (this._streamStop) {
-        console.debug('_streamStop');
-        this.setRequestFinish(false);
+    if (this._requestMode === 0) {
+      const testResultText =
+        '_world():\n    print("Hello World!")\nhello_world()';
+      for (let i = 1; i <= testResultText.length; i++) {
+        await this.delay(25);
+
+        if (this._streamStop) {
+          console.debug('_streamStop');
+          this.setRequestFinish(false);
+
+          yield {
+            response: {
+              isIncomplete: false,
+              insertText: this._lastRequestInfo.insertText
+            }
+          };
+          return;
+        }
+
+        const insertChar = testResultText.slice(i - 1, i);
+        this._lastRequestInfo.insertText += insertChar;
 
         yield {
           response: {
-            isIncomplete: false,
+            isIncomplete: i !== testResultText.length - 1,
             insertText: this._lastRequestInfo.insertText
           }
         };
-        return;
       }
-
-      const insertChar = testResultText.slice(i - 1, i);
-      this._lastRequestInfo.insertText += insertChar;
-
+      this.setRequestFinish(false);
+    } else if (this._requestMode === 1) {
+      await this.delay(1000);
+      const insertText =
+        '"""This is the result of a simulated automatic request"""';
+      this._lastRequestInfo.insertText = insertText;
       yield {
         response: {
-          isIncomplete: i !== testResultText.length - 1,
-          insertText: this._lastRequestInfo.insertText
+          token,
+          isIncomplete: false,
+          insertText: insertText
         }
       };
+      this.setRequestFinish(false);
+      return;
     }
-
-    this.setRequestFinish(false);
   }
 
   // async *stream(
