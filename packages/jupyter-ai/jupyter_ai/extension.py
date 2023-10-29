@@ -106,6 +106,36 @@ class AiExtension(ExtensionApp):
         config=True,
     )
 
+    model_provider_id = Unicode(
+        default_value=None,
+        allow_none=True,
+        help="Default language model provider.",
+        config=True,
+    )
+
+    embeddings_provider_id = Unicode(
+        default_value=None,
+        allow_none=True,
+        help="Default embeddings model provider.",
+        config=True,
+    )
+
+    api_keys = Dict(
+        Unicode(),
+        Unicode(),
+        default_value=None,
+        allow_none=True,
+        help="API keys for language model providers.",
+        config=True,
+    )
+
+    fields = Dict(
+        default_value=None,
+        allow_none=True,
+        help="Sub fields required for language model providers.",
+        config=True,
+    )
+
     def initialize_settings(self):
         start = time.time()
 
@@ -123,6 +153,14 @@ class AiExtension(ExtensionApp):
 
         self.settings["model_parameters"] = self.model_parameters
         self.log.info(f"Configured model parameters: {self.model_parameters}")
+
+        
+        provider_defaults = {
+            "model_provider_id": self.model_provider_id,
+            "embeddings_provider_id": self.embeddings_provider_id,
+            "api_keys": self.api_keys,
+            "fields": self.fields,
+        }
 
         # Fetch LM & EM providers
         self.settings["lm_providers"] = get_lm_providers(
@@ -142,6 +180,8 @@ class AiExtension(ExtensionApp):
             blocked_providers=self.blocked_providers,
             allowed_models=self.allowed_models,
             blocked_models=self.blocked_models,
+            restrictions=restrictions,
+            provider_defaults=provider_defaults,
         )
 
         self.log.info("Registered providers.")

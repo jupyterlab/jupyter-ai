@@ -105,11 +105,21 @@ class ConfigManager(Configurable):
         blocked_providers: Optional[List[str]],
         allowed_models: Optional[List[str]],
         blocked_models: Optional[List[str]],
+        restrictions: ProviderRestrictions,
+        provider_defaults: dict,
         *args,
         **kwargs,
     ):
         super().__init__(*args, **kwargs)
         self.log = log
+        """List of LM providers."""
+        self._lm_providers = lm_providers
+        """List of EM providers."""
+        self._em_providers = em_providers
+        """Provider restrictions."""
+        self._restrictions = restrictions
+        """Provider defaults."""
+        self._provider_defaults = provider_defaults
 
         self._lm_providers = lm_providers
         """List of LM providers."""
@@ -146,6 +156,7 @@ class ConfigManager(Configurable):
             self.validator = Validator(schema)
 
     def _init_config(self):
+        default_dict = self._init_defaults()
         if os.path.exists(self.config_path):
             self._process_existing_config()
         else:
@@ -195,11 +206,18 @@ class ConfigManager(Configurable):
     def _create_default_config(self):
         properties = self.validator.schema.get("properties", {})
         field_list = GlobalConfig.__fields__.keys()
+        properties = self.validator.schema.get("properties", {})
         field_dict = {
             field: properties.get(field).get("default") for field in field_list
         }
-        default_config = GlobalConfig(**field_dict)
-        self._write_config(default_config)
+        if self._provider_defaults is None:
+            return field_dict
+
+        for field in field_list:
+            default_value = self._provider_defaults.get(field)
+            if default_value is not None:
+                field_dict[field] = default_value
+        return field_dict
 
     def _read_config(self) -> GlobalConfig:
         """Returns the user's current configuration as a GlobalConfig object.
