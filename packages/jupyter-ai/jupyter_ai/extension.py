@@ -86,6 +86,15 @@ class AiExtension(ExtensionApp):
         config=True,
     )
 
+    api_keys = Dict(
+        key_trait=Unicode(),
+        value_trait=Unicode(),
+        default_value=None,
+        allow_none=True,
+        help="API keys for language model providers.",
+        config=True,
+    )
+
     model_parameters = Dict(
         key_trait=Unicode(),
         value_trait=Dict(),
@@ -120,22 +129,6 @@ class AiExtension(ExtensionApp):
         config=True,
     )
 
-    api_keys = Dict(
-        Unicode(),
-        Unicode(),
-        default_value=None,
-        allow_none=True,
-        help="API keys for language model providers.",
-        config=True,
-    )
-
-    fields = Dict(
-        default_value=None,
-        allow_none=True,
-        help="Sub fields required for language model providers.",
-        config=True,
-    )
-
     def initialize_settings(self):
         start = time.time()
 
@@ -158,7 +151,7 @@ class AiExtension(ExtensionApp):
             "model_provider_id": self.model_provider_id,
             "embeddings_provider_id": self.embeddings_provider_id,
             "api_keys": self.api_keys,
-            "fields": self.fields,
+            "fields": self.model_parameters,
         }
 
         # Fetch LM & EM providers
@@ -179,7 +172,6 @@ class AiExtension(ExtensionApp):
             blocked_providers=self.blocked_providers,
             allowed_models=self.allowed_models,
             blocked_models=self.blocked_models,
-            restrictions=restrictions,
             provider_defaults=provider_defaults,
         )
 

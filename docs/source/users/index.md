@@ -765,27 +765,15 @@ The `--response-path` option is a [JSONPath](https://goessner.net/articles/JsonP
 You can specify an allowlist, to only allow only a certain list of providers, or
 a blocklist, to block some providers.
 
-### Initializing default providers
+### Initializing default model providers
 
-This configuration allows for setting a default model, and embedding provider with their corresponding API keys, or related fields configuration.
+This configuration allows for setting a default model, and embedding provider with their corresponding API keys.
 
 Following command line arguments can be used to initialize Jupyter AI extension with default providers:
 1. ```--AiExtension.model_provider_id```: Specify the default LLM model. E.g.: ```--AiExtension.model_provider_id="bedrock-chat:anthropic.claude-v2"```
 2. ```--AiExtension.embeddings_provider_id```: Specify default embedding provider. E.g.: ```--AiExtension.embeddings_provider_id="bedrock:amazon.titan-embed-text-v1"```
 3. ```--AiExtension.api_keys```: Specify model provider keys in a JSON format. E.g. ```--AiExtension.api_keys='{"OPENAI_API_KEY": "sk-abcd}'```
-4. ```--AiExtension.fields```: Specify additional configuration required for a LLM, and embedding model. E.g: ```--AiExtension.fields='{"bedrock-chat:anthropic.claude-v1":{"credentials_profile_name": "default","region_name": "us-west-2"},"bedrock:amazon.titan-embed-text-v1":{"credentials_profile_name": "default","region_name": "us-west-2"}}'```
 
-#### Initializing model provider with API keys
-
-```
- jupyter lab --AiExtension.model_provider_id="bedrock-chat:anthropic.claude-v1"  --AiExtension.fields='{"bedrock-chat:anthropic.claude-v1":{"credentials_profile_name": "default","region_name": "us-west-2"},"bedrock:amazon.titan-embed-text-v1":{"credentials_profile_name": "default","region_name": "us-west-2"}}' --AiExtension.api_keys='{"OPENAI_API_KEY": "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"}
-```
-
-#### Initializing model provider which requires additional fields
-
-```
- jupyter lab --AiExtension.model_provider_id="bedrock-chat:anthropic.claude-v1"  --AiExtension.fields='{"bedrock-chat:anthropic.claude-v1":{"credentials_profile_name": "default","region_name": "us-west-2"},"bedrock:amazon.titan-embed-text-v1":{"credentials_profile_name": "default","region_name": "us-west-2"}}' --AiExtension.api_keys='{"OPENAI_API_KEY": "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"}
-```
 
 ### Blocklisting providers
 
