@@ -29,6 +29,56 @@ pip install jupyter_server --upgrade
 
 You can use the `jupyter_ai_magics` package without JupyterLab, but you will need a compatible interface, such as [IPython](https://ipython.org/).
 
+## Installing
+
+You can use `conda` or `pip` to install Jupyter AI. If you're using macOS on an Apple Silicon-based Mac (M1, M1 Pro, M2, etc.), we strongly recommend using `conda`.
+
+Python 3.8 or newer is required; older versions of Python do not support the
+`typing` module we use, and as of June 30, 2023, have reached end of life.
+
+Before you can use Jupyter AI, you will need to install any packages and set environment variables with API keys for the model providers that you will use. See [our documentation](https://jupyter-ai.readthedocs.io/en/latest/users/index.html) for details about what you'll need.
+
+### With pip
+
+If you want to install both the `%%ai` magic and the JupyterLab extension, you can run:
+
+    $ pip install jupyter_ai
+
+If you are not using JupyterLab and you only want to install the Jupyter AI `%%ai` magic, you can run:
+
+    $ pip install jupyter_ai_magics
+
+
+### With conda
+
+First, install [conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html) and create an environment that uses Python 3.11:
+
+    $ conda create -n jupyter-ai python=3.11
+    $ conda activate jupyter-ai
+    $ pip install jupyter_ai
+
+If you are not using JupyterLab and you only want to install the Jupyter AI `%%ai` magic, you can run:
+
+    $ pip install jupyter_ai_magics
+
+The `%%ai` magic will work anywhere the IPython kernel runs (JupyterLab, Jupyter Notebook, Google Colab, VSCode, etc.).
+
+You can check that the Jupyter AI server extension is enabled by running:
+
+    $ jupyter server extension list
+
+To verify that the frontend extension is installed, run:
+
+    $ jupyter labextension list
+
+To remove the extension, run:
+
+    $ pip uninstall jupyter_ai
+
+or
+
+    $ pip uninstall jupyter_ai_magics
+
 ## Model providers
 
 Jupyter AI supports a wide range of model providers and models. To use Jupyter AI with a particular provider, you must install its Python packages and set its API key (or other credentials) in your environment or in the chat interface.
@@ -82,55 +132,95 @@ responsible for all charges they incur when they make API requests. Review your 
 provider's pricing information before submitting requests via Jupyter AI.
 :::
 
-## Installing
+### Custom model providers
 
-You can use `conda` or `pip` to install Jupyter AI. If you're using macOS on an Apple Silicon-based Mac (M1, M1 Pro, M2, etc.), we strongly recommend using `conda`.
+You can define new providers using the LangChain framework API. Custom providers
+inherit from both `jupyter-ai`'s ``BaseProvider`` and `langchain`'s [``LLM``][LLM].
+You can either import a pre-defined model from [LangChain LLM list][langchain_llms],
+or define a [custom LLM][custom_llm].
+In the example below, we define a provider with two models using
+a dummy ``FakeListLLM`` model, which returns responses from the ``responses``
+keyword argument.
 
-Python 3.8 or newer is required; older versions of Python do not support the
-`typing` module we use, and as of June 30, 2023, have reached end of life.
-
-Before you can use Jupyter AI, you will need to install any packages and set environment variables with API keys for the model providers that you will use. See [our documentation](https://jupyter-ai.readthedocs.io/en/latest/users/index.html) for details about what you'll need.
-
-### With pip
-
-If you want to install both the `%%ai` magic and the JupyterLab extension, you can run:
-
-    $ pip install jupyter_ai
-
-If you are not using JupyterLab and you only want to install the Jupyter AI `%%ai` magic, you can run:
-
-    $ pip install jupyter_ai_magics
+```python
+# my_package/my_provider.py
+from jupyter_ai_magics import BaseProvider
+from langchain.llms import FakeListLLM
 
 
-### With conda
+class MyProvider(BaseProvider, FakeListLLM):
+    id = "my_provider"
+    name = "My Provider"
+    model_id_key = "model"
+    models = [
+        "model_a",
+        "model_b"
+    ]
+    def __init__(self, **kwargs):
+        model = kwargs.get("model_id")
+        kwargs["responses"] = (
+            ["This is a response from model 'a'"]
+            if model == "model_a" else
+            ["This is a response from model 'b'"]
+        )
+        super().__init__(**kwargs)
+```
 
-First, install [conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html) and create an environment that uses Python 3.11:
 
-    $ conda create -n jupyter-ai python=3.11
-    $ conda activate jupyter-ai
-    $ pip install jupyter_ai
+If the new provider inherits from [``BaseChatModel``][BaseChatModel], it will be available
+both in the chat UI and with magic commands. Otherwise, users can only use the new provider
+with magic commands.
 
-If you are not using JupyterLab and you only want to install the Jupyter AI `%%ai` magic, you can run:
+To make the new provider available, you need to declare it as an [entry point](https://setuptools.pypa.io/en/latest/userguide/entry_point.html):
 
-    $ pip install jupyter_ai_magics
+```toml
+# my_package/pyproject.toml
+[project]
+name = "my_package"
+version = "0.0.1"
 
-The `%%ai` magic will work anywhere the IPython kernel runs (JupyterLab, Jupyter Notebook, Google Colab, VSCode, etc.).
+[project.entry-points."jupyter_ai.model_providers"]
+my-provider = "my_provider:MyProvider"
+```
 
-You can check that the Jupyter AI server extension is enabled by running:
+To test that the above minimal provider package works, install it with:
 
-    $ jupyter server extension list
+```sh
+# from `my_package` directory
+pip install -e .
+```
 
-To verify that the frontend extension is installed, run:
+Then, restart JupyterLab. You should now see an info message in the log that mentions
+your new provider's `id`:
 
-    $ jupyter labextension list
+```
+[I 2023-10-29 13:56:16.915 AiExtension] Registered model provider `my_provider`.
+```
 
-To remove the extension, run:
+[langchain_llms]: https://api.python.langchain.com/en/latest/api_reference.html#module-langchain.llms
+[custom_llm]: https://python.langchain.com/docs/modules/model_io/models/llms/custom_llm
+[LLM]: https://api.python.langchain.com/en/latest/llms/langchain.llms.base.LLM.html#langchain.llms.base.LLM
+[BaseChatModel]: https://api.python.langchain.com/en/latest/chat_models/langchain.chat_models.base.BaseChatModel.html
 
-    $ pip uninstall jupyter_ai
 
-or
+### Customizing prompt templates
 
-    $ pip uninstall jupyter_ai_magics
+To modify the prompt template for a given format, override the ``get_prompt_template`` method:
+
+```python
+from langchain.prompts import PromptTemplate
+
+
+class MyProvider(BaseProvider, FakeListLLM):
+    # (... properties as above ...)
+    def get_prompt_template(self, format) -> PromptTemplate:
+        if format === "code":
+            return PromptTemplate.from_template(
+                "{prompt}\n\nProduce output as source code only, "
+                "with no text or explanation before or after it."
+            )
+        return super().get_prompt_template(format)
+```
 
 ## The chat interface
 
@@ -646,7 +736,7 @@ Write a poem about C++.
 
 You can also define a custom LangChain chain:
 
-```
+```python
 from langchain.chains import LLMChain
 from langchain.prompts import PromptTemplate
 from langchain.llms import OpenAI
