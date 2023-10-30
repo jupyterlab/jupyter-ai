@@ -161,11 +161,11 @@ provider's pricing information before submitting requests via Jupyter AI.
 
 ### Custom model providers
 
-You can define a new provider building upon LangChain framework API. The provider
+You can define new providers using the LangChain framework API. Custom providers
 inherit from both `jupyter-ai`'s ``BaseProvider`` and `langchain`'s [``LLM``][LLM].
 You can either import a pre-defined model from [LangChain LLM list][langchain_llms],
 or define a [custom LLM][custom_llm].
-In the example below, we demonstrate defining a provider with two models using
+In the example below, we define a provider with two models using
 a dummy ``FakeListLLM`` model, which returns responses from the ``responses``
 keyword argument.
 
@@ -194,10 +194,11 @@ class MyProvider(BaseProvider, FakeListLLM):
 ```
 
 
-The provider will be available for both chat and magic usage if it inherits from
-[``BaseChatModel``][BaseChatModel] or otherwise only in the magic.
+If the new provider inherits from [``BaseChatModel``][BaseChatModel], it will be available
+both in the chat UI and with magic commands. Otherwise, users can only use the new provider
+with magic commands.
 
-To plug the new provider you will need declare it via an [entry point](https://setuptools.pypa.io/en/latest/userguide/entry_point.html):
+To make the new provider available, you need to declare it as an [entry point](https://setuptools.pypa.io/en/latest/userguide/entry_point.html):
 
 ```toml
 # my_package/pyproject.toml
@@ -216,10 +217,11 @@ To test that the above minimal provider package works, install it with:
 pip install -e .
 ```
 
-and restart JupyterLab which now should include a log with:
+Then, restart JupyterLab. You should now see an info message in the log that mentions
+your new provider's `id`:
 
 ```
-[I 2023-10-29 13:56:16.915 AiExtension] Registered model provider `ai21`.
+[I 2023-10-29 13:56:16.915 AiExtension] Registered model provider `my_provider`.
 ```
 
 [langchain_llms]: https://api.python.langchain.com/en/latest/api_reference.html#module-langchain.llms
@@ -228,9 +230,9 @@ and restart JupyterLab which now should include a log with:
 [BaseChatModel]: https://api.python.langchain.com/en/latest/chat_models/langchain.chat_models.base.BaseChatModel.html
 
 
-### Customising prompt templates
+### Customizing prompt templates
 
-To modify the prompt template for a given format, override the implementation of ``get_prompt_template`` method:
+To modify the prompt template for a given format, override the ``get_prompt_template`` method:
 
 ```python
 from langchain.prompts import PromptTemplate
