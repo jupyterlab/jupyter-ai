@@ -113,7 +113,7 @@ function ExistingApiKey(props: ExistingApiKeyProps) {
   }, [input]);
 
   const onError = useCallback(
-    emsg => {
+    (emsg: string | Error) => {
       props.alert.show('error', emsg);
     },
     [props.alert]

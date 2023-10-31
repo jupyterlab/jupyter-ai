@@ -8,8 +8,13 @@ from concurrent.futures import ThreadPoolExecutor
 from typing import Any, ClassVar, Coroutine, Dict, List, Literal, Optional, Union
 
 from jsonpath_ng import parse
-from langchain import PromptTemplate
-from langchain.chat_models import AzureChatOpenAI, ChatOpenAI
+from langchain.chat_models import (
+    AzureChatOpenAI,
+    BedrockChat,
+    ChatAnthropic,
+    ChatOpenAI,
+)
+from langchain.chat_models.base import BaseChatModel
 from langchain.llms import (
     AI21,
     Anthropic,
@@ -23,6 +28,8 @@ from langchain.llms import (
 )
 from langchain.llms.sagemaker_endpoint import LLMContentHandler
 from langchain.llms.utils import enforce_stop_tokens
+from langchain.prompts import PromptTemplate
+from langchain.schema import LLMResult
 from langchain.utils import get_from_dict_or_env
 from pydantic import BaseModel, Extra, root_validator
 
@@ -187,6 +194,18 @@ class BaseProvider(BaseModel):
         _call_with_args = functools.partial(self._call, *args, **kwargs)
         return await loop.run_in_executor(executor, _call_with_args)
 
+    async def _generate_in_executor(
+        self, *args, **kwargs
+    ) -> Coroutine[Any, Any, LLMResult]:
+        """
+        Calls self._generate() asynchronously in a separate thread for providers
+        without an async implementation. Requires the event loop to be running.
+        """
+        executor = ThreadPoolExecutor(max_workers=1)
+        loop = asyncio.get_running_loop()
+        _call_with_args = functools.partial(self._generate, *args, **kwargs)
+        return await loop.run_in_executor(executor, _call_with_args)
+
     def update_prompt_template(self, format: str, template: str):
         """
         Changes the class-level prompt template for a given format.
@@ -203,6 +222,14 @@ class BaseProvider(BaseModel):
             return self.prompt_templates[format]
         else:
             return self.prompt_templates["text"]  # Default to plain format
+
+    @property
+    def is_chat_provider(self):
+        return isinstance(self, BaseChatModel)
+
+    @property
+    def allows_concurrency(self):
+        return True
 
 
 class AI21Provider(BaseProvider, AI21):
@@ -235,12 +262,40 @@ class AnthropicProvider(BaseProvider, Anthropic):
         "claude-v1.0",
         "claude-v1.2",
         "claude-2",
+        "claude-2.0",
         "claude-instant-v1",
         "claude-instant-v1.0",
+        "claude-instant-v1.2",
     ]
     model_id_key = "model"
     pypi_package_deps = ["anthropic"]
     auth_strategy = EnvAuthStrategy(name="ANTHROPIC_API_KEY")
+
+    @property
+    def allows_concurrency(self):
+        return False
+
+
+class ChatAnthropicProvider(BaseProvider, ChatAnthropic):
+    id = "anthropic-chat"
+    name = "ChatAnthropic"
+    models = [
+        "claude-v1",
+        "claude-v1.0",
+        "claude-v1.2",
+        "claude-2",
+        "claude-2.0",
+        "claude-instant-v1",
+        "claude-instant-v1.0",
+        "claude-instant-v1.2",
+    ]
+    model_id_key = "model"
+    pypi_package_deps = ["anthropic"]
+    auth_strategy = EnvAuthStrategy(name="ANTHROPIC_API_KEY")
+
+    @property
+    def allows_concurrency(self):
+        return False
 
 
 class CohereProvider(BaseProvider, Cohere):
@@ -576,16 +631,53 @@ class BedrockProvider(BaseProvider, Bedrock):
     id = "bedrock"
     name = "Amazon Bedrock"
     models = [
-        "amazon.titan-tg1-large",
-        "anthropic.claude-v1",
-        "anthropic.claude-instant-v1",
-        "anthropic.claude-v2",
-        "ai21.j2-jumbo-instruct",
-        "ai21.j2-grande-instruct",
+        "amazon.titan-text-express-v1",
+        "ai21.j2-ultra-v1",
+        "ai21.j2-mid-v1",
+        "cohere.command-text-v14",
     ]
     model_id_key = "model_id"
     pypi_package_deps = ["boto3"]
     auth_strategy = AwsAuthStrategy()
+    fields = [
+        TextField(
+            key="credentials_profile_name",
+            label="AWS profile (optional)",
+            format="text",
+        ),
+        TextField(key="region_name", label="Region name (optional)", format="text"),
+    ]
 
     async def _acall(self, *args, **kwargs) -> Coroutine[Any, Any, str]:
         return await self._call_in_executor(*args, **kwargs)
+
+
+class BedrockChatProvider(BaseProvider, BedrockChat):
+    id = "bedrock-chat"
+    name = "Amazon Bedrock Chat"
+    models = [
+        "anthropic.claude-v1",
+        "anthropic.claude-v2",
+        "anthropic.claude-instant-v1",
+    ]
+    model_id_key = "model_id"
+    pypi_package_deps = ["boto3"]
+    auth_strategy = AwsAuthStrategy()
+    fields = [
+        TextField(
+            key="credentials_profile_name",
+            label="AWS profile (optional)",
+            format="text",
+        ),
+        TextField(key="region_name", label="Region name (optional)", format="text"),
+    ]
+
+    async def _acall(self, *args, **kwargs) -> Coroutine[Any, Any, str]:
+        return await self._call_in_executor(*args, **kwargs)
+
+    async def _agenerate(self, *args, **kwargs) -> Coroutine[Any, Any, LLMResult]:
+        return await self._generate_in_executor(*args, **kwargs)
+
+    @property
+    def allows_concurrency(self):
+        return not "anthropic" in self.model_id

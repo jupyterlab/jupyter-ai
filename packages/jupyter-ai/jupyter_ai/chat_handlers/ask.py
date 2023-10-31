@@ -4,14 +4,24 @@ from typing import Dict, Type
 from jupyter_ai.models import HumanChatMessage
 from jupyter_ai_magics.providers import BaseProvider
 from langchain.chains import ConversationalRetrievalChain
+from langchain.memory import ConversationBufferWindowMemory
+from langchain.prompts import PromptTemplate
 
 from .base import BaseChatHandler
+
+PROMPT_TEMPLATE = """Given the following conversation and a follow up question, rephrase the follow up question to be a standalone question.
+
+Chat History:
+{chat_history}
+Follow Up Input: {question}
+Standalone question:"""
+CONDENSE_PROMPT = PromptTemplate.from_template(PROMPT_TEMPLATE)
 
 
 class AskChatHandler(BaseChatHandler):
     """Processes messages prefixed with /ask. This actor will
     send the message as input to a RetrieverQA chain, that
-    follows the Retrieval and Generation (RAG) tehnique to
+    follows the Retrieval and Generation (RAG) technique to
     query the documents from the index, and sends this context
     to the LLM to generate the final reply.
     """
@@ -27,9 +37,15 @@ class AskChatHandler(BaseChatHandler):
         self, provider: Type[BaseProvider], provider_params: Dict[str, str]
     ):
         self.llm = provider(**provider_params)
-        self.chat_history = []
+        memory = ConversationBufferWindowMemory(
+            memory_key="chat_history", return_messages=True, k=2
+        )
         self.llm_chain = ConversationalRetrievalChain.from_llm(
-            self.llm, self._retriever
+            self.llm,
+            self._retriever,
+            memory=memory,
+            condense_question_prompt=CONDENSE_PROMPT,
+            verbose=False,
         )
 
     async def _process_message(self, message: HumanChatMessage):
@@ -44,14 +60,8 @@ class AskChatHandler(BaseChatHandler):
         self.get_llm_chain()
 
         try:
-            # limit chat history to last 2 exchanges
-            self.chat_history = self.chat_history[-2:]
-
-            result = await self.llm_chain.acall(
-                {"question": query, "chat_history": self.chat_history}
-            )
+            result = await self.llm_chain.acall({"question": query})
             response = result["answer"]
-            self.chat_history.append((query, response))
             self.reply(response, message)
         except AssertionError as e:
             self.log.error(e)

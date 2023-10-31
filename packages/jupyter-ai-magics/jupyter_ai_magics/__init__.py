@@ -2,6 +2,7 @@ from ._version import __version__
 
 # expose embedding model providers on the package root
 from .embedding_providers import (
+    BedrockEmbeddingsProvider,
     CohereEmbeddingsProvider,
     HfHubEmbeddingsProvider,
     OpenAIEmbeddingsProvider,
@@ -15,7 +16,9 @@ from .providers import (
     AnthropicProvider,
     AzureChatOpenAIProvider,
     BaseProvider,
+    BedrockChatProvider,
     BedrockProvider,
+    ChatAnthropicProvider,
     ChatOpenAINewProvider,
     ChatOpenAIProvider,
     CohereProvider,

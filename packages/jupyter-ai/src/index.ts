@@ -13,7 +13,10 @@ import { buildBigcodeSidebar } from './widgets/bigcode-sidebar';
 import { SelectionWatcher } from './selection-watcher';
 import { ChatHandler } from './chat_handler';
 import { buildErrorWidget } from './widgets/chat-error';
-import { handleCodeCompletionKeyDown } from './keydown-handler';
+import { handleCodeCompletionKeyDown } from './inline-completion-handler';
+import { ICompletionProviderManager } from '@jupyterlab/completer';
+import { ITranslator, nullTranslator } from '@jupyterlab/translation';
+import { BigcodeInlineCompletionProvider } from './bigcode-Inline-completion-provider';
 
 export type DocumentTracker = IWidgetTracker<IDocumentWidget>;
 
@@ -52,19 +55,32 @@ const plugin: JupyterFrontEndPlugin<void> = {
     }
 
     /**
-     * Initialize bigcode settings widget
-     */
-    const bigcodeWidget = buildBigcodeSidebar();
-
-    /**
-     * Initialize keydown handler
-     */
-    handleCodeCompletionKeyDown(app);
-
-    /**
      * Add Chat widget to right sidebar
      */
     app.shell.add(chatWidget, 'left', { rank: 2000 });
+
+    if (restorer) {
+      restorer.add(chatWidget, 'jupyter-ai-chat');
+    }
+  }
+};
+
+const bigcodeCodeCompletion: JupyterFrontEndPlugin<void> = {
+  id: 'jupyter_ai:plugin:inline-bigcode',
+  description: 'Adds inline completion provider suggesting code from bigcode.',
+  requires: [ICompletionProviderManager],
+  optional: [ILayoutRestorer],
+  autoStart: true,
+  activate: (
+    app: JupyterFrontEnd,
+    completionManager: ICompletionProviderManager,
+    restorer: ILayoutRestorer | null,
+    translator: ITranslator | null
+  ): void => {
+    /**
+     * Initialize bigcode settings widget
+     */
+    const bigcodeWidget = buildBigcodeSidebar();
 
     /**
      * Add Bigcode settings widget to right sidebar
@@ -72,10 +88,28 @@ const plugin: JupyterFrontEndPlugin<void> = {
     app.shell.add(bigcodeWidget, 'left', { rank: 2001 });
 
     if (restorer) {
-      restorer.add(chatWidget, 'jupyter-ai-chat');
       restorer.add(bigcodeWidget, 'bigcode-code-completion');
     }
+
+    const bigcodeInlineCompletionProvider = new BigcodeInlineCompletionProvider(
+      {
+        translator: translator ?? nullTranslator
+      }
+    );
+
+    completionManager.registerInlineProvider(bigcodeInlineCompletionProvider);
+
+    /**
+     * Initialize keydown handler
+     */
+    handleCodeCompletionKeyDown(
+      app,
+      completionManager,
+      bigcodeInlineCompletionProvider
+    );
   }
 };
 
-export default plugin;
+const plugins: JupyterFrontEndPlugin<void>[] = [plugin, bigcodeCodeCompletion];
+
+export default plugins;

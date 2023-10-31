@@ -17,7 +17,9 @@ export const getSpecificWidget = (widget: DocumentWidget): Widget => {
 /**
  * Retrieves the editor associated with the provided content widget.
  *
- * If the content is an instance of a Notebook, this function will return the editor of the active cell.
+ * This function aims to find the editor instance within different types of content widgets.
+ * Currently, it supports extracting the editor from an active cell of a Notebook.
+ * Further extensions can include more widget types and their respective logic to fetch the editor.
  *
  * @param {Widget} content - The content widget instance.
  * @returns {CodeEditor.IEditor | null | undefined} - The associated editor instance, or null/undefined if not found.

@@ -1,6 +1,6 @@
 import { makeObservable, observable, action } from 'mobx';
 
-class CodeCompletionContextstore {
+class CodeCompletionContextStore {
   /**
    * Whether to enable code completion function.
    */
@@ -17,9 +17,9 @@ class CodeCompletionContextstore {
   @observable bigcodeUrl = '';
 
   /**
-   * Observable state for the code being requested for completion.
+   * Whether simulation testing is enabled (without using the real API)
    */
-  @observable codeOnRequest = '';
+  @observable enableMockTest = false;
 
   /**
    * Observable string representing the shortcut key combination for triggering code completion.
@@ -51,6 +51,7 @@ class CodeCompletionContextstore {
       this.shortcutStr = dataPersistence.shortcutStr;
       this.maxPromptToken = dataPersistence.maxPromptToken;
       this.maxResponseToken = dataPersistence.maxResponseToken;
+      this.enableMockTest = dataPersistence.enableMockTest;
     }
   }
 
@@ -63,7 +64,8 @@ class CodeCompletionContextstore {
         bigcodeUrl: this.bigcodeUrl,
         shortcutStr: this.shortcutStr,
         maxPromptToken: this.maxPromptToken,
-        maxResponseToken: this.maxResponseToken
+        maxResponseToken: this.maxResponseToken,
+        enableMockTest: this.enableMockTest
       })
     );
   }
@@ -86,13 +88,14 @@ class CodeCompletionContextstore {
   }
 
   @action
-  setCodeOnRequest(code: string): void {
-    this.codeOnRequest = code;
+  setShortcutStr(shortcutStr: string): void {
+    this.shortcutStr = shortcutStr;
+    this.saveDataToLoaclStorage();
   }
 
   @action
-  setShortcutStr(shortcutStr: string): void {
-    this.shortcutStr = shortcutStr;
+  toggleCMockTest(): void {
+    this.enableMockTest = !this.enableMockTest;
     this.saveDataToLoaclStorage();
   }
 
@@ -109,5 +112,5 @@ class CodeCompletionContextstore {
   }
 }
 
-export default new CodeCompletionContextstore();
-export type IGlobalStore = CodeCompletionContextstore;
+export default new CodeCompletionContextStore();
+export type IGlobalStore = CodeCompletionContextStore;

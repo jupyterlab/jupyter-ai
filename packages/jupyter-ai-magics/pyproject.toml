@@ -24,7 +24,7 @@ dependencies = [
     "ipython",
     "pydantic~=1.0",
     "importlib_metadata>=5.2.0",
-    "langchain==0.0.277",
+    "langchain==0.0.318",
     "typing_extensions>=4.5.0",
     "click~=8.0",
     "jsonpath-ng>=1.5.3,<2",
@@ -44,7 +44,7 @@ test = [
 
 all = [
     "ai21",
-    "anthropic~=0.2.10",
+    "anthropic~=0.3.0",
     "cohere",
     "gpt4all",
     "huggingface_hub",
@@ -66,8 +66,11 @@ openai-chat-new = "jupyter_ai_magics:ChatOpenAINewProvider"
 azure-chat-openai = "jupyter_ai_magics:AzureChatOpenAIProvider"
 sagemaker-endpoint = "jupyter_ai_magics:SmEndpointProvider"
 amazon-bedrock = "jupyter_ai_magics:BedrockProvider"
+anthropic-chat = "jupyter_ai_magics:ChatAnthropicProvider"
+amazon-bedrock-chat = "jupyter_ai_magics:BedrockChatProvider"
 
 [project.entry-points."jupyter_ai.embeddings_model_providers"]
+bedrock = "jupyter_ai_magics:BedrockEmbeddingsProvider"
 cohere = "jupyter_ai_magics:CohereEmbeddingsProvider"
 huggingface_hub = "jupyter_ai_magics:HfHubEmbeddingsProvider"
 openai = "jupyter_ai_magics:OpenAIEmbeddingsProvider"

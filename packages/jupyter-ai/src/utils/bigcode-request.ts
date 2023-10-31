@@ -1,5 +1,23 @@
-import CodeCompletionContextStore from '../contexts/code-completion-context-store';
+import CodeCompletionContextStore, {
+  IGlobalStore
+} from '../contexts/code-completion-context-store';
 import { ICell } from '../types/cell';
+import { makeObservable, computed } from 'mobx';
+
+export type BigCodeServiceStreamResponseItem = {
+  token: {
+    id: number;
+    text: string;
+    logprob: number;
+    special: boolean;
+  };
+  generated_text: string | null;
+  details: null;
+};
+
+export type BigCodeServiceNotStreamResponse = {
+  generated_text: string;
+}[];
 
 /**
  * Generates the appropriate prompt string based on the cell type.
@@ -8,124 +26,117 @@ import { ICell } from '../types/cell';
  * @param {ICell} cell - The cell object which includes the type and content.
  * @returns {string} The generated prompt string for the cell.
  */
-const getPromptForCell = (cell: ICell): string => {
-  let cellPrompt = '';
-  switch (cell.type) {
-    case 'code':
-      cellPrompt += '<jupyter_code>';
-      break;
-    case 'markdown':
-      cellPrompt += '<jupyter_text>';
-      break;
-    case 'output':
-      cellPrompt += '<jupyter_output>';
-      break;
-  }
-  return cellPrompt + cell.content;
-};
+class Bigcode {
+  spaceCount: number;
+  private _prompt: string;
 
-function countSpaces(str: string) {
-  const matches = str.match(/ /g);
-  return matches ? matches.length : 0;
-}
-
-/**
- * Constructs a continuation prompt based on the provided context.
- * It concatenates the prompts for all the cells in the context.
- *
- * @param {ICell[] | null} context - An array of cells representing the context.
- * @returns {string | null} The constructed continuation prompt or null if context is empty.
- */
-export const constructContinuationPrompt = (
-  context: ICell[] | null,
-  maxTokens: number
-): string | null => {
-  if (!context || context.length === 0) {
-    return null;
+  constructor(private store: IGlobalStore) {
+    makeObservable(this);
+    this.spaceCount = 0;
+    this._prompt = '';
   }
 
-  let prompt = '';
-  for (let i = context.length - 1; i >= 0; i--) {
-    prompt = getPromptForCell(context[i]) + prompt;
-    if (countSpaces(prompt) > maxTokens) {
-      break;
+  @computed get bigcodeUrl() {
+    return this.store.bigcodeUrl;
+  }
+
+  @computed get accessToken() {
+    return this.store.accessToken;
+  }
+
+  @computed get maxTokens() {
+    return this.store.maxPromptToken;
+  }
+
+  get prompt() {
+    return this._prompt;
+  }
+
+  async fetchStream(stream: true): Promise<ReadableStream<Uint8Array>>;
+  async fetchStream(stream: false): Promise<BigCodeServiceNotStreamResponse>;
+  async fetchStream(
+    stream = false
+  ): Promise<ReadableStream<Uint8Array> | BigCodeServiceNotStreamResponse> {
+    if (!this.bigcodeUrl || !this.accessToken) {
+      alert('BigCode service URL or Huggingface Access Token not set.');
+      throw new Error(
+        'BigCode service URL or Huggingface Access Token not set.'
+      );
     }
-  }
 
-  return '<start_jupyter>' + prompt;
-};
-
-/**
- * Sends the given prompt to the BigCode service for code completion.
- * It requires the BigCode service URL and the Huggingface Access Token to be set in the CodeCompletionContextStore.
- *
- * @param {string | null} prompt - The prompt string to be sent for code completion.
- * @returns {Promise<{ generated_text: string }[]>} A promise that resolves with the generated text or rejects with an error.
- */
-export const sendToBigCode = async (
-  prompt: string | null,
-  max_tokens: number
-): Promise<{ generated_text: string }[]> => {
-  const { bigcodeUrl } = CodeCompletionContextStore;
-  const { accessToken } = CodeCompletionContextStore;
-  console.log(prompt);
-  if (!bigcodeUrl || !accessToken) {
-    alert('BigCode service URL or Huggingface Access Token not set.');
-    return new Promise((resolve, reject) => {
-      reject('BigCode service URL or Huggingface Access Token not set.');
-    });
-  }
-
-  if (!prompt) {
-    return new Promise((resolve, reject) => {
-      reject('Prompt is null');
-    });
-  }
-
-  const bodyData = {
-    inputs: prompt,
-    stream: false,
-    parameters: {
-      temperature: 0.01,
-      return_full_text: false,
-      max_tokens,
-      stop: ['<jupyter_output>']
+    if (!this._prompt) {
+      throw new Error('Prompt is null');
     }
+
+    const bodyData = {
+      inputs: this.prompt,
+      stream,
+      parameters: {
+        temperature: 0.01,
+        return_full_text: false,
+        max_tokens: this.maxTokens,
+        stop: ['<jupyter_output>']
+      }
+    };
+
+    const response = await fetch(this.bigcodeUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${this.accessToken}`
+      },
+      body: JSON.stringify(bodyData)
+    });
+
+    if (!response || !response.ok) {
+      throw new Error(await response.json());
+    }
+
+    const streamData = response.body;
+
+    if (!streamData) {
+      throw new Error(await response.json());
+    }
+
+    return stream ? streamData : response.json();
+  }
+
+  getPromptForCell = (cell: ICell): string => {
+    let cellPrompt = '';
+    switch (cell.type) {
+      case 'code':
+        cellPrompt += '<jupyter_code>';
+        break;
+      case 'markdown':
+        cellPrompt += '<jupyter_text>';
+        break;
+      case 'output':
+        cellPrompt += '<jupyter_output>';
+        break;
+    }
+    return cellPrompt + cell.content;
   };
 
-  const response = fetch(bigcodeUrl, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${accessToken}`
-    },
-    body: JSON.stringify(bodyData)
-  });
-
-  const responseResult = await response;
-  // Check if response status code is in the range 200-299
-  if (!responseResult.ok) {
-    return new Promise((resolve, reject) => {
-      reject(responseResult.json());
-    });
+  countSpaces(str: string) {
+    const matches = str.match(/ /g);
+    this.spaceCount = matches ? matches.length : 0;
   }
 
-  return responseResult.json();
-};
+  constructContinuationPrompt(context: ICell[] | null) {
+    if (!context || context.length === 0) {
+      return null;
+    }
 
-/**
- * Processes the result received from the BigCode service.
- * It extracts the generated text from the result and removes any placeholder strings.
- *
- * @param {{ generated_text: string }[]} result - The result array containing generated text.
- * @returns {string} The processed generated text.
- */
-export const processCompletionResult = (
-  result: { generated_text: string }[]
-): string => {
-  if (result.length === 0) {
-    return '';
+    let prompt = '';
+    for (let i = context.length - 1; i >= 0; i--) {
+      prompt = this.getPromptForCell(context[i]) + prompt;
+      this.countSpaces(prompt);
+      if (this.spaceCount > this.maxTokens) {
+        break;
+      }
+    }
+    this._prompt = '<start_jupyter>' + prompt;
   }
+}
 
-  return result[0].generated_text.replace('<jupyter_output>', '');
-};
+export default new Bigcode(CodeCompletionContextStore);

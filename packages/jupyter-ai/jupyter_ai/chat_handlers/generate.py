@@ -1,7 +1,6 @@
 import asyncio
-import json
 import os
-from typing import Dict, Type
+from typing import Dict, List, Optional, Type
 
 import nbformat
 from jupyter_ai.chat_handlers import BaseChatHandler
@@ -9,59 +8,50 @@ from jupyter_ai.models import HumanChatMessage
 from jupyter_ai_magics.providers import BaseProvider
 from langchain.chains import LLMChain
 from langchain.llms import BaseLLM
+from langchain.output_parsers import PydanticOutputParser
 from langchain.prompts import PromptTemplate
+from langchain.schema.output_parser import BaseOutputParser
+from pydantic import BaseModel
 
-schema = """{
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "type": "object",
-  "properties": {
-    "description": {
-      "type": "string"
-    },
-    "sections": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "properties": {
-          "title": {
-            "type": "string"
-          },
-          "content": {
-            "type": "string"
-          }
-        },
-        "required": ["title", "content"]
-      }
-    }
-  },
-  "required": ["sections"]
-}"""
+
+class OutlineSection(BaseModel):
+    title: str
+    content: str
+
+
+class Outline(BaseModel):
+    description: Optional[str] = None
+    sections: List[OutlineSection]
 
 
 class NotebookOutlineChain(LLMChain):
     """Chain to generate a notebook outline, with section titles and descriptions."""
 
     @classmethod
-    def from_llm(cls, llm: BaseLLM, verbose: bool = False) -> LLMChain:
+    def from_llm(
+        cls, llm: BaseLLM, parser: BaseOutputParser[Outline], verbose: bool = False
+    ) -> LLMChain:
         task_creation_template = (
             "You are an AI that creates a detailed content outline for a Jupyter notebook on a given topic.\n"
-            "Generate the outline as JSON data that will validate against this JSON schema:\n"
-            "{schema}\n"
+            "{format_instructions}\n"
             "Here is a description of the notebook you will create an outline for: {description}\n"
-            "Don't include an introduction or conclusion section in the outline, focus only on sections that will need code."
+            "Don't include an introduction or conclusion section in the outline, focus only on description and sections that will need code.\n"
         )
         prompt = PromptTemplate(
             template=task_creation_template,
-            input_variables=["description", "schema"],
+            input_variables=["description"],
+            partial_variables={"format_instructions": parser.get_format_instructions()},
         )
         return cls(prompt=prompt, llm=llm, verbose=verbose)
 
 
 async def generate_outline(description, llm=None, verbose=False):
     """Generate an outline of sections given a description of a notebook."""
-    chain = NotebookOutlineChain.from_llm(llm=llm, verbose=verbose)
-    outline = await chain.apredict(description=description, schema=schema)
-    return json.loads(outline)
+    parser = PydanticOutputParser(pydantic_object=Outline)
+    chain = NotebookOutlineChain.from_llm(llm=llm, parser=parser, verbose=verbose)
+    outline = await chain.apredict(description=description)
+    outline = parser.parse(outline)
+    return outline.dict()
 
 
 class CodeImproverChain(LLMChain):
@@ -128,7 +118,8 @@ class NotebookTitleChain(LLMChain):
     def from_llm(cls, llm: BaseLLM, verbose: bool = False) -> LLMChain:
         task_creation_template = (
             "Create a short, few word, descriptive title for a Jupyter notebook with the following content.\n"
-            "Content:\n{content}"
+            "Content:\n{content}\n"
+            "Don't return anything other than the title."
         )
         prompt = PromptTemplate(
             template=task_creation_template,
@@ -165,7 +156,7 @@ async def generate_code(section, description, llm=None, verbose=False) -> None:
 
 
 async def generate_title(outline, llm=None, verbose: bool = False):
-    """Generate a title and summary of a notebook outline using an LLM."""
+    """Generate a title of a notebook outline using an LLM."""
     title_chain = NotebookTitleChain.from_llm(llm=llm, verbose=verbose)
     title = await title_chain.apredict(content=outline)
     title = title.strip()
@@ -174,12 +165,24 @@ async def generate_title(outline, llm=None, verbose: bool = False):
 
 
 async def generate_summary(outline, llm=None, verbose: bool = False):
+    """Generate a summary of a notebook using an LLM."""
     summary_chain = NotebookSummaryChain.from_llm(llm=llm, verbose=verbose)
     summary = await summary_chain.apredict(content=outline)
     outline["summary"] = summary
 
 
 async def fill_outline(outline, llm, verbose=False):
+    """Generate title and content of a notebook sections using an LLM."""
+    shared_kwargs = {"outline": outline, "llm": llm, "verbose": verbose}
+
+    await generate_title(**shared_kwargs)
+    await generate_summary(**shared_kwargs)
+    for section in outline["sections"]:
+        await generate_code(section, outline["description"], llm=llm, verbose=verbose)
+
+
+async def afill_outline(outline, llm, verbose=False):
+    """Concurrently generate title and content of notebook sections using an LLM."""
     shared_kwargs = {"outline": outline, "llm": llm, "verbose": verbose}
 
     all_coros = []
@@ -224,6 +227,27 @@ class GenerateChatHandler(BaseChatHandler):
         self.llm = llm
         return llm
 
+    async def _generate_notebook(self, prompt: str):
+        """Generate a notebook and save to local disk"""
+
+        # create outline
+        outline = await generate_outline(prompt, llm=self.llm, verbose=True)
+        # Save the user input prompt, the description property is now LLM generated.
+        outline["prompt"] = prompt
+
+        if self.llm.allows_concurrency:
+            # fill the outline concurrently
+            await afill_outline(outline, llm=self.llm, verbose=True)
+        else:
+            # fill outline
+            await fill_outline(outline, llm=self.llm, verbose=True)
+
+        # create and write the notebook to disk
+        notebook = create_notebook(outline)
+        final_path = os.path.join(self.root_dir, outline["title"] + ".ipynb")
+        nbformat.write(notebook, final_path)
+        return final_path
+
     async def _process_message(self, message: HumanChatMessage):
         self.get_llm_chain()
 
@@ -231,22 +255,11 @@ class GenerateChatHandler(BaseChatHandler):
         response = "👍 Great, I will get started on your notebook. It may take a few minutes, but I will reply here when the notebook is ready. In the meantime, you can continue to ask me other questions."
         self.reply(response, message)
 
-        # generate notebook outline
-        prompt = message.body
-        outline = await generate_outline(prompt, llm=self.llm, verbose=True)
-        # Save the user input prompt, the description property is now LLM generated.
-        outline["prompt"] = prompt
-
-        # fill the outline concurrently
-        await fill_outline(outline, llm=self.llm, verbose=True)
-
-        # create and write the notebook to disk
-        notebook = create_notebook(outline)
-        final_path = os.path.join(self.root_dir, outline["title"] + ".ipynb")
-        nbformat.write(notebook, final_path)
-        response = f"""🎉 I have created your notebook and saved it to the location {final_path}. I am still learning how to create notebooks, so please review all code before running it."""
-        self.reply(response, message)
-
-
-# /generate notebook
-# Error handling
+        try:
+            final_path = await self._generate_notebook(prompt=message.body)
+            response = f"""🎉 I have created your notebook and saved it to the location {final_path}. I am still learning how to create notebooks, so please review all code before running it."""
+        except Exception as e:
+            self.log.exception(e)
+            response = "An error occurred while generating the notebook. Try running the /generate task again."
+        finally:
+            self.reply(response, message)

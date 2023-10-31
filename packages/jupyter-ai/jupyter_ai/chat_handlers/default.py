@@ -2,15 +2,15 @@ from typing import Dict, List, Type
 
 from jupyter_ai.models import ChatMessage, ClearMessage, HumanChatMessage
 from jupyter_ai_magics.providers import BaseProvider
-from langchain import ConversationChain
+from langchain.chains import ConversationChain
 from langchain.memory import ConversationBufferWindowMemory
 from langchain.prompts import (
     ChatPromptTemplate,
     HumanMessagePromptTemplate,
     MessagesPlaceholder,
+    PromptTemplate,
     SystemMessagePromptTemplate,
 )
-from langchain.schema import AIMessage
 
 from .base import BaseChatHandler
 
@@ -25,6 +25,11 @@ If you do not know the answer to a question, answer truthfully by responding tha
 The following is a friendly conversation between you and a human.
 """.strip()
 
+DEFAULT_TEMPLATE = """Current conversation:
+{history}
+Human: {input}
+AI:"""
+
 
 class DefaultChatHandler(BaseChatHandler):
     def __init__(self, chat_history: List[ChatMessage], *args, **kwargs):
@@ -36,16 +41,29 @@ class DefaultChatHandler(BaseChatHandler):
         self, provider: Type[BaseProvider], provider_params: Dict[str, str]
     ):
         llm = provider(**provider_params)
-        prompt_template = ChatPromptTemplate.from_messages(
-            [
-                SystemMessagePromptTemplate.from_template(SYSTEM_PROMPT).format(
+
+        if llm.is_chat_provider:
+            prompt_template = ChatPromptTemplate.from_messages(
+                [
+                    SystemMessagePromptTemplate.from_template(SYSTEM_PROMPT).format(
+                        provider_name=llm.name, local_model_id=llm.model_id
+                    ),
+                    MessagesPlaceholder(variable_name="history"),
+                    HumanMessagePromptTemplate.from_template("{input}"),
+                ]
+            )
+            self.memory = ConversationBufferWindowMemory(return_messages=True, k=2)
+        else:
+            prompt_template = PromptTemplate(
+                input_variables=["history", "input"],
+                template=SYSTEM_PROMPT.format(
                     provider_name=llm.name, local_model_id=llm.model_id
-                ),
-                MessagesPlaceholder(variable_name="history"),
-                HumanMessagePromptTemplate.from_template("{input}"),
-                AIMessage(content=""),
-            ]
-        )
+                )
+                + "\n\n"
+                + DEFAULT_TEMPLATE,
+            )
+            self.memory = ConversationBufferWindowMemory(k=2)
+
         self.llm = llm
         self.llm_chain = ConversationChain(
             llm=llm, prompt=prompt_template, verbose=True, memory=self.memory
