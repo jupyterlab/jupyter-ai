@@ -31,6 +31,10 @@ export const BigCodeSetting = observer(() => {
     CodeCompletionContextstore.toggleCodeCompletion();
   };
 
+  const toggleMockTestWrapper = () => {
+    CodeCompletionContextstore.toggleCMockTest();
+  };
+
   useEffect(() => {
     CodeCompletionContextstore.setBigcodeUrl(
       'https://api-inference.huggingface.co/models/bigcode/starcoderbase/'
@@ -75,9 +79,20 @@ export const BigCodeSetting = observer(() => {
           onChange={toggleCodeCompletionWrapper}
         />
       </h1>
+      {CodeCompletionContextstore.enableCodeCompletion && (
+        <h1 className="jp-ai-ChatSettings-header bigcode-setting-level-1-title">
+          Enable mock test code completion
+          <Switch
+            checked={CodeCompletionContextstore.enableMockTest}
+            onChange={toggleMockTestWrapper}
+          />
+        </h1>
+      )}
+
       <div
         className={
-          CodeCompletionContextstore.enableCodeCompletion
+          CodeCompletionContextstore.enableCodeCompletion &&
+          !CodeCompletionContextstore.enableMockTest
             ? 'code-completion-setting-entered'
             : 'code-completion-setting-exiting'
         }
