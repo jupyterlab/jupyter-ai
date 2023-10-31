@@ -100,7 +100,7 @@ class Bigcode {
 
     return stream ? streamData : response.json();
   }
- d
+
   getPromptForCell = (cell: ICell): string => {
     let cellPrompt = '';
     switch (cell.type) {
