@@ -159,7 +159,7 @@ export class BigcodeInlineCompletionProvider
           return { items: [] };
         }
 
-        const result = await this.simulateSingleRequest(prompt);
+        const result = await this.debounceAutoRequest();
         if (result === '<debounce>') {
           return { items: [] };
         }
@@ -233,7 +233,7 @@ export class BigcodeInlineCompletionProvider
   delay = async (ms: number): Promise<void> =>
     new Promise(resolve => setTimeout(resolve, ms));
 
-  simulateSingleRequest(prompt: string): Promise<string> {
+  debounceAutoRequest(): Promise<string> {
     this._callCounter++;
 
     if (this._requesting) {
