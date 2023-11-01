@@ -646,7 +646,16 @@ class BedrockProvider(BaseProvider, Bedrock):
             format="text",
         ),
         TextField(key="region_name", label="Region name (optional)", format="text"),
+        MultilineTextField(key="model_kwargs", label="Model Arguments", format="json"),
     ]
+
+    def __init__(self, *args, **kwargs):
+        model_kwargs = kwargs.pop("model_kwargs")
+        if model_kwargs and isinstance(model_kwargs, str):
+            model_kwargs = json.loads(model_kwargs)
+            super().__init__(*args, **kwargs, model_kwargs=model_kwargs)
+        else:
+            super().__init__(*args, **kwargs)
 
     async def _acall(self, *args, **kwargs) -> Coroutine[Any, Any, str]:
         return await self._call_in_executor(*args, **kwargs)
@@ -670,7 +679,16 @@ class BedrockChatProvider(BaseProvider, BedrockChat):
             format="text",
         ),
         TextField(key="region_name", label="Region name (optional)", format="text"),
+        MultilineTextField(key="model_kwargs", label="Model Arguments", format="json"),
     ]
+
+    def __init__(self, *args, **kwargs):
+        model_kwargs = kwargs.pop("model_kwargs")
+        if model_kwargs and isinstance(model_kwargs, str):
+            model_kwargs = json.loads(model_kwargs)
+            super().__init__(*args, **kwargs, model_kwargs=model_kwargs)
+        else:
+            super().__init__(*args, **kwargs)
 
     async def _acall(self, *args, **kwargs) -> Coroutine[Any, Any, str]:
         return await self._call_in_executor(*args, **kwargs)
