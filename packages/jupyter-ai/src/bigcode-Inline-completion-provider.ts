@@ -52,7 +52,29 @@ export class BigcodeInlineCompletionProvider
     return this._trans.__('Bigcode');
   }
 
-  shouldClearStateAndPerformAutoRequest(addedString: string): {
+  /**
+   * If the request ends, need to call this function to write the status for "accept" use
+   */
+  setRequestFinish(error: boolean): void {
+    this._requesting = false;
+    this._streamStop = false;
+    this._finish = !error;
+  }
+
+  clearState(): void {
+    this._streamStop = true;
+    this._finish = false;
+    this._requesting = false;
+    this._lastRequestInfo = {
+      insertText: '',
+      cellCode: ''
+    };
+  }
+
+  /**
+   * Determine whether the request can be made and clear the status of the request
+   */
+  private shouldClearStateAndPerformAutoRequest(addedString: string): {
     shouldClearState: boolean;
     shouldAutoRequest: boolean;
   } {
@@ -84,7 +106,45 @@ export class BigcodeInlineCompletionProvider
     };
   }
 
-  constructContinuationPrompt(context: IInlineCompletionContext): string {
+  // Function that simulates delay
+  private delay = async (ms: number): Promise<void> =>
+    new Promise(resolve => setTimeout(resolve, ms));
+
+  /**
+   * Post-debounce strategy, the last request within the specified time returns <auto_stream>
+   */
+  private debounceAutoRequest(): Promise<'<auto_stream>' | '<debounce>'> {
+    this._callCounter++;
+
+    if (this._requesting) {
+      return Promise.resolve('<debounce>');
+    }
+
+    if (this._timeoutId) {
+      clearTimeout(this._timeoutId);
+      this._timeoutId = null;
+    }
+
+    const currentCallCount = this._callCounter;
+
+    return new Promise(resolve => {
+      this._timeoutId = setTimeout(() => {
+        if (this._callCounter === currentCallCount && !this._requesting) {
+          this._callCounter = 0;
+          this._requesting = true;
+          resolve('<auto_stream>');
+          this._timeoutId = null;
+        } else {
+          resolve('<debounce>');
+        }
+      }, 2000);
+    });
+  }
+
+  // Construct the next prompt
+  private constructContinuationPrompt(
+    context: IInlineCompletionContext
+  ): string {
     if (context.widget instanceof NotebookPanel) {
       const widget = context.widget as NotebookPanel;
       const notebookCellContent = retrieveNotebookContentUntilCursor(widget);
@@ -96,7 +156,37 @@ export class BigcodeInlineCompletionProvider
     return '';
   }
 
-  async shortCutCompletionHandler(
+  /**
+   * Main function, calls different functions according to context.triggerKind
+   */
+  async fetch(
+    request: CompletionHandler.IRequest,
+    context: IInlineCompletionContext
+  ): Promise<IInlineCompletionList<IInlineCompletionItem>> {
+    if (!CodeCompletionContextStore.enableCodeCompletion) {
+      return { items: [] };
+    }
+
+    if (
+      !CodeCompletionContextStore.accessToken &&
+      !CodeCompletionContextStore.enableMockTest
+    ) {
+      alert('Huggingface Access Token not set.');
+      return { items: [] };
+    }
+
+    if (context.triggerKind === 1) {
+      return await this.autoCompletionHandler(request, context);
+    }
+
+    if (context.triggerKind === 0) {
+      return await this.shortCutCompletionHandler(request, context);
+    }
+
+    return { items: [] };
+  }
+
+  private async shortCutCompletionHandler(
     request: CompletionHandler.IRequest,
     context: IInlineCompletionContext
   ): Promise<IInlineCompletionList<IInlineCompletionItem>> {
@@ -120,7 +210,7 @@ export class BigcodeInlineCompletionProvider
     return { items };
   }
 
-  async autoCompletionHandler(
+  private async autoCompletionHandler(
     request: CompletionHandler.IRequest,
     context: IInlineCompletionContext
   ): Promise<IInlineCompletionList<IInlineCompletionItem>> {
@@ -146,6 +236,7 @@ export class BigcodeInlineCompletionProvider
       });
       return { items };
     } else {
+      // Check whether the request can be made and clear the status
       const { shouldClearState, shouldAutoRequest } =
         this.shouldClearStateAndPerformAutoRequest(newAddedCodeText);
 
@@ -159,6 +250,7 @@ export class BigcodeInlineCompletionProvider
           return { items: [] };
         }
 
+        // Need to debounce
         const result = await this.debounceAutoRequest();
         if (result === '<debounce>') {
           return { items: [] };
@@ -187,80 +279,6 @@ export class BigcodeInlineCompletionProvider
     return { items };
   }
 
-  async fetch(
-    request: CompletionHandler.IRequest,
-    context: IInlineCompletionContext
-  ): Promise<IInlineCompletionList<IInlineCompletionItem>> {
-    if (!CodeCompletionContextStore.enableCodeCompletion) {
-      return { items: [] };
-    }
-
-    if (
-      !CodeCompletionContextStore.accessToken &&
-      !CodeCompletionContextStore.enableMockTest
-    ) {
-      alert('Huggingface Access Token not set.');
-      return { items: [] };
-    }
-
-    if (context.triggerKind === 1) {
-      return await this.autoCompletionHandler(request, context);
-    }
-
-    if (context.triggerKind === 0) {
-      return await this.shortCutCompletionHandler(request, context);
-    }
-
-    return { items: [] };
-  }
-
-  setRequestFinish(error: boolean): void {
-    this._requesting = false;
-    this._streamStop = false;
-    this._finish = !error;
-  }
-
-  clearState(): void {
-    this._streamStop = true;
-    this._finish = false;
-    this._requesting = false;
-    this._lastRequestInfo = {
-      insertText: '',
-      cellCode: ''
-    };
-  }
-
-  delay = async (ms: number): Promise<void> =>
-    new Promise(resolve => setTimeout(resolve, ms));
-
-  debounceAutoRequest(): Promise<string> {
-    this._callCounter++;
-
-    if (this._requesting) {
-      return Promise.resolve('<debounce>');
-    }
-
-    if (this._timeoutId) {
-      clearTimeout(this._timeoutId);
-      this._timeoutId = null;
-    }
-
-    const currentCallCount = this._callCounter;
-
-    return new Promise(resolve => {
-      this._timeoutId = setTimeout(() => {
-        if (this._callCounter === currentCallCount && !this._requesting) {
-          this._callCounter = 0;
-          this._requesting = true;
-          resolve('<auto_stream>');
-          this._timeoutId = null;
-        } else {
-          resolve('<debounce>');
-        }
-      }, 2000);
-    });
-  }
-
   async *stream(
     token: string
   ): AsyncGenerator<{ response: IInlineCompletionItem }, undefined, unknown> {
@@ -277,7 +295,7 @@ export class BigcodeInlineCompletionProvider
     this._requesting = true;
 
     if (this._requestMode === 0) {
-      yield* this.mockKeypressCompletionStream();
+      yield* this.mockKeypressCompletionStream(token);
     } else if (this._requestMode === 1) {
       yield* this.mockAutomaticCompletionStream(token);
     }
@@ -285,11 +303,9 @@ export class BigcodeInlineCompletionProvider
     this.setRequestFinish(false);
   }
 
-  private async *mockKeypressCompletionStream(): AsyncGenerator<
-    { response: IInlineCompletionItem },
-    undefined,
-    unknown
-  > {
+  private async *mockKeypressCompletionStream(
+    token: string
+  ): AsyncGenerator<{ response: IInlineCompletionItem }, undefined, unknown> {
     const testResultText =
       '"""This is the first line generated by the mockKeypressCompletionStreamr"""\n    """This is the second line generated by the mockKeypressCompletionStream"""';
 
@@ -312,6 +328,7 @@ export class BigcodeInlineCompletionProvider
 
       yield {
         response: {
+          token: token,
           isIncomplete: i !== testResultText.length - 1,
           insertText: this._lastRequestInfo.insertText
         }
@@ -350,7 +367,7 @@ export class BigcodeInlineCompletionProvider
     this.setRequestFinish(false);
   }
 
-  async *keypressCompletionStream(
+  private async *keypressCompletionStream(
     token: string
   ): AsyncGenerator<{ response: IInlineCompletionItem }, undefined, unknown> {
     if (token === '') {
@@ -410,7 +427,7 @@ export class BigcodeInlineCompletionProvider
     }
   }
 
-  async *automaticCompletionStream(
+  private async *automaticCompletionStream(
     token: string
   ): AsyncGenerator<{ response: IInlineCompletionItem }, undefined, unknown> {
     try {

@@ -91,12 +91,18 @@ const bigcodeCodeCompletion: JupyterFrontEndPlugin<void> = {
       restorer.add(bigcodeWidget, 'bigcode-code-completion');
     }
 
+    /**
+     * Initialize inlineCompletio provider
+     */
     const bigcodeInlineCompletionProvider = new BigcodeInlineCompletionProvider(
       {
         translator: translator ?? nullTranslator
       }
     );
 
+    /**
+     * Register the provider to the Manager
+     */
     completionManager.registerInlineProvider(bigcodeInlineCompletionProvider);
 
     /**
