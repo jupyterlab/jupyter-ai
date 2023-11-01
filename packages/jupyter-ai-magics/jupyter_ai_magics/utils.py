@@ -30,9 +30,10 @@ def get_lm_providers(
     for model_provider_ep in model_provider_eps:
         try:
             provider = model_provider_ep.load()
-        except:
+        except Exception as e:
             log.error(
-                f"Unable to load model provider class from entry point `{model_provider_ep.name}`."
+                f"Unable to load model provider class from entry point `{model_provider_ep.name}`: %s.",
+                e,
             )
             continue
         if not is_provider_allowed(provider.id, restrictions):
@@ -58,9 +59,10 @@ def get_em_providers(
     for model_provider_ep in model_provider_eps:
         try:
             provider = model_provider_ep.load()
-        except:
+        except Exception as e:
             log.error(
-                f"Unable to load embeddings model provider class from entry point `{model_provider_ep.name}`."
+                f"Unable to load embeddings model provider class from entry point `{model_provider_ep.name}`: %s.",
+                e,
             )
             continue
         if not is_provider_allowed(provider.id, restrictions):

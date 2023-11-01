@@ -2,6 +2,30 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 2.4.0
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.3.0...92dab10608ea090b6bd87ca5ffe9ccff7a15b449))
+
+Hey Jupyternauts! We're excited to announce the 2.4.0 release of Jupyter AI, which includes better support for Bedrock Anthropic models. Thanks to [@krassowski](https://github.com/krassowski) for providing a new feature in Jupyter AI that let's admins specify allowlists and blocklists to filter the list of providers available in the chat settings panel.
+
+### Enhancements made
+
+- Allow to define block and allow lists for providers [#415](https://github.com/jupyterlab/jupyter-ai/pull/415) ([@krassowski](https://github.com/krassowski))
+
+### Bugs fixed
+
+- Refactor generate for better stability with all providers/models [#407](https://github.com/jupyterlab/jupyter-ai/pull/407) ([@3coins](https://github.com/3coins))
+
+### Maintenance and upkeep improvements
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2023-10-09&to=2023-10-24&type=c))
+
+[@3coins](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3A3coins+updated%3A2023-10-09..2023-10-24&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2023-10-09..2023-10-24&type=Issues) | [@pre-commit-ci](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Apre-commit-ci+updated%3A2023-10-09..2023-10-24&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 2.3.0
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.2.0...7f854007263f1a9393e41611028d7cc57313c577))
@@ -43,8 +67,6 @@ Updating to 2.3.0 shouldn't require any changes on your end. However, if you not
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2023-09-05&to=2023-10-09&type=c))
 
 [@3coins](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3A3coins+updated%3A2023-09-05..2023-10-09&type=Issues) | [@andrii-i](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aandrii-i+updated%3A2023-09-05..2023-10-09&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2023-09-05..2023-10-09&type=Issues) | [@JasonWeill](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AJasonWeill+updated%3A2023-09-05..2023-10-09&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2023-09-05..2023-10-09&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 2.2.0
 

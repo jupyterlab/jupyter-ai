@@ -182,7 +182,7 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
             self.chat_history.append(message)
 
     async def on_message(self, message):
-        self.log.debug("Message recieved: %s", message)
+        self.log.debug("Message received: %s", message)
 
         try:
             message = json.loads(message)
