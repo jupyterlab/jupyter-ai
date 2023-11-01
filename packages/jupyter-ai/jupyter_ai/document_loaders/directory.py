@@ -17,6 +17,7 @@ def path_to_doc(path):
         metadata = {"path": str(path), "sha256": m.digest(), "extension": path.suffix}
         return Document(page_content=text, metadata=metadata)
 
+
 # Unless /learn has the "all files" option passed in, files and directories beginning with '.' are excluded
 EXCLUDE_DIRS = {
     "node_modules",
@@ -55,7 +56,7 @@ def split(path, all: bool, splitter):
             continue
 
         # Exclude hidden directories
-        if all is False and dir[0] == '.':
+        if all is False and dir[0] == ".":
             continue
 
         for filename in filenames:
@@ -64,7 +65,7 @@ def split(path, all: bool, splitter):
                 continue
 
             # Unless we're learning "all" files, exclude hidden files
-            if all is False and filepath.name[0] == '.':
+            if all is False and filepath.name[0] == ".":
                 continue
 
             document = dask.delayed(path_to_doc)(filepath)

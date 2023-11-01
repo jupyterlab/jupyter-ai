@@ -133,7 +133,9 @@ class LearnChatHandler(BaseChatHandler):
         {dir_list}"""
         return message
 
-    async def learn_dir(self, path: str, chunk_size: int, chunk_overlap: int, all: bool):
+    async def learn_dir(
+        self, path: str, chunk_size: int, chunk_overlap: int, all: bool
+    ):
         dask_client = await self.dask_client_future
         splitter_kwargs = {"chunk_size": chunk_size, "chunk_overlap": chunk_overlap}
         splitters = {
