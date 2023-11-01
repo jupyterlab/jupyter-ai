@@ -79,7 +79,14 @@ export const BigCodeSetting = observer(() => {
           onChange={toggleCodeCompletionWrapper}
         />
       </h1>
-      {CodeCompletionContextstore.enableCodeCompletion && (
+
+      <div
+        className={
+          CodeCompletionContextstore.enableCodeCompletion
+            ? 'code-completion-setting-entered'
+            : 'code-completion-setting-exiting'
+        }
+      >
         <h1 className="jp-ai-ChatSettings-header bigcode-setting-level-1-title">
           Enable mock test code completion
           <Switch
@@ -87,7 +94,16 @@ export const BigCodeSetting = observer(() => {
             onChange={toggleMockTestWrapper}
           />
         </h1>
-      )}
+
+        <h2 className="jp-ai-ChatSettings-header">Short cut for completion</h2>
+        <TextField
+          label="Please press the short cut you need"
+          value={CodeCompletionContextstore.shortcutStr}
+          fullWidth
+          type="text"
+          onKeyDown={setHotKeyWrapper}
+        />
+      </div>
 
       <div
         className={
@@ -112,14 +128,6 @@ export const BigCodeSetting = observer(() => {
           fullWidth
           type="password"
           onChange={e => setAccessTokenWrapper(e.target.value)}
-        />
-        <h2 className="jp-ai-ChatSettings-header">Short cut for completion</h2>
-        <TextField
-          label="Please press the short cut you need"
-          value={CodeCompletionContextstore.shortcutStr}
-          fullWidth
-          type="text"
-          onKeyDown={setHotKeyWrapper}
         />
         <h1 className="jp-ai-ChatSettings-header bigcode-setting-level-1-title">
           Advanced Settings

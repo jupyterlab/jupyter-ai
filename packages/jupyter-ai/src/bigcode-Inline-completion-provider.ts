@@ -226,7 +226,10 @@ export class BigcodeInlineCompletionProvider
     );
 
     const items: IInlineCompletionItem[] = [];
-    if (this._lastRequestInfo.insertText.startsWith(newAddedCodeText)) {
+    if (
+      this._lastRequestInfo.insertText.startsWith(newAddedCodeText) &&
+      newAddedCodeText !== ''
+    ) {
       items.push({
         isIncomplete: false,
         insertText: this._lastRequestInfo.insertText.replace(
