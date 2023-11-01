@@ -492,6 +492,19 @@ use the `-c` or `--chunk-size` option and the `-o` or `--chunk-overlap` option.
 /learn --chunk-size 1000 --chunk-overlap 200 <directory>
 ```
 
+By default, `/learn` will not read directories named `node_modules`, `lib`, or `build`,
+and will not read hidden files or hidden directories, where the file or directory name
+starts with a `.`. To force `/learn` to read all supported file types in all directories,
+use the `-a` or `--all` option.
+
+```
+# do not learn from hidden files, hidden directories, or node_modules, lib, or build directories
+/learn <directory>
+
+# learn from all supported files
+/learn -a <directory>
+```
+
 ### Additional chat commands
 
 To clear the chat panel, use the `/clear` command. This does not reset the AI model; the model may still remember previous messages that you sent it, and it may use them to inform its responses.

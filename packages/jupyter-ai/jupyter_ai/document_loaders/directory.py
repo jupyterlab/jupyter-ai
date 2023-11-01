@@ -17,14 +17,11 @@ def path_to_doc(path):
         metadata = {"path": str(path), "sha256": m.digest(), "extension": path.suffix}
         return Document(page_content=text, metadata=metadata)
 
-
+# Unless /learn has the "all files" option passed in, files and directories beginning with '.' are excluded
 EXCLUDE_DIRS = {
-    ".ipynb_checkpoints",
     "node_modules",
     "lib",
     "build",
-    ".git",
-    ".DS_Store",
 }
 SUPPORTED_EXTS = {
     ".py",
@@ -50,16 +47,24 @@ def flatten(*chunk_lists):
     return list(itertools.chain(*chunk_lists))
 
 
-def split(path, splitter):
+def split(path, all: bool, splitter):
     chunks = []
 
     for dir, _, filenames in os.walk(path):
-        if dir in EXCLUDE_DIRS:
+        if all is False and dir in EXCLUDE_DIRS:
+            continue
+
+        # Exclude hidden directories
+        if all is False and dir[0] == '.':
             continue
 
         for filename in filenames:
             filepath = Path(os.path.join(dir, filename))
             if filepath.suffix not in SUPPORTED_EXTS:
+                continue
+
+            # Unless we're learning "all" files, exclude hidden files
+            if all is False and filepath.name[0] == '.':
                 continue
 
             document = dask.delayed(path_to_doc)(filepath)
