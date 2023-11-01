@@ -54,7 +54,7 @@ def split(path, splitter):
     chunks = []
 
     for dir, _, filenames in os.walk(path):
-        if dir in EXCLUDE_DIRS:
+        if dir.startswith(".") or dir in EXCLUDE_DIRS:
             continue
 
         for filename in filenames:
