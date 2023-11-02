@@ -56,12 +56,11 @@ def split(path, all: bool, splitter):
             continue
 
         for filename in filenames:
-            filepath = Path(os.path.join(dir, filename))
-            if filepath.suffix not in SUPPORTED_EXTS:
+            if not all and filename.startswith("."):
                 continue
 
-            # Unless we're learning "all" files, exclude hidden files
-            if all is False and filepath.name[0] == ".":
+            filepath = Path(os.path.join(dir, filename))
+            if filepath.suffix not in SUPPORTED_EXTS:
                 continue
 
             document = dask.delayed(path_to_doc)(filepath)
