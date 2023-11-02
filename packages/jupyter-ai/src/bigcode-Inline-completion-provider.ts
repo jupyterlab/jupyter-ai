@@ -21,6 +21,7 @@ export class BigcodeInlineCompletionProvider
 {
   readonly identifier = '@jupyterlab/inline-completer:bigcode';
   private _trans: TranslationBundle;
+  // Used to record information from the last user request
   private _lastRequestInfo: {
     insertText: string;
     cellCode: string;
@@ -29,10 +30,15 @@ export class BigcodeInlineCompletionProvider
     cellCode: ''
   };
   private _requesting = false;
+  // Change it in "fetch" and then use this field in "stream" to call a different function
   private _requestMode: InlineCompletionTriggerKind = 0;
+  // Whether to stop the stream immediately, When the stream is in progress, the user requests to change this field to true, and then interrupts the stream request.
   private _streamStop = false;
+  // Whether to finish for request
   private _finish = false;
+  // Debounce use
   private _timeoutId: number | null = null;
+  // Debounce use
   private _callCounter = 0;
 
   get finish(): boolean {
@@ -61,6 +67,9 @@ export class BigcodeInlineCompletionProvider
     this._finish = !error;
   }
 
+  /**
+   * When the user executes the "accept" function, this function will be called to clear the status.
+   */
   clearState(): void {
     this._streamStop = true;
     this._finish = false;
@@ -226,6 +235,7 @@ export class BigcodeInlineCompletionProvider
     );
 
     const items: IInlineCompletionItem[] = [];
+    // Determine whether the keyboard pressed by the user is the beginning of ghost text
     if (
       this._lastRequestInfo.insertText.startsWith(newAddedCodeText) &&
       newAddedCodeText !== ''
@@ -382,7 +392,7 @@ export class BigcodeInlineCompletionProvider
     let reponseData: ReadableStream<Uint8Array> | null = null;
 
     try {
-      reponseData = await bigcodeRequestInstance.fetchStream(true);
+      reponseData = await bigcodeRequestInstance.send(true);
     } catch {
       yield {
         response: {
@@ -434,7 +444,7 @@ export class BigcodeInlineCompletionProvider
     token: string
   ): AsyncGenerator<{ response: IInlineCompletionItem }, undefined, unknown> {
     try {
-      const reponseData = await bigcodeRequestInstance.fetchStream(false);
+      const reponseData = await bigcodeRequestInstance.send(false);
 
       yield {
         response: {

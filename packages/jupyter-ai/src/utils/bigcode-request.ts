@@ -19,13 +19,6 @@ export type BigCodeServiceNotStreamResponse = {
   generated_text: string;
 }[];
 
-/**
- * Generates the appropriate prompt string based on the cell type.
- * The cell type can be either 'code' or 'markdown'.
- *
- * @param {ICell} cell - The cell object which includes the type and content.
- * @returns {string} The generated prompt string for the cell.
- */
 class Bigcode {
   spaceCount: number;
   private _prompt: string;
@@ -52,9 +45,9 @@ class Bigcode {
     return this._prompt;
   }
 
-  async fetchStream(stream: true): Promise<ReadableStream<Uint8Array>>;
-  async fetchStream(stream: false): Promise<BigCodeServiceNotStreamResponse>;
-  async fetchStream(
+  async send(stream: true): Promise<ReadableStream<Uint8Array>>;
+  async send(stream: false): Promise<BigCodeServiceNotStreamResponse>;
+  async send(
     stream = false
   ): Promise<ReadableStream<Uint8Array> | BigCodeServiceNotStreamResponse> {
     if (!this.bigcodeUrl || !this.accessToken) {

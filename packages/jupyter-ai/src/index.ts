@@ -65,9 +65,10 @@ const plugin: JupyterFrontEndPlugin<void> = {
   }
 };
 
-const bigcodeCodeCompletion: JupyterFrontEndPlugin<void> = {
-  id: 'jupyter_ai:plugin:inline-bigcode',
-  description: 'Adds inline completion provider suggesting code from bigcode.',
+const inlineCompletionPlugin: JupyterFrontEndPlugin<void> = {
+  id: 'jupyter_ai:plugin:inline-completion',
+  description:
+    'Adding an inline completion provider suggestion comes from jupyter-ai.',
   requires: [ICompletionProviderManager],
   optional: [ILayoutRestorer],
   autoStart: true,
@@ -116,6 +117,6 @@ const bigcodeCodeCompletion: JupyterFrontEndPlugin<void> = {
   }
 };
 
-const plugins: JupyterFrontEndPlugin<void>[] = [plugin, bigcodeCodeCompletion];
+const plugins: JupyterFrontEndPlugin<void>[] = [plugin, inlineCompletionPlugin];
 
 export default plugins;
