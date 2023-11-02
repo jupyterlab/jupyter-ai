@@ -52,11 +52,7 @@ def split(path, all: bool, splitter):
     chunks = []
 
     for dir, _, filenames in os.walk(path):
-        if all is False and dir in EXCLUDE_DIRS:
-            continue
-
-        # Exclude hidden directories
-        if all is False and dir[0] == ".":
+        if not all and (dir.startswith(".") or dir in EXCLUDE_DIRS):
             continue
 
         for filename in filenames:
