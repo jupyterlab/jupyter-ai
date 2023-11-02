@@ -5,7 +5,17 @@ import functools
 import io
 import json
 from concurrent.futures import ThreadPoolExecutor
-from typing import Any, ClassVar, Coroutine, Dict, List, Literal, Optional, Union
+from typing import (
+    Any,
+    ClassVar,
+    Coroutine,
+    Dict,
+    List,
+    Literal,
+    Mapping,
+    Optional,
+    Union,
+)
 
 from jsonpath_ng import parse
 from langchain.chat_models import (
@@ -230,6 +240,15 @@ class BaseProvider(BaseModel):
     @property
     def allows_concurrency(self):
         return True
+
+
+def pop_with_default(model: Mapping[str, Any], name: str, default: Any) -> Any:
+    try:
+        value = model.pop(name)
+    except KeyError as e:
+        return default
+
+    return value
 
 
 class AI21Provider(BaseProvider, AI21):
@@ -613,6 +632,9 @@ class SmEndpointProvider(BaseProvider, SagemakerEndpoint):
         TextField(
             key="response_path", label="Response path (required)", format="jsonpath"
         ),
+        MultilineTextField(
+            key="endpoint_kwargs", label="Endpoint arguments", format="json"
+        ),
     ]
 
     def __init__(self, *args, **kwargs):
@@ -621,7 +643,16 @@ class SmEndpointProvider(BaseProvider, SagemakerEndpoint):
         content_handler = JsonContentHandler(
             request_schema=request_schema, response_path=response_path
         )
-        super().__init__(*args, **kwargs, content_handler=content_handler)
+
+        endpoint_kwargs = pop_with_default(kwargs, "endpoint_kwargs", "{}")
+        endpoint_kwargs = json.loads(endpoint_kwargs)
+
+        super().__init__(
+            *args,
+            **kwargs,
+            content_handler=content_handler,
+            endpoint_kwargs=endpoint_kwargs,
+        )
 
     async def _acall(self, *args, **kwargs) -> Coroutine[Any, Any, str]:
         return await self._call_in_executor(*args, **kwargs)
