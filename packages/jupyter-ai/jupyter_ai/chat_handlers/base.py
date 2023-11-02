@@ -2,9 +2,6 @@ import argparse
 import os
 import time
 import traceback
-
-# necessary to prevent circular import
-from pydantic import BaseModel
 from typing import TYPE_CHECKING, Awaitable, ClassVar, Dict, List, Optional, Type
 from uuid import uuid4
 
@@ -12,16 +9,21 @@ from dask.distributed import Client as DaskClient
 from jupyter_ai.config_manager import ConfigManager, Logger
 from jupyter_ai.models import AgentChatMessage, ChatMessage, HumanChatMessage
 from jupyter_ai_magics.providers import BaseProvider
+
+# necessary to prevent circular import
+from pydantic import BaseModel
 from traitlets.config import Configurable
 
 if TYPE_CHECKING:
     from jupyter_ai.handlers import RootChatHandler
+
 
 # Chat handler type, with specific attributes for each
 class HandlerRoutingType(BaseModel):
     routing_method: ClassVar[str] = ...
     """The routing method that sends commands to this handler.
     Either "natural_language" or "slash_command"."""
+
 
 class SlashCommandRoutingType(HandlerRoutingType):
     routing_method = "slash_command"
@@ -31,6 +33,7 @@ class SlashCommandRoutingType(HandlerRoutingType):
     may declare a particular slash ID. Must contain only alphanumerics and
     underscores."""
 
+
 class NaturalLanguageRoutingType(HandlerRoutingType):
     routing_method = "natural_language"
 
@@ -38,6 +41,7 @@ class NaturalLanguageRoutingType(HandlerRoutingType):
     """Description used for routing requests, to be used when dispatching
     messages to model providers. Also shown in the UI for transparency;
     optimized for model interpretation, not human-facing help."""
+
 
 class BaseChatHandler(Configurable):
     """Base ChatHandler class containing shared methods and attributes used by
