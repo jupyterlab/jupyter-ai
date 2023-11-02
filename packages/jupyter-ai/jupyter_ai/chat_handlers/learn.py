@@ -24,7 +24,7 @@ from langchain.text_splitter import (
 )
 from langchain.vectorstores import FAISS
 
-from .base import BaseChatHandler
+from .base import BaseChatHandler, SlashCommandRoutingType
 
 INDEX_SAVE_DIR = os.path.join(jupyter_data_dir(), "jupyter_ai", "indices")
 METADATA_SAVE_PATH = os.path.join(INDEX_SAVE_DIR, "metadata.json")
@@ -34,8 +34,7 @@ class LearnChatHandler(BaseChatHandler):
     id = "learn"
     name = "Learn Local Data"
     help = "Pass a list of files and directories. Once converted to vector format, you can ask about them with /ask."
-    routing_method = "slash_command"
-    slash_id = "learn"
+    routing_type = SlashCommandRoutingType(slash_id="learn")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

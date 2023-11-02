@@ -200,25 +200,28 @@ class AiExtension(ExtensionApp):
                 )
                 continue
 
-            # Each slash ID, including None (default), must be used only once.
-            # Slash IDs may contain only alphanumerics and underscores.
-            slash_id = chat_handler.slash_id
+            if chat_handler.routing_type.routing_method == "slash_command":
+                # Each slash ID must be used only once.
+                # Slash IDs may contain only alphanumerics and underscores.
+                slash_id = chat_handler.routing_type.slash_id
 
-            if chat_handler.routing_method == "slash_command":
-                if chat_handler.slash_id:
-                    # Validate slash ID (/^[A-Za-z0-9_]+$/)
-                    if re.match(slash_command_pattern, chat_handler.slash_id):
-                        command_name = f"/{chat_handler.slash_id}"
-                    else:
-                        self.log.error(
-                            f"Handler `{chat_handler_ep.name}` has an invalid slash command "
-                            + f"`{chat_handler.slash_id}`; must contain only letters, numbers, "
-                            + "and underscores"
-                        )
-                        continue
-                else:  # No slash ID provided; assume default
-                    # The "default" handler above takes precedence over any "default" command here
-                    command_name = "default"
+                if slash_id is None:
+                    self.log.error(
+                        f"Handler `{chat_handler_ep.name}` has an invalid slash command "
+                        + f"`None`; only the default chat handler may use this"
+                    )
+                    continue
+
+                # Validate slash ID (/^[A-Za-z0-9_]+$/)
+                if re.match(slash_command_pattern, slash_id):
+                    command_name = f"/{slash_id}"
+                else:
+                    self.log.error(
+                        f"Handler `{chat_handler_ep.name}` has an invalid slash command "
+                        + f"`{slash_id}`; must contain only letters, numbers, "
+                        + "and underscores"
+                    )
+                    continue
 
             if command_name in jai_chat_handlers:
                 self.log.error(

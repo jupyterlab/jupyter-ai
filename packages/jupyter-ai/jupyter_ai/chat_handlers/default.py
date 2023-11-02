@@ -12,7 +12,7 @@ from langchain.prompts import (
     SystemMessagePromptTemplate,
 )
 
-from .base import BaseChatHandler
+from .base import BaseChatHandler, SlashCommandRoutingType
 
 SYSTEM_PROMPT = """
 You are Jupyternaut, a conversational assistant living in JupyterLab to help users.
@@ -32,6 +32,11 @@ AI:"""
 
 
 class DefaultChatHandler(BaseChatHandler):
+    id = "default"
+    name = "Default"
+    help = "Responds to prompts that are not otherwise handled by a chat handler"
+    routing_type = SlashCommandRoutingType(slash_id=None)
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.memory = ConversationBufferWindowMemory(return_messages=True, k=2)
