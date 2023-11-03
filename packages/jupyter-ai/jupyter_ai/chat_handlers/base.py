@@ -33,16 +33,21 @@ class BaseChatHandler:
         self.llm_params = None
         self.llm_chain = None
 
-    async def process_message(self, message: HumanChatMessage):
-        """Processes the message passed by the root chat handler."""
+    async def on_message(self, message: HumanChatMessage):
+        """
+        Method which receives a human message and processes it via
+        `self.process_message()`, calling `self.handle_exc()` when an exception
+        is raised. This method is called by RootChatHandler when it routes a
+        human message to this chat handler.
+        """
         try:
-            await self._process_message(message)
+            await self.process_message(message)
         except Exception as e:
             formatted_e = traceback.format_exc()
             response = f"Sorry, something went wrong and I wasn't able to index that path.\n\n```\n{formatted_e}\n```"
             self.reply(response, message)
 
-    async def _process_message(self, message: HumanChatMessage):
+    async def process_message(self, message: HumanChatMessage):
         """Processes the message passed by the `Router`"""
         raise NotImplementedError("Should be implemented by subclasses.")
 
