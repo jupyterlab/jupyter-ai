@@ -48,15 +48,15 @@ def flatten(*chunk_lists):
     return list(itertools.chain(*chunk_lists))
 
 
-def split(path, all: bool, splitter):
+def split(path, all_files: bool, splitter):
     chunks = []
 
     for dir, _, filenames in os.walk(path):
-        if not all and (dir.startswith(".") or dir in EXCLUDE_DIRS):
+        if not all_files and (dir.startswith(".") or dir in EXCLUDE_DIRS):
             continue
 
         for filename in filenames:
-            if not all and filename.startswith("."):
+            if not all_files and filename.startswith("."):
                 continue
 
             filepath = Path(os.path.join(dir, filename))
