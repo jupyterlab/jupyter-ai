@@ -495,7 +495,7 @@ use the `-c` or `--chunk-size` option and the `-o` or `--chunk-overlap` option.
 By default, `/learn` will not read directories named `node_modules`, `lib`, or `build`,
 and will not read hidden files or hidden directories, where the file or directory name
 starts with a `.`. To force `/learn` to read all supported file types in all directories,
-use the `-a` or `--all` option.
+use the `-a` or `--all-files` option.
 
 ```
 # do not learn from hidden files, hidden directories, or node_modules, lib, or build directories
