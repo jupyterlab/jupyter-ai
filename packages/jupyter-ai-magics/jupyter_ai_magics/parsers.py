@@ -1,3 +1,4 @@
+import json
 from typing import Literal, Optional, get_args
 
 import click
@@ -33,14 +34,14 @@ RESPONSE_PATH_HELP = (
 )
 
 ENDPOINT_ARGS_SHORT_OPTION = "-e"
-ENDPOINT_ARGS_LONG_OPTION = "--endpoint-args"
+ENDPOINT_ARGS_LONG_OPTION = "--endpoint-kwargs"
 ENDPOINT_ARGS_HELP = (
     "A JSON value that specifies extra values that will be passed "
     "to the SageMaker Endpoint invoke function."
 )
 
 MODEL_ARGS_SHORT_OPTION = "-m"
-MODEL_ARGS_LONG_OPTION = "--model-args"
+MODEL_ARGS_LONG_OPTION = "--model-kwargs"
 MODEL_ARGS_HELP = (
     "A JSON value that specifies extra values that will be passed to"
     "the payload body of the invoke function. This can be useful to"
@@ -58,6 +59,8 @@ class CellArgs(BaseModel):
     region_name: Optional[str]
     request_schema: Optional[str]
     response_path: Optional[str]
+    model_kwargs: Optional[str]
+    endpoint_kwargs: Optional[str]
 
 
 # Should match CellArgs, but without "reset"
@@ -109,6 +112,19 @@ class LineMagicGroup(click.Group):
             click.echo(super().get_help(ctx))
 
 
+def verify_json_value(ctx, param, value):
+    if not value:
+        return value
+    try:
+        json.loads(value)
+    except json.JSONDecodeError as e:
+        raise ValueError(
+            f"{param.get_error_hint(ctx)} must be valid JSON. "
+            f"Error at line {e.lineno}, column {e.colno}: {e.msg}"
+        )
+    return value
+
+
 @click.command()
 @click.argument("model_id")
 @click.option(
@@ -136,6 +152,7 @@ class LineMagicGroup(click.Group):
     REQUEST_SCHEMA_LONG_OPTION,
     required=False,
     help=REQUEST_SCHEMA_HELP,
+    callback=verify_json_value,
 )
 @click.option(
     RESPONSE_PATH_SHORT_OPTION,
@@ -148,6 +165,14 @@ class LineMagicGroup(click.Group):
     ENDPOINT_ARGS_LONG_OPTION,
     required=False,
     help=ENDPOINT_ARGS_HELP,
+    callback=verify_json_value,
+)
+@click.option(
+    MODEL_ARGS_SHORT_OPTION,
+    MODEL_ARGS_LONG_OPTION,
+    required=False,
+    help=MODEL_ARGS_HELP,
+    callback=verify_json_value,
 )
 def cell_magic_parser(**kwargs):
     """
@@ -188,12 +213,27 @@ def line_magic_parser():
     REQUEST_SCHEMA_LONG_OPTION,
     required=False,
     help=REQUEST_SCHEMA_HELP,
+    callback=verify_json_value,
 )
 @click.option(
     RESPONSE_PATH_SHORT_OPTION,
     RESPONSE_PATH_LONG_OPTION,
     required=False,
     help=RESPONSE_PATH_HELP,
+)
+@click.option(
+    ENDPOINT_ARGS_SHORT_OPTION,
+    ENDPOINT_ARGS_LONG_OPTION,
+    required=False,
+    help=ENDPOINT_ARGS_HELP,
+    callback=verify_json_value,
+)
+@click.option(
+    MODEL_ARGS_SHORT_OPTION,
+    MODEL_ARGS_LONG_OPTION,
+    required=False,
+    help=MODEL_ARGS_HELP,
+    callback=verify_json_value,
 )
 def error_subparser(**kwargs):
     """
