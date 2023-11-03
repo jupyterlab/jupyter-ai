@@ -82,7 +82,7 @@ class DefaultChatHandler(BaseChatHandler):
         if self.chat_history:
             self.chat_history.clear()
 
-    async def _process_message(self, message: HumanChatMessage):
+    async def process_message(self, message: HumanChatMessage):
         self.get_llm_chain()
         response = await self.llm_chain.apredict(input=message.body, stop=["\nHuman:"])
         self.reply(response, message)

@@ -48,7 +48,7 @@ class AskChatHandler(BaseChatHandler):
             verbose=False,
         )
 
-    async def _process_message(self, message: HumanChatMessage):
+    async def process_message(self, message: HumanChatMessage):
         args = self.parse_args(message)
         if args is None:
             return

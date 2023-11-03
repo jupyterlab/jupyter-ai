@@ -248,7 +248,7 @@ class GenerateChatHandler(BaseChatHandler):
         nbformat.write(notebook, final_path)
         return final_path
 
-    async def _process_message(self, message: HumanChatMessage):
+    async def process_message(self, message: HumanChatMessage):
         self.get_llm_chain()
 
         # first send a verification message to user
