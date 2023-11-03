@@ -42,13 +42,27 @@ class BaseChatHandler:
         try:
             await self.process_message(message)
         except Exception as e:
-            formatted_e = traceback.format_exc()
-            response = f"Sorry, something went wrong and I wasn't able to index that path.\n\n```\n{formatted_e}\n```"
-            self.reply(response, message)
+            await self.handle_exc(e, message)
 
     async def process_message(self, message: HumanChatMessage):
-        """Processes the message passed by the `Router`"""
+        """
+        Processes a human message routed to this chat handler. Chat handlers
+        (subclasses) must implement this method.
+         
+        The method definition does not need to be wrapped in a try/except block;
+        any exceptions raised here are caught by `self.handle_exc()`.
+        """
         raise NotImplementedError("Should be implemented by subclasses.")
+
+    async def handle_exc(self, e: Exception, message: HumanChatMessage):
+        """
+        Handles an exception raised by `self.process_message()`. A default
+        implementation is provided, however chat handlers (subclasses) should
+        implement this method to provide a more helpful error response.
+        """
+        formatted_e = traceback.format_exc()
+        response = f"Sorry, an unknown error occurred. Details below:\n\n```\n{formatted_e}\n```"
+        self.reply(response, message)
 
     def reply(self, response, human_msg: Optional[HumanChatMessage] = None):
         agent_msg = AgentChatMessage(
