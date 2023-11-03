@@ -116,7 +116,9 @@ class LearnChatHandler(BaseChatHandler):
         if args.verbose:
             self.reply(f"Loading and splitting files for {load_path}", message)
 
-        await self.learn_dir(load_path, args.chunk_size, args.chunk_overlap, args.all_files)
+        await self.learn_dir(
+            load_path, args.chunk_size, args.chunk_overlap, args.all_files
+        )
         self.save()
 
         response = f"""🎉 I have learned documents at **{load_path}** and I am ready to answer questions about them.
