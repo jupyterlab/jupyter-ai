@@ -18,13 +18,11 @@ def path_to_doc(path):
         return Document(page_content=text, metadata=metadata)
 
 
+# Unless /learn has the "all files" option passed in, files and directories beginning with '.' are excluded
 EXCLUDE_DIRS = {
-    ".ipynb_checkpoints",
     "node_modules",
     "lib",
     "build",
-    ".git",
-    ".DS_Store",
 }
 SUPPORTED_EXTS = {
     ".py",
@@ -50,12 +48,15 @@ def flatten(*chunk_lists):
     return list(itertools.chain(*chunk_lists))
 
 
-def split(path, splitter):
+def split(path, all_files: bool, splitter):
     chunks = []
 
-    for dir, _, filenames in os.walk(path):
-        if dir in EXCLUDE_DIRS:
-            continue
+    for dir, subdirs, filenames in os.walk(path):
+        # Filter out hidden filenames, hidden directories, and excluded directories,
+        # unless "all files" are requested
+        if not all_files:
+            subdirs[:] = [d for d in subdirs if not (d[0] == "." or d in EXCLUDE_DIRS)]
+            filenames = [f for f in filenames if not f[0] == "."]
 
         for filename in filenames:
             filepath = Path(os.path.join(dir, filename))

@@ -38,6 +38,7 @@ class LearnChatHandler(BaseChatHandler):
         self.root_dir = root_dir
         self.dask_client_future = dask_client_future
         self.parser.prog = "/learn"
+        self.parser.add_argument("-a", "--all-files", action="store_true")
         self.parser.add_argument("-v", "--verbose", action="store_true")
         self.parser.add_argument("-d", "--delete", action="store_true")
         self.parser.add_argument("-l", "--list", action="store_true")
@@ -115,7 +116,9 @@ class LearnChatHandler(BaseChatHandler):
         if args.verbose:
             self.reply(f"Loading and splitting files for {load_path}", message)
 
-        await self.learn_dir(load_path, args.chunk_size, args.chunk_overlap)
+        await self.learn_dir(
+            load_path, args.chunk_size, args.chunk_overlap, args.all_files
+        )
         self.save()
 
         response = f"""🎉 I have learned documents at **{load_path}** and I am ready to answer questions about them.
@@ -132,7 +135,9 @@ class LearnChatHandler(BaseChatHandler):
         {dir_list}"""
         return message
 
-    async def learn_dir(self, path: str, chunk_size: int, chunk_overlap: int):
+    async def learn_dir(
+        self, path: str, chunk_size: int, chunk_overlap: int, all_files: bool
+    ):
         dask_client = await self.dask_client_future
         splitter_kwargs = {"chunk_size": chunk_size, "chunk_overlap": chunk_overlap}
         splitters = {
@@ -146,7 +151,7 @@ class LearnChatHandler(BaseChatHandler):
             default_splitter=RecursiveCharacterTextSplitter(**splitter_kwargs),
         )
 
-        delayed = split(path, splitter=splitter)
+        delayed = split(path, all_files, splitter=splitter)
         doc_chunks = await dask_client.compute(delayed)
 
         em_provider_cls, em_provider_args = self.get_embedding_provider()
