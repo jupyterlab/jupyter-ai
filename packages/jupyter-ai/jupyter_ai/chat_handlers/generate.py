@@ -1,8 +1,8 @@
 import asyncio
 import os
-from pathlib import Path
 import time
 import traceback
+from pathlib import Path
 from typing import Dict, List, Optional, Type
 
 import nbformat
@@ -261,13 +261,13 @@ class GenerateChatHandler(BaseChatHandler):
         final_path = await self._generate_notebook(prompt=message.body)
         response = f"""🎉 I have created your notebook and saved it to the location {final_path}. I am still learning how to create notebooks, so please review all code before running it."""
         self.reply(response, message)
-    
+
     async def handle_exc(self, e: Exception, message: HumanChatMessage):
         timestamp = time.strftime("%Y-%m-%d-%H:%M:%S")
         log_path = Path(f"jupyter-ai-logs/generate-{timestamp}.log")
         log_path.parent.mkdir(parents=True, exist_ok=True)
-        with log_path.open('w') as log:
+        with log_path.open("w") as log:
             traceback.print_exc(file=log)
-        
+
         response = f"An error occurred while generating the notebook. The error details have been saved to `./{log_path}`.\n\nSome language models require multiple `/generate` attempts before a notebook is generated."
         self.reply(response, message)
