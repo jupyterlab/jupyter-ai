@@ -54,7 +54,7 @@ class BaseChatHandler:
         Processes a human message routed to this chat handler. Chat handlers
         (subclasses) must implement this method. Don't forget to call
         `self.reply(<response>, message)` at the end!
-         
+
         The method definition does not need to be wrapped in a try/except block;
         any exceptions raised here are caught by `self.handle_exc()`.
         """
@@ -74,7 +74,9 @@ class BaseChatHandler:
         the `handle_exc()` excepts.
         """
         formatted_e = traceback.format_exc()
-        response = f"Sorry, an error occurred. Details below:\n\n```\n{formatted_e}\n```"
+        response = (
+            f"Sorry, an error occurred. Details below:\n\n```\n{formatted_e}\n```"
+        )
         self.reply(response, message)
 
     def reply(self, response: str, human_msg: Optional[HumanChatMessage] = None):
