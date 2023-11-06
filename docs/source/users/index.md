@@ -135,7 +135,7 @@ To use Bedrock models, you will need to authenticate via
 
 You need the `pillow` Python package to use Hugging Face Hub's text-to-image models.
 
-You can find a list of Hugging Face's models at https://huggingface.co/models.
+You can find a list of Hugging Face's models at [https://huggingface.co/models](https://huggingface.co/models).
 
 SageMaker endpoint names are created when you deploy a model. For more information, see
 ["Create your endpoint and deploy your model"](https://docs.aws.amazon.com/sagemaker/latest/dg/realtime-endpoints-deployment.html)
