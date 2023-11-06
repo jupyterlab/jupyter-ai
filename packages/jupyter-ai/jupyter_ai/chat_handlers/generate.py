@@ -269,5 +269,5 @@ class GenerateChatHandler(BaseChatHandler):
         with log_path.open("w") as log:
             traceback.print_exc(file=log)
 
-        response = f"An error occurred while generating the notebook. The error details have been saved to `./{log_path}`.\n\nSome language models require multiple `/generate` attempts before a notebook is generated."
+        response = f"An error occurred while generating the notebook. The error details have been saved to `./{log_path}`.\n\nTry running `/generate` again, as some language models require multiple attempts before a notebook is generated."
         self.reply(response, message)
