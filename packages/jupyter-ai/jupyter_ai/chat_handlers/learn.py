@@ -77,7 +77,7 @@ class LearnChatHandler(BaseChatHandler):
             except Exception as e:
                 self.log.error("Could not load vector index from disk.")
 
-    async def _process_message(self, message: HumanChatMessage):
+    async def process_message(self, message: HumanChatMessage):
         # If no embedding provider has been selected
         em_provider_cls, em_provider_args = self.get_embedding_provider()
         if not em_provider_cls:

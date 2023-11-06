@@ -9,7 +9,6 @@ from uuid import uuid4
 from jupyter_ai.config_manager import ConfigManager, Logger
 from jupyter_ai.models import AgentChatMessage, HumanChatMessage
 from jupyter_ai_magics.providers import BaseProvider
-from langchain.chat_models.base import BaseChatModel
 
 if TYPE_CHECKING:
     from jupyter_ai.handlers import RootChatHandler
@@ -33,20 +32,54 @@ class BaseChatHandler:
         self.llm_params = None
         self.llm_chain = None
 
-    async def process_message(self, message: HumanChatMessage):
-        """Processes the message passed by the root chat handler."""
+    async def on_message(self, message: HumanChatMessage):
+        """
+        Method which receives a human message and processes it via
+        `self.process_message()`, calling `self.handle_exc()` when an exception
+        is raised. This method is called by RootChatHandler when it routes a
+        human message to this chat handler.
+        """
         try:
-            await self._process_message(message)
+            await self.process_message(message)
         except Exception as e:
-            formatted_e = traceback.format_exc()
-            response = f"Sorry, something went wrong and I wasn't able to index that path.\n\n```\n{formatted_e}\n```"
-            self.reply(response, message)
+            try:
+                # we try/except `handle_exc()` in case it was overriden and
+                # raises an exception by accident.
+                await self.handle_exc(e, message)
+            except Exception as e:
+                await self._default_handle_exc(e, message)
 
-    async def _process_message(self, message: HumanChatMessage):
-        """Processes the message passed by the `Router`"""
+    async def process_message(self, message: HumanChatMessage):
+        """
+        Processes a human message routed to this chat handler. Chat handlers
+        (subclasses) must implement this method. Don't forget to call
+        `self.reply(<response>, message)` at the end!
+
+        The method definition does not need to be wrapped in a try/except block;
+        any exceptions raised here are caught by `self.handle_exc()`.
+        """
         raise NotImplementedError("Should be implemented by subclasses.")
 
-    def reply(self, response, human_msg: Optional[HumanChatMessage] = None):
+    async def handle_exc(self, e: Exception, message: HumanChatMessage):
+        """
+        Handles an exception raised by `self.process_message()`. A default
+        implementation is provided, however chat handlers (subclasses) should
+        implement this method to provide a more helpful error response.
+        """
+        self._default_handle_exc(e, message)
+
+    async def _default_handle_exc(self, e: Exception, message: HumanChatMessage):
+        """
+        The default definition of `handle_exc()`. This is the default used when
+        the `handle_exc()` excepts.
+        """
+        formatted_e = traceback.format_exc()
+        response = (
+            f"Sorry, an error occurred. Details below:\n\n```\n{formatted_e}\n```"
+        )
+        self.reply(response, message)
+
+    def reply(self, response: str, human_msg: Optional[HumanChatMessage] = None):
         agent_msg = AgentChatMessage(
             id=uuid4().hex,
             time=time.time(),

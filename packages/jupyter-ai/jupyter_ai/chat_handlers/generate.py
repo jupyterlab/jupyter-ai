@@ -1,5 +1,8 @@
 import asyncio
 import os
+import time
+import traceback
+from pathlib import Path
 from typing import Dict, List, Optional, Type
 
 import nbformat
@@ -248,18 +251,23 @@ class GenerateChatHandler(BaseChatHandler):
         nbformat.write(notebook, final_path)
         return final_path
 
-    async def _process_message(self, message: HumanChatMessage):
+    async def process_message(self, message: HumanChatMessage):
         self.get_llm_chain()
 
         # first send a verification message to user
         response = "👍 Great, I will get started on your notebook. It may take a few minutes, but I will reply here when the notebook is ready. In the meantime, you can continue to ask me other questions."
         self.reply(response, message)
 
-        try:
-            final_path = await self._generate_notebook(prompt=message.body)
-            response = f"""🎉 I have created your notebook and saved it to the location {final_path}. I am still learning how to create notebooks, so please review all code before running it."""
-        except Exception as e:
-            self.log.exception(e)
-            response = "An error occurred while generating the notebook. Try running the /generate task again."
-        finally:
-            self.reply(response, message)
+        final_path = await self._generate_notebook(prompt=message.body)
+        response = f"""🎉 I have created your notebook and saved it to the location {final_path}. I am still learning how to create notebooks, so please review all code before running it."""
+        self.reply(response, message)
+
+    async def handle_exc(self, e: Exception, message: HumanChatMessage):
+        timestamp = time.strftime("%Y-%m-%d-%H.%M.%S")
+        log_path = Path(f"jupyter-ai-logs/generate-{timestamp}.log")
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        with log_path.open("w") as log:
+            traceback.print_exc(file=log)
+
+        response = f"An error occurred while generating the notebook. The error details have been saved to `./{log_path}`.\n\nTry running `/generate` again, as some language models require multiple attempts before a notebook is generated."
+        self.reply(response, message)

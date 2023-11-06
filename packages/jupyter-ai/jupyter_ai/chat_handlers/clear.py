@@ -10,7 +10,7 @@ class ClearChatHandler(BaseChatHandler):
         super().__init__(*args, **kwargs)
         self._chat_history = chat_history
 
-    async def _process_message(self, _):
+    async def process_message(self, _):
         self._chat_history.clear()
         for handler in self._root_chat_handlers.values():
             if not handler:

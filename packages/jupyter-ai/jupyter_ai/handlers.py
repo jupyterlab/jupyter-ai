@@ -222,9 +222,9 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
 
         start = time.time()
         if is_command:
-            await self.chat_handlers[command].process_message(message)
+            await self.chat_handlers[command].on_message(message)
         else:
-            await default.process_message(message)
+            await default.on_message(message)
 
         latency_ms = round((time.time() - start) * 1000)
         command_readable = "Default" if command == "default" else command
