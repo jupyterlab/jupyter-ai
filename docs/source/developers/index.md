@@ -149,7 +149,7 @@ class CustomChatHandler(BaseChatHandler):
         # Put your custom logic here
 ```
 
-Jupyter AI uses entry points to support custom slash commands. 
+Jupyter AI uses entry points to support custom slash commands.
 In the `pyproject.toml` file, add your custom handler to the
 `[project.entry-points."jupyter_ai.chat_handlers"]` section:
 
