@@ -263,7 +263,7 @@ class GenerateChatHandler(BaseChatHandler):
         self.reply(response, message)
 
     async def handle_exc(self, e: Exception, message: HumanChatMessage):
-        timestamp = time.strftime("%Y-%m-%d-%H:%M:%S")
+        timestamp = time.strftime("%Y-%m-%d-%H.%M.%S")
         log_path = Path(f"jupyter-ai-logs/generate-{timestamp}.log")
         log_path.parent.mkdir(parents=True, exist_ok=True)
         with log_path.open("w") as log:
