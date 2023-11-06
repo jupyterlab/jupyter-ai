@@ -120,3 +120,43 @@ class MyProvider(BaseProvider, FakeListLLM):
 ```
 
 Please note that this will only work with Jupyter AI magics (the `%ai` and `%%ai` magic commands). Custom prompt templates are not used in the chat interface yet.
+
+## Custom slash commands in the chat UI
+
+You can add a custom slash command to the chat interface by
+creating a new class that inherits from `BaseChatHandler`. Set
+its `id`, `name`, `help` message for display in the user interface,
+and `routing_type`. Each custom slash command must have a unique
+slash command. Slash commands can only contain ASCII letters, numerals,
+and underscores. Each slash command must be unique; custom slash
+commands cannot replace built-in slash commands.
+
+Add your custom handler in Python code:
+
+```python
+from jupyter_ai.base import BaseChatHandler, SlashCommandRoutingType
+
+class CustomChatHandler(BaseChatHandler):
+    id = "custom"
+    name = "Custom"
+    help = "A chat handler that does something custom"
+    routing_type = SlashCommandRoutingType(slash_id="custom")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    async def _process_message(self, message: HumanChatMessage):
+        # Put your custom logic here
+```
+
+Jupyter AI uses entry points to support custom slash commands. 
+In the `pyproject.toml` file, add your custom handler to the
+`[project.entry-points."jupyter_ai.chat_handlers"]` section:
+
+```
+[project.entry-points."jupyter_ai.chat_handlers"]
+custom = "custom_package:chat_handlers.CustomChatHandler"
+```
+
+Then, install your package so that Jupyter AI adds custom chat handlers
+to the existing chat handlers.

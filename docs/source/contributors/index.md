@@ -2,7 +2,8 @@
 
 This page is intended for people interested in building new or modified functionality for Jupyter AI.
 
-If you would like to build applications that enhance Jupyter AI, please see the {doc}`developer's guide </developers/index>`.
+If you would like to build applications that enhance Jupyter AI,
+please see the {doc}`developer's guide </developers/index>`.
 
 ## Design principles
 
