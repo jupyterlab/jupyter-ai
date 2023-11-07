@@ -25,9 +25,9 @@ export function buildErrorWidget(
             There seems to be a problem with the Chat backend, please look at
             the JupyterLab server logs or contact your administrator to correct
             this problem. Deleting the config file
-            `$JUPYTER_DATA_DIR/jupyter_ai/config.json` to some other name and
-            then restarting `jupyter lab` may fix the issue if it is a result of
-            the config changes.
+            `$JUPYTER_DATA_DIR/jupyter_ai/config.json` and then restarting
+            `jupyter lab` may fix the issue if it is a result of the config
+            changes.
           </Alert>
           <Box sx={{ marginTop: 2 }}>
             <Button variant="contained" onClick={deleteConfig}>
