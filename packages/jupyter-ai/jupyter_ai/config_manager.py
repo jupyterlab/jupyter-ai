@@ -342,7 +342,9 @@ class ConfigManager(Configurable):
                     f"Configuration file {self.config_path} does not exist"
                 )
         except Exception as e:
-            self.log.warning(f"Failed to delete configuration file {self.config_path}: {e}")
+            self.log.warning(
+                f"Failed to delete configuration file {self.config_path}: {e}"
+            )
             raise
 
     # this cannot be a property, as the parent Configurable already defines the
