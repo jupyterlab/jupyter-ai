@@ -4,7 +4,6 @@ import os
 from typing import Any, Awaitable, Coroutine, List, Optional, Tuple
 
 from dask.distributed import Client as DaskClient
-from jupyter_ai.config_manager import ConfigManager
 from jupyter_ai.document_loaders.directory import get_embeddings, split
 from jupyter_ai.document_loaders.splitter import ExtensionSplitter, NotebookSplitter
 from jupyter_ai.models import (
@@ -31,6 +30,8 @@ METADATA_SAVE_PATH = os.path.join(INDEX_SAVE_DIR, "metadata.json")
 
 
 class LearnChatHandler(BaseChatHandler):
+    _retriever: BaseRetriever
+
     def __init__(
         self, root_dir: str, dask_client_future: Awaitable[DaskClient], *args, **kwargs
     ):
@@ -61,7 +62,25 @@ class LearnChatHandler(BaseChatHandler):
         if not os.path.exists(INDEX_SAVE_DIR):
             os.makedirs(INDEX_SAVE_DIR)
 
+        self._init_retriever()
         self._load()
+
+    def _init_retriever(self):
+        class Retriever(BaseRetriever):
+            def _get_relevant_documents(_) -> List[Document]:
+                raise NotImplementedError()
+
+            async def _aget_relevant_documents(
+                _, query: str
+            ) -> Coroutine[Any, Any, List[Document]]:
+                # here `self` resolves to the LearnChatHandler parent.
+                return await self.aget_relevant_documents(query)
+
+        self._retriever = Retriever()
+
+    @property
+    def retriever(self):
+        return self._retriever
 
     def _load(self):
         """Loads the vector store."""
@@ -272,16 +291,6 @@ class LearnChatHandler(BaseChatHandler):
             j = json.loads(f.read())
             self.metadata = IndexMetadata(**j)
 
-    async def aget_relevant_documents(
-        self, query: str
-    ) -> Coroutine[Any, Any, List[Document]]:
-        if not self.index:
-            return []
-
-        await self.delete_and_relearn()
-        docs = self.index.similarity_search(query)
-        return docs
-
     def get_embedding_provider(self):
         return self.config_manager.em_provider, self.config_manager.em_provider_params
 
@@ -292,15 +301,17 @@ class LearnChatHandler(BaseChatHandler):
 
         return em_provider_cls(**em_provider_args)
 
-
-class Retriever(BaseRetriever):
-    learn_chat_handler: LearnChatHandler = None
-
     def _get_relevant_documents(self, query: str) -> List[Document]:
         raise NotImplementedError()
 
-    async def _aget_relevant_documents(
+    async def aget_relevant_documents(
         self, query: str
     ) -> Coroutine[Any, Any, List[Document]]:
-        docs = await self.learn_chat_handler.aget_relevant_documents(query)
+        """This method defines the behavior of `self.retriever`, the LangChain
+        retriever object used by the AskChatHandler."""
+        if not self.index:
+            return []
+
+        await self.delete_and_relearn()
+        docs = self.index.similarity_search(query)
         return docs
