@@ -82,8 +82,7 @@ class LearnChatHandler(BaseChatHandler):
         em_provider_cls, em_provider_args = self.get_embedding_provider()
         if not em_provider_cls:
             self.reply(
-                "Please select an embedding provider in the chat settings, "
-                "then run your **/learn** command again."
+                "Sorry, please select an embedding provider before using the `/learn` command."
             )
             return
 
@@ -122,18 +121,17 @@ class LearnChatHandler(BaseChatHandler):
         )
         self.save()
 
-        response = f"""🎉 I have learned from documents at **{load_path}** and
-        I am ready to answer questions about them. You can ask questions about these
-        documents by starting your message with **/ask**."""
+        response = f"""🎉 I have learned documents at **{load_path}** and I am ready to answer questions about them.
+        You can ask questions about these docs by prefixing your message with **/ask**."""
         self.reply(response, message)
 
     def _build_list_response(self):
         if not self.metadata.dirs:
-            return "I haven't learned from any documents yet."
+            return "There are no docs that have been learned yet."
 
         dirs = [dir.path for dir in self.metadata.dirs]
         dir_list = "\n- " + "\n- ".join(dirs) + "\n\n"
-        message = f"""I can answer questions about documents in these directories:
+        message = f"""I can answer questions from docs in these directories:
         {dir_list}"""
         return message
 
@@ -200,10 +198,10 @@ class LearnChatHandler(BaseChatHandler):
         self.log.info(
             f"Switching embedding provider from {prev_em_id} to {curr_em_id}."
         )
-        message = f"""🔔 Hi there! It seems like you have changed the embedding
+        message = f"""🔔 Hi there, it seems like you have updated the embeddings
         model from `{prev_em_id}` to `{curr_em_id}`. I have to re-learn the
-        documents you had previously submitted for learning. Please wait
-        until I am done with this task before you use the **/ask** command."""
+        documents you had previously submitted for learning. Please wait to use
+        the **/ask** command until I am done with this task."""
 
         self.reply(message)
 
@@ -238,9 +236,9 @@ class LearnChatHandler(BaseChatHandler):
         dir_list = (
             "\n- " + "\n- ".join([dir.path for dir in self.metadata.dirs]) + "\n\n"
         )
-        message = f"""🎉 I am done learning about documents in these directories:
+        message = f"""🎉 I am done learning docs in these directories:
         {dir_list} I am ready to answer questions about them.
-        You can ask me about these documents by prefixing your message with **/ask**."""
+        You can ask questions about these docs by prefixing your message with **/ask**."""
         self.reply(message)
 
     def create(
