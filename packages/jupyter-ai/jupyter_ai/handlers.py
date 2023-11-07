@@ -384,7 +384,6 @@ class GlobalConfigHandler(BaseAPIHandler):
 
     @web.authenticated
     def delete(self):
-        print("\n\n *** \n attempting to delete")
         try:
             self.config_manager.delete_config()
             self.set_status(204)
