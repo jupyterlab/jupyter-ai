@@ -382,6 +382,16 @@ class GlobalConfigHandler(BaseAPIHandler):
                 500, "Unexpected error occurred while updating the config."
             ) from e
 
+    @web.authenticated
+    def delete(self):
+        print("\n\n *** \n attempting to delete")
+        try:
+            self.config_manager.delete_config()
+            self.set_status(204)
+            self.finish()
+        except Exception as e:
+            raise HTTPError(500, str(e))
+
 
 class ApiKeysHandler(BaseAPIHandler):
     @property

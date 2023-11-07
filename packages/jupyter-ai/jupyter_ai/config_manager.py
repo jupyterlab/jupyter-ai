@@ -330,6 +330,21 @@ class ConfigManager(Configurable):
         Merger.merge(config_dict, config_update.dict(exclude_unset=True))
         self._write_config(GlobalConfig(**config_dict))
 
+    def delete_config(self):
+        try:
+            if os.path.exists(self.config_path):
+                os.remove(self.config_path)
+                self.log.info(f"Configutation file {self.config_path} has been deleted")
+                self._config = None
+                self._last_read = None
+            else:
+                self.log.warning(
+                    f"Configuration file {self.config_path} does not exist"
+                )
+        except Exception as e:
+            self.log.warning(f"Failed to delete configuration file {self.config_path}: {e}")
+            raise
+
     # this cannot be a property, as the parent Configurable already defines the
     # self.config attr.
     def get_config(self):
