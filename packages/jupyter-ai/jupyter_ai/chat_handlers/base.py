@@ -3,7 +3,7 @@ import time
 import traceback
 
 # necessary to prevent circular import
-from typing import TYPE_CHECKING, Dict, Optional, Type
+from typing import TYPE_CHECKING, Any, Dict, Optional, Type
 from uuid import uuid4
 
 from jupyter_ai.config_manager import ConfigManager, Logger
@@ -23,10 +23,12 @@ class BaseChatHandler:
         log: Logger,
         config_manager: ConfigManager,
         root_chat_handlers: Dict[str, "RootChatHandler"],
+        model_parameters: Dict[str, Dict],
     ):
         self.log = log
         self.config_manager = config_manager
         self._root_chat_handlers = root_chat_handlers
+        self.model_parameters = model_parameters
         self.parser = argparse.ArgumentParser()
         self.llm = None
         self.llm_params = None
@@ -121,6 +123,13 @@ class BaseChatHandler:
 
         self.llm_params = lm_provider_params
         return self.llm_chain
+
+    def get_model_parameters(
+        self, provider: Type[BaseProvider], provider_params: Dict[str, str]
+    ):
+        return self.model_parameters.get(
+            f"{provider.id}:{provider_params['model_id']}", {}
+        )
 
     def create_llm_chain(
         self, provider: Type[BaseProvider], provider_params: Dict[str, str]

@@ -1,4 +1,4 @@
-from typing import ClassVar, List, Type
+from typing import ClassVar, List
 
 from jupyter_ai_magics.providers import (
     AuthStrategy,
@@ -12,7 +12,6 @@ from langchain.embeddings import (
     HuggingFaceHubEmbeddings,
     OpenAIEmbeddings,
 )
-from langchain.embeddings.base import Embeddings
 from pydantic import BaseModel, Extra
 
 
