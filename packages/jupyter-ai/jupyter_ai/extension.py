@@ -56,7 +56,15 @@ class AiExtension(ExtensionApp):
     allowed_models = List(
         Unicode(),
         default_value=None,
-        help="Language models to allow, as a list of global model IDs in the format `<provider>:<local-model-id>`. If `None`, all are allowed. Defaults to `None`.",
+        help="""
+        Language models to allow, as a list of global model IDs in the format
+        `<provider>:<local-model-id>`. If `None`, all are allowed. Defaults to
+        `None`.
+
+        Note: Currently, if `allowed_providers` is also set, then this field is
+        ignored. This is subject to change in a future non-major release. Using
+        both traits is considered to be undefined behavior at this time.
+        """,
         allow_none=True,
         config=True,
     )
@@ -64,7 +72,11 @@ class AiExtension(ExtensionApp):
     blocked_models = List(
         Unicode(),
         default_value=None,
-        help="Language models to block, as a list of global model IDs in the format `<provider>:<local-model-id>`. If `None`, none are blocked. Defaults to `None`.",
+        help="""
+        Language models to block, as a list of global model IDs in the format
+        `<provider>:<local-model-id>`. If `None`, none are blocked. Defaults to
+        `None`.
+        """,
         allow_none=True,
         config=True,
     )
@@ -98,7 +110,10 @@ class AiExtension(ExtensionApp):
             log=self.log,
             lm_providers=self.settings["lm_providers"],
             em_providers=self.settings["em_providers"],
-            restrictions=restrictions,
+            allowed_providers=self.allowed_providers,
+            blocked_providers=self.blocked_providers,
+            allowed_models=self.allowed_models,
+            blocked_models=self.blocked_models,
         )
 
         self.log.info("Registered providers.")
