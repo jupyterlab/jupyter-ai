@@ -5,7 +5,17 @@ import functools
 import io
 import json
 from concurrent.futures import ThreadPoolExecutor
-from typing import Any, ClassVar, Coroutine, Dict, List, Literal, Optional, Union
+from typing import (
+    Any,
+    ClassVar,
+    Coroutine,
+    Dict,
+    List,
+    Literal,
+    Mapping,
+    Optional,
+    Union,
+)
 
 from jsonpath_ng import parse
 from langchain.chat_models import (
@@ -621,6 +631,7 @@ class SmEndpointProvider(BaseProvider, SagemakerEndpoint):
         content_handler = JsonContentHandler(
             request_schema=request_schema, response_path=response_path
         )
+
         super().__init__(*args, **kwargs, content_handler=content_handler)
 
     async def _acall(self, *args, **kwargs) -> Coroutine[Any, Any, str]:
