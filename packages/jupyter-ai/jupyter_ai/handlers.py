@@ -126,9 +126,12 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
             default_initials = "".join(
                 [(name.capitalize()[0] if len(name) > 0 else "") for name in names]
             )
+            current_user_initials = getattr(self.current_user, "initials", None)
             chat_user_kwargs = {
                 **asdict(self.current_user),
-                "initials": getattr(self.current_user, "initials", default_initials),
+                "initials": current_user_initials
+                if current_user_initials
+                else default_initials,
             }
             return ChatUser(**chat_user_kwargs)
 
