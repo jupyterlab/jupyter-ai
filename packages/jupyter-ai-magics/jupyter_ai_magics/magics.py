@@ -392,9 +392,11 @@ class AiMagics(Magics):
 
         prompt = f"Explain the following error:\n\n{last_error}"
         # Set CellArgs based on ErrorArgs
-        cell_args = CellArgs(
-            type="root", model_id=args.model_id, format=args.format, reset=False
-        )
+        values = args.dict()
+        values["type"] = "root"
+        values["reset"] = False
+        cell_args = CellArgs(**values)
+
         return self.run_ai_cell(cell_args, prompt)
 
     def _append_exchange_openai(self, prompt: str, output: str):

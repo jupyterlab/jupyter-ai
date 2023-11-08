@@ -47,11 +47,11 @@ class CellArgs(BaseModel):
     model_id: str
     format: FORMAT_CHOICES_TYPE
     reset: bool
+    model_parameters: Optional[str]
     # The following parameters are required only for SageMaker models
     region_name: Optional[str]
     request_schema: Optional[str]
     response_path: Optional[str]
-    model_parameters: Optional[str]
 
 
 # Should match CellArgs, but without "reset"
@@ -59,6 +59,7 @@ class ErrorArgs(BaseModel):
     type: Literal["error"] = "error"
     model_id: str
     format: FORMAT_CHOICES_TYPE
+    model_parameters: Optional[str]
     # The following parameters are required only for SageMaker models
     region_name: Optional[str]
     request_schema: Optional[str]
