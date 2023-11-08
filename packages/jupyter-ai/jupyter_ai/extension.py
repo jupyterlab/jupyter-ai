@@ -108,6 +108,7 @@ class AiExtension(ExtensionApp):
         self.log.info(f"Configured model blocklist: {self.blocked_models}")
 
         self.settings["model_parameters"] = self.model_parameters
+        self.log.info(f"Configured model parameters: {self.model_parameters}")
 
         # Fetch LM & EM providers
         self.settings["lm_providers"] = get_lm_providers(

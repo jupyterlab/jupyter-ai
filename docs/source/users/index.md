@@ -855,69 +855,104 @@ The `--response-path` option is a [JSONPath](https://goessner.net/articles/JsonP
 
 ## Configuration
 
-You can specify an allowlist, to only allow only a certain list of providers, or a blocklist, to block some providers.
+You can specify an allowlist, to only allow only a certain list of providers, or
+a blocklist, to block some providers.
 
 ### Blocklisting providers
-This configuration allows for blocking specific providers in the settings panel. This list takes precedence over the allowlist in the next section.
+
+This configuration allows for blocking specific providers in the settings panel.
+This list takes precedence over the allowlist in the next section.
 
 ```
 jupyter lab --AiExtension.blocked_providers=openai
 ```
 
-To block more than one provider in the block-list, repeat the runtime configuration.
+To block more than one provider in the block-list, repeat the runtime
+configuration.
 
 ```
 jupyter lab --AiExtension.blocked_providers=openai --AiExtension.blocked_providers=ai21
 ```
 
 ### Allowlisting providers
-This configuration allows for filtering the list of providers in the settings panel to only an allowlisted set of providers.
+
+This configuration allows for filtering the list of providers in the settings
+panel to only an allowlisted set of providers.
 
 ```
 jupyter lab --AiExtension.allowed_providers=openai
 ```
 
-To allow more than one provider in the allowlist, repeat the runtime configuration.
+To allow more than one provider in the allowlist, repeat the runtime
+configuration.
 
 ```
 jupyter lab --AiExtension.allowed_providers=openai --AiExtension.allowed_providers=ai21
 ```
 
 ### Model parameters
-This configuration allows specifying arbitrary parameters that are unpacked and passed to the provider class.
-This is useful for passing parameters such as model tuning that affect the response generation by the model.
-This is also an appropriate place to pass in custom attributes required by certain providers/models.
 
-The accepted value is a dictionary, with top level keys as the model id (provider:model_id), and value
-should be any arbitrary dictionary which is unpacked and passed as-is to the provider class.
+This configuration allows specifying arbitrary parameters that are unpacked and
+passed to the provider class. This is useful for passing parameters such as
+model tuning that affect the response generation by the model. This is also an
+appropriate place to pass in custom attributes required by certain
+providers/models.
+
+The accepted value is a dictionary, with top level keys as the model id
+(provider:model_id), and value should be any arbitrary dictionary which is
+unpacked and passed as-is to the provider class.
 
 #### Configuring as a startup option
-In this sample, the `bedrock` provider will be created with the value for `model_kwargs` when `ai21.j2-mid-v1` model is selected.
+
+In this sample, the `bedrock` provider will be created with the value for
+`model_kwargs` when `ai21.j2-mid-v1` model is selected.
 
 ```bash
-jupyter lab --AiExtension.model_parameters {"bedrock:ai21.j2-mid-v1":{"model_kwargs":{"maxTokens":200}}}
+jupyter lab --AiExtension.model_parameters bedrock:ai21.j2-mid-v1='{"model_kwargs":{"maxTokens":200}}'
 ```
-The above will result in the following LLM class to be generated.
+
+Note the usage of single quotes surrounding the dictionary to escape the double
+quotes. This is required in some shells. The above will result in the following
+LLM class to be generated.
 
 ```python
 BedrockProvider(model_kwargs={"maxTokens":200}, ...)
 ```
 
-Here is another example, where `anthropic` provider will be created with the values for `max_tokens` and `temperature`, when `claude-2` model is selected.
+Here is another example, where `anthropic` provider will be created with the
+values for `max_tokens` and `temperature`, when `claude-2` model is selected.
 
 
 ```bash
-jupyter lab --AiExtension.model_parameters {"anthropic:claude-2":{"max_tokens":1024,"temperature":0.9}}
+jupyter lab --AiExtension.model_parameters anthropic:claude-2='{"max_tokens":1024,"temperature":0.9}'
 ```
+
 The above will result in the following LLM class to be generated.
 
 ```python
 AnthropicProvider(max_tokens=1024, temperature=0.9, ...)
 ```
 
+To pass multiple sets of model parameters for multiple models in the
+command-line, you can append them as additional arguments to
+`--AiExtension.model_parameters`, as shown below.
+
+```bash
+jupyter lab \
+--AiExtension.model_parameters bedrock:ai21.j2-mid-v1='{"model_kwargs":{"maxTokens":200}}' \
+--AiExtension.model_parameters anthropic:claude-2='{"max_tokens":1024,"temperature":0.9}'
+```
+
+However, for more complex configuration, we highly recommend that you specify
+this in a dedicated configuration file. We will describe how to do so in the
+following section.
+
 #### Configuring as a config file
-This configuration can also be specified in a config file in json format. The file should be named `jupyter_jupyter_ai_config.json` and saved in a path that JupyterLab can pick from. You can find this
-path by running `jupyter --paths` command, and picking one of the paths from the `config` section.
+
+This configuration can also be specified in a config file in json format. The
+file should be named `jupyter_jupyter_ai_config.json` and saved in a path that
+JupyterLab can pick from. You can find this path by running `jupyter --paths`
+command, and picking one of the paths from the `config` section.
 
 Here is an example of running the `jupyter --paths` command.
 
@@ -939,7 +974,9 @@ runtime:
     /Users/3coins/Library/Jupyter/runtime
 ```
 
-Here is an example for configuring the `bedrock` provider for `ai21.j2-mid-v1` model.
+Here is an example for configuring the `bedrock` provider for `ai21.j2-mid-v1`
+model.
+
 ```json
 {
     "AiExtension": {
