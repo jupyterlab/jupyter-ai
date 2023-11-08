@@ -242,15 +242,6 @@ class BaseProvider(BaseModel):
         return True
 
 
-def pop_with_default(model: Mapping[str, Any], name: str, default: Any) -> Any:
-    try:
-        value = model.pop(name)
-    except KeyError as e:
-        return default
-
-    return value
-
-
 class AI21Provider(BaseProvider, AI21):
     id = "ai21"
     name = "AI21"
@@ -632,9 +623,6 @@ class SmEndpointProvider(BaseProvider, SagemakerEndpoint):
         TextField(
             key="response_path", label="Response path (required)", format="jsonpath"
         ),
-        MultilineTextField(
-            key="endpoint_kwargs", label="Endpoint arguments", format="json"
-        ),
     ]
 
     def __init__(self, *args, **kwargs):
@@ -644,15 +632,7 @@ class SmEndpointProvider(BaseProvider, SagemakerEndpoint):
             request_schema=request_schema, response_path=response_path
         )
 
-        endpoint_kwargs = pop_with_default(kwargs, "endpoint_kwargs", "{}")
-        endpoint_kwargs = json.loads(endpoint_kwargs)
-
-        super().__init__(
-            *args,
-            **kwargs,
-            content_handler=content_handler,
-            endpoint_kwargs=endpoint_kwargs,
-        )
+        super().__init__(*args, **kwargs, content_handler=content_handler)
 
     async def _acall(self, *args, **kwargs) -> Coroutine[Any, Any, str]:
         return await self._call_in_executor(*args, **kwargs)
@@ -677,13 +657,7 @@ class BedrockProvider(BaseProvider, Bedrock):
             format="text",
         ),
         TextField(key="region_name", label="Region name (optional)", format="text"),
-        MultilineTextField(key="model_kwargs", label="Model Arguments", format="json"),
     ]
-
-    def __init__(self, *args, **kwargs):
-        model_kwargs = pop_with_default(kwargs, "model_kwargs", "{}")
-        model_kwargs = json.loads(model_kwargs)
-        super().__init__(*args, **kwargs, model_kwargs=model_kwargs)
 
     async def _acall(self, *args, **kwargs) -> Coroutine[Any, Any, str]:
         return await self._call_in_executor(*args, **kwargs)
@@ -707,13 +681,7 @@ class BedrockChatProvider(BaseProvider, BedrockChat):
             format="text",
         ),
         TextField(key="region_name", label="Region name (optional)", format="text"),
-        MultilineTextField(key="model_kwargs", label="Model Arguments", format="json"),
     ]
-
-    def __init__(self, *args, **kwargs):
-        model_kwargs = pop_with_default(kwargs, "model_kwargs", "{}")
-        model_kwargs = json.loads(model_kwargs)
-        super().__init__(*args, **kwargs, model_kwargs=model_kwargs)
 
     async def _acall(self, *args, **kwargs) -> Coroutine[Any, Any, str]:
         return await self._call_in_executor(*args, **kwargs)

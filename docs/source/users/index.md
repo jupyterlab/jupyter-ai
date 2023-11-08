@@ -882,3 +882,72 @@ To allow more than one provider in the allowlist, repeat the runtime configurati
 ```
 jupyter lab --AiExtension.allowed_providers=openai --AiExtension.allowed_providers=ai21
 ```
+
+### Model parameters
+This configuration allows specifying arbitrary parameters that are unpacked and passed to the provider class.
+This is useful for passing parameters such as model tuning that affect the response generation by the model.
+This is also an appropriate place to pass in custom attributes required by certain providers/models.
+
+The accepted value should be a dictionary, with top level keys as the model id (provider:model_id), and value
+should be any arbitrary dictionary which is unpacked and passed as is to the provider class.
+
+#### Configuring as a startup option
+In this sample, the `bedrock` provider will be created with the value for `model_kwargs` when `ai21.j2-mid-v1` model is selected.
+
+```bash
+jupyter lab --AiExtension.model_parameters {"bedrock:ai21.j2-mid-v1":{"model_kwargs":{"maxTokens":200}}}
+```
+The above will result in the following LLM class to be generated.
+
+```python
+BedrockProvider(model_kwargs={"maxTokens":200}, ...)
+```
+
+Here is another example, where `anthropic` provider will be created with the values for `max_tokens` and `temperature`, when `claude-2` model is selected.
+
+
+```bash
+jupyter lab --AiExtension.model_parameters {"anthropic:claude-2":{"max_tokens":1024,"temperature":0.9}}
+```
+The above will result in the following LLM class to be generated.
+
+```python
+AnthropicProvider(max_tokens=1024, temperature=0.9, ...)
+```
+
+#### Configuring as a config file
+This configuration can also be specified in a config file in json format. The file should be named `jupyter_jupyter_ai_config.json` and saved in a path that JupyterLab can pick from. You can find this
+path by running `jupyter --paths` command, and picking one of the paths from the `config` section.
+
+Here is an example of running the `jupyter --paths` command.
+
+```bash
+(jupyter-ai-lab4) ➜ jupyter --paths
+config:
+    /opt/anaconda3/envs/jupyter-ai-lab4/etc/jupyter
+    /Users/3coins/.jupyter
+    /Users/3coins/.local/etc/jupyter
+    /usr/3coins/etc/jupyter
+    /etc/jupyter
+data:
+    /opt/anaconda3/envs/jupyter-ai-lab4/share/jupyter
+    /Users/3coins/Library/Jupyter
+    /Users/3coins/.local/share/jupyter
+    /usr/local/share/jupyter
+    /usr/share/jupyter
+runtime:
+    /Users/3coins/Library/Jupyter/runtime
+```
+
+Here is an example for configuring the `bedrock` provider for `ai21.j2-mid-v1` model.
+```json
+{
+    "AiExtension": {
+        "bedrock:ai21.j2-mid-v1": {
+            "model_kwargs": {
+                "maxTokens": 200
+            }
+        }
+    }
+}
+```
