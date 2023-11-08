@@ -352,7 +352,7 @@ class GPT4AllProvider(BaseProvider, GPT4All):
         "orca-mini-3b-gguf2-q4_0",
         "starcoder-q4_0",
         "rift-coder-v0-7b-q4_0",
-        "em_german_mistral_v01.Q4_0"
+        "em_german_mistral_v01.Q4_0",
     ]
     model_id_key = "model"
     pypi_package_deps = ["gpt4all"]
