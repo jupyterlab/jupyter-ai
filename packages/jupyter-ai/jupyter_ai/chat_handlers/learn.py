@@ -240,7 +240,7 @@ class LearnChatHandler(BaseChatHandler):
         )
         message = f"""🎉 I am done learning about documents in these directories:
         {dir_list} I am ready to answer questions about them.
-        You can ask me about these documents by prefixing your message with **/ask**."""
+        You can ask me about these documents by starting your message with **/ask**."""
         self.reply(message)
 
     def create(
