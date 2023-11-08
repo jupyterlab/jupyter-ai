@@ -7,7 +7,8 @@ please see our {doc}`contributor's guide </contributors/index>`.
 
 ## Prerequisites
 
-You can run Jupyter AI on any system that can run a supported Python version from 3.8 to 3.11, including recent Windows, macOS, and Linux versions.
+You can run Jupyter AI on any system that can run a supported Python version
+from 3.8 to 3.11, including recent Windows, macOS, and Linux versions.
 
 If you use `conda`, you can install Python 3.11 in your environment by running:
 
@@ -15,61 +16,87 @@ If you use `conda`, you can install Python 3.11 in your environment by running:
 conda install python=3.11
 ```
 
-To use the `jupyter_ai` package, you will also need to have a currently-maintained version of JupyterLab 3 installed. We do not yet support JupyterLab 4. If you use `conda`, you can install JupyterLab in your environment by running:
+The `jupyter_ai` package, which provides the lab extension and user interface in
+JupyterLab, depends on JupyterLab 4. If upgrading to JupyterLab 4 is not
+possible in your environment, you should install `jupyter_ai` v1.x instead.
+See "Installation" for more details.
+
+You can install JupyterLab using `pip` or `conda`.
+
+1. via `pip`:
 
 ```
-conda install jupyterlab
+# change 4.0 to 3.0 if you need JupyterLab 3
+pip install jupyterlab~=4.0
 ```
 
-You should have Jupyter Server 2.x (not 1.x) installed. A fresh install of JupyterLab 3.6.x should come with Server 2.x. You can find your current Server version by running `jupyter --version` and checking for a line beginning with `jupyter_server`. To upgrade your version of Jupyter Server, run:
+2. via `conda`:
 
 ```
-pip install jupyter_server --upgrade
+# change 4.0 to 3.0 if you need JupyterLab 3
+conda config --add channels conda-forge
+conda config --set channel_priority strict
+conda install jupyterlab~=4.0
 ```
 
-You can use the `jupyter_ai_magics` package without JupyterLab, but you will need a compatible interface, such as [IPython](https://ipython.org/).
+The `jupyter_ai_magics` package, which provides exclusively the IPython magics,
+does not depend on JupyterLab or `jupyter_ai`. You can install
+`jupyter_ai_magics` without installing `jupyterlab` or `jupyter_ai`.
+If you have both `jupyter_ai_magics` and `jupyter_ai` installed, you should
+have the same version of each, to avoid errors.
 
-## Installing
+## Installation
 
-You can use `conda` or `pip` to install Jupyter AI. If you're using macOS on an Apple Silicon-based Mac (M1, M1 Pro, M2, etc.), we strongly recommend using `conda`.
+### Installation via `pip`
 
-Python 3.8 or newer is required; older versions of Python do not support the
-`typing` module we use, and as of June 30, 2023, have reached end of life.
+To install the JupyterLab extension, you can run:
 
-Before you can use Jupyter AI, you will need to install any packages and set environment variables with API keys for the model providers that you will use. See [our documentation](https://jupyter-ai.readthedocs.io/en/latest/users/index.html) for details about what you'll need.
+```
+pip install jupyter_ai
+```
 
-### With pip
+The latest major version of `jupyter_ai`, v2, only supports JupyterLab 4. If you
+need support for JupyterLab 3, you should install `jupyter_ai` v1 instead:
 
-If you want to install both the `%%ai` magic and the JupyterLab extension, you can run:
-
-    $ pip install jupyter_ai
+```
+pip install jupyter_ai~=1.0
+```
 
 If you are not using JupyterLab and you only want to install the Jupyter AI `%%ai` magic, you can run:
 
-    $ pip install jupyter_ai_magics
+```
+$ pip install jupyter_ai_magics
+```
 
+`jupyter_ai` depends on `jupyter_ai_magics`, so installing `jupyter_ai`
+automatically installs `jupyter_ai_magics`.
 
-### With conda
+### Installation via `pip` within Conda environment (recommended)
 
-First, install [conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html) and create an environment that uses Python 3.11:
+We highly recommend installing both JupyterLab and Jupyter AI within an isolated
+Conda environment to avoid clobbering Python packages in your existing Python
+environment.
+
+First, install
+[conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html)
+and create an environment that uses Python 3.11:
 
     $ conda create -n jupyter-ai python=3.11
     $ conda activate jupyter-ai
     $ pip install jupyter_ai
 
-If you are not using JupyterLab and you only want to install the Jupyter AI `%%ai` magic, you can run:
+Then, follow the steps from "Requirements" and "Installation via `pip`" to
+install JupyterLab and Jupyter AI in this Conda environment.
 
-    $ pip install jupyter_ai_magics
+When starting JupyterLab with Jupyter AI, make sure to activate the Conda
+environment first:
 
-The `%%ai` magic will work anywhere the IPython kernel runs (JupyterLab, Jupyter Notebook, Google Colab, VSCode, etc.).
+```
+conda activate jupyter-ai
+jupyter lab
+```
 
-You can check that the Jupyter AI server extension is enabled by running:
-
-    $ jupyter server extension list
-
-To verify that the frontend extension is installed, run:
-
-    $ jupyter labextension list
+## Uninstallation
 
 To remove the extension, run:
 
@@ -90,8 +117,8 @@ Jupyter AI supports the following model providers:
 | AI21                | `ai21`               | `AI21_API_KEY`             | `ai21`                          |
 | Anthropic           | `anthropic`          | `ANTHROPIC_API_KEY`        | `anthropic`                     |
 | Anthropic (chat)    | `anthropic-chat`     | `ANTHROPIC_API_KEY`        | `anthropic`                     |
-| Bedrock             | `amazon-bedrock`     | N/A                        | `boto3`                         |
-| Bedrock (chat)      | `amazon-bedrock-chat`| N/A                        | `boto3`                         |
+| Bedrock             | `bedrock`            | N/A                        | `boto3`                         |
+| Bedrock (chat)      | `bedrock-chat`       | N/A                        | `boto3`                         |
 | Cohere              | `cohere`             | `COHERE_API_KEY`           | `cohere`                        |
 | Hugging Face Hub    | `huggingface_hub`    | `HUGGINGFACEHUB_API_TOKEN` | `huggingface_hub`, `ipywidgets`, `pillow` |
 | OpenAI              | `openai`             | `OPENAI_API_KEY`           | `openai`                        |
@@ -108,7 +135,7 @@ To use Bedrock models, you will need to authenticate via
 
 You need the `pillow` Python package to use Hugging Face Hub's text-to-image models.
 
-You can find a list of Hugging Face's models at https://huggingface.co/models.
+You can find a list of Hugging Face's models at [https://huggingface.co/models](https://huggingface.co/models).
 
 SageMaker endpoint names are created when you deploy a model. For more information, see
 ["Create your endpoint and deploy your model"](https://docs.aws.amazon.com/sagemaker/latest/dg/realtime-endpoints-deployment.html)
@@ -262,7 +289,7 @@ Before you can use the chat interface, you need to provide your API keys for the
     alt="Screen shot of the setup interface, showing model selections and key populated"
     class="screenshot" />
 
-Once you have set all the necessary keys, click the "back" (left arrow) button in the upper-left corner of the Jupyter AI side panel. The chat interface now appears, and you can ask a question using the message box at the bottom.
+Once you have set all the necessary keys, click the "back" (left arrow) button in the upper-left corner of the Jupyter AI side panel. The chat interface now appears, and you can ask a question using the message box at the bottom.
 
 <img src="../_static/chat-icon-left-tab-bar.png"
     alt="Screen shot of the initial, blank, chat interface."
@@ -465,6 +492,19 @@ use the `-c` or `--chunk-size` option and the `-o` or `--chunk-overlap` option.
 /learn --chunk-size 1000 --chunk-overlap 200 <directory>
 ```
 
+By default, `/learn` will not read directories named `node_modules`, `lib`, or `build`,
+and will not read hidden files or hidden directories, where the file or directory name
+starts with a `.`. To force `/learn` to read all supported file types in all directories,
+use the `-a` or `--all-files` option.
+
+```
+# do not learn from hidden files, hidden directories, or node_modules, lib, or build directories
+/learn <directory>
+
+# learn from all supported files
+/learn -a <directory>
+```
+
 ### Additional chat commands
 
 To clear the chat panel, use the `/clear` command. This does not reset the AI model; the model may still remember previous messages that you sent it, and it may use them to inform its responses.
@@ -530,6 +570,8 @@ We currently support the following language model providers:
 - `ai21`
 - `anthropic`
 - `anthropic-chat`
+- `bedrock`
+- `bedrock-chat`
 - `cohere`
 - `huggingface_hub`
 - `openai`
@@ -620,6 +662,20 @@ include calls to nonexistent (hallucinated) APIs.
 A function that computes the lowest common multiples of two integers, and
 a function that runs 5 test cases of the lowest common multiple function
 ```
+
+### Prompt templates
+
+Each provider can define **prompt templates** for each supported format. A prompt
+template guides the language model to produce output in a particular
+format. The default prompt templates are a
+[Python dictionary mapping formats to templates](https://github.com/jupyterlab/jupyter-ai/blob/57a758fa5cdd5a87da5519987895aa688b3766a8/packages/jupyter-ai-magics/jupyter_ai_magics/providers.py#L138-L166).
+Developers who write subclasses of `BaseProvider` can override templates per
+output format, per model, and based on the prompt being submitted, by
+implementing their own
+[`get_prompt_template` function](https://github.com/jupyterlab/jupyter-ai/blob/57a758fa5cdd5a87da5519987895aa688b3766a8/packages/jupyter-ai-magics/jupyter_ai_magics/providers.py#L186-L195).
+Each prompt template includes the string `{prompt}`, which is replaced with
+the user-provided prompt when the user runs a magic command.
+
 
 ### Clearing the OpenAI chat history
 
@@ -749,7 +805,7 @@ prompt = PromptTemplate(
 chain = LLMChain(llm=llm, prompt=prompt)
 ```
 
-… and then use `%ai register` to give it a name:
+… and then use `%ai register` to give it a name:
 
 ```
 %ai register companyname chain
@@ -799,30 +855,138 @@ The `--response-path` option is a [JSONPath](https://goessner.net/articles/JsonP
 
 ## Configuration
 
-You can specify an allowlist, to only allow only a certain list of providers, or a blocklist, to block some providers.
+You can specify an allowlist, to only allow only a certain list of providers, or
+a blocklist, to block some providers.
 
 ### Blocklisting providers
-This configuration allows for blocking specific providers in the settings panel. This list takes precedence over the allowlist in the next section.
+
+This configuration allows for blocking specific providers in the settings panel.
+This list takes precedence over the allowlist in the next section.
 
 ```
 jupyter lab --AiExtension.blocked_providers=openai
 ```
 
-To block more than one provider in the block-list, repeat the runtime configuration.
+To block more than one provider in the block-list, repeat the runtime
+configuration.
 
 ```
 jupyter lab --AiExtension.blocked_providers=openai --AiExtension.blocked_providers=ai21
 ```
 
 ### Allowlisting providers
-This configuration allows for filtering the list of providers in the settings panel to only an allowlisted set of providers.
+
+This configuration allows for filtering the list of providers in the settings
+panel to only an allowlisted set of providers.
 
 ```
 jupyter lab --AiExtension.allowed_providers=openai
 ```
 
-To allow more than one provider in the allowlist, repeat the runtime configuration.
+To allow more than one provider in the allowlist, repeat the runtime
+configuration.
 
 ```
 jupyter lab --AiExtension.allowed_providers=openai --AiExtension.allowed_providers=ai21
+```
+
+### Model parameters
+
+This configuration allows specifying arbitrary parameters that are unpacked and
+passed to the provider class. This is useful for passing parameters such as
+model tuning that affect the response generation by the model. This is also an
+appropriate place to pass in custom attributes required by certain
+providers/models.
+
+The accepted value is a dictionary, with top level keys as the model id
+(provider:model_id), and value should be any arbitrary dictionary which is
+unpacked and passed as-is to the provider class.
+
+#### Configuring as a startup option
+
+In this sample, the `bedrock` provider will be created with the value for
+`model_kwargs` when `ai21.j2-mid-v1` model is selected.
+
+```bash
+jupyter lab --AiExtension.model_parameters bedrock:ai21.j2-mid-v1='{"model_kwargs":{"maxTokens":200}}'
+```
+
+Note the usage of single quotes surrounding the dictionary to escape the double
+quotes. This is required in some shells. The above will result in the following
+LLM class to be generated.
+
+```python
+BedrockProvider(model_kwargs={"maxTokens":200}, ...)
+```
+
+Here is another example, where `anthropic` provider will be created with the
+values for `max_tokens` and `temperature`, when `claude-2` model is selected.
+
+
+```bash
+jupyter lab --AiExtension.model_parameters anthropic:claude-2='{"max_tokens":1024,"temperature":0.9}'
+```
+
+The above will result in the following LLM class to be generated.
+
+```python
+AnthropicProvider(max_tokens=1024, temperature=0.9, ...)
+```
+
+To pass multiple sets of model parameters for multiple models in the
+command-line, you can append them as additional arguments to
+`--AiExtension.model_parameters`, as shown below.
+
+```bash
+jupyter lab \
+--AiExtension.model_parameters bedrock:ai21.j2-mid-v1='{"model_kwargs":{"maxTokens":200}}' \
+--AiExtension.model_parameters anthropic:claude-2='{"max_tokens":1024,"temperature":0.9}'
+```
+
+However, for more complex configuration, we highly recommend that you specify
+this in a dedicated configuration file. We will describe how to do so in the
+following section.
+
+#### Configuring as a config file
+
+This configuration can also be specified in a config file in json format. The
+file should be named `jupyter_jupyter_ai_config.json` and saved in a path that
+JupyterLab can pick from. You can find this path by running `jupyter --paths`
+command, and picking one of the paths from the `config` section.
+
+Here is an example of running the `jupyter --paths` command.
+
+```bash
+(jupyter-ai-lab4) ➜ jupyter --paths
+config:
+    /opt/anaconda3/envs/jupyter-ai-lab4/etc/jupyter
+    /Users/3coins/.jupyter
+    /Users/3coins/.local/etc/jupyter
+    /usr/3coins/etc/jupyter
+    /etc/jupyter
+data:
+    /opt/anaconda3/envs/jupyter-ai-lab4/share/jupyter
+    /Users/3coins/Library/Jupyter
+    /Users/3coins/.local/share/jupyter
+    /usr/local/share/jupyter
+    /usr/share/jupyter
+runtime:
+    /Users/3coins/Library/Jupyter/runtime
+```
+
+Here is an example for configuring the `bedrock` provider for `ai21.j2-mid-v1`
+model.
+
+```json
+{
+    "AiExtension": {
+        "model_parameters": {
+            "bedrock:ai21.j2-mid-v1": {
+                "model_kwargs": {
+                    "maxTokens": 200
+                }
+            }
+        }
+    }
+}
 ```
