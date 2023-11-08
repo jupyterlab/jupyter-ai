@@ -3,7 +3,7 @@ import logging
 import os
 import shutil
 import time
-from typing import Optional, Union
+from typing import List, Optional, Union
 
 from deepmerge import always_merger as Merger
 from jsonschema import Draft202012Validator as Validator
@@ -12,10 +12,8 @@ from jupyter_ai_magics.utils import (
     AnyProvider,
     EmProvidersDict,
     LmProvidersDict,
-    ProviderRestrictions,
     get_em_provider,
     get_lm_provider,
-    is_provider_allowed,
 )
 from jupyter_core.paths import jupyter_data_dir
 from traitlets import Integer, Unicode
@@ -54,6 +52,10 @@ class KeyInUseError(Exception):
 
 
 class KeyEmptyError(Exception):
+    pass
+
+
+class BlockedModelError(Exception):
     pass
 
 
@@ -99,27 +101,34 @@ class ConfigManager(Configurable):
         log: Logger,
         lm_providers: LmProvidersDict,
         em_providers: EmProvidersDict,
-        restrictions: ProviderRestrictions,
+        allowed_providers: Optional[List[str]],
+        blocked_providers: Optional[List[str]],
+        allowed_models: Optional[List[str]],
+        blocked_models: Optional[List[str]],
         *args,
         **kwargs,
     ):
         super().__init__(*args, **kwargs)
         self.log = log
-        """List of LM providers."""
-        self._lm_providers = lm_providers
-        """List of EM providers."""
-        self._em_providers = em_providers
-        """Provider restrictions."""
-        self._restrictions = restrictions
 
+        self._lm_providers = lm_providers
+        """List of LM providers."""
+        self._em_providers = em_providers
+        """List of EM providers."""
+
+        self._allowed_providers = allowed_providers
+        self._blocked_providers = blocked_providers
+        self._allowed_models = allowed_models
+        self._blocked_models = blocked_models
+
+        self._last_read: Optional[int] = None
         """When the server last read the config file. If the file was not
         modified after this time, then we can return the cached
         `self._config`."""
-        self._last_read: Optional[int] = None
 
+        self._config: Optional[GlobalConfig] = None
         """In-memory cache of the `GlobalConfig` object parsed from the config
         file."""
-        self._config: Optional[GlobalConfig] = None
 
         self._init_config_schema()
         self._init_validator()
@@ -140,6 +149,26 @@ class ConfigManager(Configurable):
         if os.path.exists(self.config_path):
             with open(self.config_path, encoding="utf-8") as f:
                 config = GlobalConfig(**json.loads(f.read()))
+                lm_id = config.model_provider_id
+                em_id = config.embeddings_provider_id
+
+                # if the currently selected language or embedding model are
+                # forbidden, set them to `None` and log a warning.
+                if lm_id is not None and not self._validate_model(
+                    lm_id, raise_exc=False
+                ):
+                    self.log.warning(
+                        f"Language model {lm_id} is forbidden by current allow/blocklists. Setting to None."
+                    )
+                    config.model_provider_id = None
+                if em_id is not None and not self._validate_model(
+                    em_id, raise_exc=False
+                ):
+                    self.log.warning(
+                        f"Embedding model {em_id} is forbidden by current allow/blocklists. Setting to None."
+                    )
+                    config.embeddings_provider_id = None
+
                 # re-write to the file to validate the config and apply any
                 # updates to the config file immediately
                 self._write_config(config)
@@ -181,14 +210,17 @@ class ConfigManager(Configurable):
             _, lm_provider = get_lm_provider(
                 config.model_provider_id, self._lm_providers
             )
-            # do not check config for blocked providers
-            if not is_provider_allowed(config.model_provider_id, self._restrictions):
-                assert not lm_provider
-                return
+
+            # verify model is declared by some provider
             if not lm_provider:
                 raise ValueError(
                     f"No language model is associated with '{config.model_provider_id}'."
                 )
+
+            # verify model is not blocked
+            self._validate_model(config.model_provider_id)
+
+            # verify model is authenticated
             _validate_provider_authn(config, lm_provider)
 
         # validate embedding model config
@@ -196,17 +228,55 @@ class ConfigManager(Configurable):
             _, em_provider = get_em_provider(
                 config.embeddings_provider_id, self._em_providers
             )
-            # do not check config for blocked providers
-            if not is_provider_allowed(
-                config.embeddings_provider_id, self._restrictions
-            ):
-                assert not em_provider
-                return
+
+            # verify model is declared by some provider
             if not em_provider:
                 raise ValueError(
                     f"No embedding model is associated with '{config.embeddings_provider_id}'."
                 )
+
+            # verify model is not blocked
+            self._validate_model(config.embeddings_provider_id)
+
+            # verify model is authenticated
             _validate_provider_authn(config, em_provider)
+
+    def _validate_model(self, model_id: str, raise_exc=True):
+        """
+        Validates a model against the set of allow/blocklists specified by the
+        traitlets configuration, returning `True` if the model is allowed, and
+        raising a `BlockedModelError` otherwise. If `raise_exc=False`, this
+        function returns `False` if the model is not allowed.
+        """
+
+        assert model_id is not None
+        components = model_id.split(":", 1)
+        assert len(components) == 2
+        provider_id, _ = components
+
+        try:
+            if self._allowed_providers and provider_id not in self._allowed_providers:
+                raise BlockedModelError(
+                    "Model provider not included in the provider allowlist."
+                )
+
+            if self._blocked_providers and provider_id in self._blocked_providers:
+                raise BlockedModelError(
+                    "Model provider included in the provider blocklist."
+                )
+
+            if self._allowed_models and model_id not in self._allowed_models:
+                raise BlockedModelError("Model not included in the model allowlist.")
+
+            if self._blocked_models and model_id in self._blocked_models:
+                raise BlockedModelError("Model included in the model blocklist.")
+        except BlockedModelError as e:
+            if raise_exc:
+                raise e
+            else:
+                return False
+
+        return True
 
     def _write_config(self, new_config: GlobalConfig):
         """Updates configuration and persists it to disk. This accepts a
