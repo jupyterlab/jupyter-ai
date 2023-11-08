@@ -943,9 +943,11 @@ Here is an example for configuring the `bedrock` provider for `ai21.j2-mid-v1` m
 ```json
 {
     "AiExtension": {
-        "bedrock:ai21.j2-mid-v1": {
-            "model_kwargs": {
-                "maxTokens": 200
+        "model_parameters": {
+            "bedrock:ai21.j2-mid-v1": {
+                "model_kwargs": {
+                    "maxTokens": 200
+                }
             }
         }
     }
