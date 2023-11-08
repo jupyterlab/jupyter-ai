@@ -518,13 +518,9 @@ class AiMagics(Magics):
             provider_params["request_schema"] = args.request_schema
             provider_params["response_path"] = args.response_path
 
-            if args.model_kwargs:
-                provider_params["model_kwargs"] = args.model_kwargs
+        model_parameters = json.loads(args.model_parameters)
 
-            if args.endpoint_kwargs:
-                provider_params["endpoint_kwargs"] = args.endpoint_kwargs
-
-        provider = Provider(**provider_params)
+        provider = Provider(**provider_params, **model_parameters)
 
         # Apply a prompt template.
         prompt = provider.get_prompt_template(args.format).format(prompt=prompt)

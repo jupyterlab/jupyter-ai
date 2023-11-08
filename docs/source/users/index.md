@@ -888,8 +888,8 @@ This configuration allows specifying arbitrary parameters that are unpacked and 
 This is useful for passing parameters such as model tuning that affect the response generation by the model.
 This is also an appropriate place to pass in custom attributes required by certain providers/models.
 
-The accepted value should be a dictionary, with top level keys as the model id (provider:model_id), and value
-should be any arbitrary dictionary which is unpacked and passed as is to the provider class.
+The accepted value is a dictionary, with top level keys as the model id (provider:model_id), and value
+should be any arbitrary dictionary which is unpacked and passed as-is to the provider class.
 
 #### Configuring as a startup option
 In this sample, the `bedrock` provider will be created with the value for `model_kwargs` when `ai21.j2-mid-v1` model is selected.
