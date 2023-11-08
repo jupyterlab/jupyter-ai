@@ -350,7 +350,6 @@ class GPT4AllProvider(BaseProvider, GPT4All):
         "gpt4all-13b-snoozy-q4_0",
         "mpt-7b-chat-merges-q4_0",
         "orca-mini-3b-gguf2-q4_0",
-        "replit-code-v1_5-3b-q4_0",
         "starcoder-q4_0",
         "rift-coder-v0-7b-q4_0",
         "em_german_mistral_v01.Q4_0"
