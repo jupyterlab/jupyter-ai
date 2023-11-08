@@ -2,6 +2,37 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 2.5.0
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.4.0...1fecfea6556501212ac9b7309edb7f0c98c69618))
+
+### Enhancements made
+
+- Model allowlist and blocklists [#446](https://github.com/jupyterlab/jupyter-ai/pull/446) ([@dlqqq](https://github.com/dlqqq))
+- DOC: Render hugging face url as link [#432](https://github.com/jupyterlab/jupyter-ai/pull/432) ([@arokem](https://github.com/arokem))
+- Log exceptions in `/generate` to a file [#431](https://github.com/jupyterlab/jupyter-ai/pull/431) ([@dlqqq](https://github.com/dlqqq))
+- Model parameters option to pass in model tuning, arbitrary parameters [#430](https://github.com/jupyterlab/jupyter-ai/pull/430) ([@3coins](https://github.com/3coins))
+- /learn skips hidden files/dirs by default, unless "-a" is specified [#427](https://github.com/jupyterlab/jupyter-ai/pull/427) ([@JasonWeill](https://github.com/JasonWeill))
+
+### Bugs fixed
+
+- Model parameters option to pass in model tuning, arbitrary parameters [#430](https://github.com/jupyterlab/jupyter-ai/pull/430) ([@3coins](https://github.com/3coins))
+- Rename Bedrock and Bedrock chat providers in docs [#429](https://github.com/jupyterlab/jupyter-ai/pull/429) ([@JasonWeill](https://github.com/JasonWeill))
+
+### Documentation improvements
+
+- DOC: Render hugging face url as link [#432](https://github.com/jupyterlab/jupyter-ai/pull/432) ([@arokem](https://github.com/arokem))
+- Rename Bedrock and Bedrock chat providers in docs [#429](https://github.com/jupyterlab/jupyter-ai/pull/429) ([@JasonWeill](https://github.com/JasonWeill))
+- Document how to add custom model providers [#420](https://github.com/jupyterlab/jupyter-ai/pull/420) ([@krassowski](https://github.com/krassowski))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2023-10-24&to=2023-11-08&type=c))
+
+[@3coins](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3A3coins+updated%3A2023-10-24..2023-11-08&type=Issues) | [@arokem](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aarokem+updated%3A2023-10-24..2023-11-08&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2023-10-24..2023-11-08&type=Issues) | [@ellisonbg](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aellisonbg+updated%3A2023-10-24..2023-11-08&type=Issues) | [@JasonWeill](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AJasonWeill+updated%3A2023-10-24..2023-11-08&type=Issues) | [@jtpio](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ajtpio+updated%3A2023-10-24..2023-11-08&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2023-10-24..2023-11-08&type=Issues) | [@welcome](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Awelcome+updated%3A2023-10-24..2023-11-08&type=Issues) | [@Wzixiao](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AWzixiao+updated%3A2023-10-24..2023-11-08&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 2.4.0
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.3.0...92dab10608ea090b6bd87ca5ffe9ccff7a15b449))
@@ -23,8 +54,6 @@ Hey Jupyternauts! We're excited to announce the 2.4.0 release of Jupyter AI, whi
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2023-10-09&to=2023-10-24&type=c))
 
 [@3coins](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3A3coins+updated%3A2023-10-09..2023-10-24&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2023-10-09..2023-10-24&type=Issues) | [@pre-commit-ci](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Apre-commit-ci+updated%3A2023-10-09..2023-10-24&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 2.3.0
 
