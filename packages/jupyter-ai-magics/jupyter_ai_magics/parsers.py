@@ -1,3 +1,4 @@
+import json
 from typing import Literal, Optional, get_args
 
 import click
@@ -32,12 +33,21 @@ RESPONSE_PATH_HELP = (
     + "does nothing with other providers."
 )
 
+MODEL_PARAMETERS_SHORT_OPTION = "-m"
+MODEL_PARAMETERS_LONG_OPTION = "--model-parameters"
+MODEL_PARAMETERS_HELP = (
+    "A JSON value that specifies extra values that will be passed "
+    "to the model. The accepted value parsed to a dict, unpacked "
+    "and passed as-is to the provider class."
+)
+
 
 class CellArgs(BaseModel):
     type: Literal["root"] = "root"
     model_id: str
     format: FORMAT_CHOICES_TYPE
     reset: bool
+    model_parameters: Optional[str]
     # The following parameters are required only for SageMaker models
     region_name: Optional[str]
     request_schema: Optional[str]
@@ -49,6 +59,7 @@ class ErrorArgs(BaseModel):
     type: Literal["error"] = "error"
     model_id: str
     format: FORMAT_CHOICES_TYPE
+    model_parameters: Optional[str]
     # The following parameters are required only for SageMaker models
     region_name: Optional[str]
     request_schema: Optional[str]
@@ -93,6 +104,19 @@ class LineMagicGroup(click.Group):
             click.echo(super().get_help(ctx))
 
 
+def verify_json_value(ctx, param, value):
+    if not value:
+        return value
+    try:
+        json.loads(value)
+    except json.JSONDecodeError as e:
+        raise ValueError(
+            f"{param.get_error_hint(ctx)} must be valid JSON. "
+            f"Error at line {e.lineno}, column {e.colno}: {e.msg}"
+        )
+    return value
+
+
 @click.command()
 @click.argument("model_id")
 @click.option(
@@ -120,12 +144,21 @@ class LineMagicGroup(click.Group):
     REQUEST_SCHEMA_LONG_OPTION,
     required=False,
     help=REQUEST_SCHEMA_HELP,
+    callback=verify_json_value,
 )
 @click.option(
     RESPONSE_PATH_SHORT_OPTION,
     RESPONSE_PATH_LONG_OPTION,
     required=False,
     help=RESPONSE_PATH_HELP,
+)
+@click.option(
+    MODEL_PARAMETERS_SHORT_OPTION,
+    MODEL_PARAMETERS_LONG_OPTION,
+    required=False,
+    help=MODEL_PARAMETERS_HELP,
+    callback=verify_json_value,
+    default="{}",
 )
 def cell_magic_parser(**kwargs):
     """
@@ -166,12 +199,21 @@ def line_magic_parser():
     REQUEST_SCHEMA_LONG_OPTION,
     required=False,
     help=REQUEST_SCHEMA_HELP,
+    callback=verify_json_value,
 )
 @click.option(
     RESPONSE_PATH_SHORT_OPTION,
     RESPONSE_PATH_LONG_OPTION,
     required=False,
     help=RESPONSE_PATH_HELP,
+)
+@click.option(
+    MODEL_PARAMETERS_SHORT_OPTION,
+    MODEL_PARAMETERS_LONG_OPTION,
+    required=False,
+    help=MODEL_PARAMETERS_HELP,
+    callback=verify_json_value,
+    default="{}",
 )
 def error_subparser(**kwargs):
     """

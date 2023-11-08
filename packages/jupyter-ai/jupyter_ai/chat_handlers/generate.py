@@ -226,7 +226,9 @@ class GenerateChatHandler(BaseChatHandler):
     def create_llm_chain(
         self, provider: Type[BaseProvider], provider_params: Dict[str, str]
     ):
-        llm = provider(**provider_params)
+        model_parameters = self.get_model_parameters(provider, provider_params)
+        llm = provider(**provider_params, **model_parameters)
+
         self.llm = llm
         return llm
 
