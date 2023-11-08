@@ -9,6 +9,7 @@ from jupyter_ai_magics.providers import (
 from langchain.embeddings import (
     BedrockEmbeddings,
     CohereEmbeddings,
+    GPT4AllEmbeddings,
     HuggingFaceHubEmbeddings,
     OpenAIEmbeddings,
 )
@@ -103,3 +104,11 @@ class BedrockEmbeddingsProvider(BaseEmbeddingsProvider, BedrockEmbeddings):
     model_id_key = "model_id"
     pypi_package_deps = ["boto3"]
     auth_strategy = AwsAuthStrategy()
+
+
+class GPT4AllEmbeddingsProvider(BaseEmbeddingsProvider, GPT4AllEmbeddings):
+    id = "gpt4all"
+    name = "GPT4All Embeddings"
+    models = ["all-MiniLM-L6-v2-f16"]
+    model_id_key = "model_id"
+    pypi_package_deps = ["gpt4all"]

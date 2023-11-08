@@ -4,6 +4,7 @@ from ._version import __version__
 from .embedding_providers import (
     BedrockEmbeddingsProvider,
     CohereEmbeddingsProvider,
+    GPT4AllEmbeddingsProvider,
     HfHubEmbeddingsProvider,
     OpenAIEmbeddingsProvider,
 )

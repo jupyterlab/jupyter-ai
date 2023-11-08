@@ -342,6 +342,18 @@ class GPT4AllProvider(BaseProvider, GPT4All):
         "ggml-gpt4all-j-v1.3-groovy",
         # this one needs llama backend and has licence restriction
         "ggml-gpt4all-l13b-snoozy",
+        "mistral-7b-openorca.Q4_0",
+        "mistral-7b-instruct-v0.1.Q4_0",
+        "gpt4all-falcon-q4_0",
+        "wizardlm-13b-v1.2.Q4_0",
+        "nous-hermes-llama2-13b.Q4_0",
+        "gpt4all-13b-snoozy-q4_0",
+        "mpt-7b-chat-merges-q4_0",
+        "orca-mini-3b-gguf2-q4_0",
+        "replit-code-v1_5-3b-q4_0",
+        "starcoder-q4_0",
+        "rift-coder-v0-7b-q4_0",
+        "em_german_mistral_v01.Q4_0"
     ]
     model_id_key = "model"
     pypi_package_deps = ["gpt4all"]
