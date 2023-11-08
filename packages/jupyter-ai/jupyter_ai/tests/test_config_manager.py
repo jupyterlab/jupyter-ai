@@ -36,7 +36,10 @@ def common_cm_kwargs(config_path, schema_path):
         "em_providers": em_providers,
         "config_path": config_path,
         "schema_path": schema_path,
-        "restrictions": {"allowed_providers": None, "blocked_providers": None},
+        "allowed_providers": None,
+        "blocked_providers": None,
+        "allowed_models": None,
+        "blocked_models": None,
     }
 
 
@@ -44,6 +47,26 @@ def common_cm_kwargs(config_path, schema_path):
 def cm(common_cm_kwargs):
     """The default ConfigManager instance, with an empty config and config schema."""
     return ConfigManager(**common_cm_kwargs)
+
+
+@pytest.fixture
+def cm_with_blocklists(common_cm_kwargs):
+    kwargs = {
+        **common_cm_kwargs,
+        "blocked_providers": ["ai21"],
+        "blocked_models": ["cohere:medium"],
+    }
+    return ConfigManager(**kwargs)
+
+
+@pytest.fixture
+def cm_with_allowlists(common_cm_kwargs):
+    kwargs = {
+        **common_cm_kwargs,
+        "allowed_providers": ["ai21"],
+        "allowed_models": ["cohere:medium"],
+    }
+    return ConfigManager(**kwargs)
 
 
 @pytest.fixture(autouse=True)
@@ -98,23 +121,43 @@ def test_snapshot_default_config(cm: ConfigManager, snapshot):
     assert config_from_cm == snapshot(exclude=lambda prop, path: prop == "last_read")
 
 
-def test_init_with_existing_config(
-    cm: ConfigManager, config_path: str, schema_path: str
-):
+def test_init_with_existing_config(cm: ConfigManager, common_cm_kwargs):
     configure_to_cohere(cm)
     del cm
 
-    log = logging.getLogger()
-    lm_providers = get_lm_providers()
-    em_providers = get_em_providers()
-    ConfigManager(
-        log=log,
-        lm_providers=lm_providers,
-        em_providers=em_providers,
-        config_path=config_path,
-        schema_path=schema_path,
-        restrictions={"allowed_providers": None, "blocked_providers": None},
-    )
+    ConfigManager(**common_cm_kwargs)
+
+
+def test_init_with_blocklists(cm: ConfigManager, common_cm_kwargs):
+    configure_to_openai(cm)
+    del cm
+
+    blocked_providers = ["openai"]  # blocks EM
+    blocked_models = ["openai-chat-new:gpt-3.5-turbo"]  # blocks LM
+    kwargs = {
+        **common_cm_kwargs,
+        "blocked_providers": blocked_providers,
+        "blocked_models": blocked_models,
+    }
+    test_cm = ConfigManager(**kwargs)
+    assert test_cm._blocked_providers == blocked_providers
+    assert test_cm._blocked_models == blocked_models
+    assert test_cm.lm_gid == None
+    assert test_cm.em_gid == None
+
+
+def test_init_with_allowlists(cm: ConfigManager, common_cm_kwargs):
+    configure_to_cohere(cm)
+    del cm
+
+    allowed_providers = ["openai"]  # blocks both LM & EM
+
+    kwargs = {**common_cm_kwargs, "allowed_providers": allowed_providers}
+    test_cm = ConfigManager(**kwargs)
+    assert test_cm._allowed_providers == allowed_providers
+    assert test_cm._allowed_models == None
+    assert test_cm.lm_gid == None
+    assert test_cm.em_gid == None
 
 
 def test_property_access_on_default_config(cm: ConfigManager):

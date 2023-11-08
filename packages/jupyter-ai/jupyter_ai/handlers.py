@@ -4,7 +4,7 @@ import time
 import uuid
 from asyncio import AbstractEventLoop
 from dataclasses import asdict
-from typing import TYPE_CHECKING, Dict, List
+from typing import TYPE_CHECKING, Dict, List, Optional
 
 import tornado
 from jupyter_ai.chat_handlers import BaseChatHandler
@@ -240,14 +240,58 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
         self.log.debug("Chat clients: %s", self.root_chat_handlers.keys())
 
 
-class ModelProviderHandler(BaseAPIHandler):
+class ProviderHandler(BaseAPIHandler):
+    """
+    Helper base class used for HTTP handlers hosting endpoints relating to
+    providers. Wrapper around BaseAPIHandler.
+    """
+
     @property
     def lm_providers(self) -> Dict[str, "BaseProvider"]:
         return self.settings["lm_providers"]
 
+    @property
+    def em_providers(self) -> Dict[str, "BaseEmbeddingsProvider"]:
+        return self.settings["em_providers"]
+
+    @property
+    def allowed_models(self) -> Optional[List[str]]:
+        return self.settings["allowed_models"]
+
+    @property
+    def blocked_models(self) -> Optional[List[str]]:
+        return self.settings["blocked_models"]
+
+    def _filter_blocked_models(self, providers: List[ListProvidersEntry]):
+        """
+        Satisfy the model-level allow/blocklist by filtering models accordingly.
+        The provider-level allow/blocklist is already handled in
+        `AiExtension.initialize_settings()`.
+        """
+        if self.blocked_models is None and self.allowed_models is None:
+            return providers
+
+        def filter_predicate(local_model_id: str):
+            model_id = provider.id + ":" + local_model_id
+            if self.blocked_models:
+                return model_id not in self.blocked_models
+            else:
+                return model_id in self.allowed_models
+
+        # filter out every model w/ model ID according to allow/blocklist
+        for provider in providers:
+            provider.models = list(filter(filter_predicate, provider.models))
+
+        # filter out every provider with no models which satisfy the allow/blocklist, then return
+        return filter((lambda p: len(p.models) > 0), providers)
+
+
+class ModelProviderHandler(ProviderHandler):
     @web.authenticated
     def get(self):
         providers = []
+
+        # Step 1: gather providers
         for provider in self.lm_providers.values():
             # skip old legacy OpenAI chat provider used only in magics
             if provider.id == "openai-chat":
@@ -270,17 +314,16 @@ class ModelProviderHandler(BaseAPIHandler):
                 )
             )
 
-        response = ListProvidersResponse(
-            providers=sorted(providers, key=lambda p: p.name)
-        )
+        # Step 2: sort & filter providers
+        providers = self._filter_blocked_models(providers)
+        providers = sorted(providers, key=lambda p: p.name)
+
+        # Finally, yield response.
+        response = ListProvidersResponse(providers=providers)
         self.finish(response.json())
 
 
-class EmbeddingsModelProviderHandler(BaseAPIHandler):
-    @property
-    def em_providers(self) -> Dict[str, "BaseEmbeddingsProvider"]:
-        return self.settings["em_providers"]
-
+class EmbeddingsModelProviderHandler(ProviderHandler):
     @web.authenticated
     def get(self):
         providers = []
@@ -296,9 +339,10 @@ class EmbeddingsModelProviderHandler(BaseAPIHandler):
                 )
             )
 
-        response = ListProvidersResponse(
-            providers=sorted(providers, key=lambda p: p.name)
-        )
+        providers = self._filter_blocked_models(providers)
+        providers = sorted(providers, key=lambda p: p.name)
+
+        response = ListProvidersResponse(providers=providers)
         self.finish(response.json())
 
 
