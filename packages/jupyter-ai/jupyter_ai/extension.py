@@ -53,13 +53,38 @@ class AiExtension(ExtensionApp):
         config=True,
     )
 
+    allowed_models = List(
+        Unicode(),
+        default_value=None,
+        help="Language models to allow, as a list of global model IDs in the format `<provider>:<local-model-id>`. If `None`, all are allowed. Defaults to `None`.",
+        allow_none=True,
+        config=True,
+    )
+
+    blocked_models = List(
+        Unicode(),
+        default_value=None,
+        help="Language models to block, as a list of global model IDs in the format `<provider>:<local-model-id>`. If `None`, none are blocked. Defaults to `None`.",
+        allow_none=True,
+        config=True,
+    )
+
     def initialize_settings(self):
         start = time.time()
+
+        # Read from allowlist and blocklist
         restrictions = {
             "allowed_providers": self.allowed_providers,
             "blocked_providers": self.blocked_providers,
         }
+        self.settings["allowed_models"] = self.allowed_models
+        self.settings["blocked_models"] = self.blocked_models
+        self.log.info(f"Configured provider allowlist: {self.allowed_providers}")
+        self.log.info(f"Configured provider blocklist: {self.blocked_providers}")
+        self.log.info(f"Configured model allowlist: {self.allowed_models}")
+        self.log.info(f"Configured model blocklist: {self.blocked_models}")
 
+        # Fetch LM & EM providers
         self.settings["lm_providers"] = get_lm_providers(
             log=self.log, restrictions=restrictions
         )
