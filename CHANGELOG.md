@@ -2,6 +2,29 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 1.5.0
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@1.4.0...0502887419347fe55501f8370f6468fb25b876f5))
+
+### Enhancements made
+
+- Model parameters option to pass in model tuning, arbitrary parameters [#430](https://github.com/jupyterlab/jupyter-ai/pull/430) ([@3coins](https://github.com/3coins))
+- Model allowlist and blocklists [#446](https://github.com/jupyterlab/jupyter-ai/pull/446) ([@dlqqq](https://github.com/dlqqq))
+- /learn skips hidden files/dirs by default, unless "-a" is specified [#427](https://github.com/jupyterlab/jupyter-ai/pull/427) ([@JasonWeill](https://github.com/JasonWeill))
+- \[1.x\] Log exceptions in `/generate` to a file [#440](https://github.com/jupyterlab/jupyter-ai/pull/440) ([@dlqqq](https://github.com/dlqqq))
+
+### Bugs fixed
+
+- Model parameters option to pass in model tuning, arbitrary parameters [#430](https://github.com/jupyterlab/jupyter-ai/pull/430) ([@3coins](https://github.com/3coins))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2023-10-24&to=2023-11-08&type=c))
+
+[@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2023-10-24..2023-11-08&type=Issues) | [@ellisonbg](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aellisonbg+updated%3A2023-10-24..2023-11-08&type=Issues) | [@JasonWeill](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AJasonWeill+updated%3A2023-10-24..2023-11-08&type=Issues) | [@jtpio](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ajtpio+updated%3A2023-10-24..2023-11-08&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2023-10-24..2023-11-08&type=Issues) | [@lumberbot-app](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Alumberbot-app+updated%3A2023-10-24..2023-11-08&type=Issues) | [@meeseeksmachine](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ameeseeksmachine+updated%3A2023-10-24..2023-11-08&type=Issues) | [@welcome](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Awelcome+updated%3A2023-10-24..2023-11-08&type=Issues) | [@Wzixiao](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AWzixiao+updated%3A2023-10-24..2023-11-08&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 1.4.0
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@1.3.0...52c9339d332749b58bc87528801537ad77705e6f))
@@ -17,8 +40,6 @@ See [v2.4.0](https://github.com/jupyterlab/jupyter-ai/releases/tag/v2.4.0) relea
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2023-10-09&to=2023-10-24&type=c))
 
 [@3coins](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3A3coins+updated%3A2023-10-09..2023-10-24&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 1.3.0
 
