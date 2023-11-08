@@ -16,7 +16,9 @@ KNOWN_LM_B = "huggingface_hub"
         ["--AiExtension.allowed_providers", KNOWN_LM_A],
     ],
 )
-@pytest.mark.skip(reason="Reads from user's config file instead of an isolated one. Causes test flakiness during local development.")
+@pytest.mark.skip(
+    reason="Reads from user's config file instead of an isolated one. Causes test flakiness during local development."
+)
 def test_allows_providers(argv, jp_configurable_serverapp):
     server = jp_configurable_serverapp(argv=argv)
     ai = AiExtension()
@@ -32,7 +34,9 @@ def test_allows_providers(argv, jp_configurable_serverapp):
         ["--AiExtension.allowed_providers", KNOWN_LM_B],
     ],
 )
-@pytest.mark.skip(reason="Reads from user's config file instead of an isolated one. Causes test flakiness during local development.")
+@pytest.mark.skip(
+    reason="Reads from user's config file instead of an isolated one. Causes test flakiness during local development."
+)
 def test_blocks_providers(argv, jp_configurable_serverapp):
     server = jp_configurable_serverapp(argv=argv)
     ai = AiExtension()
