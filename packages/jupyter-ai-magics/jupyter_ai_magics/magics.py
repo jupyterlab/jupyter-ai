@@ -405,9 +405,11 @@ class AiMagics(Magics):
 
         prompt = f"Explain the following error:\n\n{last_error}"
         # Set CellArgs based on ErrorArgs
-        cell_args = CellArgs(
-            type="root", model_id=args.model_id, format=args.format, reset=False
-        )
+        values = args.dict()
+        values["type"] = "root"
+        values["reset"] = False
+        cell_args = CellArgs(**values)
+
         return self.run_ai_cell(cell_args, prompt)
 
     def _append_exchange_openai(self, prompt: str, output: str):
@@ -538,16 +540,9 @@ class AiMagics(Magics):
             provider_params["request_schema"] = args.request_schema
             provider_params["response_path"] = args.response_path
 
-            # Validate that the request schema is well-formed JSON
-            try:
-                json.loads(args.request_schema)
-            except json.JSONDecodeError as e:
-                raise ValueError(
-                    "request-schema must be valid JSON. "
-                    f"Error at line {e.lineno}, column {e.colno}: {e.msg}"
-                ) from None
+        model_parameters = json.loads(args.model_parameters)
 
-        provider = Provider(**provider_params)
+        provider = Provider(**provider_params, **model_parameters)
 
         # Apply a prompt template.
         prompt = provider.get_prompt_template(args.format).format(prompt=prompt)

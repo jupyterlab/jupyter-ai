@@ -4,7 +4,7 @@ from dask.distributed import Client as DaskClient
 from jupyter_ai.chat_handlers.learn import Retriever
 from jupyter_ai_magics.utils import get_em_providers, get_lm_providers
 from jupyter_server.extension.application import ExtensionApp
-from traitlets import List, Unicode
+from traitlets import Dict, List, Unicode
 
 from .chat_handlers import (
     AskChatHandler,
@@ -81,6 +81,17 @@ class AiExtension(ExtensionApp):
         config=True,
     )
 
+    model_parameters = Dict(
+        key_trait=Unicode(),
+        value_trait=Dict(),
+        default_value={},
+        help="""Key-value pairs for model id and corresponding parameters that
+        are passed to the provider class. The values are unpacked and passed to
+        the provider class as-is.""",
+        allow_none=True,
+        config=True,
+    )
+
     def initialize_settings(self):
         start = time.time()
 
@@ -95,6 +106,9 @@ class AiExtension(ExtensionApp):
         self.log.info(f"Configured provider blocklist: {self.blocked_providers}")
         self.log.info(f"Configured model allowlist: {self.allowed_models}")
         self.log.info(f"Configured model blocklist: {self.blocked_models}")
+
+        self.settings["model_parameters"] = self.model_parameters
+        self.log.info(f"Configured model parameters: {self.model_parameters}")
 
         # Fetch LM & EM providers
         self.settings["lm_providers"] = get_lm_providers(
@@ -147,6 +161,7 @@ class AiExtension(ExtensionApp):
             "log": self.log,
             "config_manager": self.settings["jai_config_manager"],
             "root_chat_handlers": self.settings["jai_root_chat_handlers"],
+            "model_parameters": self.settings["model_parameters"],
         }
         default_chat_handler = DefaultChatHandler(
             **chat_handler_kwargs, chat_history=self.settings["chat_history"]
