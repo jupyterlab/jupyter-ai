@@ -127,8 +127,8 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
             chat_user_kwargs = {
                 # set in case IdentityProvider doesn't return initials, e.g.
                 # JupyterHub (#302)
-                "initials": initials,
                 **asdict(self.current_user),
+                "initials": initials,
             }
             return ChatUser(**chat_user_kwargs)
 
