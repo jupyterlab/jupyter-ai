@@ -107,7 +107,6 @@ class AiExtension(ExtensionApp):
         self.log.info(f"Configured model allowlist: {self.allowed_models}")
         self.log.info(f"Configured model blocklist: {self.blocked_models}")
 
-
         self.settings["model_parameters"] = self.model_parameters
 
         # Fetch LM & EM providers
