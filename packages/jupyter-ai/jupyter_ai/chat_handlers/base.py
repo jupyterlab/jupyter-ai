@@ -9,12 +9,13 @@ from uuid import uuid4
 from jupyter_ai.config_manager import ConfigManager, Logger
 from jupyter_ai.models import AgentChatMessage, HumanChatMessage
 from jupyter_ai_magics.providers import BaseProvider
+from traitlets.config import Configurable
 
 if TYPE_CHECKING:
     from jupyter_ai.handlers import RootChatHandler
 
 
-class BaseChatHandler:
+class BaseChatHandler(Configurable):
     """Base ChatHandler class containing shared methods and attributes used by
     multiple chat handler classes."""
 
@@ -23,7 +24,10 @@ class BaseChatHandler:
         log: Logger,
         config_manager: ConfigManager,
         root_chat_handlers: Dict[str, "RootChatHandler"],
+        *args,
+        **kwargs,
     ):
+        super().__init__(*args, **kwargs)
         self.log = log
         self.config_manager = config_manager
         self._root_chat_handlers = root_chat_handlers
@@ -93,6 +97,28 @@ class BaseChatHandler:
 
             handler.broadcast_message(agent_msg)
             break
+
+    @property
+    def lm_id(self):
+        """Retrieves the language model ID from the config manager."""
+        lm_provider = self.config_manager.lm_provider
+        lm_provider_params = self.config_manager.lm_provider_params
+
+        if lm_provider:
+            return lm_provider.id + ":" + lm_provider_params["model_id"]
+        else:
+            return None
+
+    @property
+    def em_id(self):
+        """Retrieves the embedding model ID from the config manager."""
+        em_provider = self.config_manager.em_provider
+        em_provider_params = self.config_manager.em_provider_params
+
+        if em_provider:
+            return em_provider.id + ":" + em_provider_params["model_id"]
+        else:
+            return None
 
     def get_llm_chain(self):
         lm_provider = self.config_manager.lm_provider

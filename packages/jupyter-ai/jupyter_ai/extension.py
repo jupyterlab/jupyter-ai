@@ -145,6 +145,7 @@ class AiExtension(ExtensionApp):
         # initialize chat handlers
         chat_handler_kwargs = {
             "log": self.log,
+            "config": self.config,  # traitlets config
             "config_manager": self.settings["jai_config_manager"],
             "root_chat_handlers": self.settings["jai_root_chat_handlers"],
         }
