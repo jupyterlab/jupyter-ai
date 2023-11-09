@@ -1,3 +1,4 @@
+import os
 from typing import ClassVar, List
 
 from jupyter_ai_magics.providers import (
@@ -107,6 +108,20 @@ class BedrockEmbeddingsProvider(BaseEmbeddingsProvider, BedrockEmbeddings):
 
 
 class GPT4AllEmbeddingsProvider(BaseEmbeddingsProvider, GPT4AllEmbeddings):
+    def __init__(self, **kwargs):
+        from gpt4all import GPT4All
+
+        model_name = kwargs.get("model_id").split(":")[-1]
+
+        # GPT4AllEmbeddings doesn't allow any kwargs at the moment
+        # This will cause the class to start downloading the model
+        # if the model file is not present. Calling retrieve_model
+        # here will throw an exception if the file is not present.
+        GPT4All.retrieve_model(model_name=model_name, allow_download=False)
+
+        kwargs["allow_download"] = False
+        super().__init__(**kwargs)
+
     id = "gpt4all"
     name = "GPT4All Embeddings"
     models = ["all-MiniLM-L6-v2-f16"]
