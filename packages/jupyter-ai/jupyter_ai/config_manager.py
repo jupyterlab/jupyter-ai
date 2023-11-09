@@ -59,6 +59,12 @@ class BlockedModelError(Exception):
     pass
 
 
+class ConfigValidationError(Exception):
+    def __init__(self, property_name, message):
+        self.property_name = property_name
+        super().__init__(message)
+
+
 def _validate_provider_authn(config: GlobalConfig, provider: AnyProvider):
     # TODO: handle non-env auth strategies
     if not provider.auth_strategy or provider.auth_strategy.type != "env":
@@ -171,7 +177,14 @@ class ConfigManager(Configurable):
 
                 # re-write to the file to validate the config and apply any
                 # updates to the config file immediately
-                self._write_config(config)
+                try:
+                    self._write_config(config)
+                except ConfigValidationError as e:
+                    if e.property_name == "model_provider_id":
+                        self.log.warning(f"{str(e)} Setting to None")
+                        config.model_provider_id = None
+                        self._write_config(config)
+
             return
 
         properties = self.validator.schema.get("properties", {})
@@ -213,8 +226,9 @@ class ConfigManager(Configurable):
 
             # verify model is declared by some provider
             if not lm_provider:
-                raise ValueError(
-                    f"No language model is associated with '{config.model_provider_id}'."
+                raise ConfigValidationError(
+                    "model_provider_id",
+                    f"No language model is associated with '{config.model_provider_id}'.",
                 )
 
             # verify model is not blocked
