@@ -378,7 +378,7 @@ Note that each model comes with its own license, and that users are themselves
 responsible for verifying that their usage complies with the license. You can
 find licensing details on the [GPT4All official site](https://gpt4all.io/index.html).
 
-First, create a cache folder
+First, create a folder to store the model files.
 
 ```
 mkdir ~/.cache/gpt4all
