@@ -68,7 +68,7 @@ class BaseChatHandler:
         implementation is provided, however chat handlers (subclasses) should
         implement this method to provide a more helpful error response.
         """
-        self._default_handle_exc(e, message)
+        await self._default_handle_exc(e, message)
 
     async def _default_handle_exc(self, e: Exception, message: HumanChatMessage):
         """
