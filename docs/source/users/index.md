@@ -949,9 +949,35 @@ following section.
 
 #### Configuring as a config file
 
-This configuration can also be specified in a config file in json format. The
-file should be named `jupyter_jupyter_ai_config.json` and saved in a path that
-JupyterLab can pick from. You can find this path by running `jupyter --paths`
+This configuration can also be specified in a config file in json format.
+
+Here is an example for configuring the `bedrock` provider for `ai21.j2-mid-v1`
+model.
+
+```json
+{
+    "AiExtension": {
+        "model_parameters": {
+            "bedrock:ai21.j2-mid-v1": {
+                "model_kwargs": {
+                    "maxTokens": 200
+                }
+            }
+        }
+    }
+}
+```
+
+There are several ways to specify JupyterLab to pick this config.
+
+The first option is to save this config in a file and specifying the filepath at startup using the `--config` or `-c` option.
+
+```bash
+jupyter lab --config <config-file-path>
+```
+
+The second option is to drop it in a location that JupyterLab scans for configuration files.
+The file should be named `jupyter_jupyter_ai_config.json` in this case. You can find these paths by running `jupyter --paths`
 command, and picking one of the paths from the `config` section.
 
 Here is an example of running the `jupyter --paths` command.
@@ -972,21 +998,4 @@ data:
     /usr/share/jupyter
 runtime:
     /Users/3coins/Library/Jupyter/runtime
-```
-
-Here is an example for configuring the `bedrock` provider for `ai21.j2-mid-v1`
-model.
-
-```json
-{
-    "AiExtension": {
-        "model_parameters": {
-            "bedrock:ai21.j2-mid-v1": {
-                "model_kwargs": {
-                    "maxTokens": 200
-                }
-            }
-        }
-    }
-}
 ```
