@@ -353,7 +353,7 @@ response.  In this example, the endpoint returns an object with the schema
 ### GPT4All usage (early-stage)
 
 Currently, we offer experimental support for GPT4All. To get started, first
-decide which models you will use. We currently offer three models from GPT4All:
+decide which models you will use. We currently offer the following models from GPT4All:
 
 | Model name                   | Model size | Model bin URL                                              |
 |---------------------------------|------------|------------------------------------------------------------|
