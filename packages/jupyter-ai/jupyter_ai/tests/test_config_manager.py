@@ -3,6 +3,7 @@ import logging
 import os
 
 import pytest
+from unittest.mock import mock_open, patch
 from jupyter_ai.config_manager import (
     AuthError,
     ConfigManager,
@@ -81,6 +82,11 @@ def reset(config_path, schema_path):
         os.remove(schema_path)
     except OSError:
         pass
+
+
+@pytest.fixture
+def config_with_bad_provider_ids():
+    return json.dumps({"model_provider_id:": "foo", "embeddings_provider_id": "bar"})
 
 
 def configure_to_cohere(cm: ConfigManager):
@@ -290,3 +296,11 @@ def test_forbid_deleting_key_in_use(cm: ConfigManager):
 
     with pytest.raises(KeyInUseError):
         cm.delete_api_key("COHERE_API_KEY")
+
+
+def test_handle_bad_provider_ids(config_with_bad_provider_ids, common_cm_kwargs):
+    with patch("builtins.open", mock_open(read_data=config_with_bad_provider_ids)):
+        cm = ConfigManager(**common_cm_kwargs)
+        config_desc = cm.get_config()
+        assert config_desc.model_provider_id is None
+        assert config_desc.embeddings_provider_id is None
