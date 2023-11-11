@@ -86,7 +86,7 @@ def reset(config_path, schema_path):
 
 @pytest.fixture
 def config_with_bad_provider_ids(tmp_path):
-    """Fixture that creates a `config.json` with model_provider_id and  embeddings_provider_id values that would not associate with models. File is created in `tmp_path` folder. Function returns path to the file."""
+    """Fixture that creates a `config.json` with `model_provider_id` and  `embeddings_provider_id` values that would not associate with models. File is created in `tmp_path` folder. Function returns path to the file."""
     config_data = {
         "model_provider_id:": "foo:bar",
         "embeddings_provider_id": "buzz:fizz",
@@ -102,7 +102,7 @@ def config_with_bad_provider_ids(tmp_path):
 
 @pytest.fixture
 def cm_with_bad_provider_ids(common_cm_kwargs, config_with_bad_provider_ids):
-    """Config manager instance created with `config_path` set to mocked `config.json` with model_provider_id and embeddings_provider_id values that would not associate with models."""
+    """Config manager instance created with `config_path` set to mocked `config.json` with `model_provider_id` and `embeddings_provider_id` values that would not associate with models."""
     common_cm_kwargs["config_path"] = config_with_bad_provider_ids
     return ConfigManager(**common_cm_kwargs)
 
