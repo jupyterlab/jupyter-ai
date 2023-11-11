@@ -1,9 +1,9 @@
 import json
 import logging
 import os
+from unittest.mock import mock_open, patch
 
 import pytest
-from unittest.mock import mock_open, patch
 from jupyter_ai.config_manager import (
     AuthError,
     ConfigManager,
