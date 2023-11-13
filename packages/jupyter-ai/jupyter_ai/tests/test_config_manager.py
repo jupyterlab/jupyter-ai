@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+from unittest.mock import mock_open, patch
 
 import pytest
 from jupyter_ai.config_manager import (
@@ -9,7 +10,7 @@ from jupyter_ai.config_manager import (
     KeyInUseError,
     WriteConflictError,
 )
-from jupyter_ai.models import DescribeConfigResponse, UpdateConfigRequest
+from jupyter_ai.models import DescribeConfigResponse, GlobalConfig, UpdateConfigRequest
 from jupyter_ai_magics.utils import get_em_providers, get_lm_providers
 from pydantic import ValidationError
 
@@ -81,6 +82,29 @@ def reset(config_path, schema_path):
         os.remove(schema_path)
     except OSError:
         pass
+
+
+@pytest.fixture
+def config_with_bad_provider_ids(tmp_path):
+    """Fixture that creates a `config.json` with `model_provider_id` and  `embeddings_provider_id` values that would not associate with models. File is created in `tmp_path` folder. Function returns path to the file."""
+    config_data = {
+        "model_provider_id:": "foo:bar",
+        "embeddings_provider_id": "buzz:fizz",
+        "api_keys": {},
+        "send_with_shift_enter": False,
+        "fields": {},
+    }
+    config_path = tmp_path / "config.json"
+    with open(config_path, "w") as file:
+        json.dump(config_data, file)
+    return str(config_path)
+
+
+@pytest.fixture
+def cm_with_bad_provider_ids(common_cm_kwargs, config_with_bad_provider_ids):
+    """Config manager instance created with `config_path` set to mocked `config.json` with `model_provider_id` and `embeddings_provider_id` values that would not associate with models."""
+    common_cm_kwargs["config_path"] = config_with_bad_provider_ids
+    return ConfigManager(**common_cm_kwargs)
 
 
 def configure_to_cohere(cm: ConfigManager):
@@ -290,3 +314,9 @@ def test_forbid_deleting_key_in_use(cm: ConfigManager):
 
     with pytest.raises(KeyInUseError):
         cm.delete_api_key("COHERE_API_KEY")
+
+
+def test_handle_bad_provider_ids(cm_with_bad_provider_ids):
+    config_desc = cm_with_bad_provider_ids.get_config()
+    assert config_desc.model_provider_id is None
+    assert config_desc.embeddings_provider_id is None
