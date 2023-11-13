@@ -47,7 +47,7 @@ have the same version of each, to avoid errors.
 
 Jupyter AI internally uses Pydantic v1 and should work with either Pydantic
 version 1 or version 2. For compatibility, developers using Pydantic V2
-should import classes using the `pydantic.v1` package. See the 
+should import classes using the `pydantic.v1` package. See the
 [LangChain Pydantic migration plan](https://python.langchain.com/docs/guides/pydantic_compatibility)
 for advice about how developers should use `v1` to avoid mixing v1 and v2
 classes in their code.
