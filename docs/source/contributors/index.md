@@ -2,6 +2,8 @@
 
 This page is intended for people interested in building new or modified functionality for Jupyter AI.
 
+If you would like to build applications that enhance Jupyter AI, please see the {doc}`developer's guide </developers/index>`.
+
 ## Design principles
 
 Maintainers of Jupyter AI have adopted principles that contributors should also follow. These principles, which build on top of [the Zen of Python](https://peps.python.org/pep-0020/), are intended to earn users' trust by keeping their data under their control. The following list is non-exhaustive; maintainers have discretion to interpret and revise these principles.
