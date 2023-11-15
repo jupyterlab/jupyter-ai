@@ -5,7 +5,7 @@ from jupyter_ai_magics.providers import (
     AuthStrategy,
     AwsAuthStrategy,
     EnvAuthStrategy,
-    Field,
+    Field, MultiEnvAuthStrategy,
 )
 from langchain.embeddings import (
     BedrockEmbeddings,
@@ -13,6 +13,7 @@ from langchain.embeddings import (
     GPT4AllEmbeddings,
     HuggingFaceHubEmbeddings,
     OpenAIEmbeddings,
+    QianfanEmbeddingsEndpoint,
 )
 from pydantic import BaseModel, Extra
 
@@ -127,3 +128,12 @@ class GPT4AllEmbeddingsProvider(BaseEmbeddingsProvider, GPT4AllEmbeddings):
     models = ["all-MiniLM-L6-v2-f16"]
     model_id_key = "model_id"
     pypi_package_deps = ["gpt4all"]
+
+
+class QianfanEmbeddingsEndpointProvider(BaseEmbeddingsProvider, QianfanEmbeddingsEndpoint):
+    id = "qianfan"
+    name = "ERNIE-Bot"
+    models = ["ERNIE-Bot", "ERNIE-Bot-4"]
+    model_id_key = "model"
+    pypi_package_deps = ["qianfan"]
+    auth_strategy = MultiEnvAuthStrategy(names=["QIANFAN_AK", "QIANFAN_SK"])
