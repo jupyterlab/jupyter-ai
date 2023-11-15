@@ -9,7 +9,7 @@ please see our {doc}`contributor's guide </contributors/index>`.
 ## Pydantic compatibility
 
 Jupyter AI is fully compatible with Python environments using Pydantic v1
-or Pydantic v2. Jupyter AI imports Pydantic classes from the 
+or Pydantic v2. Jupyter AI imports Pydantic classes from the
 `langchain.pydantic_v1` module. Developers should do the same when they extend
 Jupyter AI classes.
 
