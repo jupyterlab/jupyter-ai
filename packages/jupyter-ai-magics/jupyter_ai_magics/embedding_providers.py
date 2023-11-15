@@ -14,7 +14,7 @@ from langchain.embeddings import (
     HuggingFaceHubEmbeddings,
     OpenAIEmbeddings,
 )
-from pydantic import BaseModel, Extra
+from langchain.pydantic_v1 import BaseModel, Extra
 
 
 class BaseEmbeddingsProvider(BaseModel):
