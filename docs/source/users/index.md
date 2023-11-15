@@ -5,6 +5,9 @@ Welcome to the user documentation for Jupyter AI.
 If you are interested in contributing to Jupyter AI,
 please see our {doc}`contributor's guide </contributors/index>`.
 
+If you would like to build applications that enhance Jupyter AI,
+please see the {doc}`developer's guide </developers/index>`.
+
 ## Prerequisites
 
 You can run Jupyter AI on any system that can run a supported Python version
