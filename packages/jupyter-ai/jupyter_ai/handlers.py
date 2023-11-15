@@ -361,6 +361,11 @@ class GlobalConfigHandler(BaseAPIHandler):
 
     @web.authenticated
     def get(self):
+        if self.config_manager.config_error:
+            self.set_status(400)
+            self.finish(self.config_manager.config_error.json())
+            return
+
         config = self.config_manager.get_config()
         if not config:
             raise HTTPError(500, "No config found.")

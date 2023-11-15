@@ -7,7 +7,12 @@ from typing import List, Optional, Union
 
 from deepmerge import always_merger as Merger
 from jsonschema import Draft202012Validator as Validator
-from jupyter_ai.models import DescribeConfigResponse, GlobalConfig, UpdateConfigRequest
+from jupyter_ai.models import (
+    APIErrorModel,
+    DescribeConfigResponse,
+    GlobalConfig,
+    UpdateConfigRequest,
+)
 from jupyter_ai_magics.utils import (
     AnyProvider,
     EmProvidersDict,
@@ -16,6 +21,7 @@ from jupyter_ai_magics.utils import (
     get_lm_provider,
 )
 from jupyter_core.paths import jupyter_data_dir
+from pydantic import ValidationError
 from traitlets import Integer, Unicode
 from traitlets.config import Configurable
 
@@ -70,6 +76,16 @@ def _validate_provider_authn(config: GlobalConfig, provider: AnyProvider):
         )
 
 
+def _format_validation_errors(error: ValidationError):
+    """Format Pydantic validation errors for user-friendly output."""
+    messages = []
+    for e in error.errors():
+        field_path = " -> ".join(map(str, e["loc"]))
+        error_message = f"Error in '{field_path}': {e['msg']}. Please review and correct this field."
+        messages.append(error_message)
+    return "Configuration Error: " + " | ".join(messages)
+
+
 class ConfigManager(Configurable):
     """Provides model and embedding provider id along
     with the credentials to authenticate providers.
@@ -111,6 +127,7 @@ class ConfigManager(Configurable):
         super().__init__(*args, **kwargs)
         self.log = log
 
+        self._config_error = None
         self._lm_providers = lm_providers
         """List of LM providers."""
         self._em_providers = em_providers
@@ -146,60 +163,70 @@ class ConfigManager(Configurable):
             self.validator = Validator(schema)
 
     def _init_config(self):
-        if os.path.exists(self.config_path):
-            with open(self.config_path, encoding="utf-8") as f:
-                config = GlobalConfig(**json.loads(f.read()))
-                lm_id = config.model_provider_id
-                em_id = config.embeddings_provider_id
+        try:
+            if os.path.exists(self.config_path):
+                with open(self.config_path, encoding="utf-8") as f:
+                    config = GlobalConfig(**json.loads(f.read()))
+                    lm_id = config.model_provider_id
+                    em_id = config.embeddings_provider_id
 
-                # if the currently selected language or embedding model are
-                # forbidden, set them to `None` and log a warning.
-                if lm_id is not None and not self._validate_model(
-                    lm_id, raise_exc=False
-                ):
-                    self.log.warning(
-                        f"Language model {lm_id} is forbidden by current allow/blocklists. Setting to None."
-                    )
-                    config.model_provider_id = None
-                if em_id is not None and not self._validate_model(
-                    em_id, raise_exc=False
-                ):
-                    self.log.warning(
-                        f"Embedding model {em_id} is forbidden by current allow/blocklists. Setting to None."
-                    )
-                    config.embeddings_provider_id = None
+                    # if the currently selected language or embedding model are
+                    # forbidden, set them to `None` and log a warning.
+                    if lm_id is not None and not self._validate_model(
+                        lm_id, raise_exc=False
+                    ):
+                        self.log.warning(
+                            f"Language model {lm_id} is forbidden by current allow/blocklists. Setting to None."
+                        )
+                        config.model_provider_id = None
+                    if em_id is not None and not self._validate_model(
+                        em_id, raise_exc=False
+                    ):
+                        self.log.warning(
+                            f"Embedding model {em_id} is forbidden by current allow/blocklists. Setting to None."
+                        )
+                        config.embeddings_provider_id = None
 
-                # if the currently selected language or embedding model ids are
-                # not associated with models, set them to `None` and log a warning.
-                if (
-                    lm_id is not None
-                    and not get_lm_provider(lm_id, self._lm_providers)[1]
-                ):
-                    self.log.warning(
-                        f"No language model is associated with '{lm_id}'. Setting to None."
-                    )
-                    config.model_provider_id = None
-                if (
-                    em_id is not None
-                    and not get_em_provider(em_id, self._em_providers)[1]
-                ):
-                    self.log.warning(
-                        f"No embedding model is associated with '{em_id}'. Setting to None."
-                    )
-                    config.embeddings_provider_id = None
+                    # if the currently selected language or embedding model ids are
+                    # not associated with models, set them to `None` and log a warning.
+                    if (
+                        lm_id is not None
+                        and not get_lm_provider(lm_id, self._lm_providers)[1]
+                    ):
+                        self.log.warning(
+                            f"No language model is associated with '{lm_id}'. Setting to None."
+                        )
+                        config.model_provider_id = None
+                    if (
+                        em_id is not None
+                        and not get_em_provider(em_id, self._em_providers)[1]
+                    ):
+                        self.log.warning(
+                            f"No embedding model is associated with '{em_id}'. Setting to None."
+                        )
+                        config.embeddings_provider_id = None
 
-                # re-write to the file to validate the config and apply any
-                # updates to the config file immediately
-                self._write_config(config)
-            return
+                    # re-write to the file to validate the config and apply any
+                    # updates to the config file immediately
+                    self._write_config(config)
+                return
 
-        properties = self.validator.schema.get("properties", {})
-        field_list = GlobalConfig.__fields__.keys()
-        field_dict = {
-            field: properties.get(field).get("default") for field in field_list
-        }
-        default_config = GlobalConfig(**field_dict)
-        self._write_config(default_config)
+            properties = self.validator.schema.get("properties", {})
+            field_list = GlobalConfig.__fields__.keys()
+            field_dict = {
+                field: properties.get(field).get("default") for field in field_list
+            }
+            default_config = GlobalConfig(**field_dict)
+            self._write_config(default_config)
+
+        except ValidationError as e:
+            formatted_error = _format_validation_errors(e)
+            self.config_error = APIErrorModel(
+                type="ValidationError",
+                message="Configuration validation failed",
+                details=formatted_error,
+            )
+            self.log.error(f"Configuration validation error: {self.config_error}")
 
     def _read_config(self) -> GlobalConfig:
         """Returns the user's current configuration as a GlobalConfig object.
@@ -332,6 +359,9 @@ class ConfigManager(Configurable):
 
         config_dict["api_keys"].pop(key_name, None)
         self._write_config(GlobalConfig(**config_dict))
+
+    def get_config_error(self):
+        return self._config_error
 
     def update_config(self, config_update: UpdateConfigRequest):
         last_write = os.stat(self.config_path).st_mtime_ns
