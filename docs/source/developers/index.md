@@ -8,12 +8,11 @@ please see our {doc}`contributor's guide </contributors/index>`.
 
 ## Pydantic compatibility
 
-Jupyter AI internally uses **Pydantic v1** and should work with either Pydantic
-version 1 or version 2. For compatibility, developers using Pydantic version 2
-should import classes using the `pydantic.v1` package. See the
-[LangChain Pydantic migration plan](https://python.langchain.com/docs/guides/pydantic_compatibility)
-for advice about how developers should use `v1` to avoid mixing v1 and v2
-classes in their code.
+Jupyter AI is fully compatible with Python environments using Pydantic v1
+or Pydantic v2. Jupyter AI imports Pydantic classes from the 
+`langchain.pydantic_v1` module. Developers should do the same when they extend
+Jupyter AI classes.
 
-If you build an application that depends on LangChain, you can import from
-`langchain.pydantic_v1`, which exposes Pydantic v1 classes from both Pydantic v1 and v2.
+For more details about using `langchain.pydantic_v1` in an environment with
+Pydantic v2 installed, see the
+[LangChain documentation on Pydantic compatibility](https://python.langchain.com/docs/guides/pydantic_compatibility).
