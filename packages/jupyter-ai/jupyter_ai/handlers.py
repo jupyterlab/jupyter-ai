@@ -121,15 +121,19 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
 
         if collaborative:
             names = self.current_user.name.split(" ", maxsplit=2)
-            initials = "".join(
-                [(name.capitalize()[0] if len(name) > 0 else "") for name in names]
-            )
+            initials = getattr(self.current_user, "initials", None)
+            if not initials:
+                # compute default initials in case IdentityProvider doesn't
+                # return initials, e.g. JupyterHub (#302)
+                names = self.current_user.name.split(" ", maxsplit=2)
+                initials = "".join(
+                    [(name.capitalize()[0] if len(name) > 0 else "") for name in names]
+                )
             chat_user_kwargs = {
-                # set in case IdentityProvider doesn't return initials, e.g.
-                # JupyterHub (#302)
-                "initials": initials,
                 **asdict(self.current_user),
+                "initials": initials,
             }
+
             return ChatUser(**chat_user_kwargs)
 
         login = getpass.getuser()

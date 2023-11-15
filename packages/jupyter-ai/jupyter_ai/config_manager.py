@@ -169,6 +169,25 @@ class ConfigManager(Configurable):
                     )
                     config.embeddings_provider_id = None
 
+                # if the currently selected language or embedding model ids are
+                # not associated with models, set them to `None` and log a warning.
+                if (
+                    lm_id is not None
+                    and not get_lm_provider(lm_id, self._lm_providers)[1]
+                ):
+                    self.log.warning(
+                        f"No language model is associated with '{lm_id}'. Setting to None."
+                    )
+                    config.model_provider_id = None
+                if (
+                    em_id is not None
+                    and not get_em_provider(em_id, self._em_providers)[1]
+                ):
+                    self.log.warning(
+                        f"No embedding model is associated with '{em_id}'. Setting to None."
+                    )
+                    config.embeddings_provider_id = None
+
                 # re-write to the file to validate the config and apply any
                 # updates to the config file immediately
                 self._write_config(config)
