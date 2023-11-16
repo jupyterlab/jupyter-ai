@@ -11,8 +11,8 @@ import click
 from IPython import get_ipython
 from IPython.core.magic import Magics, line_cell_magic, magics_class
 from IPython.display import HTML, JSON, Markdown, Math
-from jupyter_ai_magics.utils import decompose_model_id, get_lm_providers
 from jupyter_ai_magics.aliases import MODEL_ID_ALIASES
+from jupyter_ai_magics.utils import decompose_model_id, get_lm_providers
 from langchain.chains import LLMChain
 from langchain.schema import HumanMessage
 

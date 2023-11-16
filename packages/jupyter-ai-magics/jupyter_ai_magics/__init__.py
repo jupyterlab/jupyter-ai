@@ -8,7 +8,7 @@ from .embedding_providers import (
     GPT4AllEmbeddingsProvider,
     HfHubEmbeddingsProvider,
     OpenAIEmbeddingsProvider,
-    QianfanEmbeddingsEndpointProvider
+    QianfanEmbeddingsEndpointProvider,
 )
 from .exception import store_exception
 from .magics import AiMagics
@@ -28,8 +28,8 @@ from .providers import (
     GPT4AllProvider,
     HfHubProvider,
     OpenAIProvider,
+    QianfanProvider,
     SmEndpointProvider,
-    QianfanProvider
 )
 
 

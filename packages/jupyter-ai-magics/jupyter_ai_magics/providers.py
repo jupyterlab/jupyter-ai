@@ -35,8 +35,8 @@ from langchain.llms import (
     HuggingFaceHub,
     OpenAI,
     OpenAIChat,
-    SagemakerEndpoint,
     QianfanLLMEndpoint,
+    SagemakerEndpoint,
 )
 from langchain.llms.sagemaker_endpoint import LLMContentHandler
 from langchain.llms.utils import enforce_stop_tokens
@@ -783,10 +783,7 @@ class BedrockChatProvider(BaseProvider, BedrockChat):
 class QianfanProvider(BaseProvider, QianfanChatEndpoint):
     id = "qianfan"
     name = "ERNIE-Bot"
-    models = [
-        "ERNIE-Bot",
-        "ERNIE-Bot-4"
-    ]
+    models = ["ERNIE-Bot", "ERNIE-Bot-4"]
     model_id_key = "model_name"
     pypi_package_deps = ["qianfan"]
     auth_strategy = MultiEnvAuthStrategy(names=["QIANFAN_AK", "QIANFAN_SK"])
