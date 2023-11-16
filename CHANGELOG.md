@@ -2,6 +2,37 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 1.6.0
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@1.5.0...da5496468defe1c943e72dae5ee30a599bc55216))
+
+### Enhancements made
+
+- Copy edits for Jupyternaut messages [#475](https://github.com/jupyterlab/jupyter-ai/pull/475) ([@JasonWeill](https://github.com/JasonWeill))
+- (1.x) Pydantic v1 and v2 compatibility [#471](https://github.com/jupyterlab/jupyter-ai/pull/471) ([@JasonWeill](https://github.com/JasonWeill))
+- Add gpt4all local models, including an embedding provider [#454](https://github.com/jupyterlab/jupyter-ai/pull/454) ([@3coins](https://github.com/3coins))
+- Add step to create a GPT4All cache folder to the docs [#457](https://github.com/jupyterlab/jupyter-ai/pull/457) ([@andrii-i](https://github.com/andrii-i))
+
+### Bugs fixed
+
+- Ensure initials appear in collaborative mode [#443](https://github.com/jupyterlab/jupyter-ai/pull/443) ([@aychang95](https://github.com/aychang95))
+- If model_provider_id or embeddings_provider_id is not associated with models, set it to None [#459](https://github.com/jupyterlab/jupyter-ai/pull/459) ([@andrii-i](https://github.com/andrii-i))
+- Add gpt4all local models, including an embedding provider [#454](https://github.com/jupyterlab/jupyter-ai/pull/454) ([@3coins](https://github.com/3coins))
+
+### Documentation improvements
+
+- Copy edits for Jupyternaut messages [#475](https://github.com/jupyterlab/jupyter-ai/pull/475) ([@JasonWeill](https://github.com/JasonWeill))
+- Updated docs for config. [#450](https://github.com/jupyterlab/jupyter-ai/pull/450) ([@3coins](https://github.com/3coins))
+- Add step to create a GPT4All cache folder to the docs [#457](https://github.com/jupyterlab/jupyter-ai/pull/457) ([@andrii-i](https://github.com/andrii-i))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2023-11-08&to=2023-11-16&type=c))
+
+[@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2023-11-08..2023-11-16&type=Issues) | [@JasonWeill](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AJasonWeill+updated%3A2023-11-08..2023-11-16&type=Issues) | [@meeseeksmachine](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ameeseeksmachine+updated%3A2023-11-08..2023-11-16&type=Issues) | [@welcome](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Awelcome+updated%3A2023-11-08..2023-11-16&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 1.5.0
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@1.4.0...0502887419347fe55501f8370f6468fb25b876f5))
@@ -22,8 +53,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2023-10-24&to=2023-11-08&type=c))
 
 [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2023-10-24..2023-11-08&type=Issues) | [@ellisonbg](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aellisonbg+updated%3A2023-10-24..2023-11-08&type=Issues) | [@JasonWeill](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AJasonWeill+updated%3A2023-10-24..2023-11-08&type=Issues) | [@jtpio](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ajtpio+updated%3A2023-10-24..2023-11-08&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2023-10-24..2023-11-08&type=Issues) | [@lumberbot-app](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Alumberbot-app+updated%3A2023-10-24..2023-11-08&type=Issues) | [@meeseeksmachine](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ameeseeksmachine+updated%3A2023-10-24..2023-11-08&type=Issues) | [@welcome](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Awelcome+updated%3A2023-10-24..2023-11-08&type=Issues) | [@Wzixiao](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AWzixiao+updated%3A2023-10-24..2023-11-08&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 1.4.0
 
