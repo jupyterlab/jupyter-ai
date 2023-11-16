@@ -8,7 +8,7 @@ from typing import List, Optional, Union
 from deepmerge import always_merger as Merger
 from jsonschema import Draft202012Validator as Validator
 from jupyter_ai.models import (
-    APIErrorModel,
+    ErrorModel,
     DescribeConfigResponse,
     GlobalConfig,
     UpdateConfigRequest,
@@ -222,7 +222,7 @@ class ConfigManager(Configurable):
 
     def _handle_validation_error(self, e: ValidationError):
         formatted_error = _format_validation_errors(e)
-        self._config_error = APIErrorModel(
+        self._config_error = ErrorModel(
             type="ValidationError",
             message="Configuration validation failed",
             details=formatted_error,

@@ -145,7 +145,7 @@ class GlobalConfig(BaseModel):
     api_keys: Dict[str, str]
 
 
-class APIErrorModel(BaseModel):
-    type: str = "APIError"
-    message: str
+class ErrorModel(BaseModel):
+    type: str = None
+    message: str = None
     details: str = None
