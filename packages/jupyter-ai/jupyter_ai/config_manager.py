@@ -8,8 +8,8 @@ from typing import List, Optional, Union
 from deepmerge import always_merger as Merger
 from jsonschema import Draft202012Validator as Validator
 from jupyter_ai.models import (
-    ErrorModel,
     DescribeConfigResponse,
+    ErrorModel,
     GlobalConfig,
     UpdateConfigRequest,
 )
