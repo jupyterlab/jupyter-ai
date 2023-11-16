@@ -15,7 +15,7 @@ from langchain.embeddings import (
     OpenAIEmbeddings,
     QianfanEmbeddingsEndpoint,
 )
-from pydantic import BaseModel, Extra
+from langchain.pydantic_v1 import BaseModel, Extra
 
 
 class BaseEmbeddingsProvider(BaseModel):
