@@ -5,7 +5,8 @@ from jupyter_ai_magics.providers import (
     AuthStrategy,
     AwsAuthStrategy,
     EnvAuthStrategy,
-    Field, MultiEnvAuthStrategy,
+    Field,
+    MultiEnvAuthStrategy,
 )
 from langchain.embeddings import (
     BedrockEmbeddings,
@@ -130,7 +131,9 @@ class GPT4AllEmbeddingsProvider(BaseEmbeddingsProvider, GPT4AllEmbeddings):
     pypi_package_deps = ["gpt4all"]
 
 
-class QianfanEmbeddingsEndpointProvider(BaseEmbeddingsProvider, QianfanEmbeddingsEndpoint):
+class QianfanEmbeddingsEndpointProvider(
+    BaseEmbeddingsProvider, QianfanEmbeddingsEndpoint
+):
     id = "qianfan"
     name = "ERNIE-Bot"
     models = ["ERNIE-Bot", "ERNIE-Bot-4"]
