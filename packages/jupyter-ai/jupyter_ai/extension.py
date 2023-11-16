@@ -130,10 +130,22 @@ class AiExtension(ExtensionApp):
             blocked_models=self.blocked_models,
         )
 
-        self.log.info("Registered providers.")
+        config_error = self.settings["jai_config_manager"].get_config_error()
+        if config_error:
+            # Log the error and proceed with limited functionality
+            self.log.error(f"Configuration error detected: {config_error}")
+            # TODO: self._initialize_limited_functionality()
+        else:
+            # Full functionality initialization
+            self._initialize_full_functionality()
 
+        self.log.info("Registered providers.")
         self.log.info(f"Registered {self.name} server extension")
 
+        latency_ms = round((time.time() - start) * 1000)
+        self.log.info(f"Initialized Jupyter AI server extension in {latency_ms} ms.")
+
+    def _initialize_full_functionality(self):
         # Store chat clients in a dictionary
         self.settings["chat_clients"] = {}
         self.settings["jai_root_chat_handlers"] = {}
@@ -189,9 +201,6 @@ class AiExtension(ExtensionApp):
             "/learn": learn_chat_handler,
             "/help": help_chat_handler,
         }
-
-        latency_ms = round((time.time() - start) * 1000)
-        self.log.info(f"Initialized Jupyter AI server extension in {latency_ms} ms.")
 
     async def _get_dask_client(self):
         return DaskClient(processes=False, asynchronous=True)
