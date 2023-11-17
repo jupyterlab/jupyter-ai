@@ -1,4 +1,5 @@
 name: Check Release
+
 on:
   push:
     branches: ["*"]
@@ -11,15 +12,22 @@ jobs:
   check_release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup environment
+        uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
         with:
           python_version: "3.11.x"
+
       - name: Check Release
         uses: jupyter-server/jupyter_releaser/.github/actions/check-release@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           version_spec: minor
+        env:
+          DEBUG: true  # Add this line to enable debugging output
+
       - name: Runner debug info
         if: always()
         run: |
