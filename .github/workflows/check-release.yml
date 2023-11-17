@@ -26,7 +26,8 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           version_spec: minor
         env:
-          DEBUG: true  # Add this line to enable debugging output
+          DEBUG: true  #The additional debugging output produced in this GitHub Actions workflow includes:The version of Node.js ,NPM ,jlpm ,Yarn ,Python installed on the runner.
+
 
       - name: Runner debug info
         if: always()
