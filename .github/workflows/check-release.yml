@@ -4,8 +4,6 @@ on:
     branches: ["*"]
   pull_request:
     branches: ["*"]
-  release:
-    types: [published]
   schedule:
     - cron: "0 0 * * *"
 
