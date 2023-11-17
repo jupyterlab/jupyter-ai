@@ -22,6 +22,11 @@ type ChatMessageHeaderProps = {
   sx?: SxProps<Theme>;
 };
 
+type NewTabLinkProps = {
+  children: React.ReactNode;
+  href?: string;
+};
+
 export function ChatMessageHeader(props: ChatMessageHeaderProps): JSX.Element {
   const collaborators = useCollaboratorsContext();
 
@@ -128,6 +133,14 @@ export function ChatMessages(props: ChatMessagesProps): JSX.Element {
     }
   }, [props.messages]);
 
+  function NewTabLink(props: NewTabLinkProps) {
+    return (
+      <a href={props.href ?? '#'} target="_blank" rel="noopener noreferrer">
+        {props.children}
+      </a>
+    );
+  }
+
   return (
     <Box
       sx={{
@@ -149,6 +162,7 @@ export function ChatMessages(props: ChatMessagesProps): JSX.Element {
             // markdown styling and then overriding any CSS to make it more compact.
             className="jp-RenderedHTMLCommon jp-ai-react-markdown"
             components={{
+              a: NewTabLink,
               code: ChatCodeView
             }}
             remarkPlugins={[remarkMath]}
