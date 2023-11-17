@@ -10,7 +10,7 @@ in JupyterLab and the Jupyter Notebook. More specifically, Jupyter AI offers:
 * Support for a wide range of generative model providers, including AI21, Anthropic, AWS, Cohere,
   Hugging Face, and OpenAI.
 * Local model support through GPT4All, enabling use of generative AI models on consumer grade machines
-  with ease and without compromising privacy.
+  with ease and privacy.
 
 Documentation is available on [ReadTheDocs](https://jupyter-ai.readthedocs.io/en/latest/).
 
