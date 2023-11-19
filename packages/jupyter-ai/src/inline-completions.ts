@@ -9,7 +9,7 @@ import {
   CompletionHandler
 } from '@jupyterlab/completer';
 import type { ISettingRegistry } from '@jupyterlab/settingregistry';
-
+import { Notification, showErrorMessage } from '@jupyterlab/apputils';
 import { IDisposable } from '@lumino/disposable';
 import { JSONValue, PromiseDelegate } from '@lumino/coreutils';
 import { ServerConnection } from '@jupyterlab/services';
@@ -177,7 +177,6 @@ class JupyterAIInlineProvider implements IInlineCompletionProvider {
     request: CompletionHandler.IRequest,
     context: IInlineCompletionContext
   ) {
-    console.log(context.widget instanceof NotebookPanel, context.widget);
     let cellId = undefined;
     let path = context.session?.path;
     if (context.widget instanceof NotebookPanel) {
@@ -201,6 +200,26 @@ class JupyterAIInlineProvider implements IInlineCompletionProvider {
       number,
       cell_id: cellId
     });
+    const error = result.error;
+    if (error) {
+      Notification.emit(`Inline completion failed: ${error.type}`, 'error', {
+        autoClose: false,
+        actions: [
+          {
+            label: 'Show Traceback',
+            callback: () => {
+              showErrorMessage(
+                'Inline completion failed on the server side',
+                error.traceback
+              );
+            }
+          }
+        ]
+      });
+      throw new Error(
+        `Inline completion failed: ${error.type}\n${error.traceback}`
+      );
+    }
     return result.list;
   }
 
@@ -227,7 +246,7 @@ class JupyterAIInlineProvider implements IInlineCompletionProvider {
   }
 
   async configure(settings: { [property: string]: JSONValue }): Promise<void> {
-    this._settings = settings as any as JupyterAIInlineProvider.ISettings;
+    this._settings = settings as unknown as JupyterAIInlineProvider.ISettings;
   }
 
   /**
@@ -268,10 +287,15 @@ namespace JupyterAIInlineProvider {
   export interface ISettings {
     maxPrefix: number;
     maxSuffix: number;
+    debouncerDelay: number;
   }
   export const DEFAULT_SETTINGS: ISettings = {
     maxPrefix: 10000,
-    maxSuffix: 10000
+    maxSuffix: 10000,
+    // The debouncer delay handling is implemented upstream in JupyterLab;
+    // here we just increase the default from 0, as compared to kernel history
+    // the external AI models may have a token cost associated.
+    debouncerDelay: 250
   };
 }
 

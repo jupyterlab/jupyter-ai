@@ -69,6 +69,11 @@ export namespace AiService {
     cell_id?: string;
   };
 
+  export type CompletionError = {
+    type: string;
+    traceback: string;
+  };
+
   export type InlineCompletionReply = {
     /**
      * Type for this message can be skipped (`inline_completion` is presumed default).
@@ -76,6 +81,7 @@ export namespace AiService {
     type?: 'inline_completion';
     list: IInlineCompletionList;
     reply_to: number;
+    error?: CompletionError;
   };
 
   export type InlineCompletionModelChanged = {
