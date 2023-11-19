@@ -14,7 +14,10 @@ import { IDisposable } from '@lumino/disposable';
 import { JSONValue, PromiseDelegate } from '@lumino/coreutils';
 import { ServerConnection } from '@jupyterlab/services';
 import { URLExt } from '@jupyterlab/coreutils';
-import { IEditorLanguageRegistry } from '@jupyterlab/codemirror';
+import {
+  IEditorLanguageRegistry,
+  IEditorLanguage
+} from '@jupyterlab/codemirror';
 import { NotebookPanel } from '@jupyterlab/notebook';
 import { AiService } from './handler';
 import { DocumentWidget } from '@jupyterlab/docregistry';
@@ -173,7 +176,7 @@ class JupyterAIInlineProvider implements IInlineCompletionProvider {
     if (this._currentModel.length > 0) {
       return `JupyterAI (${this._currentModel})`;
     } else {
-      // This one is displayed in the settings
+      // This one is displayed in the settings.
       return 'JupyterAI';
     }
   }
@@ -182,6 +185,11 @@ class JupyterAIInlineProvider implements IInlineCompletionProvider {
     request: CompletionHandler.IRequest,
     context: IInlineCompletionContext
   ) {
+    const mime = request.mimeType ?? 'text/plain';
+    if (mime === 'text/x-ipythongfm') {
+      // Do not offer suggestions in markdown cells.
+      return { items: [] };
+    }
     let cellId = undefined;
     let path = context.session?.path;
     if (context.widget instanceof NotebookPanel) {
@@ -194,14 +202,13 @@ class JupyterAIInlineProvider implements IInlineCompletionProvider {
       path = context.widget.context.path;
     }
     const number = ++this._counter;
-    const mime = request.mimeType ?? 'text/plain';
     const language = this.options.languageRegistry.findByMIME(mime);
     const result = await this.options.completionHandler.sendMessage({
       path: context.session?.path,
       mime,
       prefix: this._prefixFromRequest(request),
       suffix: this._suffixFromRequest(request),
-      language: language ? language.name : 'plain English',
+      language: this._resolveLanguage(language),
       number,
       cell_id: cellId
     });
@@ -277,6 +284,16 @@ class JupyterAIInlineProvider implements IInlineCompletionProvider {
     return prefix;
   }
 
+  private _resolveLanguage(language: IEditorLanguage | null) {
+    if (!language) {
+      return 'plain English';
+    }
+    if (language.name === 'ipythongfm') {
+      return 'markdown';
+    }
+    return language.name;
+  }
+
   private _settings: JupyterAIInlineProvider.ISettings =
     JupyterAIInlineProvider.DEFAULT_SETTINGS;
 
@@ -315,7 +332,9 @@ export const inlineCompletionProvider: JupyterFrontEndPlugin<void> = {
   ): Promise<void> => {
     if (typeof manager.registerInlineProvider === 'undefined') {
       // Gracefully short-circuit on JupyterLab 4.0 and Notebook 7.0
-      console.warn('Inline completions are only supported in JupyterLab 4.1+ and Jupyter Notebook 7.1+');
+      console.warn(
+        'Inline completions are only supported in JupyterLab 4.1+ and Jupyter Notebook 7.1+'
+      );
       return;
     }
     const completionHandler = new CompletionWebsocketHandler();
