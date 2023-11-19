@@ -23,7 +23,7 @@ You should only produce code. Keep comments to minimum, use the
 programming language comment syntax. Produce clean code.
 The code is written in JupyterLab, a data analysis and code development
 environment which can execute code extended with additional syntax for
-interactive features, such as IPython magics.
+interactive features, such as magics.
 """.strip()
 
 AFTER_TEMPLATE = """
@@ -118,9 +118,7 @@ class DefaultInlineCompletionHandler(BaseInlineCompletionHandler):
             f"```{identifier}"
             for identifier in markdown_identifiers.get(language, [language])
         ] + ["```"]
-        print(bad_openings)
         for opening in bad_openings:
-            print(suggestion, opening, suggestion.startswith(opening))
             if suggestion.startswith(opening):
                 suggestion = suggestion[len(opening) :].lstrip()
                 # check for the prefix inclusion (only if there was a bad opening)
