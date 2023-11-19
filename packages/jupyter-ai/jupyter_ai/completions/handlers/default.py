@@ -19,20 +19,24 @@ from .base import BaseInlineCompletionHandler
 
 SYSTEM_PROMPT = """
 You are an application built to provide helpful code completion suggestions.
-You should only produce the code. Any comments should be kept to minimum
-and use the programming language comment syntax.
+You should only produce code. Keep comments to minimum, use the
+programming language comment syntax. Produce clean code.
 The code is written in JupyterLab, a data analysis and code development
 environment which can execute code extended with additional syntax for
 interactive features, such as IPython magics.
 """.strip()
 
-DEFAULT_TEMPLATE = """
-The document is called `{filename}` and written in {language}.
+AFTER_TEMPLATE = """
 The code after the completion request is:
 
 ```
 {suffix}
 ```
+""".strip()
+
+DEFAULT_TEMPLATE = """
+The document is called `{filename}` and written in {language}.
+{after}
 
 Complete the following code:
 
@@ -64,20 +68,14 @@ class DefaultInlineCompletionHandler(BaseInlineCompletionHandler):
         if llm.is_chat_provider:
             prompt_template = ChatPromptTemplate.from_messages(
                 [
-                    SystemMessagePromptTemplate.from_template(SYSTEM_PROMPT).format(
-                        provider_name=llm.name, local_model_id=llm.model_id
-                    ),
+                    SystemMessagePromptTemplate.from_template(SYSTEM_PROMPT),
                     HumanMessagePromptTemplate.from_template(DEFAULT_TEMPLATE),
                 ]
             )
         else:
             prompt_template = PromptTemplate(
                 input_variables=["prefix", "suffix", "language", "filename"],
-                template=SYSTEM_PROMPT.format(
-                    provider_name=llm.name, local_model_id=llm.model_id
-                )
-                + "\n\n"
-                + DEFAULT_TEMPLATE,
+                template=SYSTEM_PROMPT + "\n\n" + DEFAULT_TEMPLATE,
             )
 
         self.llm = llm
@@ -87,14 +85,46 @@ class DefaultInlineCompletionHandler(BaseInlineCompletionHandler):
         self, request: InlineCompletionRequest
     ) -> InlineCompletionReply:
         self.get_llm_chain()
+        suffix = request.suffix.strip()
         prediction = await self.llm_chain.apredict(
             prefix=request.prefix,
-            suffix=request.suffix,
+            # only add the suffix template if the suffix is there to save input tokens/computation time
+            after=AFTER_TEMPLATE.format(suffix=suffix) if suffix else "",
             language=request.language,
             filename=request.path.split("/")[-1] if request.path else "untitled",
             stop=["\n```"],
         )
+        prediction = self._post_process_suggestion(prediction, request)
+
         return InlineCompletionReply(
             list=InlineCompletionList(items=[{"insertText": prediction}]),
             reply_to=request.number,
         )
+
+    def _post_process_suggestion(
+        self, suggestion: str, request: InlineCompletionRequest
+    ) -> str:
+        """Remove spurious fragments from the suggestion.
+
+        While most models (especially instruct and infill models do not require
+        any pre-processing, some models such as gpt-4 which only have chat APIs
+        may require removing spurious fragments. This function uses heuristics
+        and request data to remove such fragments.
+        """
+        # gpt-4 tends to add "```python" or similar
+        language = request.language or "python"
+        markdown_identifiers = {"ipython": ["ipython", "python", "py"]}
+        bad_openings = [
+            f"```{identifier}"
+            for identifier in markdown_identifiers.get(language, [language])
+        ] + ["```"]
+        print(bad_openings)
+        for opening in bad_openings:
+            print(suggestion, opening, suggestion.startswith(opening))
+            if suggestion.startswith(opening):
+                suggestion = suggestion[len(opening) :].lstrip()
+                # check for the prefix inclusion (only if there was a bad opening)
+                if suggestion.startswith(request.prefix):
+                    suggestion = suggestion[len(request.prefix) :]
+                break
+        return suggestion

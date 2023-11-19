@@ -57,7 +57,9 @@ class BaseInlineCompletionHandler(BaseLLMHandler):
             title=e.args[0] if e.args else "Exception",
             traceback=traceback.format_exc(),
         )
-        return InlineCompletionReply(list=InlineCompletionList(items=[]), error=error)
+        return InlineCompletionReply(
+            list=InlineCompletionList(items=[]), error=error, reply_to=message.number
+        )
 
     def broadcast(self, message: ModelChangedNotification):
         for session in self.ws_sessions.values():
