@@ -170,7 +170,12 @@ class JupyterAIInlineProvider implements IInlineCompletionProvider {
   }
 
   get name() {
-    return `JupyterAI (${this._currentModel})`;
+    if (this._currentModel.length > 0) {
+      return `JupyterAI (${this._currentModel})`;
+    } else {
+      // This one is displayed in the settings
+      return 'JupyterAI';
+    }
   }
 
   async fetch(
@@ -275,7 +280,7 @@ class JupyterAIInlineProvider implements IInlineCompletionProvider {
   private _settings: JupyterAIInlineProvider.ISettings =
     JupyterAIInlineProvider.DEFAULT_SETTINGS;
 
-  private _currentModel = 'no-model-yet';
+  private _currentModel = '';
   private _counter = 0;
 }
 
@@ -308,6 +313,11 @@ export const inlineCompletionProvider: JupyterFrontEndPlugin<void> = {
     manager: ICompletionProviderManager,
     languageRegistry: IEditorLanguageRegistry
   ): Promise<void> => {
+    if (typeof manager.registerInlineProvider === 'undefined') {
+      // Gracefully short-circuit on JupyterLab 4.0 and Notebook 7.0
+      console.warn('Inline completions are only supported in JupyterLab 4.1+ and Jupyter Notebook 7.1+');
+      return;
+    }
     const completionHandler = new CompletionWebsocketHandler();
     const provider = new JupyterAIInlineProvider({
       completionHandler,
