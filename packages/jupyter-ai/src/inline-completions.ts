@@ -4,6 +4,7 @@ import {
 } from '@jupyterlab/application';
 import {
   ICompletionProviderManager,
+  InlineCompletionTriggerKind,
   IInlineCompletionProvider,
   IInlineCompletionContext,
   CompletionHandler
@@ -27,6 +28,8 @@ import { getEditor } from './selection-watcher';
 import { IJupyternautStatus } from './tokens';
 
 const SERVICE_URL = 'api/ai/completion/inline';
+
+type StreamChunk = AiService.InlineCompletionStreamChunk;
 
 export class CompletionWebsocketHandler implements IDisposable {
   /**
@@ -64,8 +67,18 @@ export class CompletionWebsocketHandler implements IDisposable {
     });
   }
 
+  /**
+   * Signal emitted when completion AI model changes.
+   */
   get modelChanged(): ISignal<CompletionWebsocketHandler, string> {
     return this._modelChanged;
+  }
+
+  /**
+   * Signal emitted when a new chunk of completion is streamed.
+   */
+  get streamed(): ISignal<CompletionWebsocketHandler, StreamChunk> {
+    return this._streamed;
   }
 
   /**
@@ -104,6 +117,10 @@ export class CompletionWebsocketHandler implements IDisposable {
       }
       case 'connection': {
         this._initialized.resolve();
+        break;
+      }
+      case 'stream': {
+        this._streamed.emit(message);
         break;
       }
       default: {
@@ -161,6 +178,7 @@ export class CompletionWebsocketHandler implements IDisposable {
   private _isDisposed = false;
   private _socket: WebSocket | null = null;
   private _modelChanged = new Signal<CompletionWebsocketHandler, string>(this);
+  private _streamed = new Signal<CompletionWebsocketHandler, StreamChunk>(this);
   private _initialized: PromiseDelegate<void> = new PromiseDelegate<void>();
 }
 
@@ -187,6 +205,7 @@ class JupyterAIInlineProvider implements IInlineCompletionProvider {
         this._currentModel = model;
       }
     );
+    options.completionHandler.streamed.connect(this._receiveStreamChunk, this);
   }
 
   get name() {
@@ -226,6 +245,19 @@ class JupyterAIInlineProvider implements IInlineCompletionProvider {
       path = context.widget.context.path;
     }
     const number = ++this._counter;
+
+    const streamPreference = this._settings.streaming;
+    const stream =
+      streamPreference === 'always'
+        ? true
+        : streamPreference === 'never'
+        ? false
+        : context.triggerKind === InlineCompletionTriggerKind.Invoke;
+
+    if (stream) {
+      // Reset stream promises handler
+      this._streamPromises.clear();
+    }
     const result = await this.options.completionHandler.sendMessage({
       path: context.session?.path,
       mime,
@@ -233,8 +265,10 @@ class JupyterAIInlineProvider implements IInlineCompletionProvider {
       suffix: this._suffixFromRequest(request),
       language: this._resolveLanguage(language),
       number,
+      stream,
       cell_id: cellId
     });
+
     const error = result.error;
     if (error) {
       Notification.emit(`Inline completion failed: ${error.type}`, 'error', {
@@ -243,10 +277,9 @@ class JupyterAIInlineProvider implements IInlineCompletionProvider {
           {
             label: 'Show Traceback',
             callback: () => {
-              showErrorMessage(
-                'Inline completion failed on the server side',
-                error.traceback
-              );
+              showErrorMessage('Inline completion failed on the server side', {
+                message: error.traceback
+              });
             }
           }
         ]
@@ -256,6 +289,20 @@ class JupyterAIInlineProvider implements IInlineCompletionProvider {
       );
     }
     return result.list;
+  }
+
+  /**
+   * Stream a reply for completion identified by given `token`.
+   */
+  async *stream(token: string) {
+    let done = false;
+    while (!done) {
+      const delegate = new PromiseDelegate<StreamChunk>();
+      this._streamPromises.set(token, delegate);
+      const promise = delegate.promise;
+      yield promise;
+      done = (await promise).done;
+    }
   }
 
   get schema(): ISettingRegistry.IProperty {
@@ -287,6 +334,16 @@ class JupyterAIInlineProvider implements IInlineCompletionProvider {
           },
           description:
             'Languages for which the completions should not be shown.'
+        },
+        streaming: {
+          title: 'Streaming',
+          type: 'string',
+          oneOf: [
+            { const: 'always', title: 'Always' },
+            { const: 'manual', title: 'When invoked manually' },
+            { const: 'never', title: 'Never' }
+          ],
+          description: 'Whether to show suggestions as they are generated'
         }
       },
       default: JupyterAIInlineProvider.DEFAULT_SETTINGS as any
@@ -303,6 +360,28 @@ class JupyterAIInlineProvider implements IInlineCompletionProvider {
 
   isLanguageEnabled(language: string) {
     return !this._settings.disabledLanguages.includes(language);
+  }
+
+  /**
+   * Process the stream chunk to make it available in the awaiting generator.
+   */
+  private _receiveStreamChunk(
+    _emitter: CompletionWebsocketHandler,
+    chunk: StreamChunk
+  ) {
+    const token = chunk.response.token;
+    if (!token) {
+      throw Error('Stream chunks must return define `token` in `response`');
+    }
+    const delegate = this._streamPromises.get(token);
+    if (!delegate) {
+      console.warn('Unhandled stream chunk');
+    } else {
+      delegate.resolve(chunk);
+      if (chunk.done) {
+        this._streamPromises.delete(token);
+      }
+    }
   }
 
   /**
@@ -341,6 +420,8 @@ class JupyterAIInlineProvider implements IInlineCompletionProvider {
   private _settings: JupyterAIInlineProvider.ISettings =
     JupyterAIInlineProvider.DEFAULT_SETTINGS;
 
+  private _streamPromises: Map<string, PromiseDelegate<StreamChunk>> =
+    new Map();
   private _currentModel = '';
   private _counter = 0;
 }
@@ -356,6 +437,7 @@ namespace JupyterAIInlineProvider {
     debouncerDelay: number;
     enabled: boolean;
     disabledLanguages: string[];
+    streaming: 'always' | 'manual' | 'never';
   }
   export const DEFAULT_SETTINGS: ISettings = {
     maxPrefix: 10000,
@@ -366,7 +448,8 @@ namespace JupyterAIInlineProvider {
     debouncerDelay: 250,
     enabled: true,
     // ipythongfm means "IPython GitHub Flavoured Markdown"
-    disabledLanguages: ['ipythongfm']
+    disabledLanguages: ['ipythongfm'],
+    streaming: 'manual'
   };
 }
 

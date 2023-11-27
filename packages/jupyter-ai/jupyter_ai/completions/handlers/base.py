@@ -1,13 +1,14 @@
 import traceback
 
 # necessary to prevent circular import
-from typing import TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING, AsyncIterator, Dict
 
 from jupyter_ai.completions.models import (
     CompletionError,
     InlineCompletionList,
     InlineCompletionReply,
     InlineCompletionRequest,
+    InlineCompletionStreamChunk,
     ModelChangedNotification,
 )
 from jupyter_ai.config_manager import ConfigManager, Logger
@@ -50,6 +51,15 @@ class BaseInlineCompletionHandler(BaseLLMHandler):
         The method definition does not need to be wrapped in a try/except block.
         """
         raise NotImplementedError("Should be implemented by subclasses.")
+
+    async def stream(
+        self, message: InlineCompletionRequest
+    ) -> AsyncIterator[InlineCompletionStreamChunk]:
+        """ "
+        Stream the inline completion as it is generated. Completion handlers
+        (subclasses) can implement this method.
+        """
+        raise NotImplementedError()
 
     async def _handle_exc(self, e: Exception, message: InlineCompletionRequest):
         error = CompletionError(

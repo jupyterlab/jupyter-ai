@@ -305,10 +305,17 @@ class InlineCompletionHandler(JupyterHandler, websocket.WebSocketHandler):
             self.log.error(e)
             return
 
-        # do not await this, as it blocks the parent task responsible for
-        # handling messages from a websocket.  instead, process each message
-        # as a distinct concurrent task.
-        self.loop.create_task(self._complete(request))
+        if request.stream:
+            try:
+                stream_coroutine = self._stream(request)
+            except NotImplementedError:
+                self.log.info(
+                    "Not streaming as handler does not implement stream() method"
+                )
+            await self._complete(request)
+            self.loop.create_task(stream_coroutine)
+        else:
+            self.loop.create_task(self._complete(request))
 
     async def _complete(self, request: InlineCompletionRequest):
         start = time.time()
@@ -316,6 +323,14 @@ class InlineCompletionHandler(JupyterHandler, websocket.WebSocketHandler):
         latency_ms = round((time.time() - start) * 1000)
         self.log.info(f"Inline completion handler resolved in {latency_ms} ms.")
         self.write_message(reply.dict())
+
+    async def _stream(self, request: InlineCompletionRequest):
+        start = time.time()
+        handler = self.settings["jai_inline_completion_handler"]
+        async for chunk in handler.stream(request):
+            self.write_message(chunk.dict())
+        latency_ms = round((time.time() - start) * 1000)
+        self.log.info(f"Inline completion streaming completed in {latency_ms} ms.")
 
     def on_close(self):
         self.log.debug(f"Disconnecting client {self.client_id}")

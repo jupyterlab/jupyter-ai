@@ -1,18 +1,20 @@
 from typing import Dict, Type
 
 from jupyter_ai_magics.providers import BaseProvider
-from langchain.chains import LLMChain
 from langchain.prompts import (
     ChatPromptTemplate,
     HumanMessagePromptTemplate,
     PromptTemplate,
     SystemMessagePromptTemplate,
 )
+from langchain.schema.output_parser import StrOutputParser
+from langchain.schema.runnable import Runnable
 
 from ..models import (
     InlineCompletionList,
     InlineCompletionReply,
     InlineCompletionRequest,
+    InlineCompletionStreamChunk,
     ModelChangedNotification,
 )
 from .base import BaseInlineCompletionHandler
@@ -45,7 +47,7 @@ Complete the following code:
 
 
 class DefaultInlineCompletionHandler(BaseInlineCompletionHandler):
-    llm_chain: LLMChain
+    llm_chain: Runnable
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -79,27 +81,81 @@ class DefaultInlineCompletionHandler(BaseInlineCompletionHandler):
             )
 
         self.llm = llm
-        self.llm_chain = LLMChain(llm=llm, prompt=prompt_template, verbose=True)
+        self.llm_chain = prompt_template | llm | StrOutputParser()
 
     async def process_message(
         self, request: InlineCompletionRequest
     ) -> InlineCompletionReply:
-        self.get_llm_chain()
-        suffix = request.suffix.strip()
-        prediction = await self.llm_chain.apredict(
-            prefix=request.prefix,
-            # only add the suffix template if the suffix is there to save input tokens/computation time
-            after=AFTER_TEMPLATE.format(suffix=suffix) if suffix else "",
-            language=request.language,
-            filename=request.path.split("/")[-1] if request.path else "untitled",
-            stop=["\n```"],
-        )
-        prediction = self._post_process_suggestion(prediction, request)
+        if request.stream:
+            token = self._token_from_request(request, 0)
+            return InlineCompletionReply(
+                list=InlineCompletionList(
+                    items=[
+                        {
+                            # insert text starts empty as we do not pre-generate any part
+                            "insertText": "",
+                            "isIncomplete": True,
+                            "token": token,
+                        }
+                    ]
+                ),
+                reply_to=request.number,
+            )
+        else:
+            self.get_llm_chain()
+            model_arguments = self._template_inputs_from_request(request)
+            suggestion = await self.llm_chain.ainvoke(input=model_arguments)
+            suggestion = self._post_process_suggestion(suggestion, request)
+            return InlineCompletionReply(
+                list=InlineCompletionList(items=[{"insertText": suggestion}]),
+                reply_to=request.number,
+            )
 
-        return InlineCompletionReply(
-            list=InlineCompletionList(items=[{"insertText": prediction}]),
+    async def stream(self, request: InlineCompletionRequest):
+        self.get_llm_chain()
+        token = self._token_from_request(request, 0)
+        model_arguments = self._template_inputs_from_request(request)
+        suggestion = ""
+        async for fragment in self.llm_chain.astream(input=model_arguments):
+            suggestion += fragment
+            if suggestion.startswith("```"):
+                if "\n" not in suggestion:
+                    # we are not ready to apply post-processing
+                    continue
+                else:
+                    suggestion = self._post_process_suggestion(suggestion, request)
+            yield InlineCompletionStreamChunk(
+                type="stream",
+                response={"insertText": suggestion, "token": token},
+                reply_to=request.number,
+                done=False,
+            )
+        # at the end send a message confirming that we are done
+        yield InlineCompletionStreamChunk(
+            type="stream",
+            response={"insertText": suggestion, "token": token},
             reply_to=request.number,
+            done=True,
         )
+
+    def _token_from_request(self, request: InlineCompletionRequest, suggestion: int):
+        """Generate a deterministic token (for matching streamed messages)
+        using request number and suggestion number"""
+        return f"t{request.number}s{suggestion}"
+
+    def _template_inputs_from_request(self, request: InlineCompletionRequest) -> Dict:
+        suffix = request.suffix.strip()
+        # only add the suffix template if the suffix is there to save input tokens/computation time
+        after = AFTER_TEMPLATE.format(suffix=suffix) if suffix else ""
+        filename = request.path.split("/")[-1] if request.path else "untitled"
+
+        return {
+            "prefix": request.prefix,
+            "after": after,
+            "language": request.language,
+            "filename": filename,
+            "stop": ["\n```"],
+        }
 
     def _post_process_suggestion(
         self, suggestion: str, request: InlineCompletionRequest

@@ -18,6 +18,8 @@ class InlineCompletionRequest(BaseModel):
     suffix: str
     # media type for the current language, e.g. `text/x-python`
     mime: str
+    # whether to stream the response (if supported by the model)
+    stream: bool
     # path to the notebook of file for which the completions are generated
     path: Optional[str]
     # language inferred from the document mime type (if possible)
@@ -36,7 +38,7 @@ class InlineCompletionItem(BaseModel):
     insertText: str
     filterText: Optional[str]
     isIncomplete: Optional[bool]
-    token: Optional[bool]
+    token: Optional[str]
 
 
 class CompletionError(BaseModel):
@@ -56,6 +58,16 @@ class InlineCompletionReply(BaseModel):
     list: InlineCompletionList
     # number of request for which we are replying
     reply_to: int
+    error: Optional[CompletionError]
+
+
+class InlineCompletionStreamChunk(BaseModel):
+    """Message sent from model to client with the infill suggestions"""
+
+    type: Literal["stream"] = "stream"
+    response: InlineCompletionItem
+    reply_to: int
+    done: bool
     error: Optional[CompletionError]
 
 

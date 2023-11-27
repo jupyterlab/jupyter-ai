@@ -2,7 +2,10 @@ import { URLExt } from '@jupyterlab/coreutils';
 
 import { ServerConnection } from '@jupyterlab/services';
 
-import type { IInlineCompletionList } from '@jupyterlab/completer';
+import type {
+  IInlineCompletionList,
+  IInlineCompletionItem
+} from '@jupyterlab/completer';
 
 const API_NAMESPACE = 'api/ai';
 
@@ -65,6 +68,8 @@ export namespace AiService {
     /* The model may consider the following suffix */
     suffix: string;
     mime: string;
+    /* Whether to stream the response (if streaming is supported by the model) */
+    stream: boolean;
     language?: string;
     cell_id?: string;
   };
@@ -82,6 +87,13 @@ export namespace AiService {
     list: IInlineCompletionList;
     reply_to: number;
     error?: CompletionError;
+  };
+
+  export type InlineCompletionStreamChunk = {
+    type: 'stream';
+    response: IInlineCompletionItem;
+    reply_to: number;
+    done: boolean;
   };
 
   export type InlineCompletionModelChanged = {
@@ -137,6 +149,7 @@ export namespace AiService {
   export type CompleterMessage =
     | InlineCompletionReply
     | ConnectionMessage
+    | InlineCompletionStreamChunk
     | InlineCompletionModelChanged;
 
   export type ChatHistory = {
