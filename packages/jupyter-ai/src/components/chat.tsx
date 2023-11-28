@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Box } from '@mui/system';
-import { Button, IconButton, Stack } from '@mui/material';
+import { Alert, AlertTitle, Button, IconButton, Stack } from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import type { Awareness } from 'y-protocols/awareness';
@@ -35,6 +35,7 @@ function ChatBody({
   const [input, setInput] = useState('');
   const [selection, replaceSelectionFn] = useSelectionContext();
   const [sendWithShiftEnter, setSendWithShiftEnter] = useState(true);
+  const [configErrors, setConfigErrors] = useState<AiService.ConfigError[]>([]);
 
   /**
    * Effect: fetch history and config on initial render
@@ -50,6 +51,9 @@ function ChatBody({
         setMessages(history.messages);
         if (!config.model_provider_id) {
           setShowWelcomeMessage(true);
+        }
+        if (config.config_errors) {
+          setConfigErrors(config.config_errors);
         }
       } catch (e) {
         console.error(e);
@@ -125,6 +129,13 @@ function ChatBody({
         }}
       >
         <Stack spacing={4}>
+          {configErrors &&
+            configErrors.map((error, idx) => (
+              <Alert key={idx} severity="warning">
+                <AlertTitle>{error.error_type}</AlertTitle>
+                {error.message} {error.details && `- ${error.details}`}
+              </Alert>
+            ))}
           <p className="jp-ai-ChatSettings-welcome">
             Welcome to Jupyter AI! To get started, please select a language
             model to chat with from the settings panel. You may also need to

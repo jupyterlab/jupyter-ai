@@ -100,6 +100,20 @@ class IndexMetadata(BaseModel):
     dirs: List[IndexedDir]
 
 
+class ConfigErrorType(Enum):
+    CRITICAL = "Critical"
+    WARNING = "Warning"
+
+
+class ConfigErrorModel(BaseModel):
+    error_type: ConfigErrorType
+    message: str
+    details: str = None
+
+    def __str__(self):
+        return f"{self.error_type.value} ConfigError: {self.message} - {self.details or ''}"
+
+
 class DescribeConfigResponse(BaseModel):
     model_provider_id: Optional[str]
     embeddings_provider_id: Optional[str]
@@ -111,6 +125,7 @@ class DescribeConfigResponse(BaseModel):
     # timestamp indicating when the configuration file was last read. should be
     # passed to the subsequent UpdateConfig request.
     last_read: int
+    config_errors: Optional[List[ConfigErrorModel]] = None
 
 
 def forbid_none(cls, v):
@@ -144,17 +159,3 @@ class GlobalConfig(BaseModel):
     send_with_shift_enter: bool
     fields: Dict[str, Dict[str, Any]]
     api_keys: Dict[str, str]
-
-
-class ConfigErrorType(Enum):
-    CRITICAL = "Critical"
-    WARNING = "Warning"
-
-
-class ConfigErrorModel(BaseModel):
-    error_type: ConfigErrorType
-    message: str
-    details: str = None
-
-    def __str__(self):
-        return f"{self.error_type.value} ConfigError: {self.message} - {self.details or ''}"

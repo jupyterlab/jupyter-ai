@@ -104,6 +104,17 @@ export namespace AiService {
     messages: ChatMessage[];
   };
 
+  export enum ConfigErrorType {
+    CRITICAL = 'Critical',
+    WARNING = 'Warning'
+  }
+
+  export type ConfigError = {
+    error_type: ConfigErrorType;
+    message: string;
+    details?: string;
+  };
+
   export type DescribeConfigResponse = {
     model_provider_id: string | null;
     embeddings_provider_id: string | null;
@@ -111,6 +122,7 @@ export namespace AiService {
     send_with_shift_enter: boolean;
     fields: Record<string, Record<string, any>>;
     last_read: number;
+    config_errors?: ConfigError[];
   };
 
   export type UpdateConfigRequest = {

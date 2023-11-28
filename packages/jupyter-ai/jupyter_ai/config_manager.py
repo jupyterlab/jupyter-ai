@@ -197,16 +197,20 @@ class ConfigManager(Configurable):
             warning_message = f"Language model {lm_id} is forbidden by current allow/blocklists. Setting to None."
             self.log.warning(warning_message)
             config.model_provider_id = None
-            self._config_errors.append = ConfigErrorModel(
-                ConfigErrorType.WARNING, warning_message
+            self._config_errors.append(
+                ConfigErrorModel(
+                    error_type=ConfigErrorType.WARNING, message=warning_message
+                )
             )
 
         if em_id is not None and not self._validate_model(em_id, raise_exc=False):
             warning_message = f"Embedding model {em_id} is forbidden by current allow/blocklists. Setting to None."
             self.log.warning(warning_message)
             config.embeddings_provider_id = None
-            self._config_errors.append = ConfigErrorModel(
-                ConfigErrorType.WARNING, warning_message
+            self._config_errors.append(
+                ConfigErrorModel(
+                    error_type=ConfigErrorType.WARNING, message=warning_message
+                )
             )
 
         # if the currently selected language or embedding model ids are
@@ -217,8 +221,10 @@ class ConfigManager(Configurable):
             )
             self.log.warning(warning_message)
             config.model_provider_id = None
-            self._config_errors.append = ConfigErrorModel(
-                ConfigErrorType.WARNING, warning_message
+            self._config_errors.append(
+                ConfigErrorModel(
+                    error_type=ConfigErrorType.WARNING, message=warning_message
+                )
             )
 
         if em_id is not None and not get_em_provider(em_id, self._em_providers)[1]:
@@ -227,8 +233,10 @@ class ConfigManager(Configurable):
             )
             self.log.warning(warning_message)
             config.embeddings_provider_id = None
-            self._config_errors.append = ConfigErrorModel(
-                ConfigErrorType.WARNING, warning_message
+            self._config_errors.append(
+                ConfigErrorModel(
+                    error_type=ConfigErrorType.WARNING, message=warning_message
+                )
             )
 
         # re-write to the file to validate the config and apply any
@@ -239,7 +247,11 @@ class ConfigManager(Configurable):
         formatted_error = _format_validation_errors(e)
         error_message = "Configuration validation failed"
         self._config_errors.append(
-            ConfigErrorModel(ConfigErrorType.CRITICAL, error_message, formatted_error)
+            ConfigErrorModel(
+                error_type=ConfigErrorType.CRITICAL,
+                message=error_message,
+                details=formatted_error,
+            )
         )
         self.log.error(f"{error_message}: {formatted_error}")
 
@@ -404,7 +416,10 @@ class ConfigManager(Configurable):
         config_dict = config.dict(exclude_unset=True)
         api_key_names = list(config_dict.pop("api_keys").keys())
         return DescribeConfigResponse(
-            **config_dict, api_keys=api_key_names, last_read=self._last_read
+            **config_dict,
+            api_keys=api_key_names,
+            last_read=self._last_read,
+            config_errors=self.get_config_errors(),
         )
 
     @property
