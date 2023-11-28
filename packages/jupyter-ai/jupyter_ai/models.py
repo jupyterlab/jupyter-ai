@@ -1,3 +1,4 @@
+from enum import Enum
 from typing import Any, Dict, List, Literal, Optional, Union
 
 from jupyter_ai_magics.providers import AuthStrategy, Field
@@ -143,3 +144,17 @@ class GlobalConfig(BaseModel):
     send_with_shift_enter: bool
     fields: Dict[str, Dict[str, Any]]
     api_keys: Dict[str, str]
+
+
+class ConfigErrorType(Enum):
+    CRITICAL = "Critical"
+    WARNING = "Warning"
+
+
+class ConfigErrorModel(BaseModel):
+    error_type: ConfigErrorType
+    message: str
+    details: str = None
+
+    def __str__(self):
+        return f"{self.error_type.value} ConfigError: {self.message} - {self.details or ''}"

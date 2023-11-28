@@ -1,4 +1,3 @@
-from enum import Enum
 import json
 import logging
 import os
@@ -9,6 +8,8 @@ from typing import List, Optional, Union
 from deepmerge import always_merger as Merger
 from jsonschema import Draft202012Validator as Validator
 from jupyter_ai.models import (
+    ConfigErrorModel,
+    ConfigErrorType,
     DescribeConfigResponse,
     GlobalConfig,
     UpdateConfigRequest,
@@ -21,7 +22,7 @@ from jupyter_ai_magics.utils import (
     get_lm_provider,
 )
 from jupyter_core.paths import jupyter_data_dir
-from pydantic import ValidationError
+from pydantic import BaseModel, ValidationError
 from tornado.web import HTTPError
 from traitlets import Integer, Unicode
 from traitlets.config import Configurable
@@ -64,21 +65,6 @@ class KeyEmptyError(Exception):
 
 class BlockedModelError(Exception):
     pass
-
-
-class ConfigErrorType(Enum):
-    CRITICAL = "Critical"
-    WARNING = "Warning"
-
-
-class ConfigError(Exception):
-    def __init__(self, error_type: ConfigErrorType, message: str, details: str = None):
-        self.error_type = error_type
-        self.message = message
-        self.details = details
-
-    def __str__(self):
-        return f"{self.error_type.value} ConfigError: {self.message} - {self.details or ''}"
 
 
 def _validate_provider_authn(config: GlobalConfig, provider: AnyProvider):
@@ -212,7 +198,7 @@ class ConfigManager(Configurable):
             warning_message = f"Language model {lm_id} is forbidden by current allow/blocklists. Setting to None."
             self.log.warning(warning_message)
             config.model_provider_id = None
-            self._config_errors.append = ConfigError(
+            self._config_errors.append = ConfigErrorModel(
                 ConfigErrorType.WARNING, warning_message
             )
 
@@ -220,7 +206,7 @@ class ConfigManager(Configurable):
             warning_message = f"Embedding model {em_id} is forbidden by current allow/blocklists. Setting to None."
             self.log.warning(warning_message)
             config.embeddings_provider_id = None
-            self._config_errors.append = ConfigError(
+            self._config_errors.append = ConfigErrorModel(
                 ConfigErrorType.WARNING, warning_message
             )
 
@@ -232,7 +218,7 @@ class ConfigManager(Configurable):
             )
             self.log.warning(warning_message)
             config.model_provider_id = None
-            self._config_errors.append = ConfigError(
+            self._config_errors.append = ConfigErrorModel(
                 ConfigErrorType.WARNING, warning_message
             )
 
@@ -242,7 +228,7 @@ class ConfigManager(Configurable):
             )
             self.log.warning(warning_message)
             config.embeddings_provider_id = None
-            self._config_errors.append = ConfigError(
+            self._config_errors.append = ConfigErrorModel(
                 ConfigErrorType.WARNING, warning_message
             )
 
@@ -254,7 +240,7 @@ class ConfigManager(Configurable):
         formatted_error = _format_validation_errors(e)
         error_message = "Configuration validation failed"
         self._config_errors.append(
-            ConfigError(ConfigErrorType.CRITICAL, error_message, formatted_error)
+            ConfigErrorModel(ConfigErrorType.CRITICAL, error_message, formatted_error)
         )
         self.log.error(f"{error_message}: {formatted_error}")
 

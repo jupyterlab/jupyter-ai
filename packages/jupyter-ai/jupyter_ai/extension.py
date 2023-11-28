@@ -15,7 +15,7 @@ from .chat_handlers import (
     LearnChatHandler,
 )
 from .chat_handlers.help import HelpMessage
-from .config_manager import ConfigManager
+from .config_manager import ConfigErrorType, ConfigManager
 from .handlers import (
     ApiKeysHandler,
     ChatHistoryHandler,
@@ -131,13 +131,15 @@ class AiExtension(ExtensionApp):
         )
 
         config_errors = self.settings["jai_config_manager"].get_config_errors()
-        if config_errors:
-            # Log the error and proceed with limited functionality
-            self.log.error(f"Configuration error detected: {config_errors}")
-            # TODO: self._initialize_limited_functionality()
-        else:
+        if config_errors is None or all(
+            error.error_type != ConfigErrorType.CRITICAL for error in config_errors
+        ):
             # Full functionality initialization
             self._initialize_full_functionality()
+        else:
+            # Log the error and proceed with limited functionality
+            self.log.error(f"Configuration errors detected: {config_errors}")
+            # TODO: self._initialize_limited_functionality()
 
         self.log.info("Registered providers.")
         self.log.info(f"Registered {self.name} server extension")
