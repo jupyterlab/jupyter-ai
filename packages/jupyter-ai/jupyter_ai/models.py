@@ -143,9 +143,3 @@ class GlobalConfig(BaseModel):
     send_with_shift_enter: bool
     fields: Dict[str, Dict[str, Any]]
     api_keys: Dict[str, str]
-
-
-class ErrorModel(BaseModel):
-    type: str = None
-    message: str = None
-    details: str = None

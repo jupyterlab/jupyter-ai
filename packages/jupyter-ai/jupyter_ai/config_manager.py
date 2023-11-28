@@ -1,3 +1,4 @@
+from enum import Enum
 import json
 import logging
 import os
@@ -9,7 +10,6 @@ from deepmerge import always_merger as Merger
 from jsonschema import Draft202012Validator as Validator
 from jupyter_ai.models import (
     DescribeConfigResponse,
-    ErrorModel,
     GlobalConfig,
     UpdateConfigRequest,
 )
@@ -22,6 +22,7 @@ from jupyter_ai_magics.utils import (
 )
 from jupyter_core.paths import jupyter_data_dir
 from pydantic import ValidationError
+from tornado.web import HTTPError
 from traitlets import Integer, Unicode
 from traitlets.config import Configurable
 
@@ -63,6 +64,21 @@ class KeyEmptyError(Exception):
 
 class BlockedModelError(Exception):
     pass
+
+
+class ConfigErrorType(Enum):
+    CRITICAL = "Critical"
+    WARNING = "Warning"
+
+
+class ConfigError(Exception):
+    def __init__(self, error_type: ConfigErrorType, message: str, details: str = None):
+        self.error_type = error_type
+        self.message = message
+        self.details = details
+
+    def __str__(self):
+        return f"{self.error_type.value} ConfigError: {self.message} - {self.details or ''}"
 
 
 def _validate_provider_authn(config: GlobalConfig, provider: AnyProvider):
@@ -127,7 +143,7 @@ class ConfigManager(Configurable):
         super().__init__(*args, **kwargs)
         self.log = log
 
-        self._config_error = None
+        self._config_errors = []
         self._lm_providers = lm_providers
         """List of LM providers."""
         self._em_providers = em_providers
@@ -163,13 +179,13 @@ class ConfigManager(Configurable):
             self.validator = Validator(schema)
 
     def _init_config(self):
-        # try:
-        if os.path.exists(self.config_path):
-            self._process_existing_config()
-        else:
-            self._create_default_config()
-        # except ValidationError as e:
-        # self._handle_validation_error(e)
+        try:
+            if os.path.exists(self.config_path):
+                self._process_existing_config()
+            else:
+                self._create_default_config()
+        except ValidationError as e:
+            self._handle_validation_error(e)
 
     def _process_existing_config(self):
         with open(self.config_path, encoding="utf-8") as f:
@@ -193,28 +209,42 @@ class ConfigManager(Configurable):
         # if the currently selected language or embedding model are
         # forbidden, set them to `None` and log a warning.
         if lm_id is not None and not self._validate_model(lm_id, raise_exc=False):
-            self.log.warning(
-                f"Language model {lm_id} is forbidden by current allow/blocklists. Setting to None."
-            )
+            warning_message = f"Language model {lm_id} is forbidden by current allow/blocklists. Setting to None."
+            self.log.warning(warning_message)
             config.model_provider_id = None
-        if em_id is not None and not self._validate_model(em_id, raise_exc=False):
-            self.log.warning(
-                f"Embedding model {em_id} is forbidden by current allow/blocklists. Setting to None."
+            self._config_errors.append = ConfigError(
+                ConfigErrorType.WARNING, warning_message
             )
+
+        if em_id is not None and not self._validate_model(em_id, raise_exc=False):
+            warning_message = f"Embedding model {em_id} is forbidden by current allow/blocklists. Setting to None."
+            self.log.warning(warning_message)
             config.embeddings_provider_id = None
+            self._config_errors.append = ConfigError(
+                ConfigErrorType.WARNING, warning_message
+            )
 
         # if the currently selected language or embedding model ids are
         # not associated with models, set them to `None` and log a warning.
         if lm_id is not None and not get_lm_provider(lm_id, self._lm_providers)[1]:
-            self.log.warning(
+            warning_message = (
                 f"No language model is associated with '{lm_id}'. Setting to None."
             )
+            self.log.warning(warning_message)
             config.model_provider_id = None
+            self._config_errors.append = ConfigError(
+                ConfigErrorType.WARNING, warning_message
+            )
+
         if em_id is not None and not get_em_provider(em_id, self._em_providers)[1]:
-            self.log.warning(
+            warning_message = (
                 f"No embedding model is associated with '{em_id}'. Setting to None."
             )
+            self.log.warning(warning_message)
             config.embeddings_provider_id = None
+            self._config_errors.append = ConfigError(
+                ConfigErrorType.WARNING, warning_message
+            )
 
         # re-write to the file to validate the config and apply any
         # updates to the config file immediately
@@ -222,12 +252,11 @@ class ConfigManager(Configurable):
 
     def _handle_validation_error(self, e: ValidationError):
         formatted_error = _format_validation_errors(e)
-        self._config_error = ErrorModel(
-            type="ValidationError",
-            message="Configuration validation failed",
-            details=formatted_error,
+        error_message = "Configuration validation failed"
+        self._config_errors.append(
+            ConfigError(ConfigErrorType.CRITICAL, error_message, formatted_error)
         )
-        self.log.error(f"Configuration validation error: {self.config_error}")
+        self.log.error(f"{error_message}: {formatted_error}")
 
     def _read_config(self) -> GlobalConfig:
         """Returns the user's current configuration as a GlobalConfig object.
@@ -361,8 +390,11 @@ class ConfigManager(Configurable):
         config_dict["api_keys"].pop(key_name, None)
         self._write_config(GlobalConfig(**config_dict))
 
-    def get_config_error(self):
-        return self._config_error
+    def get_config_errors(self):
+        if self._config_errors:
+            return self._config_errors
+        else:
+            return None
 
     def update_config(self, config_update: UpdateConfigRequest):
         last_write = os.stat(self.config_path).st_mtime_ns

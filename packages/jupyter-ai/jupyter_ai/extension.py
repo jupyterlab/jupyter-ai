@@ -130,10 +130,10 @@ class AiExtension(ExtensionApp):
             blocked_models=self.blocked_models,
         )
 
-        config_error = self.settings["jai_config_manager"].get_config_error()
-        if config_error:
+        config_errors = self.settings["jai_config_manager"].get_config_errors()
+        if config_errors:
             # Log the error and proceed with limited functionality
-            self.log.error(f"Configuration error detected: {config_error}")
+            self.log.error(f"Configuration error detected: {config_errors}")
             # TODO: self._initialize_limited_functionality()
         else:
             # Full functionality initialization
