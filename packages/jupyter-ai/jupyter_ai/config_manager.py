@@ -22,8 +22,7 @@ from jupyter_ai_magics.utils import (
     get_lm_provider,
 )
 from jupyter_core.paths import jupyter_data_dir
-from pydantic import BaseModel, ValidationError
-from tornado.web import HTTPError
+from pydantic import ValidationError
 from traitlets import Integer, Unicode
 from traitlets.config import Configurable
 
