@@ -1,6 +1,6 @@
 {
   "name": "@jupyter-ai/core",
-  "version": "2.5.0",
+  "version": "2.6.0",
   "description": "A generative AI extension for JupyterLab",
   "keywords": [
     "jupyter",
@@ -65,7 +65,6 @@
     "@jupyterlab/cells": "^4",
     "@jupyterlab/codeeditor": "^4",
     "@jupyterlab/codemirror": "^4",
-    "@jupyterlab/collaboration": "^3",
     "@jupyterlab/coreutils": "^6",
     "@jupyterlab/fileeditor": "^4",
     "@jupyterlab/notebook": "^4",

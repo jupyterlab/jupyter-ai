@@ -9,6 +9,8 @@ in JupyterLab and the Jupyter Notebook. More specifically, Jupyter AI offers:
 * A native chat UI in JupyterLab that enables you to work with generative AI as a conversational assistant.
 * Support for a wide range of generative model providers, including AI21, Anthropic, AWS, Cohere,
   Hugging Face, and OpenAI.
+* Local model support through GPT4All, enabling use of generative AI models on consumer grade machines
+  with ease and privacy.
 
 Documentation is available on [ReadTheDocs](https://jupyter-ai.readthedocs.io/en/latest/).
 
@@ -60,12 +62,9 @@ If you are not using JupyterLab and you only want to install the Jupyter AI `%%a
 ### With conda
 
 First, install
-[conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html)
-and create an environment that uses Python 3.11:
+[conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html).
 
-    $ conda create -n jupyter-ai python=3.11
-    $ conda activate jupyter-ai
-    $ pip install jupyter_ai
+    $ conda install jupyter_ai
 
 ## The `%%ai` magic command
 
