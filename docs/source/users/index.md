@@ -1022,10 +1022,10 @@ your new provider's `id`:
 [I 2023-10-29 13:56:16.915 AiExtension] Registered model provider `my_provider`.
 ```
 
-[langchain_llms]: https://api.python.langchain.com/en/latest/api_reference.html#module-langchain.llms
+[langchain_llms]: https://api.python.langchain.com/en/v0.0.339/api_reference.html#module-langchain.llms
 [custom_llm]: https://python.langchain.com/docs/modules/model_io/models/llms/custom_llm
-[LLM]: https://api.python.langchain.com/en/latest/llms/langchain.llms.base.LLM.html#langchain.llms.base.LLM
-[BaseChatModel]: https://api.python.langchain.com/en/latest/chat_models/langchain.chat_models.base.BaseChatModel.html
+[LLM]: https://api.python.langchain.com/en/v0.0.339/llms/langchain.llms.base.LLM.html#langchain.llms.base.LLM
+[BaseChatModel]: https://api.python.langchain.com/en/v0.0.339/chat_models/langchain.chat_models.base.BaseChatModel.html
 
 
 ### Customizing prompt templates
