@@ -155,12 +155,30 @@ in the SageMaker documentation.
 To use SageMaker's models, you will need to authenticate via
 [boto3](https://github.com/boto/boto3).
 
-For example, to use OpenAI models, install the necessary package, and set an environment
-variable when you start JupyterLab from a terminal:
+For example, to use OpenAI models, use the chat interface settings panel to choose the OpenAI language model:
+
+<img src="../_static/chat-settings-choose-language-model.png"
+    alt="Screen shot of the chat settings interface with language model dropdown open"
+    class="screenshot" />
+
+Then, enter your API key in the 'API Keys' section:
+
+<img src="../_static/chat-settings-enter-api-key.png"
+    alt="Screen shot of the API key input in the chat settings interface"
+    class="screenshot" />
+
+Alternatively, to set the API key through a config file, first determine your data directory path by running the following command in your terminal:
 
 ```bash
-pip install openai
-OPENAI_API_KEY=your-api-key-here jupyter lab
+echo "$(jupyter --data-dir)/jupyter_ai/config.json"
+```
+
+Then, add your API key to `config.json`:
+
+```json
+"api_keys": {
+    "OPENAI_API_KEY": "your-api-key-here"
+}
 ```
 
 :::{attention}
