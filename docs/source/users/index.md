@@ -960,11 +960,11 @@ runtime:
 ## Custom model providers
 
 You can define new providers using the LangChain framework API. Custom providers
-inherit from both `jupyter-ai`'s ``BaseProvider`` and `langchain`'s [``LLM``][LLM].
+inherit from both `jupyter-ai`'s `BaseProvider` and `langchain`'s [`LLM`][LLM].
 You can either import a pre-defined model from [LangChain LLM list][langchain_llms],
 or define a [custom LLM][custom_llm].
 In the example below, we define a provider with two models using
-a dummy ``FakeListLLM`` model, which returns responses from the ``responses``
+a dummy `FakeListLLM` model, which returns responses from the `responses`
 keyword argument.
 
 ```python
@@ -992,7 +992,7 @@ class MyProvider(BaseProvider, FakeListLLM):
 ```
 
 
-If the new provider inherits from [``BaseChatModel``][BaseChatModel], it will be available
+If the new provider inherits from [`BaseChatModel`][BaseChatModel], it will be available
 both in the chat UI and with magic commands. Otherwise, users can only use the new provider
 with magic commands.
 
@@ -1030,7 +1030,7 @@ your new provider's `id`:
 
 ### Customizing prompt templates
 
-To modify the prompt template for a given format, override the ``get_prompt_template`` method:
+To modify the prompt template for a given format, override the `get_prompt_template` method:
 
 ```python
 from langchain.prompts import PromptTemplate
