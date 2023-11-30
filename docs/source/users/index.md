@@ -1028,7 +1028,7 @@ your new provider's `id`:
 [BaseChatModel]: https://api.python.langchain.com/en/latest/chat_models/langchain.chat_models.base.BaseChatModel.html
 
 
-## Customizing prompt templates
+### Customizing prompt templates
 
 To modify the prompt template for a given format, override the ``get_prompt_template`` method:
 
