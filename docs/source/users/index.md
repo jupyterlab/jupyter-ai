@@ -161,11 +161,7 @@ For example, to use OpenAI models, use the chat interface settings panel to choo
     alt="Screen shot of the chat settings interface with language model dropdown open"
     class="screenshot" />
 
-Then, enter your API key in the 'API Keys' section:
-
-<img src="../_static/chat-settings-enter-api-key.png"
-    alt="Screen shot of the API key input in the chat settings interface"
-    class="screenshot" />
+Then, enter your API key in the 'API Keys' section.
 
 Alternatively, to set the API key through a config file, first determine your data directory path by running the following command in your terminal:
 
