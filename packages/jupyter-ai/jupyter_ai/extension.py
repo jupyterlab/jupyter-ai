@@ -170,6 +170,7 @@ class AiExtension(ExtensionApp):
             "chat_history": self.settings["chat_history"],
             "root_dir": self.serverapp.root_dir,
             "dask_client_future": dask_client_future,
+            "model_parameters": self.settings["model_parameters"],
         }
 
         default_chat_handler = DefaultChatHandler(**chat_handler_kwargs)
