@@ -155,12 +155,26 @@ in the SageMaker documentation.
 To use SageMaker's models, you will need to authenticate via
 [boto3](https://github.com/boto/boto3).
 
-For example, to use OpenAI models, install the necessary package, and set an environment
-variable when you start JupyterLab from a terminal:
+For example, to use OpenAI models, use the chat interface settings panel to choose the OpenAI language model:
+
+<img src="../_static/chat-settings-choose-language-model.png"
+    alt="Screen shot of the chat settings interface with language model dropdown open"
+    class="screenshot" />
+
+Then, enter your API key in the 'API Keys' section.
+
+Alternatively, to set the API key through a config file, first determine your data directory path by running the following command in your terminal:
 
 ```bash
-pip install openai
-OPENAI_API_KEY=your-api-key-here jupyter lab
+echo "$(jupyter --data-dir)/jupyter_ai/config.json"
+```
+
+Then, add your API key to `config.json`:
+
+```json
+"api_keys": {
+    "OPENAI_API_KEY": "your-api-key-here"
+}
 ```
 
 :::{attention}
@@ -169,96 +183,6 @@ Model providers may charge users for API usage. Jupyter AI users are
 responsible for all charges they incur when they make API requests. Review your model
 provider's pricing information before submitting requests via Jupyter AI.
 :::
-
-### Custom model providers
-
-You can define new providers using the LangChain framework API. Custom providers
-inherit from both `jupyter-ai`'s ``BaseProvider`` and `langchain`'s [``LLM``][LLM].
-You can either import a pre-defined model from [LangChain LLM list][langchain_llms],
-or define a [custom LLM][custom_llm].
-In the example below, we define a provider with two models using
-a dummy ``FakeListLLM`` model, which returns responses from the ``responses``
-keyword argument.
-
-```python
-# my_package/my_provider.py
-from jupyter_ai_magics import BaseProvider
-from langchain.llms import FakeListLLM
-
-
-class MyProvider(BaseProvider, FakeListLLM):
-    id = "my_provider"
-    name = "My Provider"
-    model_id_key = "model"
-    models = [
-        "model_a",
-        "model_b"
-    ]
-    def __init__(self, **kwargs):
-        model = kwargs.get("model_id")
-        kwargs["responses"] = (
-            ["This is a response from model 'a'"]
-            if model == "model_a" else
-            ["This is a response from model 'b'"]
-        )
-        super().__init__(**kwargs)
-```
-
-
-If the new provider inherits from [``BaseChatModel``][BaseChatModel], it will be available
-both in the chat UI and with magic commands. Otherwise, users can only use the new provider
-with magic commands.
-
-To make the new provider available, you need to declare it as an [entry point](https://setuptools.pypa.io/en/latest/userguide/entry_point.html):
-
-```toml
-# my_package/pyproject.toml
-[project]
-name = "my_package"
-version = "0.0.1"
-
-[project.entry-points."jupyter_ai.model_providers"]
-my-provider = "my_provider:MyProvider"
-```
-
-To test that the above minimal provider package works, install it with:
-
-```sh
-# from `my_package` directory
-pip install -e .
-```
-
-Then, restart JupyterLab. You should now see an info message in the log that mentions
-your new provider's `id`:
-
-```
-[I 2023-10-29 13:56:16.915 AiExtension] Registered model provider `my_provider`.
-```
-
-[langchain_llms]: https://api.python.langchain.com/en/latest/api_reference.html#module-langchain.llms
-[custom_llm]: https://python.langchain.com/docs/modules/model_io/models/llms/custom_llm
-[LLM]: https://api.python.langchain.com/en/latest/llms/langchain.llms.base.LLM.html#langchain.llms.base.LLM
-[BaseChatModel]: https://api.python.langchain.com/en/latest/chat_models/langchain.chat_models.base.BaseChatModel.html
-
-
-### Customizing prompt templates
-
-To modify the prompt template for a given format, override the ``get_prompt_template`` method:
-
-```python
-from langchain.prompts import PromptTemplate
-
-
-class MyProvider(BaseProvider, FakeListLLM):
-    # (... properties as above ...)
-    def get_prompt_template(self, format) -> PromptTemplate:
-        if format === "code":
-            return PromptTemplate.from_template(
-                "{prompt}\n\nProduce output as source code only, "
-                "with no text or explanation before or after it."
-            )
-        return super().get_prompt_template(format)
-```
 
 ## The chat interface
 
@@ -691,20 +615,6 @@ include calls to nonexistent (hallucinated) APIs.
 A function that computes the lowest common multiples of two integers, and
 a function that runs 5 test cases of the lowest common multiple function
 ```
-
-### Prompt templates
-
-Each provider can define **prompt templates** for each supported format. A prompt
-template guides the language model to produce output in a particular
-format. The default prompt templates are a
-[Python dictionary mapping formats to templates](https://github.com/jupyterlab/jupyter-ai/blob/57a758fa5cdd5a87da5519987895aa688b3766a8/packages/jupyter-ai-magics/jupyter_ai_magics/providers.py#L138-L166).
-Developers who write subclasses of `BaseProvider` can override templates per
-output format, per model, and based on the prompt being submitted, by
-implementing their own
-[`get_prompt_template` function](https://github.com/jupyterlab/jupyter-ai/blob/57a758fa5cdd5a87da5519987895aa688b3766a8/packages/jupyter-ai-magics/jupyter_ai_magics/providers.py#L186-L195).
-Each prompt template includes the string `{prompt}`, which is replaced with
-the user-provided prompt when the user runs a magic command.
-
 
 ### Clearing the OpenAI chat history
 
