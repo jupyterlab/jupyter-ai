@@ -49,4 +49,4 @@ class MyProvider(BaseProvider, FakeListLLM):
         return super().get_prompt_template(format)
 ```
 
-Please note that this will only work with Jupyter AI magics (the `%ai` and `%%ai` magic commands), customization of prompt templates for chat is not available yet (see [issue #498](https://github.com/jupyterlab/jupyter-ai/issues/498)).
+Please note that this will only work with Jupyter AI magics (the `%ai` and `%%ai` magic commands). Custom prompt templates are not used in the chat interface yet.
