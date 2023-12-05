@@ -21,8 +21,7 @@ if TYPE_CHECKING:
 # Chat handler type, with specific attributes for each
 class HandlerRoutingType(BaseModel):
     routing_method: ClassVar[str] = ...
-    """The routing method that sends commands to this handler.
-    Either "natural_language" or "slash_command"."""
+    """The routing method that sends commands to this handler."""
 
 
 class SlashCommandRoutingType(HandlerRoutingType):
@@ -32,15 +31,6 @@ class SlashCommandRoutingType(HandlerRoutingType):
     """Slash ID for routing a chat command to this handler. Only one handler
     may declare a particular slash ID. Must contain only alphanumerics and
     underscores."""
-
-
-class NaturalLanguageRoutingType(HandlerRoutingType):
-    routing_method = "natural_language"
-
-    description: str
-    """Description used for routing requests, to be used when dispatching
-    messages to model providers. Also shown in the UI for transparency;
-    optimized for model interpretation, not human-facing help."""
 
 
 class BaseChatHandler(Configurable):
