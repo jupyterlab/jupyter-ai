@@ -163,20 +163,6 @@ For example, to use OpenAI models, use the chat interface settings panel to choo
 
 Then, enter your API key in the 'API Keys' section.
 
-Alternatively, to set the API key through a config file, first determine your data directory path by running the following command in your terminal:
-
-```bash
-echo "$(jupyter --data-dir)/jupyter_ai/config.json"
-```
-
-Then, add your API key to `config.json`:
-
-```json
-"api_keys": {
-    "OPENAI_API_KEY": "your-api-key-here"
-}
-```
-
 :::{attention}
 :name: open-ai-cost
 Model providers may charge users for API usage. Jupyter AI users are
