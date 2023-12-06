@@ -12,7 +12,6 @@ from jupyter_ai_magics.providers import BaseProvider
 
 # necessary to prevent circular import
 from pydantic import BaseModel
-from traitlets.config import Configurable
 
 if TYPE_CHECKING:
     from jupyter_ai.handlers import RootChatHandler
@@ -33,7 +32,7 @@ class SlashCommandRoutingType(HandlerRoutingType):
     underscores."""
 
 
-class BaseChatHandler(Configurable):
+class BaseChatHandler:
     """Base ChatHandler class containing shared methods and attributes used by
     multiple chat handler classes."""
 
