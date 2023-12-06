@@ -157,7 +157,7 @@ In the `pyproject.toml` file, add your custom handler to the
 
 ```
 [project.entry-points."jupyter_ai.chat_handlers"]
-custom = "custom_package:chat_handlers.CustomChatHandler"
+custom = "custom_package:CustomChatHandler"
 ```
 
 Then, install your package so that Jupyter AI adds custom chat handlers
