@@ -134,7 +134,8 @@ commands cannot replace built-in slash commands.
 Add your custom handler in Python code:
 
 ```python
-from jupyter_ai.base import BaseChatHandler, SlashCommandRoutingType
+from jupyter_ai.chat_handlers.base import BaseChatHandler, SlashCommandRoutingType
+from jupyter_ai.models import HumanChatMessage
 
 class CustomChatHandler(BaseChatHandler):
     id = "custom"
