@@ -411,7 +411,10 @@ class JupyterAIInlineProvider implements IInlineCompletionProvider {
     if (!language) {
       return 'plain English';
     }
-    if (language.name === 'ipythongfm') {
+    if (language.name === 'ipython') {
+      return 'python';
+    }
+    else if (language.name === 'ipythongfm') {
       return 'markdown';
     }
     return language.name;

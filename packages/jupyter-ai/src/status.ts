@@ -13,7 +13,6 @@ export const jupyternautStatus: JupyterFrontEndPlugin<IJupyternautStatus> = {
   optional: [IStatusBar],
   provides: IJupyternautStatus,
   activate: (app: JupyterFrontEnd, statusBar: IStatusBar | null) => {
-    console.log('a');
     const indicator = new JupyternautStatus({ commandRegistry: app.commands });
     if (statusBar) {
       // Add the status item.
