@@ -148,6 +148,7 @@ class CustomChatHandler(BaseChatHandler):
 
     async def process_message(self, message: HumanChatMessage):
         # Put your custom logic here
+        self.reply("<your-response>", message)
 ```
 
 Jupyter AI uses entry points to support custom slash commands.
