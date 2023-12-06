@@ -46,7 +46,7 @@ class BaseChatHandler(Configurable):
 
     help: ClassVar[str] = ...
     """What this chat handler does, which third-party models it contacts,
-    the format of the data it returns to the user, etc. Used in the UI."""
+    the data it returns to the user, and so on, for display in the UI."""
 
     routing_type: HandlerRoutingType = ...
 
