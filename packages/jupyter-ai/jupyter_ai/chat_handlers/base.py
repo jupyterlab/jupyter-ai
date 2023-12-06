@@ -2,7 +2,7 @@ import argparse
 import os
 import time
 import traceback
-from typing import TYPE_CHECKING, Awaitable, ClassVar, Dict, List, Optional, Type
+from typing import TYPE_CHECKING, Awaitable, ClassVar, Dict, List, Literal, Optional, Type
 from uuid import uuid4
 
 from dask.distributed import Client as DaskClient
@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 
 # Chat handler type, with specific attributes for each
 class HandlerRoutingType(BaseModel):
-    routing_method: ClassVar[str] = ...
+    routing_method: ClassVar[str] = Literal["slash_command"]
     """The routing method that sends commands to this handler."""
 
 
