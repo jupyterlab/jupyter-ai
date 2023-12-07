@@ -20,6 +20,9 @@ from jupyter_ai.models import AgentChatMessage, ChatMessage, HumanChatMessage
 from jupyter_ai_magics.providers import BaseProvider
 from langchain.pydantic_v1 import BaseModel
 
+# necessary to prevent circular import
+from pydantic import BaseModel
+
 if TYPE_CHECKING:
     from jupyter_ai.handlers import RootChatHandler
 
