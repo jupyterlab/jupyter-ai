@@ -7,7 +7,7 @@ from langchain.chains import ConversationalRetrievalChain
 from langchain.memory import ConversationBufferWindowMemory
 from langchain.prompts import PromptTemplate
 
-from .base import BaseChatHandler
+from .base import BaseChatHandler, SlashCommandRoutingType
 
 PROMPT_TEMPLATE = """Given the following conversation and a follow up question, rephrase the follow up question to be a standalone question.
 
@@ -25,6 +25,11 @@ class AskChatHandler(BaseChatHandler):
     query the documents from the index, and sends this context
     to the LLM to generate the final reply.
     """
+
+    id = "ask"
+    name = "Ask with Local Data"
+    help = "Asks a question with retrieval augmented generation (RAG)"
+    routing_type = SlashCommandRoutingType(slash_id="ask")
 
     def __init__(self, retriever, *args, **kwargs):
         super().__init__(*args, **kwargs)
