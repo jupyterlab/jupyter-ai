@@ -1,22 +1,62 @@
 import argparse
+import os
 import time
 import traceback
-
-# necessary to prevent circular import
-from typing import TYPE_CHECKING, Any, Dict, Optional, Type
+from typing import (
+    TYPE_CHECKING,
+    Awaitable,
+    ClassVar,
+    Dict,
+    List,
+    Literal,
+    Optional,
+    Type,
+)
 from uuid import uuid4
 
+from dask.distributed import Client as DaskClient
 from jupyter_ai.config_manager import ConfigManager, Logger
-from jupyter_ai.models import AgentChatMessage, HumanChatMessage
+from jupyter_ai.models import AgentChatMessage, ChatMessage, HumanChatMessage
 from jupyter_ai_magics.providers import BaseProvider
+
+# necessary to prevent circular import
+from pydantic import BaseModel
 
 if TYPE_CHECKING:
     from jupyter_ai.handlers import RootChatHandler
 
 
+# Chat handler type, with specific attributes for each
+class HandlerRoutingType(BaseModel):
+    routing_method: ClassVar[str] = Literal["slash_command"]
+    """The routing method that sends commands to this handler."""
+
+
+class SlashCommandRoutingType(HandlerRoutingType):
+    routing_method = "slash_command"
+
+    slash_id: Optional[str]
+    """Slash ID for routing a chat command to this handler. Only one handler
+    may declare a particular slash ID. Must contain only alphanumerics and
+    underscores."""
+
+
 class BaseChatHandler:
     """Base ChatHandler class containing shared methods and attributes used by
     multiple chat handler classes."""
+
+    # Class attributes
+    id: ClassVar[str] = ...
+    """ID for this chat handler; should be unique"""
+
+    name: ClassVar[str] = ...
+    """User-facing name of this handler"""
+
+    help: ClassVar[str] = ...
+    """What this chat handler does, which third-party models it contacts,
+    the data it returns to the user, and so on, for display in the UI."""
+
+    routing_type: HandlerRoutingType = ...
 
     def __init__(
         self,
@@ -24,12 +64,18 @@ class BaseChatHandler:
         config_manager: ConfigManager,
         root_chat_handlers: Dict[str, "RootChatHandler"],
         model_parameters: Dict[str, Dict],
+        chat_history: List[ChatMessage],
+        root_dir: str,
+        dask_client_future: Awaitable[DaskClient],
     ):
         self.log = log
         self.config_manager = config_manager
         self._root_chat_handlers = root_chat_handlers
         self.model_parameters = model_parameters
+        self._chat_history = chat_history
         self.parser = argparse.ArgumentParser()
+        self.root_dir = os.path.abspath(os.path.expanduser(root_dir))
+        self.dask_client_future = dask_client_future
         self.llm = None
         self.llm_params = None
         self.llm_chain = None
