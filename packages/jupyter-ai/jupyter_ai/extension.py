@@ -1,6 +1,9 @@
+import logging
+import re
 import time
 
 from dask.distributed import Client as DaskClient
+from importlib_metadata import entry_points
 from jupyter_ai.chat_handlers.learn import Retriever
 from jupyter_ai_magics.utils import get_em_providers, get_lm_providers
 from jupyter_server.extension.application import ExtensionApp
@@ -40,7 +43,7 @@ class AiExtension(ExtensionApp):
     allowed_providers = List(
         Unicode(),
         default_value=None,
-        help="Identifiers of allow-listed providers. If `None`, all are allowed.",
+        help="Identifiers of allowlisted providers. If `None`, all are allowed.",
         allow_none=True,
         config=True,
     )
@@ -48,7 +51,7 @@ class AiExtension(ExtensionApp):
     blocked_providers = List(
         Unicode(),
         default_value=None,
-        help="Identifiers of block-listed providers. If `None`, none are blocked.",
+        help="Identifiers of blocklisted providers. If `None`, none are blocked.",
         allow_none=True,
         config=True,
     )
@@ -156,32 +159,29 @@ class AiExtension(ExtensionApp):
         # consumers a Future that resolves to the Dask client when awaited.
         dask_client_future = loop.create_task(self._get_dask_client())
 
+        eps = entry_points()
         # initialize chat handlers
+        chat_handler_eps = eps.select(group="jupyter_ai.chat_handlers")
+
         chat_handler_kwargs = {
             "log": self.log,
             "config_manager": self.settings["jai_config_manager"],
             "root_chat_handlers": self.settings["jai_root_chat_handlers"],
+            "chat_history": self.settings["chat_history"],
+            "root_dir": self.serverapp.root_dir,
+            "dask_client_future": dask_client_future,
             "model_parameters": self.settings["model_parameters"],
         }
-        default_chat_handler = DefaultChatHandler(
-            **chat_handler_kwargs, chat_history=self.settings["chat_history"]
-        )
-        clear_chat_handler = ClearChatHandler(
-            **chat_handler_kwargs, chat_history=self.settings["chat_history"]
-        )
-        generate_chat_handler = GenerateChatHandler(
-            **chat_handler_kwargs,
-            root_dir=self.serverapp.root_dir,
-        )
-        learn_chat_handler = LearnChatHandler(
-            **chat_handler_kwargs,
-            root_dir=self.serverapp.root_dir,
-            dask_client_future=dask_client_future,
-        )
+
+        default_chat_handler = DefaultChatHandler(**chat_handler_kwargs)
+        clear_chat_handler = ClearChatHandler(**chat_handler_kwargs)
+        generate_chat_handler = GenerateChatHandler(**chat_handler_kwargs)
+        learn_chat_handler = LearnChatHandler(**chat_handler_kwargs)
         help_chat_handler = HelpChatHandler(**chat_handler_kwargs)
         retriever = Retriever(learn_chat_handler=learn_chat_handler)
         ask_chat_handler = AskChatHandler(**chat_handler_kwargs, retriever=retriever)
-        self.settings["jai_chat_handlers"] = {
+
+        jai_chat_handlers = {
             "default": default_chat_handler,
             "/ask": ask_chat_handler,
             "/clear": clear_chat_handler,
@@ -189,6 +189,54 @@ class AiExtension(ExtensionApp):
             "/learn": learn_chat_handler,
             "/help": help_chat_handler,
         }
+
+        slash_command_pattern = r"^[a-zA-Z0-9_]+$"
+        for chat_handler_ep in chat_handler_eps:
+            try:
+                chat_handler = chat_handler_ep.load()
+            except Exception as err:
+                self.log.error(
+                    f"Unable to load chat handler class from entry point `{chat_handler_ep.name}`: "
+                    + f"Unexpected {err=}, {type(err)=}"
+                )
+                continue
+
+            if chat_handler.routing_type.routing_method == "slash_command":
+                # Each slash ID must be used only once.
+                # Slash IDs may contain only alphanumerics and underscores.
+                slash_id = chat_handler.routing_type.slash_id
+
+                if slash_id is None:
+                    self.log.error(
+                        f"Handler `{chat_handler_ep.name}` has an invalid slash command "
+                        + f"`None`; only the default chat handler may use this"
+                    )
+                    continue
+
+                # Validate slash ID (/^[A-Za-z0-9_]+$/)
+                if re.match(slash_command_pattern, slash_id):
+                    command_name = f"/{slash_id}"
+                else:
+                    self.log.error(
+                        f"Handler `{chat_handler_ep.name}` has an invalid slash command "
+                        + f"`{slash_id}`; must contain only letters, numbers, "
+                        + "and underscores"
+                    )
+                    continue
+
+            if command_name in jai_chat_handlers:
+                self.log.error(
+                    f"Unable to register chat handler `{chat_handler.id}` because command `{command_name}` already has a handler"
+                )
+                continue
+
+            # The entry point is a class; we need to instantiate the class to send messages to it
+            jai_chat_handlers[command_name] = chat_handler(**chat_handler_kwargs)
+            self.log.info(
+                f"Registered chat handler `{chat_handler.id}` with command `{command_name}`."
+            )
+
+        self.settings["jai_chat_handlers"] = jai_chat_handlers
 
         latency_ms = round((time.time() - start) * 1000)
         self.log.info(f"Initialized Jupyter AI server extension in {latency_ms} ms.")
