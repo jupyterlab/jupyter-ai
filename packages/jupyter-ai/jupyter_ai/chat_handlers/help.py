@@ -4,7 +4,7 @@ from uuid import uuid4
 
 from jupyter_ai.models import AgentChatMessage, HumanChatMessage
 
-from .base import BaseChatHandler
+from .base import BaseChatHandler, SlashCommandRoutingType
 
 HELP_MESSAGE = """Hi there! I'm Jupyternaut, your programming assistant.
 You can ask me a question using the text box below. You can also use these commands:
@@ -29,6 +29,11 @@ def HelpMessage():
 
 
 class HelpChatHandler(BaseChatHandler):
+    id = "help"
+    name = "Help"
+    help = "Displays a help message in the chat message area"
+    routing_type = SlashCommandRoutingType(slash_id="help")
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

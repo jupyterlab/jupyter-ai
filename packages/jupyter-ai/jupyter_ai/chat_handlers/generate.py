@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Type
 
 import nbformat
-from jupyter_ai.chat_handlers import BaseChatHandler
+from jupyter_ai.chat_handlers import BaseChatHandler, SlashCommandRoutingType
 from jupyter_ai.models import HumanChatMessage
 from jupyter_ai_magics.providers import BaseProvider
 from langchain.chains import LLMChain
@@ -216,11 +216,13 @@ def create_notebook(outline):
 
 
 class GenerateChatHandler(BaseChatHandler):
-    """Generates a Jupyter notebook given a description."""
+    id = "generate"
+    name = "Generate Notebook"
+    help = "Generates a Jupyter notebook, including name, outline, and section contents"
+    routing_type = SlashCommandRoutingType(slash_id="generate")
 
-    def __init__(self, root_dir: str, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.root_dir = os.path.abspath(os.path.expanduser(root_dir))
         self.llm = None
 
     def create_llm_chain(
