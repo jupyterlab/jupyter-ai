@@ -658,8 +658,6 @@ class BedrockProvider(BaseProvider, Bedrock):
         "ai21.j2-mid-v1",
         "cohere.command-light-text-v14",
         "cohere.command-text-v14",
-        "meta.llama2-13b-chat-v1",
-        "meta.llama2-70b-chat-v1",
     ]
     model_id_key = "model_id"
     pypi_package_deps = ["boto3"]
@@ -685,6 +683,8 @@ class BedrockChatProvider(BaseProvider, BedrockChat):
         "anthropic.claude-v2",
         "anthropic.claude-v2:1",
         "anthropic.claude-instant-v1",
+        "meta.llama2-13b-chat-v1",
+        "meta.llama2-70b-chat-v1",
     ]
     model_id_key = "model_id"
     pypi_package_deps = ["boto3"]
