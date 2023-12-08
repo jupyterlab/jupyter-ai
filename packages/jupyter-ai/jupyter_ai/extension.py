@@ -28,14 +28,7 @@ from .handlers import (
 
 class AiExtension(ExtensionApp):
     name = "jupyter_ai"
-    handlers = [
-        (r"api/ai/api_keys/(?P<api_key_name>\w+)", ApiKeysHandler),
-        (r"api/ai/config/?", GlobalConfigHandler),
-        (r"api/ai/chats/?", RootChatHandler),
-        (r"api/ai/chats/history?", ChatHistoryHandler),
-        (r"api/ai/providers?", ModelProviderHandler),
-        (r"api/ai/providers/embeddings?", EmbeddingsModelProviderHandler),
-    ]
+    handlers = [(r"api/ai/config/?", GlobalConfigHandler)]
 
     allowed_providers = List(
         Unicode(),
@@ -139,15 +132,24 @@ class AiExtension(ExtensionApp):
         else:
             # Log the error and proceed with limited functionality
             self.log.error(f"Configuration errors detected: {config_errors}")
-            # TODO: self._initialize_limited_functionality()
+            self._initialize_limited_functionality(config_errors)
 
-        self.log.info("Registered providers.")
         self.log.info(f"Registered {self.name} server extension")
 
         latency_ms = round((time.time() - start) * 1000)
         self.log.info(f"Initialized Jupyter AI server extension in {latency_ms} ms.")
 
     def _initialize_full_functionality(self):
+        self.handlers.extend(
+            [
+                (r"api/ai/api_keys/(?P<api_key_name>\w+)", ApiKeysHandler),
+                (r"api/ai/chats/?", RootChatHandler),
+                (r"api/ai/chats/history?", ChatHistoryHandler),
+                (r"api/ai/providers?", ModelProviderHandler),
+                (r"api/ai/providers/embeddings?", EmbeddingsModelProviderHandler),
+            ]
+        )
+
         # Store chat clients in a dictionary
         self.settings["chat_clients"] = {}
         self.settings["jai_root_chat_handlers"] = {}
@@ -203,6 +205,22 @@ class AiExtension(ExtensionApp):
             "/learn": learn_chat_handler,
             "/help": help_chat_handler,
         }
+
+        self.log.info("Registered providers.")
+
+    def _initialize_limited_functionality(self, config_errors):
+        """
+        Initialize the extension with limited functionality due to configuration errors.
+        """
+        self.log.warning(
+            "Initializing Jupyter AI extension with limited functionality due to configuration errors."
+        )
+
+        # Capture configuration error details
+        config_errors = self.settings["jai_config_manager"].get_config_errors()
+        self.settings["config_errors"] = config_errors
+
+        self.settings["jai_chat_handlers"] = []
 
     async def _get_dask_client(self):
         return DaskClient(processes=False, asynchronous=True)

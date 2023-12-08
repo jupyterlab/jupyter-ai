@@ -20,7 +20,7 @@ import { CollaboratorsContextProvider } from '../contexts/collaborators-context'
 import { ScrollContainer } from './scroll-container';
 
 type ChatBodyProps = {
-  chatHandler: ChatHandler;
+  chatHandler: ChatHandler | null;
   setChatView: (view: ChatView) => void;
 };
 
@@ -43,12 +43,22 @@ function ChatBody({
   useEffect(() => {
     async function fetchHistory() {
       try {
-        const [history, config] = await Promise.all([
-          chatHandler.getHistory(),
-          AiService.getConfig()
-        ]);
+        const config = await AiService.getConfig();
         setSendWithShiftEnter(config.send_with_shift_enter ?? false);
-        setMessages(history.messages);
+
+        // Check if there are critical errors
+        const hasCriticalErrors = config.config_errors?.some(
+          error => error.error_type === AiService.ConfigErrorType.CRITICAL
+        );
+        console.log('\n\n\n *** \n\n\n');
+        console.log(hasCriticalErrors);
+        if (!hasCriticalErrors && chatHandler) {
+          const history = await chatHandler.getHistory();
+          setMessages(history.messages);
+        } else {
+          setMessages([]);
+        }
+
         if (!config.model_provider_id) {
           setShowWelcomeMessage(true);
         }
@@ -78,9 +88,9 @@ function ChatBody({
       setMessages(messageGroups => [...messageGroups, message]);
     }
 
-    chatHandler.addListener(handleChatEvents);
+    chatHandler?.addListener(handleChatEvents);
     return function cleanup() {
-      chatHandler.removeListener(handleChatEvents);
+      chatHandler?.removeListener(handleChatEvents);
     };
   }, [chatHandler]);
 
@@ -96,18 +106,18 @@ function ChatBody({
         : '');
 
     // send message to backend
-    const messageId = await chatHandler.sendMessage({ prompt });
+    const messageId = await chatHandler?.sendMessage({ prompt });
 
     // await reply from agent
     // no need to append to messageGroups state variable, since that's already
     // handled in the effect hooks.
-    const reply = await chatHandler.replyFor(messageId);
+    const reply = await chatHandler?.replyFor(messageId ?? '');
     if (replaceSelection && selection) {
       const { cellId, ...selectionProps } = selection;
       replaceSelectionFn({
         ...selectionProps,
         ...(cellId && { cellId }),
-        text: reply.body
+        text: reply?.body ?? ''
       });
     }
   };
@@ -187,7 +197,7 @@ function ChatBody({
 
 export type ChatProps = {
   selectionWatcher: SelectionWatcher;
-  chatHandler: ChatHandler;
+  chatHandler: ChatHandler | null;
   globalAwareness: Awareness | null;
   chatView?: ChatView;
 };

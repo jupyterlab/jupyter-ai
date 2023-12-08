@@ -12,6 +12,7 @@ import { buildChatSidebar } from './widgets/chat-sidebar';
 import { SelectionWatcher } from './selection-watcher';
 import { ChatHandler } from './chat_handler';
 import { buildErrorWidget } from './widgets/chat-error';
+import { AiService } from './handler';
 
 export type DocumentTracker = IWidgetTracker<IDocumentWidget>;
 
@@ -32,14 +33,25 @@ const plugin: JupyterFrontEndPlugin<void> = {
      */
     const selectionWatcher = new SelectionWatcher(app.shell);
 
-    /**
-     * Initialize chat handler, open WS connection
-     */
-    const chatHandler = new ChatHandler();
-
     let chatWidget: ReactWidget | null = null;
+    let chatHandler: ChatHandler | null = null;
+
     try {
-      await chatHandler.initialize();
+      // Fetch configuration to check for critical errors
+      const config = await AiService.getConfig();
+      console.log('\n\n\n *** \n\n\n');
+      console.log(config.config_errors);
+      const hasCriticalErrors = config.config_errors?.some(
+        error => error.error_type === AiService.ConfigErrorType.CRITICAL
+      );
+
+      if (!hasCriticalErrors) {
+        /**
+         * Initialize chat handler, open WS connection
+         */
+        chatHandler = new ChatHandler();
+        await chatHandler.initialize();
+      }
       chatWidget = buildChatSidebar(
         selectionWatcher,
         chatHandler,

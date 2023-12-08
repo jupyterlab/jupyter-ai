@@ -164,19 +164,29 @@ class ConfigManager(Configurable):
             self.validator = Validator(schema)
 
     def _init_config(self):
-        try:
-            if os.path.exists(self.config_path):
-                self._process_existing_config()
-            else:
-                self._create_default_config()
-        except ValidationError as e:
-            self._handle_validation_error(e)
+        # try:
+        if os.path.exists(self.config_path):
+            self._process_existing_config()
+        else:
+            self._create_default_config()
+        # except ValidationError as e:
+        #     self._handle_validation_error(e)
+        #     self._config = GlobalConfig(
+        #         send_with_shift_enter=False, fields={}, api_keys={}
+        #     )
 
     def _process_existing_config(self):
         with open(self.config_path, encoding="utf-8") as f:
-            config = GlobalConfig(**json.loads(f.read()))
-            self._validate_lm_em_id(config)
+            raw_config = json.loads(f.read())
+
+        validated_raw_config = self._validate_lm_em_id(raw_config)
+
+        try:
+            config = GlobalConfig(**validated_raw_config)
             self._write_config(config)
+        except ValidationError as e:
+            corrected_config = self._handle_validation_error(e, validated_raw_config)
+            self._write_config(corrected_config)
 
     def _create_default_config(self):
         properties = self.validator.schema.get("properties", {})
@@ -187,16 +197,16 @@ class ConfigManager(Configurable):
         default_config = GlobalConfig(**field_dict)
         self._write_config(default_config)
 
-    def _validate_lm_em_id(self, config):
-        lm_id = config.model_provider_id
-        em_id = config.embeddings_provider_id
+    def _validate_lm_em_id(self, raw_config):
+        lm_id = raw_config.get("model_provider_id")
+        em_id = raw_config.get("embeddings_provider_id")
 
         # if the currently selected language or embedding model are
         # forbidden, set them to `None` and log a warning.
         if lm_id is not None and not self._validate_model(lm_id, raise_exc=False):
             warning_message = f"Language model {lm_id} is forbidden by current allow/blocklists. Setting to None."
             self.log.warning(warning_message)
-            config.model_provider_id = None
+            raw_config["model_provider_id"] = None
             self._config_errors.append(
                 ConfigErrorModel(
                     error_type=ConfigErrorType.WARNING, message=warning_message
@@ -206,7 +216,7 @@ class ConfigManager(Configurable):
         if em_id is not None and not self._validate_model(em_id, raise_exc=False):
             warning_message = f"Embedding model {em_id} is forbidden by current allow/blocklists. Setting to None."
             self.log.warning(warning_message)
-            config.embeddings_provider_id = None
+            raw_config["embeddings_provider_id"] = None
             self._config_errors.append(
                 ConfigErrorModel(
                     error_type=ConfigErrorType.WARNING, message=warning_message
@@ -220,7 +230,7 @@ class ConfigManager(Configurable):
                 f"No language model is associated with '{lm_id}'. Setting to None."
             )
             self.log.warning(warning_message)
-            config.model_provider_id = None
+            raw_config["model_provider_id"] = None
             self._config_errors.append(
                 ConfigErrorModel(
                     error_type=ConfigErrorType.WARNING, message=warning_message
@@ -232,28 +242,43 @@ class ConfigManager(Configurable):
                 f"No embedding model is associated with '{em_id}'. Setting to None."
             )
             self.log.warning(warning_message)
-            config.embeddings_provider_id = None
+            raw_config["embeddings_provider_id"] = None
             self._config_errors.append(
                 ConfigErrorModel(
                     error_type=ConfigErrorType.WARNING, message=warning_message
                 )
             )
 
-        # re-write to the file to validate the config and apply any
-        # updates to the config file immediately
-        self._write_config(config)
+        return raw_config
 
-    def _handle_validation_error(self, e: ValidationError):
-        formatted_error = _format_validation_errors(e)
-        error_message = "Configuration validation failed"
-        self._config_errors.append(
-            ConfigErrorModel(
-                error_type=ConfigErrorType.CRITICAL,
-                message=error_message,
-                details=formatted_error,
-            )
-        )
-        self.log.error(f"{error_message}: {formatted_error}")
+    def _handle_validation_error(self, e: ValidationError, raw_config):
+        # Extract default values from schema
+        properties = self.validator.schema.get("properties", {})
+        field_list = GlobalConfig.__fields__.keys()
+        default_values = {
+            field: properties.get(field).get("default") for field in field_list
+        }
+
+        # Apply default values to erroneous fields
+        for error in e.errors():
+            field = error["loc"][0]
+            if field in default_values:
+                raw_config[field] = default_values[field]
+                warning_message = f"Error in '{field}': {error['msg']}. Resetting to default value ('{default_values[field]}')."
+                self.log.warning(warning_message)
+                self._config_errors.append(
+                    ConfigErrorModel(
+                        error_type=ConfigErrorType.WARNING, message=warning_message
+                    )
+                )
+
+        # Create a config with default values for erroneous fields
+        config = GlobalConfig(**raw_config)
+        self.log.warning("\n\n\n Config \n\n\n")
+
+        self.log.warning(config)
+        self._validate_config(config)
+        return config
 
     def _read_config(self) -> GlobalConfig:
         """Returns the user's current configuration as a GlobalConfig object.
@@ -264,12 +289,15 @@ class ConfigManager(Configurable):
             if last_write <= self._last_read:
                 return self._config
 
-        with open(self.config_path, encoding="utf-8") as f:
-            self._last_read = time.time_ns()
-            raw_config = json.loads(f.read())
-            config = GlobalConfig(**raw_config)
-            self._validate_config(config)
-            return config
+            with open(self.config_path, encoding="utf-8") as f:
+                self._last_read = time.time_ns()
+                raw_config = json.loads(f.read())
+                try:
+                    config = GlobalConfig(**raw_config)
+                except ValidationError as e:
+                    config = self._handle_validation_error(e, raw_config)
+                self._validate_config(config)
+                return config
 
     def _validate_config(self, config: GlobalConfig):
         """Method used to validate the configuration. This is called after every
@@ -414,7 +442,7 @@ class ConfigManager(Configurable):
     def get_config(self):
         config = self._read_config()
         config_dict = config.dict(exclude_unset=True)
-        api_key_names = list(config_dict.pop("api_keys").keys())
+        api_key_names = list(config_dict.pop("api_keys", {}).keys())
         return DescribeConfigResponse(
             **config_dict,
             api_keys=api_key_names,

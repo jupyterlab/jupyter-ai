@@ -9,7 +9,7 @@ import { ChatHandler } from '../chat_handler';
 
 export function buildChatSidebar(
   selectionWatcher: SelectionWatcher,
-  chatHandler: ChatHandler,
+  chatHandler: ChatHandler | null,
   globalAwareness: Awareness | null
 ): ReactWidget {
   const ChatWidget = ReactWidget.create(
