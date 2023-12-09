@@ -191,6 +191,10 @@ export namespace AiService {
     });
   }
 
+  export async function deleteConfig(): Promise<void> {
+    return requestAPI<void>('config', { method: 'DELETE' });
+  }
+
   export async function deleteApiKey(keyName: string): Promise<void> {
     return requestAPI<void>(`api_keys/${keyName}`, {
       method: 'DELETE'
