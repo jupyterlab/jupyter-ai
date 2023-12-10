@@ -1,7 +1,7 @@
 from typing import Dict, Type
 
 from jupyter_ai_magics.providers import BaseProvider
-from langchain.chains import ConversationChain
+from langchain.chains import LLMChain
 from langchain.prompts import (
     ChatPromptTemplate,
     HumanMessagePromptTemplate,
@@ -10,6 +10,7 @@ from langchain.prompts import (
 )
 
 from ..models import (
+    InlineCompletionList,
     InlineCompletionReply,
     InlineCompletionRequest,
     ModelChangedNotification,
@@ -40,16 +41,22 @@ Complete the following code:
 
 
 class DefaultInlineCompletionHandler(BaseInlineCompletionHandler):
+    llm_chain: LLMChain
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
     def create_llm_chain(
         self, provider: Type[BaseProvider], provider_params: Dict[str, str]
     ):
-        curr_lm_id = (
-            f'{self.llm.id}:{provider_params["model_id"]}' if self.llm else None
+        lm_provider = self.config_manager.lm_provider
+        lm_provider_params = self.config_manager.lm_provider_params
+        next_lm_id = (
+            f'{lm_provider.id}:{lm_provider_params["model_id"]}'
+            if lm_provider
+            else None
         )
-        self.broadcast(ModelChangedNotification(model=curr_lm_id))
+        self.broadcast(ModelChangedNotification(model=next_lm_id))
 
         model_parameters = self.get_model_parameters(provider, provider_params)
         llm = provider(**provider_params, **model_parameters)
@@ -74,9 +81,7 @@ class DefaultInlineCompletionHandler(BaseInlineCompletionHandler):
             )
 
         self.llm = llm
-        self.llm_chain = ConversationChain(
-            llm=llm, prompt=prompt_template, verbose=True
-        )
+        self.llm_chain = LLMChain(llm=llm, prompt=prompt_template, verbose=True)
 
     async def process_message(
         self, request: InlineCompletionRequest
@@ -86,11 +91,10 @@ class DefaultInlineCompletionHandler(BaseInlineCompletionHandler):
             prefix=request.prefix,
             suffix=request.suffix,
             language=request.language,
-            filename=request.path.split("/")[-1],
+            filename=request.path.split("/")[-1] if request.path else "untitled",
             stop=["\n```"],
         )
-        reply = InlineCompletionReply(
-            items=[prediction],
+        return InlineCompletionReply(
+            list=InlineCompletionList(items=[{"insertText": prediction}]),
             reply_to=request.number,
         )
-        return reply

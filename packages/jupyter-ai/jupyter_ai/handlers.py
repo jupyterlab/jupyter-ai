@@ -292,7 +292,7 @@ class InlineCompletionHandler(JupyterHandler, websocket.WebSocketHandler):
 
         self.log.info(f"Inline completion connected. ID: {client_id}")
         self.log.debug(
-            f"Inline completion sessions are: {self.root_chat_handlers.keys()}"
+            f"Inline completion sessions are: {self.websocket_sessions.keys()}"
         )
 
     async def on_message(self, message):

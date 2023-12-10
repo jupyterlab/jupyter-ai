@@ -2,6 +2,8 @@ import { URLExt } from '@jupyterlab/coreutils';
 
 import { ServerConnection } from '@jupyterlab/services';
 
+import type { IInlineCompletionList } from '@jupyterlab/completer';
+
 const API_NAMESPACE = 'api/ai';
 
 /**
@@ -55,6 +57,32 @@ export namespace AiService {
     prompt: string;
   };
 
+  export type InlineCompletionRequest = {
+    number: number;
+    path?: string;
+    /* The model has to complete given prefix */
+    prefix: string;
+    /* The model may consider the following suffix */
+    suffix: string;
+    mime: string;
+    language?: string;
+    cell_id?: string;
+  };
+
+  export type InlineCompletionReply = {
+    /**
+     * Type for this message can be skipped (`inline_completion` is presumed default).
+     **/
+    type?: 'inline_completion';
+    list: IInlineCompletionList;
+    reply_to: number;
+  };
+
+  export type InlineCompletionModelChanged = {
+    type: 'model_changed';
+    model: string;
+  };
+
   export type Collaborator = {
     username: string;
     initials: string;
@@ -99,6 +127,11 @@ export namespace AiService {
     | HumanChatMessage
     | ConnectionMessage
     | ClearMessage;
+
+  export type CompleterMessage =
+    | InlineCompletionReply
+    | ConnectionMessage
+    | InlineCompletionModelChanged;
 
   export type ChatHistory = {
     messages: ChatMessage[];

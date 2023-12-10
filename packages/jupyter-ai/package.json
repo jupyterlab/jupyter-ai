@@ -65,6 +65,7 @@
     "@jupyterlab/cells": "^4",
     "@jupyterlab/codeeditor": "^4",
     "@jupyterlab/codemirror": "^4",
+    "@jupyterlab/completer": "^4.1.0-alpha.3",
     "@jupyterlab/coreutils": "^6",
     "@jupyterlab/fileeditor": "^4",
     "@jupyterlab/notebook": "^4",

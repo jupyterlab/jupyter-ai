@@ -7,6 +7,8 @@ from jupyter_ai_magics.providers import BaseProvider
 class BaseLLMHandler:
     """Base class containing shared methods and attributes used by LLM handler classes."""
 
+    handler_kind: str
+
     def __init__(
         self,
         log: Logger,
@@ -19,6 +21,10 @@ class BaseLLMHandler:
         self.llm = None
         self.llm_params = None
         self.llm_chain = None
+
+    def model_changed_callback(self):
+        """Method which can be overridden in sub-classes to listen to model change."""
+        pass
 
     def get_llm_chain(self):
         lm_provider = self.config_manager.lm_provider
@@ -38,12 +44,14 @@ class BaseLLMHandler:
 
         if curr_lm_id != next_lm_id:
             self.log.info(
-                f"Switching chat language model from {curr_lm_id} to {next_lm_id}."
+                f"Switching {self.handler_kind} language model from {curr_lm_id} to {next_lm_id}."
             )
             self.create_llm_chain(lm_provider, lm_provider_params)
             self.model_changed_callback()
         elif self.llm_params != lm_provider_params:
-            self.log.info("Chat model params changed, updating the llm chain.")
+            self.log.info(
+                f"{self.handler_kind} model params changed, updating the llm chain."
+            )
             self.create_llm_chain(lm_provider, lm_provider_params)
 
         self.llm_params = lm_provider_params

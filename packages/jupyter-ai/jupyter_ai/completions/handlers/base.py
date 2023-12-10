@@ -1,12 +1,11 @@
-import time
 import traceback
 
 # necessary to prevent circular import
 from typing import TYPE_CHECKING, Dict
-from uuid import uuid4
 
 from jupyter_ai.completions.models import (
     CompletionError,
+    InlineCompletionList,
     InlineCompletionReply,
     InlineCompletionRequest,
     ModelChangedNotification,
@@ -20,6 +19,8 @@ if TYPE_CHECKING:
 
 class BaseInlineCompletionHandler(BaseLLMHandler):
     """Class implementing completion handling."""
+
+    handler_kind = "completion"
 
     def __init__(
         self,
@@ -56,7 +57,7 @@ class BaseInlineCompletionHandler(BaseLLMHandler):
             title=e.args[0] if e.args else "Exception",
             traceback=traceback.format_exc(),
         )
-        return InlineCompletionReply(items=[], error=error)
+        return InlineCompletionReply(list=InlineCompletionList(items=[]), error=error)
 
     def broadcast(self, message: ModelChangedNotification):
         for session in self.ws_sessions.values():

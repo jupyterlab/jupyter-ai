@@ -40,7 +40,7 @@ class AiExtension(ExtensionApp):
         (r"api/ai/chats/history?", ChatHistoryHandler),
         (r"api/ai/providers?", ModelProviderHandler),
         (r"api/ai/providers/embeddings?", EmbeddingsModelProviderHandler),
-        (r"api/ai/completion/inline?", InlineCompletionHandler),
+        (r"api/ai/completion/inline/?", InlineCompletionHandler),
     ]
 
     allowed_providers = List(
