@@ -4,8 +4,11 @@ from jupyter_ai.config_manager import ConfigManager, Logger
 from jupyter_ai_magics.providers import BaseProvider
 
 
-class BaseLLMHandler:
+class LLMHandlerMixin:
     """Base class containing shared methods and attributes used by LLM handler classes."""
+
+    # This could be used to derive `BaseChatHandler` too (there is a lot of duplication!),
+    # but it was decided against it to avoid introducing conflicts for backports against 1.x
 
     handler_kind: str
 

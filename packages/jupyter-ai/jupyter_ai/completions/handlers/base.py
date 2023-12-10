@@ -3,6 +3,7 @@ import traceback
 # necessary to prevent circular import
 from typing import TYPE_CHECKING, AsyncIterator, Dict
 
+from jupyter_ai.completions.handlers.llm_mixin import LLMHandlerMixin
 from jupyter_ai.completions.models import (
     CompletionError,
     InlineCompletionList,
@@ -12,13 +13,12 @@ from jupyter_ai.completions.models import (
     ModelChangedNotification,
 )
 from jupyter_ai.config_manager import ConfigManager, Logger
-from jupyter_ai.llm_handler import BaseLLMHandler
 
 if TYPE_CHECKING:
     from jupyter_ai.handlers import InlineCompletionHandler
 
 
-class BaseInlineCompletionHandler(BaseLLMHandler):
+class BaseInlineCompletionHandler(LLMHandlerMixin):
     """Class implementing completion handling."""
 
     handler_kind = "completion"
