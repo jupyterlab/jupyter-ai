@@ -7,6 +7,8 @@ import {
   InlineCompletionTriggerKind,
   IInlineCompletionProvider,
   IInlineCompletionContext,
+  IInlineCompletionList,
+  IInlineCompletionItem,
   CompletionHandler
 } from '@jupyterlab/completer';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
@@ -23,7 +25,6 @@ import { jupyternautIcon } from '../icons';
 import { getEditor } from '../selection-watcher';
 import { IJupyternautStatus } from '../tokens';
 import { CompletionWebsocketHandler } from './handler';
-
 
 type StreamChunk = AiService.InlineCompletionStreamChunk;
 
@@ -53,7 +54,7 @@ export class JupyterAIInlineProvider implements IInlineCompletionProvider {
     options.completionHandler.streamed.connect(this._receiveStreamChunk, this);
   }
 
-  get name() {
+  get name(): string {
     if (this._currentModel.length > 0) {
       return `JupyterAI (${this._currentModel})`;
     } else {
@@ -65,7 +66,7 @@ export class JupyterAIInlineProvider implements IInlineCompletionProvider {
   async fetch(
     request: CompletionHandler.IRequest,
     context: IInlineCompletionContext
-  ) {
+  ): Promise<IInlineCompletionList<IInlineCompletionItem>> {
     const mime = request.mimeType ?? 'text/plain';
     const language = this.options.languageRegistry.findByMIME(mime);
     if (!language) {
@@ -139,7 +140,7 @@ export class JupyterAIInlineProvider implements IInlineCompletionProvider {
   /**
    * Stream a reply for completion identified by given `token`.
    */
-  async *stream(token: string) {
+  async *stream(token: string): AsyncGenerator<StreamChunk, void, unknown> {
     let done = false;
     while (!done) {
       const delegate = new PromiseDelegate<StreamChunk>();
@@ -203,7 +204,7 @@ export class JupyterAIInlineProvider implements IInlineCompletionProvider {
     return this._settings.enabled;
   }
 
-  isLanguageEnabled(language: string) {
+  isLanguageEnabled(language: string): boolean {
     return !this._settings.disabledLanguages.includes(language);
   }
 
@@ -258,8 +259,7 @@ export class JupyterAIInlineProvider implements IInlineCompletionProvider {
     }
     if (language.name === 'ipython') {
       return 'python';
-    }
-    else if (language.name === 'ipythongfm') {
+    } else if (language.name === 'ipythongfm') {
       return 'markdown';
     }
     return language.name;

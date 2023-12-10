@@ -10,7 +10,7 @@ export const jupyternautStatus: JupyterFrontEndPlugin<IJupyternautStatus> = {
   id: 'jupyter_ai:jupyternaut-status',
   description: 'Adds a status indicator for jupyternaut.',
   autoStart: true,
-  optional: [IStatusBar],
+  requires: [IStatusBar],
   provides: IJupyternautStatus,
   activate: (app: JupyterFrontEnd, statusBar: IStatusBar | null) => {
     const indicator = new JupyternautStatus({ commandRegistry: app.commands });

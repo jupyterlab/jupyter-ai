@@ -2,9 +2,7 @@ import {
   JupyterFrontEnd,
   JupyterFrontEndPlugin
 } from '@jupyterlab/application';
-import {
-  ICompletionProviderManager,
-} from '@jupyterlab/completer';
+import { ICompletionProviderManager } from '@jupyterlab/completer';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
 import {
   IEditorLanguageRegistry,
@@ -20,7 +18,7 @@ export namespace CommandIDs {
    * Command to toggle completions globally.
    */
   export const toggleCompletions = 'jupyter-ai:toggle-completions';
-    /**
+  /**
    * Command to toggle completions for specific language.
    */
   export const toggleLanguageCompletions =
