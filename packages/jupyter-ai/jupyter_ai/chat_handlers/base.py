@@ -18,6 +18,7 @@ from dask.distributed import Client as DaskClient
 from jupyter_ai.config_manager import ConfigManager, Logger
 from jupyter_ai.models import AgentChatMessage, ChatMessage, HumanChatMessage
 from jupyter_ai_magics.providers import BaseProvider
+from openai.error import AuthenticationError as OpenAIAuthenticationError
 
 # necessary to prevent circular import
 from pydantic import BaseModel
@@ -66,6 +67,9 @@ class BaseChatHandler:
     _requests_count = 0
     """Class attribute set to the number of requests that Jupyternaut is
     currently handling."""
+    API_KEY_EXCEPTION_RESPONSES = {
+        OpenAIAuthenticationError: "Oops! It seems there's an issue with your OpenAI API key. Please update your OpenAI API key in the chat Settings. You can find your OpenAI API key at [https://platform.openai.com/account/api-keys](https://platform.openai.com/account/api-keys)."
+    }
 
     def __init__(
         self,
@@ -140,7 +144,23 @@ class BaseChatHandler:
         implementation is provided, however chat handlers (subclasses) should
         implement this method to provide a more helpful error response.
         """
-        await self._default_handle_exc(e, message)
+        if self.is_api_key_error(e):
+            self.handle_api_key_error(e, message)
+        else:
+            await self._default_handle_exc(e, message)
+
+    def is_api_key_error(self, e: Exception):
+        """
+        Checks if the exception is a known API key error.
+        """
+        return isinstance(e, tuple(self.API_KEY_EXCEPTION_RESPONSES.keys()))
+
+    def handle_api_key_error(self, e: Exception, message: HumanChatMessage):
+        response = self.API_KEY_EXCEPTION_RESPONSES.get(
+            e,
+            "Oops! It seems there's an issue with your OpenAI API key. Please update your OpenAI API key in the chat Settings. You can find your OpenAI API key at [https://platform.openai.com/account/api-keys](https://platform.openai.com/account/api-keys).",
+        )
+        self.reply(response, message)
 
     async def _default_handle_exc(self, e: Exception, message: HumanChatMessage):
         """
