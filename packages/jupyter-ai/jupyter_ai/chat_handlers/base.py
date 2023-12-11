@@ -70,6 +70,7 @@ class BaseChatHandler:
     API_KEY_EXCEPTION_RESPONSES = {
         OpenAIAuthenticationError: "Oops! It seems there's an issue with your OpenAI API key. Please update your OpenAI API key in the chat Settings. You can find your OpenAI API key at [https://platform.openai.com/account/api-keys](https://platform.openai.com/account/api-keys)."
     }
+    API_KEY_EXCEPTIONS = (OpenAIAuthenticationError,)
 
     def __init__(
         self,
@@ -153,13 +154,11 @@ class BaseChatHandler:
         """
         Checks if the exception is a known API key error.
         """
-        return isinstance(e, tuple(self.API_KEY_EXCEPTION_RESPONSES.keys()))
+        return isinstance(e, self.API_KEY_EXCEPTIONS)
 
     def handle_api_key_error(self, e: Exception, message: HumanChatMessage):
-        response = self.API_KEY_EXCEPTION_RESPONSES.get(
-            e,
-            "Oops! It seems there's an issue with your OpenAI API key. Please update your OpenAI API key in the chat Settings. You can find your OpenAI API key at [https://platform.openai.com/account/api-keys](https://platform.openai.com/account/api-keys).",
-        )
+        llm_id = f" {self.llm.id}" if self.llm and self.llm.id else ""
+        response = f"Oops! It seems there's an issue with your{llm_id} API key. Please update your{llm_id} API key in the chat Settings."
         self.reply(response, message)
 
     async def _default_handle_exc(self, e: Exception, message: HumanChatMessage):
