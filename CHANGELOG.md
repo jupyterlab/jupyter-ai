@@ -2,6 +2,38 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 2.7.0
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.6.0...b71e0ec1c7f7c4873b0135cd5662260978988a6d))
+
+### Enhancements made
+
+- Adds new models to Bedrock provider [#499](https://github.com/jupyterlab/jupyter-ai/pull/499) ([@JasonWeill](https://github.com/JasonWeill))
+- Base chat handler refactor for custom slash commands [#398](https://github.com/jupyterlab/jupyter-ai/pull/398) ([@JasonWeill](https://github.com/JasonWeill))
+
+### Bugs fixed
+
+- Make links from Jupyter AI chat open in new tab (vs in the same tab currently) [#474](https://github.com/jupyterlab/jupyter-ai/pull/474) ([@andrii-i](https://github.com/andrii-i))
+
+### Maintenance and upkeep improvements
+
+- Remove stale `@jupyterlab/collaboration` dependency [#489](https://github.com/jupyterlab/jupyter-ai/pull/489) ([@krassowski](https://github.com/krassowski))
+- Don't run check-release on release [#477](https://github.com/jupyterlab/jupyter-ai/pull/477) ([@Adithya4720](https://github.com/Adithya4720))
+
+### Documentation improvements
+
+- Remove config.json-related information [#503](https://github.com/jupyterlab/jupyter-ai/pull/503) ([@andrii-i](https://github.com/andrii-i))
+- Update Users section of the docs [#494](https://github.com/jupyterlab/jupyter-ai/pull/494) ([@andrii-i](https://github.com/andrii-i))
+- Update README.md [#473](https://github.com/jupyterlab/jupyter-ai/pull/473) ([@3coins](https://github.com/3coins))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2023-11-16&to=2023-12-11&type=c))
+
+[@3coins](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3A3coins+updated%3A2023-11-16..2023-12-11&type=Issues) | [@Adithya4720](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AAdithya4720+updated%3A2023-11-16..2023-12-11&type=Issues) | [@andrii-i](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aandrii-i+updated%3A2023-11-16..2023-12-11&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2023-11-16..2023-12-11&type=Issues) | [@JasonWeill](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AJasonWeill+updated%3A2023-11-16..2023-12-11&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2023-11-16..2023-12-11&type=Issues) | [@welcome](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Awelcome+updated%3A2023-11-16..2023-12-11&type=Issues) | [@Zsailer](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AZsailer+updated%3A2023-11-16..2023-12-11&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 2.6.0
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.5.0...2c89d139a8205f1fcd318cfd922e1771df7564ef))
@@ -30,8 +62,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2023-11-08&to=2023-11-16&type=c))
 
 [@3coins](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3A3coins+updated%3A2023-11-08..2023-11-16&type=Issues) | [@andrii-i](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aandrii-i+updated%3A2023-11-08..2023-11-16&type=Issues) | [@aychang95](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aaychang95+updated%3A2023-11-08..2023-11-16&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2023-11-08..2023-11-16&type=Issues) | [@JasonWeill](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AJasonWeill+updated%3A2023-11-08..2023-11-16&type=Issues) | [@welcome](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Awelcome+updated%3A2023-11-08..2023-11-16&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 2.5.0
 
