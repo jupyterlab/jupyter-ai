@@ -1,5 +1,7 @@
 # Jupyter AI
 
+**Jupyter AI is under incubation as part of the JupyterLab organization.**
+
 Jupyter AI connects generative AI with Jupyter notebooks. Jupyter AI provides a user-friendly
 and powerful way to explore generative AI models in notebooks and improve your productivity
 in JupyterLab and the Jupyter Notebook. More specifically, Jupyter AI offers:
