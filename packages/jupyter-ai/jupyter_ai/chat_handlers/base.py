@@ -17,9 +17,8 @@ from uuid import uuid4
 from dask.distributed import Client as DaskClient
 from jupyter_ai.config_manager import ConfigManager, Logger
 from jupyter_ai.models import AgentChatMessage, ChatMessage, HumanChatMessage
-from jupyter_ai.utils import AI21ErrorUtility, OpenAIErrorUtil
+from jupyter_ai.utils import AI21ErrorUtility, AnthropicErrorUtility, OpenAIErrorUtil
 from jupyter_ai_magics.providers import BaseProvider
-from openai.error import AuthenticationError as OpenAIAuthenticationError
 
 # necessary to prevent circular import
 from pydantic import BaseModel
@@ -153,9 +152,13 @@ class BaseChatHandler:
 
     def is_api_key_exc(self, e: Exception):
         """
-        Checks if the exception is an API key exception.
+        Checks if the exception is an API key exceptio of one of default models.
         """
-        return OpenAIErrorUtil.is_api_key_exc(e) or AI21ErrorUtility.is_api_key_exc(e)
+        return (
+            OpenAIErrorUtil.is_api_key_exc(e)
+            or AI21ErrorUtility.is_api_key_exc(e)
+            or AnthropicErrorUtility.is_api_key_exc(e)
+        )
 
     def handle_api_key_exc(self, e: Exception, message: HumanChatMessage):
         provider_name = ""
