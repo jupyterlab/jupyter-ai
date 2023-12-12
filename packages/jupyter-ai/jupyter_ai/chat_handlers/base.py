@@ -152,7 +152,7 @@ class BaseChatHandler:
 
     def is_api_key_exc(self, e: Exception):
         """
-        Checks if the exception is an API key exceptio of one of default models.
+        Checks if the exception is an default model API key exception.
         """
         return (
             OpenAIErrorUtil.is_api_key_exc(e)
