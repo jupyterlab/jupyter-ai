@@ -165,9 +165,7 @@ class BaseChatHandler:
 
     def handle_api_key_exc(self, e: Exception, message: HumanChatMessage):
         provider_name = ""
-        if hasattr(self.config_manager, "lm_provider") and hasattr(
-            self.config_manager.lm_provider, "name"
-        ):
+        if hasattr(self.config_manager, "lm_provider"):
             name = getattr(self.config_manager.lm_provider, "name", "")
             provider_name = f" {name}" if name else ""
         response = f"Oops! There's a problem with your{provider_name} API key. Please update your{provider_name} API key in the chat settings."
