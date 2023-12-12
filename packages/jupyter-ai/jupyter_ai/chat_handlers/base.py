@@ -145,6 +145,7 @@ class BaseChatHandler:
         implementation is provided, however chat handlers (subclasses) should
         implement this method to provide a more helpful error response.
         """
+        self.log.error(e)
         if self.is_api_key_exc(e):
             self.handle_api_key_exc(e, message)
         else:
