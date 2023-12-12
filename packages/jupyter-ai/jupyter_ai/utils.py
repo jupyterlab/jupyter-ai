@@ -30,7 +30,6 @@ class AI21ErrorUtility(LLMErrorUtilBase):
         Determine if the exception is an AI21 API key error.
         """
         if isinstance(e, ValueError):
-            # Check if the exception message contains "status code 401"
             return "status code 401" in str(e)
         return False
 
