@@ -145,25 +145,32 @@ class BaseChatHandler:
         implementation is provided, however chat handlers (subclasses) should
         implement this method to provide a more helpful error response.
         """
-        if self.is_api_key_error(e):
-            self.handle_api_key_error(e, message)
+        if self.is_api_key_exc(e):
+            self.handle_api_key_exc(e, message)
         else:
             await self._default_handle_exc(e, message)
 
-    def is_api_key_error(self, e: Exception):
+    def get_api_key_excs(self):
         """
-        Checks if the exception is a known API key error.
+        Rerurns a list of API key exceptions based on models that are supported by default.
         """
-        return isinstance(e, self.API_KEY_EXCEPTIONS)
+        return (OpenAIAuthenticationError,)
 
-    def handle_api_key_error(self, e: Exception, message: HumanChatMessage):
+    def is_api_key_exc(self, e: Exception):
+        """
+        Checks if the exception is an expected API key exception.
+        """
+        api_excs = self.get_api_key_excs()
+        return isinstance(e, api_excs)
+
+    def handle_api_key_exc(self, e: Exception, message: HumanChatMessage):
         provider_name = ""
         if hasattr(self.config_manager, "lm_provider") and hasattr(
             self.config_manager.lm_provider, "name"
         ):
             name = getattr(self.config_manager.lm_provider, "name", "")
             provider_name = f" {name}" if name else ""
-        response = f"Oops! There's a problem with your {provider_name} API key. Please update your{provider_name} API key in the chat settings."
+        response = f"Oops! There's a problem with your{provider_name} API key. Please update your{provider_name} API key in the chat settings."
         self.reply(response, message)
 
     async def _default_handle_exc(self, e: Exception, message: HumanChatMessage):
