@@ -152,13 +152,13 @@ class BaseChatHandler:
 
     def get_api_key_excs(self):
         """
-        Rerurns a list of API key exceptions based on models that are supported by default.
+        Returns authentication exceptions types of default models.
         """
         return (OpenAIAuthenticationError,)
 
     def is_api_key_exc(self, e: Exception):
         """
-        Checks if the exception is an expected API key exception.
+        Checks if the exception is an API key exception.
         """
         api_excs = self.get_api_key_excs()
         return isinstance(e, api_excs)
