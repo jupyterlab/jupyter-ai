@@ -180,7 +180,7 @@ export function ChatMessages(props: ChatMessagesProps): JSX.Element {
               onClick={props.openSettingsView}
               fullWidth
             >
-              Open Settins
+              Open Settings
             </Button>
           )}
         </Box>
