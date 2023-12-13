@@ -16,8 +16,9 @@ from typing import (
     Optional,
     Union,
 )
-import anthropic
 
+import anthropic
+import openai
 from jsonpath_ng import parse
 from langchain.chat_models import (
     AzureChatOpenAI,
@@ -43,7 +44,6 @@ from langchain.prompts import PromptTemplate
 from langchain.pydantic_v1 import BaseModel, Extra, root_validator
 from langchain.schema import LLMResult
 from langchain.utils import get_from_dict_or_env
-import openai
 
 
 class EnvAuthStrategy(BaseModel):
