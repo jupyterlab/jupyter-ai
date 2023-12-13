@@ -146,7 +146,7 @@ function ChatBody({
   return (
     <>
       <ScrollContainer sx={{ flexGrow: 1 }}>
-        <ChatMessages messages={messages} />
+        <ChatMessages messages={messages} openSettingsView={openSettingsView} />
       </ScrollContainer>
       <ChatInput
         value={input}

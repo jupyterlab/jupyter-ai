@@ -36,6 +36,7 @@ class AgentChatMessage(BaseModel):
     body: str
     # message ID of the HumanChatMessage it is replying to
     reply_to: str
+    show_edit_settings: Optional[bool]
 
 
 class HumanChatMessage(BaseModel):
