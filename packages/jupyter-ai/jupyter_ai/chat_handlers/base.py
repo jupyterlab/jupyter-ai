@@ -166,7 +166,7 @@ class BaseChatHandler:
         if hasattr(self.config_manager, "lm_provider"):
             name = getattr(self.config_manager.lm_provider, "name", "")
             provider_name = f" {name}" if name else ""
-        response = f"Oops! There's a problem with your{provider_name} API key. Please update your{provider_name} API key in the chat settings."
+        response = f"Oops! There's a problem connecting to {provider_name}. Please update your {provider_name} API key in the chat settings."
         self.reply(response, message)
 
     async def _default_handle_exc(self, e: Exception, message: HumanChatMessage):
