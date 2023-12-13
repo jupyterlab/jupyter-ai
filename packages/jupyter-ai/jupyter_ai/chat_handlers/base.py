@@ -17,7 +17,7 @@ from uuid import uuid4
 from dask.distributed import Client as DaskClient
 from jupyter_ai.config_manager import ConfigManager, Logger
 from jupyter_ai.models import AgentChatMessage, ChatMessage, HumanChatMessage
-from jupyter_ai.utils import AI21ErrorUtility, AnthropicErrorUtility, OpenAIErrorUtil
+from jupyter_ai.utils import AI21ErrorUtil, AnthropicErrorUtil, OpenAIErrorUtil
 from jupyter_ai_magics.providers import BaseProvider
 
 # necessary to prevent circular import
@@ -157,8 +157,8 @@ class BaseChatHandler:
         """
         return (
             OpenAIErrorUtil.is_api_key_exc(e)
-            or AI21ErrorUtility.is_api_key_exc(e)
-            or AnthropicErrorUtility.is_api_key_exc(e)
+            or AI21ErrorUtil.is_api_key_exc(e)
+            or AnthropicErrorUtil.is_api_key_exc(e)
         )
 
     def handle_api_key_exc(self, e: Exception, message: HumanChatMessage):

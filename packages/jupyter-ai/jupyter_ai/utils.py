@@ -23,7 +23,7 @@ class OpenAIErrorUtil(LLMErrorUtilBase):
         return False
 
 
-class AI21ErrorUtility(LLMErrorUtilBase):
+class AI21ErrorUtil(LLMErrorUtilBase):
     @staticmethod
     def is_api_key_exc(e: Exception):
         """
@@ -34,7 +34,7 @@ class AI21ErrorUtility(LLMErrorUtilBase):
         return False
 
 
-class AnthropicErrorUtility(LLMErrorUtilBase):
+class AnthropicErrorUtil(LLMErrorUtilBase):
     @staticmethod
     def is_api_key_exc(e: Exception):
         """
