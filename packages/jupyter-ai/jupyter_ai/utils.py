@@ -4,7 +4,7 @@ import openai
 
 class LLMErrorUtilBase:
     @staticmethod
-    def is_api_key_exc(e: Exception):
+    def is_api_key_exc(_: Exception):
         """
         Determine if the exception is an API key error. Should be implemented by subclasses.
         """
@@ -36,7 +36,7 @@ class AI21ErrorUtility(LLMErrorUtilBase):
 
 class AnthropicErrorUtility(LLMErrorUtilBase):
     @staticmethod
-    def is_api_key_exc(e):
+    def is_api_key_exc(e: Exception):
         """
         Determine if the exception is an Anthropic API key error.
         """
