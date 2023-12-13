@@ -16,6 +16,7 @@ from typing import (
     Optional,
     Union,
 )
+import anthropic
 
 from jsonpath_ng import parse
 from langchain.chat_models import (
@@ -42,6 +43,7 @@ from langchain.prompts import PromptTemplate
 from langchain.pydantic_v1 import BaseModel, Extra, root_validator
 from langchain.schema import LLMResult
 from langchain.utils import get_from_dict_or_env
+import openai
 
 
 class EnvAuthStrategy(BaseModel):
@@ -216,6 +218,13 @@ class BaseProvider(BaseModel):
         _call_with_args = functools.partial(self._generate, *args, **kwargs)
         return await loop.run_in_executor(executor, _call_with_args)
 
+    @classmethod
+    def is_api_key_exc(cls, _: Exception):
+        """
+        Determine if the exception is an API key error. Can be implemented by subclasses.
+        """
+        return False
+
     def update_prompt_template(self, format: str, template: str):
         """
         Changes the class-level prompt template for a given format.
@@ -263,6 +272,15 @@ class AI21Provider(BaseProvider, AI21):
     async def _acall(self, *args, **kwargs) -> Coroutine[Any, Any, str]:
         return await self._call_in_executor(*args, **kwargs)
 
+    @classmethod
+    def is_api_key_exc(cls, e: Exception):
+        """
+        Determine if the exception is an AI21 API key error.
+        """
+        if isinstance(e, ValueError):
+            return "status code 401" in str(e)
+        return False
+
 
 class AnthropicProvider(BaseProvider, Anthropic):
     id = "anthropic"
@@ -283,6 +301,15 @@ class AnthropicProvider(BaseProvider, Anthropic):
 
     @property
     def allows_concurrency(self):
+        return False
+
+    @classmethod
+    def is_api_key_exc(cls, e: Exception):
+        """
+        Determine if the exception is an Anthropic API key error.
+        """
+        if isinstance(e, anthropic.AuthenticationError):
+            return e.status_code == 401 and "Invalid API Key" in str(e)
         return False
 
 
@@ -480,7 +507,20 @@ class HfHubProvider(BaseProvider, HuggingFaceHub):
         return await self._call_in_executor(*args, **kwargs)
 
 
-class OpenAIProvider(BaseProvider, OpenAI):
+class OpenAIBaseProvider(BaseProvider):
+    """
+    Determine if the exception is an OpenAI API key error.
+    """
+
+    @classmethod
+    def is_api_key_exc(cls, e: Exception):
+        if isinstance(e, openai.error.AuthenticationError):
+            error_details = e.json_body.get("error", {})
+            return error_details.get("code") == "invalid_api_key"
+        return False
+
+
+class OpenAIProvider(OpenAIBaseProvider, OpenAI):
     id = "openai"
     name = "OpenAI"
     models = [
@@ -499,7 +539,7 @@ class OpenAIProvider(BaseProvider, OpenAI):
     auth_strategy = EnvAuthStrategy(name="OPENAI_API_KEY")
 
 
-class ChatOpenAIProvider(BaseProvider, OpenAIChat):
+class ChatOpenAIProvider(OpenAIBaseProvider, OpenAIChat):
     id = "openai-chat"
     name = "OpenAI"
     models = [
@@ -528,7 +568,7 @@ class ChatOpenAIProvider(BaseProvider, OpenAIChat):
 
 # uses the new OpenAIChat provider. temporarily living as a separate class until
 # conflicts can be resolved
-class ChatOpenAINewProvider(BaseProvider, ChatOpenAI):
+class ChatOpenAINewProvider(OpenAIBaseProvider, ChatOpenAI):
     id = "openai-chat-new"
     name = "OpenAI"
     models = [
