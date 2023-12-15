@@ -17,8 +17,6 @@ from typing import (
     Union,
 )
 
-import anthropic
-import openai
 from jsonpath_ng import parse
 from langchain.chat_models import (
     AzureChatOpenAI,
@@ -308,6 +306,8 @@ class AnthropicProvider(BaseProvider, Anthropic):
         """
         Determine if the exception is an Anthropic API key error.
         """
+        import anthropic
+
         if isinstance(e, anthropic.AuthenticationError):
             return e.status_code == 401 and "Invalid API Key" in str(e)
         return False
@@ -507,20 +507,7 @@ class HfHubProvider(BaseProvider, HuggingFaceHub):
         return await self._call_in_executor(*args, **kwargs)
 
 
-class OpenAIBaseProvider(BaseProvider):
-    """
-    Determine if the exception is an OpenAI API key error.
-    """
-
-    @classmethod
-    def is_api_key_exc(cls, e: Exception):
-        if isinstance(e, openai.error.AuthenticationError):
-            error_details = e.json_body.get("error", {})
-            return error_details.get("code") == "invalid_api_key"
-        return False
-
-
-class OpenAIProvider(OpenAIBaseProvider, OpenAI):
+class OpenAIProvider(BaseProvider, OpenAI):
     id = "openai"
     name = "OpenAI"
     models = [
@@ -538,8 +525,19 @@ class OpenAIProvider(OpenAIBaseProvider, OpenAI):
     pypi_package_deps = ["openai"]
     auth_strategy = EnvAuthStrategy(name="OPENAI_API_KEY")
 
+    def is_api_key_exc(cls, e: Exception):
+        """
+        Determine if the exception is an OpenAI API key error.
+        """
+        import openai
 
-class ChatOpenAIProvider(OpenAIBaseProvider, OpenAIChat):
+        if isinstance(e, openai.error.AuthenticationError):
+            error_details = e.json_body.get("error", {})
+            return error_details.get("code") == "invalid_api_key"
+        return False
+
+
+class ChatOpenAIProvider(BaseProvider, OpenAIChat):
     id = "openai-chat"
     name = "OpenAI"
     models = [
@@ -565,10 +563,21 @@ class ChatOpenAIProvider(OpenAIBaseProvider, OpenAIChat):
         self.prefix_messages.append({"role": "user", "content": prompt})
         self.prefix_messages.append({"role": "assistant", "content": output})
 
+    def is_api_key_exc(cls, e: Exception):
+        """
+        Determine if the exception is an OpenAI API key error.
+        """
+        import openai
+
+        if isinstance(e, openai.error.AuthenticationError):
+            error_details = e.json_body.get("error", {})
+            return error_details.get("code") == "invalid_api_key"
+        return False
+
 
 # uses the new OpenAIChat provider. temporarily living as a separate class until
 # conflicts can be resolved
-class ChatOpenAINewProvider(OpenAIBaseProvider, ChatOpenAI):
+class ChatOpenAINewProvider(BaseProvider, ChatOpenAI):
     id = "openai-chat-new"
     name = "OpenAI"
     models = [
@@ -597,6 +606,17 @@ class ChatOpenAINewProvider(OpenAIBaseProvider, ChatOpenAI):
         ),
         TextField(key="openai_proxy", label="Proxy (optional)", format="text"),
     ]
+
+    def is_api_key_exc(cls, e: Exception):
+        """
+        Determine if the exception is an OpenAI API key error.
+        """
+        import openai
+
+        if isinstance(e, openai.error.AuthenticationError):
+            error_details = e.json_body.get("error", {})
+            return error_details.get("code") == "invalid_api_key"
+        return False
 
 
 class AzureChatOpenAIProvider(BaseProvider, AzureChatOpenAI):

@@ -177,9 +177,9 @@ class BaseChatHandler:
         agent_msg = AgentChatMessage(
             id=uuid4().hex,
             time=time.time(),
-            body=response,
+            body=response, # append info about error to the string
             reply_to=human_msg.id if human_msg else "",
-            show_edit_settings=show_edit_settings,
+            #error_type=APIAuthenticationError
         )
 
         for handler in self._root_chat_handlers.values():
