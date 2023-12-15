@@ -95,6 +95,15 @@ class AiExtension(ExtensionApp):
         config=True,
     )
 
+    error_logs_dir = Unicode(
+        default_value=None,
+        help="""Path to a directory where the error logs should be
+        written to. Defaults to `jupyter-ai-logs/` in the preferred dir
+        (if defined) or in root dir otherwise.""",
+        allow_none=True,
+        config=True,
+    )
+
     def initialize_settings(self):
         start = time.time()
 
@@ -172,10 +181,13 @@ class AiExtension(ExtensionApp):
             "dask_client_future": dask_client_future,
             "model_parameters": self.settings["model_parameters"],
         }
-
         default_chat_handler = DefaultChatHandler(**chat_handler_kwargs)
         clear_chat_handler = ClearChatHandler(**chat_handler_kwargs)
-        generate_chat_handler = GenerateChatHandler(**chat_handler_kwargs)
+        generate_chat_handler = GenerateChatHandler(
+            **chat_handler_kwargs,
+            preferred_dir=self.serverapp.contents_manager.preferred_dir,
+            log_dir=self.error_logs_dir,
+        )
         learn_chat_handler = LearnChatHandler(**chat_handler_kwargs)
         help_chat_handler = HelpChatHandler(**chat_handler_kwargs)
         retriever = Retriever(learn_chat_handler=learn_chat_handler)

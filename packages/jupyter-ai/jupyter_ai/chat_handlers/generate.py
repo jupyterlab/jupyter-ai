@@ -221,8 +221,14 @@ class GenerateChatHandler(BaseChatHandler):
     help = "Generates a Jupyter notebook, including name, outline, and section contents"
     routing_type = SlashCommandRoutingType(slash_id="generate")
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, preferred_dir: str, log_dir: Optional[str], *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.log_dir = Path(log_dir) if log_dir else None
+        self.preferred_dir = (
+            os.path.abspath(os.path.expanduser(preferred_dir))
+            if preferred_dir != ""
+            else None
+        )
         self.llm = None
 
     def create_llm_chain(
@@ -251,7 +257,7 @@ class GenerateChatHandler(BaseChatHandler):
 
         # create and write the notebook to disk
         notebook = create_notebook(outline)
-        final_path = os.path.join(self.root_dir, outline["title"] + ".ipynb")
+        final_path = os.path.join(self._output_dir, outline["title"] + ".ipynb")
         nbformat.write(notebook, final_path)
         return final_path
 
@@ -268,10 +274,21 @@ class GenerateChatHandler(BaseChatHandler):
 
     async def handle_exc(self, e: Exception, message: HumanChatMessage):
         timestamp = time.strftime("%Y-%m-%d-%H.%M.%S")
-        log_path = Path(f"jupyter-ai-logs/generate-{timestamp}.log")
-        log_path.parent.mkdir(parents=True, exist_ok=True)
+        default_log_dir = Path(self._output_dir) / "jupyter-ai-logs"
+        log_dir = self.log_dir or default_log_dir
+        log_dir.mkdir(parents=True, exist_ok=True)
+        log_path = log_dir / f"generate-{timestamp}.log"
         with log_path.open("w") as log:
             traceback.print_exc(file=log)
 
         response = f"An error occurred while generating the notebook. The error details have been saved to `./{log_path}`.\n\nTry running `/generate` again, as some language models require multiple attempts before a notebook is generated."
         self.reply(response, message)
+
+    @property
+    def _output_dir(self):
+        # preferred dir is preferred, but if it is not specified,
+        # or if user removed it after startup, fallback to root.
+        if self.preferred_dir and os.path.exists(self.preferred_dir):
+            return self.preferred_dir
+        else:
+            return self.root_dir
