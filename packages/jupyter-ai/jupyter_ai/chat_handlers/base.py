@@ -155,7 +155,7 @@ class BaseChatHandler:
         if hasattr(self.config_manager, "lm_provider"):
             provider_name = getattr(self.config_manager.lm_provider, "name", "")
         response = f"Oops! There's a problem connecting to {provider_name}. Please update your {provider_name} API key in the chat settings."
-        self.reply(response, message, show_edit_settings=True)
+        self.reply(response, message)
 
     async def _default_handle_exc(self, e: Exception, message: HumanChatMessage):
         """
@@ -168,18 +168,12 @@ class BaseChatHandler:
         )
         self.reply(response, message)
 
-    def reply(
-        self,
-        response: str,
-        human_msg: Optional[HumanChatMessage] = None,
-        show_edit_settings: Optional[bool] = None,
-    ):
+    def reply(self, response: str, human_msg: Optional[HumanChatMessage] = None):
         agent_msg = AgentChatMessage(
             id=uuid4().hex,
             time=time.time(),
             body=response,
             reply_to=human_msg.id if human_msg else "",
-            show_edit_settings=show_edit_settings,
         )
 
         for handler in self._root_chat_handlers.values():

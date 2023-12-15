@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
-import { Avatar, Box, Button, Typography } from '@mui/material';
+import { Avatar, Box, Typography } from '@mui/material';
 import type { SxProps, Theme } from '@mui/material';
-import SettingsIcon from '@mui/icons-material/Settings';
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
@@ -15,7 +14,6 @@ import { Jupyternaut } from '../icons';
 
 type ChatMessagesProps = {
   messages: AiService.ChatMessage[];
-  openSettingsView: () => void;
 };
 
 type ChatMessageHeaderProps = {
@@ -172,17 +170,6 @@ export function ChatMessages(props: ChatMessagesProps): JSX.Element {
           >
             {message.body}
           </ReactMarkdown>
-          {message.type === 'agent' && message.show_edit_settings && (
-            <Button
-              variant="contained"
-              startIcon={<SettingsIcon />}
-              size={'large'}
-              onClick={props.openSettingsView}
-              fullWidth
-            >
-              Open Settings
-            </Button>
-          )}
         </Box>
       ))}
     </Box>

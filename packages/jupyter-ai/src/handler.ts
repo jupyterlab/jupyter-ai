@@ -74,7 +74,6 @@ export namespace AiService {
     time: number;
     body: string;
     reply_to: string;
-    show_edit_settings?: boolean;
   };
 
   export type HumanChatMessage = {
