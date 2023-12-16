@@ -34,6 +34,7 @@ class LearnChatHandler(BaseChatHandler):
     id = "learn"
     name = "Learn Local Data"
     help = "Pass a list of files and directories. Once converted to vector format, you can ask about them with /ask."
+    short_help = "Teach Jupyternaut about files on your system"
     routing_type = SlashCommandRoutingType(slash_id="learn")
 
     def __init__(self, *args, **kwargs):

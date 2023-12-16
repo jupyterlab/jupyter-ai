@@ -219,6 +219,7 @@ class GenerateChatHandler(BaseChatHandler):
     id = "generate"
     name = "Generate Notebook"
     help = "Generates a Jupyter notebook, including name, outline, and section contents"
+    short_help = "Generate a Jupyter notebook from a text prompt"
     routing_type = SlashCommandRoutingType(slash_id="generate")
 
     def __init__(self, preferred_dir: str, log_dir: Optional[str], *args, **kwargs):

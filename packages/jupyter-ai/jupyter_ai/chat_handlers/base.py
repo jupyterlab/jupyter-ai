@@ -56,6 +56,9 @@ class BaseChatHandler:
     """What this chat handler does, which third-party models it contacts,
     the data it returns to the user, and so on, for display in the UI."""
 
+    short_help: ClassVar[Optional[str]] = None
+    """A shorter version of help message for display in the chat UI."""
+
     routing_type: HandlerRoutingType = ...
 
     def __init__(

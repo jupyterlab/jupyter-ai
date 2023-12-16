@@ -9,6 +9,7 @@ class ClearChatHandler(BaseChatHandler):
     id = "clear"
     name = "Clear chat messages"
     help = "Clears the displayed chat message history only; does not clear the context sent to chat providers"
+    short_help = "Clear the chat window"
     routing_type = SlashCommandRoutingType(slash_id="clear")
 
     def __init__(self, *args, **kwargs):

@@ -29,6 +29,7 @@ class AskChatHandler(BaseChatHandler):
     id = "ask"
     name = "Ask with Local Data"
     help = "Asks a question with retrieval augmented generation (RAG)"
+    short_help = "Ask a question about your learned data"
     routing_type = SlashCommandRoutingType(slash_id="ask")
 
     def __init__(self, retriever, *args, **kwargs):
