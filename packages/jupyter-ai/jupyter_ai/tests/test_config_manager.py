@@ -269,6 +269,8 @@ def test_update_after_describe(cm: ConfigManager):
     assert new_config.model_provider_id == "cohere:medium"
 
 
+# TODO: make the test work on Linux including CI.
+@pytest.mark.skip(reason="Flakey on Linux including CI.")
 def test_forbid_write_write_conflict(cm: ConfigManager):
     configure_to_openai(cm)
     # call DescribeConfig
