@@ -1,4 +1,4 @@
-name: Unit Tests
+name: Python Unit Tests
 
 # suppress warning raised by https://github.com/jupyter/jupyter_core/pull/292
 env:
