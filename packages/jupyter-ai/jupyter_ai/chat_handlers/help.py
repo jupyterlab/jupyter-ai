@@ -41,6 +41,8 @@ class HelpChatHandler(BaseChatHandler):
     help = "Display this help message"
     routing_type = SlashCommandRoutingType(slash_id="help")
 
+    uses_llm = False
+
     def __init__(self, *args, chat_handlers: Dict[str, BaseChatHandler], **kwargs):
         super().__init__(*args, **kwargs)
         self._chat_handlers = chat_handlers

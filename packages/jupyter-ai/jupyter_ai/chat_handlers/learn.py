@@ -36,6 +36,8 @@ class LearnChatHandler(BaseChatHandler):
     help = "Teach Jupyternaut about files on your system"
     routing_type = SlashCommandRoutingType(slash_id="learn")
 
+    uses_llm = True
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.parser.prog = "/learn"
