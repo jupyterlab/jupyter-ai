@@ -153,7 +153,7 @@ class AiExtension(ExtensionApp):
         # list of chat messages to broadcast to new clients
         # this is only used to render the UI, and is not the conversational
         # memory object used by the LM chain.
-        self.settings["chat_history"] = [HelpMessage()]
+        self.settings["chat_history"] = []
 
         # get reference to event loop
         # `asyncio.get_event_loop()` is deprecated in Python 3.11+, in favor of
@@ -189,7 +189,6 @@ class AiExtension(ExtensionApp):
             log_dir=self.error_logs_dir,
         )
         learn_chat_handler = LearnChatHandler(**chat_handler_kwargs)
-        help_chat_handler = HelpChatHandler(**chat_handler_kwargs)
         retriever = Retriever(learn_chat_handler=learn_chat_handler)
         ask_chat_handler = AskChatHandler(**chat_handler_kwargs, retriever=retriever)
 
@@ -199,8 +198,11 @@ class AiExtension(ExtensionApp):
             "/clear": clear_chat_handler,
             "/generate": generate_chat_handler,
             "/learn": learn_chat_handler,
-            "/help": help_chat_handler,
         }
+
+        help_chat_handler = HelpChatHandler(
+            **chat_handler_kwargs, chat_handlers=jai_chat_handlers
+        )
 
         slash_command_pattern = r"^[a-zA-Z0-9_]+$"
         for chat_handler_ep in chat_handler_eps:
@@ -248,6 +250,12 @@ class AiExtension(ExtensionApp):
                 f"Registered chat handler `{chat_handler.id}` with command `{command_name}`."
             )
 
+        # Make help always appear as the last command
+        jai_chat_handlers["/help"] = help_chat_handler
+
+        self.settings["chat_history"].append(
+            HelpMessage(chat_handlers=jai_chat_handlers)
+        )
         self.settings["jai_chat_handlers"] = jai_chat_handlers
 
         latency_ms = round((time.time() - start) * 1000)
