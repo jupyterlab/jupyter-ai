@@ -486,12 +486,19 @@ class AiMagics(Magics):
         # validate presence of authn credentials
         auth_strategy = self.providers[provider_id].auth_strategy
         if auth_strategy:
-            # TODO: handle auth strategies besides EnvAuthStrategy
             if auth_strategy.type == "env" and auth_strategy.name not in os.environ:
                 raise OSError(
-                    f"Authentication environment variable {auth_strategy.name} not provided.\n"
+                    f"Authentication environment variable {auth_strategy.name} is not set.\n"
                     f"An authentication token is required to use models from the {Provider.name} provider.\n"
                     f"Please specify it via `%env {auth_strategy.name}=token`. "
+                ) from None
+            if auth_strategy.type == "multienv":
+                # Multiple environment variables must be set
+                missing_vars = [var for var in names if var not in os.environ]
+                raise OSError(
+                    f"Authentication environment variables {missing_vars} are not set.\n"
+                    f"Multiple authentication tokens are required to use models from the {Provider.name} provider.\n"
+                    f"Please specify them all via `%env` commands. "
                 ) from None
 
         # configure and instantiate provider

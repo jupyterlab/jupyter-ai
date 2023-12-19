@@ -56,7 +56,7 @@ class EnvAuthStrategy(BaseModel):
 class MultiEnvAuthStrategy(BaseModel):
     """Require multiple auth tokens via multiple environment variables."""
 
-    type: Literal["file"] = "file"
+    type: Literal["multienv"] = "multienv"
     names: List[str]
 
 
