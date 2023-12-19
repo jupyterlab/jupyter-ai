@@ -31,6 +31,8 @@ class AskChatHandler(BaseChatHandler):
     help = "Ask a question about your learned data"
     routing_type = SlashCommandRoutingType(slash_id="ask")
 
+    uses_llm = True
+
     def __init__(self, retriever, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

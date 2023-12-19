@@ -362,6 +362,11 @@ class GPT4AllProvider(BaseProvider, GPT4All):
     async def _acall(self, *args, **kwargs) -> Coroutine[Any, Any, str]:
         return await self._call_in_executor(*args, **kwargs)
 
+    @property
+    def allows_concurrency(self):
+        # At present, GPT4All providers fail with concurrent messages. See #481.
+        return False
+
 
 HUGGINGFACE_HUB_VALID_TASKS = (
     "text2text-generation",

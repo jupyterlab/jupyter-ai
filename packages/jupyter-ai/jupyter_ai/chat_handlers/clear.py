@@ -11,6 +11,8 @@ class ClearChatHandler(BaseChatHandler):
     help = "Clear the chat window"
     routing_type = SlashCommandRoutingType(slash_id="clear")
 
+    uses_llm = False
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
