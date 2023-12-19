@@ -37,6 +37,8 @@ class DefaultChatHandler(BaseChatHandler):
     help = "Responds to prompts that are not otherwise handled by a chat handler"
     routing_type = SlashCommandRoutingType(slash_id=None)
 
+    uses_llm = True
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.memory = ConversationBufferWindowMemory(return_messages=True, k=2)
