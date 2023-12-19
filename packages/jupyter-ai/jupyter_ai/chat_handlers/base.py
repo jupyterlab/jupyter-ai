@@ -58,9 +58,9 @@ class BaseChatHandler:
 
     routing_type: HandlerRoutingType = ...
 
-    uses_llm = ...
+    uses_llm: ClassVar[bool] = True
     """Class attribute specifying whether this chat handler uses the LLM
-    specified by the config. Subclasses must define this. Should be set to
+    specified by the config. Subclasses should define this. Should be set to
     `False` for handlers like `/help`."""
 
     _requests_count = 0
