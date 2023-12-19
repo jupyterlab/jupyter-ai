@@ -141,7 +141,6 @@ class CustomChatHandler(BaseChatHandler):
     id = "custom"
     name = "Custom"
     help = "A chat handler that does something custom"
-    short_help = "Do something custom"
     routing_type = SlashCommandRoutingType(slash_id="custom")
 
     def __init__(self, *args, **kwargs):

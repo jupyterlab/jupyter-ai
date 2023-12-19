@@ -18,7 +18,7 @@ For more information, see the [documentation](https://jupyter-ai.readthedocs.io)
 def _format_help_message(chat_handlers: Dict[str, BaseChatHandler]):
     commands = "\n".join(
         [
-            f"* `{command_name}` — {handler.short_help or handler.help}"
+            f"* `{command_name}` — {handler.help}"
             for command_name, handler in chat_handlers.items()
             if command_name != "default"
         ]
@@ -38,8 +38,7 @@ def HelpMessage(chat_handlers: Dict[str, BaseChatHandler]):
 class HelpChatHandler(BaseChatHandler):
     id = "help"
     name = "Help"
-    help = "Displays a help message in the chat message area"
-    short_help = "Display this help message"
+    help = "Display this help message"
     routing_type = SlashCommandRoutingType(slash_id="help")
 
     def __init__(self, *args, chat_handlers: Dict[str, BaseChatHandler], **kwargs):
