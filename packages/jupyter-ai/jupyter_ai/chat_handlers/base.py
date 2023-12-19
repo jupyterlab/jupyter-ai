@@ -66,10 +66,6 @@ class BaseChatHandler:
     _requests_count = 0
     """Class attribute set to the number of requests that Jupyternaut is
     currently handling."""
-    API_KEY_EXCEPTION_RESPONSES = {
-        OpenAIAuthenticationError: "Oops! It seems there's an issue with your OpenAI API key. Please update your OpenAI API key in the chat Settings. You can find your OpenAI API key at [https://platform.openai.com/account/api-keys](https://platform.openai.com/account/api-keys)."
-    }
-    API_KEY_EXCEPTIONS = (OpenAIAuthenticationError,)
 
     def __init__(
         self,
