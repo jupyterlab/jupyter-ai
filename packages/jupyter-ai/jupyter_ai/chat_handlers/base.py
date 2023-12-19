@@ -105,7 +105,7 @@ class BaseChatHandler:
 
             if not lm_provider.allows_concurrency:
                 self.reply(
-                    "Sorry, the currently selected language model cannot process more than one request at a time. Please wait for me to reply before sending another question.",
+                    "The currently selected language model can process only one request at a time. Please wait for me to reply before sending another question.",
                     message,
                 )
                 return
