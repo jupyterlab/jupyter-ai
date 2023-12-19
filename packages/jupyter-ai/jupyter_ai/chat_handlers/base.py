@@ -58,6 +58,15 @@ class BaseChatHandler:
 
     routing_type: HandlerRoutingType = ...
 
+    uses_llm = ...
+    """Class attribute specifying whether this chat handler uses the LLM
+    specified by the config. Subclasses must define this. Should be set to
+    `False` for handlers like `/help`."""
+
+    _requests_count = 0
+    """Class attribute set to the number of requests that Jupyternaut is
+    currently handling."""
+
     def __init__(
         self,
         log: Logger,
@@ -82,11 +91,26 @@ class BaseChatHandler:
 
     async def on_message(self, message: HumanChatMessage):
         """
-        Method which receives a human message and processes it via
-        `self.process_message()`, calling `self.handle_exc()` when an exception
-        is raised. This method is called by RootChatHandler when it routes a
-        human message to this chat handler.
+        Method which receives a human message, calls `self.get_llm_chain()`, and
+        processes the message via `self.process_message()`, calling
+        `self.handle_exc()` when an exception is raised. This method is called
+        by RootChatHandler when it routes a human message to this chat handler.
         """
+
+        # check whether the configured LLM can support a request at this time.
+        if self.uses_llm and BaseChatHandler._requests_count > 0:
+            lm_provider_klass = self.config_manager.lm_provider
+            lm_provider_params = self.config_manager.lm_provider_params
+            lm_provider = lm_provider_klass(**lm_provider_params)
+
+            if not lm_provider.allows_concurrency:
+                self.reply(
+                    "Sorry, the currently selected language model cannot process more than one request at a time. Please wait for me to reply before sending another question.",
+                    message,
+                )
+                return
+
+        BaseChatHandler._requests_count += 1
         try:
             await self.process_message(message)
         except Exception as e:
@@ -96,6 +120,8 @@ class BaseChatHandler:
                 await self.handle_exc(e, message)
             except Exception as e:
                 await self._default_handle_exc(e, message)
+        finally:
+            BaseChatHandler._requests_count -= 1
 
     async def process_message(self, message: HumanChatMessage):
         """

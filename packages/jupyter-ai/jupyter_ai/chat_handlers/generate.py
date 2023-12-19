@@ -221,6 +221,8 @@ class GenerateChatHandler(BaseChatHandler):
     help = "Generate a Jupyter notebook from a text prompt"
     routing_type = SlashCommandRoutingType(slash_id="generate")
 
+    uses_llm = True
+
     def __init__(self, preferred_dir: str, log_dir: Optional[str], *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.log_dir = Path(log_dir) if log_dir else None
