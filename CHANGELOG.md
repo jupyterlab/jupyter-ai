@@ -2,6 +2,42 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 1.7.1
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@1.7.0...b4621024c29a9d4d140e29643a426667ab35a758))
+
+### Enhancements made
+
+- Update README.md - under incubation [#517](https://github.com/jupyterlab/jupyter-ai/pull/517) ([@JasonWeill](https://github.com/JasonWeill))
+- Refactor ConfigManager.\_init_config [#527](https://github.com/jupyterlab/jupyter-ai/pull/527) ([@andrii-i](https://github.com/andrii-i))
+- Make Jupyternaut reply for API auth errors user-friendly [#513](https://github.com/jupyterlab/jupyter-ai/pull/513) ([@andrii-i](https://github.com/andrii-i))
+- \[1.x\] Respect user preferred dir and allow to configure logs dir [#528](https://github.com/jupyterlab/jupyter-ai/pull/528) ([@dlqqq](https://github.com/dlqqq))
+- Dynamically generate help message for slash commands in chat UI [#520](https://github.com/jupyterlab/jupyter-ai/pull/520) ([@krassowski](https://github.com/krassowski))
+- Upgrades to langchain 0.0.350 [#522](https://github.com/jupyterlab/jupyter-ai/pull/522) ([@JasonWeill](https://github.com/JasonWeill))
+- Run Python unit tests as a part of CI [#519](https://github.com/jupyterlab/jupyter-ai/pull/519) ([@andrii-i](https://github.com/andrii-i))
+
+### Bugs fixed
+
+- Handle LLMs lacking concurrency support in Chat UI [#506](https://github.com/jupyterlab/jupyter-ai/pull/506) ([@dlqqq](https://github.com/dlqqq))
+
+### Maintenance and upkeep improvements
+
+- Refactor ConfigManager.\_init_config [#527](https://github.com/jupyterlab/jupyter-ai/pull/527) ([@andrii-i](https://github.com/andrii-i))
+- Upgrades to langchain 0.0.350 [#522](https://github.com/jupyterlab/jupyter-ai/pull/522) ([@JasonWeill](https://github.com/JasonWeill))
+- Run Python unit tests as a part of CI [#519](https://github.com/jupyterlab/jupyter-ai/pull/519) ([@andrii-i](https://github.com/andrii-i))
+
+### Documentation improvements
+
+- Update README.md - under incubation [#517](https://github.com/jupyterlab/jupyter-ai/pull/517) ([@JasonWeill](https://github.com/JasonWeill))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2023-12-11&to=2023-12-20&type=c))
+
+[@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2023-12-11..2023-12-20&type=Issues) | [@JasonWeill](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AJasonWeill+updated%3A2023-12-11..2023-12-20&type=Issues) | [@lumberbot-app](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Alumberbot-app+updated%3A2023-12-11..2023-12-20&type=Issues) | [@meeseeksmachine](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ameeseeksmachine+updated%3A2023-12-11..2023-12-20&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 1.7.0
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@1.6.0...4df01ac86754254ac3d52da23f291d4ba7cdf596))
@@ -29,8 +65,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2023-11-16&to=2023-12-11&type=c))
 
 [@3coins](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3A3coins+updated%3A2023-11-16..2023-12-11&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2023-11-16..2023-12-11&type=Issues) | [@meeseeksmachine](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ameeseeksmachine+updated%3A2023-11-16..2023-12-11&type=Issues) | [@welcome](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Awelcome+updated%3A2023-11-16..2023-12-11&type=Issues) | [@Zsailer](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AZsailer+updated%3A2023-11-16..2023-12-11&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 1.6.0
 
