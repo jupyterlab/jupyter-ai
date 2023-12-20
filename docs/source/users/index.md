@@ -122,7 +122,7 @@ Jupyter AI supports a wide range of model providers and models. To use Jupyter A
 
 Jupyter AI supports the following model providers:
 
-| Provider            | Provider ID          | Environment variable       | Python package(s)               |
+| Provider            | Provider ID          | Environment variable(s)    | Python package(s)               |
 |---------------------|----------------------|----------------------------|---------------------------------|
 | AI21                | `ai21`               | `AI21_API_KEY`             | `ai21`                          |
 | Anthropic           | `anthropic`          | `ANTHROPIC_API_KEY`        | `anthropic`                     |
@@ -134,9 +134,11 @@ Jupyter AI supports the following model providers:
 | Hugging Face Hub    | `huggingface_hub`    | `HUGGINGFACEHUB_API_TOKEN` | `huggingface_hub`, `ipywidgets`, `pillow` |
 | OpenAI              | `openai`             | `OPENAI_API_KEY`           | `openai`                        |
 | OpenAI (chat)       | `openai-chat`        | `OPENAI_API_KEY`           | `openai`                        |
+| Qianfan             | `qianfan`            | `QIANFAN_AK`, `QIANFAN_SK` | `qianfan`                       |
 | SageMaker           | `sagemaker-endpoint` | N/A                        | `boto3`                         |
 
 The environment variable names shown above are also the names of the settings keys used when setting up the chat interface.
+If multiple variables are listed for a provider, **all** must be specified.
 
 To use the Bedrock models, you need access to the Bedrock service. For more information, see the
 [Amazon Bedrock Homepage](https://aws.amazon.com/bedrock/).
