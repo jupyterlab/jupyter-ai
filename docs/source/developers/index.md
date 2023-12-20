@@ -87,6 +87,35 @@ your new provider's `id`:
 [LLM]: https://api.python.langchain.com/en/v0.0.339/llms/langchain.llms.base.LLM.html#langchain.llms.base.LLM
 [BaseChatModel]: https://api.python.langchain.com/en/v0.0.339/chat_models/langchain.chat_models.base.BaseChatModel.html
 
+### Custom embeddings providers
+
+To provide a custom embeddings model an embeddings providers should be defined implementing the API of `jupyter-ai`'s `BaseEmbeddingsProvider` and of `langchain`'s [`Embeddings`][Embeddings] abstract class.
+
+```python
+from jupyter_ai_magics import BaseEmbeddingsProvider
+from langchain.embeddings import FakeEmbeddings
+
+class MyEmbeddingsProvider(BaseEmbeddingsProvider, FakeEmbeddings):
+    id = "my_embeddings_provider"
+    name = "My Embeddings Provider"
+    model_id_key = "model"
+    models = ["my_model"]
+
+    def __init__(self, **kwargs):
+        super().__init__(size=300, **kwargs)
+```
+
+Jupyter AI uses entry points to discover embedding providers.
+In the `pyproject.toml` file, add your custom embedding provider to the
+`[project.entry-points."jupyter_ai.embeddings_model_providers"]` section:
+
+```toml
+[project.entry-points."jupyter_ai.embeddings_model_providers"]
+my-provider = "my_provider:MyEmbeddingsProvider"
+```
+
+[Embeddings]: https://api.python.langchain.com/en/stable/embeddings/langchain_core.embeddings.Embeddings.html
+
 ## Prompt templates
 
 Each provider can define **prompt templates** for each supported format. A prompt
@@ -155,7 +184,7 @@ Jupyter AI uses entry points to support custom slash commands.
 In the `pyproject.toml` file, add your custom handler to the
 `[project.entry-points."jupyter_ai.chat_handlers"]` section:
 
-```
+```toml
 [project.entry-points."jupyter_ai.chat_handlers"]
 custom = "custom_package:CustomChatHandler"
 ```
