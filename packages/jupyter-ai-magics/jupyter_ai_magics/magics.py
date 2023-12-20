@@ -173,7 +173,7 @@ class AiMagics(Magics):
         # Avoid composing strings, to make localization easier in the future
         not_set_title = "You have not set this environment variable, so you cannot use this provider's models."
         set_title = "You have set this environment variable, so you can use this provider's models."
-        env_status_ok = False;
+        env_status_ok = False
         try:
             var_name = self.providers[provider_id].auth_strategy.name
             env_var_display = f"`{var_name}`"
@@ -514,7 +514,9 @@ class AiMagics(Magics):
                 ) from None
             if auth_strategy.type == "multienv":
                 # Multiple environment variables must be set
-                missing_vars = [var for var in auth_strategy.names if var not in os.environ]
+                missing_vars = [
+                    var for var in auth_strategy.names if var not in os.environ
+                ]
                 raise OSError(
                     f"Authentication environment variables {missing_vars} are not set.\n"
                     f"Multiple authentication tokens are required to use models from the {Provider.name} provider.\n"
