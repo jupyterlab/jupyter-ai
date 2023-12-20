@@ -2,6 +2,7 @@ from ._version import __version__
 
 # expose embedding model providers on the package root
 from .embedding_providers import (
+    BaseEmbeddingsProvider,
     BedrockEmbeddingsProvider,
     CohereEmbeddingsProvider,
     GPT4AllEmbeddingsProvider,
