@@ -147,6 +147,13 @@ class BaseChatHandler:
         The default definition of `handle_exc()`. This is the default used when
         the `handle_exc()` excepts.
         """
+        self.log.error(e)
+        lm_provider = self.config_manager.lm_provider
+        if lm_provider and lm_provider.is_api_key_exc(e):
+            provider_name = getattr(self.config_manager.lm_provider, "name", "")
+            response = f"Oops! There's a problem connecting to {provider_name}. Please update your {provider_name} API key in the chat settings."
+            self.reply(response, message)
+            return
         formatted_e = traceback.format_exc()
         response = (
             f"Sorry, an error occurred. Details below:\n\n```\n{formatted_e}\n```"
