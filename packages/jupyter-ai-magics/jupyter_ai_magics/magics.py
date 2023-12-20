@@ -170,22 +170,31 @@ class AiMagics(Magics):
         ):
             return na_message  # No emoji
 
+        # Avoid composing strings, to make localization easier in the future
+        not_set_title = "You have not set this environment variable, so you cannot use this provider's models."
+        set_title = "You have set this environment variable, so you can use this provider's models."
+        env_status_ok = False;
         try:
-            env_var = self.providers[provider_id].auth_strategy.name
+            var_name = self.providers[provider_id].auth_strategy.name
+            env_var_display = f"`{var_name}`"
+            env_status_ok = var_name in os.environ
         except AttributeError:  # No "name" attribute
-            return na_message
+            # Try multiple names
+            try:
+                var_names = self.providers[provider_id].auth_strategy.names
+                formatted_names = [f"`{name}`" for name in var_names]
+                env_var_display = ", ".join(formatted_names)
+                env_status_ok = all(var_name in os.environ for var_name in var_names)
+                not_set_title = "You have not set all of these environment variables, so you cannot use this provider's models."
+                set_title = "You have set all of these environment variables, so you can use this provider's models."
+            except AttributeError:  # No "names" attribute
+                return na_message
 
-        output = f"`{env_var}` | "
-        if os.getenv(env_var) == None:
-            output += (
-                '<abbr title="You have not set this environment variable, '
-                + "so you cannot use this provider's models.\">❌</abbr>"
-            )
+        output = f"{env_var_display} | "
+        if env_status_ok:
+            output += f'<abbr title="{set_title}">✅</abbr>'
         else:
-            output += (
-                '<abbr title="You have set this environment variable, '
-                + "so you can use this provider's models.\">✅</abbr>"
-            )
+            output += f'<abbr title="{not_set_title}">❌</abbr>'
 
         return output
 
@@ -196,18 +205,29 @@ class AiMagics(Magics):
         ):
             return ""  # No message necessary
 
+        # Avoid composing strings, to make localization easier in the future
+        prefix = "Requires environment variable:"
+        var_names = []
         try:
-            env_var = self.providers[provider_id].auth_strategy.name
+            var_names.append(self.providers[provider_id].auth_strategy.name)
         except AttributeError:  # No "name" attribute
-            return ""
+            # Try multiple names
+            try:
+                var_names = self.providers[provider_id].auth_strategy.names
+                prefix = "Requires environment variables:"
+            except AttributeError:  # No "names" attribute
+                return ""
 
-        output = f"Requires environment variable {env_var} "
-        if os.getenv(env_var) != None:
-            output += "(set)"
-        else:
-            output += "(not set)"
+        annotated_var_names = []
+        for var_name in var_names:
+            annotated_var_name = var_name
+            if var_name in os.environ:
+                annotated_var_name += " (set)"
+            else:
+                annotated_var_name += " (not set)"
+            annotated_var_names.append(annotated_var_name)
 
-        return output + "\n"
+        return prefix + " " + ", ".join(annotated_var_names) + "\n"
 
     # Is this a name of a Python variable that can be called as a LangChain chain?
     def _is_langchain_chain(self, name):
@@ -494,7 +514,7 @@ class AiMagics(Magics):
                 ) from None
             if auth_strategy.type == "multienv":
                 # Multiple environment variables must be set
-                missing_vars = [var for var in names if var not in os.environ]
+                missing_vars = [var for var in auth_strategy.names if var not in os.environ]
                 raise OSError(
                     f"Authentication environment variables {missing_vars} are not set.\n"
                     f"Multiple authentication tokens are required to use models from the {Provider.name} provider.\n"
