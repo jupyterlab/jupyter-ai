@@ -23,6 +23,7 @@ from langchain.chat_models import (
     BedrockChat,
     ChatAnthropic,
     ChatOpenAI,
+    QianfanChatEndpoint,
 )
 from langchain.chat_models.base import BaseChatModel
 from langchain.llms import (
@@ -34,6 +35,7 @@ from langchain.llms import (
     HuggingFaceHub,
     OpenAI,
     OpenAIChat,
+    QianfanLLMEndpoint,
     SagemakerEndpoint,
 )
 from langchain.llms.sagemaker_endpoint import LLMContentHandler
@@ -54,7 +56,7 @@ class EnvAuthStrategy(BaseModel):
 class MultiEnvAuthStrategy(BaseModel):
     """Require multiple auth tokens via multiple environment variables."""
 
-    type: Literal["file"] = "file"
+    type: Literal["multienv"] = "multienv"
     names: List[str]
 
 
@@ -775,3 +777,13 @@ class BedrockChatProvider(BaseProvider, BedrockChat):
     @property
     def allows_concurrency(self):
         return not "anthropic" in self.model_id
+
+
+# Baidu QianfanChat provider. temporarily living as a separate class until
+class QianfanProvider(BaseProvider, QianfanChatEndpoint):
+    id = "qianfan"
+    name = "ERNIE-Bot"
+    models = ["ERNIE-Bot", "ERNIE-Bot-4"]
+    model_id_key = "model_name"
+    pypi_package_deps = ["qianfan"]
+    auth_strategy = MultiEnvAuthStrategy(names=["QIANFAN_AK", "QIANFAN_SK"])
