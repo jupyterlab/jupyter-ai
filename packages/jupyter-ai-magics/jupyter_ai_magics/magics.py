@@ -91,12 +91,15 @@ AI_COMMANDS = {"delete", "error", "help", "list", "register", "update"}
 # Strings for listing providers and models
 # Avoid composing strings, to make localization easier in the future
 ENV_NOT_SET = "You have not set this environment variable, so you cannot use this provider's models."
-ENV_SET = "You have set this environment variable, so you can use this provider's models."
+ENV_SET = (
+    "You have set this environment variable, so you can use this provider's models."
+)
 MULTIENV_NOT_SET = "You have not set all of these environment variables, so you cannot use this provider's models."
 MULTIENV_SET = "You have set all of these environment variables, so you can use this provider's models."
 
 ENV_REQUIRES = "Requires environment variable:"
 MULTIENV_REQUIRES = "Requires environment variables:"
+
 
 class FormatDict(dict):
     """Subclass of dict to be passed to str#format(). Suppresses KeyError and
@@ -209,12 +212,18 @@ class AiMagics(Magics):
 
     def _ai_env_status_for_provider_text(self, provider_id):
         # only handle providers with "env" or "multienv" auth strategy
-        auth_strategy = getattr(self.providers[provider_id], 'auth_strategy', None)
-        if not auth_strategy or (auth_strategy.type != "env" and auth_strategy.type != "multienv"):
+        auth_strategy = getattr(self.providers[provider_id], "auth_strategy", None)
+        if not auth_strategy or (
+            auth_strategy.type != "env" and auth_strategy.type != "multienv"
+        ):
             return ""
 
         prefix = ENV_REQUIRES if auth_strategy.type == "env" else MULTIENV_REQUIRES
-        envvars = [auth_strategy.name] if auth_strategy.type == "env" else auth_strategy.names[:]
+        envvars = (
+            [auth_strategy.name]
+            if auth_strategy.type == "env"
+            else auth_strategy.names[:]
+        )
 
         for i in range(len(envvars)):
             envvars[i] += " (set)" if envvars[i] in os.environ else " (not set)"
