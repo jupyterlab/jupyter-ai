@@ -135,7 +135,16 @@ export namespace AiService {
     type: 'aws';
   };
 
-  export type AuthStrategy = EnvAuthStrategy | AwsAuthStrategy | null;
+  export type MultiEnvAuthStrategy = {
+    type: 'multienv';
+    names: string[];
+  };
+
+  export type AuthStrategy =
+    | AwsAuthStrategy
+    | EnvAuthStrategy
+    | MultiEnvAuthStrategy
+    | null;
 
   export type TextField = {
     type: 'text';

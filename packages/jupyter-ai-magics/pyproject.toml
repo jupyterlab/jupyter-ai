@@ -50,7 +50,8 @@ all = [
     "ipywidgets",
     "pillow",
     "openai",
-    "boto3"
+    "boto3",
+    "qianfan"
 ]
 
 [project.entry-points."jupyter_ai.model_providers"]
@@ -67,6 +68,7 @@ sagemaker-endpoint = "jupyter_ai_magics:SmEndpointProvider"
 amazon-bedrock = "jupyter_ai_magics:BedrockProvider"
 anthropic-chat = "jupyter_ai_magics:ChatAnthropicProvider"
 amazon-bedrock-chat = "jupyter_ai_magics:BedrockChatProvider"
+qianfan = "jupyter_ai_magics:QianfanProvider"
 
 [project.entry-points."jupyter_ai.embeddings_model_providers"]
 bedrock = "jupyter_ai_magics:BedrockEmbeddingsProvider"
@@ -74,6 +76,7 @@ cohere = "jupyter_ai_magics:CohereEmbeddingsProvider"
 gpt4all = "jupyter_ai_magics:GPT4AllEmbeddingsProvider"
 huggingface_hub = "jupyter_ai_magics:HfHubEmbeddingsProvider"
 openai = "jupyter_ai_magics:OpenAIEmbeddingsProvider"
+qianfan = "jupyter_ai_magics:QianfanEmbeddingsEndpointProvider"
 
 [tool.hatch.version]
 source = "nodejs"

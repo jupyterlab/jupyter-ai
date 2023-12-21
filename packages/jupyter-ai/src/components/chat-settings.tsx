@@ -102,11 +102,26 @@ export function ChatSettings(): JSX.Element {
     ) {
       newApiKeys[lmAuth.name] = '';
     }
+    if (lmAuth?.type === 'multienv') {
+      lmAuth.names.forEach(apiKey => {
+        if (!server.config.api_keys.includes(apiKey)) {
+          newApiKeys[apiKey] = '';
+        }
+      });
+    }
+
     if (
       emAuth?.type === 'env' &&
       !server.config.api_keys.includes(emAuth.name)
     ) {
       newApiKeys[emAuth.name] = '';
+    }
+    if (emAuth?.type === 'multienv') {
+      emAuth.names.forEach(apiKey => {
+        if (!server.config.api_keys.includes(apiKey)) {
+          newApiKeys[apiKey] = '';
+        }
+      });
     }
 
     setApiKeys(newApiKeys);
