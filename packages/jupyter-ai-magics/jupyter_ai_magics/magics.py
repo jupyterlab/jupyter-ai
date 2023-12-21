@@ -11,6 +11,7 @@ import click
 from IPython import get_ipython
 from IPython.core.magic import Magics, line_cell_magic, magics_class
 from IPython.display import HTML, JSON, Markdown, Math
+from jupyter_ai_magics.aliases import MODEL_ID_ALIASES
 from jupyter_ai_magics.utils import decompose_model_id, get_lm_providers
 from langchain.chains import LLMChain
 from langchain.schema import HumanMessage
@@ -27,14 +28,6 @@ from .parsers import (
     line_magic_parser,
 )
 from .providers import BaseProvider
-
-MODEL_ID_ALIASES = {
-    "gpt2": "huggingface_hub:gpt2",
-    "gpt3": "openai:text-davinci-003",
-    "chatgpt": "openai-chat:gpt-3.5-turbo",
-    "gpt4": "openai-chat:gpt-4",
-    "titan": "bedrock:amazon.titan-tg1-large",
-}
 
 
 class TextOrMarkdown:
@@ -94,6 +87,18 @@ To see a list of models you can use, run `%ai list`"""
 
 
 AI_COMMANDS = {"delete", "error", "help", "list", "register", "update"}
+
+# Strings for listing providers and models
+# Avoid composing strings, to make localization easier in the future
+ENV_NOT_SET = "You have not set this environment variable, so you cannot use this provider's models."
+ENV_SET = (
+    "You have set this environment variable, so you can use this provider's models."
+)
+MULTIENV_NOT_SET = "You have not set all of these environment variables, so you cannot use this provider's models."
+MULTIENV_SET = "You have set all of these environment variables, so you can use this provider's models."
+
+ENV_REQUIRES = "Requires environment variable:"
+MULTIENV_REQUIRES = "Requires environment variables:"
 
 
 class FormatDict(dict):
@@ -177,44 +182,53 @@ class AiMagics(Magics):
         ):
             return na_message  # No emoji
 
-        try:
-            env_var = self.providers[provider_id].auth_strategy.name
-        except AttributeError:  # No "name" attribute
+        not_set_title = ENV_NOT_SET
+        set_title = ENV_SET
+        env_status_ok = False
+
+        auth_strategy = self.providers[provider_id].auth_strategy
+        if auth_strategy.type == "env":
+            var_name = auth_strategy.name
+            env_var_display = f"`{var_name}`"
+            env_status_ok = var_name in os.environ
+        elif auth_strategy.type == "multienv":
+            # Check multiple environment variables
+            var_names = self.providers[provider_id].auth_strategy.names
+            formatted_names = [f"`{name}`" for name in var_names]
+            env_var_display = ", ".join(formatted_names)
+            env_status_ok = all(var_name in os.environ for var_name in var_names)
+            not_set_title = MULTIENV_NOT_SET
+            set_title = MULTIENV_SET
+        else:  # No environment variables
             return na_message
 
-        output = f"`{env_var}` | "
-        if os.getenv(env_var) == None:
-            output += (
-                '<abbr title="You have not set this environment variable, '
-                + "so you cannot use this provider's models.\">❌</abbr>"
-            )
+        output = f"{env_var_display} | "
+        if env_status_ok:
+            output += f'<abbr title="{set_title}">✅</abbr>'
         else:
-            output += (
-                '<abbr title="You have set this environment variable, '
-                + "so you can use this provider's models.\">✅</abbr>"
-            )
+            output += f'<abbr title="{not_set_title}">❌</abbr>'
 
         return output
 
     def _ai_env_status_for_provider_text(self, provider_id):
-        if (
-            provider_id not in self.providers
-            or self.providers[provider_id].auth_strategy == None
+        # only handle providers with "env" or "multienv" auth strategy
+        auth_strategy = getattr(self.providers[provider_id], "auth_strategy", None)
+        if not auth_strategy or (
+            auth_strategy.type != "env" and auth_strategy.type != "multienv"
         ):
-            return ""  # No message necessary
-
-        try:
-            env_var = self.providers[provider_id].auth_strategy.name
-        except AttributeError:  # No "name" attribute
             return ""
 
-        output = f"Requires environment variable {env_var} "
-        if os.getenv(env_var) != None:
-            output += "(set)"
-        else:
-            output += "(not set)"
+        prefix = ENV_REQUIRES if auth_strategy.type == "env" else MULTIENV_REQUIRES
+        envvars = (
+            [auth_strategy.name]
+            if auth_strategy.type == "env"
+            else auth_strategy.names[:]
+        )
 
-        return output + "\n"
+        for i in range(len(envvars)):
+            envvars[i] += " (set)" if envvars[i] in os.environ else " (not set)"
+
+        return prefix + " " + ", ".join(envvars) + "\n"
 
     # Is this a name of a Python variable that can be called as a LangChain chain?
     def _is_langchain_chain(self, name):
@@ -493,12 +507,21 @@ class AiMagics(Magics):
         # validate presence of authn credentials
         auth_strategy = self.providers[provider_id].auth_strategy
         if auth_strategy:
-            # TODO: handle auth strategies besides EnvAuthStrategy
             if auth_strategy.type == "env" and auth_strategy.name not in os.environ:
                 raise OSError(
-                    f"Authentication environment variable {auth_strategy.name} not provided.\n"
+                    f"Authentication environment variable {auth_strategy.name} is not set.\n"
                     f"An authentication token is required to use models from the {Provider.name} provider.\n"
                     f"Please specify it via `%env {auth_strategy.name}=token`. "
+                ) from None
+            if auth_strategy.type == "multienv":
+                # Multiple environment variables must be set
+                missing_vars = [
+                    var for var in auth_strategy.names if var not in os.environ
+                ]
+                raise OSError(
+                    f"Authentication environment variables {missing_vars} are not set.\n"
+                    f"Multiple authentication tokens are required to use models from the {Provider.name} provider.\n"
+                    f"Please specify them all via `%env` commands. "
                 ) from None
 
         # configure and instantiate provider
