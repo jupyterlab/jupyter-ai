@@ -2,15 +2,12 @@ import React, { useState, useEffect } from 'react';
 
 import { Avatar, Box, Typography } from '@mui/material';
 import type { SxProps, Theme } from '@mui/material';
-import ReactMarkdown from 'react-markdown';
-import remarkMath from 'remark-math';
-import rehypeKatex from 'rehype-katex';
 import 'katex/dist/katex.min.css';
 
-import { ChatCodeView } from './chat-code-view';
 import { AiService } from '../handler';
 import { useCollaboratorsContext } from '../contexts/collaborators-context';
 import { Jupyternaut } from '../icons';
+import { MarkdownComponent } from './markdown-component';
 
 type ChatMessagesProps = {
   messages: AiService.ChatMessage[];
@@ -157,19 +154,10 @@ export function ChatMessages(props: ChatMessagesProps): JSX.Element {
             timestamp={timestamps[message.id]}
             sx={{ marginBottom: 3 }}
           />
-          <ReactMarkdown
-            // We are using the jp-RenderedHTMLCommon class here to get the default Jupyter
-            // markdown styling and then overriding any CSS to make it more compact.
-            className="jp-RenderedHTMLCommon jp-ai-react-markdown"
-            components={{
-              a: NewTabLink,
-              code: ChatCodeView
-            }}
-            remarkPlugins={[remarkMath]}
-            rehypePlugins={[rehypeKatex]}
-          >
-            {message.body}
-          </ReactMarkdown>
+          <MarkdownComponent
+            rendermime={yourRendermimeInstance}
+            markdownString={message.body}
+          />
         </Box>
       ))}
     </Box>
