@@ -30,17 +30,6 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = [
-    "pre-commit>=3.3.3,<4"
-]
-
-test = [
-    "coverage",
-    "pytest",
-    "pytest-asyncio",
-    "pytest-cov"
-]
-
 all = [
     "ai21",
     "anthropic~=0.3.0",
@@ -51,7 +40,7 @@ all = [
     "pillow",
     "openai",
     "boto3",
-    "qianfan"
+    "qianfan",
 ]
 
 [project.entry-points."jupyter_ai.model_providers"]
