@@ -28,13 +28,13 @@ dependencies = [
     "aiosqlite>=0.18",
     "importlib_metadata>=5.2.0",
     "langchain==0.0.350",
-    "tiktoken", # required for OpenAIEmbeddings
+    "tiktoken",                  # required for OpenAIEmbeddings
     "jupyter_ai_magics",
     "dask[distributed]",
-    "faiss-cpu", # Not distributed by official repo
+    "faiss-cpu",                 # Not distributed by official repo
     "typing_extensions>=4.5.0",
     "traitlets>=5.0",
-    "deepmerge>=1.0"
+    "deepmerge>=1.0",
 ]
 
 dynamic = ["version", "description", "authors", "urls", "keywords"]
@@ -43,24 +43,7 @@ dynamic = ["version", "description", "authors", "urls", "keywords"]
 core_default_tasks = "jupyter_ai:tasks"
 
 [project.optional-dependencies]
-test = [
-    "jupyter-server[test]>=1.6,<3",
-    "coverage",
-    "pytest",
-    "pytest-asyncio",
-    "pytest-cov",
-    "pytest-tornasync",
-    "pytest-jupyter",
-    "syrupy~=4.0.8"
-]
-
-dev = [
-    "jupyter_ai_magics[dev]"
-]
-
-all = [
-    "jupyter_ai_magics[all]"
-]
+all = ["jupyter_ai_magics[all]"]
 
 [tool.hatch.version]
 source = "nodejs"

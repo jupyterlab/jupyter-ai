@@ -1,15 +1,40 @@
+# This is a top-level monorepo package that is never installed by users. This
+# file, along with the root `package.json` file, exist mainly for build tools
+# which need extra configuration to work with monorepo projects like ours.
+
+# We use setuptools instead of hatch here for simplicity. We only install this
+# package to install the shared dev and test dependencies declared here.
 [build-system]
-requires = ["hatchling>=1.4.0", "jupyterlab~=4.0", "hatch-nodejs-version"]
-build-backend = "hatchling.build"
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "jupyter_ai_monorepo"
-dynamic = ["version", "description", "authors", "urls", "keywords"]
+description = "The top-level monorepo package. Should only be locally installed by developers."
 requires-python = ">=3.8"
 dependencies = []
 
+# The version declared in `package.json` is used by Jupyter Releaser to build
+# the changelogs. That version (not this) is bumped by `scripts/bump-version.sh`
+# every release.
+version = "0.0.0"
+
 [project.optional-dependencies]
-build = []
+# dev dependencies shared by all packages. should be installed by developers
+# working on Jupyter AI via `jlpm dev-install`.
+dev-shared = ["import-linter", "pre-commit>=3.3.3,<4"]
+
+# test dependencies shared by all packages, ditto above.
+test-shared = [
+    "jupyter-server[test]>=1.6,<3",
+    "coverage",
+    "pytest",
+    "pytest-asyncio",
+    "pytest-cov",
+    "pytest-tornasync",
+    "pytest-jupyter",
+    "syrupy~=4.0.8",
+]
 
 [project.readme]
 file = "README.md"
@@ -18,12 +43,13 @@ content-type = "text/markdown"
 [project.license]
 text = "BSD 3-Clause License"
 
-[tool.hatch.version]
-source = "nodejs"
-path = "package.json"
-
 [tool.check-manifest]
 ignore = [".*"]
 
 [tool.check-wheel-contents]
 ignore = ["W002"]
+
+# minimal configuration to allow this package to be installed
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["README.md"]
