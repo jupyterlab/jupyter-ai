@@ -18,12 +18,14 @@ from .chat_handlers import (
     LearnChatHandler,
 )
 from .chat_handlers.help import HelpMessage
+from .completions.handlers import DefaultInlineCompletionHandler
 from .config_manager import ConfigManager
 from .handlers import (
     ApiKeysHandler,
     ChatHistoryHandler,
     EmbeddingsModelProviderHandler,
     GlobalConfigHandler,
+    InlineCompletionHandler,
     ModelProviderHandler,
     RootChatHandler,
 )
@@ -38,6 +40,7 @@ class AiExtension(ExtensionApp):
         (r"api/ai/chats/history?", ChatHistoryHandler),
         (r"api/ai/providers?", ModelProviderHandler),
         (r"api/ai/providers/embeddings?", EmbeddingsModelProviderHandler),
+        (r"api/ai/completion/inline/?", InlineCompletionHandler),
     ]
 
     allowed_providers = List(
@@ -149,6 +152,7 @@ class AiExtension(ExtensionApp):
         # Store chat clients in a dictionary
         self.settings["chat_clients"] = {}
         self.settings["jai_root_chat_handlers"] = {}
+        self.settings["jai_inline_completion_sessions"] = {}
 
         # list of chat messages to broadcast to new clients
         # this is only used to render the UI, and is not the conversational
@@ -169,17 +173,21 @@ class AiExtension(ExtensionApp):
         dask_client_future = loop.create_task(self._get_dask_client())
 
         eps = entry_points()
-        # initialize chat handlers
-        chat_handler_eps = eps.select(group="jupyter_ai.chat_handlers")
 
-        chat_handler_kwargs = {
+        common_handler_kargs = {
             "log": self.log,
             "config_manager": self.settings["jai_config_manager"],
+            "model_parameters": self.settings["model_parameters"],
+        }
+
+        # initialize chat handlers
+        chat_handler_eps = eps.select(group="jupyter_ai.chat_handlers")
+        chat_handler_kwargs = {
+            **common_handler_kargs,
             "root_chat_handlers": self.settings["jai_root_chat_handlers"],
             "chat_history": self.settings["chat_history"],
             "root_dir": self.serverapp.root_dir,
             "dask_client_future": dask_client_future,
-            "model_parameters": self.settings["model_parameters"],
         }
         default_chat_handler = DefaultChatHandler(**chat_handler_kwargs)
         clear_chat_handler = ClearChatHandler(**chat_handler_kwargs)
@@ -257,6 +265,13 @@ class AiExtension(ExtensionApp):
             HelpMessage(chat_handlers=jai_chat_handlers)
         )
         self.settings["jai_chat_handlers"] = jai_chat_handlers
+
+        # initialize completion handlers
+        default_completion_handler = DefaultInlineCompletionHandler(
+            **common_handler_kargs,
+            ws_sessions=self.settings["jai_inline_completion_sessions"],
+        )
+        self.settings["jai_inline_completion_handler"] = default_completion_handler
 
         latency_ms = round((time.time() - start) * 1000)
         self.log.info(f"Initialized Jupyter AI server extension in {latency_ms} ms.")
