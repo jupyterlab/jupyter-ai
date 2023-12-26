@@ -10,14 +10,12 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "jupyter_ai_monorepo"
-description = "The top-level monorepo package. Should only be locally installed by developers."
+description = "The top-level monorepo PY package. Never released, but is installed by developers."
 requires-python = ">=3.8"
 dependencies = []
 
-# The version declared in `package.json` is used by Jupyter Releaser to build
-# the changelogs. That version (not this) is bumped by `scripts/bump-version.sh`
-# every release.
-version = "0.0.0"
+# Automatically bumped by `scripts/bump-version.sh`.
+version = "2.7.1"
 
 [project.optional-dependencies]
 # dev dependencies shared by all packages. should be installed by developers

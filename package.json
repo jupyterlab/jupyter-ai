@@ -1,7 +1,7 @@
 {
   "name": "@jupyter-ai/monorepo",
-  "version": "2.7.1",
-  "description": "The top-level monorepo package. Should only be locally installed by developers.",
+  "version": "0.0.0",
+  "description": "The top-level monorepo JS package. Never released or installed.",
   "private": true,
   "keywords": [
     "jupyter",
