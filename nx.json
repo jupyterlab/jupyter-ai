@@ -11,6 +11,9 @@
     },
     "dev-uninstall": {
       "dependsOn": ["clean:labextension"]
+    },
+    "install-from-src": {
+      "dependsOn": ["^install-from-src"]
     }
   },
   "tasksRunnerOptions": {
