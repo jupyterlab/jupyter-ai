@@ -534,7 +534,7 @@ class OpenAIProvider(BaseProvider, OpenAI):
         """
         import openai
 
-        if isinstance(e, openai.error.AuthenticationError):
+        if isinstance(e, openai.AuthenticationError):
             error_details = e.json_body.get("error", {})
             return error_details.get("code") == "invalid_api_key"
         return False
@@ -574,7 +574,7 @@ class ChatOpenAIProvider(BaseProvider, OpenAIChat):
         """
         import openai
 
-        if isinstance(e, openai.error.AuthenticationError):
+        if isinstance(e, openai.AuthenticationError):
             error_details = e.json_body.get("error", {})
             return error_details.get("code") == "invalid_api_key"
         return False
@@ -620,7 +620,7 @@ class ChatOpenAINewProvider(BaseProvider, ChatOpenAI):
         """
         import openai
 
-        if isinstance(e, openai.error.AuthenticationError):
+        if isinstance(e, openai.AuthenticationError):
             error_details = e.json_body.get("error", {})
             return error_details.get("code") == "invalid_api_key"
         return False
