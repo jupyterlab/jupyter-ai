@@ -23,7 +23,7 @@ Documentation is available on [ReadTheDocs](https://jupyter-ai.readthedocs.io/en
 You will need to have installed the following software to use Jupyter AI:
 
 - Python 3.8 - 3.11
-- JupyterLab 4
+- JupyterLab 3.x (for Jupyter AI 1.x)
 
 In addition, you will need access to at least one model provider.
 
@@ -46,7 +46,7 @@ For more specific instructions for each model provider, refer to [the model prov
 
 ## Installation
 
-You can use `conda` or `pip` to install Jupyter AI. If you're using macOS on an Apple Silicon-based Mac (M1, M1 Pro, M2, etc.), we strongly recommend using `conda`.
+You can use `pip` to install Jupyter AI 1.x.
 
 Python 3.8 or newer is required; older versions of Python do not support the `typing` module we use, and as of June 30, 2023, have reached end of life.
 
@@ -61,14 +61,6 @@ If you want to install both the `%%ai` magic and the JupyterLab extension, you c
 If you are not using JupyterLab and you only want to install the Jupyter AI `%%ai` magic, you can run:
 
     $ pip install jupyter_ai_magics
-
-
-### With conda
-
-First, install
-[conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html).
-
-    $ conda install jupyter_ai
 
 ## The `%%ai` magic command
 
