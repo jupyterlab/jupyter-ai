@@ -19,6 +19,7 @@
   },
   "scripts": {
     "dev-install": "pip install -e \".[dev,all]\"",
-    "dev-uninstall": "pip uninstall jupyter_ai_magics -y"
+    "dev-uninstall": "pip uninstall jupyter_ai_magics -y",
+    "install-from-src": "pip install ."
   }
 }
