@@ -2,6 +2,37 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 2.8.0
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.7.1...def73e99ee28050450792c519bd02a7f415ff6e9))
+
+### Enhancements made
+
+- Add gpt-4-1106-preview model from openai [#540](https://github.com/jupyterlab/jupyter-ai/pull/540) ([@jamesjun](https://github.com/jamesjun))
+- Adds multi-environment variable authentication, Baidu Qianfan ERNIE-bot provider [#531](https://github.com/jupyterlab/jupyter-ai/pull/531) ([@JasonWeill](https://github.com/JasonWeill))
+
+### Bugs fixed
+
+- Validate Pydantic imports [#546](https://github.com/jupyterlab/jupyter-ai/pull/546) ([@dlqqq](https://github.com/dlqqq))
+
+### Maintenance and upkeep improvements
+
+- Validate Pydantic imports [#546](https://github.com/jupyterlab/jupyter-ai/pull/546) ([@dlqqq](https://github.com/dlqqq))
+
+### Documentation improvements
+
+- Clarify/fix conda instructions [#547](https://github.com/jupyterlab/jupyter-ai/pull/547) ([@krassowski](https://github.com/krassowski))
+- Main branch is compatible with Lab 4 only [#536](https://github.com/jupyterlab/jupyter-ai/pull/536) ([@JasonWeill](https://github.com/JasonWeill))
+- Document entry point and API for custom embedding models [#533](https://github.com/jupyterlab/jupyter-ai/pull/533) ([@krassowski](https://github.com/krassowski))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2023-12-20&to=2023-12-27&type=c))
+
+[@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2023-12-20..2023-12-27&type=Issues) | [@ellisonbg](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aellisonbg+updated%3A2023-12-20..2023-12-27&type=Issues) | [@jamesjun](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ajamesjun+updated%3A2023-12-20..2023-12-27&type=Issues) | [@JasonWeill](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AJasonWeill+updated%3A2023-12-20..2023-12-27&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2023-12-20..2023-12-27&type=Issues) | [@sundaraa-deshaw](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asundaraa-deshaw+updated%3A2023-12-20..2023-12-27&type=Issues) | [@welcome](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Awelcome+updated%3A2023-12-20..2023-12-27&type=Issues) | [@Zsailer](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AZsailer+updated%3A2023-12-20..2023-12-27&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 2.7.1
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.7.0...0a37a2396cd820580dc1ce6d10ab90243c5762bb))
@@ -35,8 +66,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2023-12-11&to=2023-12-20&type=c))
 
 [@andrii-i](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aandrii-i+updated%3A2023-12-11..2023-12-20&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2023-12-11..2023-12-20&type=Issues) | [@JasonWeill](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AJasonWeill+updated%3A2023-12-11..2023-12-20&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2023-12-11..2023-12-20&type=Issues) | [@lumberbot-app](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Alumberbot-app+updated%3A2023-12-11..2023-12-20&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 2.7.0
 
