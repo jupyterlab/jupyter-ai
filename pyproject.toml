@@ -38,3 +38,6 @@ name = "Forbidden import of `pydantic` package. Please import from `langchain.py
 type = "forbidden"
 source_modules = ["jupyter_ai", "jupyter_ai_magics"]
 forbidden_modules = ["pydantic"]
+
+[tool.hatch.build.targets.wheel]
+packages=["jupyter_ai"]
