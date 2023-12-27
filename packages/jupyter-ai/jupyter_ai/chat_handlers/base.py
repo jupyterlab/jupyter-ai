@@ -18,9 +18,7 @@ from dask.distributed import Client as DaskClient
 from jupyter_ai.config_manager import ConfigManager, Logger
 from jupyter_ai.models import AgentChatMessage, ChatMessage, HumanChatMessage
 from jupyter_ai_magics.providers import BaseProvider
-
-# necessary to prevent circular import
-from pydantic import BaseModel
+from langchain.pydantic_v1 import BaseModel
 
 if TYPE_CHECKING:
     from jupyter_ai.handlers import RootChatHandler

@@ -27,3 +27,14 @@ ignore = [".*"]
 
 [tool.check-wheel-contents]
 ignore = ["W002"]
+
+[tool.importlinter]
+root_packages = ["jupyter_ai", "jupyter_ai_magics"]
+include_external_packages = true
+
+[[tool.importlinter.contracts]]
+key = "pydantic"
+name = "Forbidden import of `pydantic` package. Please import from `langchain.pydantic_v1` instead for compatibility with both Pydantic v1 and v2."
+type = "forbidden"
+source_modules = ["jupyter_ai", "jupyter_ai_magics"]
+forbidden_modules = ["pydantic"]

@@ -31,6 +31,7 @@
     "dev": "jupyter lab --config playground/config.py",
     "dev-install": "lerna run dev-install --stream",
     "dev-uninstall": "lerna run dev-uninstall --stream",
+    "install-from-src": "lerna run install-from-src --stream",
     "lint": "jlpm && lerna run prettier && lerna run eslint",
     "lint:check": "lerna run prettier:check && lerna run eslint:check",
     "watch": "lerna run watch --parallel --stream",
