@@ -43,8 +43,8 @@ from langchain.prompts import PromptTemplate
 from langchain.pydantic_v1 import BaseModel, Extra, root_validator
 from langchain.schema import LLMResult
 from langchain.utils import get_from_dict_or_env
-
 from langchain_community.chat_models import ChatOpenAI
+
 
 class EnvAuthStrategy(BaseModel):
     """Require one auth token via an environment variable."""
