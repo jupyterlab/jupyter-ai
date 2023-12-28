@@ -124,13 +124,6 @@ class AiMagics(Magics):
         super().__init__(shell)
         self.transcript_openai = []
 
-        # suppress warning when using old OpenAIChat provider
-        warnings.filterwarnings(
-            "ignore",
-            message="You are trying to use a chat model. This way of initializing it is "
-            "no longer supported. Instead, please use: "
-            "`from langchain.chat_models import ChatOpenAI`",
-        )
         # suppress warning when using old Anthropic provider
         warnings.filterwarnings(
             "ignore",
@@ -531,7 +524,8 @@ class AiMagics(Magics):
         # configure and instantiate provider
         provider_params = {"model_id": local_model_id}
         if provider_id == "openai-chat":
-            provider_params["prefix_messages"] = self.transcript_openai
+            # provider_params["messages"] = self.transcript_openai
+            pass
         # for SageMaker, validate that required params are specified
         if provider_id == "sagemaker-endpoint":
             if (

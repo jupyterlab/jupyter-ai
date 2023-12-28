@@ -22,7 +22,6 @@ from langchain.chat_models import (
     AzureChatOpenAI,
     BedrockChat,
     ChatAnthropic,
-    ChatOpenAI,
     QianfanChatEndpoint,
 )
 from langchain.chat_models.base import BaseChatModel
@@ -45,6 +44,7 @@ from langchain.pydantic_v1 import BaseModel, Extra, root_validator
 from langchain.schema import LLMResult
 from langchain.utils import get_from_dict_or_env
 
+from langchain_community.chat_models import ChatOpenAI
 
 class EnvAuthStrategy(BaseModel):
     """Require one auth token via an environment variable."""
@@ -540,7 +540,7 @@ class OpenAIProvider(BaseProvider, OpenAI):
         return False
 
 
-class ChatOpenAIProvider(BaseProvider, OpenAIChat):
+class ChatOpenAIProvider(BaseProvider, ChatOpenAI):
     id = "openai-chat"
     name = "OpenAI"
     models = [
@@ -564,44 +564,8 @@ class ChatOpenAIProvider(BaseProvider, OpenAIChat):
     def append_exchange(self, prompt: str, output: str):
         """Appends a conversational exchange between user and an OpenAI Chat
         model to a transcript that will be included in future exchanges."""
-        self.prefix_messages.append({"role": "user", "content": prompt})
-        self.prefix_messages.append({"role": "assistant", "content": output})
-
-    @classmethod
-    def is_api_key_exc(cls, e: Exception):
-        """
-        Determine if the exception is an OpenAI API key error.
-        """
-        import openai
-
-        if isinstance(e, openai.AuthenticationError):
-            error_details = e.json_body.get("error", {})
-            return error_details.get("code") == "invalid_api_key"
-        return False
-
-
-# uses the new OpenAIChat provider. temporarily living as a separate class until
-# conflicts can be resolved
-class ChatOpenAINewProvider(BaseProvider, ChatOpenAI):
-    id = "openai-chat-new"
-    name = "OpenAI"
-    models = [
-        "gpt-3.5-turbo",
-        "gpt-3.5-turbo-16k",
-        "gpt-3.5-turbo-0301",
-        "gpt-3.5-turbo-0613",
-        "gpt-3.5-turbo-16k-0613",
-        "gpt-4",
-        "gpt-4-0314",
-        "gpt-4-0613",
-        "gpt-4-32k",
-        "gpt-4-32k-0314",
-        "gpt-4-32k-0613",
-        "gpt-4-1106-preview",
-    ]
-    model_id_key = "model_name"
-    pypi_package_deps = ["openai"]
-    auth_strategy = EnvAuthStrategy(name="OPENAI_API_KEY")
+        self.messages.append({"role": "user", "content": prompt})
+        self.messages.append({"role": "assistant", "content": output})
 
     fields = [
         TextField(
