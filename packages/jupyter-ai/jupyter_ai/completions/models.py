@@ -1,6 +1,6 @@
 from typing import List, Literal, Optional
 
-from pydantic import BaseModel
+from langchain.pydantic_v1 import BaseModel
 
 
 class InlineCompletionRequest(BaseModel):
