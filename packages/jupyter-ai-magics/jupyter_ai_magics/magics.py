@@ -131,6 +131,15 @@ class AiMagics(Magics):
             "`from langchain.chat_models import ChatAnthropic` instead",
         )
 
+        # suppress warning about our exception handler
+        warnings.filterwarnings(
+            "ignore",
+            message="IPython detected, but you already "
+            "have a custom exception handler installed. I'll skip installing "
+            "Trio's custom handler, but this means exception groups will not "
+            "show full tracebacks.",
+        )
+
         self.providers = get_lm_providers()
 
         # initialize a registry of custom model/chain names
