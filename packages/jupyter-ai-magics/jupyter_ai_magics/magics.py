@@ -533,7 +533,7 @@ class AiMagics(Magics):
         # configure and instantiate provider
         provider_params = {"model_id": local_model_id}
         if provider_id == "openai-chat":
-            # provider_params["messages"] = self.transcript_openai
+            # provider_params["prefix_messages"] = self.transcript_openai
             pass
         # for SageMaker, validate that required params are specified
         if provider_id == "sagemaker-endpoint":
