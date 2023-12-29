@@ -26,7 +26,6 @@ from langchain.chat_models import (
     QianfanChatEndpoint,
 )
 from langchain.chat_models.base import BaseChatModel
-from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.llms import (
     AI21,
     Anthropic,
@@ -45,6 +44,7 @@ from langchain.prompts import PromptTemplate
 from langchain.pydantic_v1 import BaseModel, Extra, root_validator
 from langchain.schema import LLMResult
 from langchain.utils import get_from_dict_or_env
+from langchain_google_genai import ChatGoogleGenerativeAI
 
 
 class EnvAuthStrategy(BaseModel):
