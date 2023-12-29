@@ -3,6 +3,7 @@ name: Update Playwright Snapshots
 on:
   issue_comment:
     types: [created, edited]
+  workflow_dispatch:
 
 permissions:
   contents: write
