@@ -1,4 +1,3 @@
-foo
 import asyncio
 import base64
 import copy
@@ -27,6 +26,7 @@ from langchain.chat_models import (
     QianfanChatEndpoint,
 )
 from langchain.chat_models.base import BaseChatModel
+from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.llms import (
     AI21,
     Anthropic,
