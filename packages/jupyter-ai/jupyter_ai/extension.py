@@ -25,7 +25,6 @@ from .handlers import (
     ChatHistoryHandler,
     EmbeddingsModelProviderHandler,
     GlobalConfigHandler,
-    InlineCompletionHandler,
     ModelProviderHandler,
     RootChatHandler,
 )
@@ -40,7 +39,7 @@ class AiExtension(ExtensionApp):
         (r"api/ai/chats/history?", ChatHistoryHandler),
         (r"api/ai/providers?", ModelProviderHandler),
         (r"api/ai/providers/embeddings?", EmbeddingsModelProviderHandler),
-        (r"api/ai/completion/inline/?", InlineCompletionHandler),
+        (r"api/ai/completion/inline/?", DefaultInlineCompletionHandler),
     ]
 
     allowed_providers = List(
@@ -152,7 +151,6 @@ class AiExtension(ExtensionApp):
         # Store chat clients in a dictionary
         self.settings["chat_clients"] = {}
         self.settings["jai_root_chat_handlers"] = {}
-        self.settings["jai_inline_completion_sessions"] = {}
 
         # list of chat messages to broadcast to new clients
         # this is only used to render the UI, and is not the conversational
@@ -265,13 +263,6 @@ class AiExtension(ExtensionApp):
             HelpMessage(chat_handlers=jai_chat_handlers)
         )
         self.settings["jai_chat_handlers"] = jai_chat_handlers
-
-        # initialize completion handlers
-        default_completion_handler = DefaultInlineCompletionHandler(
-            **common_handler_kargs,
-            ws_sessions=self.settings["jai_inline_completion_sessions"],
-        )
-        self.settings["jai_inline_completion_handler"] = default_completion_handler
 
         latency_ms = round((time.time() - start) * 1000)
         self.log.info(f"Initialized Jupyter AI server extension in {latency_ms} ms.")

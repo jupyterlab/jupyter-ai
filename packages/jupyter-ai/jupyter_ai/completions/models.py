@@ -69,8 +69,3 @@ class InlineCompletionStreamChunk(BaseModel):
     reply_to: int
     done: bool
     error: Optional[CompletionError]
-
-
-class ModelChangedNotification(BaseModel):
-    type: Literal["model_changed"] = "model_changed"
-    model: Optional[str]
