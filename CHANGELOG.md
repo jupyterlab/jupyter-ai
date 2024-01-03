@@ -2,6 +2,27 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 1.8.1
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@1.8.0...4f26e39fbf086436d97b78a1dc041eb8fa657eea))
+
+### Bugs fixed
+
+- Fixes lookup for custom chains [#560](https://github.com/jupyterlab/jupyter-ai/pull/560) ([@JasonWeill](https://github.com/JasonWeill))
+- Pin `langchain-core` dependency to prevent Settings UI crash [#558](https://github.com/jupyterlab/jupyter-ai/pull/558) ([@dlqqq](https://github.com/dlqqq))
+
+### Documentation improvements
+
+- Update README.md for JupyterLab 3 / Jupyter AI 1.x [#549](https://github.com/jupyterlab/jupyter-ai/pull/549) ([@JasonWeill](https://github.com/JasonWeill))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2023-12-27&to=2024-01-03&type=c))
+
+[@JasonWeill](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AJasonWeill+updated%3A2023-12-27..2024-01-03&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2023-12-27..2024-01-03&type=Issues) | [@meeseeksmachine](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ameeseeksmachine+updated%3A2023-12-27..2024-01-03&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 1.8.0
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@1.7.1...833b3b75c0d2df346e579f2b702fcc0a4efdb65f))
@@ -28,8 +49,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2023-12-20&to=2023-12-27&type=c))
 
 [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2023-12-20..2023-12-27&type=Issues) | [@ellisonbg](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aellisonbg+updated%3A2023-12-20..2023-12-27&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2023-12-20..2023-12-27&type=Issues) | [@meeseeksmachine](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ameeseeksmachine+updated%3A2023-12-20..2023-12-27&type=Issues) | [@sundaraa-deshaw](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asundaraa-deshaw+updated%3A2023-12-20..2023-12-27&type=Issues) | [@welcome](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Awelcome+updated%3A2023-12-20..2023-12-27&type=Issues) | [@Zsailer](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AZsailer+updated%3A2023-12-20..2023-12-27&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 1.7.1
 
