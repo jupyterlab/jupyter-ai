@@ -50,7 +50,7 @@ all = [
     "huggingface_hub",
     "ipywidgets",
     "pillow",
-    "openai",
+    "openai~=1.6.1",
     "boto3",
     "qianfan"
 ]
