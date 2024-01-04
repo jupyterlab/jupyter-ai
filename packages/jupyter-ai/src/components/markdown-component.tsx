@@ -4,32 +4,32 @@ import { Widget } from '@lumino/widgets';
 import { LuminoComponent } from './lumino-component';
 
 type MarkdownWidgetProps = {
-  rendermime: IRenderMimeRegistry;
   markdownString: string;
+  rmRegistry: IRenderMimeRegistry;
 };
 
 type MarkdownComponentProps = {
   markdownString: string;
-  rendermime: IRenderMimeRegistry;
+  rmRegistry: IRenderMimeRegistry;
 };
 
 class MarkdownWidget extends Widget {
-  private rendermime: IRenderMimeRegistry;
+  private rmRegistry: IRenderMimeRegistry;
   private markdownString: string;
 
   constructor(props: MarkdownWidgetProps) {
     super();
-    this.rendermime = props.rendermime;
+    this.rmRegistry = props.rmRegistry;
     this.markdownString = props.markdownString;
     this.initializeMarkdownRendering();
   }
 
   async initializeMarkdownRendering(): Promise<void> {
     const mimeType = 'text/markdown';
-    const model = this.rendermime.createModel({
+    const model = this.rmRegistry.createModel({
       data: { [mimeType]: this.markdownString }
     });
-    const renderer = this.rendermime.createRenderer(mimeType);
+    const renderer = this.rmRegistry.createRenderer(mimeType);
     await renderer.renderModel(model);
     this.node.appendChild(renderer.node);
   }
@@ -38,18 +38,20 @@ class MarkdownWidget extends Widget {
 export function MarkdownComponent(
   props: MarkdownComponentProps
 ): React.ReactElement | null {
-  const { markdownString, rendermime } = props;
   const widgetRef = useRef<MarkdownWidget | null>(null);
 
   useEffect(() => {
     if (!widgetRef.current) {
-      widgetRef.current = new MarkdownWidget({ rendermime, markdownString });
+      widgetRef.current = new MarkdownWidget({
+        markdownString: props.markdownString,
+        rmRegistry: props.rmRegistry
+      });
     }
 
     return () => {
       widgetRef.current?.dispose();
     };
-  }, []); // Empty dependency array if props are not expected to change
+  }, []);
 
   return widgetRef.current ? (
     <LuminoComponent widget={widgetRef.current} />

@@ -11,7 +11,7 @@ import { MarkdownComponent } from './markdown-component';
 import { useCollaboratorsContext } from '../contexts/collaborators-context';
 
 type ChatMessagesProps = {
-  rendermime: IRenderMimeRegistry;
+  rmRegistry: IRenderMimeRegistry;
   messages: AiService.ChatMessage[];
 };
 
@@ -144,7 +144,7 @@ export function ChatMessages(props: ChatMessagesProps): JSX.Element {
             sx={{ marginBottom: 3 }}
           />
           <MarkdownComponent
-            rendermime={props.rendermime}
+            rmRegistry={props.rmRegistry}
             markdownString={message.body}
           />
         </Box>

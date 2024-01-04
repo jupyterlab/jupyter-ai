@@ -24,13 +24,13 @@ import { ScrollContainer } from './scroll-container';
 type ChatBodyProps = {
   chatHandler: ChatHandler;
   setChatView: (view: ChatView) => void;
-  renderMimeRegistry: IRenderMimeRegistry;
+  rmRegistry: IRenderMimeRegistry;
 };
 
 function ChatBody({
   chatHandler,
   setChatView: chatViewHandler,
-  renderMimeRegistry
+  rmRegistry: renderMimeRegistry
 }: ChatBodyProps): JSX.Element {
   const [messages, setMessages] = useState<AiService.ChatMessage[]>([]);
   const [showWelcomeMessage, setShowWelcomeMessage] = useState<boolean>(false);
@@ -150,7 +150,7 @@ function ChatBody({
   return (
     <>
       <ScrollContainer sx={{ flexGrow: 1 }}>
-        <ChatMessages messages={messages} rendermime={renderMimeRegistry} />
+        <ChatMessages messages={messages} rmRegistry={renderMimeRegistry} />
       </ScrollContainer>
       <ChatInput
         value={input}
@@ -184,6 +184,7 @@ export type ChatProps = {
   globalAwareness: Awareness | null;
   themeManager: IThemeManager | null;
   renderMimeRegistry: IRenderMimeRegistry;
+  rmRegistry: IRenderMimeRegistry;
   chatView?: ChatView;
 };
 
@@ -233,7 +234,7 @@ export function Chat(props: ChatProps): JSX.Element {
               <ChatBody
                 chatHandler={props.chatHandler}
                 setChatView={setView}
-                renderMimeRegistry={props.renderMimeRegistry}
+                rmRegistry={props.rmRegistry}
               />
             )}
             {view === ChatView.Settings && <ChatSettings />}

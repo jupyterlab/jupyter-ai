@@ -29,8 +29,10 @@ const plugin: JupyterFrontEndPlugin<void> = {
   id: 'jupyter_ai:plugin',
   autoStart: true,
   optional: [IGlobalAwareness, ILayoutRestorer, IThemeManager],
+  requires: [IRenderMimeRegistry],
   activate: async (
     app: JupyterFrontEnd,
+    rmRegistry: IRenderMimeRegistry,
     globalAwareness: Awareness | null,
     restorer: ILayoutRestorer | null,
     themeManager: IThemeManager | null,
@@ -54,7 +56,8 @@ const plugin: JupyterFrontEndPlugin<void> = {
         chatHandler,
         globalAwareness,
         themeManager,
-        renderMimeRegistry
+        renderMimeRegistry,
+        rmRegistry
       );
     } catch (e) {
       chatWidget = buildErrorWidget(themeManager);

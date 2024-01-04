@@ -14,7 +14,8 @@ export function buildChatSidebar(
   chatHandler: ChatHandler,
   globalAwareness: Awareness | null,
   themeManager: IThemeManager | null,
-  renderMimeRegistry: IRenderMimeRegistry
+  renderMimeRegistry: IRenderMimeRegistry,
+  rmRegistry: IRenderMimeRegistry
 ): ReactWidget {
   const ChatWidget = ReactWidget.create(
     <Chat
@@ -23,6 +24,7 @@ export function buildChatSidebar(
       globalAwareness={globalAwareness}
       themeManager={themeManager}
       renderMimeRegistry={renderMimeRegistry}
+      rmRegistry={rmRegistry}
     />
   );
   ChatWidget.id = 'jupyter-ai::chat';
