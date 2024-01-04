@@ -145,7 +145,7 @@ export function ChatMessages(props: ChatMessagesProps): JSX.Element {
           />
           <MarkdownComponent
             rmRegistry={props.rmRegistry}
-            markdownString={message.body}
+            markdownStr={message.body}
           />
         </Box>
       ))}

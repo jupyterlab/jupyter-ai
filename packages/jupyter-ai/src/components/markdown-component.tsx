@@ -4,30 +4,30 @@ import { Widget } from '@lumino/widgets';
 import { LuminoComponent } from './lumino-component';
 
 type MarkdownWidgetProps = {
-  markdownString: string;
+  markdownStr: string;
   rmRegistry: IRenderMimeRegistry;
 };
 
 type MarkdownComponentProps = {
-  markdownString: string;
+  markdownStr: string;
   rmRegistry: IRenderMimeRegistry;
 };
 
 class MarkdownWidget extends Widget {
   private rmRegistry: IRenderMimeRegistry;
-  private markdownString: string;
+  private markdownStr: string;
 
   constructor(props: MarkdownWidgetProps) {
     super();
     this.rmRegistry = props.rmRegistry;
-    this.markdownString = props.markdownString;
+    this.markdownStr = props.markdownStr;
     this.initializeMarkdownRendering();
   }
 
   async initializeMarkdownRendering(): Promise<void> {
     const mimeType = 'text/markdown';
     const model = this.rmRegistry.createModel({
-      data: { [mimeType]: this.markdownString }
+      data: { [mimeType]: this.markdownStr }
     });
     const renderer = this.rmRegistry.createRenderer(mimeType);
     await renderer.renderModel(model);
@@ -43,7 +43,7 @@ export function MarkdownComponent(
   useEffect(() => {
     if (!widgetRef.current) {
       widgetRef.current = new MarkdownWidget({
-        markdownString: props.markdownString,
+        markdownStr: props.markdownStr,
         rmRegistry: props.rmRegistry
       });
     }
