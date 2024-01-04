@@ -1,25 +1,39 @@
 import React, { useRef, useEffect } from 'react';
+import { MessageLoop } from '@lumino/messaging';
 import { Widget } from '@lumino/widgets';
 
 type LuminoComponentProps = {
   widget: Widget;
 };
 
-export function LuminoComponent(
-  props: LuminoComponentProps
-): React.ReactElement {
+export function LuminoComponent({
+  widget
+}: LuminoComponentProps): React.ReactElement {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (ref.current) {
-      Widget.attach(props.widget, ref.current);
+    if (!ref.current) {
+      return;
+    }
+
+    try {
+      MessageLoop.sendMessage(widget, Widget.Msg.BeforeAttach);
+      ref.current.appendChild(widget.node);
+      MessageLoop.sendMessage(widget, Widget.Msg.AfterAttach);
+    } catch (e) {
+      console.warn('Exception while attaching Lumino widget:', e);
     }
 
     return () => {
-      // Detach the widget when the component unmounts
-      Widget.detach(props.widget);
+      try {
+        if (widget.isAttached || widget.node.isConnected) {
+          Widget.detach(widget);
+        }
+      } catch (e) {
+        console.warn('Exception while detaching Lumino widget:', e);
+      }
     };
-  }, [props.widget]);
+  }, [widget]);
 
   return <div ref={ref} />;
 }

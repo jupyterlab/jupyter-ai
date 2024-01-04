@@ -18,16 +18,19 @@ import {
 import { SelectionWatcher } from '../selection-watcher';
 import { ChatHandler } from '../chat_handler';
 import { CollaboratorsContextProvider } from '../contexts/collaborators-context';
+import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { ScrollContainer } from './scroll-container';
 
 type ChatBodyProps = {
   chatHandler: ChatHandler;
   setChatView: (view: ChatView) => void;
+  renderMimeRegistry: IRenderMimeRegistry;
 };
 
 function ChatBody({
   chatHandler,
-  setChatView: chatViewHandler
+  setChatView: chatViewHandler,
+  renderMimeRegistry
 }: ChatBodyProps): JSX.Element {
   const [messages, setMessages] = useState<AiService.ChatMessage[]>([]);
   const [showWelcomeMessage, setShowWelcomeMessage] = useState<boolean>(false);
@@ -147,7 +150,7 @@ function ChatBody({
   return (
     <>
       <ScrollContainer sx={{ flexGrow: 1 }}>
-        <ChatMessages messages={messages} />
+        <ChatMessages messages={messages} rendermime={renderMimeRegistry} />
       </ScrollContainer>
       <ChatInput
         value={input}
@@ -180,6 +183,7 @@ export type ChatProps = {
   chatHandler: ChatHandler;
   globalAwareness: Awareness | null;
   themeManager: IThemeManager | null;
+  renderMimeRegistry: IRenderMimeRegistry;
   chatView?: ChatView;
 };
 
@@ -226,7 +230,11 @@ export function Chat(props: ChatProps): JSX.Element {
             </Box>
             {/* body */}
             {view === ChatView.Chat && (
-              <ChatBody chatHandler={props.chatHandler} setChatView={setView} />
+              <ChatBody
+                chatHandler={props.chatHandler}
+                setChatView={setView}
+                renderMimeRegistry={props.renderMimeRegistry}
+              />
             )}
             {view === ChatView.Settings && <ChatSettings />}
           </Box>

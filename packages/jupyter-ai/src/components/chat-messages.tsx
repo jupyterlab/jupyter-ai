@@ -5,11 +5,13 @@ import type { SxProps, Theme } from '@mui/material';
 import 'katex/dist/katex.min.css';
 
 import { AiService } from '../handler';
-import { useCollaboratorsContext } from '../contexts/collaborators-context';
+import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { Jupyternaut } from '../icons';
 import { MarkdownComponent } from './markdown-component';
+import { useCollaboratorsContext } from '../contexts/collaborators-context';
 
 type ChatMessagesProps = {
+  rendermime: IRenderMimeRegistry;
   messages: AiService.ChatMessage[];
 };
 
@@ -17,11 +19,6 @@ type ChatMessageHeaderProps = {
   message: AiService.ChatMessage;
   timestamp: string;
   sx?: SxProps<Theme>;
-};
-
-type NewTabLinkProps = {
-  children: React.ReactNode;
-  href?: string;
 };
 
 export function ChatMessageHeader(props: ChatMessageHeaderProps): JSX.Element {
@@ -130,14 +127,6 @@ export function ChatMessages(props: ChatMessagesProps): JSX.Element {
     }
   }, [props.messages]);
 
-  function NewTabLink(props: NewTabLinkProps) {
-    return (
-      <a href={props.href ?? '#'} target="_blank" rel="noopener noreferrer">
-        {props.children}
-      </a>
-    );
-  }
-
   return (
     <Box
       sx={{
@@ -155,7 +144,7 @@ export function ChatMessages(props: ChatMessagesProps): JSX.Element {
             sx={{ marginBottom: 3 }}
           />
           <MarkdownComponent
-            rendermime={yourRendermimeInstance}
+            rendermime={props.rendermime}
             markdownString={message.body}
           />
         </Box>
