@@ -274,9 +274,7 @@ class AiExtension(ExtensionApp):
         try:
             await self._stop_extension()
         except Exception as e:
-            self.log.error(
-                "Jupyter AI raised an exception while stopping, printed below. Please report this to the maintainers on GitHub."
-            )
+            self.log.error("Jupyter AI raised an exception while stopping:")
             self.log.exception(e)
 
     async def _stop_extension(self):
