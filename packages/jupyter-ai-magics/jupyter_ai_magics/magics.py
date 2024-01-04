@@ -410,7 +410,6 @@ class AiMagics(Magics):
         # Set CellArgs based on ErrorArgs
         values = args.dict()
         values["type"] = "root"
-        values["reset"] = False
         cell_args = CellArgs(**values)
 
         return self.run_ai_cell(cell_args, prompt)
@@ -505,11 +504,6 @@ class AiMagics(Magics):
                 + "If you were trying to run a command, run `%ai help` to see a list of commands.",
             )
 
-        # if `--reset` is specified, reset transcript and return early
-        if provider_id == "openai-chat" and args.reset:
-            self.transcript_openai = []
-            return
-
         # validate presence of authn credentials
         auth_strategy = self.providers[provider_id].auth_strategy
         if auth_strategy:
@@ -532,9 +526,6 @@ class AiMagics(Magics):
 
         # configure and instantiate provider
         provider_params = {"model_id": local_model_id}
-        if provider_id == "openai-chat":
-            # provider_params["prefix_messages"] = self.transcript_openai
-            pass
         # for SageMaker, validate that required params are specified
         if provider_id == "sagemaker-endpoint":
             if (

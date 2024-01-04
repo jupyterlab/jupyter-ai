@@ -31,7 +31,7 @@ In addition, you will need access to at least one model provider.
 
 To use any AI model provider within this notebook, you'll need the appropriate credentials, such as API keys.
 
-Obtain the necessary credentials (e.g., API keys) from your model provider's platform.
+Obtain the necessary credentials, such as API keys, from your model provider's platform.
 
 You can set your keys using environment variables or in a code cell in your notebook.
 In a code cell, you can use the %env magic command to set the credentials as follows:

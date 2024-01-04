@@ -46,7 +46,6 @@ class CellArgs(BaseModel):
     type: Literal["root"] = "root"
     model_id: str
     format: FORMAT_CHOICES_TYPE
-    reset: bool
     model_parameters: Optional[str]
     # The following parameters are required only for SageMaker models
     region_name: Optional[str]
@@ -54,7 +53,7 @@ class CellArgs(BaseModel):
     response_path: Optional[str]
 
 
-# Should match CellArgs, but without "reset"
+# Should match CellArgs
 class ErrorArgs(BaseModel):
     type: Literal["error"] = "error"
     model_id: str
@@ -125,13 +124,6 @@ def verify_json_value(ctx, param, value):
     type=click.Choice(FORMAT_CHOICES, case_sensitive=False),
     default="markdown",
     help=FORMAT_HELP,
-)
-@click.option(
-    "-r",
-    "--reset",
-    is_flag=True,
-    help="""Clears the conversation transcript used when interacting with an
-    OpenAI chat model provider. Does nothing with other providers.""",
 )
 @click.option(
     REGION_NAME_SHORT_OPTION,
