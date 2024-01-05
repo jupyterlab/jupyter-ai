@@ -46,21 +46,11 @@ export class JupyterAIInlineProvider implements IInlineCompletionProvider {
   readonly icon = jupyternautIcon.bindprops({ width: 16, top: 1 });
 
   constructor(protected options: JupyterAIInlineProvider.IOptions) {
-    options.completionHandler.modelChanged.connect(
-      (_emitter, model: string) => {
-        this._currentModel = model;
-      }
-    );
     options.completionHandler.streamed.connect(this._receiveStreamChunk, this);
   }
 
   get name(): string {
-    if (this._currentModel.length > 0) {
-      return `JupyterAI (${this._currentModel})`;
-    } else {
-      // This one is displayed in the settings.
-      return 'JupyterAI';
-    }
+    return 'JupyterAI';
   }
 
   async fetch(
@@ -270,7 +260,6 @@ export class JupyterAIInlineProvider implements IInlineCompletionProvider {
 
   private _streamPromises: Map<string, PromiseDelegate<StreamChunk>> =
     new Map();
-  private _currentModel = '';
   private _counter = 0;
 }
 
