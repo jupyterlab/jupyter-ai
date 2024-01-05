@@ -54,14 +54,8 @@ export namespace AiCompleterService {
     done: boolean;
   };
 
-  export type InlineCompletionModelChanged = {
-    type: 'model_changed';
-    model: string;
-  };
-
   export type CompleterMessage =
     | InlineCompletionReply
     | ConnectionMessage
-    | InlineCompletionStreamChunk
-    | InlineCompletionModelChanged;
+    | InlineCompletionStreamChunk;
 }

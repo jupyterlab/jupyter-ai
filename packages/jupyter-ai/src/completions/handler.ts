@@ -46,13 +46,6 @@ export class CompletionWebsocketHandler implements IDisposable {
   }
 
   /**
-   * Signal emitted when completion AI model changes.
-   */
-  get modelChanged(): ISignal<CompletionWebsocketHandler, string> {
-    return this._modelChanged;
-  }
-
-  /**
    * Signal emitted when a new chunk of completion is streamed.
    */
   get streamed(): ISignal<CompletionWebsocketHandler, StreamChunk> {
@@ -89,10 +82,6 @@ export class CompletionWebsocketHandler implements IDisposable {
 
   private _onMessage(message: AiService.CompleterMessage): void {
     switch (message.type) {
-      case 'model_changed': {
-        this._modelChanged.emit(message.model);
-        break;
-      }
       case 'connection': {
         this._initialized.resolve();
         break;
@@ -155,7 +144,6 @@ export class CompletionWebsocketHandler implements IDisposable {
 
   private _isDisposed = false;
   private _socket: WebSocket | null = null;
-  private _modelChanged = new Signal<CompletionWebsocketHandler, string>(this);
   private _streamed = new Signal<CompletionWebsocketHandler, StreamChunk>(this);
   private _initialized: PromiseDelegate<void> = new PromiseDelegate<void>();
 }

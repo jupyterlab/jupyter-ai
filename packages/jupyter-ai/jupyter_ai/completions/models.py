@@ -1,6 +1,6 @@
 from typing import List, Literal, Optional
 
-from pydantic import BaseModel
+from langchain.pydantic_v1 import BaseModel
 
 
 class InlineCompletionRequest(BaseModel):
@@ -69,8 +69,3 @@ class InlineCompletionStreamChunk(BaseModel):
     reply_to: int
     done: bool
     error: Optional[CompletionError]
-
-
-class ModelChangedNotification(BaseModel):
-    type: Literal["model_changed"] = "model_changed"
-    model: Optional[str]
