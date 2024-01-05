@@ -127,7 +127,7 @@ def configure_to_cohere(cm: ConfigManager):
 def configure_to_openai(cm: ConfigManager):
     """Configures the ConfigManager to use OpenAI language and embedding models
     with the API key set. Returns a 3-tuple of the keyword arguments used."""
-    LM_GID = "openai-chat-new:gpt-3.5-turbo"
+    LM_GID = "openai-chat:gpt-3.5-turbo"
     EM_GID = "openai:text-embedding-ada-002"
     API_KEYS = {"OPENAI_API_KEY": "foobar"}
     LM_LID = "gpt-3.5-turbo"
@@ -157,7 +157,7 @@ def test_init_with_blocklists(cm: ConfigManager, common_cm_kwargs):
     del cm
 
     blocked_providers = ["openai"]  # blocks EM
-    blocked_models = ["openai-chat-new:gpt-3.5-turbo"]  # blocks LM
+    blocked_models = ["openai-chat:gpt-3.5-turbo"]  # blocks LM
     kwargs = {
         **common_cm_kwargs,
         "blocked_providers": blocked_providers,
@@ -278,14 +278,14 @@ def test_forbid_write_write_conflict(cm: ConfigManager):
 
     # call UpdateConfig separately after DescribeConfig with `last_read` unset
     # to force a write
-    cm.update_config(UpdateConfigRequest(model_provider_id="openai-chat-new:gpt-4"))
+    cm.update_config(UpdateConfigRequest(model_provider_id="openai-chat:gpt-4"))
 
     # this update should fail, as this generates a write-write conflict (where
     # the second update clobbers the first update).
     with pytest.raises(WriteConflictError):
         cm.update_config(
             UpdateConfigRequest(
-                model_provider_id="openai-chat-new:gpt-4-32k", last_read=last_read
+                model_provider_id="openai-chat:gpt-4-32k", last_read=last_read
             )
         )
 
