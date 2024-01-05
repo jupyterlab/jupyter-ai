@@ -414,12 +414,6 @@ class AiMagics(Magics):
 
         return self.run_ai_cell(cell_args, prompt)
 
-    def _append_exchange_openai(self, prompt: str, output: str):
-        """Appends a conversational exchange between user and an OpenAI Chat
-        model to a transcript that will be included in future exchanges."""
-        self.transcript_openai.append({"role": "user", "content": prompt})
-        self.transcript_openai.append({"role": "assistant", "content": output})
-
     def _decompose_model_id(self, model_id: str):
         """Breaks down a model ID into a two-tuple (provider_id, local_model_id). Returns (None, None) if indeterminate."""
         # custom_model_registry maps keys to either a model name (a string) or an LLMChain.
@@ -559,11 +553,6 @@ class AiMagics(Magics):
             result = provider.generate([prompt])
 
         output = result.generations[0][0].text
-
-        # if openai-chat, append exchange to transcript
-        if provider_id == "openai-chat":
-            self._append_exchange_openai(prompt, output)
-
         md = {"jupyter_ai": {"provider_id": provider_id, "model_id": local_model_id}}
 
         return self.display_output(output, args.format, md)
