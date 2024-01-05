@@ -297,10 +297,6 @@ class ModelProviderHandler(ProviderHandler):
 
         # Step 1: gather providers
         for provider in self.lm_providers.values():
-            # skip old legacy OpenAI chat provider used only in magics
-            if provider.id == "openai-chat":
-                continue
-
             optionals = {}
             if provider.model_id_label:
                 optionals["model_id_label"] = provider.model_id_label

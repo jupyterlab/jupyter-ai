@@ -259,7 +259,7 @@ should contain the following data:
 AWS Console at the URL
 `https://<region>.console.aws.amazon.com/sagemaker/home?region=<region>#/endpoints`.
 
-- **Region name**: The AWS region your SageMaker endpoint is hosted in, e.g. `us-west-2`.
+- **Region name**: The AWS region your SageMaker endpoint is hosted in, such as `us-west-2`.
 
 - **Request schema**: The JSON object the endpoint expects, with the prompt
 being substituted into any value that matches the string literal `"<prompt>"`.
@@ -473,8 +473,8 @@ running the following code in a notebook cell or IPython shell:
 This command should not produce any output.
 
 :::{note}
-If you are using remote kernels (e.g.  Amazon SageMaker Studio), the above
-command will throw an error. This means that need to install the magics package
+If you are using remote kernels, such as in Amazon SageMaker Studio, the above
+command will throw an error. You will need to install the magics package
 on your remote kernel separately, even if you already have `jupyter_ai_magics`
 installed in your server's environment. In a notebook, run
 
@@ -518,11 +518,6 @@ We currently support the following language model providers:
 - `openai`
 - `openai-chat`
 - `sagemaker-endpoint`
-
-:::{warning}
-As of v0.8.0, only the `%%ai` *cell* magic may be used to invoke a language
-model, while the `%ai` *line* magic is reserved for invoking subcommands.
-:::
 
 ### Listing available models
 
@@ -602,21 +597,6 @@ include calls to nonexistent (hallucinated) APIs.
 %%ai chatgpt -f code
 A function that computes the lowest common multiples of two integers, and
 a function that runs 5 test cases of the lowest common multiple function
-```
-
-### Clearing the OpenAI chat history
-
-With the `openai-chat` provider *only*, you can run a cell magic command using the `-r` or
-`--reset` option to clear the chat history. After you do this, previous magic commands you've
-run with the `openai-chat` provider will no longer be added as context in
-requests to this provider.
-
-Because the `%%ai` command is a cell magic, you must provide a prompt on the second line.
-This prompt will not be sent to the provider. A reset command will not generate any output.
-
-```
-%%ai openai-chat:gpt-3.5-turbo -r
-reset the chat history
 ```
 
 ### Interpolating in prompts

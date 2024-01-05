@@ -124,18 +124,20 @@ class AiMagics(Magics):
         super().__init__(shell)
         self.transcript_openai = []
 
-        # suppress warning when using old OpenAIChat provider
-        warnings.filterwarnings(
-            "ignore",
-            message="You are trying to use a chat model. This way of initializing it is "
-            "no longer supported. Instead, please use: "
-            "`from langchain.chat_models import ChatOpenAI`",
-        )
         # suppress warning when using old Anthropic provider
         warnings.filterwarnings(
             "ignore",
             message="This Anthropic LLM is deprecated. Please use "
             "`from langchain.chat_models import ChatAnthropic` instead",
+        )
+
+        # suppress warning about our exception handler
+        warnings.filterwarnings(
+            "ignore",
+            message="IPython detected, but you already "
+            "have a custom exception handler installed. I'll skip installing "
+            "Trio's custom handler, but this means exception groups will not "
+            "show full tracebacks.",
         )
 
         self.providers = get_lm_providers()
@@ -408,16 +410,9 @@ class AiMagics(Magics):
         # Set CellArgs based on ErrorArgs
         values = args.dict()
         values["type"] = "root"
-        values["reset"] = False
         cell_args = CellArgs(**values)
 
         return self.run_ai_cell(cell_args, prompt)
-
-    def _append_exchange_openai(self, prompt: str, output: str):
-        """Appends a conversational exchange between user and an OpenAI Chat
-        model to a transcript that will be included in future exchanges."""
-        self.transcript_openai.append({"role": "user", "content": prompt})
-        self.transcript_openai.append({"role": "assistant", "content": output})
 
     def _decompose_model_id(self, model_id: str):
         """Breaks down a model ID into a two-tuple (provider_id, local_model_id). Returns (None, None) if indeterminate."""
@@ -503,11 +498,6 @@ class AiMagics(Magics):
                 + "If you were trying to run a command, run `%ai help` to see a list of commands.",
             )
 
-        # if `--reset` is specified, reset transcript and return early
-        if provider_id == "openai-chat" and args.reset:
-            self.transcript_openai = []
-            return
-
         # validate presence of authn credentials
         auth_strategy = self.providers[provider_id].auth_strategy
         if auth_strategy:
@@ -530,8 +520,6 @@ class AiMagics(Magics):
 
         # configure and instantiate provider
         provider_params = {"model_id": local_model_id}
-        if provider_id == "openai-chat":
-            provider_params["prefix_messages"] = self.transcript_openai
         # for SageMaker, validate that required params are specified
         if provider_id == "sagemaker-endpoint":
             if (
@@ -565,11 +553,6 @@ class AiMagics(Magics):
             result = provider.generate([prompt])
 
         output = result.generations[0][0].text
-
-        # if openai-chat, append exchange to transcript
-        if provider_id == "openai-chat":
-            self._append_exchange_openai(prompt, output)
-
         md = {"jupyter_ai": {"provider_id": provider_id, "model_id": local_model_id}}
 
         return self.display_output(output, args.format, md)
