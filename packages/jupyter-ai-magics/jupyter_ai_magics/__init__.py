@@ -22,7 +22,6 @@ from .providers import (
     BedrockChatProvider,
     BedrockProvider,
     ChatAnthropicProvider,
-    ChatOpenAINewProvider,
     ChatOpenAIProvider,
     CohereProvider,
     GPT4AllProvider,
