@@ -1,0 +1,6 @@
+.custom-markdown pre,
+.custom-markdown pre > code {
+  background-color: var(--jp-cell-editor-background);
+  overflow-x: auto;
+  white-space: pre;
+}

@@ -17,7 +17,9 @@ export function RendermimeMarkdown(
       if (!ref.current) {
         return;
       }
+
       ref.current.innerHTML = '';
+      ref.current.className = 'custom-markdown'; // Apply the custom class
 
       const mimeType = 'text/markdown';
       const model = rmRegistry.createModel({
