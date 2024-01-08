@@ -7,6 +7,7 @@ from .embedding_providers import (
     CohereEmbeddingsProvider,
     GPT4AllEmbeddingsProvider,
     HfHubEmbeddingsProvider,
+    NVIDIAEmbeddingsProvider,
     OpenAIEmbeddingsProvider,
     QianfanEmbeddingsEndpointProvider,
 )
@@ -22,6 +23,7 @@ from .providers import (
     BedrockChatProvider,
     BedrockProvider,
     ChatAnthropicProvider,
+    ChatNVIDIAProvider,
     ChatOpenAIProvider,
     CohereProvider,
     GPT4AllProvider,

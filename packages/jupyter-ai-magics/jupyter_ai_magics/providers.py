@@ -44,6 +44,7 @@ from langchain.pydantic_v1 import BaseModel, Extra, root_validator
 from langchain.schema import LLMResult
 from langchain.utils import get_from_dict_or_env
 from langchain_community.chat_models import ChatOpenAI
+from langchain_nvidia_ai_endpoints import ChatNVIDIA
 
 
 class EnvAuthStrategy(BaseModel):
@@ -335,7 +336,6 @@ class ChatAnthropicProvider(BaseProvider, ChatAnthropic):
     @property
     def allows_concurrency(self):
         return False
-
 
 class CohereProvider(BaseProvider, Cohere):
     id = "cohere"
@@ -747,3 +747,22 @@ class QianfanProvider(BaseProvider, QianfanChatEndpoint):
     model_id_key = "model_name"
     pypi_package_deps = ["qianfan"]
     auth_strategy = MultiEnvAuthStrategy(names=["QIANFAN_AK", "QIANFAN_SK"])
+
+
+class ChatNVIDIAProvider(BaseProvider, ChatNVIDIA):
+    id = "nvidia-chat"
+    name = "ChatNVIDIA"
+    models = ['playground_llama2_70b',
+              'playground_nemotron_steerlm_8b',
+              'playground_mistral_7b',
+              'playground_nv_llama2_rlhf_70b',
+              'playground_llama2_13b',
+              'playground_steerlm_llama_70b',
+              'playground_llama2_code_13b',
+              'playground_yi_34b',
+              'playground_mixtral_8x7b',
+              'playground_neva_22b',
+              'playground_llama2_code_34b'
+             ]
+    model_id_key = "model"
+    auth_strategy = EnvAuthStrategy(name="NVIDIA_API_KEY")

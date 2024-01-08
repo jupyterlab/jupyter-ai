@@ -28,6 +28,7 @@ dependencies = [
     "typing_extensions>=4.5.0",
     "click~=8.0",
     "jsonpath-ng>=1.5.3,<2",
+    "langchain_nvidia_ai_endpoints",
 ]
 
 [project.optional-dependencies]
@@ -69,6 +70,7 @@ amazon-bedrock = "jupyter_ai_magics:BedrockProvider"
 anthropic-chat = "jupyter_ai_magics:ChatAnthropicProvider"
 amazon-bedrock-chat = "jupyter_ai_magics:BedrockChatProvider"
 qianfan = "jupyter_ai_magics:QianfanProvider"
+nvidia-chat = "jupyter_ai_magics:ChatNVIDIAProvider"
 
 [project.entry-points."jupyter_ai.embeddings_model_providers"]
 bedrock = "jupyter_ai_magics:BedrockEmbeddingsProvider"
@@ -77,6 +79,7 @@ gpt4all = "jupyter_ai_magics:GPT4AllEmbeddingsProvider"
 huggingface_hub = "jupyter_ai_magics:HfHubEmbeddingsProvider"
 openai = "jupyter_ai_magics:OpenAIEmbeddingsProvider"
 qianfan = "jupyter_ai_magics:QianfanEmbeddingsEndpointProvider"
+nvidia = "jupyter_ai_magics:NVIDIAEmbeddingsProvider:
 
 [tool.hatch.version]
 source = "nodejs"
