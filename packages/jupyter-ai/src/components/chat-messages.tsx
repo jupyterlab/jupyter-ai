@@ -7,7 +7,7 @@ import 'katex/dist/katex.min.css';
 import { AiService } from '../handler';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { Jupyternaut } from '../icons';
-import { MarkdownComponent } from './markdown-component';
+import { RendermimeMarkdown } from './rendermime-markdown';
 import { useCollaboratorsContext } from '../contexts/collaborators-context';
 
 type ChatMessagesProps = {
@@ -143,7 +143,7 @@ export function ChatMessages(props: ChatMessagesProps): JSX.Element {
             timestamp={timestamps[message.id]}
             sx={{ marginBottom: 3 }}
           />
-          <MarkdownComponent
+          <RendermimeMarkdown
             rmRegistry={props.rmRegistry}
             markdownStr={message.body}
           />
