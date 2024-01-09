@@ -273,7 +273,7 @@ export function ChatSettings(): JSX.Element {
         {server.lmProviders.providers.map(lmp =>
           lmp.models.map(lm => (
             <MenuItem value={`${lmp.id}:${lm}`}>
-              {lmp.name} :: {lm}
+              {lmp.provider_name} :: {lm}
             </MenuItem>
           ))
         )}
@@ -316,7 +316,7 @@ export function ChatSettings(): JSX.Element {
             .filter(em => em !== '*') // TODO: support registry providers
             .map(em => (
               <MenuItem value={`${emp.id}:${em}`}>
-                {emp.name} :: {em}
+                {emp.provider_name} :: {em}
               </MenuItem>
             ))
         )}

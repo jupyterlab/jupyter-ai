@@ -170,7 +170,7 @@ export namespace AiService {
 
   export type ListProvidersEntry = {
     id: string;
-    name: string;
+    provider_name: string;
     model_id_label?: string;
     models: string[];
     help?: string;
