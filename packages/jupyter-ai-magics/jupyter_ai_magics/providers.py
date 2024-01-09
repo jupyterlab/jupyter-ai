@@ -18,14 +18,14 @@ from typing import (
 )
 
 from jsonpath_ng import parse
-from langchain.chat_models import (
+from langchain_community.chat_models import (
     AzureChatOpenAI,
     BedrockChat,
     ChatAnthropic,
     QianfanChatEndpoint,
 )
 from langchain.chat_models.base import BaseChatModel
-from langchain.llms import (
+from langchain_community.llms import (
     AI21,
     Anthropic,
     Bedrock,
