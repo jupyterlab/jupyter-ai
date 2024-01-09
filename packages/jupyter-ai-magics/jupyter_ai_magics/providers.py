@@ -112,7 +112,7 @@ class BaseProvider(BaseModel):
     id: ClassVar[str] = ...
     """ID for this provider class."""
 
-    name: ClassVar[str] = ...
+    provider_name: ClassVar[str] = ...
     """User-facing name of this provider."""
 
     models: ClassVar[List[str]] = ...
@@ -253,7 +253,7 @@ class BaseProvider(BaseModel):
 
 class AI21Provider(BaseProvider, AI21):
     id = "ai21"
-    name = "AI21"
+    provider_name = "AI21"
     models = [
         "j1-large",
         "j1-grande",
@@ -284,7 +284,7 @@ class AI21Provider(BaseProvider, AI21):
 
 class AnthropicProvider(BaseProvider, Anthropic):
     id = "anthropic"
-    name = "Anthropic"
+    provider_name = "Anthropic"
     models = [
         "claude-v1",
         "claude-v1.0",
@@ -317,7 +317,7 @@ class AnthropicProvider(BaseProvider, Anthropic):
 
 class ChatAnthropicProvider(BaseProvider, ChatAnthropic):
     id = "anthropic-chat"
-    name = "ChatAnthropic"
+    provider_name = "ChatAnthropic"
     models = [
         "claude-v1",
         "claude-v1.0",
@@ -339,7 +339,7 @@ class ChatAnthropicProvider(BaseProvider, ChatAnthropic):
 
 class CohereProvider(BaseProvider, Cohere):
     id = "cohere"
-    name = "Cohere"
+    provider_name = "Cohere"
     models = ["medium", "xlarge"]
     model_id_key = "model"
     pypi_package_deps = ["cohere"]
@@ -364,7 +364,7 @@ class GPT4AllProvider(BaseProvider, GPT4All):
         super().__init__(**kwargs)
 
     id = "gpt4all"
-    name = "GPT4All"
+    provider_name = "GPT4All"
     docs = "https://docs.gpt4all.io/gpt4all_python.html"
     models = [
         "ggml-gpt4all-j-v1.2-jazzy",
@@ -406,7 +406,7 @@ HUGGINGFACE_HUB_VALID_TASKS = (
 
 class HfHubProvider(BaseProvider, HuggingFaceHub):
     id = "huggingface_hub"
-    name = "Hugging Face Hub"
+    provider_name = "Hugging Face Hub"
     models = ["*"]
     model_id_key = "repo_id"
     help = (
@@ -511,7 +511,7 @@ class HfHubProvider(BaseProvider, HuggingFaceHub):
 
 class OpenAIProvider(BaseProvider, OpenAI):
     id = "openai"
-    name = "OpenAI"
+    provider_name = "OpenAI"
     models = [
         "text-davinci-003",
         "text-davinci-002",
@@ -542,7 +542,7 @@ class OpenAIProvider(BaseProvider, OpenAI):
 
 class ChatOpenAIProvider(BaseProvider, ChatOpenAI):
     id = "openai-chat"
-    name = "OpenAI"
+    provider_name = "OpenAI"
     models = [
         "gpt-3.5-turbo",
         "gpt-3.5-turbo-16k",
@@ -586,7 +586,7 @@ class ChatOpenAIProvider(BaseProvider, ChatOpenAI):
 
 class AzureChatOpenAIProvider(BaseProvider, AzureChatOpenAI):
     id = "azure-chat-openai"
-    name = "Azure OpenAI"
+    provider_name = "Azure OpenAI"
     models = ["*"]
     model_id_key = "deployment_name"
     model_id_label = "Deployment name"
@@ -641,7 +641,7 @@ class JsonContentHandler(LLMContentHandler):
 
 class SmEndpointProvider(BaseProvider, SagemakerEndpoint):
     id = "sagemaker-endpoint"
-    name = "SageMaker endpoint"
+    provider_name = "SageMaker endpoint"
     models = ["*"]
     model_id_key = "endpoint_name"
     model_id_label = "Endpoint name"
@@ -681,7 +681,7 @@ class SmEndpointProvider(BaseProvider, SagemakerEndpoint):
 
 class BedrockProvider(BaseProvider, Bedrock):
     id = "bedrock"
-    name = "Amazon Bedrock"
+    provider_name = "Amazon Bedrock"
     models = [
         "amazon.titan-text-express-v1",
         "ai21.j2-ultra-v1",
@@ -709,7 +709,7 @@ class BedrockProvider(BaseProvider, Bedrock):
 
 class BedrockChatProvider(BaseProvider, BedrockChat):
     id = "bedrock-chat"
-    name = "Amazon Bedrock Chat"
+    provider_name = "Amazon Bedrock Chat"
     models = [
         "anthropic.claude-v1",
         "anthropic.claude-v2",
@@ -742,7 +742,7 @@ class BedrockChatProvider(BaseProvider, BedrockChat):
 # Baidu QianfanChat provider. temporarily living as a separate class until
 class QianfanProvider(BaseProvider, QianfanChatEndpoint):
     id = "qianfan"
-    name = "ERNIE-Bot"
+    provider_name = "ERNIE-Bot"
     models = ["ERNIE-Bot", "ERNIE-Bot-4"]
     model_id_key = "model_name"
     pypi_package_deps = ["qianfan"]

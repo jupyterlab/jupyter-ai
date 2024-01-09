@@ -28,7 +28,7 @@ class BaseEmbeddingsProvider(BaseModel):
     id: ClassVar[str] = ...
     """ID for this provider class."""
 
-    name: ClassVar[str] = ...
+    provider_name: ClassVar[str] = ...
     """User-facing name of this provider."""
 
     models: ClassVar[List[str]] = ...
@@ -71,7 +71,7 @@ class BaseEmbeddingsProvider(BaseModel):
 
 class OpenAIEmbeddingsProvider(BaseEmbeddingsProvider, OpenAIEmbeddings):
     id = "openai"
-    name = "OpenAI"
+    provider_name = "OpenAI"
     models = ["text-embedding-ada-002"]
     model_id_key = "model"
     pypi_package_deps = ["openai"]
@@ -80,7 +80,7 @@ class OpenAIEmbeddingsProvider(BaseEmbeddingsProvider, OpenAIEmbeddings):
 
 class CohereEmbeddingsProvider(BaseEmbeddingsProvider, CohereEmbeddings):
     id = "cohere"
-    name = "Cohere"
+    provider_name = "Cohere"
     models = ["large", "multilingual-22-12", "small"]
     model_id_key = "model"
     pypi_package_deps = ["cohere"]
@@ -89,7 +89,7 @@ class CohereEmbeddingsProvider(BaseEmbeddingsProvider, CohereEmbeddings):
 
 class HfHubEmbeddingsProvider(BaseEmbeddingsProvider, HuggingFaceHubEmbeddings):
     id = "huggingface_hub"
-    name = "Hugging Face Hub"
+    provider_name = "Hugging Face Hub"
     models = ["*"]
     model_id_key = "repo_id"
     # ipywidgets needed to suppress tqdm warning
@@ -102,7 +102,7 @@ class HfHubEmbeddingsProvider(BaseEmbeddingsProvider, HuggingFaceHubEmbeddings):
 
 class BedrockEmbeddingsProvider(BaseEmbeddingsProvider, BedrockEmbeddings):
     id = "bedrock"
-    name = "Bedrock"
+    provider_name = "Bedrock"
     models = ["amazon.titan-embed-text-v1"]
     model_id_key = "model_id"
     pypi_package_deps = ["boto3"]
@@ -125,7 +125,7 @@ class GPT4AllEmbeddingsProvider(BaseEmbeddingsProvider, GPT4AllEmbeddings):
         super().__init__(**kwargs)
 
     id = "gpt4all"
-    name = "GPT4All Embeddings"
+    provider_name = "GPT4All Embeddings"
     models = ["all-MiniLM-L6-v2-f16"]
     model_id_key = "model_id"
     pypi_package_deps = ["gpt4all"]
@@ -135,7 +135,7 @@ class QianfanEmbeddingsEndpointProvider(
     BaseEmbeddingsProvider, QianfanEmbeddingsEndpoint
 ):
     id = "qianfan"
-    name = "ERNIE-Bot"
+    provider_name = "ERNIE-Bot"
     models = ["ERNIE-Bot", "ERNIE-Bot-4"]
     model_id_key = "model"
     pypi_package_deps = ["qianfan"]

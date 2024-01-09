@@ -304,7 +304,7 @@ class ModelProviderHandler(ProviderHandler):
             providers.append(
                 ListProvidersEntry(
                     id=provider.id,
-                    name=provider.name,
+                    provider_name=provider.provider_name,
                     models=provider.models,
                     help=provider.help,
                     auth_strategy=provider.auth_strategy,
@@ -316,7 +316,7 @@ class ModelProviderHandler(ProviderHandler):
 
         # Step 2: sort & filter providers
         providers = self._filter_blocked_models(providers)
-        providers = sorted(providers, key=lambda p: p.name)
+        providers = sorted(providers, key=lambda p: p.provider_name)
 
         # Finally, yield response.
         response = ListProvidersResponse(providers=providers)
@@ -331,7 +331,7 @@ class EmbeddingsModelProviderHandler(ProviderHandler):
             providers.append(
                 ListProvidersEntry(
                     id=provider.id,
-                    name=provider.name,
+                    provider_name=provider.provider_name,
                     models=provider.models,
                     auth_strategy=provider.auth_strategy,
                     registry=provider.registry,
@@ -340,7 +340,7 @@ class EmbeddingsModelProviderHandler(ProviderHandler):
             )
 
         providers = self._filter_blocked_models(providers)
-        providers = sorted(providers, key=lambda p: p.name)
+        providers = sorted(providers, key=lambda p: p.provider_name)
 
         response = ListProvidersResponse(providers=providers)
         self.finish(response.json())
