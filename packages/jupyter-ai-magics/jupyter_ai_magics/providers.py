@@ -18,13 +18,20 @@ from typing import (
 )
 
 from jsonpath_ng import parse
+from langchain.chat_models.base import BaseChatModel
+from langchain.llms.sagemaker_endpoint import LLMContentHandler
+from langchain.llms.utils import enforce_stop_tokens
+from langchain.prompts import PromptTemplate
+from langchain.pydantic_v1 import BaseModel, Extra, root_validator
+from langchain.schema import LLMResult
+from langchain.utils import get_from_dict_or_env
 from langchain_community.chat_models import (
     AzureChatOpenAI,
     BedrockChat,
     ChatAnthropic,
+    ChatOpenAI,
     QianfanChatEndpoint,
 )
-from langchain.chat_models.base import BaseChatModel
 from langchain_community.llms import (
     AI21,
     Anthropic,
@@ -37,13 +44,6 @@ from langchain_community.llms import (
     QianfanLLMEndpoint,
     SagemakerEndpoint,
 )
-from langchain.llms.sagemaker_endpoint import LLMContentHandler
-from langchain.llms.utils import enforce_stop_tokens
-from langchain.prompts import PromptTemplate
-from langchain.pydantic_v1 import BaseModel, Extra, root_validator
-from langchain.schema import LLMResult
-from langchain.utils import get_from_dict_or_env
-from langchain_community.chat_models import ChatOpenAI
 
 
 class EnvAuthStrategy(BaseModel):
