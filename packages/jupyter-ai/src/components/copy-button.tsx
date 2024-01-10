@@ -1,9 +1,9 @@
 import React, { useState, useCallback } from 'react';
 
-import Button from '@mui/material/Button';
+import { Box, Button } from '@mui/material';
 
-const CC_BTN_CLASS = 'jp-ai-copy-button';
-const CC_BTN_CONTAINER_CLASS = 'jp-ai-copy-button-container';
+// const CC_BTN_CLASS = 'jp-ai-copy-button';
+// const CC_BTN_CONTAINER_CLASS = 'jp-ai-copy-button-container';
 
 enum CopyStatus {
   None,
@@ -12,7 +12,7 @@ enum CopyStatus {
 }
 
 const COPYBTN_TEXT_BY_STATUS: Record<CopyStatus, string> = {
-  [CopyStatus.None]: 'Copy to clipboard',
+  [CopyStatus.None]: 'Copy To Clipboard',
   [CopyStatus.Copying]: 'Copying...',
   [CopyStatus.Copied]: 'Copied!'
 };
@@ -39,16 +39,18 @@ export function CopyButton(props: CopyButtonProps): JSX.Element {
   }, [props.value]);
 
   return (
-    <div className={CC_BTN_CONTAINER_CLASS}>
+    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
       <Button
         onClick={copy}
-        className={CC_BTN_CLASS}
-        variant="outlined"
-        aria-label="Copy to clipboard"
-        title="Copy to clipboard"
+        disabled={copyStatus !== CopyStatus.None}
+        aria-label="Copy To Clipboard"
+        sx={{
+          alignSelf: 'flex-end',
+          textTransform: 'none'
+        }}
       >
         {COPYBTN_TEXT_BY_STATUS[copyStatus]}
       </Button>
-    </div>
+    </Box>
   );
 }
