@@ -7,6 +7,7 @@ from jupyter_ai_magics.providers import (
     Field,
     MultiEnvAuthStrategy,
 )
+from langchain.pydantic_v1 import BaseModel, Extra
 from langchain_community.embeddings import (
     BedrockEmbeddings,
     CohereEmbeddings,
@@ -15,7 +16,6 @@ from langchain_community.embeddings import (
     OpenAIEmbeddings,
     QianfanEmbeddingsEndpoint,
 )
-from langchain.pydantic_v1 import BaseModel, Extra
 
 
 class BaseEmbeddingsProvider(BaseModel):

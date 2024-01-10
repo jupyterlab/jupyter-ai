@@ -5,25 +5,23 @@ import functools
 import io
 import json
 from concurrent.futures import ThreadPoolExecutor
-from typing import (
-    Any,
-    ClassVar,
-    Coroutine,
-    Dict,
-    List,
-    Literal,
-    Optional,
-    Union,
-)
+from typing import Any, ClassVar, Coroutine, Dict, List, Literal, Optional, Union
 
 from jsonpath_ng import parse
+from langchain.chat_models.base import BaseChatModel
+from langchain.llms.sagemaker_endpoint import LLMContentHandler
+from langchain.llms.utils import enforce_stop_tokens
+from langchain.prompts import PromptTemplate
+from langchain.pydantic_v1 import BaseModel, Extra, root_validator
+from langchain.schema import LLMResult
+from langchain.utils import get_from_dict_or_env
 from langchain_community.chat_models import (
     AzureChatOpenAI,
     BedrockChat,
     ChatAnthropic,
+    ChatOpenAI,
     QianfanChatEndpoint,
 )
-from langchain.chat_models.base import BaseChatModel
 from langchain_community.llms import (
     AI21,
     Anthropic,
@@ -34,13 +32,6 @@ from langchain_community.llms import (
     OpenAI,
     SagemakerEndpoint,
 )
-from langchain.llms.sagemaker_endpoint import LLMContentHandler
-from langchain.llms.utils import enforce_stop_tokens
-from langchain.prompts import PromptTemplate
-from langchain.pydantic_v1 import BaseModel, Extra, root_validator
-from langchain.schema import LLMResult
-from langchain.utils import get_from_dict_or_env
-from langchain_community.chat_models import ChatOpenAI
 
 # this is necessary because `langchain.pydantic_v1.main` does not include
 # `ModelMetaclass`, as it is not listed in `__all__` by the `pydantic.main`
@@ -103,11 +94,12 @@ class IntegerField(BaseModel):
 
 Field = Union[TextField, MultilineTextField, IntegerField]
 
+
 class ProviderMetaclass(ModelMetaclass):
     """
     A metaclass that ensures all class attributes defined inline within the
     class definition are accessible and included in `Class.__dict__`.
-     
+
     This is necessary because Pydantic drops any ClassVars that are defined as
     an instance field by a parent class, even if they are defined inline within
     the class definition. We encountered this case when `langchain` added a
@@ -119,7 +111,7 @@ class ProviderMetaclass(ModelMetaclass):
         cls = super().__new__(mcs, name, bases, namespace, **kwargs)
         for key in namespace:
             # skip private class attributes
-            if key.startswith('_'):
+            if key.startswith("_"):
                 continue
             # skip class attributes already listed in `cls.__dict__`
             if key in cls.__dict__:
@@ -128,6 +120,7 @@ class ProviderMetaclass(ModelMetaclass):
             setattr(cls, key, namespace[key])
 
         return cls
+
 
 class BaseProvider(BaseModel, metaclass=ProviderMetaclass):
     #
