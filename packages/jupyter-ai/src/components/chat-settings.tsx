@@ -1,7 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
 
-import ReactMarkdown from 'react-markdown';
-
 import { Box } from '@mui/system';
 import {
   Alert,
@@ -22,13 +20,19 @@ import { AiService } from '../handler';
 import { ModelFields } from './settings/model-fields';
 import { ServerInfoState, useServerInfo } from './settings/use-server-info';
 import { ExistingApiKeys } from './settings/existing-api-keys';
+import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { minifyUpdate } from './settings/minify';
 import { useStackingAlert } from './mui-extras/stacking-alert';
+import { RendermimeMarkdown } from './rendermime-markdown';
+
+type ChatSettingsProps = {
+  rmRegistry: IRenderMimeRegistry;
+};
 
 /**
  * Component that returns the settings view in the chat panel.
  */
-export function ChatSettings(): JSX.Element {
+export function ChatSettings(props: ChatSettingsProps): JSX.Element {
   // state fetched on initial render
   const server = useServerInfo();
 
@@ -287,9 +291,10 @@ export function ChatSettings(): JSX.Element {
         />
       )}
       {helpMarkdown && (
-        <Typography className="jp-ai-ChatSettings-model-help">
-          <ReactMarkdown linkTarget="_blank">{helpMarkdown}</ReactMarkdown>
-        </Typography>
+        <RendermimeMarkdown
+          rmRegistry={props.rmRegistry}
+          markdownStr={helpMarkdown}
+        />
       )}
       {lmGlobalId && (
         <ModelFields

@@ -237,7 +237,9 @@ export function Chat(props: ChatProps): JSX.Element {
                 rmRegistry={props.rmRegistry}
               />
             )}
-            {view === ChatView.Settings && <ChatSettings />}
+            {view === ChatView.Settings && (
+              <ChatSettings rmRegistry={props.rmRegistry} />
+            )}
           </Box>
         </CollaboratorsContextProvider>
       </SelectionContextProvider>
