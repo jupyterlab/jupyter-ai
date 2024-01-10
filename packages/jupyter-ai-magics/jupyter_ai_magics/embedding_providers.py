@@ -1,4 +1,3 @@
-import os
 from typing import ClassVar, List
 
 from jupyter_ai_magics.providers import (
@@ -8,7 +7,7 @@ from jupyter_ai_magics.providers import (
     Field,
     MultiEnvAuthStrategy,
 )
-from langchain.embeddings import (
+from langchain_community.embeddings import (
     BedrockEmbeddings,
     CohereEmbeddings,
     GPT4AllEmbeddings,

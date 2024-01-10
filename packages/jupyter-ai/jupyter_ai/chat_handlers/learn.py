@@ -1,10 +1,9 @@
 import argparse
 import json
 import os
-from typing import Any, Awaitable, Coroutine, List, Optional, Tuple
+from typing import Any, Coroutine, List, Optional, Tuple
 
 from dask.distributed import Client as DaskClient
-from jupyter_ai.config_manager import ConfigManager
 from jupyter_ai.document_loaders.directory import get_embeddings, split
 from jupyter_ai.document_loaders.splitter import ExtensionSplitter, NotebookSplitter
 from jupyter_ai.models import (
@@ -22,7 +21,7 @@ from langchain.text_splitter import (
     PythonCodeTextSplitter,
     RecursiveCharacterTextSplitter,
 )
-from langchain.vectorstores import FAISS
+from langchain_community.vectorstores import FAISS
 
 from .base import BaseChatHandler, SlashCommandRoutingType
 
@@ -141,7 +140,7 @@ class LearnChatHandler(BaseChatHandler):
     async def learn_dir(
         self, path: str, chunk_size: int, chunk_overlap: int, all_files: bool
     ):
-        dask_client = await self.dask_client_future
+        dask_client: DaskClient = await self.dask_client_future
         splitter_kwargs = {"chunk_size": chunk_size, "chunk_overlap": chunk_overlap}
         splitters = {
             ".py": PythonCodeTextSplitter(**splitter_kwargs),
