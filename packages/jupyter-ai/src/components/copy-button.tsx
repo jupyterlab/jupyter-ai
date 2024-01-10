@@ -2,9 +2,6 @@ import React, { useState, useCallback } from 'react';
 
 import { Box, Button } from '@mui/material';
 
-// const CC_BTN_CLASS = 'jp-ai-copy-button';
-// const CC_BTN_CONTAINER_CLASS = 'jp-ai-copy-button-container';
-
 enum CopyStatus {
   None,
   Copying,
