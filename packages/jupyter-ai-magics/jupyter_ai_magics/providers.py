@@ -45,6 +45,14 @@ from langchain.schema import LLMResult
 from langchain.utils import get_from_dict_or_env
 from langchain_community.chat_models import ChatOpenAI
 
+# this is necessary because `langchain.pydantic_v1.main` does not include
+# `ModelMetaclass`, as it is not listed in `__all__` by the `pydantic.main`
+# subpackage.
+try:
+    from pydantic.v1.main import ModelMetaclass
+except:
+    from pydantic.main import ModelMetaclass
+
 
 class EnvAuthStrategy(BaseModel):
     """Require one auth token via an environment variable."""
@@ -98,8 +106,33 @@ class IntegerField(BaseModel):
 
 Field = Union[TextField, MultilineTextField, IntegerField]
 
+class ProviderMetaclass(ModelMetaclass):
+    """
+    A metaclass that ensures all class attributes defined inline within the
+    class definition are accessible and included in `Class.__dict__`.
+     
+    This is necessary because Pydantic drops any ClassVars that are defined as
+    an instance field by a parent class, even if they are defined inline within
+    the class definition. We encountered this case when `langchain` added a
+    `name` attribute to a parent class shared by all `Provider`s, which caused
+    `Provider.name` to be inaccessible. See #558 for more info.
+    """
 
-class BaseProvider(BaseModel):
+    def __new__(mcs, name, bases, namespace, **kwargs):
+        cls = super().__new__(mcs, name, bases, namespace, **kwargs)
+        for key in namespace:
+            # skip private class attributes
+            if key.startswith('_'):
+                continue
+            # skip class attributes already listed in `cls.__dict__`
+            if key in cls.__dict__:
+                continue
+
+            setattr(cls, key, namespace[key])
+
+        return cls
+
+class BaseProvider(BaseModel, metaclass=ProviderMetaclass):
     #
     # pydantic config
     #
