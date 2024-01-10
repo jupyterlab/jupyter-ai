@@ -2,6 +2,9 @@ import React, { useState, useCallback } from 'react';
 
 import Button from '@mui/material/Button';
 
+const CC_BTN_CONTAINER_CLASS = 'jp-ai-copy-button-container';
+const CC_BTN_CLASS = 'jp-ai-copy-button';
+
 enum CopyStatus {
   None,
   Copying,
@@ -36,10 +39,10 @@ export function CopyButton(props: CopyButtonProps): JSX.Element {
   }, [props.value]);
 
   return (
-    <div className="jp-ai-copy-button-container">
+    <div className={CC_BTN_CONTAINER_CLASS}>
       <Button
         onClick={copy}
-        className="jp-ai-copy-button"
+        className={CC_BTN_CLASS}
         variant="outlined"
         aria-label="Copy to clipboard"
         title="Copy to clipboard"

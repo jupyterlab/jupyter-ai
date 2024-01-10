@@ -1,0 +1,9 @@
+.jp-ai-copy-button-container {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.jp-ai-copy-button.MuiButton-root {
+  font-size: var(--jp-content-font-size0);
+  text-transform: none;
+}
