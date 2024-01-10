@@ -2,8 +2,8 @@ import React, { useState, useCallback } from 'react';
 
 import Button from '@mui/material/Button';
 
-const CC_BTN_CONTAINER_CLASS = 'jp-ai-copy-button-container';
 const CC_BTN_CLASS = 'jp-ai-copy-button';
+const CC_BTN_CONTAINER_CLASS = 'jp-ai-copy-button-container';
 
 enum CopyStatus {
   None,
@@ -12,7 +12,7 @@ enum CopyStatus {
 }
 
 const COPYBTN_TEXT_BY_STATUS: Record<CopyStatus, string> = {
-  [CopyStatus.None]: 'Copy',
+  [CopyStatus.None]: 'Copy to clipboard',
   [CopyStatus.Copying]: 'Copying...',
   [CopyStatus.Copied]: 'Copied!'
 };
