@@ -2237,6 +2237,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@jupyter-ai/monorepo@workspace:."
   dependencies:
+    "@jupyterlab/builder": ^4
+    "@types/react-dom": ^18.2.18
     lerna: ^6.4.1
     nx: ^15.9.2
   languageName: unknown
@@ -4949,6 +4951,15 @@ __metadata:
   version: 15.7.5
   resolution: "@types/prop-types@npm:15.7.5"
   checksum: 5b43b8b15415e1f298243165f1d44390403bb2bd42e662bca3b5b5633fdd39c938e91b7fce3a9483699db0f7a715d08cef220c121f723a634972fdf596aec980
+  languageName: node
+  linkType: hard
+
+"@types/react-dom@npm:^18.2.18":
+  version: 18.2.18
+  resolution: "@types/react-dom@npm:18.2.18"
+  dependencies:
+    "@types/react": "*"
+  checksum: 8e3da404c980e2b2a76da3852f812ea6d8b9d0e7f5923fbaf3bfbbbfa1d59116ff91c129de8f68e9b7668a67ae34484fe9df74d5a7518cf8591ec07a0c4dad57
   languageName: node
   linkType: hard
 

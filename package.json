@@ -38,6 +38,8 @@
     "test": "lerna run test"
   },
   "devDependencies": {
+    "@jupyterlab/builder": "^4",
+    "@types/react-dom": "^18.2.18",
     "lerna": "^6.4.1",
     "nx": "^15.9.2"
   },
