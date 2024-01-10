@@ -97,7 +97,7 @@ from langchain.embeddings import FakeEmbeddings
 
 class MyEmbeddingsProvider(BaseEmbeddingsProvider, FakeEmbeddings):
     id = "my_embeddings_provider"
-    name = "My Embeddings Provider"
+    provider_name = "My Embeddings Provider"
     model_id_key = "model"
     models = ["my_model"]
 
@@ -154,7 +154,7 @@ Please note that this will only work with Jupyter AI magics (the `%ai` and `%%ai
 
 You can add a custom slash command to the chat interface by
 creating a new class that inherits from `BaseChatHandler`. Set
-its `id`, `name`, `help` message for display in the user interface,
+its `id`, `provider_name`, `help` message for display in the user interface,
 and `routing_type`. Each custom slash command must have a unique
 slash command. Slash commands can only contain ASCII letters, numerals,
 and underscores. Each slash command must be unique; custom slash
@@ -168,7 +168,7 @@ from jupyter_ai.models import HumanChatMessage
 
 class CustomChatHandler(BaseChatHandler):
     id = "custom"
-    name = "Custom"
+    provider_name = "Custom"
     help = "A chat handler that does something custom"
     routing_type = SlashCommandRoutingType(slash_id="custom")
 
