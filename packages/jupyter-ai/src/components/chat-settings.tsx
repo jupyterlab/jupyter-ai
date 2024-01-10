@@ -11,8 +11,7 @@ import {
   Radio,
   RadioGroup,
   TextField,
-  CircularProgress,
-  Typography
+  CircularProgress
 } from '@mui/material';
 
 import { Select } from './select';
