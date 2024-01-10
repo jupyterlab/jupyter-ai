@@ -12,9 +12,7 @@ type RendermimeMarkdownProps = {
   rmRegistry: IRenderMimeRegistry;
 };
 
-export function RendermimeMarkdown(
-  props: RendermimeMarkdownProps
-): JSX.Element {
+function RendermimeMarkdownBase(props: RendermimeMarkdownProps): JSX.Element {
   const [renderedContent, setRenderedContent] = useState<HTMLElement | null>(
     null
   );
@@ -57,3 +55,5 @@ export function RendermimeMarkdown(
     </div>
   );
 }
+
+export const RendermimeMarkdown = React.memo(RendermimeMarkdownBase);
