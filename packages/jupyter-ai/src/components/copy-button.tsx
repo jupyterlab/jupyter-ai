@@ -4,13 +4,11 @@ import { Box, Button } from '@mui/material';
 
 enum CopyStatus {
   None,
-  Copying,
   Copied
 }
 
 const COPYBTN_TEXT_BY_STATUS: Record<CopyStatus, string> = {
   [CopyStatus.None]: 'Copy to Clipboard',
-  [CopyStatus.Copying]: 'Copying …',
   [CopyStatus.Copied]: 'Copied!'
 };
 
@@ -22,7 +20,6 @@ export function CopyButton(props: CopyButtonProps): JSX.Element {
   const [copyStatus, setCopyStatus] = useState<CopyStatus>(CopyStatus.None);
 
   const copy = useCallback(async () => {
-    setCopyStatus(CopyStatus.Copying);
     try {
       await navigator.clipboard.writeText(props.value);
     } catch (err) {
