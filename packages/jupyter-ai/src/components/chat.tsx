@@ -4,6 +4,7 @@ import { Button, IconButton, Stack } from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import type { Awareness } from 'y-protocols/awareness';
+import type { IThemeManager } from '@jupyterlab/apputils';
 
 import { JlThemeProvider } from './jl-theme-provider';
 import { ChatMessages } from './chat-messages';
@@ -178,6 +179,7 @@ export type ChatProps = {
   selectionWatcher: SelectionWatcher;
   chatHandler: ChatHandler;
   globalAwareness: Awareness | null;
+  themeManager: IThemeManager | null;
   chatView?: ChatView;
 };
 
@@ -190,7 +192,7 @@ export function Chat(props: ChatProps): JSX.Element {
   const [view, setView] = useState<ChatView>(props.chatView || ChatView.Chat);
 
   return (
-    <JlThemeProvider>
+    <JlThemeProvider themeManager={props.themeManager}>
       <SelectionContextProvider selectionWatcher={props.selectionWatcher}>
         <CollaboratorsContextProvider globalAwareness={props.globalAwareness}>
           <Box
