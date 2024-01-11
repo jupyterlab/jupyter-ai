@@ -4,7 +4,11 @@ import {
   ILayoutRestorer
 } from '@jupyterlab/application';
 
-import { IWidgetTracker, ReactWidget } from '@jupyterlab/apputils';
+import {
+  IWidgetTracker,
+  ReactWidget,
+  IThemeManager
+} from '@jupyterlab/apputils';
 import { IDocumentWidget } from '@jupyterlab/docregistry';
 import { IGlobalAwareness } from '@jupyter/collaboration';
 import type { Awareness } from 'y-protocols/awareness';
@@ -14,6 +18,7 @@ import { ChatHandler } from './chat_handler';
 import { buildErrorWidget } from './widgets/chat-error';
 import { completionPlugin } from './completions';
 import { statusItemPlugin } from './status';
+import { setThemeManager } from './theme-provider';
 
 export type DocumentTracker = IWidgetTracker<IDocumentWidget>;
 
@@ -24,8 +29,10 @@ const plugin: JupyterFrontEndPlugin<void> = {
   id: 'jupyter_ai:plugin',
   autoStart: true,
   optional: [IGlobalAwareness, ILayoutRestorer],
+  requires: [IThemeManager],
   activate: async (
     app: JupyterFrontEnd,
+    manager: IThemeManager,
     globalAwareness: Awareness | null,
     restorer: ILayoutRestorer | null
   ) => {
@@ -59,6 +66,11 @@ const plugin: JupyterFrontEndPlugin<void> = {
     if (restorer) {
       restorer.add(chatWidget, 'jupyter-ai-chat');
     }
+
+    /**
+     * Set the theme manager
+     */
+    setThemeManager(manager);
   }
 };
 

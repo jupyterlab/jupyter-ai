@@ -1,4 +1,7 @@
+import { IThemeManager } from '@jupyterlab/apputils';
 import { Theme, createTheme } from '@mui/material/styles';
+
+let themeManager: IThemeManager | null = null;
 
 function getCSSVariable(name: string): string {
   return getComputedStyle(document.body).getPropertyValue(name).trim();
@@ -8,6 +11,14 @@ export async function pollUntilReady(): Promise<void> {
   while (!document.body.hasAttribute('data-jp-theme-light')) {
     await new Promise(resolve => setTimeout(resolve, 100)); // Wait 100ms
   }
+}
+
+export function setThemeManager(manager: IThemeManager): void {
+  themeManager = manager;
+}
+
+export function getThemeManager(): IThemeManager | null {
+  return themeManager;
 }
 
 export async function getJupyterLabTheme(): Promise<Theme> {

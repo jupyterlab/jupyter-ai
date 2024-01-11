@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 import { Theme, ThemeProvider, createTheme } from '@mui/material/styles';
-import { getJupyterLabTheme } from '../theme-provider';
+import { getJupyterLabTheme, getThemeManager } from '../theme-provider';
 
 export function JlThemeProvider(props: {
   children: React.ReactNode;
@@ -13,6 +13,11 @@ export function JlThemeProvider(props: {
       setTheme(await getJupyterLabTheme());
     }
     setJlTheme();
+
+    const manager = getThemeManager();
+    if (manager) {
+      manager.themeChanged.connect(setJlTheme);
+    }
   }, []);
 
   return <ThemeProvider theme={theme}>{props.children}</ThemeProvider>;
