@@ -1,4 +1,3 @@
-import os
 from typing import ClassVar, List
 
 from jupyter_ai_magics.providers import (
@@ -8,7 +7,8 @@ from jupyter_ai_magics.providers import (
     Field,
     MultiEnvAuthStrategy,
 )
-from langchain.embeddings import (
+from langchain.pydantic_v1 import BaseModel, Extra
+from langchain_community.embeddings import (
     BedrockEmbeddings,
     CohereEmbeddings,
     GPT4AllEmbeddings,
@@ -17,7 +17,6 @@ from langchain.embeddings import (
     QianfanEmbeddingsEndpoint,
 )
 from langchain_nvidia_ai_endpoints import NVIDIAEmbeddings
-from langchain.pydantic_v1 import BaseModel, Extra
 
 
 class BaseEmbeddingsProvider(BaseModel):
