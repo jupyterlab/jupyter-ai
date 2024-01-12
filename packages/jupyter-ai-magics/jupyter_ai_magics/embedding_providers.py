@@ -142,8 +142,7 @@ class QianfanEmbeddingsEndpointProvider(
     auth_strategy = MultiEnvAuthStrategy(names=["QIANFAN_AK", "QIANFAN_SK"])
 
 
-class NVIDIAEmbeddingsProvider(BaseEmbeddingsProvider, NVIDIAEmbeddings
-):
+class NVIDIAEmbeddingsProvider(BaseEmbeddingsProvider, NVIDIAEmbeddings):
     id = "nvidia"
     name = "NVIDIA"
     models = ["playground_nvolveqa_40k"]
