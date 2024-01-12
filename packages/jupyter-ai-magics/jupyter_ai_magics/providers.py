@@ -751,7 +751,7 @@ class QianfanProvider(BaseProvider, QianfanChatEndpoint):
 
 class ChatNVIDIAProvider(BaseProvider, ChatNVIDIA):
     id = "nvidia-chat"
-    name = "ChatNVIDIA"
+    name = "NVIDIA"
     models = ['playground_llama2_70b',
               'playground_nemotron_steerlm_8b',
               'playground_mistral_7b',
