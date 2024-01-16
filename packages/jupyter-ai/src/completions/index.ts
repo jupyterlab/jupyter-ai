@@ -1,1 +1,1 @@
-export { inlineCompletionProvider } from './plugin';
+export { completionPlugin } from './plugin';

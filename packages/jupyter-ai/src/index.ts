@@ -12,8 +12,8 @@ import { buildChatSidebar } from './widgets/chat-sidebar';
 import { SelectionWatcher } from './selection-watcher';
 import { ChatHandler } from './chat_handler';
 import { buildErrorWidget } from './widgets/chat-error';
-import { inlineCompletionProvider } from './completions';
-import { jupyternautStatus } from './status';
+import { completionPlugin } from './completions';
+import { statusItemPlugin } from './status';
 
 export type DocumentTracker = IWidgetTracker<IDocumentWidget>;
 
@@ -62,4 +62,4 @@ const plugin: JupyterFrontEndPlugin<void> = {
   }
 };
 
-export default [plugin, jupyternautStatus, inlineCompletionProvider];
+export default [plugin, statusItemPlugin, completionPlugin];

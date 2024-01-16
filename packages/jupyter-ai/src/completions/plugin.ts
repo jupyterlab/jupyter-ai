@@ -9,7 +9,7 @@ import {
   IEditorLanguage
 } from '@jupyterlab/codemirror';
 import { getEditor } from '../selection-watcher';
-import { IJupyternautStatus } from '../tokens';
+import { IJaiStatusItem } from '../tokens';
 import { displayName, JupyterAIInlineProvider } from './provider';
 import { CompletionWebsocketHandler } from './handler';
 
@@ -28,7 +28,7 @@ export namespace CommandIDs {
 const INLINE_COMPLETER_PLUGIN =
   '@jupyterlab/completer-extension:inline-completer';
 
-export const inlineCompletionProvider: JupyterFrontEndPlugin<void> = {
+export const completionPlugin: JupyterFrontEndPlugin<void> = {
   id: 'jupyter_ai:inline-completions',
   autoStart: true,
   requires: [
@@ -36,15 +36,15 @@ export const inlineCompletionProvider: JupyterFrontEndPlugin<void> = {
     IEditorLanguageRegistry,
     ISettingRegistry
   ],
-  optional: [IJupyternautStatus],
+  optional: [IJaiStatusItem],
   activate: async (
     app: JupyterFrontEnd,
-    manager: ICompletionProviderManager,
+    completionManager: ICompletionProviderManager,
     languageRegistry: IEditorLanguageRegistry,
     settingRegistry: ISettingRegistry,
-    statusMenu: IJupyternautStatus | null
+    statusItem: IJaiStatusItem | null
   ): Promise<void> => {
-    if (typeof manager.registerInlineProvider === 'undefined') {
+    if (typeof completionManager.registerInlineProvider === 'undefined') {
       // Gracefully short-circuit on JupyterLab 4.0 and Notebook 7.0
       console.warn(
         'Inline completions are only supported in JupyterLab 4.1+ and Jupyter Notebook 7.1+'
@@ -57,7 +57,7 @@ export const inlineCompletionProvider: JupyterFrontEndPlugin<void> = {
       languageRegistry
     });
     await completionHandler.initialize();
-    manager.registerInlineProvider(provider);
+    completionManager.registerInlineProvider(provider);
 
     const findCurrentLanguage = (): IEditorLanguage | null => {
       const widget = app.shell.currentWidget;
@@ -104,7 +104,7 @@ export const inlineCompletionProvider: JupyterFrontEndPlugin<void> = {
           return;
         }
         const providers = Object.assign({}, settings.user.providers) as any;
-        const ourSettings = {
+        const ourSettings: JupyterAIInlineProvider.ISettings = {
           ...JupyterAIInlineProvider.DEFAULT_SETTINGS,
           ...providers[provider.identifier]
         };
@@ -135,12 +135,12 @@ export const inlineCompletionProvider: JupyterFrontEndPlugin<void> = {
       }
     });
 
-    if (statusMenu) {
-      statusMenu.addItem({
+    if (statusItem) {
+      statusItem.addItem({
         command: CommandIDs.toggleCompletions,
         rank: 1
       });
-      statusMenu.addItem({
+      statusItem.addItem({
         command: CommandIDs.toggleLanguageCompletions,
         rank: 2
       });
