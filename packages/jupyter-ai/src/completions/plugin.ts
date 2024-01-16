@@ -10,7 +10,7 @@ import {
 } from '@jupyterlab/codemirror';
 import { getEditor } from '../selection-watcher';
 import { IJaiStatusItem } from '../tokens';
-import { displayName, JupyterAIInlineProvider } from './provider';
+import { displayName, JaiInlineProvider } from './provider';
 import { CompletionWebsocketHandler } from './handler';
 
 export namespace CommandIDs {
@@ -52,7 +52,7 @@ export const completionPlugin: JupyterFrontEndPlugin<void> = {
       return;
     }
     const completionHandler = new CompletionWebsocketHandler();
-    const provider = new JupyterAIInlineProvider({
+    const provider = new JaiInlineProvider({
       completionHandler,
       languageRegistry
     });
@@ -84,7 +84,7 @@ export const completionPlugin: JupyterFrontEndPlugin<void> = {
         }
         const providers = Object.assign({}, settings.user.providers) as any;
         const ourSettings = {
-          ...JupyterAIInlineProvider.DEFAULT_SETTINGS,
+          ...JaiInlineProvider.DEFAULT_SETTINGS,
           ...providers[provider.identifier]
         };
         const wasEnabled = ourSettings['enabled'];
@@ -104,8 +104,8 @@ export const completionPlugin: JupyterFrontEndPlugin<void> = {
           return;
         }
         const providers = Object.assign({}, settings.user.providers) as any;
-        const ourSettings: JupyterAIInlineProvider.ISettings = {
-          ...JupyterAIInlineProvider.DEFAULT_SETTINGS,
+        const ourSettings: JaiInlineProvider.ISettings = {
+          ...JaiInlineProvider.DEFAULT_SETTINGS,
           ...providers[provider.identifier]
         };
         const wasDisabled = ourSettings['disabledLanguages'].includes(

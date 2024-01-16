@@ -34,11 +34,11 @@ export function displayName(language: IEditorLanguage): string {
   return language.displayName ?? language.name;
 }
 
-export class JupyterAIInlineProvider implements IInlineCompletionProvider {
-  readonly identifier = 'jupyter-ai';
+export class JaiInlineProvider implements IInlineCompletionProvider {
+  readonly identifier = '@jupyterlab/jupyter-ai';
   readonly icon = jupyternautIcon.bindprops({ width: 16, top: 1 });
 
-  constructor(protected options: JupyterAIInlineProvider.IOptions) {
+  constructor(protected options: JaiInlineProvider.IOptions) {
     options.completionHandler.streamed.connect(this._receiveStreamChunk, this);
   }
 
@@ -175,12 +175,12 @@ export class JupyterAIInlineProvider implements IInlineCompletionProvider {
           description: 'Whether to show suggestions as they are generated'
         }
       },
-      default: JupyterAIInlineProvider.DEFAULT_SETTINGS as any
+      default: JaiInlineProvider.DEFAULT_SETTINGS as any
     };
   }
 
   async configure(settings: { [property: string]: JSONValue }): Promise<void> {
-    this._settings = settings as unknown as JupyterAIInlineProvider.ISettings;
+    this._settings = settings as unknown as JaiInlineProvider.ISettings;
   }
 
   isEnabled(): boolean {
@@ -248,19 +248,20 @@ export class JupyterAIInlineProvider implements IInlineCompletionProvider {
     return language.name;
   }
 
-  private _settings: JupyterAIInlineProvider.ISettings =
-    JupyterAIInlineProvider.DEFAULT_SETTINGS;
+  private _settings: JaiInlineProvider.ISettings =
+    JaiInlineProvider.DEFAULT_SETTINGS;
 
   private _streamPromises: Map<string, PromiseDelegate<StreamChunk>> =
     new Map();
   private _counter = 0;
 }
 
-export namespace JupyterAIInlineProvider {
+export namespace JaiInlineProvider {
   export interface IOptions {
     completionHandler: CompletionWebsocketHandler;
     languageRegistry: IEditorLanguageRegistry;
   }
+
   export interface ISettings {
     maxPrefix: number;
     maxSuffix: number;
@@ -269,6 +270,7 @@ export namespace JupyterAIInlineProvider {
     disabledLanguages: string[];
     streaming: 'always' | 'manual' | 'never';
   }
+
   export const DEFAULT_SETTINGS: ISettings = {
     maxPrefix: 10000,
     maxSuffix: 10000,
