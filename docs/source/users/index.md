@@ -151,7 +151,7 @@ You need the `pillow` Python package to use Hugging Face Hub's text-to-image mod
 
 You can find a list of Hugging Face's models at [https://huggingface.co/models](https://huggingface.co/models).
 
-To use NVIDIA models, create a free account with the [NVIDIA NGC service](https://catalog.ngc.nvidia.com/), which hosts AI solution catalogs, containers, models, etc. Navigate to Catalog > [AI Foundation Models](https://catalog.ngc.nvidia.com/ai-foundation-models) > (Model with API endpoint). Select the API option and click Generate Key > save as `NVIDIA_API_KEY`.
+To use NVIDIA models, create a free account with the [NVIDIA NGC service](https://catalog.ngc.nvidia.com/), which hosts AI solution catalogs, containers, models, and more. Navigate to Catalog > [AI Foundation Models](https://catalog.ngc.nvidia.com/ai-foundation-models), and select a model with an API endpoint. Click "API" on the model's detail page, and click "Generate Key". Save this key, and set it as the environment variable `NVIDIA_API_KEY`.
 
 SageMaker endpoint names are created when you deploy a model. For more information, see
 ["Create your endpoint and deploy your model"](https://docs.aws.amazon.com/sagemaker/latest/dg/realtime-endpoints-deployment.html)
