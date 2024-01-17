@@ -35,7 +35,7 @@ export function displayName(language: IEditorLanguage): string {
 }
 
 export class JaiInlineProvider implements IInlineCompletionProvider {
-  readonly identifier = '@jupyterlab/jupyter-ai';
+  readonly identifier = JaiInlineProvider.ID;
   readonly icon = jupyternautIcon.bindprops({ width: 16, top: 1 });
 
   constructor(protected options: JaiInlineProvider.IOptions) {
@@ -257,6 +257,8 @@ export class JaiInlineProvider implements IInlineCompletionProvider {
 }
 
 export namespace JaiInlineProvider {
+  export const ID = '@jupyterlab/jupyter-ai';
+
   export interface IOptions {
     completionHandler: CompletionWebsocketHandler;
     languageRegistry: IEditorLanguageRegistry;

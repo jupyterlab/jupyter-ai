@@ -28,6 +28,20 @@ export namespace CommandIDs {
 const INLINE_COMPLETER_PLUGIN =
   '@jupyterlab/completer-extension:inline-completer';
 
+/**
+ * Type of the settings object for the inline completer plugin.
+ */
+type IcPluginSettings = ISettingRegistry.ISettings & {
+  user: {
+    providers: {
+      [key: string]: unknown;
+      [JaiInlineProvider.ID]?: JaiInlineProvider.ISettings;
+    };
+  };
+};
+
+console.log('is anything gonna happen?');
+
 export const completionPlugin: JupyterFrontEndPlugin<void> = {
   id: 'jupyter_ai:inline-completions',
   autoStart: true,
@@ -44,6 +58,7 @@ export const completionPlugin: JupyterFrontEndPlugin<void> = {
     settingRegistry: ISettingRegistry,
     statusItem: IJaiStatusItem | null
   ): Promise<void> => {
+    console.log('HELLO???');
     if (typeof completionManager.registerInlineProvider === 'undefined') {
       // Gracefully short-circuit on JupyterLab 4.0 and Notebook 7.0
       console.warn(
@@ -51,13 +66,16 @@ export const completionPlugin: JupyterFrontEndPlugin<void> = {
       );
       return;
     }
+    console.log('1');
     const completionHandler = new CompletionWebsocketHandler();
     const provider = new JaiInlineProvider({
       completionHandler,
       languageRegistry
     });
+    console.log('2');
     await completionHandler.initialize();
     completionManager.registerInlineProvider(provider);
+    console.log('3');
 
     const findCurrentLanguage = (): IEditorLanguage | null => {
       const widget = app.shell.currentWidget;
@@ -68,28 +86,58 @@ export const completionPlugin: JupyterFrontEndPlugin<void> = {
       return languageRegistry.findByMIME(editor.model.mimeType);
     };
 
-    let settings: ISettingRegistry.ISettings | null = null;
+    console.log('PRE LOAD');
+    // ic := inline completion
+    let icSettings = (await settingRegistry.load(
+      INLINE_COMPLETER_PLUGIN
+    )) as IcPluginSettings;
+    console.log('LOADED');
 
+    // icp := inline completion providers
+    let icpSettings = icSettings.user.providers;
+
+    // jaiIcp := Jupyter AI inline completion provider
+    // if not defined, the default settings are used
+    let jaiIcpSettings =
+      icpSettings[JaiInlineProvider.ID] || JaiInlineProvider.DEFAULT_SETTINGS;
+
+    // make sure the object references are updated when the underlying settings
+    // are updated. admittedly duplicates the previous 3 variable definitions.
     settingRegistry.pluginChanged.connect(async (_emitter, plugin) => {
       if (plugin === INLINE_COMPLETER_PLUGIN) {
-        // Only load the settings once the plugin settings were transformed
-        settings = await settingRegistry.load(INLINE_COMPLETER_PLUGIN);
+        icSettings = (await settingRegistry.load(
+          INLINE_COMPLETER_PLUGIN
+        )) as IcPluginSettings;
+        icpSettings = icSettings.user.providers;
+        jaiIcpSettings =
+          icpSettings[JaiInlineProvider.ID] ||
+          JaiInlineProvider.DEFAULT_SETTINGS;
       }
     });
 
+    /**
+     * Updates only the Jupyter AI inline completion provider (JaiIcp) settings.
+     * If the JaiIcp settings are undefined prior to this call, the new settings
+     * object is merged with the default JaiIcp settings defined in
+     * `JaiInlineProvider.DEFAULT_SETTINGS`.
+     */
+    function updateJaiIcpSettings(
+      newJaiIcpSettings: Partial<JaiInlineProvider.ISettings>
+    ) {
+      const newProviders = {
+        ...icpSettings,
+        [JaiInlineProvider.ID]: {
+          ...jaiIcpSettings,
+          ...newJaiIcpSettings
+        }
+      };
+
+      icSettings.set('providers', newProviders);
+    }
+
     app.commands.addCommand(CommandIDs.toggleCompletions, {
       execute: () => {
-        if (!settings) {
-          return;
-        }
-        const providers = Object.assign({}, settings.user.providers) as any;
-        const ourSettings = {
-          ...JaiInlineProvider.DEFAULT_SETTINGS,
-          ...providers[provider.identifier]
-        };
-        const wasEnabled = ourSettings['enabled'];
-        providers[provider.identifier]['enabled'] = !wasEnabled;
-        settings.set('providers', providers);
+        updateJaiIcpSettings({ enabled: !jaiIcpSettings.enabled });
       },
       label: 'Enable Jupyternaut Completions',
       isToggled: () => {
@@ -100,38 +148,32 @@ export const completionPlugin: JupyterFrontEndPlugin<void> = {
     app.commands.addCommand(CommandIDs.toggleLanguageCompletions, {
       execute: () => {
         const language = findCurrentLanguage();
-        if (!settings || !language) {
+        if (!language) {
           return;
         }
-        const providers = Object.assign({}, settings.user.providers) as any;
-        const ourSettings: JaiInlineProvider.ISettings = {
-          ...JaiInlineProvider.DEFAULT_SETTINGS,
-          ...providers[provider.identifier]
-        };
-        const wasDisabled = ourSettings['disabledLanguages'].includes(
-          language.name
-        );
-        const disabledList: string[] =
-          providers[provider.identifier]['disabledLanguages'];
-        if (wasDisabled) {
-          disabledList.filter(name => name !== language.name);
-        } else {
-          disabledList.push(language.name);
-        }
-        settings.set('providers', providers);
+
+        const disabledLanguages = [...jaiIcpSettings.disabledLanguages];
+        const newDisabledLanguages = disabledLanguages.includes(language.name)
+          ? disabledLanguages.filter(l => l !== language.name)
+          : disabledLanguages.concat(language.name);
+
+        updateJaiIcpSettings({
+          disabledLanguages: newDisabledLanguages
+        });
       },
       label: () => {
         const language = findCurrentLanguage();
         return language
           ? `Enable Completions in ${displayName(language)}`
-          : 'Enable Completions for Language of Current Editor';
+          : 'Enable Completions for <language>';
       },
       isToggled: () => {
         const language = findCurrentLanguage();
         return !!language && provider.isLanguageEnabled(language.name);
       },
       isEnabled: () => {
-        return !!findCurrentLanguage() && provider.isEnabled();
+        const language = findCurrentLanguage();
+        return !!language && provider.isEnabled();
       }
     });
 
