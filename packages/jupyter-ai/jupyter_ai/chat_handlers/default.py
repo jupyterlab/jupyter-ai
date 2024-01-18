@@ -53,7 +53,7 @@ class DefaultChatHandler(BaseChatHandler):
             prompt_template = ChatPromptTemplate.from_messages(
                 [
                     SystemMessagePromptTemplate.from_template(SYSTEM_PROMPT).format(
-                        provider_name=llm.name, local_model_id=llm.model_id
+                        provider_name=provider.name, local_model_id=llm.model_id
                     ),
                     MessagesPlaceholder(variable_name="history"),
                     HumanMessagePromptTemplate.from_template("{input}"),
@@ -64,7 +64,7 @@ class DefaultChatHandler(BaseChatHandler):
             prompt_template = PromptTemplate(
                 input_variables=["history", "input"],
                 template=SYSTEM_PROMPT.format(
-                    provider_name=llm.name, local_model_id=llm.model_id
+                    provider_name=provider.name, local_model_id=llm.model_id
                 )
                 + "\n\n"
                 + DEFAULT_TEMPLATE,

@@ -363,7 +363,8 @@ class ChatAnthropicProvider(BaseProvider, ChatAnthropic):
 class CohereProvider(BaseProvider, Cohere):
     id = "cohere"
     name = "Cohere"
-    models = ["medium", "xlarge"]
+    # Source: https://docs.cohere.com/reference/generate
+    models = ["command", "command-nightly", "command-light", "command-light-nightly"]
     model_id_key = "model"
     pypi_package_deps = ["cohere"]
     auth_strategy = EnvAuthStrategy(name="COHERE_API_KEY")
