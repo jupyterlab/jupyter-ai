@@ -89,59 +89,49 @@ export const completionPlugin: JupyterFrontEndPlugin<void> = {
     };
 
     // ic := inline completion
-    let icSettings: IcPluginSettings | null = null;
-
-    // jaiIcp := Jupyter AI inline completion provider
-    // if not defined, the default settings are used
-    let jaiIcpSettings = JaiInlineProvider.DEFAULT_SETTINGS;
-
-    // Reflect changes made by user from Settings Editor
-    settingRegistry.pluginChanged.connect(async (_emitter, plugin) => {
-      if (plugin !== INLINE_COMPLETER_PLUGIN) {
-        return;
-      }
-      icSettings = (await settingRegistry.load(
+    async function getIcSettings() {
+      return (await settingRegistry.load(
         INLINE_COMPLETER_PLUGIN
       )) as IcPluginSettings;
-      jaiIcpSettings = icSettings.composite.providers[JaiInlineProvider.ID];
-      console.log(jaiIcpSettings);
-    });
+    }
 
     /**
-     * Updates only the Jupyter AI inline completion provider (JaiIcp) settings.
-     * The new settings object is merged with the default JaiIcp settings
-     * defined in `JaiInlineProvider.DEFAULT_SETTINGS`.
+     * Gets the composite settings for the Jupyter AI inline completion provider
+     * (JaiIcp).
      *
-     * NOTE: This function must not be called before both this plugin,
-     * and the core inline completion manager plugin have completed
-     * activation. In practice this means that it shall not be awaited
-     * from the code activating this plugin.
-     *
-     * NOTE: This function does not update jaiIcpSettings, which
-     * are updated from the composite value in `pluginChanged` callback.
+     * This reads from the `ISettings.composite` property, which merges the user
+     * settings with the provider defaults, defined in
+     * `JaiInlineProvider.DEFAULT_SETTINGS`.
      */
-    const updateJaiIcpSettings = async (
+    async function getJaiIcpSettings() {
+      const icSettings = await getIcSettings();
+      return icSettings.composite.providers[JaiInlineProvider.ID];
+    }
+
+    /**
+     * Updates the JaiIcp user settings.
+     */
+    async function updateJaiIcpSettings(
       newJaiIcpSettings: Partial<JaiInlineProvider.ISettings>
-    ) => {
-      if (!icSettings) {
-        icSettings = (await settingRegistry.load(
-          INLINE_COMPLETER_PLUGIN
-        )) as IcPluginSettings;
-      }
-      const userProvidersSettings = icSettings.user.providers ?? {};
-      const newProviders = {
-        ...userProvidersSettings,
+    ) {
+      const icSettings = await getIcSettings();
+      const oldUserIcpSettings = icSettings.user.providers;
+      const newUserIcpSettings = {
+        ...oldUserIcpSettings,
         [JaiInlineProvider.ID]: {
-          ...userProvidersSettings[JaiInlineProvider.ID],
+          ...oldUserIcpSettings?.[JaiInlineProvider.ID],
           ...newJaiIcpSettings
         }
       };
-      icSettings.set('providers', newProviders);
-    };
+      icSettings.set('providers', newUserIcpSettings);
+    }
 
     app.commands.addCommand(CommandIDs.toggleCompletions, {
-      execute: () => {
-        updateJaiIcpSettings({ enabled: !jaiIcpSettings.enabled });
+      execute: async () => {
+        const jaiIcpSettings = await getJaiIcpSettings();
+        updateJaiIcpSettings({
+          enabled: !jaiIcpSettings.enabled
+        });
       },
       label: 'Enable Jupyternaut Completions',
       isToggled: () => {
@@ -150,7 +140,8 @@ export const completionPlugin: JupyterFrontEndPlugin<void> = {
     });
 
     app.commands.addCommand(CommandIDs.toggleLanguageCompletions, {
-      execute: () => {
+      execute: async () => {
+        const jaiIcpSettings = await getJaiIcpSettings();
         const language = findCurrentLanguage();
         if (!language) {
           return;
