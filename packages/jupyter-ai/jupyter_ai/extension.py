@@ -18,6 +18,7 @@ from .chat_handlers import (
     LearnChatHandler,
 )
 from .chat_handlers.help import HelpMessage
+from .completions.handlers import DefaultInlineCompletionHandler
 from .config_manager import ConfigManager
 from .handlers import (
     ApiKeysHandler,
@@ -38,6 +39,7 @@ class AiExtension(ExtensionApp):
         (r"api/ai/chats/history?", ChatHistoryHandler),
         (r"api/ai/providers?", ModelProviderHandler),
         (r"api/ai/providers/embeddings?", EmbeddingsModelProviderHandler),
+        (r"api/ai/completion/inline/?", DefaultInlineCompletionHandler),
     ]
 
     allowed_providers = List(
@@ -169,12 +171,17 @@ class AiExtension(ExtensionApp):
         self.settings["dask_client_future"] = loop.create_task(self._get_dask_client())
 
         eps = entry_points()
-        # initialize chat handlers
-        chat_handler_eps = eps.select(group="jupyter_ai.chat_handlers")
 
-        chat_handler_kwargs = {
+        common_handler_kargs = {
             "log": self.log,
             "config_manager": self.settings["jai_config_manager"],
+            "model_parameters": self.settings["model_parameters"],
+        }
+
+        # initialize chat handlers
+        chat_handler_eps = eps.select(group="jupyter_ai.chat_handlers")
+        chat_handler_kwargs = {
+            **common_handler_kargs,
             "root_chat_handlers": self.settings["jai_root_chat_handlers"],
             "chat_history": self.settings["chat_history"],
             "root_dir": self.serverapp.root_dir,

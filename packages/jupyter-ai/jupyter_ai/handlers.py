@@ -15,6 +15,7 @@ from langchain.pydantic_v1 import ValidationError
 from tornado import web, websocket
 from tornado.web import HTTPError
 
+from .completions.models import InlineCompletionRequest
 from .models import (
     AgentChatMessage,
     ChatClient,

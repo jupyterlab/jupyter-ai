@@ -14,7 +14,9 @@ import { getCellIndex } from './utils';
 /**
  * Gets the editor instance used by a document widget. Returns `null` if unable.
  */
-function getEditor(widget: Widget | null) {
+export function getEditor(
+  widget: Widget | null
+): CodeMirrorEditor | null | undefined {
   if (!(widget instanceof DocumentWidget)) {
     return null;
   }
