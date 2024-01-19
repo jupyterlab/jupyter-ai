@@ -33,14 +33,18 @@ const INLINE_COMPLETER_PLUGIN =
  */
 type IcPluginSettings = ISettingRegistry.ISettings & {
   user: {
-    providers: {
+    providers?: {
       [key: string]: unknown;
       [JaiInlineProvider.ID]?: JaiInlineProvider.ISettings;
     };
   };
+  composite: {
+    providers: {
+      [key: string]: unknown;
+      [JaiInlineProvider.ID]: JaiInlineProvider.ISettings;
+    };
+  };
 };
-
-console.log('is anything gonna happen?');
 
 export const completionPlugin: JupyterFrontEndPlugin<void> = {
   id: 'jupyter_ai:inline-completions',
@@ -58,7 +62,6 @@ export const completionPlugin: JupyterFrontEndPlugin<void> = {
     settingRegistry: ISettingRegistry,
     statusItem: IJaiStatusItem | null
   ): Promise<void> => {
-    console.log('HELLO???');
     if (typeof completionManager.registerInlineProvider === 'undefined') {
       // Gracefully short-circuit on JupyterLab 4.0 and Notebook 7.0
       console.warn(
@@ -66,16 +69,15 @@ export const completionPlugin: JupyterFrontEndPlugin<void> = {
       );
       return;
     }
-    console.log('1');
+
     const completionHandler = new CompletionWebsocketHandler();
     const provider = new JaiInlineProvider({
       completionHandler,
       languageRegistry
     });
-    console.log('2');
+
     await completionHandler.initialize();
     completionManager.registerInlineProvider(provider);
-    console.log('3');
 
     const findCurrentLanguage = (): IEditorLanguage | null => {
       const widget = app.shell.currentWidget;
@@ -86,54 +88,56 @@ export const completionPlugin: JupyterFrontEndPlugin<void> = {
       return languageRegistry.findByMIME(editor.model.mimeType);
     };
 
-    console.log('PRE LOAD');
     // ic := inline completion
-    let icSettings = (await settingRegistry.load(
-      INLINE_COMPLETER_PLUGIN
-    )) as IcPluginSettings;
-    console.log('LOADED');
-
-    // icp := inline completion providers
-    let icpSettings = icSettings.user.providers;
+    let icSettings: IcPluginSettings | null = null;
 
     // jaiIcp := Jupyter AI inline completion provider
     // if not defined, the default settings are used
-    let jaiIcpSettings =
-      icpSettings[JaiInlineProvider.ID] || JaiInlineProvider.DEFAULT_SETTINGS;
+    let jaiIcpSettings = JaiInlineProvider.DEFAULT_SETTINGS;
 
-    // make sure the object references are updated when the underlying settings
-    // are updated. admittedly duplicates the previous 3 variable definitions.
+    // Reflect changes made by user from Settings Editor
     settingRegistry.pluginChanged.connect(async (_emitter, plugin) => {
-      if (plugin === INLINE_COMPLETER_PLUGIN) {
-        icSettings = (await settingRegistry.load(
-          INLINE_COMPLETER_PLUGIN
-        )) as IcPluginSettings;
-        icpSettings = icSettings.user.providers;
-        jaiIcpSettings =
-          icpSettings[JaiInlineProvider.ID] ||
-          JaiInlineProvider.DEFAULT_SETTINGS;
+      if (plugin !== INLINE_COMPLETER_PLUGIN) {
+        return;
       }
+      icSettings = (await settingRegistry.load(
+        INLINE_COMPLETER_PLUGIN
+      )) as IcPluginSettings;
+      jaiIcpSettings = icSettings.composite.providers[JaiInlineProvider.ID];
+      console.log(jaiIcpSettings);
     });
 
     /**
      * Updates only the Jupyter AI inline completion provider (JaiIcp) settings.
-     * If the JaiIcp settings are undefined prior to this call, the new settings
-     * object is merged with the default JaiIcp settings defined in
-     * `JaiInlineProvider.DEFAULT_SETTINGS`.
+     * The new settings object is merged with the default JaiIcp settings
+     * defined in `JaiInlineProvider.DEFAULT_SETTINGS`.
+     *
+     * NOTE: This function must not be called before both this plugin,
+     * and the core inline completion manager plugin have completed
+     * activation. In practice this means that it shall not be awaited
+     * from the code activating this plugin.
+     *
+     * NOTE: This function does not update jaiIcpSettings, which
+     * are updated from the composite value in `pluginChanged` callback.
      */
-    function updateJaiIcpSettings(
+    const updateJaiIcpSettings = async (
       newJaiIcpSettings: Partial<JaiInlineProvider.ISettings>
-    ) {
+    ) => {
+      if (!icSettings) {
+        icSettings = (await settingRegistry.load(
+          INLINE_COMPLETER_PLUGIN
+        )) as IcPluginSettings;
+      }
+      const userProvidersSettings = icSettings.user.providers ?? {};
       const newProviders = {
-        ...icpSettings,
+        ...userProvidersSettings,
         [JaiInlineProvider.ID]: {
-          ...jaiIcpSettings,
+          ...userProvidersSettings[JaiInlineProvider.ID],
           ...newJaiIcpSettings
         }
       };
-
       icSettings.set('providers', newProviders);
-    }
+    };
 
     app.commands.addCommand(CommandIDs.toggleCompletions, {
       execute: () => {
