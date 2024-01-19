@@ -4,16 +4,17 @@ import { VDomModel, VDomRenderer } from '@jupyterlab/ui-components';
 import { CommandRegistry } from '@lumino/commands';
 import { MenuSvg, RankedMenu, IRankedMenu } from '@jupyterlab/ui-components';
 import { Jupyternaut } from '../icons';
-import { IJupyternautStatus } from '../tokens';
+import type { IJaiStatusItem } from '../tokens';
 
 /**
- * StatusBar item to display menu for toggling the completion.
+ * The Jupyter AI status item, shown in the status bar on the bottom right by
+ * default.
  */
-export class JupyternautStatus
+export class JaiStatusItem
   extends VDomRenderer<VDomModel>
-  implements IJupyternautStatus
+  implements IJaiStatusItem
 {
-  constructor(options: JupyternautStatus.IOptions) {
+  constructor(options: JaiStatusItem.IOptions) {
     super(new VDomModel());
     this._commandRegistry = options.commandRegistry;
     this._items = [];
@@ -23,16 +24,22 @@ export class JupyternautStatus
     this.node.addEventListener('click', this._handleClick);
   }
 
+  /**
+   * Adds a menu item to the JAI status item.
+   */
   addItem(item: IRankedMenu.IItemOptions): void {
     this._items.push(item);
   }
 
+  /**
+   * Returns whether the status item has any menu items.
+   */
   hasItems(): boolean {
     return this._items.length !== 0;
   }
 
   /**
-   * Render the status item.
+   * Returns the status item as a JSX element.
    */
   render(): JSX.Element | null {
     if (!this.model) {
@@ -79,7 +86,7 @@ export class JupyternautStatus
 /**
  * A namespace for JupyternautStatus statics.
  */
-export namespace JupyternautStatus {
+export namespace JaiStatusItem {
   /**
    * Options for the JupyternautStatus item.
    */

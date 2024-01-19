@@ -1,9 +1,4 @@
 import {
-  JupyterFrontEnd,
-  JupyterFrontEndPlugin
-} from '@jupyterlab/application';
-import {
-  ICompletionProviderManager,
   InlineCompletionTriggerKind,
   IInlineCompletionProvider,
   IInlineCompletionContext,
@@ -22,8 +17,6 @@ import { NotebookPanel } from '@jupyterlab/notebook';
 import { AiCompleterService as AiService } from './types';
 import { DocumentWidget } from '@jupyterlab/docregistry';
 import { jupyternautIcon } from '../icons';
-import { getEditor } from '../selection-watcher';
-import { IJupyternautStatus } from '../tokens';
 import { CompletionWebsocketHandler } from './handler';
 
 type StreamChunk = AiService.InlineCompletionStreamChunk;
@@ -41,11 +34,11 @@ export function displayName(language: IEditorLanguage): string {
   return language.displayName ?? language.name;
 }
 
-export class JupyterAIInlineProvider implements IInlineCompletionProvider {
-  readonly identifier = 'jupyter-ai';
+export class JaiInlineProvider implements IInlineCompletionProvider {
+  readonly identifier = JaiInlineProvider.ID;
   readonly icon = jupyternautIcon.bindprops({ width: 16, top: 1 });
 
-  constructor(protected options: JupyterAIInlineProvider.IOptions) {
+  constructor(protected options: JaiInlineProvider.IOptions) {
     options.completionHandler.streamed.connect(this._receiveStreamChunk, this);
   }
 
@@ -182,12 +175,12 @@ export class JupyterAIInlineProvider implements IInlineCompletionProvider {
           description: 'Whether to show suggestions as they are generated'
         }
       },
-      default: JupyterAIInlineProvider.DEFAULT_SETTINGS as any
+      default: JaiInlineProvider.DEFAULT_SETTINGS as any
     };
   }
 
   async configure(settings: { [property: string]: JSONValue }): Promise<void> {
-    this._settings = settings as unknown as JupyterAIInlineProvider.ISettings;
+    this._settings = settings as unknown as JaiInlineProvider.ISettings;
   }
 
   isEnabled(): boolean {
@@ -255,19 +248,22 @@ export class JupyterAIInlineProvider implements IInlineCompletionProvider {
     return language.name;
   }
 
-  private _settings: JupyterAIInlineProvider.ISettings =
-    JupyterAIInlineProvider.DEFAULT_SETTINGS;
+  private _settings: JaiInlineProvider.ISettings =
+    JaiInlineProvider.DEFAULT_SETTINGS;
 
   private _streamPromises: Map<string, PromiseDelegate<StreamChunk>> =
     new Map();
   private _counter = 0;
 }
 
-export namespace JupyterAIInlineProvider {
+export namespace JaiInlineProvider {
+  export const ID = '@jupyterlab/jupyter-ai';
+
   export interface IOptions {
     completionHandler: CompletionWebsocketHandler;
     languageRegistry: IEditorLanguageRegistry;
   }
+
   export interface ISettings {
     maxPrefix: number;
     maxSuffix: number;
@@ -276,6 +272,7 @@ export namespace JupyterAIInlineProvider {
     disabledLanguages: string[];
     streaming: 'always' | 'manual' | 'never';
   }
+
   export const DEFAULT_SETTINGS: ISettings = {
     maxPrefix: 10000,
     maxSuffix: 10000,
@@ -283,138 +280,9 @@ export namespace JupyterAIInlineProvider {
     // here we just increase the default from 0, as compared to kernel history
     // the external AI models may have a token cost associated.
     debouncerDelay: 250,
-    enabled: true,
+    enabled: false,
     // ipythongfm means "IPython GitHub Flavoured Markdown"
     disabledLanguages: ['ipythongfm'],
     streaming: 'manual'
   };
 }
-
-export namespace CommandIDs {
-  export const toggleCompletions = 'jupyter-ai:toggle-completions';
-  export const toggleLanguageCompletions =
-    'jupyter-ai:toggle-language-completions';
-}
-
-const INLINE_COMPLETER_PLUGIN =
-  '@jupyterlab/completer-extension:inline-completer';
-
-export const inlineCompletionProvider: JupyterFrontEndPlugin<void> = {
-  id: 'jupyter_ai:inline-completions',
-  autoStart: true,
-  requires: [
-    ICompletionProviderManager,
-    IEditorLanguageRegistry,
-    ISettingRegistry
-  ],
-  optional: [IJupyternautStatus],
-  activate: async (
-    app: JupyterFrontEnd,
-    manager: ICompletionProviderManager,
-    languageRegistry: IEditorLanguageRegistry,
-    settingRegistry: ISettingRegistry,
-    statusMenu: IJupyternautStatus | null
-  ): Promise<void> => {
-    if (typeof manager.registerInlineProvider === 'undefined') {
-      // Gracefully short-circuit on JupyterLab 4.0 and Notebook 7.0
-      console.warn(
-        'Inline completions are only supported in JupyterLab 4.1+ and Jupyter Notebook 7.1+'
-      );
-      return;
-    }
-    const completionHandler = new CompletionWebsocketHandler();
-    const provider = new JupyterAIInlineProvider({
-      completionHandler,
-      languageRegistry
-    });
-    await completionHandler.initialize();
-    manager.registerInlineProvider(provider);
-
-    const findCurrentLanguage = (): IEditorLanguage | null => {
-      const widget = app.shell.currentWidget;
-      const editor = getEditor(widget);
-      if (!editor) {
-        return null;
-      }
-      return languageRegistry.findByMIME(editor.model.mimeType);
-    };
-
-    let settings: ISettingRegistry.ISettings | null = null;
-
-    settingRegistry.pluginChanged.connect(async (_emitter, plugin) => {
-      if (plugin === INLINE_COMPLETER_PLUGIN) {
-        // Only load the settings once the plugin settings were transformed
-        settings = await settingRegistry.load(INLINE_COMPLETER_PLUGIN);
-      }
-    });
-
-    app.commands.addCommand(CommandIDs.toggleCompletions, {
-      execute: () => {
-        if (!settings) {
-          return;
-        }
-        const providers = Object.assign({}, settings.user.providers) as any;
-        const ourSettings = {
-          ...JupyterAIInlineProvider.DEFAULT_SETTINGS,
-          ...providers[provider.identifier]
-        };
-        const wasEnabled = ourSettings['enabled'];
-        providers[provider.identifier]['enabled'] = !wasEnabled;
-        settings.set('providers', providers);
-      },
-      label: 'Enable Jupyternaut Completions',
-      isToggled: () => {
-        return provider.isEnabled();
-      }
-    });
-
-    app.commands.addCommand(CommandIDs.toggleLanguageCompletions, {
-      execute: () => {
-        const language = findCurrentLanguage();
-        if (!settings || !language) {
-          return;
-        }
-        const providers = Object.assign({}, settings.user.providers) as any;
-        const ourSettings = {
-          ...JupyterAIInlineProvider.DEFAULT_SETTINGS,
-          ...providers[provider.identifier]
-        };
-        const wasDisabled = ourSettings['disabledLanguages'].includes(
-          language.name
-        );
-        const disabledList: string[] =
-          providers[provider.identifier]['disabledLanguages'];
-        if (wasDisabled) {
-          disabledList.filter(name => name !== language.name);
-        } else {
-          disabledList.push(language.name);
-        }
-        settings.set('providers', providers);
-      },
-      label: () => {
-        const language = findCurrentLanguage();
-        return language
-          ? `Enable Completions in ${displayName(language)}`
-          : 'Enable Completions for Language of Current Editor';
-      },
-      isToggled: () => {
-        const language = findCurrentLanguage();
-        return !!language && provider.isLanguageEnabled(language.name);
-      },
-      isEnabled: () => {
-        return !!findCurrentLanguage() && provider.isEnabled();
-      }
-    });
-
-    if (statusMenu) {
-      statusMenu.addItem({
-        command: CommandIDs.toggleCompletions,
-        rank: 1
-      });
-      statusMenu.addItem({
-        command: CommandIDs.toggleLanguageCompletions,
-        rank: 2
-      });
-    }
-  }
-};

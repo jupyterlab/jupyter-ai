@@ -1,30 +1,32 @@
-import { IJupyternautStatus } from './tokens';
+import { IJaiStatusItem } from './tokens';
 import {
   JupyterFrontEnd,
   JupyterFrontEndPlugin
 } from '@jupyterlab/application';
 import { IStatusBar } from '@jupyterlab/statusbar';
-import { JupyternautStatus } from './components/statusbar-item';
+import { JaiStatusItem } from './components/statusbar-item';
 
-export const jupyternautStatus: JupyterFrontEndPlugin<IJupyternautStatus> = {
-  id: 'jupyter_ai:jupyternaut-status',
-  description: 'Adds a status indicator for jupyternaut.',
+export const statusItemPlugin: JupyterFrontEndPlugin<IJaiStatusItem> = {
+  id: 'jupyter_ai:status-item',
+  description: 'Provides a status item for Jupyter AI.',
   autoStart: true,
   requires: [IStatusBar],
-  provides: IJupyternautStatus,
+  provides: IJaiStatusItem,
   activate: (app: JupyterFrontEnd, statusBar: IStatusBar | null) => {
-    const indicator = new JupyternautStatus({ commandRegistry: app.commands });
+    const statusItem = new JaiStatusItem({
+      commandRegistry: app.commands
+    });
     if (statusBar) {
       // Add the status item.
       statusBar.registerStatusItem('jupyter_ai:jupyternaut-status', {
-        item: indicator,
+        item: statusItem,
         align: 'right',
         rank: 100,
         isActive: () => {
-          return indicator.hasItems();
+          return statusItem.hasItems();
         }
       });
     }
-    return indicator;
+    return statusItem;
   }
 };
