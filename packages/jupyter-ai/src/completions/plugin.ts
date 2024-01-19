@@ -159,8 +159,8 @@ export const completionPlugin: JupyterFrontEndPlugin<void> = {
       label: () => {
         const language = findCurrentLanguage();
         return language
-          ? `Disable completions for ${displayName(language)} files`
-          : 'Disable completions for <language> files';
+          ? `Disable completions in ${displayName(language)}`
+          : 'Disable completions in <language> files';
       },
       isToggled: () => {
         const language = findCurrentLanguage();
