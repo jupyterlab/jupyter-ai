@@ -280,7 +280,7 @@ export namespace JaiInlineProvider {
     // here we just increase the default from 0, as compared to kernel history
     // the external AI models may have a token cost associated.
     debouncerDelay: 250,
-    enabled: true,
+    enabled: false,
     // ipythongfm means "IPython GitHub Flavoured Markdown"
     disabledLanguages: ['ipythongfm'],
     streaming: 'manual'
