@@ -32,7 +32,7 @@ export class JaiStatusItem
   }
 
   /**
-   * Returns where the status item has any menu items.
+   * Returns whether the status item has any menu items.
    */
   hasItems(): boolean {
     return this._items.length !== 0;
