@@ -133,7 +133,7 @@ export const completionPlugin: JupyterFrontEndPlugin<void> = {
           enabled: !jaiIcpSettings.enabled
         });
       },
-      label: 'Enable Jupyternaut Completions',
+      label: 'Enable completions by Jupyternaut',
       isToggled: () => {
         return provider.isEnabled();
       }
@@ -159,12 +159,16 @@ export const completionPlugin: JupyterFrontEndPlugin<void> = {
       label: () => {
         const language = findCurrentLanguage();
         return language
-          ? `Enable Completions in ${displayName(language)}`
-          : 'Enable Completions for <language>';
+          ? `Disable completions for ${displayName(language)} files`
+          : 'Disable completions for <language> files';
       },
       isToggled: () => {
         const language = findCurrentLanguage();
-        return !!language && provider.isLanguageEnabled(language.name);
+        return !!language && !provider.isLanguageEnabled(language.name);
+      },
+      isVisible: () => {
+        const language = findCurrentLanguage();
+        return !!language;
       },
       isEnabled: () => {
         const language = findCurrentLanguage();
