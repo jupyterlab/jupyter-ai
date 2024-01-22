@@ -80,7 +80,15 @@ class OpenAIEmbeddingsProvider(BaseEmbeddingsProvider, OpenAIEmbeddings):
 class CohereEmbeddingsProvider(BaseEmbeddingsProvider, CohereEmbeddings):
     id = "cohere"
     name = "Cohere"
-    models = ["large", "multilingual-22-12", "small"]
+    models = [
+        "embed-english-v2.0",
+        "embed-english-light-v2.0",
+        "embed-multilingual-v2.0",
+        "embed-english-v3.0",
+        "embed-english-light-v3.0",
+        "embed-multilingual-v3.0",
+        "embed-multilingual-light-v3.0",
+    ]
     model_id_key = "model"
     pypi_package_deps = ["cohere"]
     auth_strategy = EnvAuthStrategy(name="COHERE_API_KEY")
