@@ -559,10 +559,10 @@ class ChatOpenAIProvider(BaseProvider, ChatOpenAI):
     name = "OpenAI"
     models = [
         "gpt-3.5-turbo",
-        "gpt-3.5-turbo-1106",
-        "gpt-3.5-turbo-16k",
         "gpt-3.5-turbo-0301",  # Deprecated as of 2024-06-13
         "gpt-3.5-turbo-0613",  # Deprecated as of 2024-06-13
+        "gpt-3.5-turbo-1106",
+        "gpt-3.5-turbo-16k",
         "gpt-3.5-turbo-16k-0613",  # Deprecated as of 2024-06-13
         "gpt-4",
         "gpt-4-0613",
