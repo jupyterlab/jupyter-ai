@@ -73,9 +73,7 @@ class DefaultInlineCompletionHandler(BaseInlineCompletionHandler):
         self.llm = llm
         self.llm_chain = prompt_template | llm | StrOutputParser()
 
-    async def handle_request(
-        self, request: InlineCompletionRequest
-    ) -> InlineCompletionReply:
+    async def handle_request(self, request: InlineCompletionRequest) -> None:
         """Handles an inline completion request without streaming."""
         self.get_llm_chain()
         model_arguments = self._template_inputs_from_request(request)
@@ -111,7 +109,7 @@ class DefaultInlineCompletionHandler(BaseInlineCompletionHandler):
 
     async def handle_stream_request(self, request: InlineCompletionRequest):
         # first, send empty initial reply.
-        self._write_incomplete_reply()
+        self._write_incomplete_reply(request)
 
         # then, generate and stream LLM output over this connection.
         self.get_llm_chain()

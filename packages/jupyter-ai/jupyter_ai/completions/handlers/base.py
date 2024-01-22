@@ -137,7 +137,7 @@ class BaseInlineCompletionHandler(
         """
         Handles an exception raised in either `handle_request()` or
         `handle_stream_request()`. This base class provides a default
-        implementation, which may be overriden by subclasses.
+        implementation, which may be overridden by subclasses.
         """
         error = CompletionError(
             type=e.__class__.__name__,
@@ -162,8 +162,6 @@ class BaseInlineCompletionHandler(
     async def _handle_stream_request(self, request: InlineCompletionRequest):
         """Private wrapper around `self.handle_stream_request()`."""
         start = time.time()
-        await self._handle_stream_request(request)
-        async for chunk in self.stream(request):
-            self.write_message(chunk.dict())
+        await self.handle_stream_request(request)
         latency_ms = round((time.time() - start) * 1000)
         self.log.info(f"Inline completion streaming completed in {latency_ms} ms.")
