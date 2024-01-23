@@ -4,7 +4,11 @@ import {
   ILayoutRestorer
 } from '@jupyterlab/application';
 
-import { IWidgetTracker, ReactWidget } from '@jupyterlab/apputils';
+import {
+  IWidgetTracker,
+  ReactWidget,
+  IThemeManager
+} from '@jupyterlab/apputils';
 import { IDocumentWidget } from '@jupyterlab/docregistry';
 import { IGlobalAwareness } from '@jupyterlab/collaboration';
 import type { Awareness } from 'y-protocols/awareness';
@@ -21,11 +25,12 @@ export type DocumentTracker = IWidgetTracker<IDocumentWidget>;
 const plugin: JupyterFrontEndPlugin<void> = {
   id: 'jupyter_ai:plugin',
   autoStart: true,
-  optional: [IGlobalAwareness, ILayoutRestorer],
+  optional: [IGlobalAwareness, ILayoutRestorer, IThemeManager],
   activate: async (
     app: JupyterFrontEnd,
     globalAwareness: Awareness | null,
-    restorer: ILayoutRestorer
+    restorer: ILayoutRestorer | null,
+    themeManager: IThemeManager | null
   ) => {
     /**
      * Initialize selection watcher singleton
@@ -43,10 +48,11 @@ const plugin: JupyterFrontEndPlugin<void> = {
       chatWidget = buildChatSidebar(
         selectionWatcher,
         chatHandler,
-        globalAwareness
+        globalAwareness,
+        themeManager
       );
     } catch (e) {
-      chatWidget = buildErrorWidget();
+      chatWidget = buildErrorWidget(themeManager);
     }
 
     /**
