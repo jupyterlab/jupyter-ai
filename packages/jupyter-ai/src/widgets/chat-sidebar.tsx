@@ -1,5 +1,6 @@
 import React from 'react';
 import { ReactWidget } from '@jupyterlab/apputils';
+import type { IThemeManager } from '@jupyterlab/apputils';
 import type { Awareness } from 'y-protocols/awareness';
 
 import { Chat } from '../components/chat';
@@ -10,13 +11,15 @@ import { ChatHandler } from '../chat_handler';
 export function buildChatSidebar(
   selectionWatcher: SelectionWatcher,
   chatHandler: ChatHandler,
-  globalAwareness: Awareness | null
+  globalAwareness: Awareness | null,
+  themeManager: IThemeManager | null
 ): ReactWidget {
   const ChatWidget = ReactWidget.create(
     <Chat
       selectionWatcher={selectionWatcher}
       chatHandler={chatHandler}
       globalAwareness={globalAwareness}
+      themeManager={themeManager}
     />
   );
   ChatWidget.id = 'jupyter-ai::chat';

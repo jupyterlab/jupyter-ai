@@ -1,13 +1,16 @@
 import React from 'react';
 import { ReactWidget } from '@jupyterlab/apputils';
+import type { IThemeManager } from '@jupyterlab/apputils';
+import { Alert, Box } from '@mui/material';
 
 import { chatIcon } from '../icons';
-import { Alert, Box } from '@mui/material';
 import { JlThemeProvider } from '../components/jl-theme-provider';
 
-export function buildErrorWidget(): ReactWidget {
+export function buildErrorWidget(
+  themeManager: IThemeManager | null
+): ReactWidget {
   const ErrorWidget = ReactWidget.create(
-    <JlThemeProvider>
+    <JlThemeProvider themeManager={themeManager}>
       <Box
         sx={{
           width: '100%',
