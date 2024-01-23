@@ -86,7 +86,7 @@ class AiExtension(ExtensionApp):
         config=True,
     )
 
-    api_keys = Dict(
+    default_api_keys = Dict(
         key_trait=Unicode(),
         value_trait=Unicode(),
         default_value=None,
@@ -115,14 +115,14 @@ class AiExtension(ExtensionApp):
         config=True,
     )
 
-    model_provider_id = Unicode(
+    default_model_provider_id = Unicode(
         default_value=None,
         allow_none=True,
         help="Default language model provider.",
         config=True,
     )
 
-    embeddings_provider_id = Unicode(
+    default_embeddings_provider_id = Unicode(
         default_value=None,
         allow_none=True,
         help="Default embeddings model provider.",
@@ -148,9 +148,9 @@ class AiExtension(ExtensionApp):
         self.log.info(f"Configured model parameters: {self.model_parameters}")
 
         provider_defaults = {
-            "model_provider_id": self.model_provider_id,
-            "embeddings_provider_id": self.embeddings_provider_id,
-            "api_keys": self.api_keys,
+            "model_provider_id": self.default_model_provider_id,
+            "embeddings_provider_id": self.default_embeddings_provider_id,
+            "api_keys": self.default_api_keys,
             "fields": self.model_parameters,
         }
 
