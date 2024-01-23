@@ -154,7 +154,6 @@ class AiExtension(ExtensionApp):
         self.settings["model_parameters"] = self.model_parameters
         self.log.info(f"Configured model parameters: {self.model_parameters}")
 
-        
         provider_defaults = {
             "model_provider_id": self.model_provider_id,
             "embeddings_provider_id": self.embeddings_provider_id,

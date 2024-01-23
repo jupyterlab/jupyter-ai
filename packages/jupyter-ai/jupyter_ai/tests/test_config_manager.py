@@ -47,7 +47,7 @@ def common_cm_kwargs(config_path, schema_path):
             "embeddings_provider_id": None,
             "api_keys": None,
             "fields": None,
-        }
+        },
     }
 
 
@@ -68,8 +68,13 @@ def cm_kargs_with_defaults(config_path, schema_path):
             "model_provider_id": "bedrock-chat:anthropic.claude-v1",
             "embeddings_provider_id": "bedrock:amazon.titan-embed-text-v1",
             "api_keys": {"OPENAI_API_KEY": "open-ai-key-value"},
-            "fields": {"bedrock-chat:anthropic.claude-v1":{"credentials_profile_name": "default","region_name": "us-west-2"}},
-        }
+            "fields": {
+                "bedrock-chat:anthropic.claude-v1": {
+                    "credentials_profile_name": "default",
+                    "region_name": "us-west-2",
+                }
+            },
+        },
     }
 
 
@@ -97,6 +102,7 @@ def cm_with_allowlists(common_cm_kwargs):
         "allowed_models": ["cohere:medium"],
     }
     return ConfigManager(**kwargs)
+
 
 def cm_with_defaults(cm_kargs_with_defaults):
     """The default ConfigManager instance, with an empty config and config schema."""
@@ -216,8 +222,9 @@ def test_init_with_allowlists(cm: ConfigManager, common_cm_kwargs):
     assert test_cm.lm_gid == None
     assert test_cm.em_gid == None
 
+
 def test_init_with_default_values(
-        cm_with_defaults: ConfigManager, config_path: str, schema_path: str
+    cm_with_defaults: ConfigManager, config_path: str, schema_path: str
 ):
     """
     Test that the ConfigManager initializes with the expected default values.
@@ -228,18 +235,25 @@ def test_init_with_default_values(
         schema_path (str): The path to the schema file.
     """
     config_response = cm_with_defaults.get_config()
-    #assert config response
+    # assert config response
     assert config_response.model_provider_id == "bedrock-chat:anthropic.claude-v1"
-    assert config_response.embeddings_provider_id == "bedrock:amazon.titan-embed-text-v1"
+    assert (
+        config_response.embeddings_provider_id == "bedrock:amazon.titan-embed-text-v1"
+    )
     assert config_response.api_keys == ["OPENAI_API_KEY"]
-    assert config_response.fields == {"bedrock-chat:anthropic.claude-v1":{"credentials_profile_name": "default","region_name": "us-west-2"}}
+    assert config_response.fields == {
+        "bedrock-chat:anthropic.claude-v1": {
+            "credentials_profile_name": "default",
+            "region_name": "us-west-2",
+        }
+    }
 
     del cm_with_defaults
 
     log = logging.getLogger()
     lm_providers = get_lm_providers()
     em_providers = get_em_providers()
-    cm_with_defaults_override =ConfigManager(
+    cm_with_defaults_override = ConfigManager(
         log=log,
         lm_providers=lm_providers,
         em_providers=em_providers,
@@ -251,7 +265,7 @@ def test_init_with_default_values(
 
 
 def test_init_with_default_values(
-        cm_with_defaults: ConfigManager, config_path: str, schema_path: str
+    cm_with_defaults: ConfigManager, config_path: str, schema_path: str
 ):
     """
     Test that the ConfigManager initializes with the expected default values.
@@ -262,18 +276,25 @@ def test_init_with_default_values(
         schema_path (str): The path to the schema file.
     """
     config_response = cm_with_defaults.get_config()
-    #assert config response
+    # assert config response
     assert config_response.model_provider_id == "bedrock-chat:anthropic.claude-v1"
-    assert config_response.embeddings_provider_id == "bedrock:amazon.titan-embed-text-v1"
+    assert (
+        config_response.embeddings_provider_id == "bedrock:amazon.titan-embed-text-v1"
+    )
     assert config_response.api_keys == ["OPENAI_API_KEY"]
-    assert config_response.fields == {"bedrock-chat:anthropic.claude-v1":{"credentials_profile_name": "default","region_name": "us-west-2"}}
+    assert config_response.fields == {
+        "bedrock-chat:anthropic.claude-v1": {
+            "credentials_profile_name": "default",
+            "region_name": "us-west-2",
+        }
+    }
 
     del cm_with_defaults
 
     log = logging.getLogger()
     lm_providers = get_lm_providers()
     em_providers = get_em_providers()
-    cm_with_defaults_override =ConfigManager(
+    cm_with_defaults_override = ConfigManager(
         log=log,
         lm_providers=lm_providers,
         em_providers=em_providers,
@@ -283,10 +304,10 @@ def test_init_with_default_values(
         provider_defaults={"model_provider_id": "bedrock-chat:anthropic.claude-v2"},
     )
 
-    assert cm_with_defaults_override.get_config().model_provider_id == "bedrock-chat:anthropic.claude-v2"
-
-
-    
+    assert (
+        cm_with_defaults_override.get_config().model_provider_id
+        == "bedrock-chat:anthropic.claude-v2"
+    )
 
 
 def test_property_access_on_default_config(cm: ConfigManager):
