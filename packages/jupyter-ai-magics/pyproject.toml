@@ -37,7 +37,7 @@ test = ["coverage", "pytest", "pytest-asyncio", "pytest-cov"]
 all = [
     "ai21",
     "anthropic~=0.3.0",
-    "cohere",
+    "cohere>4.40,<5",
     "gpt4all",
     "huggingface_hub",
     "ipywidgets",
