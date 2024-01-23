@@ -111,10 +111,6 @@ class ConfigManager(Configurable):
     ):
         super().__init__(*args, **kwargs)
         self.log = log
-        """List of LM providers."""
-        self._lm_providers = lm_providers
-        """List of EM providers."""
-        self._em_providers = em_providers
 
         self._lm_providers = lm_providers
         """List of LM providers."""
@@ -125,8 +121,8 @@ class ConfigManager(Configurable):
         self._blocked_providers = blocked_providers
         self._allowed_models = allowed_models
         self._blocked_models = blocked_models
-        """Provider defaults."""
         self._provider_defaults = provider_defaults
+        """Provider defaults."""
 
         self._last_read: Optional[int] = None
         """When the server last read the config file. If the file was not
