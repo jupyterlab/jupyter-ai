@@ -29,7 +29,7 @@ class TestModelEngine(BaseModelEngine):
         # prompt = task.prompt_template.format(**prompt_variables)
         # openai.api_key = self.api_key
         # response = openai.Completion.create(
-        #     model="text-davinci-003",
+        #     model="davinci-002",
         #     prompt=prompt,
         #     ...
         # )
