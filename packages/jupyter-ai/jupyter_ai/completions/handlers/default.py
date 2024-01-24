@@ -31,7 +31,7 @@ class DefaultInlineCompletionHandler(BaseInlineCompletionHandler):
         model_parameters = self.get_model_parameters(provider, provider_params)
         llm = provider(**provider_params, **model_parameters)
 
-        prompt_template = llm.get_inline_completion_prompt_template()
+        prompt_template = llm.get_completion_prompt_template()
 
         self.llm = llm
         self.llm_chain = prompt_template | llm | StrOutputParser()

@@ -340,9 +340,9 @@ class BaseProvider(BaseModel, metaclass=ProviderMetaclass):
                 + CHAT_DEFAULT_TEMPLATE,
             )
 
-    def get_inline_completion_prompt_template(self) -> PromptTemplate:
+    def get_completion_prompt_template(self) -> PromptTemplate:
         """
-        Produce a prompt template optimised for code or text completion.
+        Produce a prompt template optimised for inline code or text completion.
         The template should take variables: prefix, suffix, language, filename.
         """
         if self.is_chat_provider:
