@@ -770,9 +770,9 @@ a blocklist, to block some providers.
 This configuration allows for setting a default model, and embedding provider with their corresponding API keys.
 
 Following command line arguments can be used to initialize Jupyter AI extension with default providers:
-1. ```--AiExtension.default_model_provider_id```: Specify the default LLM model. E.g.: ```--AiExtension.default_model_provider_id="bedrock-chat:anthropic.claude-v2"```
-2. ```--AiExtension.default_embeddings_provider_id```: Specify default embedding provider. E.g.: ```--AiExtension.default_embeddings_provider_id="bedrock:amazon.titan-embed-text-v1"```
-3. ```--AiExtension.default_api_keys```: Specify model provider keys in a JSON format. E.g. ```--AiExtension.default_api_keys='{"OPENAI_API_KEY": "sk-abcd}'```
+1. ```--AiExtension.default_language_model```: Specify the default LLM model. Sample value: ```--AiExtension.default_language_model="bedrock-chat:anthropic.claude-v2"```
+2. ```--AiExtension.default_embedding_model```: Specify default embedding model. Sample value: ```--AiExtension.default_embedding_model="bedrock:amazon.titan-embed-text-v1"```
+3. ```--AiExtension.api_keys```: Specify model keys in a JSON format. Sample CLI argument: ```--AiExtension.api_keys='{"OPENAI_API_KEY": "sk-abcd}'```
 
 
 ### Blocklisting providers

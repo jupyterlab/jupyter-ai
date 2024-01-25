@@ -105,7 +105,7 @@ class ConfigManager(Configurable):
         blocked_providers: Optional[List[str]],
         allowed_models: Optional[List[str]],
         blocked_models: Optional[List[str]],
-        provider_defaults: dict,
+        defaults: dict,
         *args,
         **kwargs,
     ):
@@ -121,7 +121,7 @@ class ConfigManager(Configurable):
         self._blocked_providers = blocked_providers
         self._allowed_models = allowed_models
         self._blocked_models = blocked_models
-        self._provider_defaults = provider_defaults
+        self._defaults = defaults
         """Provider defaults."""
 
         self._last_read: Optional[int] = None
@@ -158,7 +158,8 @@ class ConfigManager(Configurable):
     def _process_existing_config(self, default_config):
         with open(self.config_path, encoding="utf-8") as f:
             existing_config = json.loads(f.read())
-            merged_config = {**existing_config, **default_config}
+            merged_config = Merger.merge(default_config,
+                                         {k: v for k, v in existing_config.items() if v is not None})
             config = GlobalConfig(**merged_config)
             validated_config = self._validate_lm_em_id(config)
 
@@ -207,11 +208,11 @@ class ConfigManager(Configurable):
         field_dict = {
             field: properties.get(field).get("default") for field in field_list
         }
-        if self._provider_defaults is None:
+        if self._defaults is None:
             return field_dict
 
         for field in field_list:
-            default_value = self._provider_defaults.get(field)
+            default_value = self._defaults.get(field)
             if default_value is not None:
                 field_dict[field] = default_value
         return field_dict
