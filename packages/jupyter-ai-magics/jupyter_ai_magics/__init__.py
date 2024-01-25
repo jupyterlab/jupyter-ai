@@ -7,7 +7,6 @@ from .embedding_providers import (
     CohereEmbeddingsProvider,
     GPT4AllEmbeddingsProvider,
     HfHubEmbeddingsProvider,
-    NVIDIAEmbeddingsProvider,
     OpenAIEmbeddingsProvider,
     QianfanEmbeddingsEndpointProvider,
 )
