@@ -484,7 +484,7 @@ class AiMagics(Magics):
             # Get the output, either as raw text or as the contents of the 'text' key of a dict
             invoke_output = self.custom_model_registry[args.model_id].invoke(prompt)
             if isinstance(invoke_output, dict):
-                invoke_output = invoke_output.get('text')
+                invoke_output = invoke_output.get("text")
 
             return self.display_output(
                 invoke_output,
