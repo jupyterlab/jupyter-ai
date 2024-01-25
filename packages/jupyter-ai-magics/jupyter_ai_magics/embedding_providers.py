@@ -16,7 +16,6 @@ from langchain_community.embeddings import (
     OpenAIEmbeddings,
     QianfanEmbeddingsEndpoint,
 )
-from langchain_nvidia_ai_endpoints import NVIDIAEmbeddings
 
 
 class BaseEmbeddingsProvider(BaseModel):
@@ -140,11 +139,3 @@ class QianfanEmbeddingsEndpointProvider(
     model_id_key = "model"
     pypi_package_deps = ["qianfan"]
     auth_strategy = MultiEnvAuthStrategy(names=["QIANFAN_AK", "QIANFAN_SK"])
-
-
-class NVIDIAEmbeddingsProvider(BaseEmbeddingsProvider, NVIDIAEmbeddings):
-    id = "nvidia"
-    name = "NVIDIA"
-    models = ["playground_nvolveqa_40k"]
-    model_id_key = "model"
-    auth_strategy = EnvAuthStrategy(name="NVIDIA_API_KEY")
