@@ -18,32 +18,6 @@ from ..models import (
 )
 from .base import BaseInlineCompletionHandler
 
-SYSTEM_PROMPT = """
-You are an application built to provide helpful code completion suggestions.
-You should only produce code. Keep comments to minimum, use the
-programming language comment syntax. Produce clean code.
-The code is written in JupyterLab, a data analysis and code development
-environment which can execute code extended with additional syntax for
-interactive features, such as magics.
-""".strip()
-
-AFTER_TEMPLATE = """
-The code after the completion request is:
-
-```
-{suffix}
-```
-""".strip()
-
-DEFAULT_TEMPLATE = """
-The document is called `{filename}` and written in {language}.
-{after}
-
-Complete the following code:
-
-```
-{prefix}"""
-
 
 class DefaultInlineCompletionHandler(BaseInlineCompletionHandler):
     llm_chain: Runnable
@@ -57,18 +31,7 @@ class DefaultInlineCompletionHandler(BaseInlineCompletionHandler):
         model_parameters = self.get_model_parameters(provider, provider_params)
         llm = provider(**provider_params, **model_parameters)
 
-        if llm.is_chat_provider:
-            prompt_template = ChatPromptTemplate.from_messages(
-                [
-                    SystemMessagePromptTemplate.from_template(SYSTEM_PROMPT),
-                    HumanMessagePromptTemplate.from_template(DEFAULT_TEMPLATE),
-                ]
-            )
-        else:
-            prompt_template = PromptTemplate(
-                input_variables=["prefix", "suffix", "language", "filename"],
-                template=SYSTEM_PROMPT + "\n\n" + DEFAULT_TEMPLATE,
-            )
+        prompt_template = llm.get_completion_prompt_template()
 
         self.llm = llm
         self.llm_chain = prompt_template | llm | StrOutputParser()
@@ -151,13 +114,11 @@ class DefaultInlineCompletionHandler(BaseInlineCompletionHandler):
 
     def _template_inputs_from_request(self, request: InlineCompletionRequest) -> Dict:
         suffix = request.suffix.strip()
-        # only add the suffix template if the suffix is there to save input tokens/computation time
-        after = AFTER_TEMPLATE.format(suffix=suffix) if suffix else ""
         filename = request.path.split("/")[-1] if request.path else "untitled"
 
         return {
             "prefix": request.prefix,
-            "after": after,
+            "suffix": suffix,
             "language": request.language,
             "filename": filename,
             "stop": ["\n```"],

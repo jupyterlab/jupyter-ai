@@ -11,7 +11,13 @@ from jsonpath_ng import parse
 from langchain.chat_models.base import BaseChatModel
 from langchain.llms.sagemaker_endpoint import LLMContentHandler
 from langchain.llms.utils import enforce_stop_tokens
-from langchain.prompts import PromptTemplate
+from langchain.prompts import (
+    ChatPromptTemplate,
+    HumanMessagePromptTemplate,
+    MessagesPlaceholder,
+    PromptTemplate,
+    SystemMessagePromptTemplate,
+)
 from langchain.pydantic_v1 import BaseModel, Extra, root_validator
 from langchain.schema import LLMResult
 from langchain.utils import get_from_dict_or_env
@@ -40,6 +46,49 @@ try:
     from pydantic.v1.main import ModelMetaclass
 except:
     from pydantic.main import ModelMetaclass
+
+
+CHAT_SYSTEM_PROMPT = """
+You are Jupyternaut, a conversational assistant living in JupyterLab to help users.
+You are not a language model, but rather an application built on a foundation model from {provider_name} called {local_model_id}.
+You are talkative and you provide lots of specific details from the foundation model's context.
+You may use Markdown to format your response.
+Code blocks must be formatted in Markdown.
+Math should be rendered with inline TeX markup, surrounded by $.
+If you do not know the answer to a question, answer truthfully by responding that you do not know.
+The following is a friendly conversation between you and a human.
+""".strip()
+
+CHAT_DEFAULT_TEMPLATE = """Current conversation:
+{history}
+Human: {input}
+AI:"""
+
+
+COMPLETION_SYSTEM_PROMPT = """
+You are an application built to provide helpful code completion suggestions.
+You should only produce code. Keep comments to minimum, use the
+programming language comment syntax. Produce clean code.
+The code is written in JupyterLab, a data analysis and code development
+environment which can execute code extended with additional syntax for
+interactive features, such as magics.
+""".strip()
+
+# only add the suffix bit if present to save input tokens/computation time
+COMPLETION_DEFAULT_TEMPLATE = """
+The document is called `{{filename}}` and written in {{language}}.
+{% if suffix %}
+The code after the completion request is:
+
+```
+{{suffix}}
+```
+{% endif %}
+
+Complete the following code:
+
+```
+{{prefix}}"""
 
 
 class EnvAuthStrategy(BaseModel):
@@ -264,6 +313,55 @@ class BaseProvider(BaseModel, metaclass=ProviderMetaclass):
             return self.prompt_templates[format]
         else:
             return self.prompt_templates["text"]  # Default to plain format
+
+    def get_chat_prompt_template(self) -> PromptTemplate:
+        """
+        Produce a prompt template optimised for chat conversation.
+        The template should take two variables: history and input.
+        """
+        name = self.__class__.name
+        if self.is_chat_provider:
+            return ChatPromptTemplate.from_messages(
+                [
+                    SystemMessagePromptTemplate.from_template(
+                        CHAT_SYSTEM_PROMPT
+                    ).format(provider_name=name, local_model_id=self.model_id),
+                    MessagesPlaceholder(variable_name="history"),
+                    HumanMessagePromptTemplate.from_template("{input}"),
+                ]
+            )
+        else:
+            return PromptTemplate(
+                input_variables=["history", "input"],
+                template=CHAT_SYSTEM_PROMPT.format(
+                    provider_name=name, local_model_id=self.model_id
+                )
+                + "\n\n"
+                + CHAT_DEFAULT_TEMPLATE,
+            )
+
+    def get_completion_prompt_template(self) -> PromptTemplate:
+        """
+        Produce a prompt template optimised for inline code or text completion.
+        The template should take variables: prefix, suffix, language, filename.
+        """
+        if self.is_chat_provider:
+            return ChatPromptTemplate.from_messages(
+                [
+                    SystemMessagePromptTemplate.from_template(COMPLETION_SYSTEM_PROMPT),
+                    HumanMessagePromptTemplate.from_template(
+                        COMPLETION_DEFAULT_TEMPLATE, template_format="jinja2"
+                    ),
+                ]
+            )
+        else:
+            return PromptTemplate(
+                input_variables=["prefix", "suffix", "language", "filename"],
+                template=COMPLETION_SYSTEM_PROMPT
+                + "\n\n"
+                + COMPLETION_DEFAULT_TEMPLATE,
+                template_format="jinja2",
+            )
 
     @property
     def is_chat_provider(self):
