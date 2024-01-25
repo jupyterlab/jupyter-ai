@@ -4,31 +4,8 @@ from jupyter_ai.models import ChatMessage, ClearMessage, HumanChatMessage
 from jupyter_ai_magics.providers import BaseProvider
 from langchain.chains import ConversationChain
 from langchain.memory import ConversationBufferWindowMemory
-from langchain.prompts import (
-    ChatPromptTemplate,
-    HumanMessagePromptTemplate,
-    MessagesPlaceholder,
-    PromptTemplate,
-    SystemMessagePromptTemplate,
-)
 
 from .base import BaseChatHandler, SlashCommandRoutingType
-
-SYSTEM_PROMPT = """
-You are Jupyternaut, a conversational assistant living in JupyterLab to help users.
-You are not a language model, but rather an application built on a foundation model from {provider_name} called {local_model_id}.
-You are talkative and you provide lots of specific details from the foundation model's context.
-You may use Markdown to format your response.
-Code blocks must be formatted in Markdown.
-Math should be rendered with inline TeX markup, surrounded by $.
-If you do not know the answer to a question, answer truthfully by responding that you do not know.
-The following is a friendly conversation between you and a human.
-""".strip()
-
-DEFAULT_TEMPLATE = """Current conversation:
-{history}
-Human: {input}
-AI:"""
 
 
 class DefaultChatHandler(BaseChatHandler):
@@ -49,27 +26,10 @@ class DefaultChatHandler(BaseChatHandler):
         model_parameters = self.get_model_parameters(provider, provider_params)
         llm = provider(**provider_params, **model_parameters)
 
-        if llm.is_chat_provider:
-            prompt_template = ChatPromptTemplate.from_messages(
-                [
-                    SystemMessagePromptTemplate.from_template(SYSTEM_PROMPT).format(
-                        provider_name=provider.name, local_model_id=llm.model_id
-                    ),
-                    MessagesPlaceholder(variable_name="history"),
-                    HumanMessagePromptTemplate.from_template("{input}"),
-                ]
-            )
-            self.memory = ConversationBufferWindowMemory(return_messages=True, k=2)
-        else:
-            prompt_template = PromptTemplate(
-                input_variables=["history", "input"],
-                template=SYSTEM_PROMPT.format(
-                    provider_name=provider.name, local_model_id=llm.model_id
-                )
-                + "\n\n"
-                + DEFAULT_TEMPLATE,
-            )
-            self.memory = ConversationBufferWindowMemory(k=2)
+        prompt_template = llm.get_chat_prompt_template()
+        self.memory = ConversationBufferWindowMemory(
+            return_messages=llm.is_chat_provider, k=2
+        )
 
         self.llm = llm
         self.llm_chain = ConversationChain(
