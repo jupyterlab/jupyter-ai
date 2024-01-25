@@ -158,8 +158,10 @@ class ConfigManager(Configurable):
     def _process_existing_config(self, default_config):
         with open(self.config_path, encoding="utf-8") as f:
             existing_config = json.loads(f.read())
-            merged_config = Merger.merge(default_config,
-                                         {k: v for k, v in existing_config.items() if v is not None})
+            merged_config = Merger.merge(
+                default_config,
+                {k: v for k, v in existing_config.items() if v is not None},
+            )
             config = GlobalConfig(**merged_config)
             validated_config = self._validate_lm_em_id(config)
 

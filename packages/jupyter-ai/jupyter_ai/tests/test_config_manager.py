@@ -98,6 +98,7 @@ def cm_with_allowlists(common_cm_kwargs):
     }
     return ConfigManager(**kwargs)
 
+
 @pytest.fixture
 def cm_with_defaults(cm_kargs_with_defaults):
     """The default ConfigManager instance, with an empty config and config schema."""
@@ -219,7 +220,11 @@ def test_init_with_allowlists(cm: ConfigManager, common_cm_kwargs):
 
 
 def test_init_with_default_values(
-    cm_with_defaults: ConfigManager, config_path: str, schema_path: str, common_cm_kwargs):
+    cm_with_defaults: ConfigManager,
+    config_path: str,
+    schema_path: str,
+    common_cm_kwargs,
+):
     """
     Test that the ConfigManager initializes with the expected default values.
 
@@ -249,9 +254,7 @@ def test_init_with_default_values(
     em_providers = get_em_providers()
     kwargs = {
         **common_cm_kwargs,
-        "defaults" : {
-            "model_provider_id": "bedrock-chat:anthropic.claude-v2"
-        },
+        "defaults": {"model_provider_id": "bedrock-chat:anthropic.claude-v2"},
     }
     cm_with_defaults_override = ConfigManager(**kwargs)
 
