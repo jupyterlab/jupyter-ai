@@ -481,8 +481,13 @@ class AiMagics(Magics):
         if args.model_id in self.custom_model_registry and isinstance(
             self.custom_model_registry[args.model_id], LLMChain
         ):
+            # Get the output, either as raw text or as the contents of the 'text' key of a dict
+            invoke_output = self.custom_model_registry[args.model_id].invoke(prompt)
+            if isinstance(invoke_output, dict):
+                invoke_output = invoke_output.get("text")
+
             return self.display_output(
-                self.custom_model_registry[args.model_id].run(prompt),
+                invoke_output,
                 args.format,
                 {"jupyter_ai": {"custom_chain_id": args.model_id}},
             )
