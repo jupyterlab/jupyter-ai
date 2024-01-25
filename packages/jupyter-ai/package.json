@@ -1,6 +1,6 @@
 {
   "name": "@jupyter-ai/core",
-  "version": "2.9.0",
+  "version": "2.10.0-beta.1",
   "description": "A generative AI extension for JupyterLab",
   "keywords": [
     "jupyter",
@@ -63,13 +63,17 @@
     "@emotion/styled": "^11.10.5",
     "@jupyter/collaboration": "^1",
     "@jupyterlab/application": "^4",
+    "@jupyterlab/apputils": "^4",
     "@jupyterlab/cells": "^4",
     "@jupyterlab/codeeditor": "^4",
     "@jupyterlab/codemirror": "^4",
+    "@jupyterlab/completer": "^4",
     "@jupyterlab/coreutils": "^6",
+    "@jupyterlab/docregistry": "^4",
     "@jupyterlab/fileeditor": "^4",
     "@jupyterlab/notebook": "^4",
     "@jupyterlab/services": "^7",
+    "@jupyterlab/settingregistry": "^4",
     "@jupyterlab/ui-components": "^4",
     "@mui/icons-material": "^5.11.0",
     "@mui/material": "^5.11.0",
@@ -103,7 +107,7 @@
     "stylelint-config-standard": "~24.0.0",
     "stylelint-prettier": "^2.0.0",
     "ts-jest": "^29",
-    "typescript": "~4.3.0",
+    "typescript": "~4.9.0",
     "y-protocols": "^1.0.5"
   },
   "sideEffects": [
