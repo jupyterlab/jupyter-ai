@@ -169,7 +169,8 @@ class AiMagics(Magics):
                 return Provider.help
 
         for model_id in Provider.models:
-            output += f", `{provider_id}:{model_id}`"
+            # Wrap the name in an HTML tag to make all hyphens nonbreaking
+            output += f", <span style='white-space: nowrap; font-family: monospace;'>{provider_id}:{model_id}</span>"
 
         # Remove initial comma
         return re.sub(r"^, ", "", output)
