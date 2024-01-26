@@ -105,6 +105,7 @@ class ConfigManager(Configurable):
         blocked_providers: Optional[List[str]],
         allowed_models: Optional[List[str]],
         blocked_models: Optional[List[str]],
+        defaults: dict,
         *args,
         **kwargs,
     ):
@@ -120,6 +121,8 @@ class ConfigManager(Configurable):
         self._blocked_providers = blocked_providers
         self._allowed_models = allowed_models
         self._blocked_models = blocked_models
+        self._defaults = defaults
+        """Provider defaults."""
 
         self._last_read: Optional[int] = None
         """When the server last read the config file. If the file was not
@@ -146,14 +149,20 @@ class ConfigManager(Configurable):
             self.validator = Validator(schema)
 
     def _init_config(self):
+        default_config = self._init_defaults()
         if os.path.exists(self.config_path):
-            self._process_existing_config()
+            self._process_existing_config(default_config)
         else:
-            self._create_default_config()
+            self._create_default_config(default_config)
 
-    def _process_existing_config(self):
+    def _process_existing_config(self, default_config):
         with open(self.config_path, encoding="utf-8") as f:
-            config = GlobalConfig(**json.loads(f.read()))
+            existing_config = json.loads(f.read())
+            merged_config = Merger.merge(
+                default_config,
+                {k: v for k, v in existing_config.items() if v is not None},
+            )
+            config = GlobalConfig(**merged_config)
             validated_config = self._validate_lm_em_id(config)
 
             # re-write to the file to validate the config and apply any
@@ -192,14 +201,23 @@ class ConfigManager(Configurable):
 
         return config
 
-    def _create_default_config(self):
-        properties = self.validator.schema.get("properties", {})
+    def _create_default_config(self, default_config):
+        self._write_config(GlobalConfig(**default_config))
+
+    def _init_defaults(self):
         field_list = GlobalConfig.__fields__.keys()
+        properties = self.validator.schema.get("properties", {})
         field_dict = {
             field: properties.get(field).get("default") for field in field_list
         }
-        default_config = GlobalConfig(**field_dict)
-        self._write_config(default_config)
+        if self._defaults is None:
+            return field_dict
+
+        for field in field_list:
+            default_value = self._defaults.get(field)
+            if default_value is not None:
+                field_dict[field] = default_value
+        return field_dict
 
     def _read_config(self) -> GlobalConfig:
         """Returns the user's current configuration as a GlobalConfig object.
