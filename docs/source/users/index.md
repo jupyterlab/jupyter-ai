@@ -765,6 +765,28 @@ The `--response-path` option is a [JSONPath](https://goessner.net/articles/JsonP
 You can specify an allowlist, to only allow only a certain list of providers, or
 a blocklist, to block some providers.
 
+### Configuring default models and API keys
+
+This configuration allows for setting a default language and embedding models, and their corresponding API keys.
+These values are offered as a starting point for users, so they don't have to select the models and API keys, however,
+the selections they make in the settings panel will take precedence over these values.
+
+Specify default language model
+```
+jupyter lab --AiExtension.default_language_model=bedrock-chat:anthropic.claude-v2
+```
+
+Specify default embedding model
+```
+jupyter lab --AiExtension.default_embedding_model=bedrock:amazon.titan-embed-text-v1
+```
+
+Specify default API keys
+```
+jupyter lab --AiExtension.default_api_keys={'OPENAI_API_KEY': 'sk-abcd'}
+```
+
+
 ### Blocklisting providers
 
 This configuration allows for blocking specific providers in the settings panel.
