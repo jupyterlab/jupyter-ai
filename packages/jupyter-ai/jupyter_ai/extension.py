@@ -86,16 +86,6 @@ class AiExtension(ExtensionApp):
         config=True,
     )
 
-    api_keys = Dict(
-        key_trait=Unicode(),
-        value_trait=Unicode(),
-        default_value=None,
-        allow_none=True,
-        help="""API keys for model providers, as a dictionary, in the format
-        `<key-name>:<key-value>`. Defaults to None.""",
-        config=True,
-    )
-
     model_parameters = Dict(
         key_trait=Unicode(),
         value_trait=Dict(),
@@ -119,16 +109,32 @@ class AiExtension(ExtensionApp):
     default_language_model = Unicode(
         default_value=None,
         allow_none=True,
-        help="""Default language model to use, as string in the format
-        <provider-id>:<model-id>, defaults to None.""",
+        help="""
+        Default language model to use, as string in the format
+        <provider-id>:<model-id>, defaults to None.
+        """,
         config=True,
     )
 
-    default_embedding_model = Unicode(
+    default_embeddings_model = Unicode(
         default_value=None,
         allow_none=True,
-        help="""Default embedding model to use, as string in the format
-        <provider-id>:<model-id>, defaults to None.""",
+        help="""
+        Default embeddings model to use, as string in the format
+        <provider-id>:<model-id>, defaults to None.
+        """,
+        config=True,
+    )
+
+    default_api_keys = Dict(
+        key_trait=Unicode(),
+        value_trait=Unicode(),
+        default_value=None,
+        allow_none=True,
+        help="""
+        Default API keys for model providers, as a dictionary,
+        in the format `<key-name>:<key-value>`. Defaults to None.
+        """,
         config=True,
     )
 
@@ -152,8 +158,8 @@ class AiExtension(ExtensionApp):
 
         defaults = {
             "model_provider_id": self.default_language_model,
-            "embeddings_provider_id": self.default_embedding_model,
-            "api_keys": self.api_keys,
+            "embeddings_provider_id": self.default_embeddings_model,
+            "api_keys": self.default_api_keys,
             "fields": self.model_parameters,
         }
 
