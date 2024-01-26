@@ -772,17 +772,17 @@ These values are offered as a starting point for users, so they don't have to se
 the selections they make in the settings panel will take precedence over these values.
 
 Specify default language model
-```
+```bash
 jupyter lab --AiExtension.default_language_model=bedrock-chat:anthropic.claude-v2
 ```
 
 Specify default embedding model
-```
-jupyter lab --AiExtension.default_embedding_model=bedrock:amazon.titan-embed-text-v1
+```bash
+jupyter lab --AiExtension.default_embeddings_model=bedrock:amazon.titan-embed-text-v1
 ```
 
 Specify default API keys
-```
+```bash
 jupyter lab --AiExtension.default_api_keys={'OPENAI_API_KEY': 'sk-abcd'}
 ```
 
