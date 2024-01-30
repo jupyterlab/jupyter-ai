@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom';
 import { CopyButton } from './copy-button';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 
-const MD_MIME_TYPE = 'text/markdown';
+const BASE_MIME_TYPE = 'text/markdown';
 const RENDERMIME_MD_CLASS = 'jp-ai-rendermime-markdown';
 
 type RendermimeMarkdownProps = {
@@ -19,11 +19,16 @@ function RendermimeMarkdownBase(props: RendermimeMarkdownProps): JSX.Element {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const renderMarkdown = async () => {
+    const renderContent = async () => {
+      const mimeType =
+        props.rmRegistry.preferredMimeType({
+          BASE_MIME_TYPE: props.markdownStr
+        }) || BASE_MIME_TYPE;
+
       const model = props.rmRegistry.createModel({
-        data: { [MD_MIME_TYPE]: props.markdownStr }
+        data: { [mimeType]: props.markdownStr }
       });
-      const renderer = props.rmRegistry.createRenderer(MD_MIME_TYPE);
+      const renderer = props.rmRegistry.createRenderer(mimeType);
       await renderer.renderModel(model);
       setRenderedContent(renderer.node);
 
@@ -44,7 +49,7 @@ function RendermimeMarkdownBase(props: RendermimeMarkdownProps): JSX.Element {
       }
     };
 
-    renderMarkdown();
+    renderContent();
   }, [props.markdownStr, props.rmRegistry]);
 
   return (
