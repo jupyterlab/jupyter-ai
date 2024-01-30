@@ -3,8 +3,8 @@ import ReactDOM from 'react-dom';
 
 import { CopyButton } from './copy-button';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
+import { MathJaxTypesetter } from '@jupyterlab/mathjax-extension';
 
-const BASE_MIME_TYPE = 'text/markdown';
 const RENDERMIME_MD_CLASS = 'jp-ai-rendermime-markdown';
 
 type RendermimeMarkdownProps = {
@@ -20,15 +20,16 @@ function RendermimeMarkdownBase(props: RendermimeMarkdownProps): JSX.Element {
 
   useEffect(() => {
     const renderContent = async () => {
-      const mimeType =
-        props.rmRegistry.preferredMimeType({
-          BASE_MIME_TYPE: props.markdownStr
-        }) || BASE_MIME_TYPE;
+      const rmRegistry = props.rmRegistry.clone({
+        latexTypesetter: new MathJaxTypesetter()
+      });
 
-      const model = props.rmRegistry.createModel({
+      const mimeType = 'text/markdown';
+
+      const model = rmRegistry.createModel({
         data: { [mimeType]: props.markdownStr }
       });
-      const renderer = props.rmRegistry.createRenderer(mimeType);
+      const renderer = rmRegistry.createRenderer(mimeType);
       await renderer.renderModel(model);
       setRenderedContent(renderer.node);
 

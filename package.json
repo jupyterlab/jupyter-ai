@@ -48,5 +48,8 @@
   },
   "nx": {
     "includedScripts": []
+  },
+  "dependencies": {
+    "@jupyterlab/mathjax-extension": "^4.0.12"
   }
 }
