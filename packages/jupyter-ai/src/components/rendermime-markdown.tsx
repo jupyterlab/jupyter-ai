@@ -24,10 +24,10 @@ function RendermimeMarkdownBase(props: RendermimeMarkdownProps): JSX.Element {
       const model = props.rmRegistry.createModel({
         data: { [MD_MIME_TYPE]: props.markdownStr }
       });
+
       const renderer = props.rmRegistry.createRenderer(MD_MIME_TYPE);
       await renderer.renderModel(model);
-      const typesetter = new MathJaxTypesetter();
-      typesetter.typeset(renderer.node);
+      props.rmRegistry.latexTypesetter?.typeset(renderer.node);
       setRenderedContent(renderer.node);
 
       // Attach CopyButton to each <pre> block
