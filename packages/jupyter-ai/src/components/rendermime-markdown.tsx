@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom';
 
 import { CopyButton } from './copy-button';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
-import { MathJaxTypesetter } from '@jupyterlab/mathjax-extension';
 
 const MD_MIME_TYPE = 'text/markdown';
 const RENDERMIME_MD_CLASS = 'jp-ai-rendermime-markdown';
