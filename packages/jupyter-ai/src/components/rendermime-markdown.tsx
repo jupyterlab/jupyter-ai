@@ -5,6 +5,7 @@ import { CopyButton } from './copy-button';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { MathJaxTypesetter } from '@jupyterlab/mathjax-extension';
 
+const MD_MIME_TYPE = 'text/markdown';
 const RENDERMIME_MD_CLASS = 'jp-ai-rendermime-markdown';
 
 type RendermimeMarkdownProps = {
@@ -20,17 +21,13 @@ function RendermimeMarkdownBase(props: RendermimeMarkdownProps): JSX.Element {
 
   useEffect(() => {
     const renderContent = async () => {
-      const rmRegistry = props.rmRegistry.clone({
-        latexTypesetter: new MathJaxTypesetter()
+      const model = props.rmRegistry.createModel({
+        data: { [MD_MIME_TYPE]: props.markdownStr }
       });
-
-      const mimeType = 'text/markdown';
-
-      const model = rmRegistry.createModel({
-        data: { [mimeType]: props.markdownStr }
-      });
-      const renderer = rmRegistry.createRenderer(mimeType);
+      const renderer = props.rmRegistry.createRenderer(MD_MIME_TYPE);
       await renderer.renderModel(model);
+      const typesetter = new MathJaxTypesetter();
+      typesetter.typeset(renderer.node);
       setRenderedContent(renderer.node);
 
       // Attach CopyButton to each <pre> block
