@@ -62,6 +62,14 @@ If you are not using JupyterLab and you only want to install the Jupyter AI `%%a
 
     $ pip install jupyter_ai_magics
 
+### With conda
+
+As an alternative to using `pip`, you can install `jupyter-ai` using
+[Conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html)
+from the `conda-forge` channel:
+
+    $ conda install conda-forge::jupyter-ai
+
 ## The `%%ai` magic command
 
 The `%%ai` magic works anywhere the IPython kernel runs, including JupyterLab, Jupyter Notebook, Google Colab, and Visual Studio Code.
