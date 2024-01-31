@@ -41,6 +41,35 @@ def common_cm_kwargs(config_path, schema_path):
         "blocked_providers": None,
         "allowed_models": None,
         "blocked_models": None,
+        "restrictions": {"allowed_providers": None, "blocked_providers": None},
+        "defaults": {
+            "model_provider_id": None,
+            "embeddings_provider_id": None,
+            "api_keys": None,
+            "fields": None,
+        },
+    }
+
+
+@pytest.fixture
+def cm_kargs_with_defaults(config_path, schema_path, common_cm_kwargs):
+    """Kwargs that are commonly used when initializing the CM."""
+    log = logging.getLogger()
+    lm_providers = get_lm_providers()
+    em_providers = get_em_providers()
+    return {
+        **common_cm_kwargs,
+        "defaults": {
+            "model_provider_id": "bedrock-chat:anthropic.claude-v1",
+            "embeddings_provider_id": "bedrock:amazon.titan-embed-text-v1",
+            "api_keys": {"OPENAI_API_KEY": "open-ai-key-value"},
+            "fields": {
+                "bedrock-chat:anthropic.claude-v1": {
+                    "credentials_profile_name": "default",
+                    "region_name": "us-west-2",
+                }
+            },
+        },
     }
 
 
@@ -68,6 +97,12 @@ def cm_with_allowlists(common_cm_kwargs):
         "allowed_models": ["cohere:medium"],
     }
     return ConfigManager(**kwargs)
+
+
+@pytest.fixture
+def cm_with_defaults(cm_kargs_with_defaults):
+    """The default ConfigManager instance, with an empty config and config schema."""
+    return ConfigManager(**cm_kargs_with_defaults)
 
 
 @pytest.fixture(autouse=True)
@@ -182,6 +217,51 @@ def test_init_with_allowlists(cm: ConfigManager, common_cm_kwargs):
     assert test_cm._allowed_models == None
     assert test_cm.lm_gid == None
     assert test_cm.em_gid == None
+
+
+def test_init_with_default_values(
+    cm_with_defaults: ConfigManager,
+    config_path: str,
+    schema_path: str,
+    common_cm_kwargs,
+):
+    """
+    Test that the ConfigManager initializes with the expected default values.
+
+    Args:
+        cm_with_defaults (ConfigManager): A ConfigManager instance with default values.
+        config_path (str): The path to the configuration file.
+        schema_path (str): The path to the schema file.
+    """
+    config_response = cm_with_defaults.get_config()
+    # assert config response
+    assert config_response.model_provider_id == "bedrock-chat:anthropic.claude-v1"
+    assert (
+        config_response.embeddings_provider_id == "bedrock:amazon.titan-embed-text-v1"
+    )
+    assert config_response.api_keys == ["OPENAI_API_KEY"]
+    assert config_response.fields == {
+        "bedrock-chat:anthropic.claude-v1": {
+            "credentials_profile_name": "default",
+            "region_name": "us-west-2",
+        }
+    }
+
+    del cm_with_defaults
+
+    log = logging.getLogger()
+    lm_providers = get_lm_providers()
+    em_providers = get_em_providers()
+    kwargs = {
+        **common_cm_kwargs,
+        "defaults": {"model_provider_id": "bedrock-chat:anthropic.claude-v2"},
+    }
+    cm_with_defaults_override = ConfigManager(**kwargs)
+
+    assert (
+        cm_with_defaults_override.get_config().model_provider_id
+        == "bedrock-chat:anthropic.claude-v1"
+    )
 
 
 def test_property_access_on_default_config(cm: ConfigManager):
