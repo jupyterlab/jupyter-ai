@@ -81,7 +81,7 @@ $ pip install jupyter_ai_magics
 `jupyter_ai` depends on `jupyter_ai_magics`, so installing `jupyter_ai`
 automatically installs `jupyter_ai_magics`.
 
-### Installation via `pip` or `conda` in a Conda environment (recommended)
+### Installation via `pip` within Conda environment (recommended)
 
 We highly recommend installing both JupyterLab and Jupyter AI within an isolated
 Conda environment to avoid clobbering Python packages in your existing Python
@@ -93,16 +93,10 @@ and create an environment that uses Python 3.11:
 
     $ conda create -n jupyter-ai python=3.11
     $ conda activate jupyter-ai
+    $ pip install jupyter_ai
 
-Then, use either `pip` or `conda` to install JupyterLab and Jupyter AI in this
-Conda environment.
-
-    $ pip install jupyter_ai                   # or,
-    $ conda install -c conda-forge jupyter-ai  # or,
-    $ conda install conda-forge::jupyter-ai
-
-Note that the `pip` package name is `jupyter_ai` with an underscore, and that
-the `conda` package name is `jupyter-ai` with a hyphen.
+Then, follow the steps from "Requirements" and "Installation via `pip`" to
+install JupyterLab and Jupyter AI in this Conda environment.
 
 When starting JupyterLab with Jupyter AI, make sure to activate the Conda
 environment first:
