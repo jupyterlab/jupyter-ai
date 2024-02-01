@@ -160,7 +160,7 @@ class AiMagics(Magics):
         return output
 
     def _ai_inline_list_models_for_provider(self, provider_id, Provider):
-        output = ""
+        output = "<ul>"
 
         if len(Provider.models) == 1 and Provider.models[0] == "*":
             if Provider.help is None:
@@ -169,11 +169,9 @@ class AiMagics(Magics):
                 return Provider.help
 
         for model_id in Provider.models:
-            # Wrap the name in an HTML tag to make all hyphens nonbreaking
-            output += f", <span style='white-space: nowrap; font-family: monospace;'>{provider_id}:{model_id}</span>"
+            output += f"<li>`{provider_id}:{model_id}`</li>"
 
-        # Remove initial comma
-        return re.sub(r"^, ", "", output)
+        return output + "</ul>"
 
     # Is the required environment variable set?
     def _ai_env_status_for_provider_markdown(self, provider_id):
