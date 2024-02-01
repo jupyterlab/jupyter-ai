@@ -10,7 +10,7 @@ in JupyterLab and the Jupyter Notebook. More specifically, Jupyter AI offers:
   This works anywhere the IPython kernel runs (JupyterLab, Jupyter Notebook, Google Colab, Kaggle, VSCode, etc.).
 * A native chat UI in JupyterLab that enables you to work with generative AI as a conversational assistant.
 * Support for a wide range of generative model providers, including AI21, Anthropic, AWS, Cohere,
-  Hugging Face, and OpenAI.
+  Hugging Face, NVIDIA, and OpenAI.
 * Local model support through GPT4All, enabling use of generative AI models on consumer grade machines
   with ease and privacy.
 
