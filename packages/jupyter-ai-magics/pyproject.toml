@@ -27,7 +27,6 @@ dependencies = [
     "typing_extensions>=4.5.0",
     "click~=8.0",
     "jsonpath-ng>=1.5.3,<2",
-    "langchain_nvidia_ai_endpoints",
 ]
 
 [project.optional-dependencies]
@@ -42,6 +41,7 @@ all = [
     "gpt4all",
     "huggingface_hub",
     "ipywidgets",
+    "langchain_nvidia_ai_endpoints",
     "pillow",
     "openai~=1.6.1",
     "boto3",
