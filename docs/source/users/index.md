@@ -114,24 +114,13 @@ jupyter lab
 
 ## Uninstallation
 
-If you installed Jupyter AI using `pip`, to remove the extension, run:
+To remove the extension, run:
 
     $ pip uninstall jupyter_ai
 
 or
 
     $ pip uninstall jupyter_ai_magics
-
-If you installed Jupyter AI using `conda`, you can remove it by running:
-
-    $ conda remove jupyter-ai
-
-or
-
-    $ conda remove jupyter-ai-magics
-
-Note that the `pip` package names use underscores, and the `conda` package
-names use hyphens.
 
 ## Model providers
 
