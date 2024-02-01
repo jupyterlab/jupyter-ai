@@ -133,6 +133,7 @@ Jupyter AI supports the following model providers:
 | ERNIE-Bot           | `qianfan`            | `QIANFAN_AK`, `QIANFAN_SK` | `qianfan`                       |
 | GPT4All             | `gpt4all`            | N/A                        | `gpt4all`                       |
 | Hugging Face Hub    | `huggingface_hub`    | `HUGGINGFACEHUB_API_TOKEN` | `huggingface_hub`, `ipywidgets`, `pillow` |
+| NVIDIA              | `nvidia-chat`        | `NVIDIA_API_KEY`           | `langchain_nvidia_ai_endpoints` |
 | OpenAI              | `openai`             | `OPENAI_API_KEY`           | `openai`                        |
 | OpenAI (chat)       | `openai-chat`        | `OPENAI_API_KEY`           | `openai`                        |
 | SageMaker           | `sagemaker-endpoint` | N/A                        | `boto3`                         |
@@ -149,6 +150,8 @@ To use Bedrock models, you will need to authenticate via
 You need the `pillow` Python package to use Hugging Face Hub's text-to-image models.
 
 You can find a list of Hugging Face's models at [https://huggingface.co/models](https://huggingface.co/models).
+
+To use NVIDIA models, create a free account with the [NVIDIA NGC service](https://catalog.ngc.nvidia.com/), which hosts AI solution catalogs, containers, models, and more. Navigate to Catalog > [AI Foundation Models](https://catalog.ngc.nvidia.com/ai-foundation-models), and select a model with an API endpoint. Click "API" on the model's detail page, and click "Generate Key". Save this key, and set it as the environment variable `NVIDIA_API_KEY` to access any of the model endpoints.
 
 SageMaker endpoint names are created when you deploy a model. For more information, see
 ["Create your endpoint and deploy your model"](https://docs.aws.amazon.com/sagemaker/latest/dg/realtime-endpoints-deployment.html)
@@ -515,6 +518,7 @@ We currently support the following language model providers:
 - `bedrock-chat`
 - `cohere`
 - `huggingface_hub`
+- `nvidia-chat`
 - `openai`
 - `openai-chat`
 - `sagemaker-endpoint`
