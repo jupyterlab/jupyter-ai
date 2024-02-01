@@ -35,8 +35,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
     rmRegistry: IRenderMimeRegistry,
     globalAwareness: Awareness | null,
     restorer: ILayoutRestorer | null,
-    themeManager: IThemeManager | null,
-    renderMimeRegistry: IRenderMimeRegistry
+    themeManager: IThemeManager | null
   ) => {
     /**
      * Initialize selection watcher singleton
