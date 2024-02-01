@@ -27,7 +27,6 @@ function RendermimeMarkdownBase(props: RendermimeMarkdownProps): JSX.Element {
       const renderer = props.rmRegistry.createRenderer(MD_MIME_TYPE);
       await renderer.renderModel(model);
       props.rmRegistry.latexTypesetter?.typeset(renderer.node);
-      setRenderedContent(renderer.node);
 
       // Attach CopyButton to each <pre> block
       if (containerRef.current && renderer.node) {
@@ -44,6 +43,8 @@ function RendermimeMarkdownBase(props: RendermimeMarkdownProps): JSX.Element {
           );
         });
       }
+
+      setRenderedContent(renderer.node);
     };
 
     renderContent();
