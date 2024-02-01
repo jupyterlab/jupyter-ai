@@ -55,7 +55,6 @@ const plugin: JupyterFrontEndPlugin<void> = {
         chatHandler,
         globalAwareness,
         themeManager,
-        renderMimeRegistry,
         rmRegistry
       );
     } catch (e) {

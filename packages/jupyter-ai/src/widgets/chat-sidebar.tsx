@@ -14,7 +14,6 @@ export function buildChatSidebar(
   chatHandler: ChatHandler,
   globalAwareness: Awareness | null,
   themeManager: IThemeManager | null,
-  renderMimeRegistry: IRenderMimeRegistry,
   rmRegistry: IRenderMimeRegistry
 ): ReactWidget {
   const ChatWidget = ReactWidget.create(
@@ -23,7 +22,6 @@ export function buildChatSidebar(
       chatHandler={chatHandler}
       globalAwareness={globalAwareness}
       themeManager={themeManager}
-      renderMimeRegistry={renderMimeRegistry}
       rmRegistry={rmRegistry}
     />
   );

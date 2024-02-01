@@ -183,7 +183,6 @@ export type ChatProps = {
   chatHandler: ChatHandler;
   globalAwareness: Awareness | null;
   themeManager: IThemeManager | null;
-  renderMimeRegistry: IRenderMimeRegistry;
   rmRegistry: IRenderMimeRegistry;
   chatView?: ChatView;
 };
