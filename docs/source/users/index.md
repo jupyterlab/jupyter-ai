@@ -62,24 +62,24 @@ classes in their code.
 To install the JupyterLab extension, you can run:
 
 ```
-pip install jupyter_ai
+pip install jupyter-ai
 ```
 
-The latest major version of `jupyter_ai`, v2, only supports JupyterLab 4. If you
-need support for JupyterLab 3, you should install `jupyter_ai` v1 instead:
+The latest major version of `jupyter-ai`, v2, only supports JupyterLab 4. If you
+need support for JupyterLab 3, you should install `jupyter-ai` v1 instead:
 
 ```
-pip install jupyter_ai~=1.0
+pip install jupyter-ai~=1.0
 ```
 
 If you are not using JupyterLab and you only want to install the Jupyter AI `%%ai` magic, you can run:
 
 ```
-$ pip install jupyter_ai_magics
+$ pip install jupyter-ai-magics
 ```
 
-`jupyter_ai` depends on `jupyter_ai_magics`, so installing `jupyter_ai`
-automatically installs `jupyter_ai_magics`.
+`jupyter-ai` depends on `jupyter-ai-magics`, so installing `jupyter-ai`
+automatically installs `jupyter-ai-magics`.
 
 ### Installation via `pip` or `conda` in a Conda environment (recommended)
 
@@ -97,12 +97,9 @@ and create an environment that uses Python 3.11:
 Then, use either `pip` or `conda` to install JupyterLab and Jupyter AI in this
 Conda environment.
 
-    $ pip install jupyter_ai                   # or,
+    $ pip install jupyter-ai                   # or,
     $ conda install -c conda-forge jupyter-ai  # or,
     $ conda install conda-forge::jupyter-ai
-
-Note that the `pip` package name is `jupyter_ai` with an underscore, and that
-the `conda` package name is `jupyter-ai` with a hyphen.
 
 When starting JupyterLab with Jupyter AI, make sure to activate the Conda
 environment first:
@@ -116,11 +113,11 @@ jupyter lab
 
 If you installed Jupyter AI using `pip`, to remove the extension, run:
 
-    $ pip uninstall jupyter_ai
+    $ pip uninstall jupyter-ai
 
 or
 
-    $ pip uninstall jupyter_ai_magics
+    $ pip uninstall jupyter-ai-magics
 
 If you installed Jupyter AI using `conda`, you can remove it by running:
 
@@ -129,9 +126,6 @@ If you installed Jupyter AI using `conda`, you can remove it by running:
 or
 
     $ conda remove jupyter-ai-magics
-
-Note that the `pip` package names use underscores, and the `conda` package
-names use hyphens.
 
 ## Model providers
 
