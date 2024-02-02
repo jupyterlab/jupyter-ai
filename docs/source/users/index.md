@@ -94,10 +94,8 @@ and create an environment that uses Python 3.11:
     $ conda create -n jupyter-ai python=3.11
     $ conda activate jupyter-ai
 
-Then, use either `pip` or `conda` to install JupyterLab and Jupyter AI in this
-Conda environment.
+Then, use `conda` to install JupyterLab and Jupyter AI in this Conda environment.
 
-    $ pip install jupyter-ai                   # or,
     $ conda install -c conda-forge jupyter-ai  # or,
     $ conda install conda-forge::jupyter-ai
 
