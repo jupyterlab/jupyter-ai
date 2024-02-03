@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 
 import { Avatar, Box, Typography } from '@mui/material';
 import type { SxProps, Theme } from '@mui/material';
-import 'katex/dist/katex.min.css';
 
 import { AiService } from '../handler';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
