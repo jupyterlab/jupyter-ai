@@ -62,26 +62,26 @@ classes in their code.
 To install the JupyterLab extension, you can run:
 
 ```
-pip install jupyter_ai
+pip install jupyter-ai
 ```
 
-The latest major version of `jupyter_ai`, v2, only supports JupyterLab 4. If you
-need support for JupyterLab 3, you should install `jupyter_ai` v1 instead:
+The latest major version of `jupyter-ai`, v2, only supports JupyterLab 4. If you
+need support for JupyterLab 3, you should install `jupyter-ai` v1 instead:
 
 ```
-pip install jupyter_ai~=1.0
+pip install jupyter-ai~=1.0
 ```
 
 If you are not using JupyterLab and you only want to install the Jupyter AI `%%ai` magic, you can run:
 
 ```
-$ pip install jupyter_ai_magics
+$ pip install jupyter-ai-magics
 ```
 
-`jupyter_ai` depends on `jupyter_ai_magics`, so installing `jupyter_ai`
-automatically installs `jupyter_ai_magics`.
+`jupyter-ai` depends on `jupyter-ai-magics`, so installing `jupyter-ai`
+automatically installs `jupyter-ai-magics`.
 
-### Installation via `pip` within Conda environment (recommended)
+### Installation via `pip` or `conda` in a Conda environment (recommended)
 
 We highly recommend installing both JupyterLab and Jupyter AI within an isolated
 Conda environment to avoid clobbering Python packages in your existing Python
@@ -93,10 +93,11 @@ and create an environment that uses Python 3.11:
 
     $ conda create -n jupyter-ai python=3.11
     $ conda activate jupyter-ai
-    $ pip install jupyter_ai
 
-Then, follow the steps from "Requirements" and "Installation via `pip`" to
-install JupyterLab and Jupyter AI in this Conda environment.
+Then, use `conda` to install JupyterLab and Jupyter AI in this Conda environment.
+
+    $ conda install -c conda-forge jupyter-ai  # or,
+    $ conda install conda-forge::jupyter-ai
 
 When starting JupyterLab with Jupyter AI, make sure to activate the Conda
 environment first:
@@ -108,13 +109,21 @@ jupyter lab
 
 ## Uninstallation
 
-To remove the extension, run:
+If you installed Jupyter AI using `pip`, to remove the extension, run:
 
-    $ pip uninstall jupyter_ai
+    $ pip uninstall jupyter-ai
 
 or
 
-    $ pip uninstall jupyter_ai_magics
+    $ pip uninstall jupyter-ai-magics
+
+If you installed Jupyter AI using `conda`, you can remove it by running:
+
+    $ conda remove jupyter-ai
+
+or
+
+    $ conda remove jupyter-ai-magics
 
 ## Model providers
 
