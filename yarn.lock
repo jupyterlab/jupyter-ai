@@ -2237,7 +2237,6 @@ __metadata:
     "@mui/material": ^5.11.0
     "@types/jest": ^29
     "@types/react-dom": ^18.2.18
-    "@types/react-syntax-highlighter": ^15.5.6
     "@typescript-eslint/eslint-plugin": ^4.8.1
     "@typescript-eslint/parser": ^4.8.1
     eslint: ^7.14.0
@@ -4785,15 +4784,6 @@ __metadata:
   dependencies:
     "@types/react": "*"
   checksum: 8e3da404c980e2b2a76da3852f812ea6d8b9d0e7f5923fbaf3bfbbbfa1d59116ff91c129de8f68e9b7668a67ae34484fe9df74d5a7518cf8591ec07a0c4dad57
-  languageName: node
-  linkType: hard
-
-"@types/react-syntax-highlighter@npm:^15.5.6":
-  version: 15.5.11
-  resolution: "@types/react-syntax-highlighter@npm:15.5.11"
-  dependencies:
-    "@types/react": "*"
-  checksum: 8363ded0138963407c909f198ddcac58d9c937b118f16a46fb3e97078dd0c6234746f9efa85f6aa660efebe357bab11047c95b57bd9508dd4b09619b1a237087
   languageName: node
   linkType: hard
 
