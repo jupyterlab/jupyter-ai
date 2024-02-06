@@ -62,7 +62,7 @@ amazon-bedrock = "jupyter_ai_magics:BedrockProvider"
 anthropic-chat = "jupyter_ai_magics:ChatAnthropicProvider"
 amazon-bedrock-chat = "jupyter_ai_magics:BedrockChatProvider"
 qianfan = "jupyter_ai_magics:QianfanProvider"
-nvidia-chat = "jupyter_ai_magics:ChatNVIDIAProvider"
+nvidia-chat = "jupyter_ai_magics.partner_providers.nvidia:ChatNVIDIAProvider"
 
 [project.entry-points."jupyter_ai.embeddings_model_providers"]
 bedrock = "jupyter_ai_magics:BedrockEmbeddingsProvider"
