@@ -19,7 +19,7 @@ function RendermimeMarkdownBase(props: RendermimeMarkdownProps): JSX.Element {
   const containerRef = useRef<HTMLDivElement>(null);
 
   /**
-   * Escape LaTeX delimeters by adding extra backslashes for proper rendering by @jupyterlab/rendermime.
+   * Escape LaTeX delimeters by adding extra backslashes where needed for proper rendering by @jupyterlab/rendermime.
    */
   function escapeLatexDelimiters(latexString: string) {
     return latexString
