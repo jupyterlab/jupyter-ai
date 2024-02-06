@@ -26,16 +26,22 @@ def get_lm_providers(
         restrictions = {"allowed_providers": None, "blocked_providers": None}
     providers = {}
     eps = entry_points()
-    model_provider_eps = eps.select(group="jupyter_ai.model_providers")
-    for model_provider_ep in model_provider_eps:
+    provider_ep_group = eps.select(group="jupyter_ai.model_providers")
+    for provider_ep in provider_ep_group:
         try:
-            provider = model_provider_ep.load()
-        except Exception as e:
-            log.error(
-                f"Unable to load model provider class from entry point `{model_provider_ep.name}`: %s.",
-                e,
+            provider = provider_ep.load()
+        except ImportError as e:
+            log.warning(
+                f"Unable to load model provider `{provider_ep.name}`. Please install the `{e.name}` package."
             )
             continue
+        except Exception as e:
+            log.error(
+                f"Unable to load model provider `{provider_ep.name}`. Printing full exception below."
+            )
+            log.exception(e)
+            continue
+
         if not is_provider_allowed(provider.id, restrictions):
             log.info(f"Skipping blocked provider `{provider.id}`.")
             continue
