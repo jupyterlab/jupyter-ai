@@ -2,6 +2,40 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 1.10.0
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@1.9.1...76288d32c9e120fa3bbe8c42cfd7341387bd44cf))
+
+### Enhancements made
+
+- Restyles model names in Markdown to avoid wrapping model names [#606](https://github.com/jupyterlab/jupyter-ai/pull/606) ([@JasonWeill](https://github.com/JasonWeill))
+- Add nvidia provider [#579](https://github.com/jupyterlab/jupyter-ai/pull/579) ([@stevie-35](https://github.com/stevie-35))
+- Setting default model providers [#421](https://github.com/jupyterlab/jupyter-ai/pull/421) ([@aws-khatria](https://github.com/aws-khatria))
+- Expose templates for customisation in providers [#581](https://github.com/jupyterlab/jupyter-ai/pull/581) ([@krassowski](https://github.com/krassowski))
+- Backport PR #575: Reflect theme changes without a refresh [#599](https://github.com/jupyterlab/jupyter-ai/pull/599) ([@dlqqq](https://github.com/dlqqq))
+
+### Bugs fixed
+
+- Allow usage without NVIDIA partner package [#622](https://github.com/jupyterlab/jupyter-ai/pull/622) ([@dlqqq](https://github.com/dlqqq))
+- Backport PR #610: fix to conda install instructions in readme [#612](https://github.com/jupyterlab/jupyter-ai/pull/612) ([@JasonWeill](https://github.com/JasonWeill))
+- Uses invoke() to call custom chains. Handles dict output format. [#600](https://github.com/jupyterlab/jupyter-ai/pull/600) ([@JasonWeill](https://github.com/JasonWeill))
+- Removes deprecated models, adds updated models for openai [#596](https://github.com/jupyterlab/jupyter-ai/pull/596) ([@JasonWeill](https://github.com/JasonWeill))
+- Upgrades cohere dependency, model list [#594](https://github.com/jupyterlab/jupyter-ai/pull/594) ([@JasonWeill](https://github.com/JasonWeill))
+
+### Documentation improvements
+
+- Mentions conda install instructions in docs [#611](https://github.com/jupyterlab/jupyter-ai/pull/611) ([@JasonWeill](https://github.com/JasonWeill))
+- Backport PR #610: fix to conda install instructions in readme [#612](https://github.com/jupyterlab/jupyter-ai/pull/612) ([@JasonWeill](https://github.com/JasonWeill))
+- Correction to default models configuration. [#605](https://github.com/jupyterlab/jupyter-ai/pull/605) ([@3coins](https://github.com/3coins))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-01-18&to=2024-02-06&type=c))
+
+[@3coins](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3A3coins+updated%3A2024-01-18..2024-02-06&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2024-01-18..2024-02-06&type=Issues) | [@JasonWeill](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AJasonWeill+updated%3A2024-01-18..2024-02-06&type=Issues) | [@jtpio](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ajtpio+updated%3A2024-01-18..2024-02-06&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2024-01-18..2024-02-06&type=Issues) | [@lumberbot-app](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Alumberbot-app+updated%3A2024-01-18..2024-02-06&type=Issues) | [@meeseeksmachine](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ameeseeksmachine+updated%3A2024-01-18..2024-02-06&type=Issues) | [@stevie-35](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Astevie-35+updated%3A2024-01-18..2024-02-06&type=Issues) | [@welcome](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Awelcome+updated%3A2024-01-18..2024-02-06&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 1.9.1
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@1.9.0...c61e97c7d2dddfc7874e44c44f346534405f00fd))
@@ -19,8 +53,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-01-08&to=2024-01-18&type=c))
 
 [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2024-01-08..2024-01-18&type=Issues) | [@JasonWeill](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AJasonWeill+updated%3A2024-01-08..2024-01-18&type=Issues) | [@jtpio](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ajtpio+updated%3A2024-01-08..2024-01-18&type=Issues) | [@meeseeksmachine](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ameeseeksmachine+updated%3A2024-01-08..2024-01-18&type=Issues) | [@welcome](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Awelcome+updated%3A2024-01-08..2024-01-18&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 1.9.0
 
