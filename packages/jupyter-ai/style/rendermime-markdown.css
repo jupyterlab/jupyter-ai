@@ -16,3 +16,7 @@
   overflow-x: inherit;
   white-space: inherit;
 }
+
+.jp-ai-rendermime-markdown mjx-container {
+  font-size: 119%;
+}
