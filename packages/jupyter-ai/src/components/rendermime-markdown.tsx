@@ -18,10 +18,22 @@ function RendermimeMarkdownBase(props: RendermimeMarkdownProps): JSX.Element {
   );
   const containerRef = useRef<HTMLDivElement>(null);
 
+  /**
+   * Escape LaTeX delimeters by adding extra backslashes for proper rendering by @jupyterlab/rendermime.
+   */
+  function escapeLatexDelimiters(latexString: string) {
+    return latexString
+      .replace(/\\\(/g, '\\\\(')
+      .replace(/\\\)/g, '\\\\)')
+      .replace(/\\\[/g, '\\\\[')
+      .replace(/\\\]/g, '\\\\]');
+  }
+
   useEffect(() => {
     const renderContent = async () => {
+      const mdStr = escapeLatexDelimiters(props.markdownStr);
       const model = props.rmRegistry.createModel({
-        data: { [MD_MIME_TYPE]: props.markdownStr }
+        data: { [MD_MIME_TYPE]: mdStr }
       });
 
       const renderer = props.rmRegistry.createRenderer(MD_MIME_TYPE);
