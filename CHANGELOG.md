@@ -2,6 +2,46 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 2.10.0
+
+This is the first public release of Jupyter AI inline completion, initially developed by @krassowski. Inline completion requires `jupyterlab==4.1.0` to work, so make sure you have that installed if you want to try it out! 🎉
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.10.0-beta.1...88e676581c5545d237dcd379c9cb3a74ddcbb8af))
+
+### Enhancements made
+
+- Bump `@jupyterlab/completer` resolution to `^4.1.0` [#621](https://github.com/jupyterlab/jupyter-ai/pull/621) ([@dlqqq](https://github.com/dlqqq))
+- Restyles model names in Markdown to avoid wrapping model names [#606](https://github.com/jupyterlab/jupyter-ai/pull/606) ([@JasonWeill](https://github.com/JasonWeill))
+- Expose templates for customisation in providers [#581](https://github.com/jupyterlab/jupyter-ai/pull/581) ([@krassowski](https://github.com/krassowski))
+- Add nvidia provider [#579](https://github.com/jupyterlab/jupyter-ai/pull/579) ([@stevie-35](https://github.com/stevie-35))
+- Reflect theme changes without a refresh [#575](https://github.com/jupyterlab/jupyter-ai/pull/575) ([@garsonbyte](https://github.com/garsonbyte))
+- Setting default model providers [#421](https://github.com/jupyterlab/jupyter-ai/pull/421) ([@aws-khatria](https://github.com/aws-khatria))
+
+### Bugs fixed
+
+- Allow usage without NVIDIA partner package [#622](https://github.com/jupyterlab/jupyter-ai/pull/622) ([@dlqqq](https://github.com/dlqqq))
+- fix to conda install instructions in readme [#610](https://github.com/jupyterlab/jupyter-ai/pull/610) ([@Tom-A-Lynch](https://github.com/Tom-A-Lynch))
+- Uses invoke() to call custom chains. Handles dict output format. [#600](https://github.com/jupyterlab/jupyter-ai/pull/600) ([@JasonWeill](https://github.com/JasonWeill))
+- Removes deprecated models, adds updated models for openai [#596](https://github.com/jupyterlab/jupyter-ai/pull/596) ([@JasonWeill](https://github.com/JasonWeill))
+- Upgrades cohere dependency, model list [#594](https://github.com/jupyterlab/jupyter-ai/pull/594) ([@JasonWeill](https://github.com/JasonWeill))
+
+### Documentation improvements
+
+- Mentions conda install instructions in docs [#611](https://github.com/jupyterlab/jupyter-ai/pull/611) ([@JasonWeill](https://github.com/JasonWeill))
+- Add Kaggle to supported platforms [#577](https://github.com/jupyterlab/jupyter-ai/pull/577) ([@adriens](https://github.com/adriens))
+
+### Other merged PRs
+
+- Correction to default models configuration. [#605](https://github.com/jupyterlab/jupyter-ai/pull/605) ([@3coins](https://github.com/3coins))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-01-22&to=2024-02-06&type=c))
+
+[@3coins](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3A3coins+updated%3A2024-01-22..2024-02-06&type=Issues) | [@adriens](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aadriens+updated%3A2024-01-22..2024-02-06&type=Issues) | [@aws-khatria](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aaws-khatria+updated%3A2024-01-22..2024-02-06&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2024-01-22..2024-02-06&type=Issues) | [@garsonbyte](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Agarsonbyte+updated%3A2024-01-22..2024-02-06&type=Issues) | [@JasonWeill](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AJasonWeill+updated%3A2024-01-22..2024-02-06&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2024-01-22..2024-02-06&type=Issues) | [@lumberbot-app](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Alumberbot-app+updated%3A2024-01-22..2024-02-06&type=Issues) | [@stevie-35](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Astevie-35+updated%3A2024-01-22..2024-02-06&type=Issues) | [@Tom-A-Lynch](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3ATom-A-Lynch+updated%3A2024-01-22..2024-02-06&type=Issues) | [@welcome](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Awelcome+updated%3A2024-01-22..2024-02-06&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 2.10.0-beta.1
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.10.0-beta.0...b1186e9eefed5633461e19b61a5ccf4129b41a78))
@@ -15,8 +55,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-01-19&to=2024-01-22&type=c))
 
 [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2024-01-19..2024-01-22&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 2.10.0-beta.0
 
