@@ -67,7 +67,7 @@ As an alternative to using `pip`, you can install `jupyter-ai` using
 [Conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html)
 from the `conda-forge` channel, using one of the following two commands:
 
-    $ conda install -c conda-force jupyter-ai  # or,
+    $ conda install -c conda-forge jupyter-ai  # or,
     $ conda install conda-forge::jupyter-ai
 
 ## The `%%ai` magic command
