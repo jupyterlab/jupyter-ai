@@ -15,8 +15,8 @@ type RendermimeMarkdownProps = {
 /**
  * Escape LaTeX delimeters by adding extra backslashes where needed for proper rendering by @jupyterlab/rendermime.
  */
-function escapeLatexDelimiters(str: string) {
-  return str
+function escapeLatexDelimiters(text: string) {
+  return text
     .replace(/\\\(/g, '\\\\(')
     .replace(/\\\)/g, '\\\\)')
     .replace(/\\\[/g, '\\\\[')
