@@ -13,7 +13,7 @@ type RendermimeMarkdownProps = {
 };
 
 /**
- * Escape LaTeX delimeters by adding extra backslashes where needed for proper rendering by @jupyterlab/rendermime.
+ * Takes \( and returns \\(. Escapes LaTeX delimeters by adding extra backslashes where needed for proper rendering by @jupyterlab/rendermime.
  */
 function escapeLatexDelimiters(text: string) {
   return text
