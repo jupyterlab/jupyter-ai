@@ -28,8 +28,7 @@ class DefaultInlineCompletionHandler(BaseInlineCompletionHandler):
     def create_llm_chain(
         self, provider: Type[BaseProvider], provider_params: Dict[str, str]
     ):
-        model_parameters = self.get_model_parameters(provider, provider_params)
-        llm = provider(**provider_params, **model_parameters)
+        llm = provider(**provider_params)
 
         prompt_template = llm.get_completion_prompt_template()
 
