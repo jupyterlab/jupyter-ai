@@ -71,7 +71,11 @@ class BaseEmbeddingsProvider(BaseModel):
 class OpenAIEmbeddingsProvider(BaseEmbeddingsProvider, OpenAIEmbeddings):
     id = "openai"
     name = "OpenAI"
-    models = ["text-embedding-ada-002"]
+    models = [
+        "text-embedding-ada-002",
+        "text-embedding-3-small",
+        "text-embedding-3-large",
+    ]
     model_id_key = "model"
     pypi_package_deps = ["openai"]
     auth_strategy = EnvAuthStrategy(name="OPENAI_API_KEY")
