@@ -86,7 +86,7 @@
     "@jupyterlab/builder": "^4",
     "@jupyterlab/testutils": "^4",
     "@types/jest": "^29",
-    "@types/react-dom": "^18.2.18",
+    "@types/react-dom": "^18.2.0",
     "@typescript-eslint/eslint-plugin": "^4.8.1",
     "@typescript-eslint/parser": "^4.8.1",
     "eslint": "^7.14.0",
