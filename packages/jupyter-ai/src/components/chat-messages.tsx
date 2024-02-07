@@ -2,17 +2,15 @@ import React, { useState, useEffect } from 'react';
 
 import { Avatar, Box, Typography } from '@mui/material';
 import type { SxProps, Theme } from '@mui/material';
-import ReactMarkdown from 'react-markdown';
-import remarkMath from 'remark-math';
-import rehypeKatex from 'rehype-katex';
-import 'katex/dist/katex.min.css';
 
-import { ChatCodeView } from './chat-code-view';
 import { AiService } from '../handler';
-import { useCollaboratorsContext } from '../contexts/collaborators-context';
+import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { Jupyternaut } from '../icons';
+import { RendermimeMarkdown } from './rendermime-markdown';
+import { useCollaboratorsContext } from '../contexts/collaborators-context';
 
 type ChatMessagesProps = {
+  rmRegistry: IRenderMimeRegistry;
   messages: AiService.ChatMessage[];
 };
 
@@ -20,11 +18,6 @@ type ChatMessageHeaderProps = {
   message: AiService.ChatMessage;
   timestamp: string;
   sx?: SxProps<Theme>;
-};
-
-type NewTabLinkProps = {
-  children: React.ReactNode;
-  href?: string;
 };
 
 export function ChatMessageHeader(props: ChatMessageHeaderProps): JSX.Element {
@@ -133,14 +126,6 @@ export function ChatMessages(props: ChatMessagesProps): JSX.Element {
     }
   }, [props.messages]);
 
-  function NewTabLink(props: NewTabLinkProps) {
-    return (
-      <a href={props.href ?? '#'} target="_blank" rel="noopener noreferrer">
-        {props.children}
-      </a>
-    );
-  }
-
   return (
     <Box
       sx={{
@@ -157,19 +142,10 @@ export function ChatMessages(props: ChatMessagesProps): JSX.Element {
             timestamp={timestamps[message.id]}
             sx={{ marginBottom: 3 }}
           />
-          <ReactMarkdown
-            // We are using the jp-RenderedHTMLCommon class here to get the default Jupyter
-            // markdown styling and then overriding any CSS to make it more compact.
-            className="jp-RenderedHTMLCommon jp-ai-react-markdown"
-            components={{
-              a: NewTabLink,
-              code: ChatCodeView
-            }}
-            remarkPlugins={[remarkMath]}
-            rehypePlugins={[rehypeKatex]}
-          >
-            {message.body}
-          </ReactMarkdown>
+          <RendermimeMarkdown
+            rmRegistry={props.rmRegistry}
+            markdownStr={message.body}
+          />
         </Box>
       ))}
     </Box>

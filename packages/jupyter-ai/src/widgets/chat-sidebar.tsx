@@ -7,12 +7,14 @@ import { Chat } from '../components/chat';
 import { chatIcon } from '../icons';
 import { SelectionWatcher } from '../selection-watcher';
 import { ChatHandler } from '../chat_handler';
+import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 
 export function buildChatSidebar(
   selectionWatcher: SelectionWatcher,
   chatHandler: ChatHandler,
   globalAwareness: Awareness | null,
-  themeManager: IThemeManager | null
+  themeManager: IThemeManager | null,
+  rmRegistry: IRenderMimeRegistry
 ): ReactWidget {
   const ChatWidget = ReactWidget.create(
     <Chat
@@ -20,6 +22,7 @@ export function buildChatSidebar(
       chatHandler={chatHandler}
       globalAwareness={globalAwareness}
       themeManager={themeManager}
+      rmRegistry={rmRegistry}
     />
   );
   ChatWidget.id = 'jupyter-ai::chat';

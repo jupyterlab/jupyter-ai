@@ -72,17 +72,14 @@
     "@jupyterlab/docregistry": "^4",
     "@jupyterlab/fileeditor": "^4",
     "@jupyterlab/notebook": "^4",
+    "@jupyterlab/rendermime": "^4",
     "@jupyterlab/services": "^7",
     "@jupyterlab/settingregistry": "^4",
     "@jupyterlab/ui-components": "^4",
     "@mui/icons-material": "^5.11.0",
     "@mui/material": "^5.11.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-markdown": "^8.0.6",
-    "react-syntax-highlighter": "^15.5.0",
-    "rehype-katex": "^6.0.2",
-    "remark-math": "^5.1.1"
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.0.0",
@@ -90,7 +87,7 @@
     "@jupyterlab/builder": "^4",
     "@jupyterlab/testutils": "^4",
     "@types/jest": "^29",
-    "@types/react-syntax-highlighter": "^15.5.6",
+    "@types/react-dom": "^18.2.0",
     "@typescript-eslint/eslint-plugin": "^4.8.1",
     "@typescript-eslint/parser": "^4.8.1",
     "eslint": "^7.14.0",
