@@ -45,7 +45,7 @@ class AskChatHandler(BaseChatHandler):
     ):
         unified_parameters = {
             **provider_params,
-            **(self.get_model_parameters(provider, provider_params))
+            **(self.get_model_parameters(provider, provider_params)),
         }
         self.llm = provider(**unified_parameters)
         memory = ConversationBufferWindowMemory(

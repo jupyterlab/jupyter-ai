@@ -30,7 +30,7 @@ class DefaultInlineCompletionHandler(BaseInlineCompletionHandler):
     ):
         unified_parameters = {
             **provider_params,
-            **(self.get_model_parameters(provider, provider_params))
+            **(self.get_model_parameters(provider, provider_params)),
         }
         llm = provider(**unified_parameters)
 
