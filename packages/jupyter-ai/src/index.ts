@@ -16,6 +16,7 @@ import { buildChatSidebar } from './widgets/chat-sidebar';
 import { SelectionWatcher } from './selection-watcher';
 import { ChatHandler } from './chat_handler';
 import { buildErrorWidget } from './widgets/chat-error';
+import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 
 export type DocumentTracker = IWidgetTracker<IDocumentWidget>;
 
@@ -26,8 +27,10 @@ const plugin: JupyterFrontEndPlugin<void> = {
   id: 'jupyter_ai:plugin',
   autoStart: true,
   optional: [IGlobalAwareness, ILayoutRestorer, IThemeManager],
+  requires: [IRenderMimeRegistry],
   activate: async (
     app: JupyterFrontEnd,
+    rmRegistry: IRenderMimeRegistry,
     globalAwareness: Awareness | null,
     restorer: ILayoutRestorer | null,
     themeManager: IThemeManager | null
@@ -49,7 +52,8 @@ const plugin: JupyterFrontEndPlugin<void> = {
         selectionWatcher,
         chatHandler,
         globalAwareness,
-        themeManager
+        themeManager,
+        rmRegistry
       );
     } catch (e) {
       chatWidget = buildErrorWidget(themeManager);
