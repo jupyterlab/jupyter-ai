@@ -43,8 +43,11 @@ class AskChatHandler(BaseChatHandler):
     def create_llm_chain(
         self, provider: Type[BaseProvider], provider_params: Dict[str, str]
     ):
-        model_parameters = self.get_model_parameters(provider, provider_params)
-        self.llm = provider(**provider_params, **model_parameters)
+        unified_parameters = {
+            **provider_params,
+            **(self.get_model_parameters(provider, provider_params)),
+        }
+        self.llm = provider(**unified_parameters)
         memory = ConversationBufferWindowMemory(
             memory_key="chat_history", return_messages=True, k=2
         )
