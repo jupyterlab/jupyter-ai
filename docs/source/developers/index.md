@@ -153,7 +153,9 @@ Please note that this will only work with Jupyter AI magics (the `%ai` and `%%ai
 ## Custom slash commands in the chat UI
 
 You can add a custom slash command to the chat interface by
-creating a new class that inherits from `BaseChatHandler`. Set
+creating a JupyterLab extension using the
+[JupyterLab extension template](https://github.com/jupyterlab/extension-template).
+Create a new class that inherits from `BaseChatHandler`. Set
 its `id`, `name`, `help` message for display in the user interface,
 and `routing_type`. Each custom slash command must have a unique
 slash command. Slash commands can only contain ASCII letters, numerals,

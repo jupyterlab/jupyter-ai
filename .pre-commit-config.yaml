@@ -9,9 +9,7 @@ repos:
       - id: check-added-large-files
       - id: check-case-conflict
       - id: check-toml
-        exclude: ^packages/jupyter-ai-module-cookiecutter
       - id: check-yaml
-        exclude: ^packages/jupyter-ai-module-cookiecutter
       - id: debug-statements
       - id: forbid-new-submodules
       - id: check-builtin-literals
