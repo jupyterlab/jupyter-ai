@@ -1,11 +1,13 @@
-# expose jupyter_ai_magics ipython extension
-from jupyter_ai_magics import load_ipython_extension, unload_ipython_extension
-
 from ._version import __version__
-
-# imports to expose entry points. DO NOT REMOVE.
 from .extension import AiExtension
 
+# expose jupyter_ai_magics ipython extension
+# DO NOT REMOVE.
+from jupyter_ai_magics import load_ipython_extension, unload_ipython_extension
+
+# expose jupyter_ai_magics providers
+# DO NOT REMOVE.
+from jupyter_ai_magics.providers import *
 
 def _jupyter_labextension_paths():
     return [{"src": "labextension", "dest": "@jupyter-ai/core"}]

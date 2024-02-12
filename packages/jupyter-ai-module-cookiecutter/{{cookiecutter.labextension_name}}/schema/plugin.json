@@ -1,8 +1,0 @@
-{
-  "jupyter.lab.shortcuts": [],
-  "title": "{{ cookiecutter.labextension_name }}",
-  "description": "{{ cookiecutter.labextension_name }} settings.",
-  "type": "object",
-  "properties": {},
-  "additionalProperties": false
-}
