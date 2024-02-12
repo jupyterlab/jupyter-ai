@@ -1,7 +1,8 @@
 # {{ cookiecutter.python_name }}
 
-This package is a Jupyter AI module named `{{ cookiecutter.python_name }}`
-that registers a model provider for the Jupyter AI server extension.
+`{{ cookiecutter.python_name }}` is a Jupyter AI module, a package
+that registers additional model providers and slash commands for the Jupyter AI
+extension.
 
 ## Requirements
 
