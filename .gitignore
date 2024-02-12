@@ -134,3 +134,6 @@ dev.sh
 .yarn
 
 .conda/
+
+# reserved for testing cookiecutter
+packages/jupyter-ai-test
