@@ -1,4 +1,4 @@
-from typing import ClassVar, Dict, List
+from typing import ClassVar, List
 from jupyter_ai import AuthStrategy, BaseProvider, Field
 
 from .llm import TestLLM
@@ -6,9 +6,10 @@ from .llm import TestLLM
 
 class TestProvider(BaseProvider, TestLLM):
     """
-    A model provider is a class that inherits from 2 classes: 1) the
-    `BaseProvider` class from `jupyter_ai`, and 2) an LLM class from
-    `langchain`, i.e. a class inheriting from `LLM` or `BaseChatModel`.
+    A test model provider implementation for developers to build from. A model
+    provider inherits from 2 classes: 1) the `BaseProvider` class from
+    `jupyter_ai`, and 2) an LLM class from `langchain`, i.e. a class inheriting
+    from `LLM` or `BaseChatModel`.
 
     Any custom model first requires a `langchain` LLM class implementation.
     Please import one from `langchain`, or refer to the `langchain` docs for
@@ -29,8 +30,8 @@ class TestProvider(BaseProvider, TestLLM):
     implementations in `jupyter_ai_magics.providers.py` for further reference.
 
     The provider is made available to Jupyter AI by the entry point declared in
-    `pyproject.toml`. If this class is renamed, make sure the update the entry
-    point there as well.
+    `pyproject.toml`. If this class or parent module is renamed, make sure the
+    update the entry point there as well.
     """
 
     id: ClassVar[str] = "test-provider"
