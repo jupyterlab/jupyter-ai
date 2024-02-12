@@ -1,4 +1,5 @@
 from typing import ClassVar, List
+
 from jupyter_ai import AuthStrategy, BaseProvider, Field
 
 from .llm import TestLLM
@@ -40,9 +41,7 @@ class TestProvider(BaseProvider, TestLLM):
     name: ClassVar[str] = "Test Provider"
     """User-facing name of this provider."""
 
-    models: ClassVar[List[str]] = [
-        "test-model-1"
-    ]
+    models: ClassVar[List[str]] = ["test-model-1"]
     """List of supported models by their IDs. For registry providers, this will
     be just ["*"]."""
 
@@ -69,4 +68,3 @@ class TestProvider(BaseProvider, TestLLM):
     fields: ClassVar[List[Field]] = []
     """User inputs expected by this provider when initializing it. Each `Field` `f`
     should be passed in the constructor as a keyword argument, keyed by `f.key`."""
-
