@@ -29,6 +29,7 @@ To generate a new AI module using the cookiecutter, run these commands from the
 repository root:
 
 ```
+pip install cookiecutter
 cd packages/
 cookiecutter jupyter-ai-module-cookiecutter
 ```
