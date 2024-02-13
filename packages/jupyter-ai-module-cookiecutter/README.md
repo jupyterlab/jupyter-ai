@@ -1,6 +1,6 @@
 # Jupyter AI module cookiecutter
 
-A [cookiecutter](https://github.com/audreyr/cookiecutter) template for creating
+A [cookiecutter](https://github.com/cookiecutter/cookiecutter) template for creating
 a Jupyter AI module. A Jupyter AI module is a Python package that registers
 additional model providers (containing language and embedding models) and slash
 commands for Jupyter AI.
