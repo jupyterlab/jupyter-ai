@@ -1,0 +1,42 @@
+[build-system]
+requires = ["hatchling>=1.4.0", "jupyterlab~=4.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "{{ cookiecutter.python_name }}"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.8"
+classifiers = [
+    "Framework :: Jupyter",
+    "Framework :: Jupyter :: JupyterLab",
+    "Framework :: Jupyter :: JupyterLab :: 4",
+    "License :: OSI Approved :: BSD License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+version = "{{ cookiecutter.version }}"
+description = "A Jupyter AI extension."
+authors = [
+    { name = "{{ cookiecutter.author_name }}", email = "{{ cookiecutter.author_email }}" },
+]
+dependencies = ["jupyter_ai"]
+
+[project.optional-dependencies]
+test = ["coverage", "pytest", "pytest-asyncio", "pytest-cov"]
+
+[project.entry-points."jupyter_ai.model_providers"]
+test-provider = "{{ cookiecutter.python_name }}.provider:TestProvider"
+
+[project.entry-points."jupyter_ai.chat_handlers"]
+test-slash-command = "{{ cookiecutter.python_name }}.slash_command:TestSlashCommand"
+
+[tool.hatch.build.hooks.version]
+path = "{{ cookiecutter.python_name }}/_version.py"
+
+[tool.check-wheel-contents]
+ignore = ["W002"]
