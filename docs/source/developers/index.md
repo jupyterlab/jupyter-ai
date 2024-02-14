@@ -17,6 +17,40 @@ For more details about using `langchain.pydantic_v1` in an environment with
 Pydantic v2 installed, see the
 [LangChain documentation on Pydantic compatibility](https://python.langchain.com/docs/guides/pydantic_compatibility).
 
+## Jupyter AI module cookiecutter
+
+We offer a [cookiecutter](https://github.com/cookiecutter/cookiecutter) template
+that can be used to generate a pre-configured Jupyter AI module. This is a
+Python package that exposes a template model provider and slash command for
+integration with Jupyter AI. Developers can then extend the generated AI module
+however they wish.
+
+To generate a new AI module using the cookiecutter, run these commands from the
+repository root:
+
+```
+pip install cookiecutter
+cd packages/
+cookiecutter jupyter-ai-module-cookiecutter
+```
+
+The last command will open a wizard that allows you to set the package name and
+a few other metadata fields. By default, the package will have the name `jupyter-ai-test`.
+
+To install your new AI module locally and use the generated template provider
+and slash command:
+
+```
+cd jupyter-ai-test/
+pip install -e .
+```
+
+You will then be able to use the test provider and slash command after
+restarting JupyterLab.
+
+The remainder of this documentation page elaborates on how to define a custom
+model provider and slash command.
+
 ## Custom model providers
 
 You can define new providers using the LangChain framework API. Custom providers
