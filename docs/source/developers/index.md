@@ -64,7 +64,7 @@ keyword argument.
 ```python
 # my_package/my_provider.py
 from jupyter_ai_magics import BaseProvider
-from langchain.llms import FakeListLLM
+from langchain_community.llms import FakeListLLM
 
 
 class MyProvider(BaseProvider, FakeListLLM):
