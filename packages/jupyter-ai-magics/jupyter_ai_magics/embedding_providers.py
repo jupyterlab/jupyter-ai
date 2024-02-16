@@ -74,7 +74,7 @@ class OllamaEmbeddingsProvider(BaseEmbeddingsProvider, OllamaEmbeddings):
     name = "Ollama"
     models = [
         "llama2",
-        "mistral",
+        "mistral:text",
         "tinyllama",
     ]
     model_id_key = "model"
