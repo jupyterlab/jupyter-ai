@@ -35,6 +35,7 @@ from langchain_community.llms import (
     Cohere,
     GPT4All,
     HuggingFaceHub,
+    Ollama,
     OpenAI,
     SagemakerEndpoint,
 )
@@ -629,6 +630,18 @@ class HfHubProvider(BaseProvider, HuggingFaceHub):
 
     async def _acall(self, *args, **kwargs) -> Coroutine[Any, Any, str]:
         return await self._call_in_executor(*args, **kwargs)
+
+
+class OllamaProvider(BaseProvider, Ollama):
+    id = "ollama"
+    name = "Ollama"
+    model_id_key = "model"
+    # TODO: add more
+    models = [
+        "llama2",
+        "mistral",
+        "tinyllama",
+    ]
 
 
 class OpenAIProvider(BaseProvider, OpenAI):
