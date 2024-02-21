@@ -730,6 +730,7 @@ class OllamaProvider(BaseProvider, Ollama):
     model_id_key = "model"
     # TODO: add more
     models = [
+        "gemma",
         "llama2",
         "mistral",
         "tinyllama",
