@@ -22,11 +22,13 @@ from langchain.pydantic_v1 import BaseModel, Extra, root_validator
 from langchain.schema import LLMResult
 from langchain.utils import get_from_dict_or_env
 from langchain_community.chat_models import (
-    AzureChatOpenAI,
     BedrockChat,
     ChatAnthropic,
-    ChatOpenAI,
     QianfanChatEndpoint,
+)
+from langchain_openai.chat_models import (
+    AzureChatOpenAI,
+    ChatOpenAI,
 )
 from langchain_community.llms import (
     AI21,
