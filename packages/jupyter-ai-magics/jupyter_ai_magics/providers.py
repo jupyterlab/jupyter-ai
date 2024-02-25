@@ -26,10 +26,6 @@ from langchain_community.chat_models import (
     ChatAnthropic,
     QianfanChatEndpoint,
 )
-from langchain_openai.chat_models import (
-    AzureChatOpenAI,
-    ChatOpenAI,
-)
 from langchain_community.llms import (
     AI21,
     Anthropic,
@@ -41,6 +37,7 @@ from langchain_community.llms import (
     SagemakerEndpoint,
     Together,
 )
+from langchain_openai.chat_models import AzureChatOpenAI, ChatOpenAI
 
 # this is necessary because `langchain.pydantic_v1.main` does not include
 # `ModelMetaclass`, as it is not listed in `__all__` by the `pydantic.main`
