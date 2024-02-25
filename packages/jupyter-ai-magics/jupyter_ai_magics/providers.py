@@ -31,13 +31,13 @@ from langchain_community.chat_models import (
 from langchain_community.llms import (
     AI21,
     Anthropic,
-    Together,
     Bedrock,
     Cohere,
     GPT4All,
     HuggingFaceHub,
     OpenAI,
     SagemakerEndpoint,
+    Together,
 )
 
 # this is necessary because `langchain.pydantic_v1.main` does not include
@@ -858,17 +858,18 @@ class TogetherAIProvider(BaseProvider, Together):
     id = "togetherai"
     name = "Together AI"
     model_id_key = "model"
-    models = ['Austism/chronos-hermes-13b',
-              'DiscoResearch/DiscoLM-mixtral-8x7b-v2',
-              'EleutherAI/llemma_7b',
-              'Gryphe/MythoMax-L2-13b',
-              'Meta-Llama/Llama-Guard-7b',
-              'Nexusflow/NexusRaven-V2-13B',
-              'NousResearch/Nous-Capybara-7B-V1p9',
-              'NousResearch/Nous-Hermes-2-Yi-34B',
-              'NousResearch/Nous-Hermes-Llama2-13b',
-              'NousResearch/Nous-Hermes-Llama2-70b'
-              ]
+    models = [
+        "Austism/chronos-hermes-13b",
+        "DiscoResearch/DiscoLM-mixtral-8x7b-v2",
+        "EleutherAI/llemma_7b",
+        "Gryphe/MythoMax-L2-13b",
+        "Meta-Llama/Llama-Guard-7b",
+        "Nexusflow/NexusRaven-V2-13B",
+        "NousResearch/Nous-Capybara-7B-V1p9",
+        "NousResearch/Nous-Hermes-2-Yi-34B",
+        "NousResearch/Nous-Hermes-Llama2-13b",
+        "NousResearch/Nous-Hermes-Llama2-70b",
+    ]
     pypi_package_deps = ["together"]
     auth_strategy = EnvAuthStrategy(name="TOGETHER_API_KEY")
 
@@ -876,7 +877,9 @@ class TogetherAIProvider(BaseProvider, Together):
         model = kwargs.get("model_id")
 
         if model not in self.models:
-            kwargs["responses"] = ["Model not supported! Please check model list with %ai list"]
+            kwargs["responses"] = [
+                "Model not supported! Please check model list with %ai list"
+            ]
 
         super().__init__(**kwargs)
 
