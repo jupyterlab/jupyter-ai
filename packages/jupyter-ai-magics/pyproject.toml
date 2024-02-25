@@ -42,6 +42,7 @@ all = [
     "huggingface_hub",
     "ipywidgets",
     "langchain_nvidia_ai_endpoints",
+    "langchain-openai",
     "pillow",
     "openai~=1.6.1",
     "boto3",
