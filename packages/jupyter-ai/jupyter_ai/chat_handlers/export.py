@@ -1,8 +1,9 @@
 from typing import List
 
-from jupyter_ai.models import HumanChatMessage, AgentChatMessage
+from jupyter_ai.models import AgentChatMessage, HumanChatMessage
 
 from .base import BaseChatHandler, SlashCommandRoutingType
+
 
 class ExportChatHandler(BaseChatHandler):
     id = "export"
@@ -23,11 +24,10 @@ class ExportChatHandler(BaseChatHandler):
         else:
             return ""
 
-
     async def process_message(self, _):
-        markdown_content = "\n\n".join(self.chat_message_to_markdown(msg) for msg in self._chat_history)
+        markdown_content = "\n\n".join(
+            self.chat_message_to_markdown(msg) for msg in self._chat_history
+        )
         # Write the markdown content to a file or do whatever you want with it
         with open("./playground/chat_history.md", "w") as chat_history:
             chat_history.write(markdown_content)
-
-

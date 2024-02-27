@@ -13,10 +13,10 @@ from .chat_handlers import (
     AskChatHandler,
     ClearChatHandler,
     DefaultChatHandler,
+    ExportChatHandler,
     GenerateChatHandler,
     HelpChatHandler,
     LearnChatHandler,
-    ExportChatHandler,
 )
 from .chat_handlers.help import HelpMessage
 from .completions.handlers import DefaultInlineCompletionHandler
