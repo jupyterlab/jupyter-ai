@@ -30,6 +30,9 @@ class LLMHandlerMixin:
         lm_provider = self.config_manager.lm_provider
         lm_provider_params = self.config_manager.lm_provider_params
 
+        if not lm_provider or not lm_provider_params:
+            return None
+                    
         curr_lm_id = (
             f'{self.llm.id}:{lm_provider_params["model_id"]}' if self.llm else None
         )
@@ -38,9 +41,6 @@ class LLMHandlerMixin:
             if lm_provider
             else None
         )
-
-        if not lm_provider or not lm_provider_params:
-            return None
 
         if curr_lm_id != next_lm_id:
             self.log.info(
