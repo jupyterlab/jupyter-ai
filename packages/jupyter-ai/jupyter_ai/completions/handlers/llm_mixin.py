@@ -32,7 +32,7 @@ class LLMHandlerMixin:
 
         if not lm_provider or not lm_provider_params:
             return None
-                    
+
         curr_lm_id = (
             f'{self.llm.id}:{lm_provider_params["model_id"]}' if self.llm else None
         )
