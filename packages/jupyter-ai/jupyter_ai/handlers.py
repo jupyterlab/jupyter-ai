@@ -116,7 +116,7 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
         """Retrieves the current user. If `jupyter_collaboration` is not
         installed, one is synthesized from the server's current shell
         environment."""
-        collaborative = self.config.ServerApp.jpserver_extensions.get_value({}).get(
+        collaborative = self.config.ServerApp.jpserver_extensions.get(
             "jupyter_collaboration", False
         )
 
