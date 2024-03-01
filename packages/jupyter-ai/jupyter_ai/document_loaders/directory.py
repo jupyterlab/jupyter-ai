@@ -51,21 +51,27 @@ def flatten(*chunk_lists):
 def split(path, all_files: bool, splitter):
     chunks = []
 
-    for dir, subdirs, filenames in os.walk(path):
-        # Filter out hidden filenames, hidden directories, and excluded directories,
-        # unless "all files" are requested
-        if not all_files:
-            subdirs[:] = [d for d in subdirs if not (d[0] == "." or d in EXCLUDE_DIRS)]
-            filenames = [f for f in filenames if not f[0] == "."]
+    if os.path.isfile(path):
+        filenames = []
+        filenames.append(os.path.basename(path))
+        dir = os.path.dirname(path)
 
-        for filename in filenames:
-            filepath = Path(os.path.join(dir, filename))
-            if filepath.suffix not in SUPPORTED_EXTS:
-                continue
+    if os.path.isdir(path):
+        for dir, subdirs, filenames in os.walk(path):
+            # Filter out hidden filenames, hidden directories, and excluded directories,
+            # unless "all files" are requested
+            if not all_files:
+                subdirs[:] = [d for d in subdirs if not (d[0] == "." or d in EXCLUDE_DIRS)]
+                filenames = [f for f in filenames if not f[0] == "."]
 
-            document = dask.delayed(path_to_doc)(filepath)
-            chunk = dask.delayed(split_document)(document, splitter)
-            chunks.append(chunk)
+    for filename in filenames:
+        filepath = Path(os.path.join(dir, filename))
+        if filepath.suffix not in SUPPORTED_EXTS:
+            continue
+
+        document = dask.delayed(path_to_doc)(filepath)
+        chunk = dask.delayed(split_document)(document, splitter)
+        chunks.append(chunk)
 
     flattened_chunks = dask.delayed(flatten)(*chunks)
     return flattened_chunks
