@@ -68,8 +68,10 @@ class ErrorArgs(BaseModel):
 class HelpArgs(BaseModel):
     type: Literal["help"] = "help"
 
+
 class VersionArgs(BaseModel):
     type: Literal["version"] = "version"
+
 
 class ListArgs(BaseModel):
     type: Literal["list"] = "list"
@@ -215,6 +217,7 @@ def error_subparser(**kwargs):
     the basic `%%ai` command.
     """
     return ErrorArgs(**kwargs)
+
 
 @line_magic_parser.command(name="version")
 def version_subparser(**kwargs):
