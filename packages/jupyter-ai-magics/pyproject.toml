@@ -47,7 +47,7 @@ all = [
     "boto3",
     "qianfan",
     "together",
-    "langchain_google_genai",
+    "langchain-google-vertexai",
 ]
 
 [project.entry-points."jupyter_ai.model_providers"]
