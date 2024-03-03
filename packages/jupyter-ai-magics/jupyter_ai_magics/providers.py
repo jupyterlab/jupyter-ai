@@ -39,7 +39,7 @@ from langchain_community.llms import (
     SagemakerEndpoint,
     Together,
 )
-from langchain_google_vertexai import VertexAI
+from langchain_google_genai import GoogleGenerativeAI
 
 # this is necessary because `langchain.pydantic_v1.main` does not include
 # `ModelMetaclass`, as it is not listed in `__all__` by the `pydantic.main`
@@ -903,14 +903,14 @@ class QianfanProvider(BaseProvider, QianfanChatEndpoint):
     auth_strategy = MultiEnvAuthStrategy(names=["QIANFAN_AK", "QIANFAN_SK"])
 
 
-class GeminiProvider(BaseProvider, VertexAI):
+class GeminiProvider(BaseProvider, GoogleGenerativeAI):
     id = "gemini"
     name = "Gemini"
     models = [
         "gemini-pro",
     ]
     model_id_key = "model_name"
-    pypi_package_deps = ["langchain-google-vertexai"]
+    pypi_package_deps = ["langchain-google-genai"]
     auth_strategy = EnvAuthStrategy(name="GOOGLE_API_KEY")
 
     @classmethod
