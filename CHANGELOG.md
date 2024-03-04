@@ -2,6 +2,35 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 1.11.0
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@1.10.0...3ae2314ea071ba70a2c9291406c346e35425e000))
+
+### Enhancements made
+
+- Fix cookiecutter template [#637](https://github.com/jupyterlab/jupyter-ai/pull/637) ([@dlqqq](https://github.com/dlqqq))
+- Add new OpenAI models [#625](https://github.com/jupyterlab/jupyter-ai/pull/625) ([@EduardDurech](https://github.com/EduardDurech))
+- \[1.x\] Use @jupyterlab/rendermime for in-chat markdown rendering [#631](https://github.com/jupyterlab/jupyter-ai/pull/631) ([@andrii-i](https://github.com/andrii-i))
+- Add OpenAI text-embedding-3-small, -large models [#628](https://github.com/jupyterlab/jupyter-ai/pull/628) ([@JasonWeill](https://github.com/JasonWeill))
+
+### Bugs fixed
+
+- Unifies parameters to instantiate llm while incorporating model params [#632](https://github.com/jupyterlab/jupyter-ai/pull/632) ([@JasonWeill](https://github.com/JasonWeill))
+
+### Documentation improvements
+
+- Update docs to mention `langchain_community.llms` [#642](https://github.com/jupyterlab/jupyter-ai/pull/642) ([@jtpio](https://github.com/jtpio))
+- Fix cookiecutter template [#637](https://github.com/jupyterlab/jupyter-ai/pull/637) ([@dlqqq](https://github.com/dlqqq))
+- Fix conda-forge typo in readme [#626](https://github.com/jupyterlab/jupyter-ai/pull/626) ([@droumis](https://github.com/droumis))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-02-06&to=2024-03-04&type=c))
+
+[@andrii-i](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aandrii-i+updated%3A2024-02-06..2024-03-04&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2024-02-06..2024-03-04&type=Issues) | [@JasonWeill](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AJasonWeill+updated%3A2024-02-06..2024-03-04&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2024-02-06..2024-03-04&type=Issues) | [@lalanikarim](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Alalanikarim+updated%3A2024-02-06..2024-03-04&type=Issues) | [@lumberbot-app](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Alumberbot-app+updated%3A2024-02-06..2024-03-04&type=Issues) | [@meeseeksmachine](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ameeseeksmachine+updated%3A2024-02-06..2024-03-04&type=Issues) | [@welcome](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Awelcome+updated%3A2024-02-06..2024-03-04&type=Issues) | [@Wzixiao](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AWzixiao+updated%3A2024-02-06..2024-03-04&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 1.10.0
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@1.9.1...76288d32c9e120fa3bbe8c42cfd7341387bd44cf))
@@ -33,8 +62,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-01-18&to=2024-02-06&type=c))
 
 [@3coins](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3A3coins+updated%3A2024-01-18..2024-02-06&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2024-01-18..2024-02-06&type=Issues) | [@JasonWeill](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AJasonWeill+updated%3A2024-01-18..2024-02-06&type=Issues) | [@jtpio](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ajtpio+updated%3A2024-01-18..2024-02-06&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2024-01-18..2024-02-06&type=Issues) | [@lumberbot-app](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Alumberbot-app+updated%3A2024-01-18..2024-02-06&type=Issues) | [@meeseeksmachine](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ameeseeksmachine+updated%3A2024-01-18..2024-02-06&type=Issues) | [@stevie-35](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Astevie-35+updated%3A2024-01-18..2024-02-06&type=Issues) | [@welcome](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Awelcome+updated%3A2024-01-18..2024-02-06&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 1.9.1
 

@@ -1,6 +1,6 @@
 {
   "name": "@jupyter-ai/core",
-  "version": "1.10.0",
+  "version": "1.11.0",
   "description": "A generative AI extension for JupyterLab",
   "keywords": [
     "jupyter",
@@ -81,8 +81,8 @@
     "@jupyterlab/builder": "^3.5.1",
     "@jupyterlab/testutils": "^3.0.0",
     "@types/jest": "^26.0.0",
-    "@types/react-syntax-highlighter": "^15.5.6",
     "@types/react-dom": "^17.0.0",
+    "@types/react-syntax-highlighter": "^15.5.6",
     "@typescript-eslint/eslint-plugin": "^4.8.1",
     "@typescript-eslint/parser": "^4.8.1",
     "eslint": "^7.14.0",
