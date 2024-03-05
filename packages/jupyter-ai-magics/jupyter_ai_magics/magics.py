@@ -16,6 +16,7 @@ from jupyter_ai_magics.utils import decompose_model_id, get_lm_providers
 from langchain.chains import LLMChain
 from langchain.schema import HumanMessage
 
+from ._version import __version__
 from .parsers import (
     CellArgs,
     DeleteArgs,
@@ -24,6 +25,7 @@ from .parsers import (
     ListArgs,
     RegisterArgs,
     UpdateArgs,
+    VersionArgs,
     cell_magic_parser,
     line_magic_parser,
 )
@@ -486,6 +488,9 @@ class AiMagics(Magics):
             self._ai_list_command_markdown(args.provider_id),
         )
 
+    def handle_version(self, args: VersionArgs):
+        return __version__
+
     def run_ai_cell(self, args: CellArgs, prompt: str):
         # Apply a prompt template.
         prompt = PROMPT_TEMPLATES_BY_FORMAT[args.format].format(prompt=prompt)
@@ -619,6 +624,8 @@ class AiMagics(Magics):
                 return self.handle_delete(args)
             if args.type == "update":
                 return self.handle_update(args)
+            if args.type == "version":
+                return self.handle_version(args)
         except ValueError as e:
             print(e, file=sys.stderr)
             return
