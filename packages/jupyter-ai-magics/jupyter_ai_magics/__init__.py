@@ -29,6 +29,7 @@ from .providers import (
     OpenAIProvider,
     QianfanProvider,
     SmEndpointProvider,
+    TogetherAIProvider,
 )
 
 

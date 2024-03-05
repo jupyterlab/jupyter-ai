@@ -37,6 +37,7 @@ from langchain_community.llms import (
     HuggingFaceHub,
     OpenAI,
     SagemakerEndpoint,
+    Together,
 )
 
 # this is necessary because `langchain.pydantic_v1.main` does not include
@@ -802,6 +803,44 @@ class BedrockChatProvider(BaseProvider, BedrockChat):
     @property
     def allows_concurrency(self):
         return not "anthropic" in self.model_id
+
+
+class TogetherAIProvider(BaseProvider, Together):
+    id = "togetherai"
+    name = "Together AI"
+    model_id_key = "model"
+    models = [
+        "Austism/chronos-hermes-13b",
+        "DiscoResearch/DiscoLM-mixtral-8x7b-v2",
+        "EleutherAI/llemma_7b",
+        "Gryphe/MythoMax-L2-13b",
+        "Meta-Llama/Llama-Guard-7b",
+        "Nexusflow/NexusRaven-V2-13B",
+        "NousResearch/Nous-Capybara-7B-V1p9",
+        "NousResearch/Nous-Hermes-2-Yi-34B",
+        "NousResearch/Nous-Hermes-Llama2-13b",
+        "NousResearch/Nous-Hermes-Llama2-70b",
+    ]
+    pypi_package_deps = ["together"]
+    auth_strategy = EnvAuthStrategy(name="TOGETHER_API_KEY")
+
+    def __init__(self, **kwargs):
+        model = kwargs.get("model_id")
+
+        if model not in self.models:
+            kwargs["responses"] = [
+                "Model not supported! Please check model list with %ai list"
+            ]
+
+        super().__init__(**kwargs)
+
+    def get_prompt_template(self, format) -> PromptTemplate:
+        if format == "code":
+            return PromptTemplate.from_template(
+                "{prompt}\n\nProduce output as source code only, "
+                "with no text or explanation before or after it."
+            )
+        return super().get_prompt_template(format)
 
 
 # Baidu QianfanChat provider. temporarily living as a separate class until
