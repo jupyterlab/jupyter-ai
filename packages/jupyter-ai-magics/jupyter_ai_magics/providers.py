@@ -793,7 +793,7 @@ class SmEndpointProvider(BaseProvider, SagemakerEndpoint):
     async def _acall(self, *args, **kwargs) -> Coroutine[Any, Any, str]:
         return await self._call_in_executor(*args, **kwargs)
 
-
+# See model ID list here: https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids.html
 class BedrockProvider(BaseProvider, Bedrock):
     id = "bedrock"
     name = "Amazon Bedrock"
@@ -821,15 +821,15 @@ class BedrockProvider(BaseProvider, Bedrock):
     async def _acall(self, *args, **kwargs) -> Coroutine[Any, Any, str]:
         return await self._call_in_executor(*args, **kwargs)
 
-
+# See model ID list here: https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids.html
 class BedrockChatProvider(BaseProvider, BedrockChat):
     id = "bedrock-chat"
     name = "Amazon Bedrock Chat"
     models = [
-        "anthropic.claude-v1",
         "anthropic.claude-v2",
         "anthropic.claude-v2:1",
         "anthropic.claude-instant-v1",
+        "anthropic.claude-3-sonnet-20240229-v1:0"
     ]
     model_id_key = "model_id"
     pypi_package_deps = ["boto3"]
