@@ -30,7 +30,7 @@ from .providers import (
     QianfanProvider,
     SmEndpointProvider,
     TogetherAIProvider,
-    GeminiAIProvider,
+    GeminiProvider,
 )
 
 
