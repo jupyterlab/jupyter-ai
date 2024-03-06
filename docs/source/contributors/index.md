@@ -35,7 +35,7 @@ Due to a compatibility issue with Webpack, Node.js 18.15.0 does not work with Ju
 After you have installed the prerequisites, create a new conda environment and activate it.
 
 ```
-conda create -n jupyter-ai python=3.11 conda-forge::nodejs=20
+conda create -n jupyter-ai -c conda-forge python=3.11 nodejs=20
 conda activate jupyter-ai
 ```
 
