@@ -17,10 +17,10 @@ type RendermimeMarkdownProps = {
  */
 function escapeLatexDelimiters(text: string) {
   return text
-    .replace('\\(', '\\\\(')
-    .replace('\\)', '\\\\)')
-    .replace('\\[', '\\\\[')
-    .replace('\\]', '\\\\]');
+    .replace(/\\\(/g, '\\\\(')
+    .replace(/\\\)/g, '\\\\)')
+    .replace(/\\\[/g, '\\\\[')
+    .replace(/\\\]/g, '\\\\]');
 }
 
 function RendermimeMarkdownBase(props: RendermimeMarkdownProps): JSX.Element {
