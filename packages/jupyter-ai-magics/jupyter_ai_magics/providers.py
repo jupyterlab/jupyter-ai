@@ -37,6 +37,7 @@ from langchain_community.llms import (
     HuggingFaceHub,
     OpenAI,
     SagemakerEndpoint,
+    Together,
 )
 
 # this is necessary because `langchain.pydantic_v1.main` does not include
@@ -440,14 +441,11 @@ class ChatAnthropicProvider(BaseProvider, ChatAnthropic):
     id = "anthropic-chat"
     name = "ChatAnthropic"
     models = [
-        "claude-v1",
-        "claude-v1.0",
-        "claude-v1.2",
-        "claude-2",
         "claude-2.0",
-        "claude-instant-v1",
-        "claude-instant-v1.0",
-        "claude-instant-v1.2",
+        "claude-2.1",
+        "claude-instant-1.2",
+        "claude-3-opus-20240229",
+        "claude-3-sonnet-20240229",
     ]
     model_id_key = "model"
     pypi_package_deps = ["anthropic"]
@@ -793,6 +791,7 @@ class SmEndpointProvider(BaseProvider, SagemakerEndpoint):
         return await self._call_in_executor(*args, **kwargs)
 
 
+# See model ID list here: https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids.html
 class BedrockProvider(BaseProvider, Bedrock):
     id = "bedrock"
     name = "Amazon Bedrock"
@@ -821,14 +820,15 @@ class BedrockProvider(BaseProvider, Bedrock):
         return await self._call_in_executor(*args, **kwargs)
 
 
+# See model ID list here: https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids.html
 class BedrockChatProvider(BaseProvider, BedrockChat):
     id = "bedrock-chat"
     name = "Amazon Bedrock Chat"
     models = [
-        "anthropic.claude-v1",
         "anthropic.claude-v2",
         "anthropic.claude-v2:1",
         "anthropic.claude-instant-v1",
+        "anthropic.claude-3-sonnet-20240229-v1:0",
     ]
     model_id_key = "model_id"
     pypi_package_deps = ["boto3"]
@@ -851,6 +851,44 @@ class BedrockChatProvider(BaseProvider, BedrockChat):
     @property
     def allows_concurrency(self):
         return not "anthropic" in self.model_id
+
+
+class TogetherAIProvider(BaseProvider, Together):
+    id = "togetherai"
+    name = "Together AI"
+    model_id_key = "model"
+    models = [
+        "Austism/chronos-hermes-13b",
+        "DiscoResearch/DiscoLM-mixtral-8x7b-v2",
+        "EleutherAI/llemma_7b",
+        "Gryphe/MythoMax-L2-13b",
+        "Meta-Llama/Llama-Guard-7b",
+        "Nexusflow/NexusRaven-V2-13B",
+        "NousResearch/Nous-Capybara-7B-V1p9",
+        "NousResearch/Nous-Hermes-2-Yi-34B",
+        "NousResearch/Nous-Hermes-Llama2-13b",
+        "NousResearch/Nous-Hermes-Llama2-70b",
+    ]
+    pypi_package_deps = ["together"]
+    auth_strategy = EnvAuthStrategy(name="TOGETHER_API_KEY")
+
+    def __init__(self, **kwargs):
+        model = kwargs.get("model_id")
+
+        if model not in self.models:
+            kwargs["responses"] = [
+                "Model not supported! Please check model list with %ai list"
+            ]
+
+        super().__init__(**kwargs)
+
+    def get_prompt_template(self, format) -> PromptTemplate:
+        if format == "code":
+            return PromptTemplate.from_template(
+                "{prompt}\n\nProduce output as source code only, "
+                "with no text or explanation before or after it."
+            )
+        return super().get_prompt_template(format)
 
 
 # Baidu QianfanChat provider. temporarily living as a separate class until

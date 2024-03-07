@@ -2,6 +2,38 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 2.11.0
+
+This release notably includes a significant UI improvement for the chat side panel. The chat UI now uses the native JupyterLab frontend to render Markdown, code blocks, and TeX markup instead of a third party package. Thank you to @andrii-i for building this feature!
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.10.0...642ac533ef05e2bf7f4a6739b377c7138154bb69))
+
+### Enhancements made
+
+- Fix cookiecutter template [#637](https://github.com/jupyterlab/jupyter-ai/pull/637) ([@dlqqq](https://github.com/dlqqq))
+- Add OpenAI text-embedding-3-small, -large models [#628](https://github.com/jupyterlab/jupyter-ai/pull/628) ([@JasonWeill](https://github.com/JasonWeill))
+- Add new OpenAI models [#625](https://github.com/jupyterlab/jupyter-ai/pull/625) ([@EduardDurech](https://github.com/EduardDurech))
+- Use @jupyterlab/rendermime for in-chat markdown rendering [#564](https://github.com/jupyterlab/jupyter-ai/pull/564) ([@andrii-i](https://github.com/andrii-i))
+
+### Bugs fixed
+
+- Unifies parameters to instantiate llm while incorporating model params [#632](https://github.com/jupyterlab/jupyter-ai/pull/632) ([@JasonWeill](https://github.com/JasonWeill))
+
+### Documentation improvements
+
+- Add `nodejs=20` to the contributing docs [#645](https://github.com/jupyterlab/jupyter-ai/pull/645) ([@jtpio](https://github.com/jtpio))
+- Update docs to mention `langchain_community.llms` [#642](https://github.com/jupyterlab/jupyter-ai/pull/642) ([@jtpio](https://github.com/jtpio))
+- Fix cookiecutter template [#637](https://github.com/jupyterlab/jupyter-ai/pull/637) ([@dlqqq](https://github.com/dlqqq))
+- Fix conda-forge typo in readme [#626](https://github.com/jupyterlab/jupyter-ai/pull/626) ([@droumis](https://github.com/droumis))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-02-06&to=2024-03-04&type=c))
+
+[@andrii-i](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aandrii-i+updated%3A2024-02-06..2024-03-04&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2024-02-06..2024-03-04&type=Issues) | [@droumis](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adroumis+updated%3A2024-02-06..2024-03-04&type=Issues) | [@EduardDurech](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AEduardDurech+updated%3A2024-02-06..2024-03-04&type=Issues) | [@JasonWeill](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AJasonWeill+updated%3A2024-02-06..2024-03-04&type=Issues) | [@jtpio](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ajtpio+updated%3A2024-02-06..2024-03-04&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2024-02-06..2024-03-04&type=Issues) | [@lalanikarim](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Alalanikarim+updated%3A2024-02-06..2024-03-04&type=Issues) | [@lumberbot-app](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Alumberbot-app+updated%3A2024-02-06..2024-03-04&type=Issues) | [@welcome](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Awelcome+updated%3A2024-02-06..2024-03-04&type=Issues) | [@Wzixiao](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AWzixiao+updated%3A2024-02-06..2024-03-04&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 2.10.0
 
 This is the first public release of Jupyter AI inline completion, initially developed by @krassowski. Inline completion requires `jupyterlab==4.1.0` to work, so make sure you have that installed if you want to try it out! 🎉
@@ -39,8 +71,6 @@ This is the first public release of Jupyter AI inline completion, initially deve
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-01-22&to=2024-02-06&type=c))
 
 [@3coins](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3A3coins+updated%3A2024-01-22..2024-02-06&type=Issues) | [@adriens](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aadriens+updated%3A2024-01-22..2024-02-06&type=Issues) | [@aws-khatria](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aaws-khatria+updated%3A2024-01-22..2024-02-06&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2024-01-22..2024-02-06&type=Issues) | [@garsonbyte](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Agarsonbyte+updated%3A2024-01-22..2024-02-06&type=Issues) | [@JasonWeill](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AJasonWeill+updated%3A2024-01-22..2024-02-06&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2024-01-22..2024-02-06&type=Issues) | [@lumberbot-app](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Alumberbot-app+updated%3A2024-01-22..2024-02-06&type=Issues) | [@stevie-35](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Astevie-35+updated%3A2024-01-22..2024-02-06&type=Issues) | [@Tom-A-Lynch](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3ATom-A-Lynch+updated%3A2024-01-22..2024-02-06&type=Issues) | [@welcome](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Awelcome+updated%3A2024-01-22..2024-02-06&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 2.10.0-beta.1
 
