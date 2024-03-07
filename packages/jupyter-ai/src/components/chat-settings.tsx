@@ -404,8 +404,8 @@ function getModelLocalId(globalModelId: string) {
     return null;
   }
 
-  const components = globalModelId.split(':');
-  return components[components.length - 1];
+  const components = globalModelId.split(':').slice(1);
+  return components.join(':');
 }
 
 function getProvider(
