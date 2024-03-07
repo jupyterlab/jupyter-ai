@@ -441,14 +441,11 @@ class ChatAnthropicProvider(BaseProvider, ChatAnthropic):
     id = "anthropic-chat"
     name = "ChatAnthropic"
     models = [
-        "claude-v1",
-        "claude-v1.0",
-        "claude-v1.2",
-        "claude-2",
         "claude-2.0",
-        "claude-instant-v1",
-        "claude-instant-v1.0",
-        "claude-instant-v1.2",
+        "claude-2.1",
+        "claude-instant-1.2",
+        "claude-3-opus-20240229",
+        "claude-3-sonnet-20240229",
     ]
     model_id_key = "model"
     pypi_package_deps = ["anthropic"]
@@ -794,6 +791,7 @@ class SmEndpointProvider(BaseProvider, SagemakerEndpoint):
         return await self._call_in_executor(*args, **kwargs)
 
 
+# See model ID list here: https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids.html
 class BedrockProvider(BaseProvider, Bedrock):
     id = "bedrock"
     name = "Amazon Bedrock"
@@ -822,14 +820,15 @@ class BedrockProvider(BaseProvider, Bedrock):
         return await self._call_in_executor(*args, **kwargs)
 
 
+# See model ID list here: https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids.html
 class BedrockChatProvider(BaseProvider, BedrockChat):
     id = "bedrock-chat"
     name = "Amazon Bedrock Chat"
     models = [
-        "anthropic.claude-v1",
         "anthropic.claude-v2",
         "anthropic.claude-v2:1",
         "anthropic.claude-instant-v1",
+        "anthropic.claude-3-sonnet-20240229-v1:0",
     ]
     model_id_key = "model_id"
     pypi_package_deps = ["boto3"]
