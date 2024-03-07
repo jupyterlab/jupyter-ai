@@ -445,7 +445,7 @@ class ChatAnthropicProvider(BaseProvider, ChatAnthropic):
         "claude-2.1",
         "claude-instant-1.2",
         "claude-3-opus-20240229",
-        "claude-3-sonnet-20240229"
+        "claude-3-sonnet-20240229",
     ]
     model_id_key = "model"
     pypi_package_deps = ["anthropic"]
