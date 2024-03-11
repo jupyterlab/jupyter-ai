@@ -2,6 +2,29 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 1.12.0
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/v1.11.0...44f968e962ba27931eb36a5a71136318b13fdf9d))
+
+### Enhancements made
+
+- Add support for Gemini [#666](https://github.com/jupyterlab/jupyter-ai/pull/666) ([@giswqs](https://github.com/giswqs))
+- %ai version added [#665](https://github.com/jupyterlab/jupyter-ai/pull/665) ([@apurvakhatri](https://github.com/apurvakhatri))
+- Together.ai provider added [#654](https://github.com/jupyterlab/jupyter-ai/pull/654) ([@MahdiDavari](https://github.com/MahdiDavari))
+
+### Bugs fixed
+
+- Fix selecting models with a colon in their ID [#682](https://github.com/jupyterlab/jupyter-ai/pull/682) ([@dlqqq](https://github.com/dlqqq))
+- Use regex in TeX replace function to catch repeating symbol occurrences [#675](https://github.com/jupyterlab/jupyter-ai/pull/675) ([@andrii-i](https://github.com/andrii-i))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-03-04&to=2024-03-11&type=c))
+
+[@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2024-03-04..2024-03-11&type=Issues) | [@giswqs](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Agiswqs+updated%3A2024-03-04..2024-03-11&type=Issues) | [@lumberbot-app](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Alumberbot-app+updated%3A2024-03-04..2024-03-11&type=Issues) | [@meeseeksmachine](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ameeseeksmachine+updated%3A2024-03-04..2024-03-11&type=Issues) | [@welcome](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Awelcome+updated%3A2024-03-04..2024-03-11&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 1.11.0
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@1.10.0...3ae2314ea071ba70a2c9291406c346e35425e000))
@@ -28,8 +51,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-02-06&to=2024-03-04&type=c))
 
 [@andrii-i](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aandrii-i+updated%3A2024-02-06..2024-03-04&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2024-02-06..2024-03-04&type=Issues) | [@JasonWeill](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AJasonWeill+updated%3A2024-02-06..2024-03-04&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2024-02-06..2024-03-04&type=Issues) | [@lalanikarim](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Alalanikarim+updated%3A2024-02-06..2024-03-04&type=Issues) | [@lumberbot-app](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Alumberbot-app+updated%3A2024-02-06..2024-03-04&type=Issues) | [@meeseeksmachine](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ameeseeksmachine+updated%3A2024-02-06..2024-03-04&type=Issues) | [@welcome](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Awelcome+updated%3A2024-02-06..2024-03-04&type=Issues) | [@Wzixiao](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AWzixiao+updated%3A2024-02-06..2024-03-04&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 1.10.0
 
