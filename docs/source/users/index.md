@@ -797,7 +797,7 @@ jupyter lab --AiExtension.default_embeddings_model=bedrock:amazon.titan-embed-te
 
 Specify default API keys
 ```bash
-jupyter lab --AiExtension.default_api_keys={'OPENAI_API_KEY': 'sk-abcd'}
+jupyter lab --AiExtension.default_api_keys='{'OPENAI_API_KEY': 'sk-abcd'}'
 ```
 
 
