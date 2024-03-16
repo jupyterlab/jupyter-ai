@@ -1,7 +1,10 @@
-from typing import List
-from jupyter_ai.models import AgentChatMessage, HumanChatMessage
-from .base import BaseChatHandler, SlashCommandRoutingType
 import os
+from typing import List
+
+from jupyter_ai.models import AgentChatMessage, HumanChatMessage
+
+from .base import BaseChatHandler, SlashCommandRoutingType
+
 
 class ExportChatHandler(BaseChatHandler):
     id = "export"
@@ -22,8 +25,8 @@ class ExportChatHandler(BaseChatHandler):
         else:
             return ""
 
-    # Multiple chat histories in separate files     
-    def get_chat_filename(self, path='./chat_history.md'):
+    # Multiple chat histories in separate files
+    def get_chat_filename(self, path="./chat_history.md"):
         filename, extension = os.path.splitext(path)
         counter = 1
         while os.path.exists(path):
