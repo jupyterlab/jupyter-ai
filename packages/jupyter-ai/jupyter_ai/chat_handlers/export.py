@@ -1,14 +1,12 @@
 from typing import List
-
 from jupyter_ai.models import AgentChatMessage, HumanChatMessage
-
 from .base import BaseChatHandler, SlashCommandRoutingType
-
+import os
 
 class ExportChatHandler(BaseChatHandler):
     id = "export"
     name = "Export chat messages"
-    help = "Export the chat messages in various formats"
+    help = "Export the chat messages in markdown format"
     routing_type = SlashCommandRoutingType(slash_id="export")
 
     uses_llm = False
@@ -24,10 +22,22 @@ class ExportChatHandler(BaseChatHandler):
         else:
             return ""
 
+    # Multiple chat histories in separate files     
+    def get_chat_filename(self, path='./chat_history.md'):
+        filename, extension = os.path.splitext(path)
+        counter = 1
+        while os.path.exists(path):
+            path = filename + "_" + str(counter) + ".md"
+            counter += 1
+        return path
+
     async def process_message(self, _):
         markdown_content = "\n\n".join(
             self.chat_message_to_markdown(msg) for msg in self._chat_history
         )
         # Write the markdown content to a file or do whatever you want with it
-        with open("./playground/chat_history.md", "w") as chat_history:
+        chat_filename = self.get_chat_filename()
+        with open(chat_filename, "w") as chat_history:
             chat_history.write(markdown_content)
+
+        self.reply("File saved to " + chat_filename)
