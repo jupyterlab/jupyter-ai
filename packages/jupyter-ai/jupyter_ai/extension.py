@@ -13,6 +13,7 @@ from .chat_handlers import (
     AskChatHandler,
     ClearChatHandler,
     DefaultChatHandler,
+    ExportChatHandler,
     GenerateChatHandler,
     HelpChatHandler,
     LearnChatHandler,
@@ -239,12 +240,14 @@ class AiExtension(ExtensionApp):
         retriever = Retriever(learn_chat_handler=learn_chat_handler)
         ask_chat_handler = AskChatHandler(**chat_handler_kwargs, retriever=retriever)
 
+        export_chat_handler = ExportChatHandler(**chat_handler_kwargs)
         jai_chat_handlers = {
             "default": default_chat_handler,
             "/ask": ask_chat_handler,
             "/clear": clear_chat_handler,
             "/generate": generate_chat_handler,
             "/learn": learn_chat_handler,
+            "/export": export_chat_handler,
         }
 
         help_chat_handler = HelpChatHandler(
