@@ -43,4 +43,4 @@ class ExportChatHandler(BaseChatHandler):
         with open(chat_filename, "w") as chat_history:
             chat_history.write(markdown_content)
 
-        self.reply("File saved to " + chat_filename)
+        self.reply(f"File saved to `{chat_filename}`")
