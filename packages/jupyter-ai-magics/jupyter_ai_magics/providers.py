@@ -388,7 +388,9 @@ class AnthropicProvider(BaseProvider, Anthropic):
         return False
 
 
-class ChatAnthropicProvider(BaseProvider, ChatAnthropic):
+class ChatAnthropicProvider(
+    BaseProvider, ChatAnthropic
+):  # https://docs.anthropic.com/claude/docs/models-overview
     id = "anthropic-chat"
     name = "ChatAnthropic"
     models = [
@@ -397,9 +399,11 @@ class ChatAnthropicProvider(BaseProvider, ChatAnthropic):
         "claude-v1.2",
         "claude-2",
         "claude-2.0",
-        "claude-instant-v1",
-        "claude-instant-v1.0",
-        "claude-instant-v1.2",
+        "claude-2.1",
+        "claude-instant-1.2",
+        "claude-3-opus-20240229",
+        "claude-3-sonnet-20240229",
+        "claude-3-haiku-20240307",
     ]
     model_id_key = "model"
     pypi_package_deps = ["anthropic"]
@@ -781,6 +785,8 @@ class BedrockChatProvider(BaseProvider, BedrockChat):
         "anthropic.claude-v2",
         "anthropic.claude-v2:1",
         "anthropic.claude-instant-v1",
+        "anthropic.claude-3-sonnet-20240229-v1:0",
+        "anthropic.claude-3-haiku-20240307-v1:0",
     ]
     model_id_key = "model_id"
     pypi_package_deps = ["boto3"]
