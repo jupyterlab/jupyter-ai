@@ -437,7 +437,9 @@ class AnthropicProvider(BaseProvider, Anthropic):
         return False
 
 
-class ChatAnthropicProvider(BaseProvider, ChatAnthropic): # https://docs.anthropic.com/claude/docs/models-overview
+class ChatAnthropicProvider(
+    BaseProvider, ChatAnthropic
+):  # https://docs.anthropic.com/claude/docs/models-overview
     id = "anthropic-chat"
     name = "ChatAnthropic"
     models = [
