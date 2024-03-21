@@ -7,6 +7,7 @@ from .embedding_providers import (
     CohereEmbeddingsProvider,
     GPT4AllEmbeddingsProvider,
     HfHubEmbeddingsProvider,
+    OllamaEmbeddingsProvider,
     OpenAIEmbeddingsProvider,
     QianfanEmbeddingsEndpointProvider,
 )
@@ -26,6 +27,7 @@ from .providers import (
     CohereProvider,
     GPT4AllProvider,
     HfHubProvider,
+    OllamaProvider,
     OpenAIProvider,
     QianfanProvider,
     SmEndpointProvider,
