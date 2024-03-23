@@ -133,22 +133,27 @@ class DefaultInlineCompletionHandler(BaseInlineCompletionHandler):
         """Remove spurious fragments from the suggestion.
 
         While most models (especially instruct and infill models do not require
-        any pre-processing, some models such as gpt-4 which only have chat APIs
-        may require removing spurious fragments. This function uses heuristics
-        and request data to remove such fragments.
+        any pre-processing), some models such as gpt-4 which only have chat APIs
+        may require removing spurious fragments (such as backticks). 
+        This function uses heuristics and request data to remove such fragments. 
+        It comments out all lines that are not code, irrespective of programming language. 
         """
-        # gpt-4 tends to add "```python" or similar
-        language = request.language or "python"
-        markdown_identifiers = {"ipython": ["ipython", "python", "py"]}
-        bad_openings = [
-            f"```{identifier}"
-            for identifier in markdown_identifiers.get(language, [language])
-        ] + ["```"]
-        for opening in bad_openings:
-            if suggestion.startswith(opening):
-                suggestion = suggestion[len(opening) :].lstrip()
-                # check for the prefix inclusion (only if there was a bad opening)
-                if suggestion.startswith(request.prefix):
-                    suggestion = suggestion[len(request.prefix) :]
-                break
-        return suggestion
+        suggestion = "\n\n" + suggestion.strip()
+        segments = suggestion.split('\n')
+        is_code = False
+        suggestion = []
+        for s in segments:
+            if is_code==False:
+                if s.startswith('```'):
+                    is_code = True
+                else:
+                    if len(s)>0:
+                        suggestion.append("# " + s)
+                    else:
+                        suggestion.append(s)
+            else:
+                if s.startswith('```'):
+                    is_code = False
+                else:
+                    suggestion.append(s)
+        return "\n".join(suggestion)
