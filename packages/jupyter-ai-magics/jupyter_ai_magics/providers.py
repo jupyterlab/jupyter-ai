@@ -706,7 +706,7 @@ class AzureChatOpenAIProvider(BaseProvider, AzureChatOpenAI):
     model_id_key = "deployment_name"
     model_id_label = "Deployment name"
     pypi_package_deps = ["openai"]
-    auth_strategy = EnvAuthStrategy(name="OPENAI_API_KEY")
+    auth_strategy = EnvAuthStrategy(name="AZURE_OPENAI_API_KEY")
     registry = True
 
     fields = [
