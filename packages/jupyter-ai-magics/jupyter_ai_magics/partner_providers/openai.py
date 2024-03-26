@@ -7,7 +7,7 @@ class OpenAIProvider(BaseProvider, OpenAI):
     name = "OpenAI"
     models = ["babbage-002", "davinci-002", "gpt-3.5-turbo-instruct"]
     model_id_key = "model_name"
-    pypi_package_deps = ["openai"]
+    pypi_package_deps = ["langchain_openai"]
     auth_strategy = EnvAuthStrategy(name="OPENAI_API_KEY")
 
     @classmethod
@@ -43,7 +43,7 @@ class ChatOpenAIProvider(BaseProvider, ChatOpenAI):
         "gpt-4-1106-preview",
     ]
     model_id_key = "model_name"
-    pypi_package_deps = ["openai"]
+    pypi_package_deps = ["langchain_openai"]
     auth_strategy = EnvAuthStrategy(name="OPENAI_API_KEY")
 
     fields = [
@@ -75,7 +75,7 @@ class AzureChatOpenAIProvider(BaseProvider, AzureChatOpenAI):
     models = ["*"]
     model_id_key = "deployment_name"
     model_id_label = "Deployment name"
-    pypi_package_deps = ["openai"]
+    pypi_package_deps = ["langchain_openai"]
     auth_strategy = EnvAuthStrategy(name="AZURE_OPENAI_API_KEY")
     registry = True
 
@@ -102,6 +102,6 @@ class OpenAIEmbeddingsProvider(BaseEmbeddingsProvider, OpenAIEmbeddings):
         "text-embedding-3-large",
     ]
     model_id_key = "model"
-    pypi_package_deps = ["openai"]
+    pypi_package_deps = ["langchain_openai"]
     auth_strategy = EnvAuthStrategy(name="OPENAI_API_KEY")
 
