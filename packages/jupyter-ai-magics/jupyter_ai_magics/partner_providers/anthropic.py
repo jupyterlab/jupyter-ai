@@ -56,4 +56,3 @@ class ChatAnthropicProvider(
     @property
     def allows_concurrency(self):
         return False
-
