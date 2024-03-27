@@ -42,8 +42,8 @@ all = [
     "huggingface_hub",
     "ipywidgets",
     "langchain_nvidia_ai_endpoints",
+    "langchain-openai",
     "pillow",
-    "openai~=1.6.1",
     "boto3",
     "qianfan",
     "together",
@@ -56,9 +56,9 @@ anthropic = "jupyter_ai_magics:AnthropicProvider"
 cohere = "jupyter_ai_magics:CohereProvider"
 gpt4all = "jupyter_ai_magics:GPT4AllProvider"
 huggingface_hub = "jupyter_ai_magics:HfHubProvider"
-openai = "jupyter_ai_magics:OpenAIProvider"
-openai-chat = "jupyter_ai_magics:ChatOpenAIProvider"
-azure-chat-openai = "jupyter_ai_magics:AzureChatOpenAIProvider"
+openai = "jupyter_ai_magics.partner_providers.openai:OpenAIProvider"
+openai-chat = "jupyter_ai_magics.partner_providers.openai:ChatOpenAIProvider"
+azure-chat-openai = "jupyter_ai_magics.partner_providers.openai:AzureChatOpenAIProvider"
 sagemaker-endpoint = "jupyter_ai_magics:SmEndpointProvider"
 amazon-bedrock = "jupyter_ai_magics:BedrockProvider"
 anthropic-chat = "jupyter_ai_magics:ChatAnthropicProvider"
@@ -73,7 +73,7 @@ bedrock = "jupyter_ai_magics:BedrockEmbeddingsProvider"
 cohere = "jupyter_ai_magics:CohereEmbeddingsProvider"
 gpt4all = "jupyter_ai_magics:GPT4AllEmbeddingsProvider"
 huggingface_hub = "jupyter_ai_magics:HfHubEmbeddingsProvider"
-openai = "jupyter_ai_magics:OpenAIEmbeddingsProvider"
+openai = "jupyter_ai_magics.partner_providers.openai:OpenAIEmbeddingsProvider"
 qianfan = "jupyter_ai_magics:QianfanEmbeddingsEndpointProvider"
 
 [tool.hatch.version]
