@@ -68,19 +68,6 @@ class BaseEmbeddingsProvider(BaseModel):
         super().__init__(*args, **kwargs, **model_kwargs)
 
 
-class OpenAIEmbeddingsProvider(BaseEmbeddingsProvider, OpenAIEmbeddings):
-    id = "openai"
-    name = "OpenAI"
-    models = [
-        "text-embedding-ada-002",
-        "text-embedding-3-small",
-        "text-embedding-3-large",
-    ]
-    model_id_key = "model"
-    pypi_package_deps = ["openai"]
-    auth_strategy = EnvAuthStrategy(name="OPENAI_API_KEY")
-
-
 class CohereEmbeddingsProvider(BaseEmbeddingsProvider, CohereEmbeddings):
     id = "cohere"
     name = "Cohere"

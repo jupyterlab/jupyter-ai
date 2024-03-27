@@ -7,7 +7,6 @@ from .embedding_providers import (
     CohereEmbeddingsProvider,
     GPT4AllEmbeddingsProvider,
     HfHubEmbeddingsProvider,
-    OpenAIEmbeddingsProvider,
     QianfanEmbeddingsEndpointProvider,
 )
 from .exception import store_exception
@@ -17,16 +16,13 @@ from .magics import AiMagics
 from .providers import (
     AI21Provider,
     AnthropicProvider,
-    AzureChatOpenAIProvider,
     BaseProvider,
     BedrockChatProvider,
     BedrockProvider,
     ChatAnthropicProvider,
-    ChatOpenAIProvider,
     CohereProvider,
     GPT4AllProvider,
     HfHubProvider,
-    OpenAIProvider,
     QianfanProvider,
     SmEndpointProvider,
     TogetherAIProvider,
