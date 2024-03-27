@@ -36,11 +36,11 @@ test = ["coverage", "pytest", "pytest-asyncio", "pytest-cov"]
 
 all = [
     "ai21",
-    "anthropic~=0.3.0",
     "cohere>4.40,<5",
     "gpt4all",
     "huggingface_hub",
     "ipywidgets",
+    "langchain_anthropic",
     "langchain_nvidia_ai_endpoints",
     "langchain-openai",
     "pillow",
@@ -52,7 +52,8 @@ all = [
 
 [project.entry-points."jupyter_ai.model_providers"]
 ai21 = "jupyter_ai_magics:AI21Provider"
-anthropic = "jupyter_ai_magics:AnthropicProvider"
+anthropic = "jupyter_ai_magics.partner_providers.anthropic:AnthropicProvider"
+anthropic-chat = "jupyter_ai_magics.partner_providers.anthropic:ChatAnthropicProvider"
 cohere = "jupyter_ai_magics:CohereProvider"
 gpt4all = "jupyter_ai_magics:GPT4AllProvider"
 huggingface_hub = "jupyter_ai_magics:HfHubProvider"
@@ -61,7 +62,6 @@ openai-chat = "jupyter_ai_magics.partner_providers.openai:ChatOpenAIProvider"
 azure-chat-openai = "jupyter_ai_magics.partner_providers.openai:AzureChatOpenAIProvider"
 sagemaker-endpoint = "jupyter_ai_magics:SmEndpointProvider"
 amazon-bedrock = "jupyter_ai_magics:BedrockProvider"
-anthropic-chat = "jupyter_ai_magics:ChatAnthropicProvider"
 amazon-bedrock-chat = "jupyter_ai_magics:BedrockChatProvider"
 qianfan = "jupyter_ai_magics:QianfanProvider"
 nvidia-chat = "jupyter_ai_magics.partner_providers.nvidia:ChatNVIDIAProvider"

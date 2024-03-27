@@ -15,11 +15,9 @@ from .magics import AiMagics
 # expose model providers on the package root
 from .providers import (
     AI21Provider,
-    AnthropicProvider,
     BaseProvider,
     BedrockChatProvider,
     BedrockProvider,
-    ChatAnthropicProvider,
     CohereProvider,
     GPT4AllProvider,
     HfHubProvider,
