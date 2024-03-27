@@ -134,8 +134,8 @@ Jupyter AI supports the following model providers:
 | Provider            | Provider ID          | Environment variable(s)    | Python package(s)               |
 |---------------------|----------------------|----------------------------|---------------------------------|
 | AI21                | `ai21`               | `AI21_API_KEY`             | `ai21`                          |
-| Anthropic           | `anthropic`          | `ANTHROPIC_API_KEY`        | `anthropic`                     |
-| Anthropic (chat)    | `anthropic-chat`     | `ANTHROPIC_API_KEY`        | `anthropic`                     |
+| Anthropic           | `anthropic`          | `ANTHROPIC_API_KEY`        | `langchain-anthropic`           |
+| Anthropic (chat)    | `anthropic-chat`     | `ANTHROPIC_API_KEY`        | `langchain-anthropic`           |
 | Bedrock             | `bedrock`            | N/A                        | `boto3`                         |
 | Bedrock (chat)      | `bedrock-chat`       | N/A                        | `boto3`                         |
 | Cohere              | `cohere`             | `COHERE_API_KEY`           | `cohere`                        |
