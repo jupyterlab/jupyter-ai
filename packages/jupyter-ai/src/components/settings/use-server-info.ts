@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { AiService } from '../../handler';
+import { getProviderId, getModelLocalId } from '../../utils';
 
 type ServerInfoProperties = {
   config: AiService.DescribeConfigResponse;
@@ -63,7 +64,7 @@ export function useServerInfo(): ServerInfo {
         lmGid === null ? null : getProvider(lmGid, lmProviders);
       const emProvider =
         emGid === null ? null : getProvider(emGid, emProviders);
-      const lmLocalId = lmGid === null ? '' : getLocalId(lmGid);
+      const lmLocalId = (lmGid && getModelLocalId(lmGid)) ?? '';
       setServerInfoProps({
         config,
         lmProviders,
@@ -134,26 +135,4 @@ function getProvider(
   const providerId = getProviderId(gid);
   const provider = providers.providers.find(p => p.id === providerId);
   return provider ?? null;
-}
-
-function getProviderId(gid: string) {
-  if (!gid) {
-    return null;
-  }
-
-  const components = gid.split(':');
-  if (components.length < 2) {
-    return null;
-  }
-
-  return components[0];
-}
-
-function getLocalId(gid: string) {
-  const components = gid.split(':');
-  if (components.length < 2) {
-    return '';
-  }
-
-  return components[1];
 }

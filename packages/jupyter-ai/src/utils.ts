@@ -48,3 +48,26 @@ export function getCellIndex(notebook: Notebook, cellId: string): number {
   );
   return idx === undefined ? -1 : idx;
 }
+
+/**
+ * Obtain the provider ID component from a model ID.
+ */
+export function getProviderId(globalModelId: string): string | null {
+  if (!globalModelId) {
+    return null;
+  }
+
+  return globalModelId.split(':')[0];
+}
+
+/**
+ * Obtain the model name component from a model ID.
+ */
+export function getModelLocalId(globalModelId: string): string | null {
+  if (!globalModelId) {
+    return null;
+  }
+
+  const components = globalModelId.split(':').slice(1);
+  return components.join(':');
+}

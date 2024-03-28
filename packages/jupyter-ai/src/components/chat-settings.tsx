@@ -23,6 +23,7 @@ import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { minifyUpdate } from './settings/minify';
 import { useStackingAlert } from './mui-extras/stacking-alert';
 import { RendermimeMarkdown } from './rendermime-markdown';
+import { getProviderId, getModelLocalId } from '../utils';
 
 type ChatSettingsProps = {
   rmRegistry: IRenderMimeRegistry;
@@ -389,23 +390,6 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
       {alert.jsx}
     </Box>
   );
-}
-
-function getProviderId(globalModelId: string) {
-  if (!globalModelId) {
-    return null;
-  }
-
-  return globalModelId.split(':')[0];
-}
-
-function getModelLocalId(globalModelId: string) {
-  if (!globalModelId) {
-    return null;
-  }
-
-  const components = globalModelId.split(':').slice(1);
-  return components.join(':');
 }
 
 function getProvider(
