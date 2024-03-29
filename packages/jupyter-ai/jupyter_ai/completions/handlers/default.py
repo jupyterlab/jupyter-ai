@@ -127,8 +127,9 @@ class DefaultInlineCompletionHandler(BaseInlineCompletionHandler):
         from jupyter_collaboration.websocketserver import RoomNotFound
 
         file_id = file_id_manager.index(request.path)
-        content_type = "notebook" if request.path.endswith("ipynb") else "file"
-        file_format = "json"
+        is_notebook = request.path.endswith("ipynb")
+        content_type = "notebook" if is_notebook else "file"
+        file_format = "json" if is_notebook else "text"
 
         encoded_path = encode_file_path(file_format, content_type, file_id)
         room_id: str = encoded_path.split("/")[-1]
@@ -149,13 +150,14 @@ class DefaultInlineCompletionHandler(BaseInlineCompletionHandler):
         suffix = request.suffix.strip()
         filename = request.path.split("/")[-1] if request.path else "untitled"
 
-        from jupyter_ydoc import YNotebook
-
         document = await self._get_document(request)
 
-        cell_type = "markdown" if request.language == "markdown" else "code"
+        if document:
+            from jupyter_ydoc import YNotebook
 
-        if isinstance(document, YNotebook):
+        if document and isinstance(document, YNotebook):
+            cell_type = "markdown" if request.language == "markdown" else "code"
+
             is_before_request_cell = True
             before = []
             after = [suffix]
