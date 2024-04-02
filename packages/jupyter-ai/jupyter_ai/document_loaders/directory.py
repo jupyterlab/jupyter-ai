@@ -5,10 +5,11 @@ from pathlib import Path
 from typing import List
 
 import dask
+from langchain.document_loaders import PyPDFLoader
 from langchain.schema import Document
 from langchain.text_splitter import TextSplitter
-from langchain.document_loaders import PyPDFLoader
 from pypdf import PdfReader
+
 
 # Uses pypdf which is used by PyPDFLoader from langchain
 def pdf_to_text(path):
@@ -19,12 +20,13 @@ def pdf_to_text(path):
         text = text + "\n \n" + page.extract_text()
     return text
 
+
 def path_to_doc(path):
     with open(str(path)) as f:
         if os.path.splitext(path)[1] == ".pdf":
             text = pdf_to_text(path)
-        else: 
-            text = f.read()        
+        else:
+            text = f.read()
         m = hashlib.sha256()
         m.update(text.encode("utf-8"))
         metadata = {"path": str(path), "sha256": m.digest(), "extension": path.suffix}
@@ -75,7 +77,9 @@ def split(path, all_files: bool, splitter):
             # Filter out hidden filenames, hidden directories, and excluded directories,
             # unless "all files" are requested
             if not all_files:
-                subdirs[:] = [d for d in subdirs if not (d[0] == "." or d in EXCLUDE_DIRS)]
+                subdirs[:] = [
+                    d for d in subdirs if not (d[0] == "." or d in EXCLUDE_DIRS)
+                ]
                 filenames = [f for f in filenames if not f[0] == "."]
 
     for filename in filenames:
