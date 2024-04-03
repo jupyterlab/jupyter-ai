@@ -8,8 +8,8 @@ from jupyter_ai.chat_handlers.learn import Retriever
 from jupyter_ai_magics import JupyternautPersona
 from jupyter_ai_magics.utils import get_em_providers, get_lm_providers
 from jupyter_server.extension.application import ExtensionApp
-from traitlets import Dict, List, Unicode
 from tornado.web import StaticFileHandler
+from traitlets import Dict, List, Unicode
 
 from .chat_handlers import (
     AskChatHandler,
@@ -46,11 +46,14 @@ class AiExtension(ExtensionApp):
         (r"api/ai/providers?", ModelProviderHandler),
         (r"api/ai/providers/embeddings?", EmbeddingsModelProviderHandler),
         (r"api/ai/completion/inline/?", DefaultInlineCompletionHandler),
-
         # serve the default persona avatar at this path.
         # the `()` at the end of the URL denotes an empty regex capture group,
         # required by Tornado.
-        (fr"{JUPYTERNAUT_AVATAR_ROUTE}()", StaticFileHandler, {"path": JUPYTERNAUT_AVATAR_PATH}),
+        (
+            rf"{JUPYTERNAUT_AVATAR_ROUTE}()",
+            StaticFileHandler,
+            {"path": JUPYTERNAUT_AVATAR_PATH},
+        ),
     ]
 
     allowed_providers = List(
@@ -321,24 +324,27 @@ class AiExtension(ExtensionApp):
 
         latency_ms = round((time.time() - start) * 1000)
         self.log.info(f"Initialized Jupyter AI server extension in {latency_ms} ms.")
-    
+
     def _show_help_message(self):
         """
         Method that ensures a dynamically-generated help message is included in
         the chat history shown to users.
         """
         chat_handlers = self.settings["jai_chat_handlers"]
-        config_manager: ConfigManager = self.settings["jai_config_manager"] 
+        config_manager: ConfigManager = self.settings["jai_config_manager"]
         lm_provider = config_manager.lm_provider
 
         if not lm_provider:
             return
 
         persona = config_manager.persona
-        unsupported_slash_commands = lm_provider.unsupported_slash_commands if lm_provider else set()
-        help_message = build_help_message(chat_handlers, persona, unsupported_slash_commands)
+        unsupported_slash_commands = (
+            lm_provider.unsupported_slash_commands if lm_provider else set()
+        )
+        help_message = build_help_message(
+            chat_handlers, persona, unsupported_slash_commands
+        )
         self.settings["chat_history"].append(help_message)
-
 
     async def _get_dask_client(self):
         return DaskClient(processes=False, asynchronous=True)

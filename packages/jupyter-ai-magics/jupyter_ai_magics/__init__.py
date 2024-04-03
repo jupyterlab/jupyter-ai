@@ -12,6 +12,10 @@ from .embedding_providers import (
 from .exception import store_exception
 from .magics import AiMagics
 
+# expose JupyternautPersona on the package root
+# required by `jupyter-ai`.
+from .models.persona import JupyternautPersona, Persona
+
 # expose model providers on the package root
 from .providers import (
     AI21Provider,
@@ -26,9 +30,6 @@ from .providers import (
     TogetherAIProvider,
 )
 
-# expose JupyternautPersona on the package root
-# required by `jupyter-ai`.
-from .models.persona import JupyternautPersona, Persona
 
 def load_ipython_extension(ipython):
     ipython.register_magics(AiMagics)

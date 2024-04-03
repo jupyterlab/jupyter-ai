@@ -36,9 +36,7 @@ class DefaultChatHandler(BaseChatHandler):
         )
 
         if llm.manages_history:
-            self.llm_chain = LLMChain(
-                llm=llm, prompt=prompt_template, verbose=True
-            )
+            self.llm_chain = LLMChain(llm=llm, prompt=prompt_template, verbose=True)
 
         else:
             self.llm_chain = ConversationChain(

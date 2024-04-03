@@ -8,6 +8,7 @@ from typing import List, Optional, Union
 from deepmerge import always_merger as Merger
 from jsonschema import Draft202012Validator as Validator
 from jupyter_ai.models import DescribeConfigResponse, GlobalConfig, UpdateConfigRequest
+from jupyter_ai_magics import JupyternautPersona, Persona
 from jupyter_ai_magics.utils import (
     AnyProvider,
     EmProvidersDict,
@@ -15,7 +16,6 @@ from jupyter_ai_magics.utils import (
     get_em_provider,
     get_lm_provider,
 )
-from jupyter_ai_magics import Persona, JupyternautPersona
 from jupyter_core.paths import jupyter_data_dir
 from traitlets import Integer, Unicode
 from traitlets.config import Configurable
@@ -453,7 +453,7 @@ class ConfigManager(Configurable):
             "model_id": em_lid,
             **authn_fields,
         }
-    
+
     @property
     def persona(self) -> Persona:
         """
@@ -462,5 +462,5 @@ class ConfigManager(Configurable):
         `JupyternautPersona` by default.
         """
         lm_provider = self.lm_provider
-        persona = getattr(lm_provider, 'persona', None) or JupyternautPersona
+        persona = getattr(lm_provider, "persona", None) or JupyternautPersona
         return persona
