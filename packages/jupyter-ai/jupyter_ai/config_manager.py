@@ -15,6 +15,7 @@ from jupyter_ai_magics.utils import (
     get_em_provider,
     get_lm_provider,
 )
+from jupyter_ai_magics import Persona, JupyternautPersona
 from jupyter_core.paths import jupyter_data_dir
 from traitlets import Integer, Unicode
 from traitlets.config import Configurable
@@ -452,3 +453,14 @@ class ConfigManager(Configurable):
             "model_id": em_lid,
             **authn_fields,
         }
+    
+    @property
+    def persona(self) -> Persona:
+        """
+        The current agent persona, set by the selected LM provider. If the
+        selected LM provider is `None`, this property returns
+        `JupyternautPersona` by default.
+        """
+        lm_provider = self.lm_provider
+        persona = getattr(lm_provider, 'persona', None) or JupyternautPersona
+        return persona

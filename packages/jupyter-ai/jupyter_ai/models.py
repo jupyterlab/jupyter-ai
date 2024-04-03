@@ -29,13 +29,31 @@ class ChatClient(ChatUser):
     id: str
 
 
+class PersonaDescription(BaseModel):
+    """
+    Description of a persona to a chat client.
+    """
+    name: str
+    avatar_route: str
+
+
 class AgentChatMessage(BaseModel):
     type: Literal["agent"] = "agent"
     id: str
     time: float
     body: str
-    # message ID of the HumanChatMessage it is replying to
+
     reply_to: str
+    """
+    Message ID of the HumanChatMessage being replied to. This is set to an empty
+    string if not applicable.
+    """
+
+    persona: PersonaDescription
+    """
+    The persona of the selected provider. If the selected provider is `None`,
+    this defaults to a description of `JupyternautPersona`.
+    """
 
 
 class HumanChatMessage(BaseModel):
