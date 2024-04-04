@@ -33,6 +33,7 @@ class PersonaDescription(BaseModel):
     """
     Description of a persona to a chat client.
     """
+
     name: str
     avatar_route: str
 

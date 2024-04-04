@@ -16,11 +16,15 @@ For more information, see the [documentation](https://jupyter-ai.readthedocs.io)
 """
 
 
-def _format_help_message(chat_handlers: Dict[str, BaseChatHandler], persona: Persona, unsupported_slash_commands: set):
+def _format_help_message(
+    chat_handlers: Dict[str, BaseChatHandler],
+    persona: Persona,
+    unsupported_slash_commands: set,
+):
     if unsupported_slash_commands:
         keys = set(chat_handlers.keys()) - unsupported_slash_commands
-        chat_handlers = { key: chat_handlers[key] for key in keys }
-    
+        chat_handlers = {key: chat_handlers[key] for key in keys}
+
     commands = "\n".join(
         [
             f"* `{command_name}` — {handler.help}"
@@ -31,16 +35,19 @@ def _format_help_message(chat_handlers: Dict[str, BaseChatHandler], persona: Per
     return HELP_MESSAGE.format(commands=commands, persona_name=persona.name)
 
 
-def build_help_message(chat_handlers: Dict[str, BaseChatHandler], persona: Persona, unsupported_slash_commands: set):
+def build_help_message(
+    chat_handlers: Dict[str, BaseChatHandler],
+    persona: Persona,
+    unsupported_slash_commands: set,
+):
     return AgentChatMessage(
         id=uuid4().hex,
         time=time.time(),
         body=_format_help_message(chat_handlers, persona, unsupported_slash_commands),
         reply_to="",
         persona=PersonaDescription(
-            name=persona.name,
-            avatar_route=persona.avatar_route
-        )
+            name=persona.name, avatar_route=persona.avatar_route
+        ),
     )
 
 

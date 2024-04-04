@@ -16,7 +16,12 @@ from uuid import uuid4
 
 from dask.distributed import Client as DaskClient
 from jupyter_ai.config_manager import ConfigManager, Logger
-from jupyter_ai.models import AgentChatMessage, ChatMessage, HumanChatMessage, PersonaDescription
+from jupyter_ai.models import (
+    AgentChatMessage,
+    ChatMessage,
+    HumanChatMessage,
+    PersonaDescription,
+)
 from jupyter_ai_magics.providers import BaseProvider
 from langchain.pydantic_v1 import BaseModel
 
@@ -98,9 +103,13 @@ class BaseChatHandler:
 
         # ensure the current slash command is supported
         if self.routing_type.routing_method == "slash_command":
-            slash_command = "/" + self.routing_type.slash_id if self.routing_type.slash_id else ""
+            slash_command = (
+                "/" + self.routing_type.slash_id if self.routing_type.slash_id else ""
+            )
             if slash_command in lm_provider_klass.unsupported_slash_commands:
-                self.reply("Sorry, the selected language model does not support this slash command.")
+                self.reply(
+                    "Sorry, the selected language model does not support this slash command."
+                )
                 return
 
         # check whether the configured LLM can support a request at this time.
@@ -178,9 +187,8 @@ class BaseChatHandler:
             body=response,
             reply_to=human_msg.id if human_msg else "",
             persona=PersonaDescription(
-                name=persona.name,
-                avatar_route=persona.avatar_route
-            )
+                name=persona.name, avatar_route=persona.avatar_route
+            ),
         )
 
         for handler in self._root_chat_handlers.values():

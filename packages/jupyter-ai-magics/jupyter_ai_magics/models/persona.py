@@ -1,10 +1,13 @@
-
-from typing import ClassVar
-from langchain.pydantic_v1 import BaseModel
 import os
+from typing import ClassVar
 
-JUPYTERNAUT_AVATAR_PATH = str(os.path.join(os.path.dirname(__file__), '..', 'static', 'jupyternaut.svg'))
+from langchain.pydantic_v1 import BaseModel
+
+JUPYTERNAUT_AVATAR_PATH = str(
+    os.path.join(os.path.dirname(__file__), "..", "static", "jupyternaut.svg")
+)
 JUPYTERNAUT_AVATAR_ROUTE = "api/ai/static/jupyternaut.svg"
+
 
 class Persona(BaseModel):
     """
@@ -32,8 +35,8 @@ class Persona(BaseModel):
     serve the file at this path on the route specified by `avatar_route`.
     """
 
+
 class JupyternautPersona(Persona):
     name: ClassVar[str] = "Jupyternaut"
     avatar_route: ClassVar[str] = JUPYTERNAUT_AVATAR_ROUTE
     avatar_path: ClassVar[str] = JUPYTERNAUT_AVATAR_PATH
-    
