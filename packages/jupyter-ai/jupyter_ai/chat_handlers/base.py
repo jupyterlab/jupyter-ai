@@ -16,11 +16,7 @@ from uuid import uuid4
 
 from dask.distributed import Client as DaskClient
 from jupyter_ai.config_manager import ConfigManager, Logger
-from jupyter_ai.models import (
-    AgentChatMessage,
-    ChatMessage,
-    HumanChatMessage,
-)
+from jupyter_ai.models import AgentChatMessage, ChatMessage, HumanChatMessage
 from jupyter_ai_magics import Persona
 from jupyter_ai_magics.providers import BaseProvider
 from langchain.pydantic_v1 import BaseModel
@@ -186,9 +182,7 @@ class BaseChatHandler:
             time=time.time(),
             body=response,
             reply_to=human_msg.id if human_msg else "",
-            persona=Persona(
-                name=persona.name, avatar_route=persona.avatar_route
-            ),
+            persona=Persona(name=persona.name, avatar_route=persona.avatar_route),
         )
 
         for handler in self._root_chat_handlers.values():

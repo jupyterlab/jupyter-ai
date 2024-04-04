@@ -45,9 +45,7 @@ def build_help_message(
         time=time.time(),
         body=_format_help_message(chat_handlers, persona, unsupported_slash_commands),
         reply_to="",
-        persona=Persona(
-            name=persona.name, avatar_route=persona.avatar_route
-        ),
+        persona=Persona(name=persona.name, avatar_route=persona.avatar_route),
     )
 
 

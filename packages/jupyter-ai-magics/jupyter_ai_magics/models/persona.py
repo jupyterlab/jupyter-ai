@@ -1,5 +1,6 @@
 from langchain.pydantic_v1 import BaseModel
 
+
 class Persona(BaseModel):
     """
     Model of an **agent persona**, a struct that includes the name & avatar

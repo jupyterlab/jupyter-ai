@@ -1,7 +1,7 @@
 from typing import Any, Dict, List, Literal, Optional, Union
 
-from jupyter_ai_magics.providers import AuthStrategy, Field
 from jupyter_ai_magics import Persona
+from jupyter_ai_magics.providers import AuthStrategy, Field
 from langchain.pydantic_v1 import BaseModel, validator
 
 DEFAULT_CHUNK_SIZE = 2000
