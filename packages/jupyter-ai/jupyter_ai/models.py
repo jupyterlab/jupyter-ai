@@ -1,6 +1,7 @@
 from typing import Any, Dict, List, Literal, Optional, Union
 
 from jupyter_ai_magics.providers import AuthStrategy, Field
+from jupyter_ai_magics import Persona
 from langchain.pydantic_v1 import BaseModel, validator
 
 DEFAULT_CHUNK_SIZE = 2000
@@ -29,15 +30,6 @@ class ChatClient(ChatUser):
     id: str
 
 
-class PersonaDescription(BaseModel):
-    """
-    Description of a persona to a chat client.
-    """
-
-    name: str
-    avatar_route: str
-
-
 class AgentChatMessage(BaseModel):
     type: Literal["agent"] = "agent"
     id: str
@@ -50,7 +42,7 @@ class AgentChatMessage(BaseModel):
     string if not applicable.
     """
 
-    persona: PersonaDescription
+    persona: Persona
     """
     The persona of the selected provider. If the selected provider is `None`,
     this defaults to a description of `JupyternautPersona`.
