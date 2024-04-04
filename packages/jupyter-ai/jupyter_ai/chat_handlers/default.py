@@ -2,7 +2,7 @@ from typing import Dict, List, Type
 
 from jupyter_ai.models import ChatMessage, ClearMessage, HumanChatMessage
 from jupyter_ai_magics.providers import BaseProvider
-from langchain.chains import ConversationChain
+from langchain.chains import ConversationChain, LLMChain
 from langchain.memory import ConversationBufferWindowMemory
 
 from .base import BaseChatHandler, SlashCommandRoutingType
@@ -30,14 +30,18 @@ class DefaultChatHandler(BaseChatHandler):
         llm = provider(**unified_parameters)
 
         prompt_template = llm.get_chat_prompt_template()
+        self.llm = llm
         self.memory = ConversationBufferWindowMemory(
             return_messages=llm.is_chat_provider, k=2
         )
 
-        self.llm = llm
-        self.llm_chain = ConversationChain(
-            llm=llm, prompt=prompt_template, verbose=True, memory=self.memory
-        )
+        if llm.manages_history:
+            self.llm_chain = LLMChain(llm=llm, prompt=prompt_template, verbose=True)
+
+        else:
+            self.llm_chain = ConversationChain(
+                llm=llm, prompt=prompt_template, verbose=True, memory=self.memory
+            )
 
     def clear_memory(self):
         # clear chain memory

@@ -8,6 +8,7 @@ from typing import List, Optional, Union
 from deepmerge import always_merger as Merger
 from jsonschema import Draft202012Validator as Validator
 from jupyter_ai.models import DescribeConfigResponse, GlobalConfig, UpdateConfigRequest
+from jupyter_ai_magics import JupyternautPersona, Persona
 from jupyter_ai_magics.utils import (
     AnyProvider,
     EmProvidersDict,
@@ -452,3 +453,14 @@ class ConfigManager(Configurable):
             "model_id": em_lid,
             **authn_fields,
         }
+
+    @property
+    def persona(self) -> Persona:
+        """
+        The current agent persona, set by the selected LM provider. If the
+        selected LM provider is `None`, this property returns
+        `JupyternautPersona` by default.
+        """
+        lm_provider = self.lm_provider
+        persona = getattr(lm_provider, "persona", None) or JupyternautPersona
+        return persona

@@ -1,5 +1,6 @@
 from typing import Any, Dict, List, Literal, Optional, Union
 
+from jupyter_ai_magics import Persona
 from jupyter_ai_magics.providers import AuthStrategy, Field
 from langchain.pydantic_v1 import BaseModel, validator
 
@@ -34,8 +35,18 @@ class AgentChatMessage(BaseModel):
     id: str
     time: float
     body: str
-    # message ID of the HumanChatMessage it is replying to
+
     reply_to: str
+    """
+    Message ID of the HumanChatMessage being replied to. This is set to an empty
+    string if not applicable.
+    """
+
+    persona: Persona
+    """
+    The persona of the selected provider. If the selected provider is `None`,
+    this defaults to a description of `JupyternautPersona`.
+    """
 
 
 class HumanChatMessage(BaseModel):
