@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 
 import { Avatar, Box, Typography } from '@mui/material';
 import type { SxProps, Theme } from '@mui/material';
+import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
+import { ServerConnection } from '@jupyterlab/services';
+// TODO: delete jupyternaut from frontend package
 
 import { AiService } from '../handler';
-import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
-import { Jupyternaut } from '../icons';
 import { RendermimeMarkdown } from './rendermime-markdown';
 import { useCollaboratorsContext } from '../contexts/collaborators-context';
 
@@ -49,9 +50,11 @@ export function ChatMessageHeader(props: ChatMessageHeaderProps): JSX.Element {
       </Avatar>
     );
   } else {
+    const baseUrl = ServerConnection.makeSettings().baseUrl;
+    const avatar_url = baseUrl + props.message.persona.avatar_route;
     avatar = (
-      <Avatar sx={{ ...sharedStyles, bgcolor: 'var(--jp-jupyter-icon-color)' }}>
-        <Jupyternaut display="block" height="100%" width="100%" />
+      <Avatar sx={{ ...sharedStyles, bgcolor: 'var(--jp-layout-color-1)' }}>
+        <img src={avatar_url} />
       </Avatar>
     );
   }
@@ -59,7 +62,7 @@ export function ChatMessageHeader(props: ChatMessageHeaderProps): JSX.Element {
   const name =
     props.message.type === 'human'
       ? props.message.client.display_name
-      : 'Jupyternaut';
+      : props.message.persona.name;
 
   return (
     <Box

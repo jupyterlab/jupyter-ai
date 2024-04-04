@@ -17,6 +17,7 @@ from uuid import uuid4
 from dask.distributed import Client as DaskClient
 from jupyter_ai.config_manager import ConfigManager, Logger
 from jupyter_ai.models import AgentChatMessage, ChatMessage, HumanChatMessage
+from jupyter_ai_magics import Persona
 from jupyter_ai_magics.providers import BaseProvider
 from langchain.pydantic_v1 import BaseModel
 
@@ -94,10 +95,21 @@ class BaseChatHandler:
         `self.handle_exc()` when an exception is raised. This method is called
         by RootChatHandler when it routes a human message to this chat handler.
         """
+        lm_provider_klass = self.config_manager.lm_provider
+
+        # ensure the current slash command is supported
+        if self.routing_type.routing_method == "slash_command":
+            slash_command = (
+                "/" + self.routing_type.slash_id if self.routing_type.slash_id else ""
+            )
+            if slash_command in lm_provider_klass.unsupported_slash_commands:
+                self.reply(
+                    "Sorry, the selected language model does not support this slash command."
+                )
+                return
 
         # check whether the configured LLM can support a request at this time.
         if self.uses_llm and BaseChatHandler._requests_count > 0:
-            lm_provider_klass = self.config_manager.lm_provider
             lm_provider_params = self.config_manager.lm_provider_params
             lm_provider = lm_provider_klass(**lm_provider_params)
 
@@ -159,11 +171,18 @@ class BaseChatHandler:
         self.reply(response, message)
 
     def reply(self, response: str, human_msg: Optional[HumanChatMessage] = None):
+        """
+        Sends an agent message, usually in response to a received
+        `HumanChatMessage`.
+        """
+        persona = self.config_manager.persona
+
         agent_msg = AgentChatMessage(
             id=uuid4().hex,
             time=time.time(),
             body=response,
             reply_to=human_msg.id if human_msg else "",
+            persona=Persona(name=persona.name, avatar_route=persona.avatar_route),
         )
 
         for handler in self._root_chat_handlers.values():
