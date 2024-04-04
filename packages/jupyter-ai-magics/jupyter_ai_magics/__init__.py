@@ -26,6 +26,9 @@ from .providers import (
     TogetherAIProvider,
 )
 
+# expose JupyternautPersona on the package root
+# required by `jupyter-ai`.
+from .models.persona import JupyternautPersona, Persona
 
 def load_ipython_extension(ipython):
     ipython.register_magics(AiMagics)

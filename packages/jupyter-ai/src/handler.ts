@@ -68,12 +68,18 @@ export namespace AiService {
     id: string;
   };
 
+  export type PersonaDescription = {
+    name: string;
+    avatar_route: string;
+  };
+
   export type AgentChatMessage = {
     type: 'agent';
     id: string;
     time: number;
     body: string;
     reply_to: string;
+    persona: PersonaDescription;
   };
 
   export type HumanChatMessage = {
