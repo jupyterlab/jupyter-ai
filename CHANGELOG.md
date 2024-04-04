@@ -2,6 +2,32 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 1.13.0
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@1.12.0...9f6e8630fdad11faee62ef30c31c8af4f32f6b55))
+
+### Enhancements made
+
+- Improve support for custom providers [#713](https://github.com/jupyterlab/jupyter-ai/pull/713) ([@dlqqq](https://github.com/dlqqq))
+- Update Anthropic providers to use `langchain_anthropic` partner package [#700](https://github.com/jupyterlab/jupyter-ai/pull/700) ([@dlqqq](https://github.com/dlqqq))
+- Use `AZURE_OPENAI_API_KEY` for Azure OpenAI provider [#691](https://github.com/jupyterlab/jupyter-ai/pull/691) ([@aroffe99](https://github.com/aroffe99))
+- \[1.x\] Add Claude-3-Haiku (#696)  [#697](https://github.com/jupyterlab/jupyter-ai/pull/697) ([@srdas](https://github.com/srdas))
+- /export added [#658](https://github.com/jupyterlab/jupyter-ai/pull/658) ([@apurvakhatri](https://github.com/apurvakhatri))
+
+### Bugs fixed
+
+- Fix rendering of model IDs with a colon in their name [#704](https://github.com/jupyterlab/jupyter-ai/pull/704) ([@dlqqq](https://github.com/dlqqq))
+- Update Anthropic providers to use `langchain_anthropic` partner package [#700](https://github.com/jupyterlab/jupyter-ai/pull/700) ([@dlqqq](https://github.com/dlqqq))
+- Use new `langchain-openai` partner package [#653](https://github.com/jupyterlab/jupyter-ai/pull/653) ([@startakovsky](https://github.com/startakovsky))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-03-11&to=2024-04-04&type=c))
+
+[@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2024-03-11..2024-04-04&type=Issues) | [@lumberbot-app](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Alumberbot-app+updated%3A2024-03-11..2024-04-04&type=Issues) | [@meeseeksmachine](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ameeseeksmachine+updated%3A2024-03-11..2024-04-04&type=Issues) | [@srdas](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2024-03-11..2024-04-04&type=Issues) | [@welcome](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Awelcome+updated%3A2024-03-11..2024-04-04&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 1.12.0
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/v1.11.0...44f968e962ba27931eb36a5a71136318b13fdf9d))
@@ -22,8 +48,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-03-04&to=2024-03-11&type=c))
 
 [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2024-03-04..2024-03-11&type=Issues) | [@giswqs](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Agiswqs+updated%3A2024-03-04..2024-03-11&type=Issues) | [@lumberbot-app](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Alumberbot-app+updated%3A2024-03-04..2024-03-11&type=Issues) | [@meeseeksmachine](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ameeseeksmachine+updated%3A2024-03-04..2024-03-11&type=Issues) | [@welcome](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Awelcome+updated%3A2024-03-04..2024-03-11&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 1.11.0
 
