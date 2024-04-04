@@ -68,7 +68,7 @@ export namespace AiService {
     id: string;
   };
 
-  export type PersonaDescription = {
+  export type Persona = {
     name: string;
     avatar_route: string;
   };
@@ -79,7 +79,7 @@ export namespace AiService {
     time: number;
     body: string;
     reply_to: string;
-    persona: PersonaDescription;
+    persona: Persona;
   };
 
   export type HumanChatMessage = {

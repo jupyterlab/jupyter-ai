@@ -1,6 +1,6 @@
-import logging
 import re
 import time
+import os
 
 from dask.distributed import Client as DaskClient
 from importlib_metadata import entry_points
@@ -31,9 +31,11 @@ from .handlers import (
     RootChatHandler,
 )
 
-JUPYTERNAUT_AVATAR_PATH = JupyternautPersona.avatar_path
-JUPYTERNAUT_AVATAR_ROUTE = JupyternautPersona.avatar_route
 
+JUPYTERNAUT_AVATAR_ROUTE = JupyternautPersona.avatar_route
+JUPYTERNAUT_AVATAR_PATH = str(
+    os.path.join(os.path.dirname(__file__), "static", "jupyternaut.svg")
+)
 
 class AiExtension(ExtensionApp):
     name = "jupyter_ai"

@@ -2,7 +2,7 @@ import time
 from typing import Dict
 from uuid import uuid4
 
-from jupyter_ai.models import AgentChatMessage, HumanChatMessage, PersonaDescription
+from jupyter_ai.models import AgentChatMessage, HumanChatMessage
 from jupyter_ai_magics import Persona
 
 from .base import BaseChatHandler, SlashCommandRoutingType
@@ -45,7 +45,7 @@ def build_help_message(
         time=time.time(),
         body=_format_help_message(chat_handlers, persona, unsupported_slash_commands),
         reply_to="",
-        persona=PersonaDescription(
+        persona=Persona(
             name=persona.name, avatar_route=persona.avatar_route
         ),
     )
