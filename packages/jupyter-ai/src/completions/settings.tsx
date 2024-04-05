@@ -1,40 +1,34 @@
-import React, { useEffect, useState } from 'react';
+import { ReactWidget } from '@jupyterlab/ui-components';
+import React, { useState } from 'react';
 
 import { Box } from '@mui/system';
-import {
-  Alert,
-  Button,
-  FormControl,
-  FormControlLabel,
-  FormLabel,
-  Radio,
-  RadioGroup,
-  CircularProgress
-} from '@mui/material';
+import { Alert, Button, CircularProgress } from '@mui/material';
 
 import { AiService } from '../handler';
-import { ServerInfoState, useServerInfo } from './settings/use-server-info';
-import { ModelSettings, IModelSettings } from './model-settings';
+import {
+  ServerInfoState,
+  useServerInfo
+} from '../components/settings/use-server-info';
+import { ModelSettings, IModelSettings } from '../components/model-settings';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
-import { minifyUpdate } from './settings/minify';
-import { useStackingAlert } from './mui-extras/stacking-alert';
+import { minifyUpdate } from '../components/settings/minify';
+import { useStackingAlert } from '../components/mui-extras/stacking-alert';
 
-type ChatSettingsProps = {
+type CompleterSettingsProps = {
   rmRegistry: IRenderMimeRegistry;
+  isProviderEnabled: () => boolean;
+  openInlineCompleterSettings: () => void;
 };
 
 /**
- * Component that returns the settings view in the chat panel.
+ * Component that returns the settings view.
  */
-export function ChatSettings(props: ChatSettingsProps): JSX.Element {
+export function CompleterSettings(props: CompleterSettingsProps): JSX.Element {
   // state fetched on initial render
   const server = useServerInfo();
 
   // initialize alert helper
   const alert = useStackingAlert();
-
-  // user inputs
-  const [sendWse, setSendWse] = useState<boolean>(false);
 
   // whether the form is currently saving
   const [saving, setSaving] = useState(false);
@@ -46,16 +40,6 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
     emGlobalId: null,
     lmGlobalId: null
   });
-
-  /**
-   * Effect: initialize inputs after fetching server info.
-   */
-  useEffect(() => {
-    if (server.state !== ServerInfoState.Ready) {
-      return;
-    }
-    setSendWse(server.config.send_with_shift_enter);
-  }, [server]);
 
   const handleSave = async () => {
     // compress fields with JSON values
@@ -81,15 +65,14 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
     }
 
     let updateRequest: AiService.UpdateConfigRequest = {
-      model_provider_id: lmGlobalId,
-      embeddings_provider_id: emGlobalId,
+      completions_model_provider_id: lmGlobalId,
+      completions_embeddings_provider_id: emGlobalId,
       api_keys: apiKeys,
       ...(lmGlobalId && {
-        fields: {
+        completions_fields: {
           [lmGlobalId]: fields
         }
-      }),
-      send_with_shift_enter: sendWse
+      })
     };
     updateRequest = minifyUpdate(server.config, updateRequest);
     updateRequest.last_read = server.config.last_read;
@@ -158,43 +141,26 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
         overflowY: 'auto'
       }}
     >
+      {props.isProviderEnabled() ? null : (
+        <Alert severity="warning">
+          The jupyter-ai inline completion provider is not enabled in the Inline
+          Completer settings.
+          <Button
+            variant="contained"
+            onClick={props.openInlineCompleterSettings}
+          >
+            Open Inline Completer Settings
+          </Button>
+        </Alert>
+      )}
+
       <ModelSettings
-        label="Chat language model"
+        label="Inline Completer language model"
         rmRegistry={props.rmRegistry}
         onChange={setModelSettings}
-        modelKind="chat"
+        modelKind="completions"
       />
 
-      {/* Input */}
-      <h2 className="jp-ai-ChatSettings-header">Input</h2>
-      <FormControl>
-        <FormLabel id="send-radio-buttons-group-label">
-          When writing a message, press <kbd>Enter</kbd> to:
-        </FormLabel>
-        <RadioGroup
-          aria-labelledby="send-radio-buttons-group-label"
-          value={sendWse ? 'newline' : 'send'}
-          name="send-radio-buttons-group"
-          onChange={e => {
-            setSendWse(e.target.value === 'newline');
-          }}
-        >
-          <FormControlLabel
-            value="send"
-            control={<Radio />}
-            label="Send the message"
-          />
-          <FormControlLabel
-            value="newline"
-            control={<Radio />}
-            label={
-              <>
-                Start a new line (use <kbd>Shift</kbd>+<kbd>Enter</kbd> to send)
-              </>
-            }
-          />
-        </RadioGroup>
-      </FormControl>
       <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
         <Button variant="contained" onClick={handleSave} disabled={saving}>
           {saving ? 'Saving...' : 'Save changes'}
@@ -203,4 +169,13 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
       {alert.jsx}
     </Box>
   );
+}
+
+export class ModelSettingsWidget extends ReactWidget {
+  constructor(protected options: CompleterSettingsProps) {
+    super();
+  }
+  render(): JSX.Element {
+    return <CompleterSettings {...this.options} />;
+  }
 }

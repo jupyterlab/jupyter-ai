@@ -4,6 +4,8 @@ import {
 } from '@jupyterlab/application';
 import { ICompletionProviderManager } from '@jupyterlab/completer';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
+import { MainAreaWidget } from '@jupyterlab/apputils';
+import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import {
   IEditorLanguageRegistry,
   IEditorLanguage
@@ -12,6 +14,8 @@ import { getEditor } from '../selection-watcher';
 import { IJaiStatusItem } from '../tokens';
 import { displayName, JaiInlineProvider } from './provider';
 import { CompletionWebsocketHandler } from './handler';
+import { jupyternautIcon } from '../icons';
+import { ModelSettingsWidget } from './settings';
 
 export namespace CommandIDs {
   /**
@@ -23,6 +27,10 @@ export namespace CommandIDs {
    */
   export const toggleLanguageCompletions =
     'jupyter-ai:toggle-language-completions';
+  /**
+   * Command to open provider/model configuration.
+   */
+  export const configureModel = 'jupyter-ai:configure-completions';
 }
 
 const INLINE_COMPLETER_PLUGIN =
@@ -52,7 +60,8 @@ export const completionPlugin: JupyterFrontEndPlugin<void> = {
   requires: [
     ICompletionProviderManager,
     IEditorLanguageRegistry,
-    ISettingRegistry
+    ISettingRegistry,
+    IRenderMimeRegistry
   ],
   optional: [IJaiStatusItem],
   activate: async (
@@ -60,6 +69,7 @@ export const completionPlugin: JupyterFrontEndPlugin<void> = {
     completionManager: ICompletionProviderManager,
     languageRegistry: IEditorLanguageRegistry,
     settingRegistry: ISettingRegistry,
+    rmRegistry: IRenderMimeRegistry,
     statusItem: IJaiStatusItem | null
   ): Promise<void> => {
     if (typeof completionManager.registerInlineProvider === 'undefined') {
@@ -176,6 +186,37 @@ export const completionPlugin: JupyterFrontEndPlugin<void> = {
       }
     });
 
+    let settingsWidget: MainAreaWidget | null = null;
+    const newSettingsWidget = () => {
+      const content = new ModelSettingsWidget({
+        rmRegistry,
+        isProviderEnabled: () => provider.isEnabled(),
+        openInlineCompleterSettings: () => {
+          app.commands.execute('settingeditor:open', {
+            query: 'Inline Completer'
+          });
+        }
+      });
+      const widget = new MainAreaWidget({ content });
+      widget.id = 'jupyterlab-inline-completions-model';
+      widget.title.label = 'AI Completions Model Settings';
+      widget.title.closable = true;
+      widget.title.icon = jupyternautIcon;
+      return widget;
+    };
+    app.commands.addCommand(CommandIDs.configureModel, {
+      execute: () => {
+        if (!settingsWidget || settingsWidget.isDisposed) {
+          settingsWidget = newSettingsWidget();
+        }
+        if (!settingsWidget.isAttached) {
+          app.shell.add(settingsWidget, 'main');
+        }
+        app.shell.activateById(settingsWidget.id);
+      },
+      label: 'Configure Jupyternaut Completions Model'
+    });
+
     if (statusItem) {
       statusItem.addItem({
         command: CommandIDs.toggleCompletions,
@@ -184,6 +225,10 @@ export const completionPlugin: JupyterFrontEndPlugin<void> = {
       statusItem.addItem({
         command: CommandIDs.toggleLanguageCompletions,
         rank: 2
+      });
+      statusItem.addItem({
+        command: CommandIDs.configureModel,
+        rank: 3
       });
     }
   }

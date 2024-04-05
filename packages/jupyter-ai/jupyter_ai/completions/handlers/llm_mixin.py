@@ -27,8 +27,8 @@ class LLMHandlerMixin:
         self.llm_chain = None
 
     def get_llm_chain(self):
-        lm_provider = self.config_manager.lm_provider
-        lm_provider_params = self.config_manager.lm_provider_params
+        lm_provider = self.config_manager.completions_lm_provider
+        lm_provider_params = self.config_manager.completions_lm_provider_params
 
         if not lm_provider or not lm_provider_params:
             return None

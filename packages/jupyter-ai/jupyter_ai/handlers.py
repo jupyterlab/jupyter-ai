@@ -290,6 +290,10 @@ class ProviderHandler(BaseAPIHandler):
         # filter out every model w/ model ID according to allow/blocklist
         for provider in providers:
             provider.models = list(filter(filter_predicate, provider.models))
+            provider.chat_models = list(filter(filter_predicate, provider.chat_models))
+            provider.completion_models = list(
+                filter(filter_predicate, provider.completion_models)
+            )
 
         # filter out every provider with no models which satisfy the allow/blocklist, then return
         return filter((lambda p: len(p.models) > 0), providers)
@@ -311,6 +315,8 @@ class ModelProviderHandler(ProviderHandler):
                     id=provider.id,
                     name=provider.name,
                     models=provider.models,
+                    chat_models=provider.chat_models(),
+                    completion_models=provider.completion_models(),
                     help=provider.help,
                     auth_strategy=provider.auth_strategy,
                     registry=provider.registry,

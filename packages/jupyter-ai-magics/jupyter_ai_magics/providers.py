@@ -239,6 +239,16 @@ class BaseProvider(BaseModel, metaclass=ProviderMetaclass):
     provider is selected.
     """
 
+    @classmethod
+    def chat_models(self):
+        """Models which are suitable for chat."""
+        return self.models
+
+    @classmethod
+    def completion_models(self):
+        """Models which are suitable for completions."""
+        return self.models
+
     #
     # instance attrs
     #
