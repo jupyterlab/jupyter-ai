@@ -145,12 +145,6 @@ export function CompleterSettings(props: CompleterSettingsProps): JSX.Element {
         <Alert severity="warning">
           The jupyter-ai inline completion provider is not enabled in the Inline
           Completer settings.
-          <Button
-            variant="contained"
-            onClick={props.openInlineCompleterSettings}
-          >
-            Open Inline Completer Settings
-          </Button>
         </Alert>
       )}
 
@@ -161,7 +155,10 @@ export function CompleterSettings(props: CompleterSettingsProps): JSX.Element {
         modelKind="completions"
       />
 
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+        <Button variant="outlined" onClick={props.openInlineCompleterSettings}>
+          Inline Completer Settings
+        </Button>
         <Button variant="contained" onClick={handleSave} disabled={saving}>
           {saving ? 'Saving...' : 'Save changes'}
         </Button>

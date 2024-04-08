@@ -199,7 +199,7 @@ export const completionPlugin: JupyterFrontEndPlugin<void> = {
       });
       const widget = new MainAreaWidget({ content });
       widget.id = 'jupyterlab-inline-completions-model';
-      widget.title.label = 'AI Completions Model Settings';
+      widget.title.label = 'Completer Model Settings';
       widget.title.closable = true;
       widget.title.icon = jupyternautIcon;
       return widget;
