@@ -82,7 +82,8 @@ def split(path, all_files: bool, splitter):
 
     for filename in filenames:
         filepath = Path(os.path.join(dir, filename))
-        if filepath.suffix.lower() not in set(j.lower() for j in SUPPORTED_EXTS):
+        # Lower case everything to make sure file extension comparisons are not case sensitive
+        if filepath.suffix.lower() not in set(j.lower() for j in SUPPORTED_EXTS): 
             continue
 
         document = dask.delayed(path_to_doc)(filepath)
