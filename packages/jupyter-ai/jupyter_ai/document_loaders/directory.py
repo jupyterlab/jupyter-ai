@@ -14,16 +14,13 @@ from pypdf import PdfReader
 # Uses pypdf which is used by PyPDFLoader from langchain
 def pdf_to_text(path):
     reader = PdfReader(path)
-    pages = reader.pages
-    text = ""
-    for page in pages:
-        text = text + "\n \n" + page.extract_text()
+    text = "\n \n".join([j.extract_text() for j in reader.pages])
     return text
 
 
 def path_to_doc(path):
     with open(str(path)) as f:
-        if os.path.splitext(path)[1] == ".pdf":
+        if os.path.splitext(path)[1].lower() == ".pdf":
             text = pdf_to_text(path)
         else:
             text = f.read()
@@ -57,6 +54,7 @@ SUPPORTED_EXTS = {
 }
 
 
+
 def split_document(document, splitter: TextSplitter) -> List[Document]:
     return splitter.split_documents([document])
 
@@ -84,7 +82,7 @@ def split(path, all_files: bool, splitter):
 
     for filename in filenames:
         filepath = Path(os.path.join(dir, filename))
-        if filepath.suffix not in SUPPORTED_EXTS:
+        if filepath.suffix.lower() not in set(j.lower() for j in SUPPORTED_EXTS):
             continue
 
         document = dask.delayed(path_to_doc)(filepath)
