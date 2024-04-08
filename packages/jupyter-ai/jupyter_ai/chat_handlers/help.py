@@ -3,10 +3,11 @@ from typing import Dict
 from uuid import uuid4
 
 from jupyter_ai.models import AgentChatMessage, HumanChatMessage
+from jupyter_ai_magics import Persona
 
 from .base import BaseChatHandler, SlashCommandRoutingType
 
-HELP_MESSAGE = """Hi there! I'm Jupyternaut, your programming assistant.
+HELP_MESSAGE = """Hi there! I'm {persona_name}, your programming assistant.
 You can ask me a question using the text box below. You can also use these commands:
 {commands}
 
@@ -15,7 +16,15 @@ For more information, see the [documentation](https://jupyter-ai.readthedocs.io)
 """
 
 
-def _format_help_message(chat_handlers: Dict[str, BaseChatHandler]):
+def _format_help_message(
+    chat_handlers: Dict[str, BaseChatHandler],
+    persona: Persona,
+    unsupported_slash_commands: set,
+):
+    if unsupported_slash_commands:
+        keys = set(chat_handlers.keys()) - unsupported_slash_commands
+        chat_handlers = {key: chat_handlers[key] for key in keys}
+
     commands = "\n".join(
         [
             f"* `{command_name}` — {handler.help}"
@@ -23,15 +32,20 @@ def _format_help_message(chat_handlers: Dict[str, BaseChatHandler]):
             if command_name != "default"
         ]
     )
-    return HELP_MESSAGE.format(commands=commands)
+    return HELP_MESSAGE.format(commands=commands, persona_name=persona.name)
 
 
-def HelpMessage(chat_handlers: Dict[str, BaseChatHandler]):
+def build_help_message(
+    chat_handlers: Dict[str, BaseChatHandler],
+    persona: Persona,
+    unsupported_slash_commands: set,
+):
     return AgentChatMessage(
         id=uuid4().hex,
         time=time.time(),
-        body=_format_help_message(chat_handlers),
+        body=_format_help_message(chat_handlers, persona, unsupported_slash_commands),
         reply_to="",
+        persona=Persona(name=persona.name, avatar_route=persona.avatar_route),
     )
 
 

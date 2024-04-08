@@ -15,4 +15,7 @@ export const jupyternautIcon = new LabIcon({
   svgstr: jupyternautSvg
 });
 
+// this icon is only used in the status bar.
+// to configure the icon shown on agent replies in the chat UI, please specify a
+// custom `Persona`.
 export const Jupyternaut = jupyternautIcon.react;
