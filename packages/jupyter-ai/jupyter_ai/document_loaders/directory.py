@@ -14,7 +14,7 @@ from pypdf import PdfReader
 # Uses pypdf which is used by PyPDFLoader from langchain
 def pdf_to_text(path):
     reader = PdfReader(path)
-    text = "\n \n".join([j.extract_text() for j in reader.pages])
+    text = "\n \n".join([page.extract_text() for page in reader.pages])
     return text
 
 
