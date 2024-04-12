@@ -62,4 +62,14 @@ class HelpChatHandler(BaseChatHandler):
         self._chat_handlers = chat_handlers
 
     async def process_message(self, message: HumanChatMessage):
-        self.reply(_format_help_message(self._chat_handlers), message)
+        persona = self.config_manager.persona
+        lm_provider = self.config_manager.lm_provider
+        unsupported_slash_commands = (
+            lm_provider.unsupported_slash_commands if lm_provider else set()
+        )
+        self.reply(
+            _format_help_message(
+                self._chat_handlers, persona, unsupported_slash_commands
+            ),
+            message,
+        )
