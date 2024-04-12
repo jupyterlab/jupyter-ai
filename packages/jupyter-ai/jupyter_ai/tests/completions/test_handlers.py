@@ -1,11 +1,11 @@
 import json
 from types import SimpleNamespace
 
+import pytest
 from jupyter_ai.completions.handlers.default import DefaultInlineCompletionHandler
 from jupyter_ai.completions.models import InlineCompletionRequest
 from jupyter_ai_magics import BaseProvider
 from langchain_community.llms import FakeListLLM
-import pytest
 from pytest import fixture
 from tornado.httputil import HTTPServerRequest
 from tornado.web import Application
