@@ -91,7 +91,7 @@ class DefaultInlineCompletionHandler(BaseInlineCompletionHandler):
                     continue
                 else:
                     suggestion = self._post_process_suggestion(suggestion, request)
-            elif suggestion.endswith("```"):
+            elif suggestion.rstrip().endswith("```"):
                 suggestion = self._post_process_suggestion(suggestion, request)
             self.write_message(
                 InlineCompletionStreamChunk(
@@ -155,7 +155,7 @@ class DefaultInlineCompletionHandler(BaseInlineCompletionHandler):
                 break
 
         # check if the suggestion ends with a closing markdown identifier and remove it
-        if suggestion.endswith("```"):
-            suggestion = suggestion[:-3].rstrip()
+        if suggestion.rstrip().endswith("```"):
+            suggestion = suggestion.rstrip()[:-3].rstrip()
 
         return suggestion

@@ -5,6 +5,7 @@ from jupyter_ai.completions.handlers.default import DefaultInlineCompletionHandl
 from jupyter_ai.completions.models import InlineCompletionRequest
 from jupyter_ai_magics import BaseProvider
 from langchain_community.llms import FakeListLLM
+import pytest
 from pytest import fixture
 from tornado.httputil import HTTPServerRequest
 from tornado.web import Application
@@ -89,12 +90,21 @@ async def test_handle_request(inline_handler):
     assert suggestions[0].insertText == "Test response"
 
 
-async def test_handle_request_with_spurious_fragments(inline_handler):
+@pytest.mark.parametrize(
+    "response,expected_suggestion",
+    [
+        ("```python\nTest python code\n```", "Test python code"),
+        ("```\ntest\n```\n   \n", "test"),
+        ("```hello```world```", "hello```world"),
+    ],
+)
+async def test_handle_request_with_spurious_fragments(response, expected_suggestion):
+    inline_handler = MockCompletionHandler()
     inline_handler.create_llm_chain(
         MockProvider,
         {
             "model_id": "model",
-            "responses": ["```python\nTest python code\n```"],
+            "responses": [response],
         },
     )
     dummy_request = InlineCompletionRequest(
@@ -108,7 +118,7 @@ async def test_handle_request_with_spurious_fragments(inline_handler):
     suggestions = inline_handler.messages[0].list.items
     assert len(suggestions) == 1
     # the suggestion should include insert text from LLM without spurious fragments
-    assert suggestions[0].insertText == "Test python code"
+    assert suggestions[0].insertText == expected_suggestion
 
 
 async def test_handle_stream_request(inline_handler):
