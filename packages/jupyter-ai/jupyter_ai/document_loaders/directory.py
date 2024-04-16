@@ -8,13 +8,12 @@ import dask
 from langchain.document_loaders import PyPDFLoader
 from langchain.schema import Document
 from langchain.text_splitter import TextSplitter
-from pypdf import PdfReader
 
 
 # Uses pypdf which is used by PyPDFLoader from langchain
 def pdf_to_text(path):
-    reader = PdfReader(path)
-    text = "\n \n".join([page.extract_text() for page in reader.pages])
+    pages = PyPDFLoader(path)
+    text = "\n \n".join([page.page_content for page in pages.load_and_split()])
     return text
 
 
