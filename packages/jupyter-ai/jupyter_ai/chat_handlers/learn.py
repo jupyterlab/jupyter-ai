@@ -125,7 +125,7 @@ class LearnChatHandler(BaseChatHandler):
         self.save()
 
         if self.missing_dependency_error != None:
-            response = f"""Learn documents in **{load_path}** failed. Additional 
+            response = f"""Learn documents in **{load_path}** failed. Additional
                 packages needed: {self.missing_dependency_error}."""
         else:
             response = f"""🎉 I have learned documents at **{load_path}** and I am ready to answer questions about them.
