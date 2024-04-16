@@ -123,7 +123,7 @@ class LearnChatHandler(BaseChatHandler):
                 load_path, args.chunk_size, args.chunk_overlap, args.all_files
             )
         except Exception as e:
-            response = f"""Learn documents in **{load_path}** failed. Additional packages needed: {str(e)}."""
+            response = f"""Learn documents in **{load_path}** failed. {str(e)}."""
         else:
             self.save()
             response = f"""🎉 I have learned documents at **{load_path}** and I am ready to answer questions about them.
