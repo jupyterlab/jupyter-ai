@@ -59,7 +59,6 @@ class LearnChatHandler(BaseChatHandler):
         self.index = None
         self.metadata = IndexMetadata(dirs=[])
         self.prev_em_id = None
-        self.missing_dependency_error = None
 
         if not os.path.exists(INDEX_SAVE_DIR):
             os.makedirs(INDEX_SAVE_DIR)
@@ -119,15 +118,14 @@ class LearnChatHandler(BaseChatHandler):
         if args.verbose:
             self.reply(f"Loading and splitting files for {load_path}", message)
 
-        await self.learn_dir(
-            load_path, args.chunk_size, args.chunk_overlap, args.all_files
-        )
-        self.save()
-
-        if self.missing_dependency_error != None:
-            response = f"""Learn documents in **{load_path}** failed. Additional 
-                packages needed: {self.missing_dependency_error}."""
+        try:
+            await self.learn_dir(
+                load_path, args.chunk_size, args.chunk_overlap, args.all_files
+            )
+        except Exception as e:
+            response = f"""Learn documents in **{load_path}** failed. Additional packages needed: {str(e)}."""
         else:
+            self.save()
             response = f"""🎉 I have learned documents at **{load_path}** and I am ready to answer questions about them.
                 You can ask questions about these docs by prefixing your message with **/ask**."""
         self.reply(response, message)
@@ -158,22 +156,18 @@ class LearnChatHandler(BaseChatHandler):
             default_splitter=RecursiveCharacterTextSplitter(**splitter_kwargs),
         )
 
-        try:
-            delayed = split(path, all_files, splitter=splitter)
-            doc_chunks = await dask_client.compute(delayed)
-            em_provider_cls, em_provider_args = self.get_embedding_provider()
-            delayed = get_embeddings(doc_chunks, em_provider_cls, em_provider_args)
-            embedding_records = await dask_client.compute(delayed)
-            if self.index:
-                self.index.add_embeddings(*embedding_records)
-            else:
-                self.create(*embedding_records)
+        delayed = split(path, all_files, splitter=splitter)
+        doc_chunks = await dask_client.compute(delayed)
+        em_provider_cls, em_provider_args = self.get_embedding_provider()
+        delayed = get_embeddings(doc_chunks, em_provider_cls, em_provider_args)
+        embedding_records = await dask_client.compute(delayed)
+        if self.index:
+            self.index.add_embeddings(*embedding_records)
+        else:
+            self.create(*embedding_records)
 
-            self._add_dir_to_metadata(path, chunk_size, chunk_overlap)
-            self.prev_em_id = em_provider_cls.id + ":" + em_provider_args["model_id"]
-        except Exception as e:
-            self.missing_dependency_error = str(e)
-            return
+        self._add_dir_to_metadata(path, chunk_size, chunk_overlap)
+        self.prev_em_id = em_provider_cls.id + ":" + em_provider_args["model_id"]
 
     def _add_dir_to_metadata(self, path: str, chunk_size: int, chunk_overlap: int):
         dirs = self.metadata.dirs
