@@ -118,13 +118,16 @@ class LearnChatHandler(BaseChatHandler):
         if args.verbose:
             self.reply(f"Loading and splitting files for {load_path}", message)
 
-        await self.learn_dir(
-            load_path, args.chunk_size, args.chunk_overlap, args.all_files
-        )
-        self.save()
-
-        response = f"""🎉 I have learned documents at **{load_path}** and I am ready to answer questions about them.
-        You can ask questions about these docs by prefixing your message with **/ask**."""
+        try:
+            await self.learn_dir(
+                load_path, args.chunk_size, args.chunk_overlap, args.all_files
+            )
+        except Exception as e:
+            response = f"""Learn documents in **{load_path}** failed. {str(e)}."""
+        else:
+            self.save()
+            response = f"""🎉 I have learned documents at **{load_path}** and I am ready to answer questions about them.
+                You can ask questions about these docs by prefixing your message with **/ask**."""
         self.reply(response, message)
 
     def _build_list_response(self):
@@ -155,7 +158,6 @@ class LearnChatHandler(BaseChatHandler):
 
         delayed = split(path, all_files, splitter=splitter)
         doc_chunks = await dask_client.compute(delayed)
-
         em_provider_cls, em_provider_args = self.get_embedding_provider()
         delayed = get_embeddings(doc_chunks, em_provider_cls, em_provider_args)
         embedding_records = await dask_client.compute(delayed)
