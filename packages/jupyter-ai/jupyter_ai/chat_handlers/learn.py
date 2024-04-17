@@ -80,7 +80,9 @@ class LearnChatHandler(BaseChatHandler):
             )
             self.load_metadata()
         except Exception as e:
-            self.log.error("Could not load vector index from disk. Full exception details printed below.")
+            self.log.error(
+                "Could not load vector index from disk. Full exception details printed below."
+            )
             self.log.error(e)
 
     async def process_message(self, message: HumanChatMessage):
