@@ -168,13 +168,13 @@ class ConfigManager(Configurable):
                 {k: v for k, v in existing_config.items() if v is not None},
             )
             config = GlobalConfig(**merged_config)
-            validated_config = self._validate_lm_em_id(config)
+            validated_config = self._validate_model_ids(config)
 
             # re-write to the file to validate the config and apply any
             # updates to the config file immediately
             self._write_config(validated_config)
 
-    def _validate_lm_em_id(self, config):
+    def _validate_model_ids(self, config):
         lm_provider_keys = ["model_provider_id", "completions_model_provider_id"]
         em_provider_keys = ["embeddings_provider_id"]
 
