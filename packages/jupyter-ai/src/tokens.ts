@@ -20,9 +20,9 @@ export interface IJaiCompletionProvider {
 }
 
 /**
- * The incline completion provider token.
+ * The inline completion provider token.
  */
 export const IJaiCompletionProvider = new Token<IJaiCompletionProvider>(
   'jupyter_ai:IJaiCompletionProvider',
-  'Status the incline completion provider'
+  'The jupyter-ai inline completion provider API'
 );
