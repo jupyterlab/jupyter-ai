@@ -4,18 +4,14 @@ import {
 } from '@jupyterlab/application';
 import { ICompletionProviderManager } from '@jupyterlab/completer';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
-import { MainAreaWidget } from '@jupyterlab/apputils';
-import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import {
   IEditorLanguageRegistry,
   IEditorLanguage
 } from '@jupyterlab/codemirror';
 import { getEditor } from '../selection-watcher';
-import { IJaiStatusItem } from '../tokens';
+import { IJaiStatusItem, IJaiCompletionProvider } from '../tokens';
 import { displayName, JaiInlineProvider } from './provider';
 import { CompletionWebsocketHandler } from './handler';
-import { jupyternautIcon } from '../icons';
-import { ModelSettingsWidget } from './settings';
 
 export namespace CommandIDs {
   /**
@@ -27,10 +23,6 @@ export namespace CommandIDs {
    */
   export const toggleLanguageCompletions =
     'jupyter-ai:toggle-language-completions';
-  /**
-   * Command to open provider/model configuration.
-   */
-  export const configureModel = 'jupyter-ai:configure-completions';
 }
 
 const INLINE_COMPLETER_PLUGIN =
@@ -54,182 +46,148 @@ type IcPluginSettings = ISettingRegistry.ISettings & {
   };
 };
 
-export const completionPlugin: JupyterFrontEndPlugin<void> = {
-  id: 'jupyter_ai:inline-completions',
-  autoStart: true,
-  requires: [
-    ICompletionProviderManager,
-    IEditorLanguageRegistry,
-    ISettingRegistry,
-    IRenderMimeRegistry
-  ],
-  optional: [IJaiStatusItem],
-  activate: async (
-    app: JupyterFrontEnd,
-    completionManager: ICompletionProviderManager,
-    languageRegistry: IEditorLanguageRegistry,
-    settingRegistry: ISettingRegistry,
-    rmRegistry: IRenderMimeRegistry,
-    statusItem: IJaiStatusItem | null
-  ): Promise<void> => {
-    if (typeof completionManager.registerInlineProvider === 'undefined') {
-      // Gracefully short-circuit on JupyterLab 4.0 and Notebook 7.0
-      console.warn(
-        'Inline completions are only supported in JupyterLab 4.1+ and Jupyter Notebook 7.1+'
-      );
-      return;
-    }
-
-    const completionHandler = new CompletionWebsocketHandler();
-    const provider = new JaiInlineProvider({
-      completionHandler,
-      languageRegistry
-    });
-
-    await completionHandler.initialize();
-    completionManager.registerInlineProvider(provider);
-
-    const findCurrentLanguage = (): IEditorLanguage | null => {
-      const widget = app.shell.currentWidget;
-      const editor = getEditor(widget);
-      if (!editor) {
+export const completionPlugin: JupyterFrontEndPlugin<IJaiCompletionProvider | null> =
+  {
+    id: 'jupyter_ai:inline-completions',
+    autoStart: true,
+    requires: [
+      ICompletionProviderManager,
+      IEditorLanguageRegistry,
+      ISettingRegistry
+    ],
+    optional: [IJaiStatusItem],
+    provides: IJaiCompletionProvider,
+    activate: async (
+      app: JupyterFrontEnd,
+      completionManager: ICompletionProviderManager,
+      languageRegistry: IEditorLanguageRegistry,
+      settingRegistry: ISettingRegistry,
+      statusItem: IJaiStatusItem | null
+    ): Promise<IJaiCompletionProvider | null> => {
+      if (typeof completionManager.registerInlineProvider === 'undefined') {
+        // Gracefully short-circuit on JupyterLab 4.0 and Notebook 7.0
+        console.warn(
+          'Inline completions are only supported in JupyterLab 4.1+ and Jupyter Notebook 7.1+'
+        );
         return null;
       }
-      return languageRegistry.findByMIME(editor.model.mimeType);
-    };
 
-    // ic := inline completion
-    async function getIcSettings() {
-      return (await settingRegistry.load(
-        INLINE_COMPLETER_PLUGIN
-      )) as IcPluginSettings;
-    }
+      const completionHandler = new CompletionWebsocketHandler();
+      const provider = new JaiInlineProvider({
+        completionHandler,
+        languageRegistry
+      });
 
-    /**
-     * Gets the composite settings for the Jupyter AI inline completion provider
-     * (JaiIcp).
-     *
-     * This reads from the `ISettings.composite` property, which merges the user
-     * settings with the provider defaults, defined in
-     * `JaiInlineProvider.DEFAULT_SETTINGS`.
-     */
-    async function getJaiIcpSettings() {
-      const icSettings = await getIcSettings();
-      return icSettings.composite.providers[JaiInlineProvider.ID];
-    }
+      await completionHandler.initialize();
+      completionManager.registerInlineProvider(provider);
 
-    /**
-     * Updates the JaiIcp user settings.
-     */
-    async function updateJaiIcpSettings(
-      newJaiIcpSettings: Partial<JaiInlineProvider.ISettings>
-    ) {
-      const icSettings = await getIcSettings();
-      const oldUserIcpSettings = icSettings.user.providers;
-      const newUserIcpSettings = {
-        ...oldUserIcpSettings,
-        [JaiInlineProvider.ID]: {
-          ...oldUserIcpSettings?.[JaiInlineProvider.ID],
-          ...newJaiIcpSettings
+      const findCurrentLanguage = (): IEditorLanguage | null => {
+        const widget = app.shell.currentWidget;
+        const editor = getEditor(widget);
+        if (!editor) {
+          return null;
         }
+        return languageRegistry.findByMIME(editor.model.mimeType);
       };
-      icSettings.set('providers', newUserIcpSettings);
-    }
 
-    app.commands.addCommand(CommandIDs.toggleCompletions, {
-      execute: async () => {
-        const jaiIcpSettings = await getJaiIcpSettings();
-        updateJaiIcpSettings({
-          enabled: !jaiIcpSettings.enabled
-        });
-      },
-      label: 'Enable completions by Jupyternaut',
-      isToggled: () => {
-        return provider.isEnabled();
+      // ic := inline completion
+      async function getIcSettings() {
+        return (await settingRegistry.load(
+          INLINE_COMPLETER_PLUGIN
+        )) as IcPluginSettings;
       }
-    });
 
-    app.commands.addCommand(CommandIDs.toggleLanguageCompletions, {
-      execute: async () => {
-        const jaiIcpSettings = await getJaiIcpSettings();
-        const language = findCurrentLanguage();
-        if (!language) {
-          return;
-        }
-
-        const disabledLanguages = [...jaiIcpSettings.disabledLanguages];
-        const newDisabledLanguages = disabledLanguages.includes(language.name)
-          ? disabledLanguages.filter(l => l !== language.name)
-          : disabledLanguages.concat(language.name);
-
-        updateJaiIcpSettings({
-          disabledLanguages: newDisabledLanguages
-        });
-      },
-      label: () => {
-        const language = findCurrentLanguage();
-        return language
-          ? `Disable completions in ${displayName(language)}`
-          : 'Disable completions in <language> files';
-      },
-      isToggled: () => {
-        const language = findCurrentLanguage();
-        return !!language && !provider.isLanguageEnabled(language.name);
-      },
-      isVisible: () => {
-        const language = findCurrentLanguage();
-        return !!language;
-      },
-      isEnabled: () => {
-        const language = findCurrentLanguage();
-        return !!language && provider.isEnabled();
+      /**
+       * Gets the composite settings for the Jupyter AI inline completion provider
+       * (JaiIcp).
+       *
+       * This reads from the `ISettings.composite` property, which merges the user
+       * settings with the provider defaults, defined in
+       * `JaiInlineProvider.DEFAULT_SETTINGS`.
+       */
+      async function getJaiIcpSettings() {
+        const icSettings = await getIcSettings();
+        return icSettings.composite.providers[JaiInlineProvider.ID];
       }
-    });
 
-    let settingsWidget: MainAreaWidget | null = null;
-    const newSettingsWidget = () => {
-      const content = new ModelSettingsWidget({
-        rmRegistry,
-        isProviderEnabled: () => provider.isEnabled(),
-        openInlineCompleterSettings: () => {
-          app.commands.execute('settingeditor:open', {
-            query: 'Inline Completer'
+      /**
+       * Updates the JaiIcp user settings.
+       */
+      async function updateJaiIcpSettings(
+        newJaiIcpSettings: Partial<JaiInlineProvider.ISettings>
+      ) {
+        const icSettings = await getIcSettings();
+        const oldUserIcpSettings = icSettings.user.providers;
+        const newUserIcpSettings = {
+          ...oldUserIcpSettings,
+          [JaiInlineProvider.ID]: {
+            ...oldUserIcpSettings?.[JaiInlineProvider.ID],
+            ...newJaiIcpSettings
+          }
+        };
+        icSettings.set('providers', newUserIcpSettings);
+      }
+
+      app.commands.addCommand(CommandIDs.toggleCompletions, {
+        execute: async () => {
+          const jaiIcpSettings = await getJaiIcpSettings();
+          updateJaiIcpSettings({
+            enabled: !jaiIcpSettings.enabled
           });
+        },
+        label: 'Enable completions by Jupyternaut',
+        isToggled: () => {
+          return provider.isEnabled();
         }
       });
-      const widget = new MainAreaWidget({ content });
-      widget.id = 'jupyterlab-inline-completions-model';
-      widget.title.label = 'Completer Model Settings';
-      widget.title.closable = true;
-      widget.title.icon = jupyternautIcon;
-      return widget;
-    };
-    app.commands.addCommand(CommandIDs.configureModel, {
-      execute: () => {
-        if (!settingsWidget || settingsWidget.isDisposed) {
-          settingsWidget = newSettingsWidget();
-        }
-        if (!settingsWidget.isAttached) {
-          app.shell.add(settingsWidget, 'main');
-        }
-        app.shell.activateById(settingsWidget.id);
-      },
-      label: 'Configure Jupyternaut Completions Model'
-    });
 
-    if (statusItem) {
-      statusItem.addItem({
-        command: CommandIDs.toggleCompletions,
-        rank: 1
+      app.commands.addCommand(CommandIDs.toggleLanguageCompletions, {
+        execute: async () => {
+          const jaiIcpSettings = await getJaiIcpSettings();
+          const language = findCurrentLanguage();
+          if (!language) {
+            return;
+          }
+
+          const disabledLanguages = [...jaiIcpSettings.disabledLanguages];
+          const newDisabledLanguages = disabledLanguages.includes(language.name)
+            ? disabledLanguages.filter(l => l !== language.name)
+            : disabledLanguages.concat(language.name);
+
+          updateJaiIcpSettings({
+            disabledLanguages: newDisabledLanguages
+          });
+        },
+        label: () => {
+          const language = findCurrentLanguage();
+          return language
+            ? `Disable completions in ${displayName(language)}`
+            : 'Disable completions in <language> files';
+        },
+        isToggled: () => {
+          const language = findCurrentLanguage();
+          return !!language && !provider.isLanguageEnabled(language.name);
+        },
+        isVisible: () => {
+          const language = findCurrentLanguage();
+          return !!language;
+        },
+        isEnabled: () => {
+          const language = findCurrentLanguage();
+          return !!language && provider.isEnabled();
+        }
       });
-      statusItem.addItem({
-        command: CommandIDs.toggleLanguageCompletions,
-        rank: 2
-      });
-      statusItem.addItem({
-        command: CommandIDs.configureModel,
-        rank: 3
-      });
+
+      if (statusItem) {
+        statusItem.addItem({
+          command: CommandIDs.toggleCompletions,
+          rank: 1
+        });
+        statusItem.addItem({
+          command: CommandIDs.toggleLanguageCompletions,
+          rank: 2
+        });
+      }
+      return provider;
     }
-  }
-};
+  };

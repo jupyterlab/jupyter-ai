@@ -18,6 +18,7 @@ import {
 import { SelectionWatcher } from '../selection-watcher';
 import { ChatHandler } from '../chat_handler';
 import { CollaboratorsContextProvider } from '../contexts/collaborators-context';
+import { IJaiCompletionProvider } from '../tokens';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { ScrollContainer } from './scroll-container';
 
@@ -185,6 +186,8 @@ export type ChatProps = {
   themeManager: IThemeManager | null;
   rmRegistry: IRenderMimeRegistry;
   chatView?: ChatView;
+  completionProvider: IJaiCompletionProvider | null;
+  openInlineCompleterSettings: () => void;
 };
 
 enum ChatView {
@@ -237,7 +240,11 @@ export function Chat(props: ChatProps): JSX.Element {
               />
             )}
             {view === ChatView.Settings && (
-              <ChatSettings rmRegistry={props.rmRegistry} />
+              <ChatSettings
+                rmRegistry={props.rmRegistry}
+                completionProvider={props.completionProvider}
+                openInlineCompleterSettings={props.openInlineCompleterSettings}
+              />
             )}
           </Box>
         </CollaboratorsContextProvider>

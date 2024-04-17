@@ -7,6 +7,7 @@ import { Chat } from '../components/chat';
 import { chatIcon } from '../icons';
 import { SelectionWatcher } from '../selection-watcher';
 import { ChatHandler } from '../chat_handler';
+import { IJaiCompletionProvider } from '../tokens';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 
 export function buildChatSidebar(
@@ -14,7 +15,9 @@ export function buildChatSidebar(
   chatHandler: ChatHandler,
   globalAwareness: Awareness | null,
   themeManager: IThemeManager | null,
-  rmRegistry: IRenderMimeRegistry
+  rmRegistry: IRenderMimeRegistry,
+  completionProvider: IJaiCompletionProvider | null,
+  openInlineCompleterSettings: () => void
 ): ReactWidget {
   const ChatWidget = ReactWidget.create(
     <Chat
@@ -23,6 +26,8 @@ export function buildChatSidebar(
       globalAwareness={globalAwareness}
       themeManager={themeManager}
       rmRegistry={rmRegistry}
+      completionProvider={completionProvider}
+      openInlineCompleterSettings={openInlineCompleterSettings}
     />
   );
   ChatWidget.id = 'jupyter-ai::chat';
