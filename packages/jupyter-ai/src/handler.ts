@@ -118,7 +118,6 @@ export namespace AiService {
     fields: Record<string, Record<string, any>>;
     last_read: number;
     completions_model_provider_id: string | null;
-    completions_embeddings_provider_id: string | null;
   };
 
   export type UpdateConfigRequest = {
@@ -129,7 +128,6 @@ export namespace AiService {
     fields?: Record<string, Record<string, any>>;
     last_read?: number;
     completions_model_provider_id?: string | null;
-    completions_embeddings_provider_id?: string | null;
     completions_fields?: Record<string, Record<string, any>>;
   };
 

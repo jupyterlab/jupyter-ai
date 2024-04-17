@@ -124,7 +124,6 @@ class DescribeConfigResponse(BaseModel):
     # passed to the subsequent UpdateConfig request.
     last_read: int
     completions_model_provider_id: Optional[str]
-    completions_embeddings_provider_id: Optional[str]
     completions_fields: Dict[str, Dict[str, Any]]
 
 
@@ -143,7 +142,6 @@ class UpdateConfigRequest(BaseModel):
     # time specified by `last_read` to prevent write-write conflicts.
     last_read: Optional[int]
     completions_model_provider_id: Optional[str]
-    completions_embeddings_provider_id: Optional[str]
     completions_fields: Optional[Dict[str, Dict[str, Any]]]
 
     _validate_send_wse = validator("send_with_shift_enter", allow_reuse=True)(
@@ -163,5 +161,4 @@ class GlobalConfig(BaseModel):
     fields: Dict[str, Dict[str, Any]]
     api_keys: Dict[str, str]
     completions_model_provider_id: Optional[str]
-    completions_embeddings_provider_id: Optional[str]
     completions_fields: Dict[str, Dict[str, Any]]

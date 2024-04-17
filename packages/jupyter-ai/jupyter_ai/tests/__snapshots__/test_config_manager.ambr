@@ -3,7 +3,6 @@
   dict({
     'api_keys': list([
     ]),
-    'completions_embeddings_provider_id': None,
     'completions_fields': dict({
     }),
     'completions_model_provider_id': None,

@@ -100,7 +100,6 @@ class ConfigManager(Configurable):
     model_provider_id: Optional[str]
     embeddings_provider_id: Optional[str]
     completions_model_provider_id: Optional[str]
-    completions_embeddings_provider_id: Optional[str]
 
     def __init__(
         self,
@@ -177,10 +176,7 @@ class ConfigManager(Configurable):
 
     def _validate_lm_em_id(self, config):
         lm_provider_keys = ["model_provider_id", "completions_model_provider_id"]
-        em_provider_keys = [
-            "embeddings_provider_id",
-            "completions_embeddings_provider_id",
-        ]
+        em_provider_keys = ["embeddings_provider_id"]
 
         # if the currently selected language or embedding model are
         # forbidden, set them to `None` and log a warning.
@@ -352,7 +348,6 @@ class ConfigManager(Configurable):
             self.lm_provider,
             self.em_provider,
             self.completions_lm_provider,
-            self.completions_em_provider,
         ]:
             if (
                 provider
@@ -417,12 +412,6 @@ class ConfigManager(Configurable):
     def completions_lm_provider(self):
         return self._get_provider("completions_model_provider_id", self._lm_providers)
 
-    @property
-    def completions_em_provider(self):
-        return self._get_provider(
-            "completions_embeddings_provider_id", self._em_providers
-        )
-
     def _get_provider(self, key, listing):
         config = self._read_config()
         gid = getattr(config, key)
@@ -444,12 +433,6 @@ class ConfigManager(Configurable):
     def completions_lm_provider_params(self):
         return self._provider_params(
             "completions_model_provider_id", self._lm_providers
-        )
-
-    @property
-    def completions_em_provider_params(self):
-        return self._provider_params(
-            "completions_embeddings_provider_id", self._em_providers
         )
 
     def _provider_params(self, key, listing):
