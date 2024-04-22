@@ -1,9 +1,14 @@
 import json
 from types import SimpleNamespace
+from typing import Union
 
 import pytest
 from jupyter_ai.completions.handlers.default import DefaultInlineCompletionHandler
-from jupyter_ai.completions.models import InlineCompletionRequest
+from jupyter_ai.completions.models import (
+    InlineCompletionReply,
+    InlineCompletionRequest,
+    InlineCompletionStreamChunk,
+)
 from jupyter_ai_magics import BaseProvider
 from langchain_community.llms import FakeListLLM
 from pytest import fixture
@@ -18,28 +23,31 @@ class MockProvider(BaseProvider, FakeListLLM):
     models = ["model"]
 
     def __init__(self, **kwargs):
-        if not "responses" in kwargs:
+        if "responses" not in kwargs:
             kwargs["responses"] = ["Test response"]
         super().__init__(**kwargs)
 
 
 class MockCompletionHandler(DefaultInlineCompletionHandler):
-    def __init__(self):
+    def __init__(self, lm_provider=None, lm_provider_params=None):
         self.request = HTTPServerRequest()
         self.application = Application()
         self.messages = []
         self.tasks = []
         self.settings["jai_config_manager"] = SimpleNamespace(
-            lm_provider=MockProvider, lm_provider_params={"model_id": "model"}
+            lm_provider=lm_provider or MockProvider,
+            lm_provider_params=lm_provider_params or {"model_id": "model"},
         )
         self.settings["jai_event_loop"] = SimpleNamespace(
             create_task=lambda x: self.tasks.append(x)
         )
         self.settings["model_parameters"] = {}
-        self.llm_params = {"model_id": "model"}
-        self.create_llm_chain(MockProvider, {"model_id": "model"})
+        self._llm_params = {}
+        self._llm = None
 
-    def write_message(self, message: str) -> None:  # type: ignore
+    def reply(
+        self, message: Union[InlineCompletionReply, InlineCompletionStreamChunk]
+    ) -> None:
         self.messages.append(message)
 
     async def handle_exc(self, e: Exception, _request: InlineCompletionRequest):
@@ -99,10 +107,9 @@ async def test_handle_request(inline_handler):
     ],
 )
 async def test_handle_request_with_spurious_fragments(response, expected_suggestion):
-    inline_handler = MockCompletionHandler()
-    inline_handler.create_llm_chain(
-        MockProvider,
-        {
+    inline_handler = MockCompletionHandler(
+        lm_provider=MockProvider,
+        lm_provider_params={
             "model_id": "model",
             "responses": [response],
         },
@@ -121,10 +128,10 @@ async def test_handle_request_with_spurious_fragments(response, expected_suggest
     assert suggestions[0].insertText == expected_suggestion
 
 
-async def test_handle_stream_request(inline_handler):
-    inline_handler.create_llm_chain(
-        MockProvider,
-        {
+async def test_handle_stream_request():
+    inline_handler = MockCompletionHandler(
+        lm_provider=MockProvider,
+        lm_provider_params={
             "model_id": "model",
             "responses": ["test"],
         },
@@ -140,16 +147,16 @@ async def test_handle_stream_request(inline_handler):
     # first reply should be empty to start the stream
     first = inline_handler.messages[0].list.items[0]
     assert first.insertText == ""
-    assert first.isIncomplete == True
+    assert first.isIncomplete is True
 
     # second reply should be a chunk containing the token
     second = inline_handler.messages[1]
     assert second.type == "stream"
     assert second.response.insertText == "test"
-    assert second.done == False
+    assert second.done is False
 
     # third reply should be a closing chunk
     third = inline_handler.messages[2]
     assert third.type == "stream"
     assert third.response.insertText == "test"
-    assert third.done == True
+    assert third.done is True

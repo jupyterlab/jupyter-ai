@@ -2,7 +2,7 @@ import json
 import time
 import traceback
 from asyncio import AbstractEventLoop
-from typing import Any, AsyncIterator, Dict, Union
+from typing import Union
 
 import tornado
 from jupyter_ai.completions.handlers.llm_mixin import LLMHandlerMixin
@@ -14,7 +14,7 @@ from jupyter_ai.completions.models import (
     InlineCompletionStreamChunk,
 )
 from jupyter_server.base.handlers import JupyterHandler
-from langchain.pydantic_v1 import BaseModel, ValidationError
+from langchain.pydantic_v1 import ValidationError
 
 
 class BaseInlineCompletionHandler(
@@ -27,12 +27,10 @@ class BaseInlineCompletionHandler(
     ##
     # Interface for subclasses
     ##
-    async def handle_request(
-        self, message: InlineCompletionRequest
-    ) -> InlineCompletionReply:
+    async def handle_request(self, message: InlineCompletionRequest) -> None:
         """
         Handles an inline completion request, without streaming. Subclasses
-        must define this method and write a reply via `self.write_message()`.
+        must define this method and write a reply via `self.reply()`.
 
         The method definition does not need to be wrapped in a try/except block.
         """
@@ -40,14 +38,11 @@ class BaseInlineCompletionHandler(
             "The required method `self.handle_request()` is not defined by this subclass."
         )
 
-    async def handle_stream_request(
-        self, message: InlineCompletionRequest
-    ) -> AsyncIterator[InlineCompletionStreamChunk]:
+    async def handle_stream_request(self, message: InlineCompletionRequest) -> None:
         """
         Handles an inline completion request, **with streaming**.
         Implementations may optionally define this method. Implementations that
-        do so should stream replies via successive calls to
-        `self.write_message()`.
+        do so should stream replies via successive calls to `self.reply()`.
 
         The method definition does not need to be wrapped in a try/except block.
         """
@@ -64,14 +59,9 @@ class BaseInlineCompletionHandler(
     def loop(self) -> AbstractEventLoop:
         return self.settings["jai_event_loop"]
 
-    def write_message(self, message: Union[bytes, str, Dict[str, Any], BaseModel]):
-        """
-        Write a bytes, string, dict, or Pydantic model object to the WebSocket
-        connection. The base definition of this method is provided by Tornado.
-        """
-        if isinstance(message, BaseModel):
-            message = message.dict()
-
+    def reply(self, reply: Union[InlineCompletionReply, InlineCompletionStreamChunk]):
+        """Write a reply object to the WebSocket connection."""
+        message = reply.dict()
         super().write_message(message)
 
     def initialize(self):
@@ -144,7 +134,7 @@ class BaseInlineCompletionHandler(
             title=e.args[0] if e.args else "Exception",
             traceback=traceback.format_exc(),
         )
-        self.write_message(
+        self.reply(
             InlineCompletionReply(
                 list=InlineCompletionList(items=[]),
                 error=error,
