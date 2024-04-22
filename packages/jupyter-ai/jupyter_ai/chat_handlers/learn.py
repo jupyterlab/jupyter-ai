@@ -67,17 +67,23 @@ class LearnChatHandler(BaseChatHandler):
 
     def _load(self):
         """Loads the vector store."""
-        embeddings = self.get_embedding_model()
-        if not embeddings:
+        if self.index is not None:
             return
-        if self.index is None:
-            try:
-                self.index = FAISS.load_local(
-                    INDEX_SAVE_DIR, embeddings, index_name=self.index_name
-                )
-                self.load_metadata()
-            except Exception as e:
-                self.log.error("Could not load vector index from disk.")
+
+        try:
+            embeddings = self.get_embedding_model()
+            if not embeddings:
+                return
+
+            self.index = FAISS.load_local(
+                INDEX_SAVE_DIR, embeddings, index_name=self.index_name
+            )
+            self.load_metadata()
+        except Exception as e:
+            self.log.error(
+                "Could not load vector index from disk. Full exception details printed below."
+            )
+            self.log.error(e)
 
     async def process_message(self, message: HumanChatMessage):
         # If no embedding provider has been selected
