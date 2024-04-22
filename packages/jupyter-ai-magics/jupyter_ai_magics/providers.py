@@ -58,7 +58,7 @@ try:
 except:
     from pydantic.main import ModelMetaclass
 
-from . import _completion as completion
+from . import completion_utils as completion
 from .models.completion import (
     InlineCompletionList,
     InlineCompletionReply,
