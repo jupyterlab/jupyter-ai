@@ -150,6 +150,84 @@ my-provider = "my_provider:MyEmbeddingsProvider"
 
 [Embeddings]: https://api.python.langchain.com/en/stable/embeddings/langchain_core.embeddings.Embeddings.html
 
+
+### Custom completion providers
+
+Any model provider derived from `BaseProvider` can be used as a completion provider.
+However, some providers may benefit from customizing handling of completion requests.
+
+There are two asynchronous methods which can be overridden in subclasses of `BaseProvider`:
+- `generate_inline_completions`: takes a request (`InlineCompletionRequest`) and returns `InlineCompletionReply`
+- `stream_inline_completions`: takes a request and yields an initiating reply (`InlineCompletionReply`) with `isIncomplete` set to `True` followed by subsequent chunks (`InlineCompletionStreamChunk`)
+
+When streaming all replies and chunks for given invocation of the `stream_inline_completions()` method should include a constant and unique string token identifying the stream. All chunks except for the last chunk for a given item should have the `done` value set to `False`.
+
+The following example demonstrates a custom implementation of the completion provider with both a method for sending multiple completions in one go, and streaming multiple completions concurrently.
+The implementation and explanation for the `merge_iterators` function used in this example can be found [here](https://stackoverflow.com/q/72445371/4877269).
+
+```python
+class MyCompletionProvider(BaseProvider, FakeListLLM):
+    id = "my_provider"
+    name = "My Provider"
+    model_id_key = "model"
+    models = ["model_a"]
+
+    def __init__(self, **kwargs):
+        kwargs["responses"] = ["This fake response will not be used for completion"]
+        super().__init__(**kwargs)
+
+    async def generate_inline_completions(self, request: InlineCompletionRequest):
+        return InlineCompletionReply(
+            list=InlineCompletionList(items=[
+                {"insertText": "An ant minding its own business"},
+                {"insertText": "A bug searching for a snack"}
+            ]),
+            reply_to=request.number,
+        )
+
+    async def stream_inline_completions(self, request: InlineCompletionRequest):
+        token_1 = f"t{request.number}s0"
+        token_2 = f"t{request.number}s1"
+
+        yield InlineCompletionReply(
+            list=InlineCompletionList(
+                items=[
+                    {"insertText": "An ", "isIncomplete": True, "token": token_1},
+                    {"insertText": "", "isIncomplete": True, "token": token_2}
+                ]
+            ),
+            reply_to=request.number,
+        )
+
+        # where merge_iterators
+        async for reply in merge_iterators([
+            self._stream("elephant dancing in the rain", request.number, token_1, start_with="An"),
+            self._stream("A flock of birds flying around a mountain", request.number, token_2)
+        ]):
+            yield reply
+
+    async def _stream(self, sentence, request_number, token, start_with = ""):
+        suggestion = start_with
+
+        for fragment in sentence.split():
+            await asyncio.sleep(0.75)
+            suggestion += " " + fragment
+            yield InlineCompletionStreamChunk(
+                type="stream",
+                response={"insertText": suggestion, "token": token},
+                reply_to=request_number,
+                done=False
+            )
+
+        # finally, send a message confirming that we are done
+        yield InlineCompletionStreamChunk(
+            type="stream",
+            response={"insertText": suggestion, "token": token},
+            reply_to=request_number,
+            done=True,
+        )
+```
+
 ## Prompt templates
 
 Each provider can define **prompt templates** for each supported format. A prompt

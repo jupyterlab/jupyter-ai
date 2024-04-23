@@ -5,7 +5,17 @@ import functools
 import io
 import json
 from concurrent.futures import ThreadPoolExecutor
-from typing import Any, ClassVar, Coroutine, Dict, List, Literal, Optional, Union
+from typing import (
+    Any,
+    AsyncIterator,
+    ClassVar,
+    Coroutine,
+    Dict,
+    List,
+    Literal,
+    Optional,
+    Union,
+)
 
 from jsonpath_ng import parse
 from langchain.chat_models.base import BaseChatModel
@@ -20,6 +30,8 @@ from langchain.prompts import (
 )
 from langchain.pydantic_v1 import BaseModel, Extra, root_validator
 from langchain.schema import LLMResult
+from langchain.schema.output_parser import StrOutputParser
+from langchain.schema.runnable import Runnable
 from langchain.utils import get_from_dict_or_env
 from langchain_community.chat_models import (
     BedrockChat,
@@ -46,6 +58,13 @@ try:
 except:
     from pydantic.main import ModelMetaclass
 
+from . import completion_utils as completion
+from .models.completion import (
+    InlineCompletionList,
+    InlineCompletionReply,
+    InlineCompletionRequest,
+    InlineCompletionStreamChunk,
+)
 from .models.persona import Persona
 
 CHAT_SYSTEM_PROMPT = """
@@ -394,6 +413,71 @@ class BaseProvider(BaseModel, metaclass=ProviderMetaclass):
     @property
     def allows_concurrency(self):
         return True
+
+    async def generate_inline_completions(
+        self, request: InlineCompletionRequest
+    ) -> InlineCompletionReply:
+        chain = self._create_completion_chain()
+        model_arguments = completion.template_inputs_from_request(request)
+        suggestion = await chain.ainvoke(input=model_arguments)
+        suggestion = completion.post_process_suggestion(suggestion, request)
+        return InlineCompletionReply(
+            list=InlineCompletionList(items=[{"insertText": suggestion}]),
+            reply_to=request.number,
+        )
+
+    async def stream_inline_completions(
+        self, request: InlineCompletionRequest
+    ) -> AsyncIterator[InlineCompletionStreamChunk]:
+        chain = self._create_completion_chain()
+        token = completion.token_from_request(request, 0)
+        model_arguments = completion.template_inputs_from_request(request)
+        suggestion = ""
+
+        # send an incomplete `InlineCompletionReply`, indicating to the
+        # client that LLM output is about to streamed across this connection.
+        yield InlineCompletionReply(
+            list=InlineCompletionList(
+                items=[
+                    {
+                        # insert text starts empty as we do not pre-generate any part
+                        "insertText": "",
+                        "isIncomplete": True,
+                        "token": token,
+                    }
+                ]
+            ),
+            reply_to=request.number,
+        )
+
+        async for fragment in chain.astream(input=model_arguments):
+            suggestion += fragment
+            if suggestion.startswith("```"):
+                if "\n" not in suggestion:
+                    # we are not ready to apply post-processing
+                    continue
+                else:
+                    suggestion = completion.post_process_suggestion(suggestion, request)
+            elif suggestion.rstrip().endswith("```"):
+                suggestion = completion.post_process_suggestion(suggestion, request)
+            yield InlineCompletionStreamChunk(
+                type="stream",
+                response={"insertText": suggestion, "token": token},
+                reply_to=request.number,
+                done=False,
+            )
+
+        # finally, send a message confirming that we are done
+        yield InlineCompletionStreamChunk(
+            type="stream",
+            response={"insertText": suggestion, "token": token},
+            reply_to=request.number,
+            done=True,
+        )
+
+    def _create_completion_chain(self) -> Runnable:
+        prompt_template = self.get_completion_prompt_template()
+        return prompt_template | self | StrOutputParser()
 
 
 class AI21Provider(BaseProvider, AI21):

@@ -1,4 +1,5 @@
-from typing import Any, Dict, Type
+from logging import Logger
+from typing import Any, Dict, Optional, Type
 
 from jupyter_ai.config_manager import ConfigManager
 from jupyter_ai_magics.providers import BaseProvider
@@ -7,34 +8,32 @@ from jupyter_ai_magics.providers import BaseProvider
 class LLMHandlerMixin:
     """Base class containing shared methods and attributes used by LLM handler classes."""
 
-    # This could be used to derive `BaseChatHandler` too (there is a lot of duplication!),
-    # but it was decided against it to avoid introducing conflicts for backports against 1.x
-
     handler_kind: str
+    settings: dict
+    log: Logger
 
     @property
-    def config_manager(self) -> ConfigManager:
+    def jai_config_manager(self) -> ConfigManager:
         return self.settings["jai_config_manager"]
 
     @property
     def model_parameters(self) -> Dict[str, Dict[str, Any]]:
         return self.settings["model_parameters"]
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self.llm = None
-        self.llm_params = None
-        self.llm_chain = None
+        self._llm: Optional[BaseProvider] = None
+        self._llm_params = None
 
-    def get_llm_chain(self):
-        lm_provider = self.config_manager.lm_provider
-        lm_provider_params = self.config_manager.lm_provider_params
+    def get_llm(self) -> Optional[BaseProvider]:
+        lm_provider = self.jai_config_manager.lm_provider
+        lm_provider_params = self.jai_config_manager.lm_provider_params
 
         if not lm_provider or not lm_provider_params:
             return None
 
         curr_lm_id = (
-            f'{self.llm.id}:{lm_provider_params["model_id"]}' if self.llm else None
+            f'{self._llm.id}:{lm_provider_params["model_id"]}' if self._llm else None
         )
         next_lm_id = (
             f'{lm_provider.id}:{lm_provider_params["model_id"]}'
@@ -42,19 +41,23 @@ class LLMHandlerMixin:
             else None
         )
 
+        should_recreate_llm = False
         if curr_lm_id != next_lm_id:
             self.log.info(
                 f"Switching {self.handler_kind} language model from {curr_lm_id} to {next_lm_id}."
             )
-            self.create_llm_chain(lm_provider, lm_provider_params)
-        elif self.llm_params != lm_provider_params:
+            should_recreate_llm = True
+        elif self._llm_params != lm_provider_params:
             self.log.info(
                 f"{self.handler_kind} model params changed, updating the llm chain."
             )
-            self.create_llm_chain(lm_provider, lm_provider_params)
+            should_recreate_llm = True
 
-        self.llm_params = lm_provider_params
-        return self.llm_chain
+        if should_recreate_llm:
+            self._llm = self.create_llm(lm_provider, lm_provider_params)
+            self._llm_params = lm_provider_params
+
+        return self._llm
 
     def get_model_parameters(
         self, provider: Type[BaseProvider], provider_params: Dict[str, str]
@@ -63,7 +66,13 @@ class LLMHandlerMixin:
             f"{provider.id}:{provider_params['model_id']}", {}
         )
 
-    def create_llm_chain(
+    def create_llm(
         self, provider: Type[BaseProvider], provider_params: Dict[str, str]
-    ):
-        raise NotImplementedError("Should be implemented by subclasses")
+    ) -> BaseProvider:
+        unified_parameters = {
+            **provider_params,
+            **(self.get_model_parameters(provider, provider_params)),
+        }
+        llm = provider(**unified_parameters)
+
+        return llm
