@@ -4,7 +4,7 @@ import os
 from typing import Any, Coroutine, List, Optional, Tuple
 
 from dask.distributed import Client as DaskClient
-from jupyter_ai.document_loaders.directory import get_embeddings, split, arxiv_to_text
+from jupyter_ai.document_loaders.directory import arxiv_to_text, get_embeddings, split
 from jupyter_ai.document_loaders.splitter import ExtensionSplitter, NotebookSplitter
 from jupyter_ai.models import (
     DEFAULT_CHUNK_OVERLAP,
@@ -45,7 +45,7 @@ class LearnChatHandler(BaseChatHandler):
         self.parser.add_argument("-d", "--delete", action="store_true")
         self.parser.add_argument("-l", "--list", action="store_true")
         self.parser.add_argument(
-            "-r", "--remote", action="store" , default=None, type=str
+            "-r", "--remote", action="store", default=None, type=str
         )
         self.parser.add_argument(
             "-c", "--chunk-size", action="store", default=DEFAULT_CHUNK_SIZE, type=int
@@ -112,13 +112,20 @@ class LearnChatHandler(BaseChatHandler):
 
         if args.remote:
             remote_type = args.remote.lower()
-            if remote_type=="arxiv":
+            if remote_type == "arxiv":
                 try:
                     id = args.path[0]
-                    args.path = [arxiv_to_text(id)] # call the function in `directory.py``
-                    self.reply(f"Processing arxiv file id {id}, saved in {args.path[0]}.", message)
+                    args.path = [
+                        arxiv_to_text(id)
+                    ]  # call the function in `directory.py``
+                    self.reply(
+                        f"Processing arxiv file id {id}, saved in {args.path[0]}.",
+                        message,
+                    )
                 except Exception as e:
-                    self.reply(f"""The arXiv file could not be processed. Check the paper ID ({id}). Or, verify that the `arxiv` package is installed.""")
+                    self.reply(
+                        f"""The arXiv file could not be processed. Check the paper ID ({id}). Or, verify that the `arxiv` package is installed."""
+                    )
                     return
 
         # Make sure the path exists.
