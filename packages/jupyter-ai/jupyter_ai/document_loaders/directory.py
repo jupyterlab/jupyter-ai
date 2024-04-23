@@ -1,46 +1,47 @@
 import hashlib
 import itertools
 import os
+import shutil
+import tarfile
 from pathlib import Path
 from typing import List
 
 import dask
-from langchain.document_loaders import PyPDFLoader, ArxivLoader
+from langchain.document_loaders import ArxivLoader, PyPDFLoader
 from langchain.schema import Document
 from langchain.text_splitter import TextSplitter
 
-import tarfile
-import shutil 
-    
-# Download a single tar file from arXiv and store in a temp folder for RAG, then run learn on it. 
+# Download a single tar file from arXiv and store in a temp folder for RAG, then run learn on it.
 try:
     import arxiv
 except Exception as e:
     print("Missing package: arxiv")
 
-def arxiv_to_text(id): # id is numbers after "arXiv" in arXiv:xxxx.xxxxx
+
+def arxiv_to_text(id):  # id is numbers after "arXiv" in arXiv:xxxx.xxxxx
     # Get the paper from arxiv
     outfile = id + ".tex"
     temp_dir = "downloads_temp"
     if not os.path.isdir(temp_dir):
-        os.mkdir(temp_dir) 
+        os.mkdir(temp_dir)
     client = arxiv.Client()
     paper = next(arxiv.Client().results(arxiv.Search(id_list=[id])))
-    paper.download_source(dirpath=temp_dir, filename="downloaded-paper.tar.gz")     
+    paper.download_source(dirpath=temp_dir, filename="downloaded-paper.tar.gz")
     # Extract downloaded tar file
-    tar = tarfile.open(temp_dir+"/downloaded-paper.tar.gz")
+    tar = tarfile.open(temp_dir + "/downloaded-paper.tar.gz")
     tar.extractall(temp_dir)
     tar.close()
     tex_list = os.listdir(temp_dir)
-    tex_list = [j for j in tex_list if j.lower().endswith('.tex')]
-    with open(outfile,'wb') as wfd:
+    tex_list = [j for j in tex_list if j.lower().endswith(".tex")]
+    with open(outfile, "wb") as wfd:
         for f in tex_list:
-            with open(temp_dir+"/"+f,'rb') as fd:
-                shutil.copyfileobj(fd, wfd)       
+            with open(temp_dir + "/" + f, "rb") as fd:
+                shutil.copyfileobj(fd, wfd)
 
     outfile_path = os.path.realpath(outfile)
-    shutil.rmtree(temp_dir) # Delete the temp folder but not the downloaded latex files
+    shutil.rmtree(temp_dir)  # Delete the temp folder but not the downloaded latex files
     return outfile_path
+
 
 # Uses pypdf which is used by PyPDFLoader from langchain
 def pdf_to_text(path):
