@@ -9,6 +9,14 @@
 #
 # [1]: https://github.com/lerna/lerna/issues/2369
 
+# Jupyter Releaser runs this script once per package in the monorepo, but we
+# should only run this script once in `packages/jupyter-ai`.
+if [[ "$PWD" != *packages/jupyter-ai ]]; then
+    echo "Skipping this dir as this script should only be run from 'packages/jupyter-ai'."
+    echo "CWD: $PWD"
+    exit 0
+fi
+
 (npx -p lerna@6.4.1 -y lerna version \
     --no-git-tag-version \
     --no-push \
@@ -17,12 +25,10 @@
     "$1" \
 ) || exit 1
 
-if [[ "$PWD" == *packages/jupyter-ai ]]; then
-    version=$(cat package.json | jq -r '.version')
-    # bump dependency in jupyter-ai to rely on current version of jupyter-ai-magics
-    # -E : use extended regex to allow usage of `+` symbol
-    # -i.bak : edit file in-place, generating a backup file ending in `.bak`, which we delete on success
-    #          while confusing, this unfortunately is the only way to edit in-place on both macOS and Linux
-    #          reference: https://stackoverflow.com/a/44864004
-    sed -E -i.bak "s/jupyter_ai_magics.=[0-9]+\.[0-9]+\.[0-9]+/jupyter_ai_magics==$version/" pyproject.toml && rm pyproject.toml.bak
-fi
+version=$(cat package.json | jq -r '.version')
+# bump dependency in jupyter-ai to rely on current version of jupyter-ai-magics
+# -E : use extended regex to allow usage of `+` symbol
+# -i.bak : edit file in-place, generating a backup file ending in `.bak`, which we delete on success
+#          while confusing, this unfortunately is the only way to edit in-place on both macOS and Linux
+#          reference: https://stackoverflow.com/a/44864004
+sed -E -i.bak "s/jupyter_ai_magics.=[0-9]+\.[0-9]+\.[0-9]+/jupyter_ai_magics==$version/" pyproject.toml && rm pyproject.toml.bak
