@@ -17,6 +17,8 @@
 if [[ "$PWD" == *packages/jupyter-ai ]]; then
     # bump dependency in jupyter-ai to rely on current version of jupyter-ai-magics
     # -E : use extended regex to allow usage of `+` symbol
-    # -i '' : modify file in-place
-    sed -E -i '' "s/jupyter_ai_magics.=[0-9]+\.[0-9]+\.[0-9]+/jupyter_ai_magics==$1/" pyproject.toml
+    # -i.bak : edit file in-place, generating a backup file ending in `.bak`, which we delete on success
+    #          while confusing, this unfortunately is the only way to edit in-place on both macOS and Linux
+    #          reference: https://stackoverflow.com/a/44864004
+    sed -E -i.bak "s/jupyter_ai_magics.=[0-9]+\.[0-9]+\.[0-9]+/jupyter_ai_magics==$1/" pyproject.toml && rm pyproject.toml.bak
 fi
