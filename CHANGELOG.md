@@ -2,6 +2,30 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 1.14.0
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@1.13.0...d4dffa1af93f3fa15b7d642b112cc683f9aed2e6))
+
+### Enhancements made
+
+- Handle single files, pdfs, errors from missing loader dependencies in `/learn` [#733](https://github.com/jupyterlab/jupyter-ai/pull/733) ([@srdas](https://github.com/srdas))
+- Handle Single Files and also enable html, pdf file formats for /learn [#712](https://github.com/jupyterlab/jupyter-ai/pull/712) ([@srdas](https://github.com/srdas))
+
+### Bugs fixed
+
+- Fixes help slash command. [#729](https://github.com/jupyterlab/jupyter-ai/pull/729) ([@3coins](https://github.com/3coins))
+- Update Azure OpenAI fields [#722](https://github.com/jupyterlab/jupyter-ai/pull/722) ([@cloutier](https://github.com/cloutier))
+- Catch embedding model validation errors on extension init [#735](https://github.com/jupyterlab/jupyter-ai/pull/735) ([@dlqqq](https://github.com/dlqqq))
+- Handle Single Files and also enable html, pdf file formats for /learn [#712](https://github.com/jupyterlab/jupyter-ai/pull/712) ([@srdas](https://github.com/srdas))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-04-04&to=2024-04-25&type=c))
+
+[@3coins](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3A3coins+updated%3A2024-04-04..2024-04-25&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2024-04-04..2024-04-25&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2024-04-04..2024-04-25&type=Issues) | [@meeseeksmachine](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ameeseeksmachine+updated%3A2024-04-04..2024-04-25&type=Issues) | [@welcome](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Awelcome+updated%3A2024-04-04..2024-04-25&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 1.13.0
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@1.12.0...9f6e8630fdad11faee62ef30c31c8af4f32f6b55))
@@ -25,8 +49,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-03-11&to=2024-04-04&type=c))
 
 [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2024-03-11..2024-04-04&type=Issues) | [@lumberbot-app](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Alumberbot-app+updated%3A2024-03-11..2024-04-04&type=Issues) | [@meeseeksmachine](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ameeseeksmachine+updated%3A2024-03-11..2024-04-04&type=Issues) | [@srdas](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2024-03-11..2024-04-04&type=Issues) | [@welcome](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Awelcome+updated%3A2024-03-11..2024-04-04&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 1.12.0
 
