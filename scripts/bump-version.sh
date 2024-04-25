@@ -14,7 +14,9 @@
     "$1" \
 ) || exit 1
 
-# bump dependency in jupyter-ai to rely on current version of jupyter-ai-magics
-# -E : use extended regex to allow usage of `+` symbol
-# -i '' : modify file in-place
-sed -E -i '' "s/jupyter_ai_magics.=[0-9]+\.[0-9]+\.[0-9]+/jupyter_ai_magics==$1/" packages/jupyter-ai/pyproject.toml
+if [[ "$PWD" == *packages/jupyter-ai ]]; then
+    # bump dependency in jupyter-ai to rely on current version of jupyter-ai-magics
+    # -E : use extended regex to allow usage of `+` symbol
+    # -i '' : modify file in-place
+    sed -E -i '' "s/jupyter_ai_magics.=[0-9]+\.[0-9]+\.[0-9]+/jupyter_ai_magics==$1/" pyproject.toml
+fi
