@@ -77,9 +77,7 @@ def split(path, all_files: bool, splitter):
                     d for d in subdirs if not (d[0] == "." or d in EXCLUDE_DIRS)
                 ]
                 filenames = [f for f in filenames if not f[0] == "."]
-            filepaths += [
-                Path(os.path.join(dir, filename)) for filename in filenames
-            ]
+            filepaths += [Path(os.path.join(dir, filename)) for filename in filenames]
 
     for filepath in filepaths:
         # Lower case everything to make sure file extension comparisons are not case sensitive
