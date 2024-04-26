@@ -66,9 +66,9 @@ def split(path, all_files: bool, splitter):
 
     # Check if the path points to a single file
     if os.path.isfile(path):
-        dir = os.path.dirname(path)
-        filenames = [os.path.basename(path)]
+        filepaths = [Path(path)]
     else:
+        filepaths = []
         for dir, subdirs, filenames in os.walk(path):
             # Filter out hidden filenames, hidden directories, and excluded directories,
             # unless "all files" are requested
@@ -77,9 +77,9 @@ def split(path, all_files: bool, splitter):
                     d for d in subdirs if not (d[0] == "." or d in EXCLUDE_DIRS)
                 ]
                 filenames = [f for f in filenames if not f[0] == "."]
+            filepaths += [Path(os.path.join(dir, filename)) for filename in filenames]
 
-    for filename in filenames:
-        filepath = Path(os.path.join(dir, filename))
+    for filepath in filepaths:
         # Lower case everything to make sure file extension comparisons are not case sensitive
         if filepath.suffix.lower() not in {j.lower() for j in SUPPORTED_EXTS}:
             continue
