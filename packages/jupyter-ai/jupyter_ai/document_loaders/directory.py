@@ -1,7 +1,7 @@
 import hashlib
 import itertools
 import os
-import shutil
+# import shutil
 import tarfile
 from pathlib import Path
 from typing import List
@@ -12,34 +12,32 @@ from langchain.schema import Document
 from langchain.text_splitter import TextSplitter
 
 # Download a single tar file from arXiv and store in a temp folder for RAG, then run learn on it.
-try:
-    import arxiv
-except Exception as e:
-    print("Missing package: arxiv")
-
-
 def arxiv_to_text(id):  # id is numbers after "arXiv" in arXiv:xxxx.xxxxx
+    try:
+        import arxiv, datetime
+    except ModuleNotFoundError as e:
+        print("Missing package: arxiv, datetime")
     # Get the paper from arxiv
-    outfile = id + ".tex"
-    temp_dir = "downloads_temp"
-    if not os.path.isdir(temp_dir):
-        os.mkdir(temp_dir)
+    outfile = id + datetime.datetime.now().strftime("_%Y-%m-%d-%H-%M") + ".tex"
     client = arxiv.Client()
     paper = next(arxiv.Client().results(arxiv.Search(id_list=[id])))
-    paper.download_source(dirpath=temp_dir, filename="downloaded-paper.tar.gz")
-    # Extract downloaded tar file
-    tar = tarfile.open(temp_dir + "/downloaded-paper.tar.gz")
-    tar.extractall(temp_dir)
-    tar.close()
-    tex_list = os.listdir(temp_dir)
-    tex_list = [j for j in tex_list if j.lower().endswith(".tex")]
-    with open(outfile, "wb") as wfd:
+    paper.download_source(dirpath="", filename="downloaded-paper.tar.gz")
+    # Extract tex files from downloaded tar file
+    with tarfile.open("downloaded-paper.tar.gz") as tar:
+        tex_list = []
+        for member in tar:
+            if member.isfile() and member.name.lower().endswith(".tex"):
+                tex_list.append(member.name)
+                tar.extract(member, path="")
+    # Concatenate all tex files
+    with open(outfile, "w") as wfd:
         for f in tex_list:
-            with open(temp_dir + "/" + f, "rb") as fd:
-                shutil.copyfileobj(fd, wfd)
+            with open(f) as infile:
+                wfd.write(infile.read())
+            os.remove(f)
 
     outfile_path = os.path.realpath(outfile)
-    shutil.rmtree(temp_dir)  # Delete the temp folder but not the downloaded latex files
+    os.remove("downloaded-paper.tar.gz")
     return outfile_path
 
 
