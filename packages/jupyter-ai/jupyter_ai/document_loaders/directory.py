@@ -10,10 +10,13 @@ from langchain.document_loaders import ArxivLoader, PyPDFLoader
 from langchain.schema import Document
 from langchain.text_splitter import TextSplitter
 
+
 # Download a single tar file from arXiv and store in a temp folder for RAG, then run learn on it.
 def arxiv_to_text(id):  # id is numbers after "arXiv" in arXiv:xxxx.xxxxx
     try:
-        import arxiv, datetime
+        import datetime
+
+        import arxiv
     except ModuleNotFoundError as e:
         print("Missing package: arxiv, datetime")
     # Get the paper from arxiv
