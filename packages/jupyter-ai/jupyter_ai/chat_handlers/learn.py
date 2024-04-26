@@ -76,7 +76,10 @@ class LearnChatHandler(BaseChatHandler):
                 return
 
             self.index = FAISS.load_local(
-                INDEX_SAVE_DIR, embeddings, index_name=self.index_name
+                INDEX_SAVE_DIR,
+                embeddings,
+                index_name=self.index_name,
+                allow_dangerous_deserialization=True,
             )
             self.load_metadata()
         except Exception as e:
