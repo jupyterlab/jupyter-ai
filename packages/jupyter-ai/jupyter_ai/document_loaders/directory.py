@@ -5,9 +5,9 @@ from pathlib import Path
 from typing import List
 
 import dask
-from langchain.document_loaders import PyPDFLoader
 from langchain.schema import Document
 from langchain.text_splitter import TextSplitter
+from langchain_community.document_loaders import PyPDFLoader
 
 
 # Uses pypdf which is used by PyPDFLoader from langchain
