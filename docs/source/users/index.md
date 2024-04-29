@@ -24,6 +24,11 @@ JupyterLab, depends on JupyterLab 4. If upgrading to JupyterLab 4 is not
 possible in your environment, you should install `jupyter_ai` v1.x instead.
 See "Installation" for more details.
 
+:::{attention}
+:name: jupyter-lab-3-end-of-maintenance
+JupyterLab 3 will reach its end of maintenance date on May 15, 2024, anywhere on Earth. As a result, we will not backport new features to the v1 branch supporting JupyterLab 3 after this date. Fixes for critical issues will still be backported until December 31, 2024. If you are still using JupyterLab 3, we strongly encourage you to **upgrade to JupyterLab 4 as soon as possible**. For more information, see [JupyterLab 3 end of maintenance](https://blog.jupyter.org/jupyterlab-3-end-of-maintenance-879778927db2) on the Jupyter Blog.
+:::
+
 You can install JupyterLab using `pip` or `conda`.
 
 1. via `pip`:
