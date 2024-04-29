@@ -2,6 +2,24 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 2.14.1
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.14.0...e6dab8ee414275cf8590d70ce65310596b5f1872))
+
+### Bugs fixed
+
+- Load persisted vector store by default [#753](https://github.com/jupyterlab/jupyter-ai/pull/753) ([@dlqqq](https://github.com/dlqqq))
+- Remove `pypdf` from required dependencies [#752](https://github.com/jupyterlab/jupyter-ai/pull/752) ([@dlqqq](https://github.com/dlqqq))
+- Fix /learn in 2.14.0 [#747](https://github.com/jupyterlab/jupyter-ai/pull/747) ([@michaelchia](https://github.com/michaelchia))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-04-25&to=2024-04-29&type=c))
+
+[@3coins](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3A3coins+updated%3A2024-04-25..2024-04-29&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2024-04-25..2024-04-29&type=Issues) | [@michaelchia](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Amichaelchia+updated%3A2024-04-25..2024-04-29&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 2.14.0
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.13.0...9c8046c742dcad2db57fff70bb10257f1c7123e6))
@@ -26,8 +44,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-04-04&to=2024-04-25&type=c))
 
 [@3coins](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3A3coins+updated%3A2024-04-04..2024-04-25&type=Issues) | [@bartleusink](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Abartleusink+updated%3A2024-04-04..2024-04-25&type=Issues) | [@cloutier](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Acloutier+updated%3A2024-04-04..2024-04-25&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2024-04-04..2024-04-25&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2024-04-04..2024-04-25&type=Issues) | [@srdas](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2024-04-04..2024-04-25&type=Issues) | [@welcome](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Awelcome+updated%3A2024-04-04..2024-04-25&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 2.13.0
 
