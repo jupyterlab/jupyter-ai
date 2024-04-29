@@ -27,6 +27,9 @@ You will need to have installed the following software to use Jupyter AI:
 
 In addition, you will need access to at least one model provider.
 
+> [!IMPORTANT]
+> JupyterLab 3 will reach its end of maintenance date on May 15, 2024, anywhere on Earth. As a result, we will not backport new features to the v1 branch supporting JupyterLab 3 after this date. Fixes for critical issues will still be backported until December 31, 2024. If you are still using JupyterLab 3, we strongly encourage you to **upgrade to JupyterLab 4 as soon as possible**. For more information, see [JupyterLab 3 end of maintenance](https://blog.jupyter.org/jupyterlab-3-end-of-maintenance-879778927db2) on the Jupyter Blog.
+
 ## Setting Up Model Providers in a Notebook
 
 To use any AI model provider within this notebook, you'll need the appropriate credentials, such as API keys.
