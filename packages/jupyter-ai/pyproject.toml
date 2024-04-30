@@ -32,7 +32,6 @@ dependencies = [
     "typing_extensions>=4.5.0",
     "traitlets>=5.0",
     "deepmerge>=1.0",
-    "pypdf==4.1.0",
 ]
 
 dynamic = ["version", "description", "authors", "urls", "keywords"]

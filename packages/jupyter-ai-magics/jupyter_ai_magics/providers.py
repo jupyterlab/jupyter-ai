@@ -761,12 +761,20 @@ class BedrockProvider(BaseProvider, Bedrock):
     name = "Amazon Bedrock"
     models = [
         "amazon.titan-text-express-v1",
+        "amazon.titan-text-lite-v1",
         "ai21.j2-ultra-v1",
         "ai21.j2-mid-v1",
         "cohere.command-light-text-v14",
         "cohere.command-text-v14",
+        "cohere.command-r-v1:0",
+        "cohere.command-r-plus-v1:0",
         "meta.llama2-13b-chat-v1",
         "meta.llama2-70b-chat-v1",
+        "meta.llama3-8b-instruct-v1:0",
+        "meta.llama3-70b-instruct-v1:0",
+        "mistral.mistral-7b-instruct-v0:2",
+        "mistral.mixtral-8x7b-instruct-v0:1",
+        "mistral.mistral-large-2402-v1:0",
     ]
     model_id_key = "model_id"
     pypi_package_deps = ["boto3"]
@@ -794,6 +802,7 @@ class BedrockChatProvider(BaseProvider, BedrockChat):
         "anthropic.claude-instant-v1",
         "anthropic.claude-3-sonnet-20240229-v1:0",
         "anthropic.claude-3-haiku-20240307-v1:0",
+        "anthropic.claude-3-opus-20240229-v1:0",
     ]
     model_id_key = "model_id"
     pypi_package_deps = ["boto3"]
