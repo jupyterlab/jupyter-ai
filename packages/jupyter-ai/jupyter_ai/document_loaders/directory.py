@@ -1,6 +1,7 @@
 import hashlib
 import itertools
 import os
+import datetime
 import tarfile
 from pathlib import Path
 from typing import List
@@ -13,15 +14,9 @@ from langchain.text_splitter import TextSplitter
 
 # Download a single tar file from arXiv and store in a temp folder for RAG, then run learn on it.
 def arxiv_to_text(id):  # id is numbers after "arXiv" in arXiv:xxxx.xxxxx
-    try:
-        import datetime
-
-        import arxiv
-    except ModuleNotFoundError as e:
-        print("Missing package: arxiv, datetime")
+    import arxiv
     # Get the paper from arxiv
     outfile = id + datetime.datetime.now().strftime("_%Y-%m-%d-%H-%M") + ".tex"
-    client = arxiv.Client()
     paper = next(arxiv.Client().results(arxiv.Search(id_list=[id])))
     paper.download_source(dirpath="", filename="downloaded-paper.tar.gz")
     # Extract tex files from downloaded tar file
