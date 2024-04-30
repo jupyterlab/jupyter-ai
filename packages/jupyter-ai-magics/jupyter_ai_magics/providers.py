@@ -251,7 +251,7 @@ class BaseProvider(BaseModel, metaclass=ProviderMetaclass):
     serve a custom provider and want to distinguish it in the chat UI.
     """
 
-    unsupported_slash_commands: ClassVar[set] = {}
+    unsupported_slash_commands: ClassVar[set] = set()
     """
     A set of slash commands unsupported by this provider. Unsupported slash
     commands are not shown in the help message, and cannot be used while this
