@@ -26,7 +26,8 @@ class ExportChatHandler(BaseChatHandler):
             return ""
 
     # Multiple chat histories in separate files
-    def get_chat_filename(self, path="./chat_history.md"):
+    def get_chat_filename(self, file_name="chat_history.md"):
+        path = os.path.join(self.root_dir, file_name)
         filename, extension = os.path.splitext(path)
         counter = 1
         while os.path.exists(path):
