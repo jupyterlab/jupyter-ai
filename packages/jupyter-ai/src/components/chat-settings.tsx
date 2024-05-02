@@ -17,6 +17,7 @@ import {
 import SettingsIcon from '@mui/icons-material/Settings';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 
+import { Signal } from '@lumino/signaling';
 import { UseSignal } from '@jupyterlab/ui-components';
 import { Select } from './select';
 import { AiService } from '../handler';
@@ -371,23 +372,11 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
       {/* Completer language model section */}
       <h2 className="jp-ai-ChatSettings-header">
         Inline completions model
-        {props.completionProvider ? (
-          <UseSignal signal={props.completionProvider.settingsChanged}>
-            {(): JSX.Element => (
-              <CompleterSettingsButton
-                provider={props.completionProvider}
-                openSettings={props.openInlineCompleterSettings}
-                selection={clmProvider}
-              />
-            )}
-          </UseSignal>
-        ) : (
-          <CompleterSettingsButton
-            provider={null}
-            openSettings={props.openInlineCompleterSettings}
-            selection={clmProvider}
-          />
-        )}
+        <CompleterSettingsButton
+          provider={props.completionProvider}
+          openSettings={props.openInlineCompleterSettings}
+          selection={clmProvider}
+        />
       </h2>
       <Select
         value={clmProvider?.registry ? clmProvider.id + ':*' : clmGlobalId}
@@ -519,25 +508,30 @@ function CompleterSettingsButton(props: {
   provider: IJaiCompletionProvider | null;
   openSettings: () => void;
 }): JSX.Element {
-  if (props.selection && !props.provider?.isEnabled()) {
-    return (
-      <IconButton
-        title={
-          'A completer model is selected, but ' +
-          (props.provider === null
-            ? 'the completion provider plugin is not available.'
-            : 'the inline completion provider is not enabled in the settings: click to open settings.')
-        }
-        onClick={props.openSettings}
-      >
-        <WarningAmberIcon />
-      </IconButton>
-    );
-  }
   return (
-    <IconButton onClick={props.openSettings} title="Completer settings">
-      <SettingsIcon />
-    </IconButton>
+    <UseSignal
+      signal={props.provider ? props.provider.settingsChanged : new Signal({})}
+    >
+      {() =>
+        props.selection && !props.provider?.isEnabled() ? (
+          <IconButton
+            title={
+              'A completer model is selected, but ' +
+              (props.provider === null
+                ? 'the completion provider plugin is not available.'
+                : 'the inline completion provider is not enabled in the settings: click to open settings.')
+            }
+            onClick={props.openSettings}
+          >
+            <WarningAmberIcon />
+          </IconButton>
+        ) : (
+          <IconButton onClick={props.openSettings} title="Completer settings">
+            <SettingsIcon />
+          </IconButton>
+        )
+      }
+    </UseSignal>
   );
 }
 
