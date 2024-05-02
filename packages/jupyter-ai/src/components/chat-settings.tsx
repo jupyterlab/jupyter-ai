@@ -370,7 +370,7 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
 
       {/* Completer language model section */}
       <h2 className="jp-ai-ChatSettings-header">
-        Completer model
+        Inline completions model
         {props.completionProvider ? (
           <UseSignal signal={props.completionProvider.settingsChanged}>
             {(): JSX.Element => (
