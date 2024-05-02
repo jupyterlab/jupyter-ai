@@ -26,8 +26,8 @@ class CompletionsModelMixin:
         self._llm_params = None
 
     def get_llm(self) -> Optional[BaseProvider]:
-        lm_provider = self.config_manager.completions_lm_provider
-        lm_provider_params = self.config_manager.completions_lm_provider_params
+        lm_provider = self.jai_config_manager.completions_lm_provider
+        lm_provider_params = self.jai_config_manager.completions_lm_provider_params
 
         if not lm_provider or not lm_provider_params:
             return None
