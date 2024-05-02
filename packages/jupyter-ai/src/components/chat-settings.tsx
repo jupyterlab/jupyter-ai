@@ -12,6 +12,7 @@ import {
   Radio,
   RadioGroup,
   TextField,
+  Tooltip,
   CircularProgress
 } from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -530,23 +531,26 @@ function CompleterSettingsButton(props: {
 }): JSX.Element {
   if (props.selection && !props.isCompleterEnabled) {
     return (
-      <IconButton
+      <Tooltip
         title={
           'A completer model is selected, but ' +
           (props.provider === null
             ? 'the completion provider plugin is not available.'
             : 'the inline completion provider is not enabled in the settings: click to open settings.')
         }
-        onClick={props.openSettings}
       >
-        <WarningAmberIcon />
-      </IconButton>
+        <IconButton onClick={props.openSettings}>
+          <WarningAmberIcon />
+        </IconButton>
+      </Tooltip>
     );
   }
   return (
-    <IconButton onClick={props.openSettings} title="Completer settings">
-      <SettingsIcon />
-    </IconButton>
+    <Tooltip title="Completer settings">
+      <IconButton onClick={props.openSettings}>
+        <SettingsIcon />
+      </IconButton>
+    </Tooltip>
   );
 }
 
