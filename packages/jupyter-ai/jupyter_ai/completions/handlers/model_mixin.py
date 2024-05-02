@@ -5,8 +5,8 @@ from jupyter_ai.config_manager import ConfigManager
 from jupyter_ai_magics.providers import BaseProvider
 
 
-class LLMHandlerMixin:
-    """Base class containing shared methods and attributes used by LLM handler classes."""
+class CompletionsModelMixin:
+    """Mixin class containing methods and attributes used by completions LLM handler."""
 
     handler_kind: str
     settings: dict
