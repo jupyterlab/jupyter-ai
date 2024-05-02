@@ -90,6 +90,25 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
   const [sendWse, setSendWse] = useState<boolean>(false);
   const [fields, setFields] = useState<Record<string, any>>({});
 
+  const [completerIsEnabled, setCompleterIsEnabled] = useState(
+    props.completionProvider && props.completionProvider.isEnabled()
+  );
+
+  const refreshCompleterState = () => {
+    setCompleterIsEnabled(
+      props.completionProvider && props.completionProvider.isEnabled()
+    );
+  };
+
+  useEffect(() => {
+    props.completionProvider?.settingsChanged.connect(refreshCompleterState);
+    return () => {
+      props.completionProvider?.settingsChanged.disconnect(
+        refreshCompleterState
+      );
+    };
+  }, [props.completionProvider]);
+
   // whether the form is currently saving
   const [saving, setSaving] = useState(false);
 
@@ -381,6 +400,7 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
       <Select
         value={clmProvider?.registry ? clmProvider.id + ':*' : clmGlobalId}
         label="Inline completion model"
+        disabled={!completerIsEnabled}
         onChange={e => {
           const clmGid = e.target.value === 'null' ? null : e.target.value;
           if (clmGid === null) {
