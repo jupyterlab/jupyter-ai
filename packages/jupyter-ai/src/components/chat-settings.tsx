@@ -279,7 +279,12 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
       }}
     >
       {/* Chat language model section */}
-      <h2 className="jp-ai-ChatSettings-header">Chat language model</h2>
+      <h2
+        className="jp-ai-ChatSettings-header"
+        title="The language model used in the chat panel"
+      >
+        Language model
+      </h2>
       <Select
         value={lmProvider?.registry ? lmProvider.id + ':*' : lmGlobalId}
         label="Language model"
