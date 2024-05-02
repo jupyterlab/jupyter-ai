@@ -288,7 +288,7 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
       </h2>
       <Select
         value={lmProvider?.registry ? lmProvider.id + ':*' : lmGlobalId}
-        label="Language model"
+        label="Completion model"
         onChange={e => {
           const lmGid = e.target.value === 'null' ? null : e.target.value;
           if (lmGid === null) {
@@ -380,7 +380,7 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
       </h2>
       <Select
         value={clmProvider?.registry ? clmProvider.id + ':*' : clmGlobalId}
-        label="Language model"
+        label="Inline completion model"
         onChange={e => {
           const clmGid = e.target.value === 'null' ? null : e.target.value;
           if (clmGid === null) {
