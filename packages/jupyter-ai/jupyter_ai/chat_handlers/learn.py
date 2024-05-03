@@ -4,7 +4,7 @@ import os
 from typing import Any, Coroutine, List, Optional, Tuple
 
 from dask.distributed import Client as DaskClient
-from jupyter_ai.document_loaders.directory import get_embeddings, split
+from jupyter_ai.document_loaders.directory import arxiv_to_text, get_embeddings, split
 from jupyter_ai.document_loaders.splitter import ExtensionSplitter, NotebookSplitter
 from jupyter_ai.models import (
     DEFAULT_CHUNK_OVERLAP,
@@ -44,6 +44,9 @@ class LearnChatHandler(BaseChatHandler):
         self.parser.add_argument("-v", "--verbose", action="store_true")
         self.parser.add_argument("-d", "--delete", action="store_true")
         self.parser.add_argument("-l", "--list", action="store_true")
+        self.parser.add_argument(
+            "-r", "--remote", action="store", default=None, type=str
+        )
         self.parser.add_argument(
             "-c", "--chunk-size", action="store", default=DEFAULT_CHUNK_SIZE, type=int
         )
@@ -109,6 +112,30 @@ class LearnChatHandler(BaseChatHandler):
         if args.list:
             self.reply(self._build_list_response())
             return
+
+        if args.remote:
+            remote_type = args.remote.lower()
+            if remote_type == "arxiv":
+                try:
+                    id = args.path[0]
+                    args.path = [arxiv_to_text(id, self.root_dir)]
+                    self.reply(
+                        f"Learning arxiv file with id **{id}**, saved in **{args.path[0]}**.",
+                        message,
+                    )
+                except ModuleNotFoundError as e:
+                    self.log.error(e)
+                    self.reply(
+                        "No `arxiv` package found. " "Install with `pip install arxiv`."
+                    )
+                    return
+                except Exception as e:
+                    self.log.error(e)
+                    self.reply(
+                        "An error occurred while processing the arXiv file. "
+                        f"Please verify that the arxiv id {id} is correct."
+                    )
+                    return
 
         # Make sure the path exists.
         if not len(args.path) == 1:
