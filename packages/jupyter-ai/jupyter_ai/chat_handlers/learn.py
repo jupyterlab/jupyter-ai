@@ -118,16 +118,22 @@ class LearnChatHandler(BaseChatHandler):
             if remote_type == "arxiv":
                 try:
                     id = args.path[0]
-                    args.path = [
-                        arxiv_to_text(id)
-                    ]  # call the function in `directory.py``
+                    args.path = [arxiv_to_text(id, self.root_dir)]
                     self.reply(
-                        f"Processing arxiv file id {id}, saved in {args.path[0]}.",
+                        f"Learning arxiv file with id **{id}**, saved in **{args.path[0]}**.",
                         message,
                     )
-                except Exception as e:
+                except ModuleNotFoundError as e:
+                    self.log.error(e)
                     self.reply(
-                        f"""The arXiv file could not be processed. Check the paper ID ({id}). Or, verify that the `arxiv` package is installed."""
+                        "No `arxiv` package found. " "Install with `pip install arxiv`."
+                    )
+                    return
+                except Exception as e:
+                    self.log.error(e)
+                    self.reply(
+                        "An error occurred while processing the arXiv file. "
+                        f"Please verify that the arxiv id {id} is correct."
                     )
                     return
 
