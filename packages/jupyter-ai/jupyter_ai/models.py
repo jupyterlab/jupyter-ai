@@ -94,6 +94,8 @@ class ListProvidersEntry(BaseModel):
     auth_strategy: AuthStrategy
     registry: bool
     fields: List[Field]
+    chat_models: Optional[List[str]]
+    completion_models: Optional[List[str]]
 
 
 class ListProvidersResponse(BaseModel):
@@ -121,6 +123,8 @@ class DescribeConfigResponse(BaseModel):
     # timestamp indicating when the configuration file was last read. should be
     # passed to the subsequent UpdateConfig request.
     last_read: int
+    completions_model_provider_id: Optional[str]
+    completions_fields: Dict[str, Dict[str, Any]]
 
 
 def forbid_none(cls, v):
@@ -137,6 +141,8 @@ class UpdateConfigRequest(BaseModel):
     # if passed, this will raise an Error if the config was written to after the
     # time specified by `last_read` to prevent write-write conflicts.
     last_read: Optional[int]
+    completions_model_provider_id: Optional[str]
+    completions_fields: Optional[Dict[str, Dict[str, Any]]]
 
     _validate_send_wse = validator("send_with_shift_enter", allow_reuse=True)(
         forbid_none
@@ -154,3 +160,5 @@ class GlobalConfig(BaseModel):
     send_with_shift_enter: bool
     fields: Dict[str, Dict[str, Any]]
     api_keys: Dict[str, str]
+    completions_model_provider_id: Optional[str]
+    completions_fields: Dict[str, Dict[str, Any]]

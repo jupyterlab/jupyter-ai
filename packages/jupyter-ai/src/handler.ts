@@ -117,6 +117,7 @@ export namespace AiService {
     send_with_shift_enter: boolean;
     fields: Record<string, Record<string, any>>;
     last_read: number;
+    completions_model_provider_id: string | null;
   };
 
   export type UpdateConfigRequest = {
@@ -126,6 +127,8 @@ export namespace AiService {
     send_with_shift_enter?: boolean;
     fields?: Record<string, Record<string, any>>;
     last_read?: number;
+    completions_model_provider_id?: string | null;
+    completions_fields?: Record<string, Record<string, any>>;
   };
 
   export async function getConfig(): Promise<DescribeConfigResponse> {
@@ -182,6 +185,8 @@ export namespace AiService {
     help?: string;
     auth_strategy: AuthStrategy;
     registry: boolean;
+    completion_models: string[];
+    chat_models: string[];
     fields: Field[];
   };
 

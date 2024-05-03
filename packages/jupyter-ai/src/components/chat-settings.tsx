@@ -4,6 +4,7 @@ import { Box } from '@mui/system';
 import {
   Alert,
   Button,
+  IconButton,
   FormControl,
   FormControlLabel,
   FormLabel,
@@ -11,8 +12,11 @@ import {
   Radio,
   RadioGroup,
   TextField,
+  Tooltip,
   CircularProgress
 } from '@mui/material';
+import SettingsIcon from '@mui/icons-material/Settings';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 
 import { Select } from './select';
 import { AiService } from '../handler';
@@ -23,10 +27,13 @@ import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { minifyUpdate } from './settings/minify';
 import { useStackingAlert } from './mui-extras/stacking-alert';
 import { RendermimeMarkdown } from './rendermime-markdown';
+import { IJaiCompletionProvider } from '../tokens';
 import { getProviderId, getModelLocalId } from '../utils';
 
 type ChatSettingsProps = {
   rmRegistry: IRenderMimeRegistry;
+  completionProvider: IJaiCompletionProvider | null;
+  openInlineCompleterSettings: () => void;
 };
 
 /**
@@ -43,9 +50,17 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
   // user inputs
   const [lmProvider, setLmProvider] =
     useState<AiService.ListProvidersEntry | null>(null);
+  const [clmProvider, setClmProvider] =
+    useState<AiService.ListProvidersEntry | null>(null);
   const [showLmLocalId, setShowLmLocalId] = useState<boolean>(false);
-  const [helpMarkdown, setHelpMarkdown] = useState<string | null>(null);
+  const [showClmLocalId, setShowClmLocalId] = useState<boolean>(false);
+  const [chatHelpMarkdown, setChatHelpMarkdown] = useState<string | null>(null);
+  const [completionHelpMarkdown, setCompletionHelpMarkdown] = useState<
+    string | null
+  >(null);
   const [lmLocalId, setLmLocalId] = useState<string>('');
+  const [clmLocalId, setClmLocalId] = useState<string>('');
+
   const lmGlobalId = useMemo<string | null>(() => {
     if (!lmProvider) {
       return null;
@@ -53,6 +68,13 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
 
     return lmProvider.id + ':' + lmLocalId;
   }, [lmProvider, lmLocalId]);
+  const clmGlobalId = useMemo<string | null>(() => {
+    if (!clmProvider) {
+      return null;
+    }
+
+    return clmProvider.id + ':' + clmLocalId;
+  }, [clmProvider, clmLocalId]);
 
   const [emGlobalId, setEmGlobalId] = useState<string | null>(null);
   const emProvider = useMemo<AiService.ListProvidersEntry | null>(() => {
@@ -67,6 +89,25 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
   const [sendWse, setSendWse] = useState<boolean>(false);
   const [fields, setFields] = useState<Record<string, any>>({});
 
+  const [isCompleterEnabled, setIsCompleterEnabled] = useState(
+    props.completionProvider && props.completionProvider.isEnabled()
+  );
+
+  const refreshCompleterState = () => {
+    setIsCompleterEnabled(
+      props.completionProvider && props.completionProvider.isEnabled()
+    );
+  };
+
+  useEffect(() => {
+    props.completionProvider?.settingsChanged.connect(refreshCompleterState);
+    return () => {
+      props.completionProvider?.settingsChanged.disconnect(
+        refreshCompleterState
+      );
+    };
+  }, [props.completionProvider]);
+
   // whether the form is currently saving
   const [saving, setSaving] = useState(false);
 
@@ -78,14 +119,20 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
       return;
     }
 
-    setLmLocalId(server.lmLocalId);
+    setLmLocalId(server.chat.lmLocalId);
+    setClmLocalId(server.completions.lmLocalId);
     setEmGlobalId(server.config.embeddings_provider_id);
     setSendWse(server.config.send_with_shift_enter);
-    setHelpMarkdown(server.lmProvider?.help ?? null);
-    if (server.lmProvider?.registry) {
+    setChatHelpMarkdown(server.chat.lmProvider?.help ?? null);
+    setCompletionHelpMarkdown(server.completions.lmProvider?.help ?? null);
+    if (server.chat.lmProvider?.registry) {
       setShowLmLocalId(true);
     }
-    setLmProvider(server.lmProvider);
+    if (server.completions.lmProvider?.registry) {
+      setShowClmLocalId(true);
+    }
+    setLmProvider(server.chat.lmProvider);
+    setClmProvider(server.completions.lmProvider);
   }, [server]);
 
   /**
@@ -169,11 +216,17 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
       model_provider_id: lmGlobalId,
       embeddings_provider_id: emGlobalId,
       api_keys: apiKeys,
-      ...(lmGlobalId && {
+      ...((lmGlobalId || clmGlobalId) && {
         fields: {
-          [lmGlobalId]: fields
+          ...(lmGlobalId && {
+            [lmGlobalId]: fields
+          }),
+          ...(clmGlobalId && {
+            [clmGlobalId]: fields
+          })
         }
       }),
+      completions_model_provider_id: clmGlobalId,
       send_with_shift_enter: sendWse
     };
     updateRequest = minifyUpdate(server.config, updateRequest);
@@ -244,11 +297,16 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
         overflowY: 'auto'
       }}
     >
-      {/* Language model section */}
-      <h2 className="jp-ai-ChatSettings-header">Language model</h2>
+      {/* Chat language model section */}
+      <h2
+        className="jp-ai-ChatSettings-header"
+        title="The language model used in the chat panel"
+      >
+        Language model
+      </h2>
       <Select
         value={lmProvider?.registry ? lmProvider.id + ':*' : lmGlobalId}
-        label="Language model"
+        label="Completion model"
         onChange={e => {
           const lmGid = e.target.value === 'null' ? null : e.target.value;
           if (lmGid === null) {
@@ -262,7 +320,7 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
           const nextLmLocalId = getModelLocalId(lmGid)!;
 
           setLmProvider(nextLmProvider);
-          setHelpMarkdown(nextLmProvider?.help ?? null);
+          setChatHelpMarkdown(nextLmProvider?.help ?? null);
           if (nextLmProvider.registry) {
             setLmLocalId('');
             setShowLmLocalId(true);
@@ -275,11 +333,13 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
       >
         <MenuItem value="null">None</MenuItem>
         {server.lmProviders.providers.map(lmp =>
-          lmp.models.map(lm => (
-            <MenuItem value={`${lmp.id}:${lm}`}>
-              {lmp.name} :: {lm}
-            </MenuItem>
-          ))
+          lmp.models
+            .filter(lm => lmp.chat_models.includes(lm))
+            .map(lm => (
+              <MenuItem value={`${lmp.id}:${lm}`}>
+                {lmp.name} :: {lm}
+              </MenuItem>
+            ))
         )}
       </Select>
       {showLmLocalId && (
@@ -290,10 +350,10 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
           fullWidth
         />
       )}
-      {helpMarkdown && (
+      {chatHelpMarkdown && (
         <RendermimeMarkdown
           rmRegistry={props.rmRegistry}
-          markdownStr={helpMarkdown}
+          markdownStr={chatHelpMarkdown}
         />
       )}
       {lmGlobalId && (
@@ -326,6 +386,77 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
             ))
         )}
       </Select>
+
+      {/* Completer language model section */}
+      <h2 className="jp-ai-ChatSettings-header">
+        Inline completions model
+        <CompleterSettingsButton
+          provider={props.completionProvider}
+          openSettings={props.openInlineCompleterSettings}
+          isCompleterEnabled={isCompleterEnabled}
+          selection={clmProvider}
+        />
+      </h2>
+      <Select
+        value={clmProvider?.registry ? clmProvider.id + ':*' : clmGlobalId}
+        label="Inline completion model"
+        disabled={!isCompleterEnabled}
+        onChange={e => {
+          const clmGid = e.target.value === 'null' ? null : e.target.value;
+          if (clmGid === null) {
+            setClmProvider(null);
+            return;
+          }
+
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          const nextClmProvider = getProvider(clmGid, server.lmProviders)!;
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          const nextClmLocalId = getModelLocalId(clmGid)!;
+
+          setClmProvider(nextClmProvider);
+          setCompletionHelpMarkdown(nextClmProvider?.help ?? null);
+          if (nextClmProvider.registry) {
+            setClmLocalId('');
+            setShowClmLocalId(true);
+          } else {
+            setClmLocalId(nextClmLocalId);
+            setShowClmLocalId(false);
+          }
+        }}
+        MenuProps={{ sx: { maxHeight: '50%', minHeight: 400 } }}
+      >
+        <MenuItem value="null">None</MenuItem>
+        {server.lmProviders.providers.map(lmp =>
+          lmp.models
+            .filter(lm => lmp.completion_models.includes(lm))
+            .map(lm => (
+              <MenuItem value={`${lmp.id}:${lm}`}>
+                {lmp.name} :: {lm}
+              </MenuItem>
+            ))
+        )}
+      </Select>
+      {showClmLocalId && (
+        <TextField
+          label={clmProvider?.model_id_label || 'Local model ID'}
+          value={clmLocalId}
+          onChange={e => setClmLocalId(e.target.value)}
+          fullWidth
+        />
+      )}
+      {completionHelpMarkdown && (
+        <RendermimeMarkdown
+          rmRegistry={props.rmRegistry}
+          markdownStr={completionHelpMarkdown}
+        />
+      )}
+      {clmGlobalId && (
+        <ModelFields
+          fields={clmProvider?.fields}
+          values={fields}
+          onChange={setFields}
+        />
+      )}
 
       {/* API Keys section */}
       <h2 className="jp-ai-ChatSettings-header">API Keys</h2>
@@ -389,6 +520,37 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
       </Box>
       {alert.jsx}
     </Box>
+  );
+}
+
+function CompleterSettingsButton(props: {
+  selection: AiService.ListProvidersEntry | null;
+  provider: IJaiCompletionProvider | null;
+  isCompleterEnabled: boolean | null;
+  openSettings: () => void;
+}): JSX.Element {
+  if (props.selection && !props.isCompleterEnabled) {
+    return (
+      <Tooltip
+        title={
+          'A completer model is selected, but ' +
+          (props.provider === null
+            ? 'the completion provider plugin is not available.'
+            : 'the inline completion provider is not enabled in the settings: click to open settings.')
+        }
+      >
+        <IconButton onClick={props.openSettings}>
+          <WarningAmberIcon />
+        </IconButton>
+      </Tooltip>
+    );
+  }
+  return (
+    <Tooltip title="Completer settings">
+      <IconButton onClick={props.openSettings}>
+        <SettingsIcon />
+      </IconButton>
+    </Tooltip>
   );
 }
 

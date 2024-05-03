@@ -9,11 +9,13 @@ import {
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
 import { Notification, showErrorMessage } from '@jupyterlab/apputils';
 import { JSONValue, PromiseDelegate } from '@lumino/coreutils';
+import { ISignal, Signal } from '@lumino/signaling';
 import {
   IEditorLanguageRegistry,
   IEditorLanguage
 } from '@jupyterlab/codemirror';
 import { NotebookPanel } from '@jupyterlab/notebook';
+import { IJaiCompletionProvider } from '../tokens';
 import { AiCompleterService as AiService } from './types';
 import { DocumentWidget } from '@jupyterlab/docregistry';
 import { jupyternautIcon } from '../icons';
@@ -34,7 +36,9 @@ export function displayName(language: IEditorLanguage): string {
   return language.displayName ?? language.name;
 }
 
-export class JaiInlineProvider implements IInlineCompletionProvider {
+export class JaiInlineProvider
+  implements IInlineCompletionProvider, IJaiCompletionProvider
+{
   readonly identifier = JaiInlineProvider.ID;
   readonly icon = jupyternautIcon.bindprops({ width: 16, top: 1 });
 
@@ -181,6 +185,7 @@ export class JaiInlineProvider implements IInlineCompletionProvider {
 
   async configure(settings: { [property: string]: JSONValue }): Promise<void> {
     this._settings = settings as unknown as JaiInlineProvider.ISettings;
+    this._settingsChanged.emit();
   }
 
   isEnabled(): boolean {
@@ -189,6 +194,10 @@ export class JaiInlineProvider implements IInlineCompletionProvider {
 
   isLanguageEnabled(language: string): boolean {
     return !this._settings.disabledLanguages.includes(language);
+  }
+
+  get settingsChanged(): ISignal<JaiInlineProvider, void> {
+    return this._settingsChanged;
   }
 
   /**
@@ -250,6 +259,7 @@ export class JaiInlineProvider implements IInlineCompletionProvider {
 
   private _settings: JaiInlineProvider.ISettings =
     JaiInlineProvider.DEFAULT_SETTINGS;
+  private _settingsChanged = new Signal<JaiInlineProvider, void>(this);
 
   private _streamPromises: Map<string, PromiseDelegate<StreamChunk>> =
     new Map();

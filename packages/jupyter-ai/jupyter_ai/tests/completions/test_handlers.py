@@ -35,8 +35,8 @@ class MockCompletionHandler(DefaultInlineCompletionHandler):
         self.messages = []
         self.tasks = []
         self.settings["jai_config_manager"] = SimpleNamespace(
-            lm_provider=lm_provider or MockProvider,
-            lm_provider_params=lm_provider_params or {"model_id": "model"},
+            completions_lm_provider=lm_provider or MockProvider,
+            completions_lm_provider_params=lm_provider_params or {"model_id": "model"},
         )
         self.settings["jai_event_loop"] = SimpleNamespace(
             create_task=lambda x: self.tasks.append(x)
