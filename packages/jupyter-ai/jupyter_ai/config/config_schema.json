@@ -16,6 +16,12 @@
       "default": null,
       "readOnly": false
     },
+    "completions_model_provider_id": {
+      "$comment": "Language model global ID for completions.",
+      "type": ["string", "null"],
+      "default": null,
+      "readOnly": false
+    },
     "api_keys": {
       "$comment": "Dictionary of API keys, mapping key names to key values.",
       "type": "object",
@@ -29,6 +35,17 @@
     },
     "fields": {
       "$comment": "Dictionary of model-specific fields, mapping LM GIDs to sub-dictionaries of field key-value pairs.",
+      "type": "object",
+      "default": {},
+      "patternProperties": {
+        "^.*$": {
+          "anyOf": [{ "type": "object" }]
+        }
+      },
+      "additionalProperties": false
+    },
+    "completions_fields": {
+      "$comment": "Dictionary of model-specific fields, mapping LM GIDs to sub-dictionaries of field key-value pairs for completions.",
       "type": "object",
       "default": {},
       "patternProperties": {

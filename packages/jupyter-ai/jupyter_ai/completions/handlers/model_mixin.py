@@ -5,8 +5,8 @@ from jupyter_ai.config_manager import ConfigManager
 from jupyter_ai_magics.providers import BaseProvider
 
 
-class LLMHandlerMixin:
-    """Base class containing shared methods and attributes used by LLM handler classes."""
+class CompletionsModelMixin:
+    """Mixin class containing methods and attributes used by completions LLM handler."""
 
     handler_kind: str
     settings: dict
@@ -26,8 +26,8 @@ class LLMHandlerMixin:
         self._llm_params = None
 
     def get_llm(self) -> Optional[BaseProvider]:
-        lm_provider = self.jai_config_manager.lm_provider
-        lm_provider_params = self.jai_config_manager.lm_provider_params
+        lm_provider = self.jai_config_manager.completions_lm_provider
+        lm_provider_params = self.jai_config_manager.completions_lm_provider_params
 
         if not lm_provider or not lm_provider_params:
             return None

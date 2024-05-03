@@ -9,7 +9,7 @@ import {
   IEditorLanguage
 } from '@jupyterlab/codemirror';
 import { getEditor } from '../selection-watcher';
-import { IJaiStatusItem } from '../tokens';
+import { IJaiStatusItem, IJaiCompletionProvider } from '../tokens';
 import { displayName, JaiInlineProvider } from './provider';
 import { CompletionWebsocketHandler } from './handler';
 
@@ -46,7 +46,9 @@ type IcPluginSettings = ISettingRegistry.ISettings & {
   };
 };
 
-export const completionPlugin: JupyterFrontEndPlugin<void> = {
+type JaiCompletionToken = IJaiCompletionProvider | null;
+
+export const completionPlugin: JupyterFrontEndPlugin<JaiCompletionToken> = {
   id: 'jupyter_ai:inline-completions',
   autoStart: true,
   requires: [
@@ -55,19 +57,20 @@ export const completionPlugin: JupyterFrontEndPlugin<void> = {
     ISettingRegistry
   ],
   optional: [IJaiStatusItem],
+  provides: IJaiCompletionProvider,
   activate: async (
     app: JupyterFrontEnd,
     completionManager: ICompletionProviderManager,
     languageRegistry: IEditorLanguageRegistry,
     settingRegistry: ISettingRegistry,
     statusItem: IJaiStatusItem | null
-  ): Promise<void> => {
+  ): Promise<JaiCompletionToken> => {
     if (typeof completionManager.registerInlineProvider === 'undefined') {
       // Gracefully short-circuit on JupyterLab 4.0 and Notebook 7.0
       console.warn(
         'Inline completions are only supported in JupyterLab 4.1+ and Jupyter Notebook 7.1+'
       );
-      return;
+      return null;
     }
 
     const completionHandler = new CompletionWebsocketHandler();
@@ -186,5 +189,6 @@ export const completionPlugin: JupyterFrontEndPlugin<void> = {
         rank: 2
       });
     }
+    return provider;
   }
 };
