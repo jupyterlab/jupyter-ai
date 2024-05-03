@@ -464,6 +464,13 @@ use the `-a` or `--all-files` option.
 /learn -a <directory>
 ```
 
+### Learning arXiv files
+`/learn` command also provides downloading and processing papers from the [arXiv](https://arxiv.org/) repository. You will need to install the `arxiv` python package for this feature to work. Run `pip install arxiv` to install the `arxiv` package.
+
+```
+/learn -r arxiv 2404.18558
+```
+
 ### Additional chat commands
 
 To clear the chat panel, use the `/clear` command. This does not reset the AI model; the model may still remember previous messages that you sent it, and it may use them to inform its responses.

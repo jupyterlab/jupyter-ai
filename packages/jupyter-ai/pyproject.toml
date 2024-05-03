@@ -53,7 +53,7 @@ test = [
 
 dev = ["jupyter_ai_magics[dev]"]
 
-all = ["jupyter_ai_magics[all]", "pypdf"]
+all = ["jupyter_ai_magics[all]", "pypdf", "arxiv"]
 
 [tool.hatch.version]
 source = "nodejs"
