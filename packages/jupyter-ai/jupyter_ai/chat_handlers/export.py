@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 from typing import List
 
 from jupyter_ai.models import AgentChatMessage, HumanChatMessage
@@ -9,7 +10,7 @@ from .base import BaseChatHandler, SlashCommandRoutingType
 class ExportChatHandler(BaseChatHandler):
     id = "export"
     name = "Export chat messages"
-    help = "Export the chat messages in markdown format"
+    help = "Export the chat messages in markdown format with timestamps"
     routing_type = SlashCommandRoutingType(slash_id="export")
 
     uses_llm = False
@@ -25,14 +26,15 @@ class ExportChatHandler(BaseChatHandler):
         else:
             return ""
 
-    # Multiple chat histories in separate files
-    def get_chat_filename(self, file_name="chat_history.md"):
-        path = os.path.join(self.root_dir, file_name)
-        filename, extension = os.path.splitext(path)
-        counter = 1
-        while os.path.exists(path):
-            path = filename + "_" + str(counter) + ".md"
-            counter += 1
+    # Multiple chat histories can be saved in separate files, each with a timestamp
+    def get_chat_filename(self, file_id):
+        file_id = file_id.split(" ") 
+        if len(file_id)>1:
+            file_id = file_id[-1]
+        else:
+            file_id = "chat_history"
+        outfile = f"{file_id}-{datetime.now():%Y-%m-%d-%H-%M}.md"
+        path = os.path.join(self.root_dir, outfile)
         return path
 
     async def process_message(self, _):
@@ -40,7 +42,7 @@ class ExportChatHandler(BaseChatHandler):
             self.chat_message_to_markdown(msg) for msg in self._chat_history
         )
         # Write the markdown content to a file or do whatever you want with it
-        chat_filename = self.get_chat_filename()
+        chat_filename = self.get_chat_filename(self._chat_history[-1].body)
         with open(chat_filename, "w") as chat_history:
             chat_history.write(markdown_content)
 
