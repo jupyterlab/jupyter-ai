@@ -28,8 +28,8 @@ class ExportChatHandler(BaseChatHandler):
 
     # Multiple chat histories can be saved in separate files, each with a timestamp
     def get_chat_filename(self, file_id):
-        file_id = file_id.split(" ") 
-        if len(file_id)>1:
+        file_id = file_id.split(" ")
+        if len(file_id) > 1:
             file_id = file_id[-1]
         else:
             file_id = "chat_history"
