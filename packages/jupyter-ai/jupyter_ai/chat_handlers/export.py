@@ -1,4 +1,5 @@
 import os
+import argparse
 from datetime import datetime
 from typing import List
 
@@ -17,6 +18,8 @@ class ExportChatHandler(BaseChatHandler):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.parser.prog = "/export"
+        self.parser.add_argument("path", nargs=argparse.REMAINDER)
 
     def chat_message_to_markdown(self, message):
         if isinstance(message, AgentChatMessage):
@@ -26,23 +29,18 @@ class ExportChatHandler(BaseChatHandler):
         else:
             return ""
 
-    # Multiple chat histories can be saved in separate files, each with a timestamp
-    def get_chat_filename(self, file_id):
-        file_id = file_id.split(" ")
-        if len(file_id) > 1:
-            file_id = file_id[-1]
-        else:
-            file_id = "chat_history"
-        outfile = f"{file_id}-{datetime.now():%Y-%m-%d-%H-%M}.md"
-        path = os.path.join(self.root_dir, outfile)
-        return path
-
-    async def process_message(self, _):
+    # Write the chat history to a markdown file with a timestamp
+    async def process_message(self, message: HumanChatMessage):
         markdown_content = "\n\n".join(
             self.chat_message_to_markdown(msg) for msg in self._chat_history
         )
-        # Write the markdown content to a file or do whatever you want with it
-        chat_filename = self.get_chat_filename(self._chat_history[-1].body)
+        args = self.parse_args(message)
+        if len(args.path) > 0:
+            file_id = args.path[0]
+        else:
+            file_id = "chat_history"
+        outfile = f"{file_id}-{datetime.now():%Y-%m-%d-%H-%M}.md"
+        chat_filename = os.path.join(self.root_dir, outfile)
         with open(chat_filename, "w") as chat_history:
             chat_history.write(markdown_content)
 
