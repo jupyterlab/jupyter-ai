@@ -98,10 +98,11 @@ class HfHubEmbeddingsProvider(BaseEmbeddingsProvider, HuggingFaceHubEmbeddings):
     registry = True
 
 
+# See model ID list here: https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids.html
 class BedrockEmbeddingsProvider(BaseEmbeddingsProvider, BedrockEmbeddings):
     id = "bedrock"
     name = "Bedrock"
-    models = ["amazon.titan-embed-text-v1"]
+    models = ["amazon.titan-embed-text-v1", "amazon.titan-embed-text-v2:0"]
     model_id_key = "model_id"
     pypi_package_deps = ["boto3"]
     auth_strategy = AwsAuthStrategy()
