@@ -2,6 +2,33 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 1.15.0
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@1.14.1...73a44a03a9cb975f8079cbbac0c25eabd998ddab))
+
+### Enhancements made
+
+- \[1.x\] Save chat history to Jupyter Lab's root directory (#770) [#780](https://github.com/jupyterlab/jupyter-ai/pull/780) ([@srdas](https://github.com/srdas))
+- Add Titan embedding model v2 [#778](https://github.com/jupyterlab/jupyter-ai/pull/778) ([@srdas](https://github.com/srdas))
+- Add new Bedrock model IDs [#764](https://github.com/jupyterlab/jupyter-ai/pull/764) ([@srdas](https://github.com/srdas))
+
+### Bugs fixed
+
+- change unsupported_slash_commands default value from dict to set [#768](https://github.com/jupyterlab/jupyter-ai/pull/768) ([@michaelchia](https://github.com/michaelchia))
+- Switch to langchain_community [#758](https://github.com/jupyterlab/jupyter-ai/pull/758) ([@srdas](https://github.com/srdas))
+
+### Documentation improvements
+
+- Add JL3 end-of-maintenance notice to README and RTD [#760](https://github.com/jupyterlab/jupyter-ai/pull/760) ([@dlqqq](https://github.com/dlqqq))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-04-29&to=2024-05-09&type=c))
+
+[@3coins](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3A3coins+updated%3A2024-04-29..2024-05-09&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2024-04-29..2024-05-09&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2024-04-29..2024-05-09&type=Issues) | [@meeseeksmachine](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ameeseeksmachine+updated%3A2024-04-29..2024-05-09&type=Issues) | [@srdas](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2024-04-29..2024-05-09&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 1.14.1
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@1.14.0...b77bc884e8acd5add16eb5af1d7a33ce3fd00374))
@@ -17,8 +44,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-04-25&to=2024-04-29&type=c))
 
 [@3coins](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3A3coins+updated%3A2024-04-25..2024-04-29&type=Issues) | [@meeseeksmachine](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ameeseeksmachine+updated%3A2024-04-25..2024-04-29&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 1.14.0
 
