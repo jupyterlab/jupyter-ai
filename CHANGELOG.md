@@ -2,6 +2,36 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 2.15.0
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.14.1...3b3ac27eed2c481b4565659b0fc7470c36267fc7))
+
+### Enhancements made
+
+- Add Titan embedding model v2 [#778](https://github.com/jupyterlab/jupyter-ai/pull/778) ([@srdas](https://github.com/srdas))
+- Save chat history to Jupyter Lab's root directory [#770](https://github.com/jupyterlab/jupyter-ai/pull/770) ([@srdas](https://github.com/srdas))
+- Add new Bedrock model IDs [#764](https://github.com/jupyterlab/jupyter-ai/pull/764) ([@srdas](https://github.com/srdas))
+- learn arxiv tex files [#742](https://github.com/jupyterlab/jupyter-ai/pull/742) ([@srdas](https://github.com/srdas))
+- Distinguish between completion and chat models [#711](https://github.com/jupyterlab/jupyter-ai/pull/711) ([@krassowski](https://github.com/krassowski))
+
+### Bugs fixed
+
+- Save chat history to Jupyter Lab's root directory [#770](https://github.com/jupyterlab/jupyter-ai/pull/770) ([@srdas](https://github.com/srdas))
+- change unsupported_slash_commands default value from dict to set [#768](https://github.com/jupyterlab/jupyter-ai/pull/768) ([@michaelchia](https://github.com/michaelchia))
+- Switch to langchain_community [#758](https://github.com/jupyterlab/jupyter-ai/pull/758) ([@srdas](https://github.com/srdas))
+
+### Documentation improvements
+
+- Add JL3 end-of-maintenance notice to README and RTD [#760](https://github.com/jupyterlab/jupyter-ai/pull/760) ([@dlqqq](https://github.com/dlqqq))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-04-29&to=2024-05-09&type=c))
+
+[@3coins](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3A3coins+updated%3A2024-04-29..2024-05-09&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2024-04-29..2024-05-09&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2024-04-29..2024-05-09&type=Issues) | [@michaelchia](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Amichaelchia+updated%3A2024-04-29..2024-05-09&type=Issues) | [@srdas](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2024-04-29..2024-05-09&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 2.14.1
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.14.0...e6dab8ee414275cf8590d70ce65310596b5f1872))
@@ -17,8 +47,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-04-25&to=2024-04-29&type=c))
 
 [@3coins](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3A3coins+updated%3A2024-04-25..2024-04-29&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2024-04-25..2024-04-29&type=Issues) | [@michaelchia](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Amichaelchia+updated%3A2024-04-25..2024-04-29&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 2.14.0
 
