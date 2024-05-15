@@ -44,7 +44,7 @@ from langchain_community.llms import (
     Bedrock,
     Cohere,
     GPT4All,
-    HuggingFaceHub,
+    HuggingFaceEndpoint,
     OpenAI,
     SagemakerEndpoint,
     Together,
@@ -582,14 +582,10 @@ class GPT4AllProvider(BaseProvider, GPT4All):
         return False
 
 
-HUGGINGFACE_HUB_VALID_TASKS = (
-    "text2text-generation",
-    "text-generation",
-    "text-to-image",
-)
-
-
-class HfHubProvider(BaseProvider, HuggingFaceHub):
+# References for using HuggingFaceEndpoint and InferenceClient: 
+# https://huggingface.co/docs/huggingface_hub/guides/inference#legacy-inferenceapi-client
+# https://github.com/langchain-ai/langchain/blob/master/libs/community/langchain_community/llms/huggingface_endpoint.py
+class HfHubProvider(BaseProvider, HuggingFaceEndpoint):
     id = "huggingface_hub"
     name = "Hugging Face Hub"
     models = ["*"]
@@ -609,24 +605,23 @@ class HfHubProvider(BaseProvider, HuggingFaceHub):
     @root_validator()
     def validate_environment(cls, values: Dict) -> Dict:
         """Validate that api key and python package exists in environment."""
-        huggingfacehub_api_token = get_from_dict_or_env(
-            values, "huggingfacehub_api_token", "HUGGINGFACEHUB_API_TOKEN"
-        )
         try:
-            from huggingface_hub.inference_api import InferenceApi
-
-            repo_id = values["repo_id"]
-            client = InferenceApi(
-                repo_id=repo_id,
-                token=huggingfacehub_api_token,
-                task=values.get("task"),
+            huggingfacehub_api_token = get_from_dict_or_env(
+                values, "huggingfacehub_api_token", "HUGGINGFACEHUB_API_TOKEN"
             )
-            if client.task not in HUGGINGFACE_HUB_VALID_TASKS:
-                raise ValueError(
-                    f"Got invalid task {client.task}, "
-                    f"currently only {HUGGINGFACE_HUB_VALID_TASKS} are supported"
-                )
-            values["client"] = client
+        except Exception as e:
+            raise ValueError(
+                "Could not authenticate with huggingface_hub. "
+                "Please check your API token."
+            ) from e
+        try:
+            from huggingface_hub import InferenceClient
+            values["client"] = InferenceClient(
+                model=values["model"],
+                timeout=values["timeout"],
+                token=huggingfacehub_api_token,
+                **values["server_kwargs"],
+            )
         except ImportError:
             raise ValueError(
                 "Could not import huggingface_hub python package. "
@@ -635,7 +630,7 @@ class HfHubProvider(BaseProvider, HuggingFaceHub):
         return values
 
     # Handle image outputs
-    def _call(self, prompt: str, stop: Optional[List[str]] = None) -> str:
+    def _call(self, prompt: str, stop: Optional[List[str]] = None, **kwargs: Any) -> str:
         """Call out to Hugging Face Hub's inference endpoint.
 
         Args:
@@ -650,45 +645,31 @@ class HfHubProvider(BaseProvider, HuggingFaceHub):
 
                 response = hf("Tell me a joke.")
         """
-        _model_kwargs = self.model_kwargs or {}
-        response = self.client(inputs=prompt, params=_model_kwargs)
+        invocation_params = self._invocation_params(stop, **kwargs)
+        invocation_params["stop"] = invocation_params[
+            "stop_sequences"
+        ]  # porting 'stop_sequences' into the 'stop' argument
+        response = self.client.post(
+            json={"inputs": prompt, "parameters": invocation_params},
+            stream=False,
+            task=self.task,
+        )
+        try:
+            response_text = json.loads(response.decode())[0]["generated_text"]
+        except KeyError:
+            response_text = json.loads(response.decode())["generated_text"]
+
+        # Maybe the generation has stopped at one of the stop sequences:
+        # then we remove this stop sequence from the end of the generated text
+        for stop_seq in invocation_params["stop_sequences"]:
+            if response_text[-len(stop_seq) :] == stop_seq:
+                response_text = response_text[: -len(stop_seq)]
 
         if type(response) is dict and "error" in response:
             raise ValueError(f"Error raised by inference API: {response['error']}")
 
-        # Custom code for responding to image generation responses
-        if self.client.task == "text-to-image":
-            imageFormat = response.format  # Presume it's a PIL ImageFile
-            mimeType = ""
-            if imageFormat == "JPEG":
-                mimeType = "image/jpeg"
-            elif imageFormat == "PNG":
-                mimeType = "image/png"
-            elif imageFormat == "GIF":
-                mimeType = "image/gif"
-            else:
-                raise ValueError(f"Unrecognized image format {imageFormat}")
+        return response_text
 
-            buffer = io.BytesIO()
-            response.save(buffer, format=imageFormat)
-            # Encode image data to Base64 bytes, then decode bytes to str
-            return mimeType + ";base64," + base64.b64encode(buffer.getvalue()).decode()
-
-        if self.client.task == "text-generation":
-            # Text generation return includes the starter text.
-            text = response[0]["generated_text"][len(prompt) :]
-        elif self.client.task == "text2text-generation":
-            text = response[0]["generated_text"]
-        else:
-            raise ValueError(
-                f"Got invalid task {self.client.task}, "
-                f"currently only {HUGGINGFACE_HUB_VALID_TASKS} are supported"
-            )
-        if stop is not None:
-            # This is a bit hacky, but I can't figure out a better way to enforce
-            # stop tokens when making calls to huggingface_hub.
-            text = enforce_stop_tokens(text, stop)
-        return text
 
     async def _acall(self, *args, **kwargs) -> Coroutine[Any, Any, str]:
         return await self._call_in_executor(*args, **kwargs)

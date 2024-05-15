@@ -12,7 +12,7 @@ from jupyter_ai_magics.providers import BaseProvider
 from langchain.chains import LLMChain
 from langchain.llms import BaseLLM
 from langchain.output_parsers import PydanticOutputParser
-from langchain.prompts import PromptTemplate
+from langchain_core.prompts import PromptTemplate
 from langchain.pydantic_v1 import BaseModel
 from langchain.schema.output_parser import BaseOutputParser
 
