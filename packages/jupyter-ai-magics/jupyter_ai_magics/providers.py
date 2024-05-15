@@ -582,7 +582,7 @@ class GPT4AllProvider(BaseProvider, GPT4All):
         return False
 
 
-# References for using HuggingFaceEndpoint and InferenceClient: 
+# References for using HuggingFaceEndpoint and InferenceClient:
 # https://huggingface.co/docs/huggingface_hub/guides/inference#legacy-inferenceapi-client
 # https://github.com/langchain-ai/langchain/blob/master/libs/community/langchain_community/llms/huggingface_endpoint.py
 class HfHubProvider(BaseProvider, HuggingFaceEndpoint):
@@ -616,6 +616,7 @@ class HfHubProvider(BaseProvider, HuggingFaceEndpoint):
             ) from e
         try:
             from huggingface_hub import InferenceClient
+
             values["client"] = InferenceClient(
                 model=values["model"],
                 timeout=values["timeout"],
@@ -630,7 +631,9 @@ class HfHubProvider(BaseProvider, HuggingFaceEndpoint):
         return values
 
     # Handle image outputs
-    def _call(self, prompt: str, stop: Optional[List[str]] = None, **kwargs: Any) -> str:
+    def _call(
+        self, prompt: str, stop: Optional[List[str]] = None, **kwargs: Any
+    ) -> str:
         """Call out to Hugging Face Hub's inference endpoint.
 
         Args:
@@ -669,7 +672,6 @@ class HfHubProvider(BaseProvider, HuggingFaceEndpoint):
             raise ValueError(f"Error raised by inference API: {response['error']}")
 
         return response_text
-
 
     async def _acall(self, *args, **kwargs) -> Coroutine[Any, Any, str]:
         return await self._call_in_executor(*args, **kwargs)
