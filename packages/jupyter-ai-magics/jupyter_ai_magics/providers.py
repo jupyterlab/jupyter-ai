@@ -630,7 +630,9 @@ class HfHubProvider(BaseProvider, HuggingFaceEndpoint):
         return values
 
     # Handle text and image outputs
-    def _call(self, prompt: str, stop: Optional[List[str]] = None, **kwargs: Any) -> str:
+    def _call(
+        self, prompt: str, stop: Optional[List[str]] = None, **kwargs: Any
+    ) -> str:
         """Call out to Hugging Face Hub's inference endpoint.
 
         Args:
