@@ -658,7 +658,7 @@ class HfHubProvider(BaseProvider, HuggingFaceEndpoint):
         )
 
         try:
-            if "generated_text" in str(response): 
+            if "generated_text" in str(response):
                 # text2 text or text-generation task
                 response_text = json.loads(response.decode())[0]["generated_text"]
                 # Maybe the generation has stopped at one of the stop sequences:
@@ -685,10 +685,13 @@ class HfHubProvider(BaseProvider, HuggingFaceEndpoint):
                 buffer = io.BytesIO()
                 image.save(buffer, format=imageFormat)
                 # # Encode image data to Base64 bytes, then decode bytes to str
-                return mimeType + ";base64," + base64.b64encode(buffer.getvalue()).decode()
-        except:  
-            raise ValueError("Task not supported, only text-generation and text-to-image tasks are valid.")
-
+                return (
+                    mimeType + ";base64," + base64.b64encode(buffer.getvalue()).decode()
+                )
+        except:
+            raise ValueError(
+                "Task not supported, only text-generation and text-to-image tasks are valid."
+            )
 
     async def _acall(self, *args, **kwargs) -> Coroutine[Any, Any, str]:
         return await self._call_in_executor(*args, **kwargs)
