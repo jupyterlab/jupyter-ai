@@ -2,6 +2,28 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 2.16.0
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.15.0...e41cebf3ef137509d43ef6e54703c47c7e3d7a22))
+
+### Enhancements made
+
+- Added gpt-4o [#793](https://github.com/jupyterlab/jupyter-ai/pull/793) ([@srdas](https://github.com/srdas))
+- Add code toolbar to Jupyter AI chat [#789](https://github.com/jupyterlab/jupyter-ai/pull/789) ([@dlqqq](https://github.com/dlqqq))
+
+### Bugs fixed
+
+- Fix Azure OpenAI authentication from UI [#794](https://github.com/jupyterlab/jupyter-ai/pull/794) ([@dlqqq](https://github.com/dlqqq))
+- Updated Hugging Face chat and magics processing with new APIs, clients [#784](https://github.com/jupyterlab/jupyter-ai/pull/784) ([@srdas](https://github.com/srdas))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-05-09&to=2024-05-20&type=c))
+
+[@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2024-05-09..2024-05-20&type=Issues) | [@JasonWeill](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AJasonWeill+updated%3A2024-05-09..2024-05-20&type=Issues) | [@srdas](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2024-05-09..2024-05-20&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 2.15.0
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.14.1...3b3ac27eed2c481b4565659b0fc7470c36267fc7))
@@ -29,8 +51,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-04-29&to=2024-05-09&type=c))
 
 [@3coins](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3A3coins+updated%3A2024-04-29..2024-05-09&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2024-04-29..2024-05-09&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2024-04-29..2024-05-09&type=Issues) | [@michaelchia](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Amichaelchia+updated%3A2024-04-29..2024-05-09&type=Issues) | [@srdas](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2024-04-29..2024-05-09&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 2.14.1
 
