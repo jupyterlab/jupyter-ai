@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
-import ReactDOM from 'react-dom';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 
-import { CopyButton } from './copy-button';
+import { CodeToolbar, CodeToolbarProps } from './code-blocks/code-toolbar';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 
 const MD_MIME_TYPE = 'text/markdown';
@@ -27,7 +27,11 @@ function RendermimeMarkdownBase(props: RendermimeMarkdownProps): JSX.Element {
   const [renderedContent, setRenderedContent] = useState<HTMLElement | null>(
     null
   );
-  const containerRef = useRef<HTMLDivElement>(null);
+
+  // each element is a two-tuple with the structure [codeToolbarRoot, codeToolbarProps].
+  const [codeToolbarDefns, setCodeToolbarDefns] = useState<
+    Array<[HTMLDivElement, CodeToolbarProps]>
+  >([]);
 
   useEffect(() => {
     const renderContent = async () => {
@@ -39,23 +43,29 @@ function RendermimeMarkdownBase(props: RendermimeMarkdownProps): JSX.Element {
       const renderer = props.rmRegistry.createRenderer(MD_MIME_TYPE);
       await renderer.renderModel(model);
       props.rmRegistry.latexTypesetter?.typeset(renderer.node);
-
-      // Attach CopyButton to each <pre> block
-      if (containerRef.current && renderer.node) {
-        const preBlocks = renderer.node.querySelectorAll('pre');
-        preBlocks.forEach(preBlock => {
-          const copyButtonContainer = document.createElement('div');
-          preBlock.parentNode?.insertBefore(
-            copyButtonContainer,
-            preBlock.nextSibling
-          );
-          ReactDOM.render(
-            <CopyButton value={preBlock.textContent || ''} />,
-            copyButtonContainer
-          );
-        });
+      if (!renderer.node) {
+        throw new Error(
+          'Rendermime was unable to render Markdown content within a chat message. Please report this upstream to Jupyter AI on GitHub.'
+        );
       }
 
+      const newCodeToolbarDefns: [HTMLDivElement, CodeToolbarProps][] = [];
+
+      // Attach CodeToolbar root element to each <pre> block
+      const preBlocks = renderer.node.querySelectorAll('pre');
+      preBlocks.forEach(preBlock => {
+        const codeToolbarRoot = document.createElement('div');
+        preBlock.parentNode?.insertBefore(
+          codeToolbarRoot,
+          preBlock.nextSibling
+        );
+        newCodeToolbarDefns.push([
+          codeToolbarRoot,
+          { content: preBlock.textContent || '' }
+        ]);
+      });
+
+      setCodeToolbarDefns(newCodeToolbarDefns);
       setRenderedContent(renderer.node);
     };
 
@@ -63,10 +73,22 @@ function RendermimeMarkdownBase(props: RendermimeMarkdownProps): JSX.Element {
   }, [props.markdownStr, props.rmRegistry]);
 
   return (
-    <div ref={containerRef} className={RENDERMIME_MD_CLASS}>
+    <div className={RENDERMIME_MD_CLASS}>
       {renderedContent && (
         <div ref={node => node && node.appendChild(renderedContent)} />
       )}
+      {
+        // Render a `CodeToolbar` element underneath each code block.
+        // We use ReactDOM.createPortal() so each `CodeToolbar` element is able
+        // to use the context in the main React tree.
+        codeToolbarDefns.map(codeToolbarDefn => {
+          const [codeToolbarRoot, codeToolbarProps] = codeToolbarDefn;
+          return createPortal(
+            <CodeToolbar {...codeToolbarProps} />,
+            codeToolbarRoot
+          );
+        })
+      }
     </div>
   );
 }
