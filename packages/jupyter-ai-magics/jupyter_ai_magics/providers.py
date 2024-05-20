@@ -33,19 +33,13 @@ from langchain.schema import LLMResult
 from langchain.schema.output_parser import StrOutputParser
 from langchain.schema.runnable import Runnable
 from langchain.utils import get_from_dict_or_env
-from langchain_community.chat_models import (
-    BedrockChat,
-    ChatAnthropic,
-    QianfanChatEndpoint,
-)
+from langchain_community.chat_models import BedrockChat, QianfanChatEndpoint
 from langchain_community.llms import (
     AI21,
-    Anthropic,
     Bedrock,
     Cohere,
     GPT4All,
     HuggingFaceEndpoint,
-    OpenAI,
     SagemakerEndpoint,
     Together,
 )
@@ -111,10 +105,23 @@ Complete the following code:
 
 
 class EnvAuthStrategy(BaseModel):
-    """Require one auth token via an environment variable."""
+    """
+    Describes a provider that uses a single authentication token, which is
+    passed either as an environment variable or as a keyword argument.
+    """
 
     type: Literal["env"] = "env"
+
     name: str
+    """The name of the environment variable, e.g. `'ANTHROPIC_API_KEY'`."""
+
+    keyword_param: Optional[str]
+    """
+    If unset (default), the authentication token is provided as a keyword
+    argument with the parameter equal to the environment variable name in
+    lowercase. If set to some string `k`, the authentication token will be
+    passed using the keyword parameter `k`.
+    """
 
 
 class MultiEnvAuthStrategy(BaseModel):
