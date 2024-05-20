@@ -12,7 +12,7 @@ enum CopyStatus {
 
 const COPYBTN_TEXT_BY_STATUS: Record<CopyStatus, string> = {
   [CopyStatus.None]: 'Copy to clipboard',
-  [CopyStatus.Copying]: 'Copying...',
+  [CopyStatus.Copying]: 'Copying…',
   [CopyStatus.Copied]: 'Copied!'
 };
 
