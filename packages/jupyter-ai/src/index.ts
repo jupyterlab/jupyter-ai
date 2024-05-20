@@ -20,6 +20,7 @@ import { completionPlugin } from './completions';
 import { statusItemPlugin } from './status';
 import { IJaiCompletionProvider } from './tokens';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
+import { ActiveCellManager } from './contexts/active-cell-context';
 
 export type DocumentTracker = IWidgetTracker<IDocumentWidget>;
 
@@ -50,6 +51,11 @@ const plugin: JupyterFrontEndPlugin<void> = {
     const selectionWatcher = new SelectionWatcher(app.shell);
 
     /**
+     * Initialize active cell manager singleton
+     */
+    const activeCellManager = new ActiveCellManager(app.shell);
+
+    /**
      * Initialize chat handler, open WS connection
      */
     const chatHandler = new ChatHandler();
@@ -70,7 +76,8 @@ const plugin: JupyterFrontEndPlugin<void> = {
         themeManager,
         rmRegistry,
         completionProvider,
-        openInlineCompleterSettings
+        openInlineCompleterSettings,
+        activeCellManager
       );
     } catch (e) {
       chatWidget = buildErrorWidget(themeManager);
