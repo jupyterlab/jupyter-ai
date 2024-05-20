@@ -55,7 +55,7 @@ export function TooltippedIconButton(
         By default, tooltips never appear when the IconButton is disabled. The
         official way to support this feature in MUI is to wrap the child Button
         element in a `span` element.
-        
+
         See: https://mui.com/material-ui/react-tooltip/#disabled-elements
       */}
       <span>
