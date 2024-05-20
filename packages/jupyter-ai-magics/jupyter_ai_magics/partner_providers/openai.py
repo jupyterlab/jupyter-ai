@@ -24,6 +24,7 @@ class OpenAIProvider(BaseProvider, OpenAI):
             return error_details.get("code") == "invalid_api_key"
         return False
 
+
 # https://platform.openai.com/docs/models/
 class ChatOpenAIProvider(BaseProvider, ChatOpenAI):
     id = "openai-chat"
