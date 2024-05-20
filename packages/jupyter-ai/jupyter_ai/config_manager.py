@@ -448,7 +448,10 @@ class ConfigManager(Configurable):
         _, Provider = get_em_provider(gid, listing)
         authn_fields = {}
         if Provider.auth_strategy and Provider.auth_strategy.type == "env":
-            keyword_param = Provider.auth_strategy.keyword_param or Provider.auth_strategy.name.lower()
+            keyword_param = (
+                Provider.auth_strategy.keyword_param
+                or Provider.auth_strategy.name.lower()
+            )
             key_name = Provider.auth_strategy.name
             authn_fields[keyword_param] = config.api_keys[key_name]
 

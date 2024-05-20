@@ -33,10 +33,7 @@ from langchain.schema import LLMResult
 from langchain.schema.output_parser import StrOutputParser
 from langchain.schema.runnable import Runnable
 from langchain.utils import get_from_dict_or_env
-from langchain_community.chat_models import (
-    BedrockChat,
-    QianfanChatEndpoint,
-)
+from langchain_community.chat_models import BedrockChat, QianfanChatEndpoint
 from langchain_community.llms import (
     AI21,
     Bedrock,
