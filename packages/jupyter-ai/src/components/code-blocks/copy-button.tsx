@@ -11,7 +11,7 @@ enum CopyStatus {
 }
 
 const COPYBTN_TEXT_BY_STATUS: Record<CopyStatus, string> = {
-  [CopyStatus.None]: 'Copy to Clipboard',
+  [CopyStatus.None]: 'Copy to clipboard',
   [CopyStatus.Copying]: 'Copying...',
   [CopyStatus.Copied]: 'Copied!'
 };
@@ -50,7 +50,7 @@ export function CopyButton(props: CopyButtonProps): JSX.Element {
       tooltip={COPYBTN_TEXT_BY_STATUS[copyStatus]}
       placement="top"
       onClick={copy}
-      aria-label="Copy to Clipboard"
+      aria-label="Copy to clipboard"
     >
       <copyIcon.react height="16px" width="16px" />
     </TooltippedIconButton>
