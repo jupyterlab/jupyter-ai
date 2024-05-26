@@ -204,14 +204,7 @@ class AiExtension(ExtensionApp):
         )
 
         # Expose a subset of settings as read-only to the providers
-        exposed_server_settings = ["jupyter_server_ydoc"]
-        BaseProvider.server_settings = types.MappingProxyType(
-            {
-                key: value
-                for key, value in self.settings.items()
-                if key in exposed_server_settings
-            }
-        )
+        BaseProvider.server_settings = types.MappingProxyType(self.settings)
 
         self.log.info("Registered providers.")
 
