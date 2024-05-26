@@ -263,7 +263,7 @@ class MyCompletionProvider(BaseProvider, FakeListLLM):
         kwargs["responses"] = ["This fake response will not be used for completion"]
         super().__init__(**kwargs)
 
-    def _get_prefix_and_suffix(self, request: InlineCompletionRequest):
+    async def _get_prefix_and_suffix(self, request: InlineCompletionRequest):
         prefix = request.prefix
         suffix = request.suffix.strip()
 
@@ -273,7 +273,7 @@ class MyCompletionProvider(BaseProvider, FakeListLLM):
             return prefix, suffix
 
         is_notebook = request.path.endswith("ipynb")
-        document = server_ydoc.get_document(
+        document = await server_ydoc.get_document(
             path=request.path,
             content_type="notebook" if is_notebook else "file",
             file_format="json" if is_notebook else "text"
@@ -305,7 +305,7 @@ class MyCompletionProvider(BaseProvider, FakeListLLM):
         return prefix, suffix
 
     async def generate_inline_completions(self, request: InlineCompletionRequest):
-        prefix, suffix = self._get_prefix_and_suffix(request)
+        prefix, suffix = await self._get_prefix_and_suffix(request)
 
         return InlineCompletionReply(
             list=InlineCompletionList(items=[
