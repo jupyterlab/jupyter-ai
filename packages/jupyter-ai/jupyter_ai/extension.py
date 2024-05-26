@@ -204,7 +204,9 @@ class AiExtension(ExtensionApp):
         )
 
         # Expose a subset of settings as read-only to the providers
-        BaseProvider.server_settings = types.MappingProxyType(self.settings)
+        BaseProvider.server_settings = types.MappingProxyType(
+            self.serverapp.web_app.settings
+        )
 
         self.log.info("Registered providers.")
 
