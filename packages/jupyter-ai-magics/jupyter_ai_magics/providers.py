@@ -5,6 +5,7 @@ import functools
 import io
 import json
 from concurrent.futures import ThreadPoolExecutor
+from types import MappingProxyType
 from typing import (
     Any,
     AsyncIterator,
@@ -263,6 +264,13 @@ class BaseProvider(BaseModel, metaclass=ProviderMetaclass):
     A set of slash commands unsupported by this provider. Unsupported slash
     commands are not shown in the help message, and cannot be used while this
     provider is selected.
+    """
+
+    server_settings: ClassVar[Optional[MappingProxyType[str, Any]]] = None
+    """Settings passed on from jupyter-ai package.
+
+    The same server settings are shared between all providers.
+    Providers are not allowed to mutate this dictionary.
     """
 
     @classmethod

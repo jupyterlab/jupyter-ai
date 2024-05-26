@@ -267,7 +267,7 @@ class MyCompletionProvider(BaseProvider, FakeListLLM):
         prefix = request.prefix
         suffix = request.suffix.strip()
 
-        server_ydoc = self.settings.get("jupyter_server_ydoc", None)
+        server_ydoc = self.server_settings.get("jupyter_server_ydoc", None)
         if not server_ydoc:
             # fallback to prefix/suffix from single cell
             return prefix, suffix

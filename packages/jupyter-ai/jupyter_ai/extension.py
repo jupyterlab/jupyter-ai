@@ -1,11 +1,12 @@
 import os
 import re
 import time
+import types
 
 from dask.distributed import Client as DaskClient
 from importlib_metadata import entry_points
 from jupyter_ai.chat_handlers.learn import Retriever
-from jupyter_ai_magics import JupyternautPersona
+from jupyter_ai_magics import BaseProvider, JupyternautPersona
 from jupyter_ai_magics.utils import get_em_providers, get_lm_providers
 from jupyter_server.extension.application import ExtensionApp
 from tornado.web import StaticFileHandler
@@ -200,6 +201,16 @@ class AiExtension(ExtensionApp):
             allowed_models=self.allowed_models,
             blocked_models=self.blocked_models,
             defaults=defaults,
+        )
+
+        # Expose a subset of settings as read-only to the providers
+        exposed_server_settings = ["jupyter_server_ydoc"]
+        BaseProvider.server_settings = types.MappingProxyType(
+            {
+                key: value
+                for key, value in self.settings.items()
+                if key in exposed_server_settings
+            }
         )
 
         self.log.info("Registered providers.")
