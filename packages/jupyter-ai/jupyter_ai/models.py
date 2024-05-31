@@ -163,9 +163,11 @@ class GlobalConfig(BaseModel):
     completions_model_provider_id: Optional[str]
     completions_fields: Dict[str, Dict[str, Any]]
 
+
 class ListSlashCommandsEntry(BaseModel):
     slash_id: str
     description: str
+
 
 class ListSlashCommandsResponse(BaseModel):
     slash_commands: List[ListSlashCommandsEntry] = []

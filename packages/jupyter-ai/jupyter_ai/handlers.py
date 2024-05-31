@@ -407,6 +407,7 @@ class ApiKeysHandler(BaseAPIHandler):
         except Exception as e:
             raise HTTPError(500, str(e))
 
+
 class SlashCommandsInfoHandler(BaseAPIHandler):
     """List slash commands that are currently available to the user."""
 
@@ -417,7 +418,7 @@ class SlashCommandsInfoHandler(BaseAPIHandler):
     @property
     def chat_handlers(self) -> Dict[str, "BaseChatHandler"]:
         return self.settings["jai_chat_handlers"]
-    
+
     @web.authenticated
     def get(self):
         response = ListSlashCommandsResponse()
@@ -429,20 +430,25 @@ class SlashCommandsInfoHandler(BaseAPIHandler):
 
         for id, chat_handler in self.chat_handlers.items():
             # filter out any chat handler that is not a slash command
-            if id == "default" or chat_handler.routing_type.routing_method != "slash_command":
+            if (
+                id == "default"
+                or chat_handler.routing_type.routing_method != "slash_command"
+            ):
                 continue
 
             # hint the type of this attribute
             routing_type: SlashCommandRoutingType = chat_handler.routing_type
 
             # filter out any chat handler that is unsupported by the current LLM
-            if "/" + routing_type.slash_id in self.config_manager.lm_provider.unsupported_slash_commands:
+            if (
+                "/" + routing_type.slash_id
+                in self.config_manager.lm_provider.unsupported_slash_commands
+            ):
                 continue
 
             response.slash_commands.append(
                 ListSlashCommandsEntry(
-                    slash_id=routing_type.slash_id,
-                    description=chat_handler.help
+                    slash_id=routing_type.slash_id, description=chat_handler.help
                 )
             )
 
