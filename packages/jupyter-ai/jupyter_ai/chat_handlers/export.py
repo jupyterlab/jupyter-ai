@@ -10,8 +10,8 @@ from .base import BaseChatHandler, SlashCommandRoutingType
 
 class ExportChatHandler(BaseChatHandler):
     id = "export"
-    name = "Export chat messages"
-    help = "Export the chat messages in markdown format with timestamps"
+    name = "Export chat history"
+    help = "Export chat history to a Markdown file"
     routing_type = SlashCommandRoutingType(slash_id="export")
 
     uses_llm = False
