@@ -108,8 +108,9 @@ def split_document(document, splitter: TextSplitter) -> List[Document]:
 def flatten(*chunk_lists):
     return list(itertools.chain(*chunk_lists))
 
-# Selects eligible files, i.e., 
-# 1. Files not in excluded directories, and 
+
+# Selects eligible files, i.e.,
+# 1. Files not in excluded directories, and
 # 2. Files that are in the valid file extensions list
 # Called from the `split` function.
 def collect_files(path, all_files: bool):
@@ -127,7 +128,11 @@ def collect_files(path, all_files: bool):
                 ]
                 filenames = [f for f in filenames if not f[0] == "."]
             filepaths += [Path(os.path.join(dir, filename)) for filename in filenames]
-        filepaths = [fp for fp in filepaths if fp.suffix.lower() in {j.lower() for j in SUPPORTED_EXTS}]
+        filepaths = [
+            fp
+            for fp in filepaths
+            if fp.suffix.lower() in {j.lower() for j in SUPPORTED_EXTS}
+        ]
     return filepaths
 
 
