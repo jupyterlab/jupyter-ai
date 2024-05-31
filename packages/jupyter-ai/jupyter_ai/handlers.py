@@ -7,7 +7,7 @@ from dataclasses import asdict
 from typing import TYPE_CHECKING, Dict, List, Optional
 
 import tornado
-from jupyter_ai.chat_handlers import BaseChatHandler
+from jupyter_ai.chat_handlers import BaseChatHandler, SlashCommandRoutingType
 from jupyter_ai.config_manager import ConfigManager, KeyEmptyError, WriteConflictError
 from jupyter_server.base.handlers import APIHandler as BaseAPIHandler
 from jupyter_server.base.handlers import JupyterHandler
@@ -15,7 +15,6 @@ from langchain.pydantic_v1 import ValidationError
 from tornado import web, websocket
 from tornado.web import HTTPError
 
-from .completions.models import InlineCompletionRequest
 from .models import (
     AgentChatMessage,
     ChatClient,
@@ -27,6 +26,8 @@ from .models import (
     HumanChatMessage,
     ListProvidersEntry,
     ListProvidersResponse,
+    ListSlashCommandsEntry,
+    ListSlashCommandsResponse,
     Message,
     UpdateConfigRequest,
 )
@@ -405,3 +406,46 @@ class ApiKeysHandler(BaseAPIHandler):
             self.config_manager.delete_api_key(api_key_name)
         except Exception as e:
             raise HTTPError(500, str(e))
+
+class SlashCommandsInfoHandler(BaseAPIHandler):
+    """List slash commands that are currently available to the user."""
+
+    @property
+    def config_manager(self) -> ConfigManager:
+        return self.settings["jai_config_manager"]
+
+    @property
+    def chat_handlers(self) -> Dict[str, "BaseChatHandler"]:
+        return self.settings["jai_chat_handlers"]
+    
+    @web.authenticated
+    def get(self):
+        response = ListSlashCommandsResponse()
+
+        # if no selected LLM, return an empty response
+        if not self.config_manager.lm_provider:
+            self.finish(response.json())
+            return
+
+        for id, chat_handler in self.chat_handlers.items():
+            # filter out any chat handler that is not a slash command
+            if id == "default" or chat_handler.routing_type.routing_method != "slash_command":
+                continue
+
+            # hint the type of this attribute
+            routing_type: SlashCommandRoutingType = chat_handler.routing_type
+
+            # filter out any chat handler that is unsupported by the current LLM
+            if "/" + routing_type.slash_id in self.config_manager.lm_provider.unsupported_slash_commands:
+                continue
+
+            response.slash_commands.append(
+                ListSlashCommandsEntry(
+                    slash_id=routing_type.slash_id,
+                    description=chat_handler.help
+                )
+            )
+
+        # sort slash commands by slash id and deliver the response
+        response.slash_commands.sort(key=lambda sc: sc.slash_id)
+        self.finish(response.json())

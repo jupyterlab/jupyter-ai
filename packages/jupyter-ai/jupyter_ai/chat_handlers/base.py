@@ -11,6 +11,7 @@ from typing import (
     Literal,
     Optional,
     Type,
+    Union,
 )
 from uuid import uuid4
 
@@ -27,7 +28,7 @@ if TYPE_CHECKING:
 
 # Chat handler type, with specific attributes for each
 class HandlerRoutingType(BaseModel):
-    routing_method: ClassVar[str] = Literal["slash_command"]
+    routing_method: ClassVar[Union[Literal["slash_command"]]] = ...
     """The routing method that sends commands to this handler."""
 
 
