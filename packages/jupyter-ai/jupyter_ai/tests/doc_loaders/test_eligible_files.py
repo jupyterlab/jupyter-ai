@@ -5,6 +5,7 @@ Test that the collect_files function only selects files that are
 """
 
 import os
+
 from jupyter_ai.document_loaders.directory import collect_files
 
 # Prepare temp directory for test with pytest.py
@@ -31,6 +32,7 @@ for folder in test_dir_contents:
         filepath = os.path.join(d, file)
         open(filepath, "a")
 
+
 # Test that the number of valid files for `/learn` is correct
 def test_collect_files():
     all_files = False
@@ -40,5 +42,6 @@ def test_collect_files():
 
     # Clean up temp directory
     from shutil import rmtree
+
     rmtree(path)
     os.chdir(os.path.split(path)[0])
