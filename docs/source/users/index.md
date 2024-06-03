@@ -464,8 +464,29 @@ use the `-a` or `--all-files` option.
 /learn -a <directory>
 ```
 
+#### Supported files for the learn command
+
+Jupyter AI can only learn from files with the following file extensions:
+
+* .py
+* .md
+* .R
+* .Rmd
+* .jl
+* .sh
+* .ipynb
+* .js
+* .ts
+* .jsx
+* .tsx
+* .txt
+* .html
+* .pdf
+* .tex
+
 ### Learning arXiv files
-`/learn` command also provides downloading and processing papers from the [arXiv](https://arxiv.org/) repository. You will need to install the `arxiv` python package for this feature to work. Run `pip install arxiv` to install the `arxiv` package.
+
+The `/learn` command also provides downloading and processing papers from the [arXiv](https://arxiv.org/) repository. You will need to install the `arxiv` python package for this feature to work. Run `pip install arxiv` to install the `arxiv` package.
 
 ```
 /learn -r arxiv 2404.18558
