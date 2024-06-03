@@ -480,6 +480,9 @@ Jupyter AI can only learn from files with the following file extensions:
 * .jsx
 * .tsx
 * .txt
+* .html
+* .pdf
+* .tex
 
 ### Learning arXiv files
 
