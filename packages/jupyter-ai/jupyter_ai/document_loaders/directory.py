@@ -109,11 +109,13 @@ def flatten(*chunk_lists):
     return list(itertools.chain(*chunk_lists))
 
 
-# Selects eligible files, i.e.,
-# 1. Files not in excluded directories, and
-# 2. Files that are in the valid file extensions list
-# Called from the `split` function.
-def collect_files(path, all_files: bool):
+"""Selects eligible files, i.e.,
+1. Files not in excluded directories, and
+2. Files that are in the valid file extensions list
+Called from the `split` function. 
+Returns all the filepaths to eligible files. 
+"""
+def collect_filepaths(path, all_files: bool):
     # Check if the path points to a single file
     if os.path.isfile(path):
         filepaths = [Path(path)]
@@ -136,10 +138,10 @@ def collect_files(path, all_files: bool):
     return filepaths
 
 
-# Split files into chunks for vector db in RAG
+"""Splits files into chunks for vector db in RAG"""
 def split(path, all_files: bool, splitter):
     chunks = []
-    filepaths = collect_files(path, all_files)
+    filepaths = collect_filepaths(path, all_files)
     for filepath in filepaths:
         document = dask.delayed(path_to_doc)(filepath)
         chunk = dask.delayed(split_document)(document, splitter)
