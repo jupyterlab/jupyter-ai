@@ -1,5 +1,5 @@
 """
-Test that the collect_files function only selects files that are
+Test that the `collect_filepaths` function only selects files that are
 1. Not in the the excluded directories and
 2. Are in the  valid file extensions list.
 """
