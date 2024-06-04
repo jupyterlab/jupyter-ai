@@ -1,5 +1,6 @@
-import pytest
 from pathlib import Path
+
+import pytest
 
 pytest_plugins = ("jupyter_server.pytest_plugin",)
 
@@ -11,7 +12,14 @@ def jp_server_config(jp_server_config):
 
 @pytest.fixture(scope="session")
 def static_test_files_dir() -> Path:
-    return Path(__file__).parent.resolve() / "packages" / "jupyter-ai" / "jupyter_ai" / "tests" / "static"
+    return (
+        Path(__file__).parent.resolve()
+        / "packages"
+        / "jupyter-ai"
+        / "jupyter_ai"
+        / "tests"
+        / "static"
+    )
 
 
 @pytest.fixture
