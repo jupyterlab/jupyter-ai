@@ -6,10 +6,12 @@ Test that the collect_files function only selects files that are
 
 import os
 import shutil
-import pytest
 from pathlib import Path
 from typing import Tuple
+
+import pytest
 from jupyter_ai.document_loaders.directory import collect_filepaths
+
 
 @pytest.fixture
 def staging_dir(static_test_files_dir, jp_ai_staging_dir) -> Path:
@@ -42,6 +44,8 @@ def staging_dir(static_test_files_dir, jp_ai_staging_dir) -> Path:
 
 
 """Test that the number of valid files for `/learn` is correct"""
+
+
 def test_collect_filepaths(staging_dir):
     all_files = False
     staging_dir_filepath = staging_dir
@@ -51,5 +55,5 @@ def test_collect_filepaths(staging_dir):
     assert len(result) == 3  # Test number of valid files
 
     filenames = [fp.name for fp in result]
-    assert "file0.html" in filenames # Check that valid file is included
-    assert "file3.xyz" not in filenames # Check that invalid file is excluded
+    assert "file0.html" in filenames  # Check that valid file is included
+    assert "file3.xyz" not in filenames  # Check that invalid file is excluded

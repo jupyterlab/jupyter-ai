@@ -112,9 +112,11 @@ def flatten(*chunk_lists):
 """Selects eligible files, i.e.,
 1. Files not in excluded directories, and
 2. Files that are in the valid file extensions list
-Called from the `split` function. 
-Returns all the filepaths to eligible files. 
+Called from the `split` function.
+Returns all the filepaths to eligible files.
 """
+
+
 def collect_filepaths(path, all_files: bool):
     # Check if the path points to a single file
     if os.path.isfile(path):
@@ -139,6 +141,8 @@ def collect_filepaths(path, all_files: bool):
 
 
 """Splits files into chunks for vector db in RAG"""
+
+
 def split(path, all_files: bool, splitter):
     chunks = []
     filepaths = collect_filepaths(path, all_files)
