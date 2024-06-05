@@ -113,7 +113,7 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
       setSlashCommandOptions(
         slashCommands.map<SlashCommandOption>(slashCommand => ({
           id: slashCommand.slash_id,
-          label: '/' + slashCommand.slash_id,
+          label: '/' + slashCommand.slash_id + ' ',
           description: slashCommand.description
         }))
       );
