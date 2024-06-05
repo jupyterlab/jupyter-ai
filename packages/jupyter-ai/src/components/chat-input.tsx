@@ -76,7 +76,7 @@ function renderSlashCommandOption(
 
   return (
     <li {...optionProps}>
-      <Box sx={{ lineHeight: 0, marginRight: 2, opacity: 0.618 }}>{icon}</Box>
+      <Box sx={{ lineHeight: 0, marginRight: 4, opacity: 0.618 }}>{icon}</Box>
       <Box sx={{ flexGrow: 1 }}>
         <Typography
           component="span"
@@ -219,6 +219,11 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
         componentsProps={{
           popper: {
             placement: 'top'
+          },
+          paper: {
+            sx: {
+              border: '1px solid lightgray'
+            }
           }
         }}
         renderOption={renderSlashCommandOption}
