@@ -130,8 +130,8 @@ def collect_filepaths(path, all_files: bool):
                 ]
                 filenames = [f for f in filenames if not f[0] == "."]
             filepaths.extend([Path(dir) / filename for filename in filenames])
-    VALID_EXTS = {j.lower() for j in SUPPORTED_EXTS}
-    filepaths = [fp for fp in filepaths if fp.suffix.lower() in VALID_EXTS]
+    valid_exts = {j.lower() for j in SUPPORTED_EXTS}
+    filepaths = [fp for fp in filepaths if fp.suffix.lower() in valid_exts]
     return filepaths
 
 
