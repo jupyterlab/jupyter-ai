@@ -84,13 +84,13 @@ function renderSlashCommandOption(
             fontSize: 'var(--jp-ui-font-size1)'
           }}
         >
-          {option.label + ' - '}
+          {option.label}
         </Typography>
         <Typography
           component="span"
           sx={{ opacity: 0.618, fontSize: 'var(--jp-ui-font-size0)' }}
         >
-          {option.description}
+          {' — ' + option.description}
         </Typography>
       </Box>
     </li>
