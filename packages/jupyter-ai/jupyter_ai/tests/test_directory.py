@@ -1,9 +1,3 @@
-"""
-Test that the `collect_filepaths` function only selects files that are
-1. Not in the the excluded directories and
-2. Are in the  valid file extensions list.
-"""
-
 import os
 import shutil
 from pathlib import Path
@@ -44,7 +38,12 @@ def staging_dir(static_test_files_dir, jp_ai_staging_dir) -> Path:
 
 
 def test_collect_filepaths(staging_dir):
-    """Test that the number of valid files for `/learn` is correct"""
+    """
+    Test that the number of valid files for `/learn` is correct.
+    i.e., the `collect_filepaths` function only selects files that are
+    1. Not in the the excluded directories and
+    2. Are in the  valid file extensions list.
+    """
     all_files = False
     staging_dir_filepath = staging_dir
     # Call the function we want to test
