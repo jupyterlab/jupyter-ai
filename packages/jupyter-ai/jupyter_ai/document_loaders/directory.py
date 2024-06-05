@@ -109,15 +109,13 @@ def flatten(*chunk_lists):
     return list(itertools.chain(*chunk_lists))
 
 
-"""Selects eligible files, i.e.,
-1. Files not in excluded directories, and
-2. Files that are in the valid file extensions list
-Called from the `split` function.
-Returns all the filepaths to eligible files.
-"""
-
-
 def collect_filepaths(path, all_files: bool):
+    """Selects eligible files, i.e.,
+    1. Files not in excluded directories, and
+    2. Files that are in the valid file extensions list
+    Called from the `split` function.
+    Returns all the filepaths to eligible files.
+    """
     # Check if the path points to a single file
     if os.path.isfile(path):
         filepaths = [Path(path)]
@@ -131,19 +129,18 @@ def collect_filepaths(path, all_files: bool):
                     d for d in subdirs if not (d[0] == "." or d in EXCLUDE_DIRS)
                 ]
                 filenames = [f for f in filenames if not f[0] == "."]
-            filepaths += [Path(os.path.join(dir, filename)) for filename in filenames]
-        filepaths = [
-            fp
-            for fp in filepaths
-            if fp.suffix.lower() in {j.lower() for j in SUPPORTED_EXTS}
-        ]
+            filepaths.extend([Path(dir) / filename for filename in filenames])
+    VALID_EXTS = {j.lower() for j in SUPPORTED_EXTS}
+    filepaths = [
+        fp
+        for fp in filepaths
+        if fp.suffix.lower() in VALID_EXTS
+    ]
     return filepaths
 
 
-"""Splits files into chunks for vector db in RAG"""
-
-
 def split(path, all_files: bool, splitter):
+    """Splits files into chunks for vector db in RAG"""
     chunks = []
     filepaths = collect_filepaths(path, all_files)
     for filepath in filepaths:
