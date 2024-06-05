@@ -30,6 +30,7 @@ from .handlers import (
     GlobalConfigHandler,
     ModelProviderHandler,
     RootChatHandler,
+    SlashCommandsInfoHandler,
 )
 
 JUPYTERNAUT_AVATAR_ROUTE = JupyternautPersona.avatar_route
@@ -45,6 +46,7 @@ class AiExtension(ExtensionApp):
         (r"api/ai/config/?", GlobalConfigHandler),
         (r"api/ai/chats/?", RootChatHandler),
         (r"api/ai/chats/history?", ChatHistoryHandler),
+        (r"api/ai/chats/slash_commands?", SlashCommandsInfoHandler),
         (r"api/ai/providers?", ModelProviderHandler),
         (r"api/ai/providers/embeddings?", EmbeddingsModelProviderHandler),
         (r"api/ai/completion/inline/?", DefaultInlineCompletionHandler),

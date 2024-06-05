@@ -216,4 +216,17 @@ export namespace AiService {
       method: 'DELETE'
     });
   }
+
+  export type ListSlashCommandsEntry = {
+    slash_id: string;
+    description: string;
+  };
+
+  export type ListSlashCommandsResponse = {
+    slash_commands: ListSlashCommandsEntry[];
+  };
+
+  export async function listSlashCommands(): Promise<ListSlashCommandsResponse> {
+    return requestAPI<ListSlashCommandsResponse>('chats/slash_commands');
+  }
 }
