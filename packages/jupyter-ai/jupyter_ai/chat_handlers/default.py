@@ -43,19 +43,6 @@ class DefaultChatHandler(BaseChatHandler):
                 llm=llm, prompt=prompt_template, verbose=True, memory=self.memory
             )
 
-    def clear_memory(self):
-        # clear chain memory
-        if self.memory:
-            self.memory.clear()
-
-        # clear transcript for existing chat clients
-        reply_message = ClearMessage()
-        self.reply(reply_message)
-
-        # clear transcript for new chat clients
-        if self._chat_history:
-            self._chat_history.clear()
-
     async def process_message(self, message: HumanChatMessage):
         self.get_llm_chain()
         response = await self.llm_chain.apredict(input=message.body, stop=["\nHuman:"])
