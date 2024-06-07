@@ -48,5 +48,7 @@ class DefaultChatHandler(BaseChatHandler):
     async def process_message(self, message: HumanChatMessage):
         self.get_llm_chain()
         with self.pending(PENDING_MESSAGE):
-            response = await self.llm_chain.apredict(input=message.body, stop=["\nHuman:"])
+            response = await self.llm_chain.apredict(
+                input=message.body, stop=["\nHuman:"]
+            )
         self.reply(response, message)

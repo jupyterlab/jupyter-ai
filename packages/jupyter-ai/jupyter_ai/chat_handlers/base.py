@@ -1,8 +1,8 @@
 import argparse
+import contextlib
 import os
 import time
 import traceback
-import contextlib
 from typing import (
     TYPE_CHECKING,
     Awaitable,
@@ -21,9 +21,9 @@ from jupyter_ai.config_manager import ConfigManager, Logger
 from jupyter_ai.models import (
     AgentChatMessage,
     ChatMessage,
+    ClosePendingMessage,
     HumanChatMessage,
     PendingMessage,
-    ClosePendingMessage,
 )
 from jupyter_ai_magics import Persona
 from jupyter_ai_magics.providers import BaseProvider
@@ -199,7 +199,7 @@ class BaseChatHandler:
 
             handler.broadcast_message(agent_msg)
             break
-    
+
     def start_pending(self, text: str, ellipsis: bool = True) -> str:
         """
         Sends a pending message to the client.
