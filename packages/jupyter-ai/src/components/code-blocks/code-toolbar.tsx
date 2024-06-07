@@ -19,11 +19,11 @@ export type CodeToolbarProps = {
 };
 
 export function CodeToolbar(props: CodeToolbarProps): JSX.Element {
-  const [activeCellExists, activeCellManager] = useActiveCellContext();
+  const activeCell = useActiveCellContext();
   const sharedToolbarButtonProps = {
     content: props.content,
-    activeCellManager,
-    activeCellExists
+    activeCellManager: activeCell.manager,
+    activeCellExists: activeCell.exists
   };
 
   return (
