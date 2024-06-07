@@ -31,12 +31,12 @@ function getActiveCell(widget: Widget | null): Cell | null {
   return notebook.activeCell;
 }
 
-type ActiveCellContent = {
+type CellContent = {
   type: string;
   source: string;
 };
 
-type ActiveCellContentWithError = {
+type CellWithErrorContent = {
   type: 'code';
   source: string;
   error: {
@@ -87,11 +87,9 @@ export class ActiveCellManager {
    * `ActiveCellContentWithError` object that describes both the active cell and
    * the error output.
    */
-  getContent(withError: false): ActiveCellContent | null;
-  getContent(withError: true): ActiveCellContentWithError | null;
-  getContent(
-    withError = false
-  ): ActiveCellContent | ActiveCellContentWithError | null {
+  getContent(withError: false): CellContent | null;
+  getContent(withError: true): CellWithErrorContent | null;
+  getContent(withError = false): CellContent | CellWithErrorContent | null {
     const sharedModel = this._activeCell?.model.sharedModel;
     if (!sharedModel) {
       return null;
