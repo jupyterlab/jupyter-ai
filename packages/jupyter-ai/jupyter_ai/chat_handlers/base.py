@@ -2,6 +2,7 @@ import argparse
 import os
 import time
 import traceback
+import contextlib
 from typing import (
     TYPE_CHECKING,
     Awaitable,
@@ -17,7 +18,13 @@ from uuid import uuid4
 
 from dask.distributed import Client as DaskClient
 from jupyter_ai.config_manager import ConfigManager, Logger
-from jupyter_ai.models import AgentChatMessage, ChatMessage, HumanChatMessage
+from jupyter_ai.models import (
+    AgentChatMessage,
+    ChatMessage,
+    HumanChatMessage,
+    PendingMessage,
+    ClosePendingMessage,
+)
 from jupyter_ai_magics import Persona
 from jupyter_ai_magics.providers import BaseProvider
 from langchain.pydantic_v1 import BaseModel
@@ -192,6 +199,57 @@ class BaseChatHandler:
 
             handler.broadcast_message(agent_msg)
             break
+    
+    def start_pending(self, text: str, ellipsis: bool = True) -> str:
+        """
+        Sends a pending message to the client.
+
+        Returns the pending message ID.
+        """
+        persona = self.config_manager.persona
+
+        pending_msg = PendingMessage(
+            id=uuid4().hex,
+            time=time.time(),
+            body=text,
+            persona=Persona(name=persona.name, avatar_route=persona.avatar_route),
+            ellipsis=ellipsis,
+        )
+
+        for handler in self._root_chat_handlers.values():
+            if not handler:
+                continue
+
+            handler.broadcast_message(pending_msg)
+            break
+        return pending_msg
+
+    def close_pending(self, pending_msg: PendingMessage):
+        """
+        Closes a pending message.
+        """
+        close_pending_msg = ClosePendingMessage(
+            id=pending_msg.id,
+        )
+
+        for handler in self._root_chat_handlers.values():
+            if not handler:
+                continue
+
+            handler.broadcast_message(close_pending_msg)
+            break
+
+    @contextlib.contextmanager
+    def pending(self, text: str, ellipsis: bool = True):
+        """
+        Context manager that sends a pending message to the client, and closes
+        it after the block is executed.
+        """
+        pending_msg = self.start_pending(text, ellipsis=ellipsis)
+        try:
+            yield
+        finally:
+            self.close_pending(pending_msg)
 
     def get_llm_chain(self):
         lm_provider = self.config_manager.lm_provider
