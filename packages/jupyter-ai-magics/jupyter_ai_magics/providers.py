@@ -20,8 +20,6 @@ from typing import (
 
 from jsonpath_ng import parse
 from langchain.chat_models.base import BaseChatModel
-from langchain.llms.sagemaker_endpoint import LLMContentHandler
-from langchain.llms.utils import enforce_stop_tokens
 from langchain.prompts import (
     ChatPromptTemplate,
     HumanMessagePromptTemplate,
@@ -44,6 +42,7 @@ from langchain_community.llms import (
     SagemakerEndpoint,
     Together,
 )
+from langchain_community.llms.sagemaker_endpoint import LLMContentHandler
 
 # this is necessary because `langchain.pydantic_v1.main` does not include
 # `ModelMetaclass`, as it is not listed in `__all__` by the `pydantic.main`
