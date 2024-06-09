@@ -148,6 +148,7 @@ Jupyter AI supports the following model providers:
 | Gemini              | `gemini`             | `GOOGLE_API_KEY`           | `langchain-google-genai`        |
 | GPT4All             | `gpt4all`            | N/A                        | `gpt4all`                       |
 | Hugging Face Hub    | `huggingface_hub`    | `HUGGINGFACEHUB_API_TOKEN` | `huggingface_hub`, `ipywidgets`, `pillow` |
+| MistralAI           | `mistralai`          | `MISTRAL_API_KEY`          | `langchain-mistralai`           |
 | NVIDIA              | `nvidia-chat`        | `NVIDIA_API_KEY`           | `langchain_nvidia_ai_endpoints` |
 | OpenAI              | `openai`             | `OPENAI_API_KEY`           | `langchain-openai`              |
 | OpenAI (chat)       | `openai-chat`        | `OPENAI_API_KEY`           | `langchain-openai`              |
