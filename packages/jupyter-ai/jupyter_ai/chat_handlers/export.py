@@ -34,8 +34,10 @@ class ExportChatHandler(BaseChatHandler):
         markdown_content = "\n\n".join(
             self.chat_message_to_markdown(msg) for msg in self._chat_history
         )
-        args = self.parse_args(message)          
-        chat_filename = args.path[0] if (args.path and args.path[0]!="") else "chat_history" # Handles both empty args and double tap <Enter> key
+        args = self.parse_args(message)
+        chat_filename = (
+            args.path[0] if (args.path and args.path[0] != "") else "chat_history"
+        )  # Handles both empty args and double tap <Enter> key
         chat_filename = f"{chat_filename}-{datetime.now():%Y-%m-%d-%H-%M}.md"
         chat_file = os.path.join(self.root_dir, chat_filename)
         with open(chat_file, "w") as chat_history:

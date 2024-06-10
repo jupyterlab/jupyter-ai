@@ -4,8 +4,10 @@ from jupyter_ai.models import ChatMessage, ClearMessage
 
 from .base import BaseChatHandler, SlashCommandRoutingType
 
+
 class ClearChatHandler(BaseChatHandler):
     """Clear the chat panel and show the help menu"""
+
     id = "clear"
     name = "Clear chat messages"
     help = "Clear the chat window"
@@ -27,5 +29,5 @@ class ClearChatHandler(BaseChatHandler):
 
             self._chat_history = [tmp_chat_history]
             self.reply(tmp_chat_history.body)
-            
+
             break
