@@ -196,6 +196,18 @@ class ProviderMetaclass(ModelMetaclass):
 
         return cls
 
+    @property
+    def server_settings(cls):
+        return cls._server_settings
+
+    @server_settings.setter
+    def server_settings(cls, value):
+        if cls._server_settings is not None:
+            raise AttributeError("'server_settings' attribute was already set")
+        cls._server_settings = value
+
+    _server_settings = None
+
 
 class BaseProvider(BaseModel, metaclass=ProviderMetaclass):
     #
