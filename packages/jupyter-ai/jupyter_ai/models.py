@@ -13,12 +13,15 @@ class CellError(BaseModel):
     value: str
     traceback: List[str]
 
+
 class CellWithErrorSelection(BaseModel):
     type: Literal["cell-with-error"] = "cell-with-error"
     source: str
     error: CellError
 
+
 Selection = Union[CellWithErrorSelection]
+
 
 # the type of message used to chat with the agent
 class ChatRequest(BaseModel):

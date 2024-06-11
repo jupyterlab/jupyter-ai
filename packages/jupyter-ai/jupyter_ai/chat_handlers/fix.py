@@ -1,6 +1,6 @@
 from typing import Dict, Type
 
-from jupyter_ai.models import HumanChatMessage, CellWithErrorSelection
+from jupyter_ai.models import CellWithErrorSelection, HumanChatMessage
 from jupyter_ai_magics.providers import BaseProvider
 from langchain.chains import LLMChain
 from langchain.prompts import PromptTemplate
@@ -31,9 +31,16 @@ Output error:
 """.strip()
 
 FIX_PROMPT_TEMPLATE = PromptTemplate(
-                input_variables=["extra_instructions", "cell_content", "traceback", "error_name", "error_value"],
-                template=FIX_STRING_TEMPLATE,
-            )
+    input_variables=[
+        "extra_instructions",
+        "cell_content",
+        "traceback",
+        "error_name",
+        "error_value",
+    ],
+    template=FIX_STRING_TEMPLATE,
+)
+
 
 class FixChatHandler(BaseChatHandler):
     id = "fix"
@@ -59,12 +66,15 @@ class FixChatHandler(BaseChatHandler):
 
     async def process_message(self, message: HumanChatMessage):
         if not (message.selection and message.selection.type == "cell-with-error"):
-            self.reply("`/fix` be given a cell with error output. Please click on a cell with error output and retry.", message)
+            self.reply(
+                "`/fix` be given a cell with error output. Please click on a cell with error output and retry.",
+                message,
+            )
             return
-        
+
         # hint type of selection
         selection: CellWithErrorSelection = message.selection
-        
+
         # parse additional instructions specified after `/fix`
         extra_instructions = message.body[4:].strip() or "None."
 
@@ -75,6 +85,6 @@ class FixChatHandler(BaseChatHandler):
             cell_content=selection.source,
             error_name=selection.error.name,
             error_value=selection.error.value,
-            traceback="\n".join(selection.error.traceback)
+            traceback="\n".join(selection.error.traceback),
         )
         self.reply(response, message)
