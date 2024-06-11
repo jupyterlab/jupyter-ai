@@ -47,7 +47,7 @@ conda config --set channel_priority strict
 conda install jupyterlab~=4.0
 ```
 
-You can also used the `jupyter-ai` package with Jupyter Notebook 7. To install Jupyter Notebook 7:
+You can also use Jupyter AI in Jupyter Notebook 7.2+. To install Jupyter Notebook 7.2+:
 
 1. via `pip`:
 
