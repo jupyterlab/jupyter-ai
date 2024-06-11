@@ -80,7 +80,7 @@ class FixChatHandler(BaseChatHandler):
     async def process_message(self, message: HumanChatMessage):
         if not (message.selection and message.selection.type == "cell-with-error"):
             self.reply(
-                "`/fix` be given a cell with error output. Please click on a cell with error output and retry.",
+                "`/fix` requires an active code cell with error output. Please click on a cell with error output and retry.",
                 message,
             )
             return
