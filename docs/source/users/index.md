@@ -47,6 +47,19 @@ conda config --set channel_priority strict
 conda install jupyterlab~=4.0
 ```
 
+You can also used the `jupyter-ai` package with Jupyter Notebook 7. To install Jupyter Notebook 7:
+
+1. via `pip`:
+
+```
+pip install notebook~=7.2
+```
+
+2. via `conda`:
+```
+conda install notebook~=7.2
+```
+
 The `jupyter_ai_magics` package, which provides exclusively the IPython magics,
 does not depend on JupyterLab or `jupyter_ai`. You can install
 `jupyter_ai_magics` without installing `jupyterlab` or `jupyter_ai`.
@@ -205,6 +218,10 @@ Once you have started JupyterLab, click the new "chat" icon in the left side pan
 <img src="../_static/chat-getting-started.png"
     alt="Screen shot of the setup interface"
     class="screenshot" />
+
+:::{note}
+To activate the chat interface in Notebook 7, click on "View > Left sidebar > Show Jupyter AI Chat".
+:::
 
 The first time you open the chat interface, Jupyter AI will ask you which models you want to use as a language model and as an embedding model. Once you have made your selections, the UI may display text boxes for one or more settings keys.
 
