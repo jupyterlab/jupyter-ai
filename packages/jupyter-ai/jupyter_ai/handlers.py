@@ -207,6 +207,7 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
             id=chat_message_id,
             time=time.time(),
             body=chat_request.prompt,
+            selection=chat_request.selection,
             client=self.chat_client,
         )
 

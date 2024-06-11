@@ -51,8 +51,23 @@ export namespace AiService {
     serverSettings?: ServerConnection.ISettings;
   }
 
+  export type CellError = {
+    name: string;
+    value: string;
+    traceback: string[];
+  };
+
+  export type CellWithErrorSelection = {
+    type: 'cell-with-error';
+    source: string;
+    error: CellError;
+  };
+
+  export type Selection = CellWithErrorSelection;
+
   export type ChatRequest = {
     prompt: string;
+    selection?: Selection;
   };
 
   export type Collaborator = {
@@ -88,6 +103,7 @@ export namespace AiService {
     time: number;
     body: string;
     client: ChatClient;
+    selection?: Selection;
   };
 
   export type ConnectionMessage = {

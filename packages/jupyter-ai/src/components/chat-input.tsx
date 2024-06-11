@@ -9,11 +9,9 @@ import {
   FormGroup,
   FormControlLabel,
   Checkbox,
-  IconButton,
   InputAdornment,
   Typography
 } from '@mui/material';
-import SendIcon from '@mui/icons-material/Send';
 import {
   Download,
   FindInPage,
@@ -21,15 +19,18 @@ import {
   MoreHoriz,
   MenuBook,
   School,
-  HideSource
+  HideSource,
+  AutoFixNormal
 } from '@mui/icons-material';
 
 import { AiService } from '../handler';
+import { SendButton, SendButtonProps } from './chat-input/send-button';
+import { useActiveCellContext } from '../contexts/active-cell-context';
 
 type ChatInputProps = {
   value: string;
   onChange: (newValue: string) => unknown;
-  onSend: () => unknown;
+  onSend: (selection?: AiService.Selection) => unknown;
   hasSelection: boolean;
   includeSelection: boolean;
   toggleIncludeSelection: () => unknown;
@@ -56,6 +57,7 @@ const DEFAULT_SLASH_COMMAND_ICONS: Record<string, JSX.Element> = {
   ask: <FindInPage />,
   clear: <HideSource />,
   export: <Download />,
+  fix: <AutoFixNormal />,
   generate: <MenuBook />,
   help: <Help />,
   learn: <School />,
@@ -101,6 +103,8 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
   const [slashCommandOptions, setSlashCommandOptions] = useState<
     SlashCommandOption[]
   >([]);
+  const [currSlashCommand, setCurrSlashCommand] = useState<string | null>(null);
+  const activeCell = useActiveCellContext();
 
   /**
    * Effect: fetch the list of available slash commands from the backend on
@@ -129,8 +133,7 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
 
   /**
    * Effect: Open the autocomplete when the user types a slash into an empty
-   * chat input. Close the autocomplete and reset the last selected value when
-   * the user clears the chat input.
+   * chat input. Close the autocomplete when the user clears the chat input.
    */
   useEffect(() => {
     if (props.value === '/') {
@@ -143,6 +146,35 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
       return;
     }
   }, [props.value]);
+
+  /**
+   * Effect: Set current slash command
+   */
+  useEffect(() => {
+    const matchedSlashCommand = props.value.match(/^\s*\/\w+/);
+    setCurrSlashCommand(matchedSlashCommand && matchedSlashCommand[0]);
+  }, [props.value]);
+
+  // TODO: unify the `onSend` implementation in `chat.tsx` and here once text
+  // selection is refactored.
+  function onSend() {
+    // case: /fix
+    if (currSlashCommand === '/fix') {
+      const cellWithError = activeCell.manager.getContent(true);
+      if (!cellWithError) {
+        return;
+      }
+
+      props.onSend({
+        ...cellWithError,
+        type: 'cell-with-error'
+      });
+      return;
+    }
+
+    // default case
+    props.onSend();
+  }
 
   function handleKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
     if (event.key !== 'Enter') {
@@ -160,7 +192,7 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
       ((props.sendWithShiftEnter && event.shiftKey) ||
         (!props.sendWithShiftEnter && !event.shiftKey))
     ) {
-      props.onSend();
+      onSend();
       event.stopPropagation();
       event.preventDefault();
     }
@@ -176,6 +208,15 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
       Press <b>Shift</b>+<b>Enter</b> to add a new line
     </span>
   );
+
+  const inputExists = !!props.value.trim();
+  const sendButtonProps: SendButtonProps = {
+    onSend,
+    sendWithShiftEnter: props.sendWithShiftEnter,
+    inputExists,
+    activeCellHasError: activeCell.hasError,
+    currSlashCommand
+  };
 
   return (
     <Box sx={props.sx}>
@@ -246,19 +287,7 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
               ...params.InputProps,
               endAdornment: (
                 <InputAdornment position="end">
-                  <IconButton
-                    size="small"
-                    color="primary"
-                    onClick={props.onSend}
-                    disabled={!props.value.trim().length}
-                    title={
-                      props.sendWithShiftEnter
-                        ? 'Send message (SHIFT+ENTER)'
-                        : 'Send message (ENTER)'
-                    }
-                  >
-                    <SendIcon />
-                  </IconButton>
+                  <SendButton {...sendButtonProps} />
                 </InputAdornment>
               )
             }}
