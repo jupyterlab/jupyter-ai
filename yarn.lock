@@ -1375,9 +1375,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@codemirror/autocomplete@npm:^6.0.0, @codemirror/autocomplete@npm:^6.3.2, @codemirror/autocomplete@npm:^6.5.1, @codemirror/autocomplete@npm:^6.7.1":
-  version: 6.12.0
-  resolution: "@codemirror/autocomplete@npm:6.12.0"
+"@codemirror/autocomplete@npm:^6.0.0, @codemirror/autocomplete@npm:^6.15.0, @codemirror/autocomplete@npm:^6.3.2, @codemirror/autocomplete@npm:^6.7.1":
+  version: 6.16.2
+  resolution: "@codemirror/autocomplete@npm:6.16.2"
   dependencies:
     "@codemirror/language": ^6.0.0
     "@codemirror/state": ^6.0.0
@@ -1388,19 +1388,19 @@ __metadata:
     "@codemirror/state": ^6.0.0
     "@codemirror/view": ^6.0.0
     "@lezer/common": ^1.0.0
-  checksum: 1d4da6ccc12f5a67053a76b361f2683b5af031dd405a0bd2a261a265eb8cb7dfb115343a3291260d1ba31ce7ccb5427208ebe50f50f6747fcf27a50b62c87f7e
+  checksum: ece600c23503879c490665de01631d6c03097b77c244b091f01ba39fde9d0429059bdcb97c280806366b33be4a7eb6eb60358245b9ab6c12ae23331dfb27217c
   languageName: node
   linkType: hard
 
-"@codemirror/commands@npm:^6.2.3":
-  version: 6.3.3
-  resolution: "@codemirror/commands@npm:6.3.3"
+"@codemirror/commands@npm:^6.3.3":
+  version: 6.6.0
+  resolution: "@codemirror/commands@npm:6.6.0"
   dependencies:
     "@codemirror/language": ^6.0.0
     "@codemirror/state": ^6.4.0
-    "@codemirror/view": ^6.0.0
+    "@codemirror/view": ^6.27.0
     "@lezer/common": ^1.1.0
-  checksum: 7d23aecc973823969434b839aefa9a98bb47212d2ce0e6869ae903adbb5233aad22a760788fb7bb6eb45b00b01a4932fb93ad43bacdcbc0215e7500cf54b17bb
+  checksum: 53bb29f11f4453b7409836c41a9c13c0a8cb300e05ecc4928217330cf6e6735b1e5fb7fb831a2b1b8636593d6f3da42d016196ee1c8bb424f9cb73d55b8cb884
   languageName: node
   linkType: hard
 
@@ -1414,7 +1414,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@codemirror/lang-css@npm:^6.0.0, @codemirror/lang-css@npm:^6.1.1":
+"@codemirror/lang-css@npm:^6.0.0, @codemirror/lang-css@npm:^6.2.1":
   version: 6.2.1
   resolution: "@codemirror/lang-css@npm:6.2.1"
   dependencies:
@@ -1427,9 +1427,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@codemirror/lang-html@npm:^6.0.0, @codemirror/lang-html@npm:^6.4.3":
-  version: 6.4.8
-  resolution: "@codemirror/lang-html@npm:6.4.8"
+"@codemirror/lang-html@npm:^6.0.0, @codemirror/lang-html@npm:^6.4.8":
+  version: 6.4.9
+  resolution: "@codemirror/lang-html@npm:6.4.9"
   dependencies:
     "@codemirror/autocomplete": ^6.0.0
     "@codemirror/lang-css": ^6.0.0
@@ -1440,7 +1440,7 @@ __metadata:
     "@lezer/common": ^1.0.0
     "@lezer/css": ^1.1.0
     "@lezer/html": ^1.3.0
-  checksum: 9aec56c333cc06f9e4bb6d09806ae83e4a7f235a26b3244010e2dcea83a923cfcd7bec84904b8a59bc81256b0bb579a52bf5614962dad031d7577db1c49a216a
+  checksum: ac8c3ceb0396f2e032752c5079bd950124dca708bc64e96fc147dc5fe7133e5cee0814fe951abdb953ec1d11fa540e4b30a712b5149d9a36016a197a28de45d7
   languageName: node
   linkType: hard
 
@@ -1454,9 +1454,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@codemirror/lang-javascript@npm:^6.0.0, @codemirror/lang-javascript@npm:^6.1.7":
-  version: 6.2.1
-  resolution: "@codemirror/lang-javascript@npm:6.2.1"
+"@codemirror/lang-javascript@npm:^6.0.0, @codemirror/lang-javascript@npm:^6.2.2":
+  version: 6.2.2
+  resolution: "@codemirror/lang-javascript@npm:6.2.2"
   dependencies:
     "@codemirror/autocomplete": ^6.0.0
     "@codemirror/language": ^6.6.0
@@ -1465,7 +1465,7 @@ __metadata:
     "@codemirror/view": ^6.17.0
     "@lezer/common": ^1.0.0
     "@lezer/javascript": ^1.0.0
-  checksum: 3df38c4cced06195283a9a2a9365aaa7c8c1b157852b331bc3a118403f774bbba57d2a392de52f5e28d2b344a323bc0146bcf7c8ef8be2473f167d815e4a37cd
+  checksum: 66379942a8347dff2bd76d10ed7cf313bca83872f8336fdd3e14accfef23e7b690cd913c9d11a3854fba2b32299da07fc3275995327642c9ee43c2a8e538c19d
   languageName: node
   linkType: hard
 
@@ -1479,9 +1479,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@codemirror/lang-markdown@npm:^6.1.1":
-  version: 6.2.4
-  resolution: "@codemirror/lang-markdown@npm:6.2.4"
+"@codemirror/lang-markdown@npm:^6.2.4":
+  version: 6.2.5
+  resolution: "@codemirror/lang-markdown@npm:6.2.5"
   dependencies:
     "@codemirror/autocomplete": ^6.7.1
     "@codemirror/lang-html": ^6.0.0
@@ -1490,7 +1490,7 @@ __metadata:
     "@codemirror/view": ^6.0.0
     "@lezer/common": ^1.2.1
     "@lezer/markdown": ^1.0.0
-  checksum: fbdf1388a9fd08b4e6fc9950ac57fc59ef02bb0bd3e76654158ce1494b101356ded049b65dcf6da457e7e302cb178bf30852fd152680f3a8679be3c3884c0bc2
+  checksum: 3d9e0817f888eddcb6d05ec8f0d8dacbde7b9ef7650303bc4ab8b08a550a986c60c65b1565212e06af389c31590330f1f5ed65e619a9446dc2979ff3dac0e874
   languageName: node
   linkType: hard
 
@@ -1507,16 +1507,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@codemirror/lang-python@npm:^6.1.3":
-  version: 6.1.4
-  resolution: "@codemirror/lang-python@npm:6.1.4"
+"@codemirror/lang-python@npm:^6.1.4":
+  version: 6.1.6
+  resolution: "@codemirror/lang-python@npm:6.1.6"
   dependencies:
     "@codemirror/autocomplete": ^6.3.2
     "@codemirror/language": ^6.8.0
     "@codemirror/state": ^6.0.0
     "@lezer/common": ^1.2.1
     "@lezer/python": ^1.1.4
-  checksum: 94d0126bc5da4878eb3cc4da5afae4dc2ca7bb1c4c1f483e786ec0fed439490bb6ed8cad0a6090e2638e6b3453a6f4225bfaa3b49aac5cfb3e466556d0aaae1e
+  checksum: eb1faabd332bb95d0f3e227eb19ac5a31140cf238905bbe73e061040999f5680a012f9145fb3688bc2fcbb1908c957511edc8eeb8a9aa88d27d4fa55ad451e95
   languageName: node
   linkType: hard
 
@@ -1530,9 +1530,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@codemirror/lang-sql@npm:^6.4.1":
-  version: 6.5.5
-  resolution: "@codemirror/lang-sql@npm:6.5.5"
+"@codemirror/lang-sql@npm:^6.6.1":
+  version: 6.6.4
+  resolution: "@codemirror/lang-sql@npm:6.6.4"
   dependencies:
     "@codemirror/autocomplete": ^6.0.0
     "@codemirror/language": ^6.0.0
@@ -1540,11 +1540,11 @@ __metadata:
     "@lezer/common": ^1.2.0
     "@lezer/highlight": ^1.0.0
     "@lezer/lr": ^1.0.0
-  checksum: 404003ae73b986bd7a00f6924db78b7ffb28fdc38d689fdc11416aaafe2d5c6dc37cc18972530f82e940acb61e18ac74a1cf7712beef448c145344ff93970dc3
+  checksum: ae7c498d08c118d8f1751c28d12c54f45cacd589f6adb56216d44eb14abc0e436dcefe675d50bd02a242426327384cbcafa8c35098aa63384570a33c4cf27038
   languageName: node
   linkType: hard
 
-"@codemirror/lang-wast@npm:^6.0.1":
+"@codemirror/lang-wast@npm:^6.0.2":
   version: 6.0.2
   resolution: "@codemirror/lang-wast@npm:6.0.2"
   dependencies:
@@ -1556,22 +1556,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@codemirror/lang-xml@npm:^6.0.2":
-  version: 6.0.2
-  resolution: "@codemirror/lang-xml@npm:6.0.2"
+"@codemirror/lang-xml@npm:^6.1.0":
+  version: 6.1.0
+  resolution: "@codemirror/lang-xml@npm:6.1.0"
   dependencies:
     "@codemirror/autocomplete": ^6.0.0
     "@codemirror/language": ^6.4.0
     "@codemirror/state": ^6.0.0
+    "@codemirror/view": ^6.0.0
     "@lezer/common": ^1.0.0
     "@lezer/xml": ^1.0.0
-  checksum: e156ecafaa87e9b6ef4ab6812ccd00d8f3c6cb81f232837636b36336d80513b61936dfee6f4f6800574f236208b61e95a2abcb997cdcd7366585a6b796e0e13b
+  checksum: 3a1b7af07b29ad7e53b77bf584245580b613bc92256059f175f2b1d7c28c4e39b75654fe169b9a8a330a60164b53ff5254bdb5b8ee8c6e6766427ee115c4e229
   languageName: node
   linkType: hard
 
-"@codemirror/language@npm:^6.0.0, @codemirror/language@npm:^6.3.0, @codemirror/language@npm:^6.4.0, @codemirror/language@npm:^6.6.0, @codemirror/language@npm:^6.8.0":
-  version: 6.10.1
-  resolution: "@codemirror/language@npm:6.10.1"
+"@codemirror/language@npm:^6.0.0, @codemirror/language@npm:^6.10.1, @codemirror/language@npm:^6.3.0, @codemirror/language@npm:^6.4.0, @codemirror/language@npm:^6.6.0, @codemirror/language@npm:^6.8.0":
+  version: 6.10.2
+  resolution: "@codemirror/language@npm:6.10.2"
   dependencies:
     "@codemirror/state": ^6.0.0
     "@codemirror/view": ^6.23.0
@@ -1579,16 +1580,16 @@ __metadata:
     "@lezer/highlight": ^1.0.0
     "@lezer/lr": ^1.0.0
     style-mod: ^4.0.0
-  checksum: 453bbe122a84795752f29261412b69a8dcfdd7e4369eb7e112bffba36b9e527ad21adff1d3845e0dc44c9ab44eb0c6f823eb6ba790ddd00cc749847574eda779
+  checksum: 4e60afb75fb56519f59d9d85e0aa03f0c8d017e0da0f3f8f321baf35a776801fcec9787f3d0c029eba12aa766fba98b0fe86fc3111b43e0812b554184c0e8d67
   languageName: node
   linkType: hard
 
-"@codemirror/legacy-modes@npm:^6.3.2":
-  version: 6.3.3
-  resolution: "@codemirror/legacy-modes@npm:6.3.3"
+"@codemirror/legacy-modes@npm:^6.3.3":
+  version: 6.4.0
+  resolution: "@codemirror/legacy-modes@npm:6.4.0"
   dependencies:
     "@codemirror/language": ^6.0.0
-  checksum: 3cd32b0f011b0a193e0948e5901b625f38aa6d9a8b24344531d6e142eb6fbb3e6cb5969429102044f3d04fbe53c4deaebd9f659c05067a0b18d17766290c9e05
+  checksum: d382aa6f640a67418bd209e1e4b395340f96aac1b0cf185927fc2c7f98b62cfd0c59ef0f7048148ce8771622003ca844c78c2d18548235ecc57d0bcbfbbfe091
   languageName: node
   linkType: hard
 
@@ -1603,7 +1604,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@codemirror/search@npm:^6.3.0":
+"@codemirror/search@npm:^6.5.6":
   version: 6.5.6
   resolution: "@codemirror/search@npm:6.5.6"
   dependencies:
@@ -1614,21 +1615,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@codemirror/state@npm:^6.0.0, @codemirror/state@npm:^6.2.0, @codemirror/state@npm:^6.4.0":
-  version: 6.4.0
-  resolution: "@codemirror/state@npm:6.4.0"
-  checksum: c5236fe5786f1b85d17273a5c17fa8aeb063658c1404ab18caeb6e7591663ec96b65d453ab8162f75839c3801b04cd55ba4bc48f44cb61ebfeeee383f89553c7
+"@codemirror/state@npm:^6.0.0, @codemirror/state@npm:^6.2.0, @codemirror/state@npm:^6.4.0, @codemirror/state@npm:^6.4.1":
+  version: 6.4.1
+  resolution: "@codemirror/state@npm:6.4.1"
+  checksum: b81b55574091349eed4d32fc0eadb0c9688f1f7c98b681318f59138ee0f527cb4c4a97831b70547c0640f02f3127647838ae6730782de4a3dd2cc58836125d01
   languageName: node
   linkType: hard
 
-"@codemirror/view@npm:^6.0.0, @codemirror/view@npm:^6.17.0, @codemirror/view@npm:^6.23.0, @codemirror/view@npm:^6.7.0, @codemirror/view@npm:^6.9.6":
-  version: 6.23.1
-  resolution: "@codemirror/view@npm:6.23.1"
+"@codemirror/view@npm:^6.0.0, @codemirror/view@npm:^6.17.0, @codemirror/view@npm:^6.23.0, @codemirror/view@npm:^6.26.0, @codemirror/view@npm:^6.27.0, @codemirror/view@npm:^6.7.0":
+  version: 6.28.0
+  resolution: "@codemirror/view@npm:6.28.0"
   dependencies:
     "@codemirror/state": ^6.4.0
     style-mod: ^4.1.0
     w3c-keyname: ^2.2.4
-  checksum: 5ea3ba5761c574e1f6e1f1058cb452189c890982a77991606d0ae40da3c6fff77f7c7fc3c43fa78d62677ccdfa65dbc56175706b793e34ad4ec7a63b21e8c18e
+  checksum: ff9e17c635e558383b07c812a8f2457903f8076c9682a840c06bf917c9f83524db75b5b0e08dfac266a6025ad74e412407b64afe23c9fc0eba4b5eadf715f27f
   languageName: node
   linkType: hard
 
@@ -2220,22 +2221,22 @@ __metadata:
     "@emotion/react": ^11.10.5
     "@emotion/styled": ^11.10.5
     "@jupyter/collaboration": ^1
-    "@jupyterlab/application": ^4
-    "@jupyterlab/apputils": ^4
-    "@jupyterlab/builder": ^4
-    "@jupyterlab/cells": ^4
-    "@jupyterlab/codeeditor": ^4
-    "@jupyterlab/codemirror": ^4
-    "@jupyterlab/completer": ^4
-    "@jupyterlab/coreutils": ^6
-    "@jupyterlab/docregistry": ^4
-    "@jupyterlab/fileeditor": ^4
-    "@jupyterlab/notebook": ^4
-    "@jupyterlab/rendermime": ^4
-    "@jupyterlab/services": ^7
-    "@jupyterlab/settingregistry": ^4
-    "@jupyterlab/testutils": ^4
-    "@jupyterlab/ui-components": ^4
+    "@jupyterlab/application": ^4.2.0
+    "@jupyterlab/apputils": ^4.2.0
+    "@jupyterlab/builder": ^4.2.0
+    "@jupyterlab/cells": ^4.2.0
+    "@jupyterlab/codeeditor": ^4.2.0
+    "@jupyterlab/codemirror": ^4.2.0
+    "@jupyterlab/completer": ^4.2.0
+    "@jupyterlab/coreutils": ^6.2.0
+    "@jupyterlab/docregistry": ^4.2.0
+    "@jupyterlab/fileeditor": ^4.2.0
+    "@jupyterlab/notebook": ^4.2.0
+    "@jupyterlab/rendermime": ^4.2.0
+    "@jupyterlab/services": ^7.2.0
+    "@jupyterlab/settingregistry": ^4.2.0
+    "@jupyterlab/testutils": ^4.2.0
+    "@jupyterlab/ui-components": ^4.2.0
     "@mui/icons-material": ^5.11.0
     "@mui/material": ^5.11.0
     "@types/jest": ^29
@@ -2316,30 +2317,30 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@jupyter/react-components@npm:^0.15.2":
-  version: 0.15.2
-  resolution: "@jupyter/react-components@npm:0.15.2"
+"@jupyter/react-components@npm:^0.15.3":
+  version: 0.15.3
+  resolution: "@jupyter/react-components@npm:0.15.3"
   dependencies:
-    "@jupyter/web-components": ^0.15.2
+    "@jupyter/web-components": ^0.15.3
     "@microsoft/fast-react-wrapper": ^0.3.22
     react: ">=17.0.0 <19.0.0"
-  checksum: d6d339ff9c2fed1fd5afda612be500d73c4a83eee5470d50e94020dadd1e389a3bf745c7240b0a48edbc6d3fdacec93367b7b5e40588f2df588419caada705be
+  checksum: 1a6b256314259c6465c4b6d958575710536b82234a7bf0fba3e889a07e1f19ff8ab321450be354359876f92c45dbcc9d21a840237ff4a619806d9de696f55496
   languageName: node
   linkType: hard
 
-"@jupyter/web-components@npm:^0.15.2":
-  version: 0.15.2
-  resolution: "@jupyter/web-components@npm:0.15.2"
+"@jupyter/web-components@npm:^0.15.3":
+  version: 0.15.3
+  resolution: "@jupyter/web-components@npm:0.15.3"
   dependencies:
     "@microsoft/fast-colors": ^5.3.1
     "@microsoft/fast-element": ^1.12.0
     "@microsoft/fast-foundation": ^2.49.4
     "@microsoft/fast-web-utilities": ^5.4.1
-  checksum: f272ef91de08e28f9414a26dbd2388e1a8985c90f4ab00231978cee49bd5212f812411397a9038d298c8c0c4b41eb28cc86f1127bc7ace309bda8df60c4a87c8
+  checksum: a0980af934157bfdbdb6cc169c0816c1b2e57602d524c56bdcef746a4c25dfeb8f505150d83207c8695ed89b5486cf53d35a3382584d25ef64db666e4e16e45b
   languageName: node
   linkType: hard
 
-"@jupyter/ydoc@npm:^1.0.2, @jupyter/ydoc@npm:^1.1.1":
+"@jupyter/ydoc@npm:^1.0.2":
   version: 1.1.1
   resolution: "@jupyter/ydoc@npm:1.1.1"
   dependencies:
@@ -2353,84 +2354,98 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@jupyterlab/application@npm:^4, @jupyterlab/application@npm:^4.1.0":
-  version: 4.1.0
-  resolution: "@jupyterlab/application@npm:4.1.0"
+"@jupyter/ydoc@npm:^2.0.1":
+  version: 2.0.1
+  resolution: "@jupyter/ydoc@npm:2.0.1"
+  dependencies:
+    "@jupyterlab/nbformat": ^3.0.0 || ^4.0.0-alpha.21 || ^4.0.0
+    "@lumino/coreutils": ^1.11.0 || ^2.0.0
+    "@lumino/disposable": ^1.10.0 || ^2.0.0
+    "@lumino/signaling": ^1.10.0 || ^2.0.0
+    y-protocols: ^1.0.5
+    yjs: ^13.5.40
+  checksum: f5f29e1ff3327ebc1cf326f53634e03c4c7bf7733d235087fe26975c16eebd404f23c2f3ba88b6e04b1927846be7162b09b8b8719a4b29e51d0299c745018cbb
+  languageName: node
+  linkType: hard
+
+"@jupyterlab/application@npm:^4.2.0, @jupyterlab/application@npm:^4.2.2":
+  version: 4.2.2
+  resolution: "@jupyterlab/application@npm:4.2.2"
   dependencies:
     "@fortawesome/fontawesome-free": ^5.12.0
-    "@jupyterlab/apputils": ^4.2.0
-    "@jupyterlab/coreutils": ^6.1.0
-    "@jupyterlab/docregistry": ^4.1.0
-    "@jupyterlab/rendermime": ^4.1.0
-    "@jupyterlab/rendermime-interfaces": ^3.9.0
-    "@jupyterlab/services": ^7.1.0
-    "@jupyterlab/statedb": ^4.1.0
-    "@jupyterlab/translation": ^4.1.0
-    "@jupyterlab/ui-components": ^4.1.0
+    "@jupyterlab/apputils": ^4.3.2
+    "@jupyterlab/coreutils": ^6.2.2
+    "@jupyterlab/docregistry": ^4.2.2
+    "@jupyterlab/rendermime": ^4.2.2
+    "@jupyterlab/rendermime-interfaces": ^3.10.2
+    "@jupyterlab/services": ^7.2.2
+    "@jupyterlab/statedb": ^4.2.2
+    "@jupyterlab/translation": ^4.2.2
+    "@jupyterlab/ui-components": ^4.2.2
     "@lumino/algorithm": ^2.0.1
-    "@lumino/application": ^2.3.0
-    "@lumino/commands": ^2.2.0
+    "@lumino/application": ^2.3.1
+    "@lumino/commands": ^2.3.0
     "@lumino/coreutils": ^2.1.2
     "@lumino/disposable": ^2.1.2
     "@lumino/messaging": ^2.0.1
     "@lumino/polling": ^2.1.2
     "@lumino/properties": ^2.0.1
     "@lumino/signaling": ^2.1.2
-    "@lumino/widgets": ^2.3.1
-  checksum: 1ca13156bee6e07850c008b1c8c510073bfd74c1c5056014313bfda1503db0b19472e727d549bb8461f17fdb6cd10fb3db854aa9f4cefb5599a4fc73017d46e7
+    "@lumino/widgets": ^2.3.2
+  checksum: 86dbf944df8dbeecce88d5588054bb097f6817ba23c7366002e4a7dcb34bb229371be6d803008a2a8413bf7285db977426a806d9686f135d004f74bf5338b28a
   languageName: node
   linkType: hard
 
-"@jupyterlab/apputils@npm:^4, @jupyterlab/apputils@npm:^4.0.0, @jupyterlab/apputils@npm:^4.2.0":
-  version: 4.2.0
-  resolution: "@jupyterlab/apputils@npm:4.2.0"
+"@jupyterlab/apputils@npm:^4.0.0, @jupyterlab/apputils@npm:^4.2.0, @jupyterlab/apputils@npm:^4.3.2":
+  version: 4.3.2
+  resolution: "@jupyterlab/apputils@npm:4.3.2"
   dependencies:
-    "@jupyterlab/coreutils": ^6.1.0
-    "@jupyterlab/observables": ^5.1.0
-    "@jupyterlab/rendermime-interfaces": ^3.9.0
-    "@jupyterlab/services": ^7.1.0
-    "@jupyterlab/settingregistry": ^4.1.0
-    "@jupyterlab/statedb": ^4.1.0
-    "@jupyterlab/statusbar": ^4.1.0
-    "@jupyterlab/translation": ^4.1.0
-    "@jupyterlab/ui-components": ^4.1.0
+    "@jupyterlab/coreutils": ^6.2.2
+    "@jupyterlab/observables": ^5.2.2
+    "@jupyterlab/rendermime-interfaces": ^3.10.2
+    "@jupyterlab/services": ^7.2.2
+    "@jupyterlab/settingregistry": ^4.2.2
+    "@jupyterlab/statedb": ^4.2.2
+    "@jupyterlab/statusbar": ^4.2.2
+    "@jupyterlab/translation": ^4.2.2
+    "@jupyterlab/ui-components": ^4.2.2
     "@lumino/algorithm": ^2.0.1
-    "@lumino/commands": ^2.2.0
+    "@lumino/commands": ^2.3.0
     "@lumino/coreutils": ^2.1.2
     "@lumino/disposable": ^2.1.2
     "@lumino/domutils": ^2.0.1
     "@lumino/messaging": ^2.0.1
     "@lumino/signaling": ^2.1.2
     "@lumino/virtualdom": ^2.0.1
-    "@lumino/widgets": ^2.3.1
+    "@lumino/widgets": ^2.3.2
     "@types/react": ^18.0.26
     react: ^18.2.0
-    sanitize-html: ~2.7.3
-  checksum: aec06e0e1403850676e766061d847e7cefa7225cdf48bbd2f3ab3f8356cb306646bf57dc15bcda149aa700e87850425ab8b79299d3414751a1753747ef9f15ba
+    sanitize-html: ~2.12.1
+  checksum: 4a49f2b56abc80ab1ca144d39901da5250e7394ace3ceb2e14cba9cc638c6ea720a3f8a3a90cd1f878c34d91b1ce8fe63206d2c314d048b3d83ade0e2e787c89
   languageName: node
   linkType: hard
 
-"@jupyterlab/attachments@npm:^4.1.0":
-  version: 4.1.0
-  resolution: "@jupyterlab/attachments@npm:4.1.0"
+"@jupyterlab/attachments@npm:^4.2.2":
+  version: 4.2.2
+  resolution: "@jupyterlab/attachments@npm:4.2.2"
   dependencies:
-    "@jupyterlab/nbformat": ^4.1.0
-    "@jupyterlab/observables": ^5.1.0
-    "@jupyterlab/rendermime": ^4.1.0
-    "@jupyterlab/rendermime-interfaces": ^3.9.0
+    "@jupyterlab/nbformat": ^4.2.2
+    "@jupyterlab/observables": ^5.2.2
+    "@jupyterlab/rendermime": ^4.2.2
+    "@jupyterlab/rendermime-interfaces": ^3.10.2
     "@lumino/disposable": ^2.1.2
     "@lumino/signaling": ^2.1.2
-  checksum: ddb1716f7e9d0a7272979dc82109c17069b2b618142e289e2127a1b59eecf3ddc02cf8665b1f1ae42a3c8fbbc90f2d6ba270455381cdeec3d5d1be7488ca8a5c
+  checksum: 36e6b833fd1debe35d19bcd105eb71f1346c7e4d6ea0d710eb9cdef9818e1e9b04fd5763660776aa19332f196a89baaceff17236990afc835d9f5b2971105eda
   languageName: node
   linkType: hard
 
-"@jupyterlab/builder@npm:^4":
-  version: 4.1.0
-  resolution: "@jupyterlab/builder@npm:4.1.0"
+"@jupyterlab/builder@npm:^4.2.0":
+  version: 4.2.2
+  resolution: "@jupyterlab/builder@npm:4.2.2"
   dependencies:
     "@lumino/algorithm": ^2.0.1
-    "@lumino/application": ^2.3.0
-    "@lumino/commands": ^2.2.0
+    "@lumino/application": ^2.3.1
+    "@lumino/commands": ^2.3.0
     "@lumino/coreutils": ^2.1.2
     "@lumino/disposable": ^2.1.2
     "@lumino/domutils": ^2.0.1
@@ -2439,7 +2454,7 @@ __metadata:
     "@lumino/properties": ^2.0.1
     "@lumino/signaling": ^2.1.2
     "@lumino/virtualdom": ^2.0.1
-    "@lumino/widgets": ^2.3.1
+    "@lumino/widgets": ^2.3.2
     ajv: ^8.12.0
     commander: ^9.4.1
     css-loader: ^6.7.1
@@ -2461,32 +2476,32 @@ __metadata:
     worker-loader: ^3.0.2
   bin:
     build-labextension: lib/build-labextension.js
-  checksum: 1a8f684fbf31fef2bae93b84e79af12bd0e70cedc5546f7501a17147425616ffd7ec42586ba23e9d6eb6a79e40d651f6f87d9c1c496ed26f84a2990da8631958
+  checksum: 040f8c7f96ac99ddce350a165b1a9426593bed93a006d9e8919458ea191b5b0f918372059d65a3677c8a92e22be3b450249fa5a4007a958699c4fceb69e39d5a
   languageName: node
   linkType: hard
 
-"@jupyterlab/cells@npm:^4, @jupyterlab/cells@npm:^4.1.0":
-  version: 4.1.0
-  resolution: "@jupyterlab/cells@npm:4.1.0"
+"@jupyterlab/cells@npm:^4.2.0, @jupyterlab/cells@npm:^4.2.2":
+  version: 4.2.2
+  resolution: "@jupyterlab/cells@npm:4.2.2"
   dependencies:
-    "@codemirror/state": ^6.2.0
-    "@codemirror/view": ^6.9.6
-    "@jupyter/ydoc": ^1.1.1
-    "@jupyterlab/apputils": ^4.2.0
-    "@jupyterlab/attachments": ^4.1.0
-    "@jupyterlab/codeeditor": ^4.1.0
-    "@jupyterlab/codemirror": ^4.1.0
-    "@jupyterlab/coreutils": ^6.1.0
-    "@jupyterlab/documentsearch": ^4.1.0
-    "@jupyterlab/filebrowser": ^4.1.0
-    "@jupyterlab/nbformat": ^4.1.0
-    "@jupyterlab/observables": ^5.1.0
-    "@jupyterlab/outputarea": ^4.1.0
-    "@jupyterlab/rendermime": ^4.1.0
-    "@jupyterlab/services": ^7.1.0
-    "@jupyterlab/toc": ^6.1.0
-    "@jupyterlab/translation": ^4.1.0
-    "@jupyterlab/ui-components": ^4.1.0
+    "@codemirror/state": ^6.4.1
+    "@codemirror/view": ^6.26.0
+    "@jupyter/ydoc": ^2.0.1
+    "@jupyterlab/apputils": ^4.3.2
+    "@jupyterlab/attachments": ^4.2.2
+    "@jupyterlab/codeeditor": ^4.2.2
+    "@jupyterlab/codemirror": ^4.2.2
+    "@jupyterlab/coreutils": ^6.2.2
+    "@jupyterlab/documentsearch": ^4.2.2
+    "@jupyterlab/filebrowser": ^4.2.2
+    "@jupyterlab/nbformat": ^4.2.2
+    "@jupyterlab/observables": ^5.2.2
+    "@jupyterlab/outputarea": ^4.2.2
+    "@jupyterlab/rendermime": ^4.2.2
+    "@jupyterlab/services": ^7.2.2
+    "@jupyterlab/toc": ^6.2.2
+    "@jupyterlab/translation": ^4.2.2
+    "@jupyterlab/ui-components": ^4.2.2
     "@lumino/algorithm": ^2.0.1
     "@lumino/coreutils": ^2.1.2
     "@lumino/domutils": ^2.0.1
@@ -2495,109 +2510,109 @@ __metadata:
     "@lumino/polling": ^2.1.2
     "@lumino/signaling": ^2.1.2
     "@lumino/virtualdom": ^2.0.1
-    "@lumino/widgets": ^2.3.1
+    "@lumino/widgets": ^2.3.2
     react: ^18.2.0
-  checksum: 41fb5dddda54ff53d828eff9f142092966214dadff7d93d6d91777746a36fcd192bc5a4055e364185fb367f6d3ed462946d214a33ba0ed63037b83b683958c44
+  checksum: 974d81f3917c8c39e9fc603a7f83a06733c21523fa17e4781f8b7d846c9e2b9731fa362c0469dcfbf1370846a34ec652a379408e5e57f78d7aaa271f8180c90e
   languageName: node
   linkType: hard
 
-"@jupyterlab/codeeditor@npm:^4, @jupyterlab/codeeditor@npm:^4.1.0":
-  version: 4.1.0
-  resolution: "@jupyterlab/codeeditor@npm:4.1.0"
+"@jupyterlab/codeeditor@npm:^4.2.0, @jupyterlab/codeeditor@npm:^4.2.2":
+  version: 4.2.2
+  resolution: "@jupyterlab/codeeditor@npm:4.2.2"
   dependencies:
-    "@codemirror/state": ^6.2.0
-    "@jupyter/ydoc": ^1.1.1
-    "@jupyterlab/apputils": ^4.2.0
-    "@jupyterlab/coreutils": ^6.1.0
-    "@jupyterlab/nbformat": ^4.1.0
-    "@jupyterlab/observables": ^5.1.0
-    "@jupyterlab/statusbar": ^4.1.0
-    "@jupyterlab/translation": ^4.1.0
-    "@jupyterlab/ui-components": ^4.1.0
+    "@codemirror/state": ^6.4.1
+    "@jupyter/ydoc": ^2.0.1
+    "@jupyterlab/apputils": ^4.3.2
+    "@jupyterlab/coreutils": ^6.2.2
+    "@jupyterlab/nbformat": ^4.2.2
+    "@jupyterlab/observables": ^5.2.2
+    "@jupyterlab/statusbar": ^4.2.2
+    "@jupyterlab/translation": ^4.2.2
+    "@jupyterlab/ui-components": ^4.2.2
     "@lumino/coreutils": ^2.1.2
     "@lumino/disposable": ^2.1.2
     "@lumino/dragdrop": ^2.1.4
     "@lumino/messaging": ^2.0.1
     "@lumino/signaling": ^2.1.2
-    "@lumino/widgets": ^2.3.1
+    "@lumino/widgets": ^2.3.2
     react: ^18.2.0
-  checksum: ae58f6cb446f98b781a956986fcb497b53f380ed86510d67b13e3086cee434423d5a03c26a130ea8d02c762cd6a6cbc62fd088c6f60f78d4bb558102e4c80ad8
+  checksum: 22a1b7846f4d6c8bd7b472b311d21383031dd98d232f7e83add2acfaa8f277a7a9a48919b8e14bedeb786f53f45adc64387a724337ee91ab52620ea5a9d0a692
   languageName: node
   linkType: hard
 
-"@jupyterlab/codemirror@npm:^4, @jupyterlab/codemirror@npm:^4.1.0":
-  version: 4.1.0
-  resolution: "@jupyterlab/codemirror@npm:4.1.0"
+"@jupyterlab/codemirror@npm:^4.2.0, @jupyterlab/codemirror@npm:^4.2.2":
+  version: 4.2.2
+  resolution: "@jupyterlab/codemirror@npm:4.2.2"
   dependencies:
-    "@codemirror/autocomplete": ^6.5.1
-    "@codemirror/commands": ^6.2.3
+    "@codemirror/autocomplete": ^6.15.0
+    "@codemirror/commands": ^6.3.3
     "@codemirror/lang-cpp": ^6.0.2
-    "@codemirror/lang-css": ^6.1.1
-    "@codemirror/lang-html": ^6.4.3
+    "@codemirror/lang-css": ^6.2.1
+    "@codemirror/lang-html": ^6.4.8
     "@codemirror/lang-java": ^6.0.1
-    "@codemirror/lang-javascript": ^6.1.7
+    "@codemirror/lang-javascript": ^6.2.2
     "@codemirror/lang-json": ^6.0.1
-    "@codemirror/lang-markdown": ^6.1.1
+    "@codemirror/lang-markdown": ^6.2.4
     "@codemirror/lang-php": ^6.0.1
-    "@codemirror/lang-python": ^6.1.3
+    "@codemirror/lang-python": ^6.1.4
     "@codemirror/lang-rust": ^6.0.1
-    "@codemirror/lang-sql": ^6.4.1
-    "@codemirror/lang-wast": ^6.0.1
-    "@codemirror/lang-xml": ^6.0.2
-    "@codemirror/language": ^6.6.0
-    "@codemirror/legacy-modes": ^6.3.2
-    "@codemirror/search": ^6.3.0
-    "@codemirror/state": ^6.2.0
-    "@codemirror/view": ^6.9.6
-    "@jupyter/ydoc": ^1.1.1
-    "@jupyterlab/codeeditor": ^4.1.0
-    "@jupyterlab/coreutils": ^6.1.0
-    "@jupyterlab/documentsearch": ^4.1.0
-    "@jupyterlab/nbformat": ^4.1.0
-    "@jupyterlab/translation": ^4.1.0
-    "@lezer/common": ^1.0.2
-    "@lezer/generator": ^1.2.2
-    "@lezer/highlight": ^1.1.4
-    "@lezer/markdown": ^1.0.2
+    "@codemirror/lang-sql": ^6.6.1
+    "@codemirror/lang-wast": ^6.0.2
+    "@codemirror/lang-xml": ^6.1.0
+    "@codemirror/language": ^6.10.1
+    "@codemirror/legacy-modes": ^6.3.3
+    "@codemirror/search": ^6.5.6
+    "@codemirror/state": ^6.4.1
+    "@codemirror/view": ^6.26.0
+    "@jupyter/ydoc": ^2.0.1
+    "@jupyterlab/codeeditor": ^4.2.2
+    "@jupyterlab/coreutils": ^6.2.2
+    "@jupyterlab/documentsearch": ^4.2.2
+    "@jupyterlab/nbformat": ^4.2.2
+    "@jupyterlab/translation": ^4.2.2
+    "@lezer/common": ^1.2.1
+    "@lezer/generator": ^1.7.0
+    "@lezer/highlight": ^1.2.0
+    "@lezer/markdown": ^1.2.0
     "@lumino/coreutils": ^2.1.2
     "@lumino/disposable": ^2.1.2
     "@lumino/signaling": ^2.1.2
     yjs: ^13.5.40
-  checksum: 92fb4ebebe4b5926fbf5ba2a99f845e8879918b3a095adf99de5f8385b3168412db38ebe2f1ae1eff8f29304d2c8c1b31c3cc1ba66a9c2d16e7a69dced20a768
+  checksum: 60641e41c424407d5584fdde5630b2ada1663b988fd299c628c58d840d3e8b87d7bcdc4bf0da261ad2eaf0b071e868a31e8c458eb0ce989a0b33f3901411d79c
   languageName: node
   linkType: hard
 
-"@jupyterlab/completer@npm:^4.1.0":
-  version: 4.1.0
-  resolution: "@jupyterlab/completer@npm:4.1.0"
+"@jupyterlab/completer@npm:^4.2.0":
+  version: 4.2.2
+  resolution: "@jupyterlab/completer@npm:4.2.2"
   dependencies:
-    "@codemirror/state": ^6.2.0
-    "@codemirror/view": ^6.9.6
-    "@jupyter/ydoc": ^1.1.1
-    "@jupyterlab/apputils": ^4.2.0
-    "@jupyterlab/codeeditor": ^4.1.0
-    "@jupyterlab/codemirror": ^4.1.0
-    "@jupyterlab/coreutils": ^6.1.0
-    "@jupyterlab/rendermime": ^4.1.0
-    "@jupyterlab/services": ^7.1.0
-    "@jupyterlab/settingregistry": ^4.1.0
-    "@jupyterlab/statedb": ^4.1.0
-    "@jupyterlab/translation": ^4.1.0
-    "@jupyterlab/ui-components": ^4.1.0
+    "@codemirror/state": ^6.4.1
+    "@codemirror/view": ^6.26.0
+    "@jupyter/ydoc": ^2.0.1
+    "@jupyterlab/apputils": ^4.3.2
+    "@jupyterlab/codeeditor": ^4.2.2
+    "@jupyterlab/codemirror": ^4.2.2
+    "@jupyterlab/coreutils": ^6.2.2
+    "@jupyterlab/rendermime": ^4.2.2
+    "@jupyterlab/services": ^7.2.2
+    "@jupyterlab/settingregistry": ^4.2.2
+    "@jupyterlab/statedb": ^4.2.2
+    "@jupyterlab/translation": ^4.2.2
+    "@jupyterlab/ui-components": ^4.2.2
     "@lumino/algorithm": ^2.0.1
     "@lumino/coreutils": ^2.1.2
     "@lumino/disposable": ^2.1.2
     "@lumino/domutils": ^2.0.1
     "@lumino/messaging": ^2.0.1
     "@lumino/signaling": ^2.1.2
-    "@lumino/widgets": ^2.3.1
-  checksum: 11c21f95722c2cce8ce91886036e381b6c43bd9b602bf37e38de2aabeab315cb6cc68bed9d12abfa75dc0cad616b4fd9748a77f81016cd739aa1ef8128964cbc
+    "@lumino/widgets": ^2.3.2
+  checksum: 685b834bdabd41884a355871fdbe5d66765105600d079f7aaf35f2a8d32f85d04657f0bf71ae966e536c78b47a3167b8882e256d34344e5694a0b0493d63bc1f
   languageName: node
   linkType: hard
 
-"@jupyterlab/coreutils@npm:^6, @jupyterlab/coreutils@npm:^6.0.0, @jupyterlab/coreutils@npm:^6.1.0":
-  version: 6.1.0
-  resolution: "@jupyterlab/coreutils@npm:6.1.0"
+"@jupyterlab/coreutils@npm:^6.0.0, @jupyterlab/coreutils@npm:^6.2.0, @jupyterlab/coreutils@npm:^6.2.2":
+  version: 6.2.2
+  resolution: "@jupyterlab/coreutils@npm:6.2.2"
   dependencies:
     "@lumino/coreutils": ^2.1.2
     "@lumino/disposable": ^2.1.2
@@ -2605,91 +2620,93 @@ __metadata:
     minimist: ~1.2.0
     path-browserify: ^1.0.0
     url-parse: ~1.5.4
-  checksum: d1fdeb3fa28af76cab52c04c82b51a1f02f9cd7779dc1eecbd1177bf246d0213c4e7234bf74eb1bd1d909123988e40addbec8fd7a027c4f5448f3c968b27642c
+  checksum: cea1ec210ce60b32ccd213a75e10d85aed149437817e81ea89230552b33cec4be61472880669035228a156b89dcf99dccac3fe2e19191f8690d8870a732fa30b
   languageName: node
   linkType: hard
 
-"@jupyterlab/docmanager@npm:^4.1.0":
-  version: 4.1.0
-  resolution: "@jupyterlab/docmanager@npm:4.1.0"
+"@jupyterlab/docmanager@npm:^4.2.2":
+  version: 4.2.2
+  resolution: "@jupyterlab/docmanager@npm:4.2.2"
   dependencies:
-    "@jupyterlab/apputils": ^4.2.0
-    "@jupyterlab/coreutils": ^6.1.0
-    "@jupyterlab/docregistry": ^4.1.0
-    "@jupyterlab/services": ^7.1.0
-    "@jupyterlab/statusbar": ^4.1.0
-    "@jupyterlab/translation": ^4.1.0
-    "@jupyterlab/ui-components": ^4.1.0
+    "@jupyterlab/apputils": ^4.3.2
+    "@jupyterlab/coreutils": ^6.2.2
+    "@jupyterlab/docregistry": ^4.2.2
+    "@jupyterlab/services": ^7.2.2
+    "@jupyterlab/statedb": ^4.2.2
+    "@jupyterlab/statusbar": ^4.2.2
+    "@jupyterlab/translation": ^4.2.2
+    "@jupyterlab/ui-components": ^4.2.2
+    "@lumino/algorithm": ^2.0.1
+    "@lumino/coreutils": ^2.1.2
+    "@lumino/disposable": ^2.1.2
+    "@lumino/messaging": ^2.0.1
+    "@lumino/polling": ^2.1.2
+    "@lumino/properties": ^2.0.1
+    "@lumino/signaling": ^2.1.2
+    "@lumino/widgets": ^2.3.2
+    react: ^18.2.0
+  checksum: e45a8cbdf82cac4d949ef7177e5ac22530ab03502dea73d21ead1061686ef4c703e1eee749ddd4c33672269922045b4bf2dba6ccfc2b44dc8d696b36f1652fe3
+  languageName: node
+  linkType: hard
+
+"@jupyterlab/docregistry@npm:^4.2.0, @jupyterlab/docregistry@npm:^4.2.2":
+  version: 4.2.2
+  resolution: "@jupyterlab/docregistry@npm:4.2.2"
+  dependencies:
+    "@jupyter/ydoc": ^2.0.1
+    "@jupyterlab/apputils": ^4.3.2
+    "@jupyterlab/codeeditor": ^4.2.2
+    "@jupyterlab/coreutils": ^6.2.2
+    "@jupyterlab/observables": ^5.2.2
+    "@jupyterlab/rendermime": ^4.2.2
+    "@jupyterlab/rendermime-interfaces": ^3.10.2
+    "@jupyterlab/services": ^7.2.2
+    "@jupyterlab/translation": ^4.2.2
+    "@jupyterlab/ui-components": ^4.2.2
     "@lumino/algorithm": ^2.0.1
     "@lumino/coreutils": ^2.1.2
     "@lumino/disposable": ^2.1.2
     "@lumino/messaging": ^2.0.1
     "@lumino/properties": ^2.0.1
     "@lumino/signaling": ^2.1.2
-    "@lumino/widgets": ^2.3.1
+    "@lumino/widgets": ^2.3.2
     react: ^18.2.0
-  checksum: 64f63512a862c2539f3eb1eb255ad6d1c3d5380519079b745503b38eebba255af4d12688b57d42c83a0220758b5cd8304012044cab18433f1c35ca6e49356719
+  checksum: 8cad65f88d827beee8e804683e021da260084243b9e74495093df9bd7e7aff25431c07debc8cfe86c90fa395ab5ebd77ce998ea096a17c5543b5a035f50cd813
   languageName: node
   linkType: hard
 
-"@jupyterlab/docregistry@npm:^4, @jupyterlab/docregistry@npm:^4.1.0":
-  version: 4.1.0
-  resolution: "@jupyterlab/docregistry@npm:4.1.0"
+"@jupyterlab/documentsearch@npm:^4.2.2":
+  version: 4.2.2
+  resolution: "@jupyterlab/documentsearch@npm:4.2.2"
   dependencies:
-    "@jupyter/ydoc": ^1.1.1
-    "@jupyterlab/apputils": ^4.2.0
-    "@jupyterlab/codeeditor": ^4.1.0
-    "@jupyterlab/coreutils": ^6.1.0
-    "@jupyterlab/observables": ^5.1.0
-    "@jupyterlab/rendermime": ^4.1.0
-    "@jupyterlab/rendermime-interfaces": ^3.9.0
-    "@jupyterlab/services": ^7.1.0
-    "@jupyterlab/translation": ^4.1.0
-    "@jupyterlab/ui-components": ^4.1.0
-    "@lumino/algorithm": ^2.0.1
-    "@lumino/coreutils": ^2.1.2
-    "@lumino/disposable": ^2.1.2
-    "@lumino/messaging": ^2.0.1
-    "@lumino/properties": ^2.0.1
-    "@lumino/signaling": ^2.1.2
-    "@lumino/widgets": ^2.3.1
-    react: ^18.2.0
-  checksum: 8407ea92d2f7a094ea47313917b7d32ce6a9e7dd79ab595eeef4064d805f818720210cde3c949b517ba98bae52980ab373df42082ca654f0f483935e104f0335
-  languageName: node
-  linkType: hard
-
-"@jupyterlab/documentsearch@npm:^4.1.0":
-  version: 4.1.0
-  resolution: "@jupyterlab/documentsearch@npm:4.1.0"
-  dependencies:
-    "@jupyterlab/apputils": ^4.2.0
-    "@jupyterlab/translation": ^4.1.0
-    "@jupyterlab/ui-components": ^4.1.0
-    "@lumino/commands": ^2.2.0
+    "@jupyterlab/apputils": ^4.3.2
+    "@jupyterlab/translation": ^4.2.2
+    "@jupyterlab/ui-components": ^4.2.2
+    "@lumino/commands": ^2.3.0
     "@lumino/coreutils": ^2.1.2
     "@lumino/disposable": ^2.1.2
     "@lumino/messaging": ^2.0.1
     "@lumino/polling": ^2.1.2
     "@lumino/signaling": ^2.1.2
-    "@lumino/widgets": ^2.3.1
+    "@lumino/widgets": ^2.3.2
     react: ^18.2.0
-  checksum: 768b02f07c892622b126d8b8f59e4559003f3900f2cb588fba27aa87ebb1eb9a703fe99ebccc9bd8ccba2f8859ba157060b0bb5e5c5572fe9906fd7152caf536
+  checksum: 2d6806fdf0f85873eb35c7730717a9eb69775760d6fd081cbb274104e04fdf3dcf1e72002271739021552721732fa77bd2d6601c27abca8bf1e6b88a9836a2c8
   languageName: node
   linkType: hard
 
-"@jupyterlab/filebrowser@npm:^4.1.0":
-  version: 4.1.0
-  resolution: "@jupyterlab/filebrowser@npm:4.1.0"
+"@jupyterlab/filebrowser@npm:^4.2.2":
+  version: 4.2.2
+  resolution: "@jupyterlab/filebrowser@npm:4.2.2"
   dependencies:
-    "@jupyterlab/apputils": ^4.2.0
-    "@jupyterlab/coreutils": ^6.1.0
-    "@jupyterlab/docmanager": ^4.1.0
-    "@jupyterlab/docregistry": ^4.1.0
-    "@jupyterlab/services": ^7.1.0
-    "@jupyterlab/statedb": ^4.1.0
-    "@jupyterlab/statusbar": ^4.1.0
-    "@jupyterlab/translation": ^4.1.0
-    "@jupyterlab/ui-components": ^4.1.0
+    "@jupyterlab/apputils": ^4.3.2
+    "@jupyterlab/coreutils": ^6.2.2
+    "@jupyterlab/docmanager": ^4.2.2
+    "@jupyterlab/docregistry": ^4.2.2
+    "@jupyterlab/services": ^7.2.2
+    "@jupyterlab/statedb": ^4.2.2
+    "@jupyterlab/statusbar": ^4.2.2
+    "@jupyterlab/translation": ^4.2.2
+    "@jupyterlab/ui-components": ^4.2.2
     "@lumino/algorithm": ^2.0.1
     "@lumino/coreutils": ^2.1.2
     "@lumino/disposable": ^2.1.2
@@ -2699,198 +2716,199 @@ __metadata:
     "@lumino/polling": ^2.1.2
     "@lumino/signaling": ^2.1.2
     "@lumino/virtualdom": ^2.0.1
-    "@lumino/widgets": ^2.3.1
+    "@lumino/widgets": ^2.3.2
     react: ^18.2.0
-  checksum: ee29ad3a5ca3d9477a760179ff8b520cb88b8fd08f62ecd872d0cc0c5e1cc397349b020ba8c24f9b543b9cd5513c3b9da813d41bc5a63464aa3321a31b613115
+  checksum: f4354f84060bd100b4530d4816b25b819ce028f92ceb130d79ca90dacf32bb46bcd8e134244b6172bca3bb1cae3402079ffbb8173cc94c5ce75e5b55e77cd67c
   languageName: node
   linkType: hard
 
-"@jupyterlab/fileeditor@npm:^4":
-  version: 4.1.0
-  resolution: "@jupyterlab/fileeditor@npm:4.1.0"
+"@jupyterlab/fileeditor@npm:^4.2.0":
+  version: 4.2.2
+  resolution: "@jupyterlab/fileeditor@npm:4.2.2"
   dependencies:
-    "@jupyter/ydoc": ^1.1.1
-    "@jupyterlab/apputils": ^4.2.0
-    "@jupyterlab/codeeditor": ^4.1.0
-    "@jupyterlab/codemirror": ^4.1.0
-    "@jupyterlab/coreutils": ^6.1.0
-    "@jupyterlab/docregistry": ^4.1.0
-    "@jupyterlab/documentsearch": ^4.1.0
-    "@jupyterlab/lsp": ^4.1.0
-    "@jupyterlab/statusbar": ^4.1.0
-    "@jupyterlab/toc": ^6.1.0
-    "@jupyterlab/translation": ^4.1.0
-    "@jupyterlab/ui-components": ^4.1.0
-    "@lumino/commands": ^2.2.0
+    "@jupyter/ydoc": ^2.0.1
+    "@jupyterlab/apputils": ^4.3.2
+    "@jupyterlab/codeeditor": ^4.2.2
+    "@jupyterlab/codemirror": ^4.2.2
+    "@jupyterlab/coreutils": ^6.2.2
+    "@jupyterlab/docregistry": ^4.2.2
+    "@jupyterlab/documentsearch": ^4.2.2
+    "@jupyterlab/lsp": ^4.2.2
+    "@jupyterlab/statusbar": ^4.2.2
+    "@jupyterlab/toc": ^6.2.2
+    "@jupyterlab/translation": ^4.2.2
+    "@jupyterlab/ui-components": ^4.2.2
+    "@lumino/commands": ^2.3.0
     "@lumino/coreutils": ^2.1.2
     "@lumino/messaging": ^2.0.1
-    "@lumino/widgets": ^2.3.1
+    "@lumino/widgets": ^2.3.2
     react: ^18.2.0
     regexp-match-indices: ^1.0.2
-  checksum: 982f37e01cd909e6481f9c0982a23bce26dae71ffe3730b354f93e7a6357a2a6f1dd9c2d82c09649cc14b66ca5ad131fd3bc3667cbb2924fa7535a5c9b4372fb
+  checksum: 688340fe2ba275a22b6fc240b16b73db96889f128894a5d4f28c4ff5df68ef6f9947316ff9404ec93624eecd60a9834e2b343b04f82fa980f701d5ec30cd349d
   languageName: node
   linkType: hard
 
-"@jupyterlab/lsp@npm:^4.1.0":
-  version: 4.1.0
-  resolution: "@jupyterlab/lsp@npm:4.1.0"
+"@jupyterlab/lsp@npm:^4.2.2":
+  version: 4.2.2
+  resolution: "@jupyterlab/lsp@npm:4.2.2"
   dependencies:
-    "@jupyterlab/apputils": ^4.2.0
-    "@jupyterlab/codeeditor": ^4.1.0
-    "@jupyterlab/codemirror": ^4.1.0
-    "@jupyterlab/coreutils": ^6.1.0
-    "@jupyterlab/docregistry": ^4.1.0
-    "@jupyterlab/services": ^7.1.0
-    "@jupyterlab/translation": ^4.1.0
+    "@jupyterlab/apputils": ^4.3.2
+    "@jupyterlab/codeeditor": ^4.2.2
+    "@jupyterlab/codemirror": ^4.2.2
+    "@jupyterlab/coreutils": ^6.2.2
+    "@jupyterlab/docregistry": ^4.2.2
+    "@jupyterlab/services": ^7.2.2
+    "@jupyterlab/translation": ^4.2.2
     "@lumino/coreutils": ^2.1.2
     "@lumino/disposable": ^2.1.2
     "@lumino/signaling": ^2.1.2
-    "@lumino/widgets": ^2.3.1
+    "@lumino/widgets": ^2.3.2
     lodash.mergewith: ^4.6.1
     vscode-jsonrpc: ^6.0.0
     vscode-languageserver-protocol: ^3.17.0
     vscode-ws-jsonrpc: ~1.0.2
-  checksum: 487e4d2609ed4212be79c00f45f445ebb252d3a37a537adc421d1cc7824a45c782578cbf5876b75e1a184a2d4a0cc9ec232494e4440b082062a63278ede502d3
+  checksum: 57853e7cf4010dab80fd1f135bddefb62710c6d379c942306a6913ebf4683853a3d519aee8f1b4f72725a87f9cff4387d1fb3125813b0aa4fae25131ab2bff95
   languageName: node
   linkType: hard
 
-"@jupyterlab/nbformat@npm:^3.0.0 || ^4.0.0-alpha.21 || ^4.0.0, @jupyterlab/nbformat@npm:^4.1.0":
-  version: 4.1.0
-  resolution: "@jupyterlab/nbformat@npm:4.1.0"
+"@jupyterlab/nbformat@npm:^3.0.0 || ^4.0.0-alpha.21 || ^4.0.0, @jupyterlab/nbformat@npm:^4.2.2":
+  version: 4.2.2
+  resolution: "@jupyterlab/nbformat@npm:4.2.2"
   dependencies:
     "@lumino/coreutils": ^2.1.2
-  checksum: 0f10f53d312e1ad386be0cd1db3ea8d76ac5e169a1c470465179b35c7d7bd0e55b9d450b64abe38f447dcbec71224bfe8d4115a1cdb433f986d3a91234ffd391
+  checksum: a60774bcf3e9735bc80dc411b4b79ad2da0dd4df596fef0a74537bfbfb8b168b70b34619638d0abaca6243ac337520275002a27dc13d6951efd681527643d25b
   languageName: node
   linkType: hard
 
-"@jupyterlab/notebook@npm:^4, @jupyterlab/notebook@npm:^4.1.0":
-  version: 4.1.0
-  resolution: "@jupyterlab/notebook@npm:4.1.0"
+"@jupyterlab/notebook@npm:^4.2.0, @jupyterlab/notebook@npm:^4.2.2":
+  version: 4.2.2
+  resolution: "@jupyterlab/notebook@npm:4.2.2"
   dependencies:
-    "@jupyter/ydoc": ^1.1.1
-    "@jupyterlab/apputils": ^4.2.0
-    "@jupyterlab/cells": ^4.1.0
-    "@jupyterlab/codeeditor": ^4.1.0
-    "@jupyterlab/codemirror": ^4.1.0
-    "@jupyterlab/coreutils": ^6.1.0
-    "@jupyterlab/docregistry": ^4.1.0
-    "@jupyterlab/documentsearch": ^4.1.0
-    "@jupyterlab/lsp": ^4.1.0
-    "@jupyterlab/nbformat": ^4.1.0
-    "@jupyterlab/observables": ^5.1.0
-    "@jupyterlab/rendermime": ^4.1.0
-    "@jupyterlab/services": ^7.1.0
-    "@jupyterlab/settingregistry": ^4.1.0
-    "@jupyterlab/statusbar": ^4.1.0
-    "@jupyterlab/toc": ^6.1.0
-    "@jupyterlab/translation": ^4.1.0
-    "@jupyterlab/ui-components": ^4.1.0
+    "@jupyter/ydoc": ^2.0.1
+    "@jupyterlab/apputils": ^4.3.2
+    "@jupyterlab/cells": ^4.2.2
+    "@jupyterlab/codeeditor": ^4.2.2
+    "@jupyterlab/codemirror": ^4.2.2
+    "@jupyterlab/coreutils": ^6.2.2
+    "@jupyterlab/docregistry": ^4.2.2
+    "@jupyterlab/documentsearch": ^4.2.2
+    "@jupyterlab/lsp": ^4.2.2
+    "@jupyterlab/nbformat": ^4.2.2
+    "@jupyterlab/observables": ^5.2.2
+    "@jupyterlab/rendermime": ^4.2.2
+    "@jupyterlab/services": ^7.2.2
+    "@jupyterlab/settingregistry": ^4.2.2
+    "@jupyterlab/statusbar": ^4.2.2
+    "@jupyterlab/toc": ^6.2.2
+    "@jupyterlab/translation": ^4.2.2
+    "@jupyterlab/ui-components": ^4.2.2
     "@lumino/algorithm": ^2.0.1
     "@lumino/coreutils": ^2.1.2
     "@lumino/disposable": ^2.1.2
     "@lumino/domutils": ^2.0.1
     "@lumino/dragdrop": ^2.1.4
     "@lumino/messaging": ^2.0.1
+    "@lumino/polling": ^2.1.2
     "@lumino/properties": ^2.0.1
     "@lumino/signaling": ^2.1.2
     "@lumino/virtualdom": ^2.0.1
-    "@lumino/widgets": ^2.3.1
+    "@lumino/widgets": ^2.3.2
     react: ^18.2.0
-  checksum: 0083ef437c3db33d5fdbb72e176f4aa74e3f07a9bdd7868dc72deef65ee50de75156c92c9e9be4464d498225867488e7b177668579a3996869819d1e1e14bf53
+  checksum: 0544a44162ca9de8e1341035037fd3fda263b72769ef49f1bbd241196336d5f71f9f4d3b7f442c8c955ed76f3fa8d6c0177f75db8b66d5e68a76d6aff8e7b037
   languageName: node
   linkType: hard
 
-"@jupyterlab/observables@npm:^5.1.0":
-  version: 5.1.0
-  resolution: "@jupyterlab/observables@npm:5.1.0"
+"@jupyterlab/observables@npm:^5.2.2":
+  version: 5.2.2
+  resolution: "@jupyterlab/observables@npm:5.2.2"
   dependencies:
     "@lumino/algorithm": ^2.0.1
     "@lumino/coreutils": ^2.1.2
     "@lumino/disposable": ^2.1.2
     "@lumino/messaging": ^2.0.1
     "@lumino/signaling": ^2.1.2
-  checksum: 38ee528b244b06a2813874e11d2c3aa8b576f98ffdf9f77fc6c9ddf49de296b4067b4ad7f41f5eaab1de50d16fc79a31d26a34963e09c259e4332cf15c0c7bd5
+  checksum: 916363cb75bd58f109d81ba84649379a848c23b8ced30f9283108fb4133bd5d4f62ebdf9648f053df744701193d4fadbae4491561dd02d14157bf23a0b813dda
   languageName: node
   linkType: hard
 
-"@jupyterlab/outputarea@npm:^4.1.0":
-  version: 4.1.0
-  resolution: "@jupyterlab/outputarea@npm:4.1.0"
+"@jupyterlab/outputarea@npm:^4.2.2":
+  version: 4.2.2
+  resolution: "@jupyterlab/outputarea@npm:4.2.2"
   dependencies:
-    "@jupyterlab/apputils": ^4.2.0
-    "@jupyterlab/nbformat": ^4.1.0
-    "@jupyterlab/observables": ^5.1.0
-    "@jupyterlab/rendermime": ^4.1.0
-    "@jupyterlab/rendermime-interfaces": ^3.9.0
-    "@jupyterlab/services": ^7.1.0
-    "@jupyterlab/translation": ^4.1.0
+    "@jupyterlab/apputils": ^4.3.2
+    "@jupyterlab/nbformat": ^4.2.2
+    "@jupyterlab/observables": ^5.2.2
+    "@jupyterlab/rendermime": ^4.2.2
+    "@jupyterlab/rendermime-interfaces": ^3.10.2
+    "@jupyterlab/services": ^7.2.2
+    "@jupyterlab/translation": ^4.2.2
     "@lumino/algorithm": ^2.0.1
     "@lumino/coreutils": ^2.1.2
     "@lumino/disposable": ^2.1.2
     "@lumino/messaging": ^2.0.1
     "@lumino/properties": ^2.0.1
     "@lumino/signaling": ^2.1.2
-    "@lumino/widgets": ^2.3.1
-  checksum: 069d5d5fa1e75f5a09421e22fbaa15729f8bbc93c3915f9c0a8bee404a663b8def6c0c0d82a85d84cc6c4e3bdda87eb3d7820eb74e1cf1b99b834ee49ccf572f
+    "@lumino/widgets": ^2.3.2
+  checksum: b7d085edca968dc280677df0853080b00a3df3f05b67887933375bd28eaf12e056f7c3396b9a1a28075e617f979400a19742312c6964233f8135c5054fa98e20
   languageName: node
   linkType: hard
 
-"@jupyterlab/rendermime-interfaces@npm:^3.9.0":
-  version: 3.9.0
-  resolution: "@jupyterlab/rendermime-interfaces@npm:3.9.0"
+"@jupyterlab/rendermime-interfaces@npm:^3.10.2":
+  version: 3.10.2
+  resolution: "@jupyterlab/rendermime-interfaces@npm:3.10.2"
   dependencies:
     "@lumino/coreutils": ^1.11.0 || ^2.1.2
-    "@lumino/widgets": ^1.37.2 || ^2.3.1
-  checksum: 462f5d034cd636caf9322245a50045ddaac55e05e056e7c6579e2db55088e724c8054a51a959aa284c44b108a9e0f0053707b50d6d8a9caed5825eeaf715b245
+    "@lumino/widgets": ^1.37.2 || ^2.3.2
+  checksum: 4ace6cda40bc3cdd59e36afb8dce6f4448f974a8214086d2541860b0e5c0de95fe22969fa4f5537e6e7fa06c00543655feaf77825dbb57da0147c38c51686707
   languageName: node
   linkType: hard
 
-"@jupyterlab/rendermime@npm:^4, @jupyterlab/rendermime@npm:^4.1.0":
-  version: 4.1.0
-  resolution: "@jupyterlab/rendermime@npm:4.1.0"
+"@jupyterlab/rendermime@npm:^4.2.0, @jupyterlab/rendermime@npm:^4.2.2":
+  version: 4.2.2
+  resolution: "@jupyterlab/rendermime@npm:4.2.2"
   dependencies:
-    "@jupyterlab/apputils": ^4.2.0
-    "@jupyterlab/coreutils": ^6.1.0
-    "@jupyterlab/nbformat": ^4.1.0
-    "@jupyterlab/observables": ^5.1.0
-    "@jupyterlab/rendermime-interfaces": ^3.9.0
-    "@jupyterlab/services": ^7.1.0
-    "@jupyterlab/translation": ^4.1.0
+    "@jupyterlab/apputils": ^4.3.2
+    "@jupyterlab/coreutils": ^6.2.2
+    "@jupyterlab/nbformat": ^4.2.2
+    "@jupyterlab/observables": ^5.2.2
+    "@jupyterlab/rendermime-interfaces": ^3.10.2
+    "@jupyterlab/services": ^7.2.2
+    "@jupyterlab/translation": ^4.2.2
     "@lumino/coreutils": ^2.1.2
     "@lumino/messaging": ^2.0.1
     "@lumino/signaling": ^2.1.2
-    "@lumino/widgets": ^2.3.1
+    "@lumino/widgets": ^2.3.2
     lodash.escape: ^4.0.1
-  checksum: 52323a1d907b29f5b60c237b6e1c3085c667f9fd59e76c6dcab29076a50eb4bd39efe5f6e3e49e3dbabb6dc1f5f7820f09af74f211a76e7e7db6c7c0be8d5715
+  checksum: cadf8a1d7c001d3863389b7e9561a54c633a85c89713b7d204f9ba86b960b23b592bfb6c68340dac1c02d86d51e4ea1af295672120597c9d8f7c654c8f020182
   languageName: node
   linkType: hard
 
-"@jupyterlab/services@npm:^7, @jupyterlab/services@npm:^7.0.0, @jupyterlab/services@npm:^7.1.0":
-  version: 7.1.0
-  resolution: "@jupyterlab/services@npm:7.1.0"
+"@jupyterlab/services@npm:^7.0.0, @jupyterlab/services@npm:^7.2.0, @jupyterlab/services@npm:^7.2.2":
+  version: 7.2.2
+  resolution: "@jupyterlab/services@npm:7.2.2"
   dependencies:
-    "@jupyter/ydoc": ^1.1.1
-    "@jupyterlab/coreutils": ^6.1.0
-    "@jupyterlab/nbformat": ^4.1.0
-    "@jupyterlab/settingregistry": ^4.1.0
-    "@jupyterlab/statedb": ^4.1.0
+    "@jupyter/ydoc": ^2.0.1
+    "@jupyterlab/coreutils": ^6.2.2
+    "@jupyterlab/nbformat": ^4.2.2
+    "@jupyterlab/settingregistry": ^4.2.2
+    "@jupyterlab/statedb": ^4.2.2
     "@lumino/coreutils": ^2.1.2
     "@lumino/disposable": ^2.1.2
     "@lumino/polling": ^2.1.2
     "@lumino/properties": ^2.0.1
     "@lumino/signaling": ^2.1.2
     ws: ^8.11.0
-  checksum: 4a4797746c708551a7647c43ecc4dce20dc12ea043bb2bd43ec0c20966825a5e14742258d3bcee9ae832c91030132db895dc9a81bf1596d59c08066c4fecfba5
+  checksum: dace4f2838cefb129c63cc2b20b35ce2b593e9da4db51dea2963c1109c7f9867faf0a7f428bfd53889f8560953924bf51b355f555ce4fd756b358cfaf8f145c7
   languageName: node
   linkType: hard
 
-"@jupyterlab/settingregistry@npm:^4, @jupyterlab/settingregistry@npm:^4.1.0":
-  version: 4.1.0
-  resolution: "@jupyterlab/settingregistry@npm:4.1.0"
+"@jupyterlab/settingregistry@npm:^4.2.0, @jupyterlab/settingregistry@npm:^4.2.2":
+  version: 4.2.2
+  resolution: "@jupyterlab/settingregistry@npm:4.2.2"
   dependencies:
-    "@jupyterlab/nbformat": ^4.1.0
-    "@jupyterlab/statedb": ^4.1.0
-    "@lumino/commands": ^2.2.0
+    "@jupyterlab/nbformat": ^4.2.2
+    "@jupyterlab/statedb": ^4.2.2
+    "@lumino/commands": ^2.3.0
     "@lumino/coreutils": ^2.1.2
     "@lumino/disposable": ^2.1.2
     "@lumino/signaling": ^2.1.2
@@ -2899,124 +2917,122 @@ __metadata:
     json5: ^2.2.3
   peerDependencies:
     react: ">=16"
-  checksum: 1a0c52016806ceda150168cdeae966b15afce454fe24acfd68939f3f380eaf2d4390c40e27c1475877c8e8da6b3f15a952999ebcc9d3838d5306bd24ad5b4b51
+  checksum: 610a43c2308ea7b35c58bc4fdffa0613cd04bbd56bae3f64ee7d7869ae8e484e26102726f5a31f6ae2ffc6f3e77527473fb1a8a9869fdbdac93d5a12984bd56d
   languageName: node
   linkType: hard
 
-"@jupyterlab/statedb@npm:^4.1.0":
-  version: 4.1.0
-  resolution: "@jupyterlab/statedb@npm:4.1.0"
+"@jupyterlab/statedb@npm:^4.2.2":
+  version: 4.2.2
+  resolution: "@jupyterlab/statedb@npm:4.2.2"
   dependencies:
-    "@lumino/commands": ^2.2.0
+    "@lumino/commands": ^2.3.0
     "@lumino/coreutils": ^2.1.2
     "@lumino/disposable": ^2.1.2
     "@lumino/properties": ^2.0.1
     "@lumino/signaling": ^2.1.2
-  checksum: 693d40ba6ce67b41aae2acbae027a5c637c2bfa51d7085b6faecdb1877a5e3bd43ca70f3670f88f038c49bef80e0e09899b05d330dd9010b1d578ca73b13ea17
+  checksum: 6fbeed16a659b3f0d9b7a86cca91a0fd082c35b500264d58206f8a79640ea34ac00192c749a96c10f8762c6153ef26d3face6e6ce30b0e84479a0a5896254c38
   languageName: node
   linkType: hard
 
-"@jupyterlab/statusbar@npm:^4.1.0":
-  version: 4.1.0
-  resolution: "@jupyterlab/statusbar@npm:4.1.0"
+"@jupyterlab/statusbar@npm:^4.2.2":
+  version: 4.2.2
+  resolution: "@jupyterlab/statusbar@npm:4.2.2"
   dependencies:
-    "@jupyterlab/ui-components": ^4.1.0
+    "@jupyterlab/ui-components": ^4.2.2
     "@lumino/algorithm": ^2.0.1
     "@lumino/coreutils": ^2.1.2
     "@lumino/disposable": ^2.1.2
     "@lumino/messaging": ^2.0.1
     "@lumino/signaling": ^2.1.2
-    "@lumino/widgets": ^2.3.1
+    "@lumino/widgets": ^2.3.2
     react: ^18.2.0
-  checksum: 309d3cb98c924c23dfef2ad91862dfa56ea133d8ae08aa7bc743c4000f15584841b39712bc8829eb09d7382d5c9e0e7b3e85c3ae1165c01597ade96702bcc055
+  checksum: f687fe87f693036edabaf7273aa3b1da89dac4636daf6632bb8d76bf79693ca713f83105247a90b1b378bfc42f61313d3ebc6177a01d2647b957c3c1b01e25f3
   languageName: node
   linkType: hard
 
-"@jupyterlab/testing@npm:^4.1.0":
-  version: 4.1.0
-  resolution: "@jupyterlab/testing@npm:4.1.0"
+"@jupyterlab/testing@npm:^4.2.2":
+  version: 4.2.2
+  resolution: "@jupyterlab/testing@npm:4.2.2"
   dependencies:
     "@babel/core": ^7.10.2
     "@babel/preset-env": ^7.10.2
-    "@jupyterlab/coreutils": ^6.1.0
+    "@jupyterlab/coreutils": ^6.2.2
     "@lumino/coreutils": ^2.1.2
     "@lumino/signaling": ^2.1.2
-    child_process: ~1.0.2
     deepmerge: ^4.2.2
     fs-extra: ^10.1.0
     identity-obj-proxy: ^3.0.0
     jest: ^29.2.0
     jest-environment-jsdom: ^29.3.0
     jest-junit: ^15.0.0
-    node-fetch: ^2.6.0
     simulate-event: ~1.4.0
     ts-jest: ^29.1.0
   peerDependencies:
     typescript: ">=4.3"
-  checksum: ea44aa152e005302b10725401c0116ce250498168bd829553feec39564bde03d1c92c357dbe6ca55396e5bd66b82c77da2de0bcbdb8acb92371d37b7fe3c998b
+  checksum: c306b3ec08115b2f78be4f1abe528d05a91a7100d9bd10792c39de345bb04fead6a99ba534bcc974e72264e0428e9b09acde832665f68cf8d93b38cb67557c46
   languageName: node
   linkType: hard
 
-"@jupyterlab/testutils@npm:^4":
-  version: 4.1.0
-  resolution: "@jupyterlab/testutils@npm:4.1.0"
+"@jupyterlab/testutils@npm:^4.2.0":
+  version: 4.2.2
+  resolution: "@jupyterlab/testutils@npm:4.2.2"
   dependencies:
-    "@jupyterlab/application": ^4.1.0
-    "@jupyterlab/apputils": ^4.2.0
-    "@jupyterlab/notebook": ^4.1.0
-    "@jupyterlab/rendermime": ^4.1.0
-    "@jupyterlab/testing": ^4.1.0
-  checksum: 0ed195b52cec7639358c8694ed99b8106aeb58d2b9afa51da3c564f8d4530c089a7d72d8fb503ca7de40ca0aec26e28b7d6fc551fae235027111b9b66eba80eb
+    "@jupyterlab/application": ^4.2.2
+    "@jupyterlab/apputils": ^4.3.2
+    "@jupyterlab/notebook": ^4.2.2
+    "@jupyterlab/rendermime": ^4.2.2
+    "@jupyterlab/testing": ^4.2.2
+  checksum: 68f68ac669a6830970dae6005fc7243e365981662cb3ac412df6ec9603bef2ad2422b1ad683fe2636117222f83b7e96ec74d732edaca8493eb0a64f407ce199b
   languageName: node
   linkType: hard
 
-"@jupyterlab/toc@npm:^6.1.0":
-  version: 6.1.0
-  resolution: "@jupyterlab/toc@npm:6.1.0"
+"@jupyterlab/toc@npm:^6.2.2":
+  version: 6.2.2
+  resolution: "@jupyterlab/toc@npm:6.2.2"
   dependencies:
-    "@jupyterlab/apputils": ^4.2.0
-    "@jupyterlab/coreutils": ^6.1.0
-    "@jupyterlab/docregistry": ^4.1.0
-    "@jupyterlab/observables": ^5.1.0
-    "@jupyterlab/rendermime": ^4.1.0
-    "@jupyterlab/rendermime-interfaces": ^3.9.0
-    "@jupyterlab/translation": ^4.1.0
-    "@jupyterlab/ui-components": ^4.1.0
+    "@jupyterlab/apputils": ^4.3.2
+    "@jupyterlab/coreutils": ^6.2.2
+    "@jupyterlab/docregistry": ^4.2.2
+    "@jupyterlab/observables": ^5.2.2
+    "@jupyterlab/rendermime": ^4.2.2
+    "@jupyterlab/rendermime-interfaces": ^3.10.2
+    "@jupyterlab/translation": ^4.2.2
+    "@jupyterlab/ui-components": ^4.2.2
     "@lumino/coreutils": ^2.1.2
     "@lumino/disposable": ^2.1.2
     "@lumino/messaging": ^2.0.1
     "@lumino/signaling": ^2.1.2
-    "@lumino/widgets": ^2.3.1
+    "@lumino/widgets": ^2.3.2
     react: ^18.2.0
-  checksum: 051f960311e0f9dfba2668411c32480376d04cd05a023e69d25818ca6b7ca9fdc16f5c3ffc966a519cb2653a26e03cb14f2c267a2e40cffd4d06c31c7db138d8
+  checksum: 8b8692da9d0b85e35fe59cc21b026ce25e5f8cb5c21607d304512cab2ef280dd9e2468dedbf6819aedb8f5e17ae7ee757504008dc792886531d09beed98e2f9e
   languageName: node
   linkType: hard
 
-"@jupyterlab/translation@npm:^4.1.0":
-  version: 4.1.0
-  resolution: "@jupyterlab/translation@npm:4.1.0"
+"@jupyterlab/translation@npm:^4.2.2":
+  version: 4.2.2
+  resolution: "@jupyterlab/translation@npm:4.2.2"
   dependencies:
-    "@jupyterlab/coreutils": ^6.1.0
-    "@jupyterlab/rendermime-interfaces": ^3.9.0
-    "@jupyterlab/services": ^7.1.0
-    "@jupyterlab/statedb": ^4.1.0
+    "@jupyterlab/coreutils": ^6.2.2
+    "@jupyterlab/rendermime-interfaces": ^3.10.2
+    "@jupyterlab/services": ^7.2.2
+    "@jupyterlab/statedb": ^4.2.2
     "@lumino/coreutils": ^2.1.2
-  checksum: 88b7422697c1795dfcb85870cb8642cd10be6ae27a61dd1ca9f1304f06460f859202bfb6733cb744e2b4c448e8bfbf7a4793c6626cb4a18a59c80999cf1c5050
+  checksum: faeda0940384b5d204e5f7ca0e50cdf0122d6be8618a10c9c77ba57b675fc7045c65da8c1fc51fb4803361b7d0bbbbd1d6d224d5905677f3782231bdad2f8164
   languageName: node
   linkType: hard
 
-"@jupyterlab/ui-components@npm:^4, @jupyterlab/ui-components@npm:^4.0.0, @jupyterlab/ui-components@npm:^4.1.0":
-  version: 4.1.0
-  resolution: "@jupyterlab/ui-components@npm:4.1.0"
+"@jupyterlab/ui-components@npm:^4.0.0, @jupyterlab/ui-components@npm:^4.2.0, @jupyterlab/ui-components@npm:^4.2.2":
+  version: 4.2.2
+  resolution: "@jupyterlab/ui-components@npm:4.2.2"
   dependencies:
-    "@jupyter/react-components": ^0.15.2
-    "@jupyter/web-components": ^0.15.2
-    "@jupyterlab/coreutils": ^6.1.0
-    "@jupyterlab/observables": ^5.1.0
-    "@jupyterlab/rendermime-interfaces": ^3.9.0
-    "@jupyterlab/translation": ^4.1.0
+    "@jupyter/react-components": ^0.15.3
+    "@jupyter/web-components": ^0.15.3
+    "@jupyterlab/coreutils": ^6.2.2
+    "@jupyterlab/observables": ^5.2.2
+    "@jupyterlab/rendermime-interfaces": ^3.10.2
+    "@jupyterlab/translation": ^4.2.2
     "@lumino/algorithm": ^2.0.1
-    "@lumino/commands": ^2.2.0
+    "@lumino/commands": ^2.3.0
     "@lumino/coreutils": ^2.1.2
     "@lumino/disposable": ^2.1.2
     "@lumino/messaging": ^2.0.1
@@ -3024,7 +3040,7 @@ __metadata:
     "@lumino/properties": ^2.0.1
     "@lumino/signaling": ^2.1.2
     "@lumino/virtualdom": ^2.0.1
-    "@lumino/widgets": ^2.3.1
+    "@lumino/widgets": ^2.3.2
     "@rjsf/core": ^5.13.4
     "@rjsf/utils": ^5.13.4
     react: ^18.2.0
@@ -3032,7 +3048,7 @@ __metadata:
     typestyle: ^2.0.4
   peerDependencies:
     react: ^18.2.0
-  checksum: 53f8eb432d7ff8890ec748c3b43fbcb67fe6cd218b771c4c334e1ddd80a13b570071f171eca4c15feebc4715427e422f833d7b8e2084bcd2605979a444e1536d
+  checksum: 5e0f7c835dd64db51332966cb56b5b5f12a22b4b42b229ade772b853dc31aab92ec323125a2e7781e3c7acd41949cd5600b1f1421e64ebafe1c05957e1176501
   languageName: node
   linkType: hard
 
@@ -3167,19 +3183,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@lezer/generator@npm:^1.2.2":
-  version: 1.6.0
-  resolution: "@lezer/generator@npm:1.6.0"
+"@lezer/generator@npm:^1.7.0":
+  version: 1.7.0
+  resolution: "@lezer/generator@npm:1.7.0"
   dependencies:
     "@lezer/common": ^1.1.0
     "@lezer/lr": ^1.3.0
   bin:
     lezer-generator: src/lezer-generator.cjs
-  checksum: dfbf19d0533922272ac00c4b7884e1df88e2a35dd758e4544ceb5d784aa38d5751add03ca87f35d14cc39416e0dbc06ccaf2a211a6ae982e00daaaffe9c9320c
+  checksum: 69f4c6625446cb65adaa509480ec67502f27651707a8e45e99373e682d7f66f8842205669f174bcb138eade72c64ded0b54d6de6aa5af995ac1f1e805ef021fd
   languageName: node
   linkType: hard
 
-"@lezer/highlight@npm:^1.0.0, @lezer/highlight@npm:^1.1.3, @lezer/highlight@npm:^1.1.4":
+"@lezer/highlight@npm:^1.0.0, @lezer/highlight@npm:^1.1.3, @lezer/highlight@npm:^1.2.0":
   version: 1.2.0
   resolution: "@lezer/highlight@npm:1.2.0"
   dependencies:
@@ -3241,13 +3257,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@lezer/markdown@npm:^1.0.0, @lezer/markdown@npm:^1.0.2":
-  version: 1.2.0
-  resolution: "@lezer/markdown@npm:1.2.0"
+"@lezer/markdown@npm:^1.0.0, @lezer/markdown@npm:^1.2.0":
+  version: 1.3.0
+  resolution: "@lezer/markdown@npm:1.3.0"
   dependencies:
     "@lezer/common": ^1.0.0
     "@lezer/highlight": ^1.0.0
-  checksum: e6355272ad98c97b339dd42d8d9b78fa4f48fdcc5c9c408720936cacb7d2bcd47b0cedf8e0997ef93539c2b03a65326fc59372e54f0b24acd98630e06869a350
+  checksum: 13eb2720e4cb84278349bad8af116f748813094f99fad02680010c3a8c5985e0358c344487990f87a31ef0d6c1a2be582301f914c0e4a6e9cfa22647b6cd6545
   languageName: node
   linkType: hard
 
@@ -3302,14 +3318,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@lumino/application@npm:^2.3.0":
-  version: 2.3.0
-  resolution: "@lumino/application@npm:2.3.0"
+"@lumino/application@npm:^2.3.1":
+  version: 2.3.1
+  resolution: "@lumino/application@npm:2.3.1"
   dependencies:
-    "@lumino/commands": ^2.2.0
+    "@lumino/commands": ^2.3.0
     "@lumino/coreutils": ^2.1.2
-    "@lumino/widgets": ^2.3.1
-  checksum: 9d1eb5bc972ed158bf219604a53bbac1262059bc5b0123d3e041974486b9cbb8288abeeec916f3b62f62d7c32e716cccf8b73e4832ae927e4f9dd4e4b0cd37ed
+    "@lumino/widgets": ^2.3.2
+  checksum: c112789d99baf62e5c2cee98834bc3efb5027bbca1aac81f10ea8855c0cd2538ec0a7c56c3f5dd42dce244e6892ef5bf8ef356f97e1cd4c161b99eb2068c195c
   languageName: node
   linkType: hard
 
@@ -3322,9 +3338,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@lumino/commands@npm:^2.2.0":
-  version: 2.2.0
-  resolution: "@lumino/commands@npm:2.2.0"
+"@lumino/commands@npm:^2.3.0":
+  version: 2.3.0
+  resolution: "@lumino/commands@npm:2.3.0"
   dependencies:
     "@lumino/algorithm": ^2.0.1
     "@lumino/coreutils": ^2.1.2
@@ -3333,7 +3349,7 @@ __metadata:
     "@lumino/keyboard": ^2.0.1
     "@lumino/signaling": ^2.1.2
     "@lumino/virtualdom": ^2.0.1
-  checksum: 093e9715491e5cef24bc80665d64841417b400f2fa595f9b60832a3b6340c405c94a6aa276911944a2c46d79a6229f3cc087b73f50852bba25ece805abd0fae9
+  checksum: a9b83bbfcc0421ff501e818dd234c65db438a8abb450628db0dea9ee05e8077d10b2275e7e2289f6df9c20dc26d2af458b1db88ccf43ec69f185eb207dbad419
   languageName: node
   linkType: hard
 
@@ -3424,12 +3440,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@lumino/widgets@npm:^1.37.2 || ^2.3.1, @lumino/widgets@npm:^2.1.0, @lumino/widgets@npm:^2.3.1":
-  version: 2.3.1
-  resolution: "@lumino/widgets@npm:2.3.1"
+"@lumino/widgets@npm:^1.37.2 || ^2.3.2, @lumino/widgets@npm:^2.1.0, @lumino/widgets@npm:^2.3.2":
+  version: 2.3.2
+  resolution: "@lumino/widgets@npm:2.3.2"
   dependencies:
     "@lumino/algorithm": ^2.0.1
-    "@lumino/commands": ^2.2.0
+    "@lumino/commands": ^2.3.0
     "@lumino/coreutils": ^2.1.2
     "@lumino/disposable": ^2.1.2
     "@lumino/domutils": ^2.0.1
@@ -3439,7 +3455,7 @@ __metadata:
     "@lumino/properties": ^2.0.1
     "@lumino/signaling": ^2.1.2
     "@lumino/virtualdom": ^2.0.1
-  checksum: ba7b8f8839c1cd2a41dbda13281094eb6981a270cccf4f25a0cf83686dcc526a2d8044a20204317630bb7dd4a04d65361408c7623a921549c781afca84b91c67
+  checksum: 954fe066b0826cf00c019731bb3f70e635c63be4a0ce27f7573dbe6bd59e2154f511594b50e8f58f44877cf514084128c1e894ecbbbfd6e20d937e5cfb69ca8b
   languageName: node
   linkType: hard
 
@@ -4942,20 +4958,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"abstract-leveldown@npm:^6.2.1":
-  version: 6.3.0
-  resolution: "abstract-leveldown@npm:6.3.0"
-  dependencies:
-    buffer: ^5.5.0
-    immediate: ^3.2.3
-    level-concat-iterator: ~2.0.0
-    level-supports: ~1.0.0
-    xtend: ~4.0.0
-  checksum: 121a8509d8c6a540e656c2a69e5b8d853d4df71072011afefc868b98076991bb00120550e90643de9dc18889c675f62413409eeb4c8c204663124c7d215e4ec3
-  languageName: node
-  linkType: hard
-
-"abstract-leveldown@npm:~6.2.1, abstract-leveldown@npm:~6.2.3":
+"abstract-leveldown@npm:^6.2.1, abstract-leveldown@npm:~6.2.1, abstract-leveldown@npm:~6.2.3":
   version: 6.2.3
   resolution: "abstract-leveldown@npm:6.2.3"
   dependencies:
@@ -5792,13 +5795,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"child_process@npm:~1.0.2":
-  version: 1.0.2
-  resolution: "child_process@npm:1.0.2"
-  checksum: bd814d82bc8c6e85ed6fb157878978121cd03b5296c09f6135fa3d081fd9a6a617a6d509c50397711df713af403331241a9c0397a7fad30672051485e156c2a1
-  languageName: node
-  linkType: hard
-
 "chownr@npm:^2.0.0":
   version: 2.0.0
   resolution: "chownr@npm:2.0.0"
@@ -5850,17 +5846,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cli-spinners@npm:2.6.1":
+"cli-spinners@npm:2.6.1, cli-spinners@npm:^2.5.0":
   version: 2.6.1
   resolution: "cli-spinners@npm:2.6.1"
   checksum: 423409baaa7a58e5104b46ca1745fbfc5888bbd0b0c5a626e052ae1387060839c8efd512fb127e25769b3dc9562db1dc1b5add6e0b93b7ef64f477feb6416a45
-  languageName: node
-  linkType: hard
-
-"cli-spinners@npm:^2.5.0":
-  version: 2.9.2
-  resolution: "cli-spinners@npm:2.9.2"
-  checksum: 1bd588289b28432e4676cb5d40505cfe3e53f2e4e10fbe05c8a710a154d6fe0ce7836844b00d6858f740f2ffe67cdc36e0fce9c7b6a8430e80e6388d5aa4956c
   languageName: node
   linkType: hard
 
@@ -6649,18 +6638,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dom-serializer@npm:^1.0.1":
-  version: 1.4.1
-  resolution: "dom-serializer@npm:1.4.1"
+"dom-serializer@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "dom-serializer@npm:2.0.0"
   dependencies:
-    domelementtype: ^2.0.1
-    domhandler: ^4.2.0
-    entities: ^2.0.0
-  checksum: fbb0b01f87a8a2d18e6e5a388ad0f7ec4a5c05c06d219377da1abc7bb0f674d804f4a8a94e3f71ff15f6cb7dcfc75704a54b261db672b9b3ab03da6b758b0b22
+    domelementtype: ^2.3.0
+    domhandler: ^5.0.2
+    entities: ^4.2.0
+  checksum: cd1810544fd8cdfbd51fa2c0c1128ec3a13ba92f14e61b7650b5de421b88205fd2e3f0cc6ace82f13334114addb90ed1c2f23074a51770a8e9c1273acbc7f3e6
   languageName: node
   linkType: hard
 
-"domelementtype@npm:^2.0.1, domelementtype@npm:^2.2.0":
+"domelementtype@npm:^2.3.0":
   version: 2.3.0
   resolution: "domelementtype@npm:2.3.0"
   checksum: ee837a318ff702622f383409d1f5b25dd1024b692ef64d3096ff702e26339f8e345820f29a68bcdcea8cfee3531776b3382651232fbeae95612d6f0a75efb4f6
@@ -6676,23 +6665,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"domhandler@npm:^4.0.0, domhandler@npm:^4.2.0":
-  version: 4.3.1
-  resolution: "domhandler@npm:4.3.1"
+"domhandler@npm:^5.0.2, domhandler@npm:^5.0.3":
+  version: 5.0.3
+  resolution: "domhandler@npm:5.0.3"
   dependencies:
-    domelementtype: ^2.2.0
-  checksum: 4c665ceed016e1911bf7d1dadc09dc888090b64dee7851cccd2fcf5442747ec39c647bb1cb8c8919f8bbdd0f0c625a6bafeeed4b2d656bbecdbae893f43ffaaa
+    domelementtype: ^2.3.0
+  checksum: 0f58f4a6af63e6f3a4320aa446d28b5790a009018707bce2859dcb1d21144c7876482b5188395a188dfa974238c019e0a1e610d2fc269a12b2c192ea2b0b131c
   languageName: node
   linkType: hard
 
-"domutils@npm:^2.5.2":
-  version: 2.8.0
-  resolution: "domutils@npm:2.8.0"
+"domutils@npm:^3.0.1":
+  version: 3.1.0
+  resolution: "domutils@npm:3.1.0"
   dependencies:
-    dom-serializer: ^1.0.1
-    domelementtype: ^2.2.0
-    domhandler: ^4.2.0
-  checksum: abf7434315283e9aadc2a24bac0e00eab07ae4313b40cc239f89d84d7315ebdfd2fb1b5bf750a96bc1b4403d7237c7b2ebf60459be394d625ead4ca89b934391
+    dom-serializer: ^2.0.0
+    domelementtype: ^2.3.0
+    domhandler: ^5.0.3
+  checksum: e5757456ddd173caa411cfc02c2bb64133c65546d2c4081381a3bafc8a57411a41eed70494551aa58030be9e58574fcc489828bebd673863d39924fb4878f416
   languageName: node
   linkType: hard
 
@@ -6833,17 +6822,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"enquirer@npm:^2.3.5":
-  version: 2.4.1
-  resolution: "enquirer@npm:2.4.1"
-  dependencies:
-    ansi-colors: ^4.1.1
-    strip-ansi: ^6.0.1
-  checksum: f080f11a74209647dbf347a7c6a83c8a47ae1ebf1e75073a808bc1088eb780aa54075bfecd1bcdb3e3c724520edb8e6ee05da031529436b421b71066fcc48cb5
-  languageName: node
-  linkType: hard
-
-"enquirer@npm:~2.3.6":
+"enquirer@npm:^2.3.5, enquirer@npm:~2.3.6":
   version: 2.3.6
   resolution: "enquirer@npm:2.3.6"
   dependencies:
@@ -6852,14 +6831,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"entities@npm:^2.0.0":
-  version: 2.2.0
-  resolution: "entities@npm:2.2.0"
-  checksum: 19010dacaf0912c895ea262b4f6128574f9ccf8d4b3b65c7e8334ad0079b3706376360e28d8843ff50a78aabcb8f08f0a32dbfacdc77e47ed77ca08b713669b3
-  languageName: node
-  linkType: hard
-
-"entities@npm:^4.4.0":
+"entities@npm:^4.2.0, entities@npm:^4.4.0":
   version: 4.5.0
   resolution: "entities@npm:4.5.0"
   checksum: 853f8ebd5b425d350bffa97dd6958143179a5938352ccae092c62d1267c4e392a039be1bae7d51b6e4ffad25f51f9617531fedf5237f15df302ccfb452cbf2d7
@@ -7234,7 +7206,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"execa@npm:5.0.0":
+"execa@npm:5.0.0, execa@npm:^5.0.0":
   version: 5.0.0
   resolution: "execa@npm:5.0.0"
   dependencies:
@@ -7248,23 +7220,6 @@ __metadata:
     signal-exit: ^3.0.3
     strip-final-newline: ^2.0.0
   checksum: a044367ebdcc68ca019810cb134510fc77bbc55c799122258ee0e00e289c132941ab48c2a331a036699c42bc8d479d451ae67c105fce5ce5cc813e7dd92d642b
-  languageName: node
-  linkType: hard
-
-"execa@npm:^5.0.0":
-  version: 5.1.1
-  resolution: "execa@npm:5.1.1"
-  dependencies:
-    cross-spawn: ^7.0.3
-    get-stream: ^6.0.0
-    human-signals: ^2.1.0
-    is-stream: ^2.0.0
-    merge-stream: ^2.0.0
-    npm-run-path: ^4.0.1
-    onetime: ^5.1.2
-    signal-exit: ^3.0.3
-    strip-final-newline: ^2.0.0
-  checksum: fba9022c8c8c15ed862847e94c252b3d946036d7547af310e344a527e59021fd8b6bb0723883ea87044dc4f0201f949046993124a42ccb0855cae5bf8c786343
   languageName: node
   linkType: hard
 
@@ -7757,17 +7712,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"get-stream@npm:6.0.0":
+"get-stream@npm:6.0.0, get-stream@npm:^6.0.0":
   version: 6.0.0
   resolution: "get-stream@npm:6.0.0"
   checksum: 587e6a93127f9991b494a566f4971cf7a2645dfa78034818143480a80587027bdd8826cdcf80d0eff4a4a19de0d231d157280f24789fc9cc31492e1dcc1290cf
-  languageName: node
-  linkType: hard
-
-"get-stream@npm:^6.0.0":
-  version: 6.0.1
-  resolution: "get-stream@npm:6.0.1"
-  checksum: e04ecece32c92eebf5b8c940f51468cd53554dcbb0ea725b2748be583c9523d00128137966afce410b9b051eb2ef16d657cd2b120ca8edafcf5a65e81af63cad
   languageName: node
   linkType: hard
 
@@ -7892,17 +7840,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"glob@npm:^7.1.3, glob@npm:^7.1.4":
-  version: 7.2.3
-  resolution: "glob@npm:7.2.3"
+"glob@npm:^7.1.3, glob@npm:^7.1.4, glob@npm:~7.1.6":
+  version: 7.1.7
+  resolution: "glob@npm:7.1.7"
   dependencies:
     fs.realpath: ^1.0.0
     inflight: ^1.0.4
     inherits: 2
-    minimatch: ^3.1.1
+    minimatch: ^3.0.4
     once: ^1.3.0
     path-is-absolute: ^1.0.0
-  checksum: 29452e97b38fa704dabb1d1045350fb2467cf0277e155aa9ff7077e90ad81d1ea9d53d3ee63bd37c05b09a065e90f16aec4a65f5b8de401d1dac40bc5605d133
+  checksum: b61f48973bbdcf5159997b0874a2165db572b368b931135832599875919c237fc05c12984e38fe828e69aa8a921eb0e8a4997266211c517c9cfaae8a93988bb8
   languageName: node
   linkType: hard
 
@@ -7928,20 +7876,6 @@ __metadata:
     minipass: ^4.2.4
     path-scurry: ^1.6.1
   checksum: 94b093adbc591bc36b582f77927d1fb0dbf3ccc231828512b017601408be98d1fe798fc8c0b19c6f2d1a7660339c3502ce698de475e9d938ccbb69b47b647c84
-  languageName: node
-  linkType: hard
-
-"glob@npm:~7.1.6":
-  version: 7.1.7
-  resolution: "glob@npm:7.1.7"
-  dependencies:
-    fs.realpath: ^1.0.0
-    inflight: ^1.0.4
-    inherits: 2
-    minimatch: ^3.0.4
-    once: ^1.3.0
-    path-is-absolute: ^1.0.0
-  checksum: b61f48973bbdcf5159997b0874a2165db572b368b931135832599875919c237fc05c12984e38fe828e69aa8a921eb0e8a4997266211c517c9cfaae8a93988bb8
   languageName: node
   linkType: hard
 
@@ -8020,17 +7954,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"graceful-fs@npm:4.2.10":
+"graceful-fs@npm:4.2.10, graceful-fs@npm:^4.1.11, graceful-fs@npm:^4.1.15, graceful-fs@npm:^4.1.2, graceful-fs@npm:^4.1.6, graceful-fs@npm:^4.2.0, graceful-fs@npm:^4.2.4, graceful-fs@npm:^4.2.6, graceful-fs@npm:^4.2.9":
   version: 4.2.10
   resolution: "graceful-fs@npm:4.2.10"
   checksum: 3f109d70ae123951905d85032ebeae3c2a5a7a997430df00ea30df0e3a6c60cf6689b109654d6fdacd28810a053348c4d14642da1d075049e6be1ba5216218da
-  languageName: node
-  linkType: hard
-
-"graceful-fs@npm:^4.1.11, graceful-fs@npm:^4.1.15, graceful-fs@npm:^4.1.2, graceful-fs@npm:^4.1.6, graceful-fs@npm:^4.2.0, graceful-fs@npm:^4.2.4, graceful-fs@npm:^4.2.6, graceful-fs@npm:^4.2.9":
-  version: 4.2.11
-  resolution: "graceful-fs@npm:4.2.11"
-  checksum: ac85f94da92d8eb6b7f5a8b20ce65e43d66761c55ce85ac96df6865308390da45a8d3f0296dd3a663de65d30ba497bd46c696cc1e248c72b13d6d567138a4fc7
   languageName: node
   linkType: hard
 
@@ -8210,15 +8137,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"htmlparser2@npm:^6.0.0":
-  version: 6.1.0
-  resolution: "htmlparser2@npm:6.1.0"
+"htmlparser2@npm:^8.0.0":
+  version: 8.0.2
+  resolution: "htmlparser2@npm:8.0.2"
   dependencies:
-    domelementtype: ^2.0.1
-    domhandler: ^4.0.0
-    domutils: ^2.5.2
-    entities: ^2.0.0
-  checksum: 81a7b3d9c3bb9acb568a02fc9b1b81ffbfa55eae7f1c41ae0bf840006d1dbf54cb3aa245b2553e2c94db674840a9f0fdad7027c9a9d01a062065314039058c4e
+    domelementtype: ^2.3.0
+    domhandler: ^5.0.3
+    domutils: ^3.0.1
+    entities: ^4.4.0
+  checksum: 29167a0f9282f181da8a6d0311b76820c8a59bc9e3c87009e21968264c2987d2723d6fde5a964d4b7b6cba663fca96ffb373c06d8223a85f52a6089ced942700
   languageName: node
   linkType: hard
 
@@ -8457,7 +8384,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"inquirer@npm:8.2.4":
+"inquirer@npm:8.2.4, inquirer@npm:^8.2.4":
   version: 8.2.4
   resolution: "inquirer@npm:8.2.4"
   dependencies:
@@ -8477,29 +8404,6 @@ __metadata:
     through: ^2.3.6
     wrap-ansi: ^7.0.0
   checksum: dfcb6529d3af443dfea2241cb471508091b51f5121a088fdb8728b23ec9b349ef0a5e13a0ef2c8e19457b0bed22f7cbbcd561f7a4529d084c562a58c605e2655
-  languageName: node
-  linkType: hard
-
-"inquirer@npm:^8.2.4":
-  version: 8.2.6
-  resolution: "inquirer@npm:8.2.6"
-  dependencies:
-    ansi-escapes: ^4.2.1
-    chalk: ^4.1.1
-    cli-cursor: ^3.1.0
-    cli-width: ^3.0.0
-    external-editor: ^3.0.3
-    figures: ^3.0.0
-    lodash: ^4.17.21
-    mute-stream: 0.0.8
-    ora: ^5.4.1
-    run-async: ^2.4.0
-    rxjs: ^7.5.5
-    string-width: ^4.1.0
-    strip-ansi: ^6.0.0
-    through: ^2.3.6
-    wrap-ansi: ^6.0.1
-  checksum: 387ffb0a513559cc7414eb42c57556a60e302f820d6960e89d376d092e257a919961cd485a1b4de693dbb5c0de8bc58320bfd6247dfd827a873aa82a4215a240
   languageName: node
   linkType: hard
 
@@ -8755,17 +8659,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"is-stream@npm:2.0.0":
+"is-stream@npm:2.0.0, is-stream@npm:^2.0.0":
   version: 2.0.0
   resolution: "is-stream@npm:2.0.0"
   checksum: 4dc47738e26bc4f1b3be9070b6b9e39631144f204fc6f87db56961220add87c10a999ba26cf81699f9ef9610426f69cb08a4713feff8deb7d8cadac907826935
-  languageName: node
-  linkType: hard
-
-"is-stream@npm:^2.0.0":
-  version: 2.0.1
-  resolution: "is-stream@npm:2.0.1"
-  checksum: b8e05ccdf96ac330ea83c12450304d4a591f9958c11fd17bed240af8d5ffe08aedafa4c0f4cfccd4d28dc9d4d129daca1023633d5c11601a6cbc77521f6fae66
   languageName: node
   linkType: hard
 
@@ -10440,7 +10337,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"minimatch@npm:^3.0.4, minimatch@npm:^3.1.1, minimatch@npm:^3.1.2":
+"minimatch@npm:^3.0.4, minimatch@npm:^3.1.2":
   version: 3.1.2
   resolution: "minimatch@npm:3.1.2"
   dependencies:
@@ -10655,17 +10552,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ms@npm:2.1.2":
+"ms@npm:2.1.2, ms@npm:^2.0.0":
   version: 2.1.2
   resolution: "ms@npm:2.1.2"
   checksum: 673cdb2c3133eb050c745908d8ce632ed2c02d85640e2edb3ace856a2266a813b30c613569bf3354fdf4ea7d1a1494add3bfa95e2713baa27d0c2c71fc44f58f
-  languageName: node
-  linkType: hard
-
-"ms@npm:^2.0.0":
-  version: 2.1.3
-  resolution: "ms@npm:2.1.3"
-  checksum: aa92de608021b242401676e35cfa5aa42dd70cbdc082b916da7fb925c542173e36bce97ea3e804923fe92c0ad991434e4a38327e15a1b5b5f945d66df615ae6d
   languageName: node
   linkType: hard
 
@@ -10742,7 +10632,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-fetch@npm:2.6.7":
+"node-fetch@npm:2.6.7, node-fetch@npm:^2.6.7":
   version: 2.6.7
   resolution: "node-fetch@npm:2.6.7"
   dependencies:
@@ -10753,20 +10643,6 @@ __metadata:
     encoding:
       optional: true
   checksum: 8d816ffd1ee22cab8301c7756ef04f3437f18dace86a1dae22cf81db8ef29c0bf6655f3215cb0cdb22b420b6fe141e64b26905e7f33f9377a7fa59135ea3e10b
-  languageName: node
-  linkType: hard
-
-"node-fetch@npm:^2.6.0, node-fetch@npm:^2.6.7":
-  version: 2.7.0
-  resolution: "node-fetch@npm:2.7.0"
-  dependencies:
-    whatwg-url: ^5.0.0
-  peerDependencies:
-    encoding: ^0.1.0
-  peerDependenciesMeta:
-    encoding:
-      optional: true
-  checksum: d76d2f5edb451a3f05b15115ec89fc6be39de37c6089f1b6368df03b91e1633fd379a7e01b7ab05089a25034b2023d959b47e59759cb38d88341b2459e89d6e5
   languageName: node
   linkType: hard
 
@@ -10958,13 +10834,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"npm-normalize-package-bin@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "npm-normalize-package-bin@npm:2.0.0"
-  checksum: 7c5379f9b188b564c4332c97bdd9a5d6b7b15f02b5823b00989d6a0e6fb31eb0280f02b0a924f930e1fcaf00e60fae333aec8923d2a4c7747613c7d629d8aa25
-  languageName: node
-  linkType: hard
-
 "npm-normalize-package-bin@npm:^3.0.0, npm-normalize-package-bin@npm:^3.0.1":
   version: 3.0.1
   resolution: "npm-normalize-package-bin@npm:3.0.1"
@@ -11042,7 +10911,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"npm-registry-fetch@npm:14.0.3":
+"npm-registry-fetch@npm:14.0.3, npm-registry-fetch@npm:^14.0.0, npm-registry-fetch@npm:^14.0.3":
   version: 14.0.3
   resolution: "npm-registry-fetch@npm:14.0.3"
   dependencies:
@@ -11069,21 +10938,6 @@ __metadata:
     npm-package-arg: ^9.0.1
     proc-log: ^2.0.0
   checksum: 5a941c2c799568e0dbccfc15f280444da398dadf2eede1b1921f08ddd5cb5f32c7cb4d16be96401f95a33073aeec13a3fd928c753790d3c412c2e64e7f7c6ee4
-  languageName: node
-  linkType: hard
-
-"npm-registry-fetch@npm:^14.0.0, npm-registry-fetch@npm:^14.0.3":
-  version: 14.0.5
-  resolution: "npm-registry-fetch@npm:14.0.5"
-  dependencies:
-    make-fetch-happen: ^11.0.0
-    minipass: ^5.0.0
-    minipass-fetch: ^3.0.0
-    minipass-json-stream: ^1.0.1
-    minizlib: ^2.1.2
-    npm-package-arg: ^10.0.0
-    proc-log: ^3.0.0
-  checksum: c63649642955b424bc1baaff5955027144af312ae117ba8c24829e74484f859482591fe89687c6597d83e930c8054463eef23020ac69146097a72cc62ff10986
   languageName: node
   linkType: hard
 
@@ -11462,7 +11316,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pacote@npm:15.1.1":
+"pacote@npm:15.1.1, pacote@npm:^15.0.0, pacote@npm:^15.0.8":
   version: 15.1.1
   resolution: "pacote@npm:15.1.1"
   dependencies:
@@ -11487,34 +11341,6 @@ __metadata:
   bin:
     pacote: lib/bin.js
   checksum: 109388e873615cdad342f5dbd3639389c00aaac2c84b824dcb1a9460b4cf1c66264387b1d0200b1769abda7feca94165804d1308ca5e59904ae24d489d3bfb13
-  languageName: node
-  linkType: hard
-
-"pacote@npm:^15.0.0, pacote@npm:^15.0.8":
-  version: 15.2.0
-  resolution: "pacote@npm:15.2.0"
-  dependencies:
-    "@npmcli/git": ^4.0.0
-    "@npmcli/installed-package-contents": ^2.0.1
-    "@npmcli/promise-spawn": ^6.0.1
-    "@npmcli/run-script": ^6.0.0
-    cacache: ^17.0.0
-    fs-minipass: ^3.0.0
-    minipass: ^5.0.0
-    npm-package-arg: ^10.0.0
-    npm-packlist: ^7.0.0
-    npm-pick-manifest: ^8.0.0
-    npm-registry-fetch: ^14.0.0
-    proc-log: ^3.0.0
-    promise-retry: ^2.0.1
-    read-package-json: ^6.0.0
-    read-package-json-fast: ^3.0.0
-    sigstore: ^1.3.0
-    ssri: ^10.0.0
-    tar: ^6.1.11
-  bin:
-    pacote: lib/bin.js
-  checksum: c731572be2bf226b117eba076d242bd4cd8be7aa01e004af3374a304ad7ab330539e22644bc33de12d2a7d45228ccbcbf4d710f59c84414f3d09a1a95ee6f0bf
   languageName: node
   linkType: hard
 
@@ -12144,7 +11970,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"read-package-json@npm:5.0.1":
+"read-package-json@npm:5.0.1, read-package-json@npm:^5.0.0":
   version: 5.0.1
   resolution: "read-package-json@npm:5.0.1"
   dependencies:
@@ -12153,18 +11979,6 @@ __metadata:
     normalize-package-data: ^4.0.0
     npm-normalize-package-bin: ^1.0.1
   checksum: e8c2ad72df1f17e71268feabdb9bb0153ed2c7d38a05b759c5c49cf368a754bdd3c0e8a279fbc8d707802ff91d2cf144a995e6ebd5534de2848d52ab2c14034d
-  languageName: node
-  linkType: hard
-
-"read-package-json@npm:^5.0.0":
-  version: 5.0.2
-  resolution: "read-package-json@npm:5.0.2"
-  dependencies:
-    glob: ^8.0.1
-    json-parse-even-better-errors: ^2.3.1
-    normalize-package-data: ^4.0.0
-    npm-normalize-package-bin: ^2.0.0
-  checksum: 0882ac9cec1bc92fb5515e9727611fb2909351e1e5c840dce3503cbb25b4cd48eb44b61071986e0fc51043208161f07d364a7336206c8609770186818753b51a
   languageName: node
   linkType: hard
 
@@ -12531,7 +12345,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"safe-buffer@npm:^5.1.0, safe-buffer@npm:~5.2.0":
+"safe-buffer@npm:^5.1.0":
   version: 5.2.1
   resolution: "safe-buffer@npm:5.2.1"
   checksum: b99c4b41fdd67a6aaf280fcd05e9ffb0813654894223afb78a31f14a19ad220bba8aba1cb14eddce1fcfb037155fe6de4e861784eb434f7d11ed58d1e70dd491
@@ -12563,17 +12377,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sanitize-html@npm:~2.7.3":
-  version: 2.7.3
-  resolution: "sanitize-html@npm:2.7.3"
+"sanitize-html@npm:~2.12.1":
+  version: 2.12.1
+  resolution: "sanitize-html@npm:2.12.1"
   dependencies:
     deepmerge: ^4.2.2
     escape-string-regexp: ^4.0.0
-    htmlparser2: ^6.0.0
+    htmlparser2: ^8.0.0
     is-plain-object: ^5.0.0
     parse-srcset: ^1.0.2
     postcss: ^8.3.11
-  checksum: 2399d1fdbbc3a263fb413c1fe1971b3dc2b51abc6cc5cb49490624539d1c57a8fe31e2b21408c118e2a957f4e673e3169b1f9a5807654408f17b130a9d78aed7
+  checksum: fb96ea7170d51b5af2607f5cfd84464c78fc6f47e339407f55783e781c6a0288a8d40bbf97ea6a8758924ba9b2d33dcc4846bb94caacacd90d7f2de10ed8541a
   languageName: node
   linkType: hard
 
@@ -12649,7 +12463,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"semver@npm:7.5.4":
+"semver@npm:7.5.4, semver@npm:^7.0.0, semver@npm:^7.1.1, semver@npm:^7.2.1, semver@npm:^7.3.4, semver@npm:^7.3.5, semver@npm:^7.3.7, semver@npm:^7.3.8, semver@npm:^7.5.3, semver@npm:^7.5.4":
   version: 7.5.4
   resolution: "semver@npm:7.5.4"
   dependencies:
@@ -12666,17 +12480,6 @@ __metadata:
   bin:
     semver: bin/semver.js
   checksum: ae47d06de28836adb9d3e25f22a92943477371292d9b665fb023fae278d345d508ca1958232af086d85e0155aee22e313e100971898bbb8d5d89b8b1d4054ca2
-  languageName: node
-  linkType: hard
-
-"semver@npm:^7.0.0, semver@npm:^7.1.1, semver@npm:^7.2.1, semver@npm:^7.3.4, semver@npm:^7.3.5, semver@npm:^7.3.7, semver@npm:^7.3.8, semver@npm:^7.5.3, semver@npm:^7.5.4":
-  version: 7.6.0
-  resolution: "semver@npm:7.6.0"
-  dependencies:
-    lru-cache: ^6.0.0
-  bin:
-    semver: bin/semver.js
-  checksum: 7427f05b70786c696640edc29fdd4bc33b2acf3bbe1740b955029044f80575fc664e1a512e4113c3af21e767154a94b4aa214bf6cd6e42a1f6dba5914e0b208c
   languageName: node
   linkType: hard
 
@@ -12795,7 +12598,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sigstore@npm:^1.0.0, sigstore@npm:^1.3.0, sigstore@npm:^1.4.0":
+"sigstore@npm:^1.0.0, sigstore@npm:^1.4.0":
   version: 1.9.0
   resolution: "sigstore@npm:1.9.0"
   dependencies:
@@ -13117,16 +12920,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"string_decoder@npm:^1.1.1":
-  version: 1.3.0
-  resolution: "string_decoder@npm:1.3.0"
-  dependencies:
-    safe-buffer: ~5.2.0
-  checksum: 8417646695a66e73aefc4420eb3b84cc9ffd89572861fe004e6aeb13c7bc00e2f616247505d2dbbef24247c372f70268f594af7126f43548565c68c117bdeb56
-  languageName: node
-  linkType: hard
-
-"string_decoder@npm:~1.1.1":
+"string_decoder@npm:^1.1.1, string_decoder@npm:~1.1.1":
   version: 1.1.1
   resolution: "string_decoder@npm:1.1.1"
   dependencies:
@@ -13423,7 +13217,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tar@npm:6.1.11":
+"tar@npm:6.1.11, tar@npm:^6.1.11, tar@npm:^6.1.2":
   version: 6.1.11
   resolution: "tar@npm:6.1.11"
   dependencies:
@@ -13434,20 +13228,6 @@ __metadata:
     mkdirp: ^1.0.3
     yallist: ^4.0.0
   checksum: a04c07bb9e2d8f46776517d4618f2406fb977a74d914ad98b264fc3db0fe8224da5bec11e5f8902c5b9bcb8ace22d95fbe3c7b36b8593b7dfc8391a25898f32f
-  languageName: node
-  linkType: hard
-
-"tar@npm:^6.1.11, tar@npm:^6.1.2":
-  version: 6.2.0
-  resolution: "tar@npm:6.2.0"
-  dependencies:
-    chownr: ^2.0.0
-    fs-minipass: ^2.0.0
-    minipass: ^5.0.0
-    minizlib: ^2.1.1
-    mkdirp: ^1.0.3
-    yallist: ^4.0.0
-  checksum: db4d9fe74a2082c3a5016630092c54c8375ff3b280186938cfd104f2e089c4fd9bad58688ef6be9cf186a889671bf355c7cda38f09bbf60604b281715ca57f5c
   languageName: node
   linkType: hard
 
@@ -14067,17 +13847,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"v8-compile-cache@npm:2.3.0":
+"v8-compile-cache@npm:2.3.0, v8-compile-cache@npm:^2.0.3, v8-compile-cache@npm:^2.3.0":
   version: 2.3.0
   resolution: "v8-compile-cache@npm:2.3.0"
   checksum: adb0a271eaa2297f2f4c536acbfee872d0dd26ec2d76f66921aa7fc437319132773483344207bdbeee169225f4739016d8d2dbf0553913a52bb34da6d0334f8e
-  languageName: node
-  linkType: hard
-
-"v8-compile-cache@npm:^2.0.3, v8-compile-cache@npm:^2.3.0":
-  version: 2.4.0
-  resolution: "v8-compile-cache@npm:2.4.0"
-  checksum: 8eb6ddb59d86f24566503f1e6ca98f3e6f43599f05359bd3ab737eaaf1585b338091478a4d3d5c2646632cf8030288d7888684ea62238cdce15a65ae2416718f
   languageName: node
   linkType: hard
 
@@ -14548,17 +14321,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"wrap-ansi@npm:^6.0.1":
-  version: 6.2.0
-  resolution: "wrap-ansi@npm:6.2.0"
-  dependencies:
-    ansi-styles: ^4.0.0
-    string-width: ^4.1.0
-    strip-ansi: ^6.0.0
-  checksum: 6cd96a410161ff617b63581a08376f0cb9162375adeb7956e10c8cd397821f7eb2a6de24eb22a0b28401300bf228c86e50617cd568209b5f6775b93c97d2fe3a
-  languageName: node
-  linkType: hard
-
 "wrap-ansi@npm:^8.1.0":
   version: 8.1.0
   resolution: "wrap-ansi@npm:8.1.0"
@@ -14769,7 +14531,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"yargs-parser@npm:20.2.4":
+"yargs-parser@npm:20.2.4, yargs-parser@npm:^20.2.2, yargs-parser@npm:^20.2.3":
   version: 20.2.4
   resolution: "yargs-parser@npm:20.2.4"
   checksum: d251998a374b2743a20271c2fd752b9fbef24eb881d53a3b99a7caa5e8227fcafd9abf1f345ac5de46435821be25ec12189a11030c12ee6481fef6863ed8b924
@@ -14780,13 +14542,6 @@ __metadata:
   version: 21.1.1
   resolution: "yargs-parser@npm:21.1.1"
   checksum: ed2d96a616a9e3e1cc7d204c62ecc61f7aaab633dcbfab2c6df50f7f87b393993fe6640d017759fe112d0cb1e0119f2b4150a87305cc873fd90831c6a58ccf1c
-  languageName: node
-  linkType: hard
-
-"yargs-parser@npm:^20.2.2, yargs-parser@npm:^20.2.3":
-  version: 20.2.9
-  resolution: "yargs-parser@npm:20.2.9"
-  checksum: 8bb69015f2b0ff9e17b2c8e6bfe224ab463dd00ca211eece72a4cd8a906224d2703fb8a326d36fdd0e68701e201b2a60ed7cf81ce0fd9b3799f9fe7745977ae3
   languageName: node
   linkType: hard
 
