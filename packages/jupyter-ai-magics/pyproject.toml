@@ -41,13 +41,14 @@ all = [
     "huggingface_hub",
     "ipywidgets",
     "langchain_anthropic",
+    "langchain-mistralai",
     "langchain_nvidia_ai_endpoints",
+    "langchain-google-genai",
     "langchain-openai",
     "pillow",
     "boto3",
     "qianfan",
     "together",
-    "langchain-google-genai",
 ]
 
 [project.entry-points."jupyter_ai.model_providers"]
@@ -67,10 +68,12 @@ qianfan = "jupyter_ai_magics:QianfanProvider"
 nvidia-chat = "jupyter_ai_magics.partner_providers.nvidia:ChatNVIDIAProvider"
 together-ai = "jupyter_ai_magics:TogetherAIProvider"
 gemini = "jupyter_ai_magics.partner_providers.gemini:GeminiProvider"
+mistralai = "jupyter_ai_magics.partner_providers.mistralai:MistralAIProvider"
 
 [project.entry-points."jupyter_ai.embeddings_model_providers"]
 bedrock = "jupyter_ai_magics:BedrockEmbeddingsProvider"
 cohere = "jupyter_ai_magics:CohereEmbeddingsProvider"
+mistralai = "jupyter_ai_magics.partner_providers.mistralai:MistralAIEmbeddingsProvider"
 gpt4all = "jupyter_ai_magics:GPT4AllEmbeddingsProvider"
 huggingface_hub = "jupyter_ai_magics:HfHubEmbeddingsProvider"
 openai = "jupyter_ai_magics.partner_providers.openai:OpenAIEmbeddingsProvider"
