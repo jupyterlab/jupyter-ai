@@ -43,6 +43,19 @@ FIX_PROMPT_TEMPLATE = PromptTemplate(
 
 
 class FixChatHandler(BaseChatHandler):
+    """
+    Accepts a `HumanChatMessage` that includes a cell with error output and
+    recommends a fix as a reply. If a cell with error output is not included,
+    this chat handler does nothing.
+
+    `/fix` also accepts additional instructions in natural language as an
+    arbitrary number of arguments, e.g.
+
+    ```
+    /fix use the numpy library to implement this function instead.
+    ```
+    """
+
     id = "fix"
     name = "Fix error cell"
     help = "Fix an error cell selected in your notebook"
