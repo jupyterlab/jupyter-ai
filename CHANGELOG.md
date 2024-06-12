@@ -2,6 +2,40 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 2.17.0
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.16.0...ff7bd1a7a538b36464487e8a856af5347a3dabcc))
+
+### Enhancements made
+
+- Add `/fix` slash command [#828](https://github.com/jupyterlab/jupyter-ai/pull/828) ([@dlqqq](https://github.com/dlqqq))
+- Add support for MistralAI [#823](https://github.com/jupyterlab/jupyter-ai/pull/823) ([@jtpio](https://github.com/jtpio))
+- Document supported file types for /learn [#816](https://github.com/jupyterlab/jupyter-ai/pull/816) ([@JasonWeill](https://github.com/JasonWeill))
+- Refactor split function with tests [#811](https://github.com/jupyterlab/jupyter-ai/pull/811) ([@srdas](https://github.com/srdas))
+- Autocomplete UI for slash commands [#810](https://github.com/jupyterlab/jupyter-ai/pull/810) ([@dlqqq](https://github.com/dlqqq))
+
+### Bugs fixed
+
+- Update chat handling to clear chat and show help; small fix to `/export`  [#826](https://github.com/jupyterlab/jupyter-ai/pull/826) ([@srdas](https://github.com/srdas))
+
+### Maintenance and upkeep improvements
+
+- Prevent overriding `server_settings` on base provider class [#825](https://github.com/jupyterlab/jupyter-ai/pull/825) ([@krassowski](https://github.com/krassowski))
+- Fix import deprecations [#824](https://github.com/jupyterlab/jupyter-ai/pull/824) ([@jtpio](https://github.com/jtpio))
+
+### Documentation improvements
+
+- Document supported file types for /learn [#816](https://github.com/jupyterlab/jupyter-ai/pull/816) ([@JasonWeill](https://github.com/JasonWeill))
+- Document how to create completions using full notebook content [#777](https://github.com/jupyterlab/jupyter-ai/pull/777) ([@krassowski](https://github.com/krassowski))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-05-20&to=2024-06-12&type=c))
+
+[@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2024-05-20..2024-06-12&type=Issues) | [@JasonWeill](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AJasonWeill+updated%3A2024-05-20..2024-06-12&type=Issues) | [@jtpio](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ajtpio+updated%3A2024-05-20..2024-06-12&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2024-05-20..2024-06-12&type=Issues) | [@srdas](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2024-05-20..2024-06-12&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 2.16.0
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.15.0...e41cebf3ef137509d43ef6e54703c47c7e3d7a22))
@@ -21,8 +55,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-05-09&to=2024-05-20&type=c))
 
 [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2024-05-09..2024-05-20&type=Issues) | [@JasonWeill](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AJasonWeill+updated%3A2024-05-09..2024-05-20&type=Issues) | [@srdas](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2024-05-09..2024-05-20&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 2.15.0
 
