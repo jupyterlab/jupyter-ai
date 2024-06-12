@@ -1,8 +1,10 @@
+from types import MappingProxyType
 from typing import ClassVar, Optional
 
 from langchain.pydantic_v1 import BaseModel
+from pytest import raises
 
-from ..providers import ProviderMetaclass
+from ..providers import BaseProvider, ProviderMetaclass
 
 
 def test_provider_metaclass():
@@ -24,3 +26,10 @@ def test_provider_metaclass():
         test: ClassVar[str] = "expected"
 
     assert Child.test == "expected"
+
+
+def test_base_provider_server_settings_read_only():
+    BaseProvider.server_settings = MappingProxyType({})
+
+    with raises(AttributeError, match="'server_settings' attribute was already set"):
+        BaseProvider.server_settings = MappingProxyType({})
