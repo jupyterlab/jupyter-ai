@@ -497,6 +497,36 @@ The `/learn` command also provides downloading and processing papers from the [a
 Use the `/export` command to export the chat history from the current session to a markdown file named `chat_history-YYYY-MM-DD-HH-mm.md`. Using `/export <file_name>` will export the chat history to `<file_name>-YYYY-MM-DD-HH-mm.md` instead. You can export chat history as many times as you like in a single session. Each successive export will include the entire chat history up to that point in the session.
 
 
+### Fixing a code cell with an error
+
+The `/fix` command can be used to fix any code cell with an error output in a
+Jupyter notebook file. To start, type `/fix` into the chat input. Jupyter AI
+will then prompt you to select a cell with error output before sending the
+request.
+
+<img src="../_static/fix-no-error-cell-selected.png"
+    alt='Screenshot of the chat input containing `/fix` without a code cell with error output selected.'
+    class="screenshot" />
+
+Then click on a code cell with error output. A blue bar should appear
+immediately to the left of the code cell.
+
+<img src="../_static/fix-error-cell-selected.png"
+    alt='Screenshot of a code cell with error output selected.'
+    class="screenshot" />
+
+After this, the Send button to the right of the chat input will be enabled, and
+you can use your mouse or keyboard to send `/fix` to Jupyternaut. The code cell
+and its associated error output are included in the message automatically. When
+complete, Jupyternaut will reply with suggested code that should fix the error.
+You can use the action toolbar under each code block to quickly replace the
+contents of the failing cell.
+
+<img src="../_static/fix-response.png"
+    alt='Screenshot of a response from `/fix`, with the "Replace active cell" action hovered.'
+    class="screenshot" style="max-width:65%" />
+
+
 ### Additional chat commands
 
 To clear the chat panel, use the `/clear` command. This does not reset the AI model; the model may still remember previous messages that you sent it, and it may use them to inform its responses.

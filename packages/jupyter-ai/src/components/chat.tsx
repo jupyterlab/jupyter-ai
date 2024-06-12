@@ -42,7 +42,7 @@ function ChatBody({
   const [includeSelection, setIncludeSelection] = useState(true);
   const [replaceSelection, setReplaceSelection] = useState(false);
   const [input, setInput] = useState('');
-  const [selection, replaceSelectionFn] = useSelectionContext();
+  const [textSelection, replaceTextSelection] = useSelectionContext();
   const [sendWithShiftEnter, setSendWithShiftEnter] = useState(true);
 
   /**
@@ -91,25 +91,26 @@ function ChatBody({
 
   // no need to append to messageGroups imperatively here. all of that is
   // handled by the listeners registered in the effect hooks above.
-  const onSend = async () => {
+  // TODO: unify how text selection & cell selection are handled
+  const onSend = async (selection?: AiService.Selection) => {
     setInput('');
 
     const prompt =
       input +
-      (includeSelection && selection?.text
-        ? '\n\n```\n' + selection.text + '\n```'
+      (includeSelection && textSelection?.text
+        ? '\n\n```\n' + textSelection.text + '\n```'
         : '');
 
     // send message to backend
-    const messageId = await chatHandler.sendMessage({ prompt });
+    const messageId = await chatHandler.sendMessage({ prompt, selection });
 
     // await reply from agent
     // no need to append to messageGroups state variable, since that's already
     // handled in the effect hooks.
     const reply = await chatHandler.replyFor(messageId);
-    if (replaceSelection && selection) {
-      const { cellId, ...selectionProps } = selection;
-      replaceSelectionFn({
+    if (replaceSelection && textSelection) {
+      const { cellId, ...selectionProps } = textSelection;
+      replaceTextSelection({
         ...selectionProps,
         ...(cellId && { cellId }),
         text: reply.body
@@ -161,7 +162,7 @@ function ChatBody({
         value={input}
         onChange={setInput}
         onSend={onSend}
-        hasSelection={!!selection?.text}
+        hasSelection={!!textSelection?.text}
         includeSelection={includeSelection}
         toggleIncludeSelection={() =>
           setIncludeSelection(includeSelection => !includeSelection)

@@ -1,5 +1,5 @@
 import React from 'react';
-import { IconButton, TooltipProps } from '@mui/material';
+import { IconButton, IconButtonProps, TooltipProps } from '@mui/material';
 
 import { ContrastingTooltip } from './contrasting-tooltip';
 
@@ -17,6 +17,10 @@ export type TooltippedIconButtonProps = {
    */
   offset?: [number, number];
   'aria-label'?: string;
+  /**
+   * Props passed directly to the MUI `IconButton` component.
+   */
+  iconButtonProps?: IconButtonProps;
 };
 
 /**
@@ -60,6 +64,7 @@ export function TooltippedIconButton(
       */}
       <span>
         <IconButton
+          {...props.iconButtonProps}
           onClick={props.onClick}
           disabled={props.disabled}
           sx={{ lineHeight: 0, ...(props.disabled && { opacity: 0.5 }) }}

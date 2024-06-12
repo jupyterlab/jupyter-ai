@@ -137,20 +137,27 @@ export function ChatMessages(props: ChatMessagesProps): JSX.Element {
         }
       }}
     >
-      {props.messages.map((message, i) => (
-        // extra div needed to ensure each bubble is on a new line
-        <Box key={i} sx={{ padding: 4 }}>
-          <ChatMessageHeader
-            message={message}
-            timestamp={timestamps[message.id]}
-            sx={{ marginBottom: 3 }}
-          />
-          <RendermimeMarkdown
-            rmRegistry={props.rmRegistry}
-            markdownStr={message.body}
-          />
-        </Box>
-      ))}
+      {props.messages.map((message, i) => {
+        // render selection in HumanChatMessage, if any
+        const markdownStr =
+          message.type === 'human' && message.selection
+            ? message.body + '\n\n```\n' + message.selection.source + '\n```\n'
+            : message.body;
+
+        return (
+          <Box key={i} sx={{ padding: 4 }}>
+            <ChatMessageHeader
+              message={message}
+              timestamp={timestamps[message.id]}
+              sx={{ marginBottom: 3 }}
+            />
+            <RendermimeMarkdown
+              rmRegistry={props.rmRegistry}
+              markdownStr={markdownStr}
+            />
+          </Box>
+        );
+      })}
     </Box>
   );
 }

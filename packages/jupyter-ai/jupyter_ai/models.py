@@ -8,9 +8,29 @@ DEFAULT_CHUNK_SIZE = 2000
 DEFAULT_CHUNK_OVERLAP = 100
 
 
+class CellError(BaseModel):
+    name: str
+    value: str
+    traceback: List[str]
+
+
+class CellWithErrorSelection(BaseModel):
+    type: Literal["cell-with-error"] = "cell-with-error"
+    source: str
+    error: CellError
+
+
+Selection = Union[CellWithErrorSelection]
+
+
 # the type of message used to chat with the agent
 class ChatRequest(BaseModel):
     prompt: str
+    # TODO: This currently is only used when a user runs the /fix slash command.
+    # In the future, the frontend should set the text selection on this field in
+    # the `HumanChatMessage` it sends to JAI, instead of appending the text
+    # selection to `body` in the frontend.
+    selection: Optional[Selection]
 
 
 class ChatUser(BaseModel):
@@ -55,6 +75,7 @@ class HumanChatMessage(BaseModel):
     time: float
     body: str
     client: ChatClient
+    selection: Optional[Selection]
 
 
 class ConnectionMessage(BaseModel):
