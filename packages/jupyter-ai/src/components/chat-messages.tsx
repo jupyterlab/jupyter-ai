@@ -159,7 +159,7 @@ export function ChatMessages(props: ChatMessagesProps): JSX.Element {
         }
       }}
     >
-      {sortedMessages.map((message) => {
+      {sortedMessages.map(message => {
         // render selection in HumanChatMessage, if any
         const markdownStr =
           message.type === 'human' && message.selection
