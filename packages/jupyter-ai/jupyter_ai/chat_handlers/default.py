@@ -7,8 +7,6 @@ from langchain.memory import ConversationBufferWindowMemory
 
 from .base import BaseChatHandler, SlashCommandRoutingType
 
-PENDING_MESSAGE = "Thinking"
-
 
 class DefaultChatHandler(BaseChatHandler):
     id = "default"
@@ -47,7 +45,7 @@ class DefaultChatHandler(BaseChatHandler):
 
     async def process_message(self, message: HumanChatMessage):
         self.get_llm_chain()
-        with self.pending(PENDING_MESSAGE):
+        with self.pending("Thinking"):
             response = await self.llm_chain.apredict(
                 input=message.body, stop=["\nHuman:"]
             )

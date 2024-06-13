@@ -151,8 +151,6 @@ class LearnChatHandler(BaseChatHandler):
         # delete and relearn index if embedding model was changed
         await self.delete_and_relearn()
 
-        # if args.verbose:
-        #     self.reply(f"Loading and splitting files for {load_path}", message)
         with self.pending(f"Loading and splitting files for {load_path}"):
             try:
                 await self.learn_dir(

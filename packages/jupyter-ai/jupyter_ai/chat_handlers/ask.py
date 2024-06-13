@@ -16,7 +16,6 @@ Chat History:
 Follow Up Input: {question}
 Standalone question:"""
 CONDENSE_PROMPT = PromptTemplate.from_template(PROMPT_TEMPLATE)
-PENDING_MESSAGE = "Searching learned documents"
 
 
 class AskChatHandler(BaseChatHandler):
@@ -72,7 +71,7 @@ class AskChatHandler(BaseChatHandler):
         self.get_llm_chain()
 
         try:
-            with self.pending(PENDING_MESSAGE):
+            with self.pending("Searching learned documents"):
                 result = await self.llm_chain.acall({"question": query})
                 response = result["answer"]
             self.reply(response, message)

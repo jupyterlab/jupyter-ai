@@ -4,6 +4,8 @@ import { Box } from '@mui/material';
 import { AiService } from '../handler';
 import { ChatMessageHeader } from './chat-messages';
 
+const PENDING_MESSAGE_CLASS = 'jp-ai-pending-message';
+
 type PendingMessagesProps = {
   messages: AiService.PendingMessage[];
 };
@@ -22,19 +24,26 @@ type PendingMessageGroup = {
 };
 
 function PendingMessageElement(props: PendingMessageElementProps): JSX.Element {
-  if (!props.ellipsis) {
-    return <span>{props.text}</span>;
+  let text = props.text;
+  if (props.ellipsis) {
+    const [dots, setDots] = useState('');
+
+    useEffect(() => {
+      const interval = setInterval(() => {
+        setDots(dots => (dots.length < 3 ? dots + '.' : ''));
+      }, 500);
+
+      return () => clearInterval(interval);
+    }, []);
+    text = props.text + dots;
   }
-  const [dots, setDots] = useState('');
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setDots(dots => (dots.length < 3 ? dots + '.' : ''));
-    }, 500);
-
-    return () => clearInterval(interval);
-  }, []);
-  return <span>{props.text + dots}</span>;
+  return (
+    <div>
+      {text.split('\n').map((line, index) => (
+        <p key={index}>{line}</p>
+      ))}
+    </div>
+  );
 }
 
 export function PendingMessages(props: PendingMessagesProps): JSX.Element {
@@ -85,7 +94,11 @@ export function PendingMessages(props: PendingMessagesProps): JSX.Element {
             sx={{ marginBottom: 3 }}
           />
           {group.messages.map((message, j) => (
-            <Box key={j} sx={{ padding: 2 }}>
+            <Box
+              className={PENDING_MESSAGE_CLASS}
+              key={j}
+              sx={{ marginBottom: 1 }}
+            >
               <PendingMessageElement
                 text={message.body}
                 ellipsis={message.ellipsis}

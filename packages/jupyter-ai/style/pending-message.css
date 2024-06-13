@@ -1,0 +1,12 @@
+.jp-ai-pending-message {
+  padding-right: 0;
+  color: var(--jp-ui-font-color2);
+}
+
+div.jp-ai-pending-message:not(:last-child) {
+  margin-bottom: 2em;
+}
+
+.jp-ai-pending-message p {
+  line-height: 0.6;
+}
