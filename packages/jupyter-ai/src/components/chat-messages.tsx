@@ -21,6 +21,27 @@ type ChatMessageHeaderProps = {
   sx?: SxProps<Theme>;
 };
 
+function sortMessages(
+  messages: AiService.ChatMessage[]
+): AiService.ChatMessage[] {
+  // Group messages with their replies
+  const idMap: { [id: string]: number } = {};
+  messages.forEach((message, idx) => {
+    idMap[message.id] = idx;
+  });
+
+  const parentIdx = (message: AiService.ChatMessage) => {
+    if (message.type === 'agent' && message.reply_to in idMap) {
+      return idMap[message.reply_to];
+    }
+    return idMap[message.id];
+  };
+
+  return messages.sort((a, b) => {
+    return parentIdx(a) - parentIdx(b) || idMap[a.id] - idMap[b.id];
+  });
+}
+
 export function ChatMessageHeader(props: ChatMessageHeaderProps): JSX.Element {
   const collaborators = useCollaboratorsContext();
 
@@ -129,6 +150,7 @@ export function ChatMessages(props: ChatMessagesProps): JSX.Element {
     }
   }, [props.messages]);
 
+  const sortedMessages = sortMessages(props.messages);
   return (
     <Box
       sx={{
@@ -137,15 +159,15 @@ export function ChatMessages(props: ChatMessagesProps): JSX.Element {
         }
       }}
     >
-      {props.messages.map((message, i) => {
+      {sortedMessages.map((message) => {
         // render selection in HumanChatMessage, if any
         const markdownStr =
           message.type === 'human' && message.selection
             ? message.body + '\n\n```\n' + message.selection.source + '\n```\n'
             : message.body;
-
+        console.log(markdownStr);
         return (
-          <Box key={i} sx={{ padding: 4 }}>
+          <Box key={message.id} sx={{ padding: 4 }}>
             <ChatMessageHeader
               message={message}
               timestamp={timestamps[message.id]}
