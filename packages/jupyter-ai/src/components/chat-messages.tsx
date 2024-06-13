@@ -165,7 +165,6 @@ export function ChatMessages(props: ChatMessagesProps): JSX.Element {
           message.type === 'human' && message.selection
             ? message.body + '\n\n```\n' + message.selection.source + '\n```\n'
             : message.body;
-        console.log(markdownStr);
         return (
           <Box key={message.id} sx={{ padding: 4 }}>
             <ChatMessageHeader
