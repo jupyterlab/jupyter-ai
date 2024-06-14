@@ -15,28 +15,22 @@ type PendingMessageElementProps = {
   ellipsis: boolean;
 };
 
-type PendingMessageGroup = {
-  // Creating lastMessage as an AgentChatMessage
-  // as a hacky way to reuse ChatMessageHeader
-  // TODO: Refactor ChatMessageHeader to accept PendingMessage
-  lastMessage: AiService.AgentChatMessage;
-  messages: AiService.PendingMessage[];
-};
-
 function PendingMessageElement(props: PendingMessageElementProps): JSX.Element {
+  const [dots, setDots] = useState('');
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setDots(dots => (dots.length < 3 ? dots + '.' : ''));
+    }, 500);
+
+    return () => clearInterval(interval);
+  }, []);
+
   let text = props.text;
   if (props.ellipsis) {
-    const [dots, setDots] = useState('');
-
-    useEffect(() => {
-      const interval = setInterval(() => {
-        setDots(dots => (dots.length < 3 ? dots + '.' : ''));
-      }, 500);
-
-      return () => clearInterval(interval);
-    }, []);
     text = props.text + dots;
   }
+
   return (
     <div>
       {text.split('\n').map((line, index) => (
@@ -46,13 +40,23 @@ function PendingMessageElement(props: PendingMessageElementProps): JSX.Element {
   );
 }
 
-export function PendingMessages(props: PendingMessagesProps): JSX.Element {
+export function PendingMessages(
+  props: PendingMessagesProps
+): JSX.Element | null {
   if (props.messages.length === 0) {
-    return <></>;
+    return null;
   }
 
   const [timestamps, setTimestamps] = useState<Record<string, string>>({});
-  const personaGroups = groupMessages(props.messages);
+  const lastMessage = props.messages[props.messages.length - 1];
+  const agentMessage: AiService.AgentChatMessage = {
+    type: 'agent',
+    id: lastMessage.id,
+    time: lastMessage.time,
+    body: '',
+    reply_to: '',
+    persona: lastMessage.persona
+  };
   /**
    * Effect: update cached timestamp strings upon receiving a new message.
    */
@@ -75,7 +79,7 @@ export function PendingMessages(props: PendingMessagesProps): JSX.Element {
     if (timestampAdded) {
       setTimestamps(newTimestamps);
     }
-  }, [personaGroups.map(group => group.lastMessage)]);
+  }, [agentMessage]);
 
   return (
     <Box
@@ -86,56 +90,25 @@ export function PendingMessages(props: PendingMessagesProps): JSX.Element {
         }
       }}
     >
-      {personaGroups.map((group, i) => (
-        <Box key={i} sx={{ padding: 4 }}>
-          <ChatMessageHeader
-            message={group.lastMessage}
-            timestamp={timestamps[group.lastMessage.id]}
-            sx={{ marginBottom: 3 }}
-          />
-          {group.messages.map((message, j) => (
-            <Box
-              className={PENDING_MESSAGE_CLASS}
-              key={j}
-              sx={{ marginBottom: 1 }}
-            >
-              <PendingMessageElement
-                text={message.body}
-                ellipsis={message.ellipsis}
-              />
-            </Box>
-          ))}
-        </Box>
-      ))}
+      <Box sx={{ padding: 4 }}>
+        <ChatMessageHeader
+          message={agentMessage}
+          timestamp={timestamps[agentMessage.id]}
+          sx={{ marginBottom: 3 }}
+        />
+        {props.messages.map((message, j) => (
+          <Box
+            className={PENDING_MESSAGE_CLASS}
+            key={j}
+            sx={{ marginBottom: 1 }}
+          >
+            <PendingMessageElement
+              text={message.body}
+              ellipsis={message.ellipsis}
+            />
+          </Box>
+        ))}
+      </Box>
     </Box>
   );
-}
-
-function groupMessages(
-  messages: AiService.PendingMessage[]
-): PendingMessageGroup[] {
-  const groups: PendingMessageGroup[] = [];
-  const personaMap = new Map<string, AiService.PendingMessage[]>();
-  for (const message of messages) {
-    if (!personaMap.has(message.persona.name)) {
-      personaMap.set(message.persona.name, []);
-    }
-    personaMap.get(message.persona.name)?.push(message);
-  }
-  // create a dummy agent message for each persona group
-  for (const messages of personaMap.values()) {
-    const lastMessage = messages[messages.length - 1];
-    groups.push({
-      lastMessage: {
-        type: 'agent',
-        id: lastMessage.id,
-        time: lastMessage.time,
-        body: '',
-        reply_to: '',
-        persona: lastMessage.persona
-      },
-      messages
-    });
-  }
-  return groups;
 }
