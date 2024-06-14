@@ -47,7 +47,7 @@ export function PendingMessages(
     return null;
   }
 
-  const [timestamps, setTimestamps] = useState<Record<string, string>>({});
+  const [timestamp, setTimestamp] = useState<string>('');
   const lastMessage = props.messages[props.messages.length - 1];
   const agentMessage: AiService.AgentChatMessage = {
     type: 'agent',
@@ -57,28 +57,17 @@ export function PendingMessages(
     reply_to: '',
     persona: lastMessage.persona
   };
-  /**
-   * Effect: update cached timestamp strings upon receiving a new message.
-   */
+
   useEffect(() => {
-    const newTimestamps: Record<string, string> = { ...timestamps };
-    let timestampAdded = false;
-
-    for (const message of props.messages) {
-      if (!(message.id in newTimestamps)) {
-        // Use the browser's default locale
-        newTimestamps[message.id] = new Date(message.time * 1000) // Convert message time to milliseconds
-          .toLocaleTimeString([], {
-            hour: 'numeric', // Avoid leading zero for hours; we don't want "03:15 PM"
-            minute: '2-digit'
-          });
-
-        timestampAdded = true;
+    // timestamp format copied from ChatMessage
+    const newTimestamp = new Date(agentMessage.time * 1000).toLocaleTimeString(
+      [],
+      {
+        hour: 'numeric',
+        minute: '2-digit'
       }
-    }
-    if (timestampAdded) {
-      setTimestamps(newTimestamps);
-    }
+    );
+    setTimestamp(newTimestamp);
   }, [agentMessage]);
 
   return (
@@ -93,7 +82,7 @@ export function PendingMessages(
       <Box sx={{ padding: 4 }}>
         <ChatMessageHeader
           message={agentMessage}
-          timestamp={timestamps[agentMessage.id]}
+          timestamp={timestamp}
           sx={{ marginBottom: 4 }}
         />
         <Box
