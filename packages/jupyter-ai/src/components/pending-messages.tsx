@@ -4,8 +4,6 @@ import { Box } from '@mui/material';
 import { AiService } from '../handler';
 import { ChatMessageHeader } from './chat-messages';
 
-const PENDING_MESSAGE_CLASS = 'jp-ai-pending-message';
-
 type PendingMessagesProps = {
   messages: AiService.PendingMessage[];
 };
@@ -34,7 +32,9 @@ function PendingMessageElement(props: PendingMessageElementProps): JSX.Element {
   return (
     <div>
       {text.split('\n').map((line, index) => (
-        <p key={index}>{line}</p>
+        <p key={index} style={{ lineHeight: 0.6 }}>
+          {line}
+        </p>
       ))}
     </div>
   );
@@ -94,20 +94,26 @@ export function PendingMessages(
         <ChatMessageHeader
           message={agentMessage}
           timestamp={timestamps[agentMessage.id]}
-          sx={{ marginBottom: 3 }}
+          sx={{ marginBottom: 4 }}
         />
-        {props.messages.map((message, j) => (
-          <Box
-            className={PENDING_MESSAGE_CLASS}
-            key={j}
-            sx={{ marginBottom: 1 }}
-          >
+        <Box
+          sx={{
+            marginBottom: 1,
+            paddingRight: 0,
+            color: 'var(--jp-ui-font-color2)',
+            '& > :not(:last-child)': {
+              marginBottom: '2em'
+            }
+          }}
+        >
+          {props.messages.map((message, j) => (
             <PendingMessageElement
+              key={j}
               text={message.body}
               ellipsis={message.ellipsis}
             />
-          </Box>
-        ))}
+          ))}
+        </Box>
       </Box>
     </Box>
   );
