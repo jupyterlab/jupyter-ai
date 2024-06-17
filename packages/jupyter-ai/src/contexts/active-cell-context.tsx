@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react';
 
-import { JupyterFrontEnd, LabShell } from '@jupyterlab/application';
+import { JupyterFrontEnd } from '@jupyterlab/application';
 import { DocumentWidget } from '@jupyterlab/docregistry';
 import { Notebook, NotebookActions } from '@jupyterlab/notebook';
 import { Cell } from '@jupyterlab/cells';
@@ -56,12 +56,8 @@ type CellWithErrorContent = {
  */
 export class ActiveCellManager {
   constructor(shell: JupyterFrontEnd.IShell) {
-    if (!(shell instanceof LabShell)) {
-      throw 'Shell is not an instance of LabShell. Jupyter AI does not currently support custom shells.';
-    }
-
     this._shell = shell;
-    this._shell.currentChanged.connect((sender, args) => {
+    this._shell.currentChanged?.connect((sender, args) => {
       this._mainAreaWidget = args.newValue;
     });
 
@@ -229,7 +225,7 @@ export class ActiveCellManager {
     }
   }
 
-  protected _shell: LabShell;
+  protected _shell: JupyterFrontEnd.IShell;
   protected _mainAreaWidget: Widget | null = null;
 
   /**

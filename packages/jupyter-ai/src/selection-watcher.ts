@@ -1,4 +1,4 @@
-import { JupyterFrontEnd, LabShell } from '@jupyterlab/application';
+import { JupyterFrontEnd } from '@jupyterlab/application';
 import { DocumentWidget } from '@jupyterlab/docregistry';
 import { CodeEditor } from '@jupyterlab/codeeditor';
 import { CodeMirrorEditor } from '@jupyterlab/codemirror';
@@ -101,12 +101,8 @@ export type Selection = CodeEditor.ITextSelection & {
 
 export class SelectionWatcher {
   constructor(shell: JupyterFrontEnd.IShell) {
-    if (!(shell instanceof LabShell)) {
-      throw 'Shell is not an instance of LabShell. Jupyter AI does not currently support custom shells.';
-    }
-
     this._shell = shell;
-    this._shell.currentChanged.connect((sender, args) => {
+    this._shell.currentChanged?.connect((sender, args) => {
       this._mainAreaWidget = args.newValue;
     });
 
@@ -169,7 +165,7 @@ export class SelectionWatcher {
     this._selectionChanged.emit(currSelection);
   }
 
-  protected _shell: LabShell;
+  protected _shell: JupyterFrontEnd.IShell;
   protected _mainAreaWidget: Widget | null = null;
   protected _selection: Selection | null = null;
   protected _selectionChanged = new Signal<this, Selection | null>(this);

@@ -42,7 +42,7 @@
     "nx": "^15.9.2"
   },
   "resolutions": {
-    "@jupyterlab/completer": "^4.1.0"
+    "@jupyterlab/completer": "^4.2.0"
   },
   "nx": {
     "includedScripts": []

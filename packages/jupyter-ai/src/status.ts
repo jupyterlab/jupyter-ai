@@ -10,7 +10,7 @@ export const statusItemPlugin: JupyterFrontEndPlugin<IJaiStatusItem> = {
   id: 'jupyter_ai:status-item',
   description: 'Provides a status item for Jupyter AI.',
   autoStart: true,
-  requires: [IStatusBar],
+  optional: [IStatusBar],
   provides: IJaiStatusItem,
   activate: (app: JupyterFrontEnd, statusBar: IStatusBar | null) => {
     const statusItem = new JaiStatusItem({

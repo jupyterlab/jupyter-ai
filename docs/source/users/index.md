@@ -47,6 +47,23 @@ conda config --set channel_priority strict
 conda install jupyterlab~=4.0
 ```
 
+You can also use Jupyter AI in Jupyter Notebook 7.2+. To install Jupyter Notebook 7.2:
+
+1. via `pip`:
+
+```
+pip install notebook~=7.2
+```
+
+2. via `conda`:
+```
+conda install notebook~=7.2
+```
+
+:::{note}
+To activate the chat interface in Jupyter Notebook, click on "View > Left sidebar > Show Jupyter AI Chat".
+:::
+
 The `jupyter_ai_magics` package, which provides exclusively the IPython magics,
 does not depend on JupyterLab or `jupyter_ai`. You can install
 `jupyter_ai_magics` without installing `jupyterlab` or `jupyter_ai`.
