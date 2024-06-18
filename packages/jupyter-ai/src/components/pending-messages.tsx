@@ -95,9 +95,9 @@ export function PendingMessages(
             }
           }}
         >
-          {props.messages.map((message, j) => (
+          {props.messages.map((message) => (
             <PendingMessageElement
-              key={j}
+              key={message.id}
               text={message.body}
               ellipsis={message.ellipsis}
             />
