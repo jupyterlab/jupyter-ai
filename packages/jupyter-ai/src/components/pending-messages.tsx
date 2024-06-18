@@ -43,24 +43,28 @@ function PendingMessageElement(props: PendingMessageElementProps): JSX.Element {
 export function PendingMessages(
   props: PendingMessagesProps
 ): JSX.Element | null {
-  if (props.messages.length === 0) {
-    return null;
-  }
-
   const [timestamp, setTimestamp] = useState<string>('');
-  const lastMessage = props.messages[props.messages.length - 1];
-  const agentMessage: AiService.AgentChatMessage = {
-    type: 'agent',
-    id: lastMessage.id,
-    time: lastMessage.time,
-    body: '',
-    reply_to: '',
-    persona: lastMessage.persona
-  };
+  const [agentMessage, setAgentMessage] =
+    useState<AiService.AgentChatMessage | null>(null);
 
   useEffect(() => {
+    if (props.messages.length === 0) {
+      setAgentMessage(null);
+      setTimestamp('');
+      return;
+    }
+    const lastMessage = props.messages[props.messages.length - 1];
+    setAgentMessage({
+      type: 'agent',
+      id: lastMessage.id,
+      time: lastMessage.time,
+      body: '',
+      reply_to: '',
+      persona: lastMessage.persona
+    });
+
     // timestamp format copied from ChatMessage
-    const newTimestamp = new Date(agentMessage.time * 1000).toLocaleTimeString(
+    const newTimestamp = new Date(lastMessage.time * 1000).toLocaleTimeString(
       [],
       {
         hour: 'numeric',
@@ -68,7 +72,11 @@ export function PendingMessages(
       }
     );
     setTimestamp(newTimestamp);
-  }, [agentMessage]);
+  }, [props.messages]);
+
+  if (!agentMessage) {
+    return null;
+  }
 
   return (
     <Box
@@ -95,7 +103,7 @@ export function PendingMessages(
             }
           }}
         >
-          {props.messages.map((message) => (
+          {props.messages.map(message => (
             <PendingMessageElement
               key={message.id}
               text={message.body}
