@@ -115,12 +115,28 @@ export namespace AiService {
     type: 'clear';
   };
 
+  export type PendingMessage = {
+    type: 'pending';
+    id: string;
+    time: number;
+    body: string;
+    persona: Persona;
+    ellipsis: boolean;
+  };
+
+  export type ClosePendingMessage = {
+    type: 'close-pending';
+    id: string;
+  };
+
   export type ChatMessage = AgentChatMessage | HumanChatMessage;
   export type Message =
     | AgentChatMessage
     | HumanChatMessage
     | ConnectionMessage
-    | ClearMessage;
+    | ClearMessage
+    | PendingMessage
+    | ClosePendingMessage;
 
   export type ChatHistory = {
     messages: ChatMessage[];

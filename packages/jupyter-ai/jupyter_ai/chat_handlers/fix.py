@@ -92,12 +92,13 @@ class FixChatHandler(BaseChatHandler):
         extra_instructions = message.body[4:].strip() or "None."
 
         self.get_llm_chain()
-        response = await self.llm_chain.apredict(
-            extra_instructions=extra_instructions,
-            stop=["\nHuman:"],
-            cell_content=selection.source,
-            error_name=selection.error.name,
-            error_value=selection.error.value,
-            traceback="\n".join(selection.error.traceback),
-        )
+        with self.pending("Analyzing error"):
+            response = await self.llm_chain.apredict(
+                extra_instructions=extra_instructions,
+                stop=["\nHuman:"],
+                cell_content=selection.source,
+                error_name=selection.error.name,
+                error_value=selection.error.value,
+                traceback="\n".join(selection.error.traceback),
+            )
         self.reply(response, message)

@@ -71,8 +71,9 @@ class AskChatHandler(BaseChatHandler):
         self.get_llm_chain()
 
         try:
-            result = await self.llm_chain.acall({"question": query})
-            response = result["answer"]
+            with self.pending("Searching learned documents"):
+                result = await self.llm_chain.acall({"question": query})
+                response = result["answer"]
             self.reply(response, message)
         except AssertionError as e:
             self.log.error(e)

@@ -9,6 +9,7 @@ import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 
 import { JlThemeProvider } from './jl-theme-provider';
 import { ChatMessages } from './chat-messages';
+import { PendingMessages } from './pending-messages';
 import { ChatInput } from './chat-input';
 import { ChatSettings } from './chat-settings';
 import { AiService } from '../handler';
@@ -38,6 +39,9 @@ function ChatBody({
   rmRegistry: renderMimeRegistry
 }: ChatBodyProps): JSX.Element {
   const [messages, setMessages] = useState<AiService.ChatMessage[]>([]);
+  const [pendingMessages, setPendingMessages] = useState<
+    AiService.PendingMessage[]
+  >([]);
   const [showWelcomeMessage, setShowWelcomeMessage] = useState<boolean>(false);
   const [includeSelection, setIncludeSelection] = useState(true);
   const [replaceSelection, setReplaceSelection] = useState(false);
@@ -73,14 +77,24 @@ function ChatBody({
    */
   useEffect(() => {
     function handleChatEvents(message: AiService.Message) {
-      if (message.type === 'connection') {
-        return;
-      } else if (message.type === 'clear') {
-        setMessages([]);
-        return;
+      switch (message.type) {
+        case 'connection':
+          return;
+        case 'clear':
+          setMessages([]);
+          return;
+        case 'pending':
+          setPendingMessages(pendingMessages => [...pendingMessages, message]);
+          return;
+        case 'close-pending':
+          setPendingMessages(pendingMessages =>
+            pendingMessages.filter(p => p.id !== message.id)
+          );
+          return;
+        default:
+          setMessages(messageGroups => [...messageGroups, message]);
+          return;
       }
-
-      setMessages(messageGroups => [...messageGroups, message]);
     }
 
     chatHandler.addListener(handleChatEvents);
@@ -157,6 +171,7 @@ function ChatBody({
     <>
       <ScrollContainer sx={{ flexGrow: 1 }}>
         <ChatMessages messages={messages} rmRegistry={renderMimeRegistry} />
+        <PendingMessages messages={pendingMessages} />
       </ScrollContainer>
       <ChatInput
         value={input}

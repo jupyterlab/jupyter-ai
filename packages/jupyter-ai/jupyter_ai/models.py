@@ -87,13 +87,34 @@ class ClearMessage(BaseModel):
     type: Literal["clear"] = "clear"
 
 
+class PendingMessage(BaseModel):
+    type: Literal["pending"] = "pending"
+    id: str
+    time: float
+    body: str
+    persona: Persona
+    ellipsis: bool = True
+
+
+class ClosePendingMessage(BaseModel):
+    type: Literal["pending"] = "close-pending"
+    id: str
+
+
 # the type of messages being broadcast to clients
 ChatMessage = Union[
     AgentChatMessage,
     HumanChatMessage,
 ]
 
-Message = Union[AgentChatMessage, HumanChatMessage, ConnectionMessage, ClearMessage]
+Message = Union[
+    AgentChatMessage,
+    HumanChatMessage,
+    ConnectionMessage,
+    ClearMessage,
+    PendingMessage,
+    ClosePendingMessage,
+]
 
 
 class ChatHistory(BaseModel):
