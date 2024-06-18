@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-import { Box } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import { AiService } from '../handler';
 import { ChatMessageHeader } from './chat-messages';
 
@@ -30,13 +30,13 @@ function PendingMessageElement(props: PendingMessageElementProps): JSX.Element {
   }
 
   return (
-    <div>
+    <Box>
       {text.split('\n').map((line, index) => (
-        <p key={index} style={{ lineHeight: 0.6 }}>
+        <Typography key={index} sx={{ lineHeight: 0.6 }}>
           {line}
-        </p>
+        </Typography>
       ))}
-    </div>
+    </Box>
   );
 }
 
