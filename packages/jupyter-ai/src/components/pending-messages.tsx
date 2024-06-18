@@ -81,36 +81,34 @@ export function PendingMessages(
   return (
     <Box
       sx={{
-        borderTop: '1px solid var(--jp-border-color2)',
-        '& > :not(:last-child)': {
-          borderBottom: '1px solid var(--jp-border-color2)'
-        }
+        padding: 4,
+        borderTop: '1px solid var(--jp-border-color2)'
       }}
     >
-      <Box sx={{ padding: 4 }}>
-        <ChatMessageHeader
-          message={agentMessage}
-          timestamp={timestamp}
-          sx={{ marginBottom: 4 }}
-        />
-        <Box
-          sx={{
-            marginBottom: 1,
-            paddingRight: 0,
-            color: 'var(--jp-ui-font-color2)',
-            '& > :not(:last-child)': {
-              marginBottom: '2em'
-            }
-          }}
-        >
-          {props.messages.map(message => (
-            <PendingMessageElement
-              key={message.id}
-              text={message.body}
-              ellipsis={message.ellipsis}
-            />
-          ))}
-        </Box>
+      <ChatMessageHeader
+        message={agentMessage}
+        timestamp={timestamp}
+        sx={{
+          marginBottom: 4
+        }}
+      />
+      <Box
+        sx={{
+          marginBottom: 1,
+          paddingRight: 0,
+          color: 'var(--jp-ui-font-color2)',
+          '& > :not(:last-child)': {
+            marginBottom: '2em'
+          }
+        }}
+      >
+        {props.messages.map(message => (
+          <PendingMessageElement
+            key={message.id}
+            text={message.body}
+            ellipsis={message.ellipsis}
+          />
+        ))}
       </Box>
     </Box>
   );
