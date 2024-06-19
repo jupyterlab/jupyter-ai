@@ -24,21 +24,43 @@ type ChatMessageHeaderProps = {
 function sortMessages(
   messages: AiService.ChatMessage[]
 ): AiService.ChatMessage[] {
-  // Group messages with their replies
-  const idMap: { [id: string]: number } = {};
-  messages.forEach((message, idx) => {
-    idMap[message.id] = idx;
-  });
+  const timestampsById: Record<string, number> = {};
+  for (const message of messages) {
+    timestampsById[message.id] = message.time;
+  }
 
-  const parentIdx = (message: AiService.ChatMessage) => {
-    if (message.type === 'agent' && message.reply_to in idMap) {
-      return idMap[message.reply_to];
-    }
-    return idMap[message.id];
-  };
+  return [...messages].sort((a, b) => {
+    /**
+     * Use the *origin timestamp* as the primary sort key. This ensures that
+     * each agent reply is grouped with the human message that triggered it.
+     *
+     * - If the message is from an agent, the origin timestamp is the timestamp
+     * of the message it is replying to.
+     *
+     * - Otherwise, the origin timestamp is the *message timestamp*, i.e.
+     * `message.time` itself.
+     */
 
-  return messages.sort((a, b) => {
-    return parentIdx(a) - parentIdx(b) || idMap[a.id] - idMap[b.id];
+    const aOriginTimestamp =
+      a.type === 'agent' && a.reply_to in timestampsById
+        ? timestampsById[a.reply_to]
+        : a.time;
+    const bOriginTimestamp =
+      b.type === 'agent' && b.reply_to in timestampsById
+        ? timestampsById[b.reply_to]
+        : b.time;
+
+    /**
+     * Use the message timestamp as a secondary sort key. This ensures that each
+     * agent reply is shown after the human message that triggered it.
+     */
+    const aMessageTimestamp = a.time;
+    const bMessageTimestamp = b.time;
+
+    return (
+      aOriginTimestamp - bOriginTimestamp ||
+      aMessageTimestamp - bMessageTimestamp
+    );
   });
 }
 
