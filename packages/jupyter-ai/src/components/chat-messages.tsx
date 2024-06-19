@@ -147,6 +147,9 @@ export function ChatMessageHeader(props: ChatMessageHeaderProps): JSX.Element {
 
 export function ChatMessages(props: ChatMessagesProps): JSX.Element {
   const [timestamps, setTimestamps] = useState<Record<string, string>>({});
+  const [sortedMessages, setSortedMessages] = useState<AiService.ChatMessage[]>(
+    []
+  );
 
   /**
    * Effect: update cached timestamp strings upon receiving a new message.
@@ -172,7 +175,10 @@ export function ChatMessages(props: ChatMessagesProps): JSX.Element {
     }
   }, [props.messages]);
 
-  const sortedMessages = sortMessages(props.messages);
+  useEffect(() => {
+    setSortedMessages(sortMessages(props.messages));
+  }, [props.messages]);
+
   return (
     <Box
       sx={{
