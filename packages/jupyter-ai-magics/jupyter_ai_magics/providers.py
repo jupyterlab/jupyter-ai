@@ -277,7 +277,7 @@ class BaseProvider(BaseModel, metaclass=ProviderMetaclass):
     provider is selected.
     """
 
-    server_settings: ClassVar[Optional[MappingProxyType[str, Any]]] = None
+    server_settings: ClassVar[Optional[MappingProxyType]] = None
     """Settings passed on from jupyter-ai package.
 
     The same server settings are shared between all providers.
