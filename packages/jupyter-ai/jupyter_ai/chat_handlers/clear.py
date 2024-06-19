@@ -19,13 +19,14 @@ class ClearChatHandler(BaseChatHandler):
         super().__init__(*args, **kwargs)
 
     async def process_message(self, _):
-        tmp_chat_history = self._chat_history[0]
-        self._chat_history.clear()
         for handler in self._root_chat_handlers.values():
             if not handler:
                 continue
 
             handler.broadcast_message(ClearMessage())
+
+            tmp_chat_history = self._chat_history[0]
+            self._chat_history.clear()
 
             self._chat_history = [tmp_chat_history]
             self.reply(tmp_chat_history.body)
