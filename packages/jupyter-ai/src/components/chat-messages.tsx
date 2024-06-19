@@ -21,6 +21,49 @@ type ChatMessageHeaderProps = {
   sx?: SxProps<Theme>;
 };
 
+function sortMessages(
+  messages: AiService.ChatMessage[]
+): AiService.ChatMessage[] {
+  const timestampsById: Record<string, number> = {};
+  for (const message of messages) {
+    timestampsById[message.id] = message.time;
+  }
+
+  return [...messages].sort((a, b) => {
+    /**
+     * Use the *origin timestamp* as the primary sort key. This ensures that
+     * each agent reply is grouped with the human message that triggered it.
+     *
+     * - If the message is from an agent, the origin timestamp is the timestamp
+     * of the message it is replying to.
+     *
+     * - Otherwise, the origin timestamp is the *message timestamp*, i.e.
+     * `message.time` itself.
+     */
+
+    const aOriginTimestamp =
+      a.type === 'agent' && a.reply_to in timestampsById
+        ? timestampsById[a.reply_to]
+        : a.time;
+    const bOriginTimestamp =
+      b.type === 'agent' && b.reply_to in timestampsById
+        ? timestampsById[b.reply_to]
+        : b.time;
+
+    /**
+     * Use the message timestamp as a secondary sort key. This ensures that each
+     * agent reply is shown after the human message that triggered it.
+     */
+    const aMessageTimestamp = a.time;
+    const bMessageTimestamp = b.time;
+
+    return (
+      aOriginTimestamp - bOriginTimestamp ||
+      aMessageTimestamp - bMessageTimestamp
+    );
+  });
+}
+
 export function ChatMessageHeader(props: ChatMessageHeaderProps): JSX.Element {
   const collaborators = useCollaboratorsContext();
 
@@ -104,6 +147,9 @@ export function ChatMessageHeader(props: ChatMessageHeaderProps): JSX.Element {
 
 export function ChatMessages(props: ChatMessagesProps): JSX.Element {
   const [timestamps, setTimestamps] = useState<Record<string, string>>({});
+  const [sortedMessages, setSortedMessages] = useState<AiService.ChatMessage[]>(
+    []
+  );
 
   /**
    * Effect: update cached timestamp strings upon receiving a new message.
@@ -129,6 +175,10 @@ export function ChatMessages(props: ChatMessagesProps): JSX.Element {
     }
   }, [props.messages]);
 
+  useEffect(() => {
+    setSortedMessages(sortMessages(props.messages));
+  }, [props.messages]);
+
   return (
     <Box
       sx={{
@@ -137,15 +187,14 @@ export function ChatMessages(props: ChatMessagesProps): JSX.Element {
         }
       }}
     >
-      {props.messages.map((message, i) => {
+      {sortedMessages.map(message => {
         // render selection in HumanChatMessage, if any
         const markdownStr =
           message.type === 'human' && message.selection
             ? message.body + '\n\n```\n' + message.selection.source + '\n```\n'
             : message.body;
-
         return (
-          <Box key={i} sx={{ padding: 4 }}>
+          <Box key={message.id} sx={{ padding: 4 }}>
             <ChatMessageHeader
               message={message}
               timestamp={timestamps[message.id]}
