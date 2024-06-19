@@ -267,9 +267,11 @@ class BaseChatHandler:
         if not lm_provider or not lm_provider_params:
             return None
 
-        if len(self._chat_history) <= 2: # Check if chat history has been cleared, then reinitialize the llm chain
+        if (
+            len(self._chat_history) <= 2
+        ):  # Check if chat history has been cleared, then reinitialize the llm chain
             self.log.info("Clear conversation memory, re-initializing the llm chain.")
-            self.create_llm_chain(lm_provider, lm_provider_params)      
+            self.create_llm_chain(lm_provider, lm_provider_params)
         elif curr_lm_id != next_lm_id:
             self.log.info(
                 f"Switching chat language model from {curr_lm_id} to {next_lm_id}."
