@@ -38,7 +38,7 @@ class AnthropicProvider(BaseProvider, AnthropicLLM):
 
 class ChatAnthropicProvider(
     BaseProvider, ChatAnthropic
-):  # https://docs.anthropic.com/en/docs/about-claude/models
+):  # https://docs.anthropic.com/en/docs/about-claude/models 
     id = "anthropic-chat"
     name = "ChatAnthropic"
     models = [
