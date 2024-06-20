@@ -1,7 +1,10 @@
 from typing import List
-from jupyter_ai.models import ChatMessage, ClearMessage
-from .base import BaseChatHandler, SlashCommandRoutingType
+
 from jupyter_ai.chat_handlers.help import build_help_message
+from jupyter_ai.models import ChatMessage, ClearMessage
+
+from .base import BaseChatHandler, SlashCommandRoutingType
+
 
 class ClearChatHandler(BaseChatHandler):
     """Clear the chat panel and show the help menu"""
@@ -21,7 +24,7 @@ class ClearChatHandler(BaseChatHandler):
             if not handler:
                 continue
 
-            # Clear chat 
+            # Clear chat
             handler.broadcast_message(ClearMessage())
             self._chat_history.clear()
 
@@ -29,7 +32,9 @@ class ClearChatHandler(BaseChatHandler):
             chat_handlers = handler.chat_handlers
             persona = self.config_manager.persona
             lm_provider = self.config_manager.lm_provider
-            unsupported_slash_commands = (lm_provider.unsupported_slash_commands if lm_provider else set())
+            unsupported_slash_commands = (
+                lm_provider.unsupported_slash_commands if lm_provider else set()
+            )
             msg = build_help_message(chat_handlers, persona, unsupported_slash_commands)
             self.reply(msg.body)
 

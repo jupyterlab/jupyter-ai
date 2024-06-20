@@ -2,6 +2,7 @@ from langchain_anthropic import AnthropicLLM, ChatAnthropic
 
 from ..providers import BaseProvider, EnvAuthStrategy
 
+
 class AnthropicProvider(BaseProvider, AnthropicLLM):
     id = "anthropic"
     name = "Anthropic"
@@ -38,7 +39,6 @@ class AnthropicProvider(BaseProvider, AnthropicLLM):
 class ChatAnthropicProvider(
     BaseProvider, ChatAnthropic
 ):  # https://docs.anthropic.com/en/docs/about-claude/models
-
     id = "anthropic-chat"
     name = "ChatAnthropic"
     models = [
