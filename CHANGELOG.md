@@ -2,6 +2,33 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 2.18.0
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.17.0...698ee8e5994da2b9af3cef90396cf9ed5fd65064))
+
+### Enhancements made
+
+- Add new Cohere models [#834](https://github.com/jupyterlab/jupyter-ai/pull/834) ([@srdas](https://github.com/srdas))
+- Group messages with their replies [#832](https://github.com/jupyterlab/jupyter-ai/pull/832) ([@michaelchia](https://github.com/michaelchia))
+- Support Notebook 7 [#827](https://github.com/jupyterlab/jupyter-ai/pull/827) ([@jtpio](https://github.com/jtpio))
+- Support pending/loading message while waiting for response [#821](https://github.com/jupyterlab/jupyter-ai/pull/821) ([@michaelchia](https://github.com/michaelchia))
+
+### Bugs fixed
+
+- Fix compatibility with Python 3.8 [#844](https://github.com/jupyterlab/jupyter-ai/pull/844) ([@krassowski](https://github.com/krassowski))
+
+### Documentation improvements
+
+- Updates end of maintenance messaging to be in the past tense [#843](https://github.com/jupyterlab/jupyter-ai/pull/843) ([@JasonWeill](https://github.com/JasonWeill))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-06-12&to=2024-06-19&type=c))
+
+[@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2024-06-12..2024-06-19&type=Issues) | [@JasonWeill](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AJasonWeill+updated%3A2024-06-12..2024-06-19&type=Issues) | [@jtpio](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ajtpio+updated%3A2024-06-12..2024-06-19&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2024-06-12..2024-06-19&type=Issues) | [@michaelchia](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Amichaelchia+updated%3A2024-06-12..2024-06-19&type=Issues) | [@srdas](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2024-06-12..2024-06-19&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 2.17.0
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.16.0...ff7bd1a7a538b36464487e8a856af5347a3dabcc))
@@ -33,8 +60,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-05-20&to=2024-06-12&type=c))
 
 [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2024-05-20..2024-06-12&type=Issues) | [@JasonWeill](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AJasonWeill+updated%3A2024-05-20..2024-06-12&type=Issues) | [@jtpio](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ajtpio+updated%3A2024-05-20..2024-06-12&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2024-05-20..2024-06-12&type=Issues) | [@srdas](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2024-05-20..2024-06-12&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 2.16.0
 
