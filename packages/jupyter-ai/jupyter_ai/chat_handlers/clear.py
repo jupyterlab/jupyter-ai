@@ -2,7 +2,6 @@ from typing import List
 
 from jupyter_ai.models import ChatMessage, ClearMessage
 
-
 from .base import BaseChatHandler, SlashCommandRoutingType
 
 
@@ -32,4 +31,3 @@ class ClearChatHandler(BaseChatHandler):
             self.reply(tmp_chat_history.body)
 
             break
-
