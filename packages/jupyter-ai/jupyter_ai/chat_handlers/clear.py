@@ -1,5 +1,6 @@
 from typing import List
 
+from jupyter_ai.chat_handlers.help import build_help_message
 from jupyter_ai.models import ChatMessage, ClearMessage
 
 from .base import BaseChatHandler, SlashCommandRoutingType
@@ -19,15 +20,22 @@ class ClearChatHandler(BaseChatHandler):
         super().__init__(*args, **kwargs)
 
     async def process_message(self, _):
-        tmp_chat_history = self._chat_history[0]
-        self._chat_history.clear()
         for handler in self._root_chat_handlers.values():
             if not handler:
                 continue
 
+            # Clear chat
             handler.broadcast_message(ClearMessage())
+            self._chat_history.clear()
 
-            self._chat_history = [tmp_chat_history]
-            self.reply(tmp_chat_history.body)
+            # Build /help message and reinstate it in chat
+            chat_handlers = handler.chat_handlers
+            persona = self.config_manager.persona
+            lm_provider = self.config_manager.lm_provider
+            unsupported_slash_commands = (
+                lm_provider.unsupported_slash_commands if lm_provider else set()
+            )
+            msg = build_help_message(chat_handlers, persona, unsupported_slash_commands)
+            self.reply(msg.body)
 
             break
