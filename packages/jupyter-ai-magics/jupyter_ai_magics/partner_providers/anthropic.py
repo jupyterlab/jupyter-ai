@@ -38,7 +38,7 @@ class AnthropicProvider(BaseProvider, AnthropicLLM):
 
 class ChatAnthropicProvider(
     BaseProvider, ChatAnthropic
-):  # https://docs.anthropic.com/claude/docs/models-overview
+):  # https://docs.anthropic.com/en/docs/about-claude/models
     id = "anthropic-chat"
     name = "ChatAnthropic"
     models = [
@@ -48,6 +48,7 @@ class ChatAnthropicProvider(
         "claude-3-opus-20240229",
         "claude-3-sonnet-20240229",
         "claude-3-haiku-20240307",
+        "claude-3-5-sonnet-20240620",
     ]
     model_id_key = "model"
     pypi_package_deps = ["anthropic"]
