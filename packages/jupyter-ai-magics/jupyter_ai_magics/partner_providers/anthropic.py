@@ -2,8 +2,6 @@ from langchain_anthropic import AnthropicLLM, ChatAnthropic
 
 from ..providers import BaseProvider, EnvAuthStrategy
 
-
-# https://docs.anthropic.com/en/docs/about-claude/models
 class AnthropicProvider(BaseProvider, AnthropicLLM):
     id = "anthropic"
     name = "Anthropic"
@@ -16,7 +14,6 @@ class AnthropicProvider(BaseProvider, AnthropicLLM):
         "claude-instant-v1",
         "claude-instant-v1.0",
         "claude-instant-v1.2",
-        "claude-3-5-sonnet-20240620",
     ]
     model_id_key = "model"
     pypi_package_deps = ["anthropic"]
@@ -40,7 +37,8 @@ class AnthropicProvider(BaseProvider, AnthropicLLM):
 
 class ChatAnthropicProvider(
     BaseProvider, ChatAnthropic
-):  # https://docs.anthropic.com/claude/docs/models-overview
+):  # https://docs.anthropic.com/en/docs/about-claude/models
+
     id = "anthropic-chat"
     name = "ChatAnthropic"
     models = [
@@ -50,6 +48,7 @@ class ChatAnthropicProvider(
         "claude-3-opus-20240229",
         "claude-3-sonnet-20240229",
         "claude-3-haiku-20240307",
+        "claude-3-5-sonnet-20240620",
     ]
     model_id_key = "model"
     pypi_package_deps = ["anthropic"]
