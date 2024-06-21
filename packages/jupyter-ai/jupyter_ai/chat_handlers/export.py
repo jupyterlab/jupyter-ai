@@ -23,8 +23,8 @@ class ExportChatHandler(BaseChatHandler):
 
     def chat_message_to_markdown(self, message):
         if isinstance(message, AgentChatMessage):
-            Agent = self.config_manager.persona.name
-            return f"**{Agent}**: {message.body}"
+            agent = self.config_manager.persona.name
+            return f"**{agent}**: {message.body}"
         elif isinstance(message, HumanChatMessage):
             return f"**{message.client.display_name}**: {message.body}"
         else:
