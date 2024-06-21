@@ -511,7 +511,7 @@ The `/learn` command also provides downloading and processing papers from the [a
 ```
 
 ### Exporting chat history
-Use the `/export` command to export the chat history from the current session to a markdown file named `chat_history-YYYY-MM-DD-HH-mm.md`. Using `/export <file_name>` will export the chat history to `<file_name>-YYYY-MM-DD-HH-mm.md` instead. You can export chat history as many times as you like in a single session. Each successive export will include the entire chat history up to that point in the session.
+Use the `/export` command to export the chat history from the current session to a markdown file named `chat_history-YYYY-MM-DD-HH-mm-ss.md`. Using `/export <file_name>` will export the chat history to `<file_name>` without the timestamp instead. You can export chat history as many times as you like in a single session. Each successive export will include the entire chat history up to that point in the session.
 
 
 ### Fixing a code cell with an error
