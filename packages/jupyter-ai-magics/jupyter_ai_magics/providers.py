@@ -36,7 +36,6 @@ from langchain_community.chat_models import BedrockChat, QianfanChatEndpoint
 from langchain_community.llms import (
     AI21,
     Bedrock,
-    Cohere,
     GPT4All,
     HuggingFaceEndpoint,
     SagemakerEndpoint,
