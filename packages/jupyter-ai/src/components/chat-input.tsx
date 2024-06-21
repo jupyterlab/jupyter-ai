@@ -155,6 +155,18 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
     setCurrSlashCommand(matchedSlashCommand && matchedSlashCommand[0]);
   }, [props.value]);
 
+  /**
+   * Effect: ensure that the `highlighted` is never `true` when `open` is
+   * `false`.
+   *
+   * For context: https://github.com/jupyterlab/jupyter-ai/issues/849
+   */
+  useEffect(() => {
+    if (!open && highlighted) {
+      setHighlighted(false);
+    }
+  }, [open, highlighted]);
+
   // TODO: unify the `onSend` implementation in `chat.tsx` and here once text
   // selection is refactored.
   function onSend() {
@@ -231,24 +243,12 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
           /**
            * On highlight change: set `highlighted` to whether an option is
            * highlighted by the user.
-           *
-           * This isn't called when an option is selected for some reason, so we
-           * need to call `setHighlighted(false)` in `onClose()`.
            */
           (_, highlightedOption) => {
             setHighlighted(!!highlightedOption);
           }
         }
-        onClose={
-          /**
-           * On close: set `highlighted` to `false` and close the popup by
-           * setting `open` to `false`.
-           */
-          () => {
-            setHighlighted(false);
-            setOpen(false);
-          }
-        }
+        onClose={() => setOpen(false)}
         // set this to an empty string to prevent the last selected slash
         // command from being shown in blue
         value=""
