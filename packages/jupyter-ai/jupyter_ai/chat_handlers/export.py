@@ -23,7 +23,8 @@ class ExportChatHandler(BaseChatHandler):
 
     def chat_message_to_markdown(self, message):
         if isinstance(message, AgentChatMessage):
-            return f"**Agent**: {message.body}"
+            agent = self.config_manager.persona.name
+            return f"**{agent}**: {message.body}"
         elif isinstance(message, HumanChatMessage):
             return f"**{message.client.display_name}**: {message.body}"
         else:
@@ -35,11 +36,14 @@ class ExportChatHandler(BaseChatHandler):
             self.chat_message_to_markdown(msg) for msg in self._chat_history
         )
         args = self.parse_args(message)
-        chat_filename = (
-            args.path[0] if (args.path and args.path[0] != "") else "chat_history"
+        chat_filename = (  # if no filename, use "chat_history" + timestamp
+            args.path[0]
+            if (args.path and args.path[0] != "")
+            else f"chat_history-{datetime.now():%Y-%m-%d-%H-%M-%S}.md"
         )  # Handles both empty args and double tap <Enter> key
-        chat_filename = f"{chat_filename}-{datetime.now():%Y-%m-%d-%H-%M}.md"
-        chat_file = os.path.join(self.root_dir, chat_filename)
+        chat_file = os.path.join(
+            self.root_dir, chat_filename
+        )  # Do not use timestamp if filename is entered as argument
         with open(chat_file, "w") as chat_history:
             chat_history.write(markdown_content)
         self.reply(f"File saved to `{chat_file}`")
