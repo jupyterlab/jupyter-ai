@@ -19,7 +19,7 @@ class CohereProvider(BaseProvider, ChatCohere):
         "command-r",
     ]
     model_id_key = "model"
-    pypi_package_deps = ["cohere"]
+    pypi_package_deps = ["langchain_cohere"]
     auth_strategy = EnvAuthStrategy(name="COHERE_API_KEY")
 
 
@@ -36,5 +36,5 @@ class CohereEmbeddingsProvider(BaseEmbeddingsProvider, CohereEmbeddings):
         "embed-multilingual-light-v3.0",
     ]
     model_id_key = "model"
-    pypi_package_deps = ["cohere"]
+    pypi_package_deps = ["langchain_cohere"]
     auth_strategy = EnvAuthStrategy(name="COHERE_API_KEY")

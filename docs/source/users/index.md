@@ -160,7 +160,7 @@ Jupyter AI supports the following model providers:
 | Anthropic (chat)    | `anthropic-chat`     | `ANTHROPIC_API_KEY`        | `langchain-anthropic`           |
 | Bedrock             | `bedrock`            | N/A                        | `boto3`                         |
 | Bedrock (chat)      | `bedrock-chat`       | N/A                        | `boto3`                         |
-| Cohere              | `cohere`             | `COHERE_API_KEY`           | `cohere`                        |
+| Cohere              | `cohere`             | `COHERE_API_KEY`           | `langchain_cohere`              |
 | ERNIE-Bot           | `qianfan`            | `QIANFAN_AK`, `QIANFAN_SK` | `qianfan`                       |
 | Gemini              | `gemini`             | `GOOGLE_API_KEY`           | `langchain-google-genai`        |
 | GPT4All             | `gpt4all`            | N/A                        | `gpt4all`                       |
