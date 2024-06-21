@@ -546,26 +546,6 @@ class AI21Provider(BaseProvider, AI21):
         return False
 
 
-class CohereProvider(BaseProvider, Cohere):
-    id = "cohere"
-    name = "Cohere"
-    # Source: https://docs.cohere.com/reference/generate; https://docs.cohere.com/docs/models
-    models = [
-        "command",
-        "command-nightly",
-        "command-light",
-        "command-light-nightly",
-        "command-r-plus",
-        "command-r",
-    ]
-    model_id_key = "model"
-    pypi_package_deps = ["cohere"]
-    auth_strategy = EnvAuthStrategy(name="COHERE_API_KEY")
-
-    async def _acall(self, *args, **kwargs) -> Coroutine[Any, Any, str]:
-        return await self._call_in_executor(*args, **kwargs)
-
-
 class GPT4AllProvider(BaseProvider, GPT4All):
     def __init__(self, **kwargs):
         model = kwargs.get("model_id")

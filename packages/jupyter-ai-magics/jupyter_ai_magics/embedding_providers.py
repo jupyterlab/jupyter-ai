@@ -10,10 +10,8 @@ from jupyter_ai_magics.providers import (
 from langchain.pydantic_v1 import BaseModel, Extra
 from langchain_community.embeddings import (
     BedrockEmbeddings,
-    CohereEmbeddings,
     GPT4AllEmbeddings,
     HuggingFaceHubEmbeddings,
-    OpenAIEmbeddings,
     QianfanEmbeddingsEndpoint,
 )
 
@@ -66,23 +64,6 @@ class BaseEmbeddingsProvider(BaseModel):
             model_kwargs[self.__class__.model_id_key] = kwargs["model_id"]
 
         super().__init__(*args, **kwargs, **model_kwargs)
-
-
-class CohereEmbeddingsProvider(BaseEmbeddingsProvider, CohereEmbeddings):
-    id = "cohere"
-    name = "Cohere"
-    models = [
-        "embed-english-v2.0",
-        "embed-english-light-v2.0",
-        "embed-multilingual-v2.0",
-        "embed-english-v3.0",
-        "embed-english-light-v3.0",
-        "embed-multilingual-v3.0",
-        "embed-multilingual-light-v3.0",
-    ]
-    model_id_key = "model"
-    pypi_package_deps = ["cohere"]
-    auth_strategy = EnvAuthStrategy(name="COHERE_API_KEY")
 
 
 class HfHubEmbeddingsProvider(BaseEmbeddingsProvider, HuggingFaceHubEmbeddings):
