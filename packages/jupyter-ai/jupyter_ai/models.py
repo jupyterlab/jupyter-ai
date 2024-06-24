@@ -68,6 +68,17 @@ class AgentChatMessage(BaseModel):
     this defaults to a description of `JupyternautPersona`.
     """
 
+class AgentStreamMessage(AgentChatMessage):
+    type: Literal['agent-stream']  = 'agent-stream'
+    # other attrs inherited from `AgentChatMessage`
+
+class AgentStreamChunkMessage(BaseModel):
+    type: Literal['agent-stream-chunk'] = 'agent-stream-chunk'
+    id: str
+    content: str
+    stream_complete: bool
+    """Indicates whether this chunk message completes the referenced stream."""
+
 
 class HumanChatMessage(BaseModel):
     type: Literal["human"] = "human"

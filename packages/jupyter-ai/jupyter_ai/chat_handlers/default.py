@@ -1,11 +1,15 @@
-from typing import Dict, List, Type
+from typing import Dict, Type
+from uuid import uuid4
+import time
 
-from jupyter_ai.models import ChatMessage, ClearMessage, HumanChatMessage
+from jupyter_ai.models import HumanChatMessage, AgentStreamMessage, AgentStreamChunkMessage
 from jupyter_ai_magics.providers import BaseProvider
 from langchain.chains import ConversationChain, LLMChain
 from langchain.memory import ConversationBufferWindowMemory
 
 from .base import BaseChatHandler, SlashCommandRoutingType
+from ..history import BoundedChatHistory
+from langchain_core.runnables.history import RunnableWithMessageHistory
 
 
 class DefaultChatHandler(BaseChatHandler):
@@ -18,12 +22,12 @@ class DefaultChatHandler(BaseChatHandler):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.memory = ConversationBufferWindowMemory(return_messages=True, k=2)
 
     def create_llm_chain(
         self, provider: Type[BaseProvider], provider_params: Dict[str, str]
     ):
         unified_parameters = {
+            "verbose": True,
             **provider_params,
             **(self.get_model_parameters(provider, provider_params)),
         }
@@ -35,18 +39,73 @@ class DefaultChatHandler(BaseChatHandler):
             return_messages=llm.is_chat_provider, k=2
         )
 
-        if llm.manages_history:
-            self.llm_chain = LLMChain(llm=llm, prompt=prompt_template, verbose=True)
-
-        else:
-            self.llm_chain = ConversationChain(
-                llm=llm, prompt=prompt_template, verbose=True, memory=self.memory
+        runnable = prompt_template | llm
+        if not llm.manages_history:
+            history = BoundedChatHistory(k=2)
+            runnable = RunnableWithMessageHistory(
+                runnable=runnable,
+                get_session_history=lambda *args: history,
+                input_messages_key="input",
+                history_messages_key="history",
             )
+        
+        self.llm_chain = runnable
+
+
+    def _start_stream(self, human_msg: HumanChatMessage) -> str:
+        """
+        Sends an `agent-stream` message to indicate the start of a response
+        stream. Returns the ID of the message, denoted as the `stream_id`.
+        """
+        stream_id = uuid4().hex
+        stream_msg = AgentStreamMessage(
+            id=stream_id,
+            time=time.time(),
+            body="",
+            reply_to=human_msg.id,
+            persona=self.persona,
+        )
+
+        for handler in self._root_chat_handlers.values():
+            if not handler:
+                continue
+
+            handler.broadcast_message(stream_msg)
+            break
+
+        return stream_id
+    
+    def _send_stream_chunk(self, stream_id: str, content: str, complete: bool = False):
+        """
+        Sends an `agent-stream-chunk` message containing content that should be
+        appended to an existing `agent-stream` message with ID `stream_id`.
+        """
+        stream_chunk_msg = AgentStreamChunkMessage(
+            id=stream_id,
+            content=content,
+            stream_complete=complete
+        )
+
+        for handler in self._root_chat_handlers.values():
+            if not handler:
+                continue
+
+            handler.broadcast_message(stream_chunk_msg)
+            break
+    
 
     async def process_message(self, message: HumanChatMessage):
         self.get_llm_chain()
-        with self.pending("Generating response"):
-            response = await self.llm_chain.apredict(
-                input=message.body, stop=["\nHuman:"]
-            )
-        self.reply(response, message)
+
+        stream_id = self._start_stream(human_msg=message)
+        async for chunk in self.llm_chain.astream({ "input": message.body }, config={"configurable": {"session_id": "static_session"}}):
+            self.log.error(chunk.content)
+            self._send_stream_chunk(stream_id, chunk.content)
+        
+        self._send_stream_chunk(stream_id, "", complete=True)
+
+        # with self.pending("Generating response"):
+        #     response = await self.llm_chain.apredict(
+        #         input=message.body, stop=["\nHuman:"]
+        #     )
+        # self.reply(response, message)

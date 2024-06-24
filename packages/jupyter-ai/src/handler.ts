@@ -129,14 +129,39 @@ export namespace AiService {
     id: string;
   };
 
-  export type ChatMessage = AgentChatMessage | HumanChatMessage;
+  export type AgentStreamMessage = Omit<AgentChatMessage, 'type'> & {
+    type: 'agent-stream';
+
+    /**
+     * This field only exists in the frontend model to indicate whether the
+     * stream is complete. When an `AgentStreamChunkMessage` is received with
+     * `stream_complete=True`, this property is set to `True` to indicate that
+     * to React components that the stream is complete.
+     */
+    complete?: boolean;
+  };
+
+  export type AgentStreamChunkMessage = {
+    type: 'agent-stream-chunk';
+    id: string;
+    content: string;
+    stream_complete: boolean;
+  };
+
+  export type ChatMessage =
+    | AgentChatMessage
+    | HumanChatMessage
+    | AgentStreamMessage;
+
   export type Message =
     | AgentChatMessage
     | HumanChatMessage
     | ConnectionMessage
     | ClearMessage
     | PendingMessage
-    | ClosePendingMessage;
+    | ClosePendingMessage
+    | AgentStreamMessage
+    | AgentStreamChunkMessage;
 
   export type ChatHistory = {
     messages: ChatMessage[];

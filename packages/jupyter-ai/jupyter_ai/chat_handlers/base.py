@@ -183,14 +183,12 @@ class BaseChatHandler:
         Sends an agent message, usually in response to a received
         `HumanChatMessage`.
         """
-        persona = self.config_manager.persona
-
         agent_msg = AgentChatMessage(
             id=uuid4().hex,
             time=time.time(),
             body=response,
             reply_to=human_msg.id if human_msg else "",
-            persona=Persona(name=persona.name, avatar_route=persona.avatar_route),
+            persona=self.persona,
         )
 
         for handler in self._root_chat_handlers.values():
@@ -199,6 +197,10 @@ class BaseChatHandler:
 
             handler.broadcast_message(agent_msg)
             break
+    
+    @property
+    def persona(self):
+        return self.config_manager.persona
 
     def start_pending(self, text: str, ellipsis: bool = True) -> str:
         """

@@ -76,23 +76,51 @@ function ChatBody({
    * Effect: listen to chat messages
    */
   useEffect(() => {
-    function handleChatEvents(message: AiService.Message) {
-      switch (message.type) {
+    function handleChatEvents(newMessage: AiService.Message) {
+      switch (newMessage.type) {
         case 'connection':
           return;
         case 'clear':
           setMessages([]);
           return;
         case 'pending':
-          setPendingMessages(pendingMessages => [...pendingMessages, message]);
+          setPendingMessages(pendingMessages => [
+            ...pendingMessages,
+            newMessage
+          ]);
           return;
         case 'close-pending':
           setPendingMessages(pendingMessages =>
-            pendingMessages.filter(p => p.id !== message.id)
+            pendingMessages.filter(p => p.id !== newMessage.id)
           );
           return;
+        case 'agent-stream-chunk':
+          setMessages(prevMessages => {
+            const target = newMessage.id;
+            const streamMessage =
+              prevMessages.find<AiService.AgentStreamMessage>(
+                (m): m is AiService.AgentStreamMessage =>
+                  m.type === 'agent-stream' && m.id === target
+              );
+            if (!streamMessage) {
+              console.error(
+                `Received stream chunk with ID ${target}, but no agent-stream message with that ID exists. ` +
+                  'Ignoring this stream chunk.'
+              );
+              return prevMessages;
+            }
+
+            streamMessage.body += newMessage.content;
+            if (newMessage.stream_complete) {
+              console.log('COMPLETE SET');
+              streamMessage.complete = true;
+            }
+            return [...prevMessages];
+          });
+          return;
         default:
-          setMessages(messageGroups => [...messageGroups, message]);
+          // human or agent chat message
+          setMessages(prevMessages => [...prevMessages, newMessage]);
           return;
       }
     }
