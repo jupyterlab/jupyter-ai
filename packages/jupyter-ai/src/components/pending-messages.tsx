@@ -32,9 +32,7 @@ function PendingMessageElement(props: PendingMessageElementProps): JSX.Element {
   return (
     <Box>
       {text.split('\n').map((line, index) => (
-        <Typography key={index}>
-          {line}
-        </Typography>
+        <Typography key={index}>{line}</Typography>
       ))}
     </Box>
   );
