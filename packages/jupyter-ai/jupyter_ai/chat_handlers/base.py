@@ -197,7 +197,7 @@ class BaseChatHandler:
 
             handler.broadcast_message(agent_msg)
             break
-    
+
     @property
     def persona(self):
         return self.config_manager.persona

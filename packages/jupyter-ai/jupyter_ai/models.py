@@ -68,13 +68,15 @@ class AgentChatMessage(BaseModel):
     this defaults to a description of `JupyternautPersona`.
     """
 
+
 class AgentStreamMessage(AgentChatMessage):
-    type: Literal['agent-stream']  = 'agent-stream'
+    type: Literal["agent-stream"] = "agent-stream"
     complete: bool
     # other attrs inherited from `AgentChatMessage`
 
+
 class AgentStreamChunkMessage(BaseModel):
-    type: Literal['agent-stream-chunk'] = 'agent-stream-chunk'
+    type: Literal["agent-stream-chunk"] = "agent-stream-chunk"
     id: str
     content: str
     stream_complete: bool
@@ -118,6 +120,7 @@ ChatMessage = Union[
 
 class ChatHistory(BaseModel):
     """History of chat messages"""
+
     messages: List[ChatMessage]
     pending_messages: List[PendingMessage]
 

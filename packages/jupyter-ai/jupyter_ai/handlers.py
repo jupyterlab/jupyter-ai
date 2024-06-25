@@ -17,13 +17,14 @@ from tornado.web import HTTPError
 
 from .models import (
     AgentChatMessage,
-    AgentStreamMessage,
     AgentStreamChunkMessage,
+    AgentStreamMessage,
     ChatClient,
     ChatHistory,
     ChatMessage,
     ChatRequest,
     ChatUser,
+    ClosePendingMessage,
     ConnectionMessage,
     HumanChatMessage,
     ListProvidersEntry,
@@ -32,7 +33,6 @@ from .models import (
     ListSlashCommandsResponse,
     Message,
     PendingMessage,
-    ClosePendingMessage,
     UpdateConfigRequest,
 )
 
@@ -49,7 +49,7 @@ class ChatHistoryHandler(BaseAPIHandler):
     @property
     def chat_history(self) -> List[ChatMessage]:
         return self.settings["chat_history"]
-    
+
     @property
     def pending_messages(self) -> List[PendingMessage]:
         return self.settings["pending_messages"]
@@ -57,8 +57,7 @@ class ChatHistoryHandler(BaseAPIHandler):
     @tornado.web.authenticated
     async def get(self):
         history = ChatHistory(
-            messages=self.chat_history,
-            pending_messages=self.pending_messages
+            messages=self.chat_history, pending_messages=self.pending_messages
         )
         self.finish(history.json())
 
@@ -106,7 +105,7 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
     @property
     def pending_messages(self) -> List[PendingMessage]:
         return self.settings["pending_messages"]
-    
+
     @pending_messages.setter
     def pending_messages(self, new_pending_messages):
         self.settings["pending_messages"] = new_pending_messages
@@ -186,10 +185,14 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
         self.root_chat_handlers[client_id] = self
         self.chat_clients[client_id] = ChatClient(**current_user, id=client_id)
         self.client_id = client_id
-        self.write_message(ConnectionMessage(
-            client_id=client_id,
-            history=ChatHistory(messages=self.chat_history, pending_messages=self.pending_messages)
-        ).dict())
+        self.write_message(
+            ConnectionMessage(
+                client_id=client_id,
+                history=ChatHistory(
+                    messages=self.chat_history, pending_messages=self.pending_messages
+                ),
+            ).dict()
+        )
 
         self.log.info(f"Client connected. ID: {client_id}")
         self.log.debug("Clients are : %s", self.root_chat_handlers.keys())
@@ -208,7 +211,9 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
                 client.write_message(message.dict())
 
         # append all messages of type `ChatMessage` directly to the chat history
-        if isinstance(message, (HumanChatMessage, AgentChatMessage, AgentStreamMessage)):
+        if isinstance(
+            message, (HumanChatMessage, AgentChatMessage, AgentStreamMessage)
+        ):
             self.chat_history.append(message)
         elif isinstance(message, AgentStreamChunkMessage):
             # for stream chunks, modify the corresponding `AgentStreamMessage`
@@ -217,7 +222,10 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
 
             # iterate backwards from the end of the list
             for i in range(len(self.chat_history) - 1, -1, -1):
-                if self.chat_history[i].type == 'agent-stream' and self.chat_history[i].id == chunk.id:
+                if (
+                    self.chat_history[i].type == "agent-stream"
+                    and self.chat_history[i].id == chunk.id
+                ):
                     stream_message: AgentStreamMessage = self.chat_history[i]
                     stream_message.body += chunk.content
                     stream_message.complete = chunk.stream_complete
@@ -225,8 +233,9 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
         elif isinstance(message, PendingMessage):
             self.pending_messages.append(message)
         elif isinstance(message, ClosePendingMessage):
-            self.pending_messages = list(filter(lambda m: m.id != message.id, self.pending_messages))
-
+            self.pending_messages = list(
+                filter(lambda m: m.id != message.id, self.pending_messages)
+            )
 
     async def on_message(self, message):
         self.log.debug("Message received: %s", message)

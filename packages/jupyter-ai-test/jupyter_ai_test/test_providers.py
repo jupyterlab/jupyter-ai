@@ -1,4 +1,5 @@
 from typing import ClassVar, List
+
 from jupyter_ai import AuthStrategy, BaseProvider, Field
 
 from .test_llms import TestLLM, TestLLMWithStreaming
@@ -11,9 +12,7 @@ class TestProvider(BaseProvider, TestLLM):
     name: ClassVar[str] = "Test Provider"
     """User-facing name of this provider."""
 
-    models: ClassVar[List[str]] = [
-        "test"
-    ]
+    models: ClassVar[List[str]] = ["test"]
     """List of supported models by their IDs. For registry providers, this will
     be just ["*"]."""
 
@@ -49,9 +48,7 @@ class TestProviderWithStreaming(BaseProvider, TestLLMWithStreaming):
     name: ClassVar[str] = "Test Provider (streaming)"
     """User-facing name of this provider."""
 
-    models: ClassVar[List[str]] = [
-        "test"
-    ]
+    models: ClassVar[List[str]] = ["test"]
     """List of supported models by their IDs. For registry providers, this will
     be just ["*"]."""
 
@@ -78,4 +75,3 @@ class TestProviderWithStreaming(BaseProvider, TestLLMWithStreaming):
     fields: ClassVar[List[Field]] = []
     """User inputs expected by this provider when initializing it. Each `Field` `f`
     should be passed in the constructor as a keyword argument, keyed by `f.key`."""
-

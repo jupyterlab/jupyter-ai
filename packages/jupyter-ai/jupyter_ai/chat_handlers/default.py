@@ -1,15 +1,19 @@
+import time
 from typing import Dict, Type
 from uuid import uuid4
-import time
 
-from jupyter_ai.models import HumanChatMessage, AgentStreamMessage, AgentStreamChunkMessage
+from jupyter_ai.models import (
+    AgentStreamChunkMessage,
+    AgentStreamMessage,
+    HumanChatMessage,
+)
 from jupyter_ai_magics.providers import BaseProvider
 from langchain.memory import ConversationBufferWindowMemory
-from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_core.messages import AIMessageChunk
+from langchain_core.runnables.history import RunnableWithMessageHistory
 
-from .base import BaseChatHandler, SlashCommandRoutingType
 from ..history import BoundedChatHistory
+from .base import BaseChatHandler, SlashCommandRoutingType
 
 
 class DefaultChatHandler(BaseChatHandler):
@@ -48,9 +52,8 @@ class DefaultChatHandler(BaseChatHandler):
                 input_messages_key="input",
                 history_messages_key="history",
             )
-        
-        self.llm_chain = runnable
 
+        self.llm_chain = runnable
 
     def _start_stream(self, human_msg: HumanChatMessage) -> str:
         """
@@ -64,7 +67,7 @@ class DefaultChatHandler(BaseChatHandler):
             body="",
             reply_to=human_msg.id,
             persona=self.persona,
-            complete=False
+            complete=False,
         )
 
         for handler in self._root_chat_handlers.values():
@@ -75,16 +78,14 @@ class DefaultChatHandler(BaseChatHandler):
             break
 
         return stream_id
-    
+
     def _send_stream_chunk(self, stream_id: str, content: str, complete: bool = False):
         """
         Sends an `agent-stream-chunk` message containing content that should be
         appended to an existing `agent-stream` message with ID `stream_id`.
         """
         stream_chunk_msg = AgentStreamChunkMessage(
-            id=stream_id,
-            content=content,
-            stream_complete=complete
+            id=stream_id, content=content, stream_complete=complete
         )
 
         for handler in self._root_chat_handlers.values():
@@ -93,7 +94,6 @@ class DefaultChatHandler(BaseChatHandler):
 
             handler.broadcast_message(stream_chunk_msg)
             break
-    
 
     async def process_message(self, message: HumanChatMessage):
         self.get_llm_chain()
@@ -105,7 +105,10 @@ class DefaultChatHandler(BaseChatHandler):
         # stream response in chunks. this works even if a provider does not
         # implement streaming, as `astream()` defaults to yielding `_call()`
         # when `_stream()` is not implemented on the LLM class.
-        async for chunk in self.llm_chain.astream({ "input": message.body }, config={"configurable": {"session_id": "static_session"}}):
+        async for chunk in self.llm_chain.astream(
+            {"input": message.body},
+            config={"configurable": {"session_id": "static_session"}},
+        ):
             if not received_first_chunk:
                 # when receiving the first chunk, close the pending message and
                 # start the stream.
@@ -120,6 +123,6 @@ class DefaultChatHandler(BaseChatHandler):
             else:
                 self.log.error(f"Unrecognized type of chunk yielded: {type(chunk)}")
                 break
-        
+
         # complete stream after all chunks have been streamed
         self._send_stream_chunk(stream_id, "", complete=True)
