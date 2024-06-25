@@ -109,6 +109,7 @@ export namespace AiService {
   export type ConnectionMessage = {
     type: 'connection';
     client_id: string;
+    history: ChatHistory;
   };
 
   export type ClearMessage = {
@@ -131,14 +132,7 @@ export namespace AiService {
 
   export type AgentStreamMessage = Omit<AgentChatMessage, 'type'> & {
     type: 'agent-stream';
-
-    /**
-     * This field only exists in the frontend model to indicate whether the
-     * stream is complete. When an `AgentStreamChunkMessage` is received with
-     * `stream_complete=True`, this property is set to `True` to indicate that
-     * to React components that the stream is complete.
-     */
-    complete?: boolean;
+    complete: boolean;
   };
 
   export type AgentStreamChunkMessage = {
@@ -165,6 +159,7 @@ export namespace AiService {
 
   export type ChatHistory = {
     messages: ChatMessage[];
+    pending_messages: PendingMessage[];
   };
 
   export type DescribeConfigResponse = {

@@ -4,12 +4,12 @@ import time
 
 from jupyter_ai.models import HumanChatMessage, AgentStreamMessage, AgentStreamChunkMessage
 from jupyter_ai_magics.providers import BaseProvider
-from langchain.chains import ConversationChain, LLMChain
 from langchain.memory import ConversationBufferWindowMemory
+from langchain_core.runnables.history import RunnableWithMessageHistory
+from langchain_core.messages import AIMessageChunk
 
 from .base import BaseChatHandler, SlashCommandRoutingType
 from ..history import BoundedChatHistory
-from langchain_core.runnables.history import RunnableWithMessageHistory
 
 
 class DefaultChatHandler(BaseChatHandler):
@@ -64,6 +64,7 @@ class DefaultChatHandler(BaseChatHandler):
             body="",
             reply_to=human_msg.id,
             persona=self.persona,
+            complete=False
         )
 
         for handler in self._root_chat_handlers.values():
@@ -96,16 +97,29 @@ class DefaultChatHandler(BaseChatHandler):
 
     async def process_message(self, message: HumanChatMessage):
         self.get_llm_chain()
+        received_first_chunk = False
 
-        stream_id = self._start_stream(human_msg=message)
+        # start with a pending message
+        pending_message = self.start_pending("Generating response")
+
+        # stream response in chunks. this works even if a provider does not
+        # implement streaming, as `astream()` defaults to yielding `_call()`
+        # when `_stream()` is not implemented on the LLM class.
         async for chunk in self.llm_chain.astream({ "input": message.body }, config={"configurable": {"session_id": "static_session"}}):
-            self.log.error(chunk.content)
-            self._send_stream_chunk(stream_id, chunk.content)
-        
-        self._send_stream_chunk(stream_id, "", complete=True)
+            if not received_first_chunk:
+                # when receiving the first chunk, close the pending message and
+                # start the stream.
+                self.close_pending(pending_message)
+                stream_id = self._start_stream(human_msg=message)
+                received_first_chunk = True
 
-        # with self.pending("Generating response"):
-        #     response = await self.llm_chain.apredict(
-        #         input=message.body, stop=["\nHuman:"]
-        #     )
-        # self.reply(response, message)
+            if isinstance(chunk, AIMessageChunk):
+                self._send_stream_chunk(stream_id, chunk.content)
+            elif isinstance(chunk, str):
+                self._send_stream_chunk(stream_id, chunk)
+            else:
+                self.log.error(f"Unrecognized type of chunk yielded: {type(chunk)}")
+                break
+        
+        # complete stream after all chunks have been streamed
+        self._send_stream_chunk(stream_id, "", complete=True)

@@ -38,10 +38,12 @@ function ChatBody({
   setChatView: chatViewHandler,
   rmRegistry: renderMimeRegistry
 }: ChatBodyProps): JSX.Element {
-  const [messages, setMessages] = useState<AiService.ChatMessage[]>([]);
+  const [messages, setMessages] = useState<AiService.ChatMessage[]>([
+    ...chatHandler.history.messages
+  ]);
   const [pendingMessages, setPendingMessages] = useState<
     AiService.PendingMessage[]
-  >([]);
+  >([...chatHandler.history.pending_messages]);
   const [showWelcomeMessage, setShowWelcomeMessage] = useState<boolean>(false);
   const [includeSelection, setIncludeSelection] = useState(true);
   const [replaceSelection, setReplaceSelection] = useState(false);
@@ -50,17 +52,13 @@ function ChatBody({
   const [sendWithShiftEnter, setSendWithShiftEnter] = useState(true);
 
   /**
-   * Effect: fetch history and config on initial render
+   * Effect: fetch config on initial render
    */
   useEffect(() => {
-    async function fetchHistory() {
+    async function fetchConfig() {
       try {
-        const [history, config] = await Promise.all([
-          chatHandler.getHistory(),
-          AiService.getConfig()
-        ]);
+        const config = await AiService.getConfig();
         setSendWithShiftEnter(config.send_with_shift_enter ?? false);
-        setMessages(history.messages);
         if (!config.model_provider_id) {
           setShowWelcomeMessage(true);
         }
@@ -69,65 +67,22 @@ function ChatBody({
       }
     }
 
-    fetchHistory();
+    fetchConfig();
   }, [chatHandler]);
 
   /**
    * Effect: listen to chat messages
    */
   useEffect(() => {
-    function handleChatEvents(newMessage: AiService.Message) {
-      switch (newMessage.type) {
-        case 'connection':
-          return;
-        case 'clear':
-          setMessages([]);
-          return;
-        case 'pending':
-          setPendingMessages(pendingMessages => [
-            ...pendingMessages,
-            newMessage
-          ]);
-          return;
-        case 'close-pending':
-          setPendingMessages(pendingMessages =>
-            pendingMessages.filter(p => p.id !== newMessage.id)
-          );
-          return;
-        case 'agent-stream-chunk':
-          setMessages(prevMessages => {
-            const target = newMessage.id;
-            const streamMessage =
-              prevMessages.find<AiService.AgentStreamMessage>(
-                (m): m is AiService.AgentStreamMessage =>
-                  m.type === 'agent-stream' && m.id === target
-              );
-            if (!streamMessage) {
-              console.error(
-                `Received stream chunk with ID ${target}, but no agent-stream message with that ID exists. ` +
-                  'Ignoring this stream chunk.'
-              );
-              return prevMessages;
-            }
-
-            streamMessage.body += newMessage.content;
-            if (newMessage.stream_complete) {
-              console.log('COMPLETE SET');
-              streamMessage.complete = true;
-            }
-            return [...prevMessages];
-          });
-          return;
-        default:
-          // human or agent chat message
-          setMessages(prevMessages => [...prevMessages, newMessage]);
-          return;
-      }
+    function onHistoryChange(_: unknown, history: AiService.ChatHistory) {
+      setMessages([...history.messages]);
+      setPendingMessages([...history.pending_messages]);
     }
 
-    chatHandler.addListener(handleChatEvents);
+    chatHandler.historyChanged.connect(onHistoryChange);
+
     return function cleanup() {
-      chatHandler.removeListener(handleChatEvents);
+      chatHandler.historyChanged.disconnect(onHistoryChange);
     };
   }, [chatHandler]);
 

@@ -202,7 +202,7 @@ class BaseChatHandler:
     def persona(self):
         return self.config_manager.persona
 
-    def start_pending(self, text: str, ellipsis: bool = True) -> str:
+    def start_pending(self, text: str, ellipsis: bool = True) -> PendingMessage:
         """
         Sends a pending message to the client.
 

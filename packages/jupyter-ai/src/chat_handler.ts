@@ -1,7 +1,9 @@
 import { IDisposable } from '@lumino/disposable';
 import { ServerConnection } from '@jupyterlab/services';
 import { URLExt } from '@jupyterlab/coreutils';
-import { AiService, requestAPI } from './handler';
+import { Signal } from '@lumino/signaling';
+
+import { AiService } from './handler';
 
 const CHAT_SERVICE_URL = 'api/ai/chats';
 
@@ -65,18 +67,6 @@ export class ChatHandler implements IDisposable {
     }
   }
 
-  public async getHistory(): Promise<AiService.ChatHistory> {
-    let data: AiService.ChatHistory = { messages: [] };
-    try {
-      data = await requestAPI('chats/history', {
-        method: 'GET'
-      });
-    } catch (e) {
-      return Promise.reject(e);
-    }
-    return data;
-  }
-
   /**
    * Whether the chat handler is disposed.
    */
@@ -106,23 +96,84 @@ export class ChatHandler implements IDisposable {
     }
   }
 
-  private _onMessage(message: AiService.Message): void {
+  get history(): AiService.ChatHistory {
+    return {
+      messages: this._messages,
+      pending_messages: this._pendingMessages
+    };
+  }
+
+  get historyChanged(): Signal<this, AiService.ChatHistory> {
+    return this._historyChanged;
+  }
+
+  private _onMessage(newMessage: AiService.Message): void {
     // resolve promise from `sendMessage()`
-    if (message.type === 'human' && message.client.id === this.id) {
-      this._sendResolverQueue.shift()?.(message.id);
+    if (newMessage.type === 'human' && newMessage.client.id === this.id) {
+      this._sendResolverQueue.shift()?.(newMessage.id);
     }
 
     // resolve promise from `replyFor()` if it exists
     if (
-      message.type === 'agent' &&
-      message.reply_to in this._replyForResolverDict
+      newMessage.type === 'agent' &&
+      newMessage.reply_to in this._replyForResolverDict
     ) {
-      this._replyForResolverDict[message.reply_to](message);
-      delete this._replyForResolverDict[message.reply_to];
+      this._replyForResolverDict[newMessage.reply_to](newMessage);
+      delete this._replyForResolverDict[newMessage.reply_to];
     }
 
     // call listeners in serial
-    this._listeners.forEach(listener => listener(message));
+    this._listeners.forEach(listener => listener(newMessage));
+
+    // append message to chat history. this block should always set `_messages`
+    // or `_pendingMessages` to a new array instance rather than modifying
+    // in-place so consumer React components re-render.
+    switch (newMessage.type) {
+      case 'connection':
+        break;
+      case 'clear':
+        this._messages = [];
+        break;
+      case 'pending':
+        this._pendingMessages = [...this._pendingMessages, newMessage];
+        break;
+      case 'close-pending':
+        this._pendingMessages = this._pendingMessages.filter(
+          p => p.id !== newMessage.id
+        );
+        break;
+      case 'agent-stream-chunk': {
+        const target = newMessage.id;
+        const streamMessage = this._messages.find<AiService.AgentStreamMessage>(
+          (m): m is AiService.AgentStreamMessage =>
+            m.type === 'agent-stream' && m.id === target
+        );
+        if (!streamMessage) {
+          console.error(
+            `Received stream chunk with ID ${target}, but no agent-stream message with that ID exists. ` +
+              'Ignoring this stream chunk.'
+          );
+          break;
+        }
+
+        streamMessage.body += newMessage.content;
+        if (newMessage.stream_complete) {
+          streamMessage.complete = true;
+        }
+        this._messages = [...this._messages];
+        break;
+      }
+      default:
+        // human or agent chat message
+        this._messages = [...this._messages, newMessage];
+        break;
+    }
+
+    // finally, trigger `historyChanged` signal
+    this._historyChanged.emit({
+      messages: this._messages,
+      pending_messages: this._pendingMessages
+    });
   }
 
   /**
@@ -173,6 +224,11 @@ export class ChatHandler implements IDisposable {
           return;
         }
         this.id = message.client_id;
+
+        // initialize chat history from `ConnectionMessage`
+        this._messages = message.history.messages;
+        this._pendingMessages = message.history.pending_messages;
+
         resolve();
         this.removeListener(listenForConnection);
       };
@@ -184,4 +240,17 @@ export class ChatHandler implements IDisposable {
   private _isDisposed = false;
   private _socket: WebSocket | null = null;
   private _listeners: ((msg: any) => void)[] = [];
+
+  /**
+   * The list of chat messages
+   */
+  private _messages: AiService.ChatMessage[] = [];
+  private _pendingMessages: AiService.PendingMessage[] = [];
+
+  /**
+   * Signal for when the chat history is changed. Components rendering the chat
+   * history should subscribe to this signal and update their state when this
+   * signal is triggered.
+   */
+  private _historyChanged = new Signal<this, AiService.ChatHistory>(this);
 }
