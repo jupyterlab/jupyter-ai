@@ -135,5 +135,3 @@ dev.sh
 
 .conda/
 
-# reserved for testing cookiecutter
-packages/jupyter-ai-test
