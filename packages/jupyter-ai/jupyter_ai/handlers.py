@@ -221,12 +221,12 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
             chunk: AgentStreamChunkMessage = message
 
             # iterate backwards from the end of the list
-            for i in range(len(self.chat_history) - 1, -1, -1):
+            for history_message in self.chat_history[::-1]:
                 if (
-                    self.chat_history[i].type == "agent-stream"
-                    and self.chat_history[i].id == chunk.id
+                    history_message.type == "agent-stream"
+                    and history_message.id == chunk.id
                 ):
-                    stream_message: AgentStreamMessage = self.chat_history[i]
+                    stream_message: AgentStreamMessage = history_message
                     stream_message.body += chunk.content
                     stream_message.complete = chunk.stream_complete
                     break
