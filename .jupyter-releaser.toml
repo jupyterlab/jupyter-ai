@@ -2,15 +2,17 @@
 before-build-npm = [
     "python -m pip install jupyterlab~=4.0",
     "jlpm",
-    "jlpm build:prod"
+    "jlpm build:prod",
 ]
-before-build-python = [
-    "jlpm clean:all"
-]
+before-build-python = ["jlpm clean:all"]
 
 [options]
 version-cmd = "../../scripts/bump-version.sh"
 python_packages = [
     "packages/jupyter-ai:jupyter-ai",
-    "packages/jupyter-ai-magics:jupyter-ai-magics"
+    "packages/jupyter-ai-magics:jupyter-ai-magics",
 ]
+
+# this is set to skip validation of pyproject.toml by default
+# otherwise, check-release fails because the bumped dependency on `jupyter-ai-magics` does not exist in PyPI
+pydist_extra_check_cmds = []
