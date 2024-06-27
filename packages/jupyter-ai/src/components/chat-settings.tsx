@@ -354,6 +354,7 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
         <RendermimeMarkdown
           rmRegistry={props.rmRegistry}
           markdownStr={chatHelpMarkdown}
+          complete
         />
       )}
       {lmGlobalId && (
@@ -448,6 +449,7 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
         <RendermimeMarkdown
           rmRegistry={props.rmRegistry}
           markdownStr={completionHelpMarkdown}
+          complete
         />
       )}
       {clmGlobalId && (

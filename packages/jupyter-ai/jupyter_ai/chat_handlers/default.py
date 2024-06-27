@@ -1,10 +1,17 @@
-from typing import Dict, List, Type
+import time
+from typing import Dict, Type
+from uuid import uuid4
 
-from jupyter_ai.models import ChatMessage, ClearMessage, HumanChatMessage
+from jupyter_ai.models import (
+    AgentStreamChunkMessage,
+    AgentStreamMessage,
+    HumanChatMessage,
+)
 from jupyter_ai_magics.providers import BaseProvider
-from langchain.chains import ConversationChain, LLMChain
-from langchain.memory import ConversationBufferWindowMemory
+from langchain_core.messages import AIMessageChunk
+from langchain_core.runnables.history import RunnableWithMessageHistory
 
+from ..history import BoundedChatHistory
 from .base import BaseChatHandler, SlashCommandRoutingType
 
 
@@ -18,12 +25,12 @@ class DefaultChatHandler(BaseChatHandler):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.memory = ConversationBufferWindowMemory(return_messages=True, k=2)
 
     def create_llm_chain(
         self, provider: Type[BaseProvider], provider_params: Dict[str, str]
     ):
         unified_parameters = {
+            "verbose": True,
             **provider_params,
             **(self.get_model_parameters(provider, provider_params)),
         }
@@ -31,22 +38,87 @@ class DefaultChatHandler(BaseChatHandler):
 
         prompt_template = llm.get_chat_prompt_template()
         self.llm = llm
-        self.memory = ConversationBufferWindowMemory(
-            return_messages=llm.is_chat_provider, k=2
+
+        runnable = prompt_template | llm
+        if not llm.manages_history:
+            history = BoundedChatHistory(k=2)
+            runnable = RunnableWithMessageHistory(
+                runnable=runnable,
+                get_session_history=lambda *args: history,
+                input_messages_key="input",
+                history_messages_key="history",
+            )
+
+        self.llm_chain = runnable
+
+    def _start_stream(self, human_msg: HumanChatMessage) -> str:
+        """
+        Sends an `agent-stream` message to indicate the start of a response
+        stream. Returns the ID of the message, denoted as the `stream_id`.
+        """
+        stream_id = uuid4().hex
+        stream_msg = AgentStreamMessage(
+            id=stream_id,
+            time=time.time(),
+            body="",
+            reply_to=human_msg.id,
+            persona=self.persona,
+            complete=False,
         )
 
-        if llm.manages_history:
-            self.llm_chain = LLMChain(llm=llm, prompt=prompt_template, verbose=True)
+        for handler in self._root_chat_handlers.values():
+            if not handler:
+                continue
 
-        else:
-            self.llm_chain = ConversationChain(
-                llm=llm, prompt=prompt_template, verbose=True, memory=self.memory
-            )
+            handler.broadcast_message(stream_msg)
+            break
+
+        return stream_id
+
+    def _send_stream_chunk(self, stream_id: str, content: str, complete: bool = False):
+        """
+        Sends an `agent-stream-chunk` message containing content that should be
+        appended to an existing `agent-stream` message with ID `stream_id`.
+        """
+        stream_chunk_msg = AgentStreamChunkMessage(
+            id=stream_id, content=content, stream_complete=complete
+        )
+
+        for handler in self._root_chat_handlers.values():
+            if not handler:
+                continue
+
+            handler.broadcast_message(stream_chunk_msg)
+            break
 
     async def process_message(self, message: HumanChatMessage):
         self.get_llm_chain()
-        with self.pending("Generating response"):
-            response = await self.llm_chain.apredict(
-                input=message.body, stop=["\nHuman:"]
-            )
-        self.reply(response, message)
+        received_first_chunk = False
+
+        # start with a pending message
+        pending_message = self.start_pending("Generating response")
+
+        # stream response in chunks. this works even if a provider does not
+        # implement streaming, as `astream()` defaults to yielding `_call()`
+        # when `_stream()` is not implemented on the LLM class.
+        async for chunk in self.llm_chain.astream(
+            {"input": message.body},
+            config={"configurable": {"session_id": "static_session"}},
+        ):
+            if not received_first_chunk:
+                # when receiving the first chunk, close the pending message and
+                # start the stream.
+                self.close_pending(pending_message)
+                stream_id = self._start_stream(human_msg=message)
+                received_first_chunk = True
+
+            if isinstance(chunk, AIMessageChunk):
+                self._send_stream_chunk(stream_id, chunk.content)
+            elif isinstance(chunk, str):
+                self._send_stream_chunk(stream_id, chunk)
+            else:
+                self.log.error(f"Unrecognized type of chunk yielded: {type(chunk)}")
+                break
+
+        # complete stream after all chunks have been streamed
+        self._send_stream_chunk(stream_id, "", complete=True)

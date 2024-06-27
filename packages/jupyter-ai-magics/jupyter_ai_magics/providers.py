@@ -19,7 +19,6 @@ from typing import (
 )
 
 from jsonpath_ng import parse
-from langchain.chat_models.base import BaseChatModel
 from langchain.prompts import (
     ChatPromptTemplate,
     HumanMessagePromptTemplate,
@@ -42,6 +41,8 @@ from langchain_community.llms import (
     Together,
 )
 from langchain_community.llms.sagemaker_endpoint import LLMContentHandler
+from langchain_core.language_models.chat_models import BaseChatModel
+from langchain_core.language_models.llms import BaseLLM
 
 # this is necessary because `langchain.pydantic_v1.main` does not include
 # `ModelMetaclass`, as it is not listed in `__all__` by the `pydantic.main`
@@ -447,6 +448,24 @@ class BaseProvider(BaseModel, metaclass=ProviderMetaclass):
     @property
     def allows_concurrency(self):
         return True
+
+    @property
+    def _supports_sync_streaming(self):
+        if self.is_chat_provider:
+            return not (self.__class__._stream is BaseChatModel._stream)
+        else:
+            return not (self.__class__._stream is BaseLLM._stream)
+
+    @property
+    def _supports_async_streaming(self):
+        if self.is_chat_provider:
+            return not (self.__class__._astream is BaseChatModel._astream)
+        else:
+            return not (self.__class__._astream is BaseLLM._astream)
+
+    @property
+    def supports_streaming(self):
+        return self._supports_sync_streaming or self._supports_async_streaming
 
     async def generate_inline_completions(
         self, request: InlineCompletionRequest
