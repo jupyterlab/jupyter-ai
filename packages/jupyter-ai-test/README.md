@@ -1,8 +1,8 @@
 # jupyter_ai_test
 
-`jupyter_ai_test` is a Jupyter AI module, a package
-that registers additional model providers and slash commands for the Jupyter AI
-extension.
+`jupyter_ai_test` is a Jupyter AI module that registers additional model
+providers and slash commands for testing Jupyter AI in a local development
+environment. This package should never published on NPM or PyPI.
 
 ## Requirements
 
