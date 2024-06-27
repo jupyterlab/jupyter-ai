@@ -8,7 +8,6 @@ from jupyter_ai.models import (
     HumanChatMessage,
 )
 from jupyter_ai_magics.providers import BaseProvider
-from langchain.memory import ConversationBufferWindowMemory
 from langchain_core.messages import AIMessageChunk
 from langchain_core.runnables.history import RunnableWithMessageHistory
 
@@ -39,9 +38,6 @@ class DefaultChatHandler(BaseChatHandler):
 
         prompt_template = llm.get_chat_prompt_template()
         self.llm = llm
-        self.memory = ConversationBufferWindowMemory(
-            return_messages=llm.is_chat_provider, k=2
-        )
 
         runnable = prompt_template | llm
         if not llm.manages_history:
