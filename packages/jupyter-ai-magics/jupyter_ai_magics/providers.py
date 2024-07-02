@@ -730,7 +730,6 @@ class HfHubProvider(BaseProvider, HuggingFaceEndpoint):
         return await self._call_in_executor(*args, **kwargs)
 
 
-
 class OllamaProvider(BaseProvider, Ollama):
     id = "ollama"
     name = "Ollama"
@@ -807,6 +806,7 @@ class OllamaProvider(BaseProvider, Ollama):
             return self._chat(messages=messages, **kwargs)
         else:
             raise ValueError("Either 'prompt' or 'messages' must be provided.")
+
 
 class JsonContentHandler(LLMContentHandler):
     content_type = "application/json"
