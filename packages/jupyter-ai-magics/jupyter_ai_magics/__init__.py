@@ -6,6 +6,7 @@ from .embedding_providers import (
     BedrockEmbeddingsProvider,
     GPT4AllEmbeddingsProvider,
     HfHubEmbeddingsProvider,
+    OllamaEmbeddingsProvider,
     QianfanEmbeddingsEndpointProvider,
 )
 from .exception import store_exception
@@ -23,6 +24,7 @@ from .providers import (
     BedrockProvider,
     GPT4AllProvider,
     HfHubProvider,
+    OllamaProvider,
     QianfanProvider,
     SmEndpointProvider,
     TogetherAIProvider,
