@@ -4,7 +4,6 @@ from ._version import __version__
 from .embedding_providers import (
     BaseEmbeddingsProvider,
     BedrockEmbeddingsProvider,
-    CohereEmbeddingsProvider,
     GPT4AllEmbeddingsProvider,
     HfHubEmbeddingsProvider,
     OllamaEmbeddingsProvider,
@@ -23,7 +22,6 @@ from .providers import (
     BaseProvider,
     BedrockChatProvider,
     BedrockProvider,
-    CohereProvider,
     GPT4AllProvider,
     HfHubProvider,
     OllamaProvider,

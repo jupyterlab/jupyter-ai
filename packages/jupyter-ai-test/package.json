@@ -1,7 +1,7 @@
 {
-  "name": "@jupyter-ai/magics",
+  "name": "@jupyter-ai/test",
   "version": "2.18.1",
-  "description": "Jupyter AI magics Python package. Not published on NPM.",
+  "description": "Jupyter AI test package. Not published on NPM or PyPI.",
   "private": true,
   "homepage": "https://github.com/jupyterlab/jupyter-ai",
   "bugs": {
@@ -18,8 +18,8 @@
     "url": "https://github.com/jupyterlab/jupyter-ai.git"
   },
   "scripts": {
-    "dev-install": "pip install -e \".[dev,all]\"",
-    "dev-uninstall": "pip uninstall jupyter_ai_magics -y",
+    "dev-install": "pip install -e .",
+    "dev-uninstall": "pip uninstall jupyter_ai_test -y",
     "install-from-src": "pip install ."
   }
 }

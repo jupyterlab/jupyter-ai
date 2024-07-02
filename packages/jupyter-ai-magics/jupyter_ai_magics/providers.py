@@ -20,7 +20,6 @@ from typing import (
 
 import requests
 from jsonpath_ng import parse
-from langchain.chat_models.base import BaseChatModel
 from langchain.prompts import (
     ChatPromptTemplate,
     HumanMessagePromptTemplate,
@@ -37,7 +36,6 @@ from langchain_community.chat_models import BedrockChat, QianfanChatEndpoint
 from langchain_community.llms import (
     AI21,
     Bedrock,
-    Cohere,
     GPT4All,
     HuggingFaceEndpoint,
     Ollama,
@@ -45,6 +43,8 @@ from langchain_community.llms import (
     Together,
 )
 from langchain_community.llms.sagemaker_endpoint import LLMContentHandler
+from langchain_core.language_models.chat_models import BaseChatModel
+from langchain_core.language_models.llms import BaseLLM
 
 # this is necessary because `langchain.pydantic_v1.main` does not include
 # `ModelMetaclass`, as it is not listed in `__all__` by the `pydantic.main`
@@ -451,6 +451,24 @@ class BaseProvider(BaseModel, metaclass=ProviderMetaclass):
     def allows_concurrency(self):
         return True
 
+    @property
+    def _supports_sync_streaming(self):
+        if self.is_chat_provider:
+            return not (self.__class__._stream is BaseChatModel._stream)
+        else:
+            return not (self.__class__._stream is BaseLLM._stream)
+
+    @property
+    def _supports_async_streaming(self):
+        if self.is_chat_provider:
+            return not (self.__class__._astream is BaseChatModel._astream)
+        else:
+            return not (self.__class__._astream is BaseLLM._astream)
+
+    @property
+    def supports_streaming(self):
+        return self._supports_sync_streaming or self._supports_async_streaming
+
     async def generate_inline_completions(
         self, request: InlineCompletionRequest
     ) -> InlineCompletionReply:
@@ -546,26 +564,6 @@ class AI21Provider(BaseProvider, AI21):
         if isinstance(e, ValueError):
             return "status code 401" in str(e)
         return False
-
-
-class CohereProvider(BaseProvider, Cohere):
-    id = "cohere"
-    name = "Cohere"
-    # Source: https://docs.cohere.com/reference/generate; https://docs.cohere.com/docs/models
-    models = [
-        "command",
-        "command-nightly",
-        "command-light",
-        "command-light-nightly",
-        "command-r-plus",
-        "command-r",
-    ]
-    model_id_key = "model"
-    pypi_package_deps = ["cohere"]
-    auth_strategy = EnvAuthStrategy(name="COHERE_API_KEY")
-
-    async def _acall(self, *args, **kwargs) -> Coroutine[Any, Any, str]:
-        return await self._call_in_executor(*args, **kwargs)
 
 
 class GPT4AllProvider(BaseProvider, GPT4All):

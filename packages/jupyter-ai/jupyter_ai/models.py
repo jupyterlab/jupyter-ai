@@ -69,6 +69,20 @@ class AgentChatMessage(BaseModel):
     """
 
 
+class AgentStreamMessage(AgentChatMessage):
+    type: Literal["agent-stream"] = "agent-stream"
+    complete: bool
+    # other attrs inherited from `AgentChatMessage`
+
+
+class AgentStreamChunkMessage(BaseModel):
+    type: Literal["agent-stream-chunk"] = "agent-stream-chunk"
+    id: str
+    content: str
+    stream_complete: bool
+    """Indicates whether this chunk message completes the referenced stream."""
+
+
 class HumanChatMessage(BaseModel):
     type: Literal["human"] = "human"
     id: str
@@ -76,11 +90,6 @@ class HumanChatMessage(BaseModel):
     body: str
     client: ChatClient
     selection: Optional[Selection]
-
-
-class ConnectionMessage(BaseModel):
-    type: Literal["connection"] = "connection"
-    client_id: str
 
 
 class ClearMessage(BaseModel):
@@ -105,7 +114,22 @@ class ClosePendingMessage(BaseModel):
 ChatMessage = Union[
     AgentChatMessage,
     HumanChatMessage,
+    AgentStreamMessage,
 ]
+
+
+class ChatHistory(BaseModel):
+    """History of chat messages"""
+
+    messages: List[ChatMessage]
+    pending_messages: List[PendingMessage]
+
+
+class ConnectionMessage(BaseModel):
+    type: Literal["connection"] = "connection"
+    client_id: str
+    history: ChatHistory
+
 
 Message = Union[
     AgentChatMessage,
@@ -115,12 +139,6 @@ Message = Union[
     PendingMessage,
     ClosePendingMessage,
 ]
-
-
-class ChatHistory(BaseModel):
-    """History of chat messages"""
-
-    messages: List[ChatMessage]
 
 
 class ListProvidersEntry(BaseModel):

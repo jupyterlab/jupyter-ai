@@ -7,8 +7,6 @@ node_modules/
 .ipynb_checkpoints
 *.tsbuildinfo
 jupyter_ai/labextension
-# Version file is handled by hatchling
-jupyter_ai/_version.py
 
 # Integration tests
 ui-tests/test-results/

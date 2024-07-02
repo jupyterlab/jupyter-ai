@@ -2,6 +2,28 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 2.18.1
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.18.0...37dc8ecdffedf8763e9fabfdd2769520a7af3885))
+
+### Enhancements made
+
+- Add claude sonnet 3.5 models [#847](https://github.com/jupyterlab/jupyter-ai/pull/847) ([@srdas](https://github.com/srdas))
+- Update `clear` slash command to use `HelpChatHandler` to reinstate the help menu [#846](https://github.com/jupyterlab/jupyter-ai/pull/846) ([@srdas](https://github.com/srdas))
+
+### Bugs fixed
+
+- Fix send via keyboard after sending slash command with arguments [#850](https://github.com/jupyterlab/jupyter-ai/pull/850) ([@dlqqq](https://github.com/dlqqq))
+- Fix Cohere models by using new `langchain-cohere` partner package [#848](https://github.com/jupyterlab/jupyter-ai/pull/848) ([@dlqqq](https://github.com/dlqqq))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-06-20&to=2024-06-21&type=c))
+
+[@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2024-06-20..2024-06-21&type=Issues) | [@srdas](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2024-06-20..2024-06-21&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 2.18.0
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.17.0...698ee8e5994da2b9af3cef90396cf9ed5fd65064))
@@ -26,8 +48,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-06-12&to=2024-06-19&type=c))
 
 [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2024-06-12..2024-06-19&type=Issues) | [@JasonWeill](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AJasonWeill+updated%3A2024-06-12..2024-06-19&type=Issues) | [@jtpio](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ajtpio+updated%3A2024-06-12..2024-06-19&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2024-06-12..2024-06-19&type=Issues) | [@michaelchia](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Amichaelchia+updated%3A2024-06-12..2024-06-19&type=Issues) | [@srdas](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2024-06-12..2024-06-19&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 2.17.0
 

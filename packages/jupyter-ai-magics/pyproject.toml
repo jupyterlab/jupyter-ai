@@ -36,15 +36,15 @@ test = ["coverage", "pytest", "pytest-asyncio", "pytest-cov"]
 
 all = [
     "ai21",
-    "cohere>4.40,<5",
     "gpt4all",
     "huggingface_hub",
     "ipywidgets",
     "langchain_anthropic",
-    "langchain-mistralai",
+    "langchain_cohere",
+    "langchain_google_genai",
+    "langchain_mistralai",
     "langchain_nvidia_ai_endpoints",
-    "langchain-google-genai",
-    "langchain-openai",
+    "langchain_openai",
     "pillow",
     "boto3",
     "qianfan",
@@ -55,7 +55,7 @@ all = [
 ai21 = "jupyter_ai_magics:AI21Provider"
 anthropic = "jupyter_ai_magics.partner_providers.anthropic:AnthropicProvider"
 anthropic-chat = "jupyter_ai_magics.partner_providers.anthropic:ChatAnthropicProvider"
-cohere = "jupyter_ai_magics:CohereProvider"
+cohere = "jupyter_ai_magics.partner_providers.cohere:CohereProvider"
 gpt4all = "jupyter_ai_magics:GPT4AllProvider"
 huggingface_hub = "jupyter_ai_magics:HfHubProvider"
 ollama = "jupyter_ai_magics:OllamaProvider"
@@ -73,7 +73,7 @@ mistralai = "jupyter_ai_magics.partner_providers.mistralai:MistralAIProvider"
 
 [project.entry-points."jupyter_ai.embeddings_model_providers"]
 bedrock = "jupyter_ai_magics:BedrockEmbeddingsProvider"
-cohere = "jupyter_ai_magics:CohereEmbeddingsProvider"
+cohere = "jupyter_ai_magics.partner_providers.cohere:CohereEmbeddingsProvider"
 mistralai = "jupyter_ai_magics.partner_providers.mistralai:MistralAIEmbeddingsProvider"
 gpt4all = "jupyter_ai_magics:GPT4AllEmbeddingsProvider"
 huggingface_hub = "jupyter_ai_magics:HfHubEmbeddingsProvider"

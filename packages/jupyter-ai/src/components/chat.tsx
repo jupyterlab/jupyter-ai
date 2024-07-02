@@ -38,10 +38,12 @@ function ChatBody({
   setChatView: chatViewHandler,
   rmRegistry: renderMimeRegistry
 }: ChatBodyProps): JSX.Element {
-  const [messages, setMessages] = useState<AiService.ChatMessage[]>([]);
+  const [messages, setMessages] = useState<AiService.ChatMessage[]>([
+    ...chatHandler.history.messages
+  ]);
   const [pendingMessages, setPendingMessages] = useState<
     AiService.PendingMessage[]
-  >([]);
+  >([...chatHandler.history.pending_messages]);
   const [showWelcomeMessage, setShowWelcomeMessage] = useState<boolean>(false);
   const [includeSelection, setIncludeSelection] = useState(true);
   const [replaceSelection, setReplaceSelection] = useState(false);
@@ -50,17 +52,13 @@ function ChatBody({
   const [sendWithShiftEnter, setSendWithShiftEnter] = useState(true);
 
   /**
-   * Effect: fetch history and config on initial render
+   * Effect: fetch config on initial render
    */
   useEffect(() => {
-    async function fetchHistory() {
+    async function fetchConfig() {
       try {
-        const [history, config] = await Promise.all([
-          chatHandler.getHistory(),
-          AiService.getConfig()
-        ]);
+        const config = await AiService.getConfig();
         setSendWithShiftEnter(config.send_with_shift_enter ?? false);
-        setMessages(history.messages);
         if (!config.model_provider_id) {
           setShowWelcomeMessage(true);
         }
@@ -69,37 +67,22 @@ function ChatBody({
       }
     }
 
-    fetchHistory();
+    fetchConfig();
   }, [chatHandler]);
 
   /**
    * Effect: listen to chat messages
    */
   useEffect(() => {
-    function handleChatEvents(message: AiService.Message) {
-      switch (message.type) {
-        case 'connection':
-          return;
-        case 'clear':
-          setMessages([]);
-          return;
-        case 'pending':
-          setPendingMessages(pendingMessages => [...pendingMessages, message]);
-          return;
-        case 'close-pending':
-          setPendingMessages(pendingMessages =>
-            pendingMessages.filter(p => p.id !== message.id)
-          );
-          return;
-        default:
-          setMessages(messageGroups => [...messageGroups, message]);
-          return;
-      }
+    function onHistoryChange(_: unknown, history: AiService.ChatHistory) {
+      setMessages([...history.messages]);
+      setPendingMessages([...history.pending_messages]);
     }
 
-    chatHandler.addListener(handleChatEvents);
+    chatHandler.historyChanged.connect(onHistoryChange);
+
     return function cleanup() {
-      chatHandler.removeListener(handleChatEvents);
+      chatHandler.historyChanged.disconnect(onHistoryChange);
     };
   }, [chatHandler]);
 

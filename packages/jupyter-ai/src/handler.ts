@@ -109,6 +109,7 @@ export namespace AiService {
   export type ConnectionMessage = {
     type: 'connection';
     client_id: string;
+    history: ChatHistory;
   };
 
   export type ClearMessage = {
@@ -129,17 +130,36 @@ export namespace AiService {
     id: string;
   };
 
-  export type ChatMessage = AgentChatMessage | HumanChatMessage;
+  export type AgentStreamMessage = Omit<AgentChatMessage, 'type'> & {
+    type: 'agent-stream';
+    complete: boolean;
+  };
+
+  export type AgentStreamChunkMessage = {
+    type: 'agent-stream-chunk';
+    id: string;
+    content: string;
+    stream_complete: boolean;
+  };
+
+  export type ChatMessage =
+    | AgentChatMessage
+    | HumanChatMessage
+    | AgentStreamMessage;
+
   export type Message =
     | AgentChatMessage
     | HumanChatMessage
     | ConnectionMessage
     | ClearMessage
     | PendingMessage
-    | ClosePendingMessage;
+    | ClosePendingMessage
+    | AgentStreamMessage
+    | AgentStreamChunkMessage;
 
   export type ChatHistory = {
     messages: ChatMessage[];
+    pending_messages: PendingMessage[];
   };
 
   export type DescribeConfigResponse = {
