@@ -7,6 +7,7 @@ from .embedding_providers import (
     CohereEmbeddingsProvider,
     GPT4AllEmbeddingsProvider,
     HfHubEmbeddingsProvider,
+    OllamaEmbeddingsProvider,
     QianfanEmbeddingsEndpointProvider,
 )
 from .exception import store_exception
@@ -25,6 +26,7 @@ from .providers import (
     CohereProvider,
     GPT4AllProvider,
     HfHubProvider,
+    OllamaProvider,
     QianfanProvider,
     SmEndpointProvider,
     TogetherAIProvider,

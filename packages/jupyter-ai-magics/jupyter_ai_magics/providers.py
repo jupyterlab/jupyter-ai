@@ -18,6 +18,7 @@ from typing import (
     Union,
 )
 
+import requests
 from jsonpath_ng import parse
 from langchain.chat_models.base import BaseChatModel
 from langchain.prompts import (
@@ -39,6 +40,7 @@ from langchain_community.llms import (
     Cohere,
     GPT4All,
     HuggingFaceEndpoint,
+    Ollama,
     SagemakerEndpoint,
     Together,
 )
@@ -729,6 +731,84 @@ class HfHubProvider(BaseProvider, HuggingFaceEndpoint):
     async def _acall(self, *args, **kwargs) -> Coroutine[Any, Any, str]:
         return await self._call_in_executor(*args, **kwargs)
 
+
+
+class OllamaProvider(BaseProvider, Ollama):
+    id = "ollama"
+    name = "Ollama"
+    model_id_key = "model"
+    # List of available models
+    models = [
+        "gemma",
+        "gemma2",
+        "llama2",
+        "llama3",
+        "llama3:70b",
+        "phi3",
+        "mistral",
+        "tinyllama",
+        "qwen2",
+        "qwen2:7b",
+        "qwen2:72b",
+    ]
+    # Default base URL for the API
+    base_url = "http://localhost:11434"
+    # Fields for configuring the provider
+    fields = [
+        TextField(
+            key="ollama_api_base", label="Base API URL (optional)", format="text"
+        ),
+    ]
+
+    def __init__(self, **kwargs):
+        # Extract 'ollama_api_base' from kwargs, if not present, it returns None
+        ollama_api_base = kwargs.pop("ollama_api_base", None)
+        # Initialize the parent class with the remaining kwargs
+        super().__init__(**kwargs)
+        # Set the base_url to ollama_api_base if provided, otherwise use the default base_url
+        self.base_url = ollama_api_base or self.base_url
+        # Create a session for making requests
+        self.session = requests.Session()
+
+    def _send_request(self, endpoint: str, data: dict) -> dict:
+        """Send a POST request to the specified Ollama API endpoint."""
+        url = f"{self.base_url}/{endpoint}"
+        print("url is : ", url)
+        try:
+            response = self.session.post(url, json=data)
+            response.raise_for_status()
+            return response.json()
+        except requests.RequestException as e:
+            raise ValueError(f"Error during Ollama API call: {e}") from e
+
+    def _generate(self, prompt: str, model: str = "mistral", stop: list = None) -> str:
+        """Generate text using the /generate endpoint."""
+        data = {
+            "model": model,
+            "prompt": prompt,
+            **({"stop": stop} if stop else {}),
+        }
+        response = self._send_request("api/generate", data)
+        return response.get("response", "")
+
+    def _chat(self, messages: list, model: str = "mistral") -> str:
+        """Chat using the /chat endpoint."""
+        data = {
+            "model": model,
+            "messages": messages,
+        }
+        response = self._send_request("api/chat", data)
+        return response.get("response", "")
+
+    def _call(self, prompt: str = None, messages: list = None, **kwargs) -> str:
+        """Determine which API endpoint to use based on input and call it."""
+        print(self.base_url)
+        if prompt is not None:
+            return self._generate(prompt=prompt, **kwargs)
+        elif messages is not None:
+            return self._chat(messages=messages, **kwargs)
+        else:
+            raise ValueError("Either 'prompt' or 'messages' must be provided.")
 
 class JsonContentHandler(LLMContentHandler):
     content_type = "application/json"

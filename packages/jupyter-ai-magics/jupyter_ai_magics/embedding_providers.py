@@ -13,6 +13,7 @@ from langchain_community.embeddings import (
     CohereEmbeddings,
     GPT4AllEmbeddings,
     HuggingFaceHubEmbeddings,
+    OllamaEmbeddings,
     OpenAIEmbeddings,
     QianfanEmbeddingsEndpoint,
 )
@@ -66,6 +67,25 @@ class BaseEmbeddingsProvider(BaseModel):
             model_kwargs[self.__class__.model_id_key] = kwargs["model_id"]
 
         super().__init__(*args, **kwargs, **model_kwargs)
+
+
+class OllamaEmbeddingsProvider(BaseEmbeddingsProvider, OllamaEmbeddings):
+    id = "ollama"
+    name = "Ollama"
+    models = [
+        "gemma",
+        "gemma2",
+        "llama2",
+        "llama3",
+        "llama3:70b",
+        "phi3",
+        "mistral",
+        "tinyllama",
+        "qwen2",
+        "qwen2:7b",
+        "qwen2:72b",
+    ]
+    model_id_key = "model"
 
 
 class CohereEmbeddingsProvider(BaseEmbeddingsProvider, CohereEmbeddings):
