@@ -267,7 +267,7 @@ class LearnChatHandler(BaseChatHandler):
         for dir in metadata.dirs:
             # TODO: do not relearn directories in serial, but instead
             # concurrently or in parallel
-            await self.learn_dir(dir.path, dir.chunk_size, dir.chunk_overlap)
+            await self.learn_dir(dir.path, dir.chunk_size, dir.chunk_overlap, all_files=False)
 
         self.save()
 
