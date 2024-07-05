@@ -175,7 +175,7 @@ class LearnChatHandler(BaseChatHandler):
         return message
 
     async def learn_dir(
-        self, path: str, chunk_size: int, chunk_overlap: int, all_files: bool
+        self, path: str, chunk_size: int, chunk_overlap: int, all_files: bool=False
     ):
         dask_client: DaskClient = await self.dask_client_future
         splitter_kwargs = {"chunk_size": chunk_size, "chunk_overlap": chunk_overlap}
