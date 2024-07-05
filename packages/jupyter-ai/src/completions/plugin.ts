@@ -49,7 +49,7 @@ type IcPluginSettings = ISettingRegistry.ISettings & {
 type JaiCompletionToken = IJaiCompletionProvider | null;
 
 export const completionPlugin: JupyterFrontEndPlugin<JaiCompletionToken> = {
-  id: 'jupyter_ai:inline-completions',
+  id: '@jupyter-ai/core:inline-completions',
   autoStart: true,
   requires: [
     ICompletionProviderManager,
