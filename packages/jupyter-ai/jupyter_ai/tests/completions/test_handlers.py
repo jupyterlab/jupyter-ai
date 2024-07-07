@@ -98,13 +98,16 @@ async def test_handle_request(inline_handler):
     assert suggestions[0].insertText == "Test response"
 
 
+expected_suggestions_cases = [
+    ("```python\nTest python code\n```", "Test python code"),
+    ("```\ntest\n```\n   \n", "test"),
+    ("```hello```world```", "hello```world"),
+]
+
+
 @pytest.mark.parametrize(
     "response,expected_suggestion",
-    [
-        ("```python\nTest python code\n```", "Test python code"),
-        ("```\ntest\n```\n   \n", "test"),
-        ("```hello```world```", "hello```world"),
-    ],
+    expected_suggestions_cases,
 )
 async def test_handle_request_with_spurious_fragments(response, expected_suggestion):
     inline_handler = MockCompletionHandler(
@@ -126,6 +129,32 @@ async def test_handle_request_with_spurious_fragments(response, expected_suggest
     assert len(suggestions) == 1
     # the suggestion should include insert text from LLM without spurious fragments
     assert suggestions[0].insertText == expected_suggestion
+
+
+@pytest.mark.parametrize(
+    "response,expected_suggestion",
+    expected_suggestions_cases,
+)
+async def test_handle_request_with_spurious_fragments_stream(
+    response, expected_suggestion
+):
+    inline_handler = MockCompletionHandler(
+        lm_provider=MockProvider,
+        lm_provider_params={
+            "model_id": "model",
+            "responses": [response],
+        },
+    )
+    dummy_request = InlineCompletionRequest(
+        number=1, prefix="", suffix="", mime="", stream=True
+    )
+
+    await inline_handler.handle_stream_request(dummy_request)
+    assert len(inline_handler.messages) == 3
+    # the streamed fragment should not include spurious fragments
+    assert inline_handler.messages[1].response.insertText == expected_suggestion
+    # the final state should not include spurious fragments either
+    assert inline_handler.messages[2].response.insertText == expected_suggestion
 
 
 async def test_handle_stream_request():
