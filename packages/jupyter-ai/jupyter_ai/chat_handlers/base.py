@@ -57,6 +57,29 @@ class SlashCommandRoutingType(HandlerRoutingType):
     underscores."""
 
 
+class MarkdownHelpFormatter(argparse.ArgumentDefaultsHelpFormatter):
+    def _get_help_string(self, action):
+        # do not show "(default: False)" for flags as this is assumed
+        if action.const is True:
+            return action.help
+        return super()._get_help_string(action)
+
+    def _format_action_invocation(self, action):
+        if not action.option_strings:
+            return super._format_action_invocation(action)
+        else:
+            option_strings = [f"`{string}`" for string in action.option_strings]
+            if action.nargs == 0:
+                return ", ".join(option_strings)
+            else:
+                default = self._get_default_metavar_for_optional(action)
+                args_string = self._format_args(action, default)
+                return ", ".join(option_strings) + " " + args_string
+
+    def _format_action(self, action):
+        return "- " + super()._format_action(action)
+
+
 class BaseChatHandler:
     """Base ChatHandler class containing shared methods and attributes used by
     multiple chat handler classes."""
@@ -99,7 +122,13 @@ class BaseChatHandler:
         self._root_chat_handlers = root_chat_handlers
         self.model_parameters = model_parameters
         self._chat_history = chat_history
-        self.parser = argparse.ArgumentParser()
+        self.parser = argparse.ArgumentParser(
+            add_help=False, description=self.help, formatter_class=MarkdownHelpFormatter
+        )
+        # the default help would exit; instead implement a custom help
+        self.parser.add_argument(
+            "-h", "--help", action="store_true", help="show this help message"
+        )
         self.root_dir = os.path.abspath(os.path.expanduser(root_dir))
         self.preferred_dir = get_preferred_dir(self.root_dir, preferred_dir)
         self.dask_client_future = dask_client_future

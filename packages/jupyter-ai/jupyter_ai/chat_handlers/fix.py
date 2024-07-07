@@ -78,6 +78,11 @@ class FixChatHandler(BaseChatHandler):
         self.llm_chain = LLMChain(llm=llm, prompt=FIX_PROMPT_TEMPLATE, verbose=True)
 
     async def process_message(self, message: HumanChatMessage):
+        args = self.parse_args(message)
+        if args and args.help:
+            self.reply(self.parser.format_help(), message)
+            return
+
         if not (message.selection and message.selection.type == "cell-with-error"):
             self.reply(
                 "`/fix` requires an active code cell with error output. Please click on a cell with error output and retry.",

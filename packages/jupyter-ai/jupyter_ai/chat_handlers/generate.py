@@ -262,6 +262,11 @@ class GenerateChatHandler(BaseChatHandler):
         return final_path
 
     async def process_message(self, message: HumanChatMessage):
+        args = self.parse_args(message)
+        if args and args.help:
+            self.reply(self.parser.format_help(), message)
+            return
+
         self.get_llm_chain()
 
         # first send a verification message to user
