@@ -280,6 +280,7 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
             {...params}
             fullWidth
             variant="outlined"
+            maxRows={20}
             multiline
             placeholder="Ask Jupyternaut"
             onKeyDown={handleKeyDown}
