@@ -74,7 +74,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
       });
     };
 
-    const inputFocusRequested = new Signal<unknown, void>({});
+    const focusInputSignal = new Signal<unknown, void>({});
 
     let chatWidget: ReactWidget;
     try {
@@ -88,7 +88,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
         completionProvider,
         openInlineCompleterSettings,
         activeCellManager,
-        inputFocusRequested
+        focusInputSignal
       );
     } catch (e) {
       chatWidget = buildErrorWidget(themeManager);
@@ -107,7 +107,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
     app.commands.addCommand(CommandIDs.focusChatInput, {
       execute: () => {
         app.shell.activateById(chatWidget.id);
-        inputFocusRequested.emit();
+        focusInputSignal.emit();
       },
       label: 'Focus the jupyter-ai chat'
     });

@@ -21,7 +21,7 @@ export function buildChatSidebar(
   completionProvider: IJaiCompletionProvider | null,
   openInlineCompleterSettings: () => void,
   activeCellManager: ActiveCellManager,
-  inputFocusRequested: ISignal<unknown, void>
+  focusInputSignal: ISignal<unknown, void>
 ): ReactWidget {
   const ChatWidget = ReactWidget.create(
     <Chat
@@ -33,7 +33,7 @@ export function buildChatSidebar(
       completionProvider={completionProvider}
       openInlineCompleterSettings={openInlineCompleterSettings}
       activeCellManager={activeCellManager}
-      inputFocusRequested={inputFocusRequested}
+      focusInputSignal={focusInputSignal}
     />
   );
   ChatWidget.id = 'jupyter-ai::chat';

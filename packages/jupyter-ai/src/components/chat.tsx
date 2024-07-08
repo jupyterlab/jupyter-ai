@@ -32,12 +32,12 @@ type ChatBodyProps = {
   chatHandler: ChatHandler;
   setChatView: (view: ChatView) => void;
   rmRegistry: IRenderMimeRegistry;
-  inputFocusRequested: ISignal<unknown, void>;
+  focusInputSignal: ISignal<unknown, void>;
 };
 
 function ChatBody({
   chatHandler,
-  inputFocusRequested,
+  focusInputSignal,
   setChatView: chatViewHandler,
   rmRegistry: renderMimeRegistry
 }: ChatBodyProps): JSX.Element {
@@ -165,7 +165,7 @@ function ChatBody({
         onSend={onSend}
         hasSelection={!!textSelection?.text}
         includeSelection={includeSelection}
-        inputFocusRequested={inputFocusRequested}
+        focusInputSignal={focusInputSignal}
         toggleIncludeSelection={() =>
           setIncludeSelection(includeSelection => !includeSelection)
         }
@@ -196,7 +196,7 @@ export type ChatProps = {
   completionProvider: IJaiCompletionProvider | null;
   openInlineCompleterSettings: () => void;
   activeCellManager: ActiveCellManager;
-  inputFocusRequested: ISignal<unknown, void>;
+  focusInputSignal: ISignal<unknown, void>;
 };
 
 enum ChatView {
@@ -249,7 +249,7 @@ export function Chat(props: ChatProps): JSX.Element {
                   chatHandler={props.chatHandler}
                   setChatView={setView}
                   rmRegistry={props.rmRegistry}
-                  inputFocusRequested={props.inputFocusRequested}
+                  focusInputSignal={props.focusInputSignal}
                 />
               )}
               {view === ChatView.Settings && (

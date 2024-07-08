@@ -34,7 +34,7 @@ type ChatInputProps = {
   onSend: (selection?: AiService.Selection) => unknown;
   hasSelection: boolean;
   includeSelection: boolean;
-  inputFocusRequested: ISignal<unknown, void>;
+  focusInputSignal: ISignal<unknown, void>;
   toggleIncludeSelection: () => unknown;
   replaceSelection: boolean;
   toggleReplaceSelection: () => unknown;
@@ -145,9 +145,9 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
         inputRef.current.focus();
       }
     };
-    props.inputFocusRequested.connect(focusInputElement);
+    props.focusInputSignal.connect(focusInputElement);
     return () => {
-      props.inputFocusRequested.disconnect(focusInputElement);
+      props.focusInputSignal.disconnect(focusInputElement);
     };
   }, []);
 
