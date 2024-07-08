@@ -485,7 +485,7 @@ class BaseProvider(BaseModel, metaclass=ProviderMetaclass):
         chain = self._create_completion_chain()
         token = completion.token_from_request(request, 0)
         model_arguments = completion.template_inputs_from_request(request)
-        suggestion = procesed_suggestion = ""
+        suggestion = processed_suggestion = ""
 
         # send an incomplete `InlineCompletionReply`, indicating to the
         # client that LLM output is about to streamed across this connection.
@@ -505,12 +505,12 @@ class BaseProvider(BaseModel, metaclass=ProviderMetaclass):
 
         async for fragment in chain.astream(input=model_arguments):
             suggestion += fragment
-            procesed_suggestion = completion.post_process_suggestion(
+            processed_suggestion = completion.post_process_suggestion(
                 suggestion, request
             )
             yield InlineCompletionStreamChunk(
                 type="stream",
-                response={"insertText": procesed_suggestion, "token": token},
+                response={"insertText": processed_suggestion, "token": token},
                 reply_to=request.number,
                 done=False,
             )
@@ -518,7 +518,7 @@ class BaseProvider(BaseModel, metaclass=ProviderMetaclass):
         # finally, send a message confirming that we are done
         yield InlineCompletionStreamChunk(
             type="stream",
-            response={"insertText": procesed_suggestion, "token": token},
+            response={"insertText": processed_suggestion, "token": token},
             reply_to=request.number,
             done=True,
         )
