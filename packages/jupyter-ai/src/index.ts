@@ -28,7 +28,7 @@ export type DocumentTracker = IWidgetTracker<IDocumentWidget>;
  * Initialization data for the jupyter_ai extension.
  */
 const plugin: JupyterFrontEndPlugin<void> = {
-  id: 'jupyter_ai:plugin',
+  id: '@jupyter-ai/core:plugin',
   autoStart: true,
   optional: [
     IGlobalAwareness,
