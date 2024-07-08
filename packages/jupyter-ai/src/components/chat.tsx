@@ -6,6 +6,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import type { Awareness } from 'y-protocols/awareness';
 import type { IThemeManager } from '@jupyterlab/apputils';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
+import { ISignal } from '@lumino/signaling';
 
 import { JlThemeProvider } from './jl-theme-provider';
 import { ChatMessages } from './chat-messages';
@@ -31,10 +32,12 @@ type ChatBodyProps = {
   chatHandler: ChatHandler;
   setChatView: (view: ChatView) => void;
   rmRegistry: IRenderMimeRegistry;
+  focusInputSignal: ISignal<unknown, void>;
 };
 
 function ChatBody({
   chatHandler,
+  focusInputSignal,
   setChatView: chatViewHandler,
   rmRegistry: renderMimeRegistry
 }: ChatBodyProps): JSX.Element {
@@ -162,6 +165,7 @@ function ChatBody({
         onSend={onSend}
         hasSelection={!!textSelection?.text}
         includeSelection={includeSelection}
+        focusInputSignal={focusInputSignal}
         toggleIncludeSelection={() =>
           setIncludeSelection(includeSelection => !includeSelection)
         }
@@ -192,6 +196,7 @@ export type ChatProps = {
   completionProvider: IJaiCompletionProvider | null;
   openInlineCompleterSettings: () => void;
   activeCellManager: ActiveCellManager;
+  focusInputSignal: ISignal<unknown, void>;
 };
 
 enum ChatView {
@@ -244,6 +249,7 @@ export function Chat(props: ChatProps): JSX.Element {
                   chatHandler={props.chatHandler}
                   setChatView={setView}
                   rmRegistry={props.rmRegistry}
+                  focusInputSignal={props.focusInputSignal}
                 />
               )}
               {view === ChatView.Settings && (
