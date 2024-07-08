@@ -8,7 +8,8 @@
     {
       "command": "jupyter-ai:focus-chat-input",
       "keys": ["Accel Shift 1"],
-      "selector": "body"
+      "selector": "body",
+      "preventDefault": false
     }
   ],
   "additionalProperties": false,
