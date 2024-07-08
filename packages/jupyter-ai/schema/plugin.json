@@ -4,43 +4,6 @@
   "description": "JupyterLab generative artificial intelligence integration.",
   "jupyter.lab.setting-icon": "jupyter-ai::chat",
   "jupyter.lab.setting-icon-label": "Jupyter AI Chat",
-  "jupyter.lab.toolbars": {
-    "Cell": [
-      {
-        "name": "ai:explain-or-codify-cell",
-        "command": "ai:explain-or-codify-cell",
-        "rank": 10
-      }
-    ]
-  },
-  "jupyter.lab.menus": {
-    "context": [
-      {
-        "name": "ai:explain-code-cell",
-        "command": "ai:explain-code-cell",
-        "selector": ".jp-CodeCell",
-        "rank": 500
-      },
-      {
-        "name": "ai:codify-md-cell",
-        "command": "ai:codify-md-cell",
-        "selector": ".jp-MarkdownCell",
-        "rank": 510
-      },
-      {
-        "name": "ai:generate-from-notebook-selection",
-        "command": "ai:generate-from-notebook-selection",
-        "selector": ".jp-NotebookPanel",
-        "rank": 520
-      },
-      {
-        "name": "ai:generate-from-editor-selection",
-        "command": "ai:generate-from-editor-selection",
-        "selector": ".jp-FileEditor",
-        "rank": 520
-      }
-    ]
-  },
   "additionalProperties": false,
   "type": "object"
 }
