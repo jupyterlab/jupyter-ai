@@ -175,7 +175,7 @@ class LearnChatHandler(BaseChatHandler):
         return message
 
     async def learn_dir(
-        self, path: str, chunk_size: int, chunk_overlap: int, all_files: bool
+        self, path: str, chunk_size: int, chunk_overlap: int, all_files: bool = False
     ):
         dask_client: DaskClient = await self.dask_client_future
         splitter_kwargs = {"chunk_size": chunk_size, "chunk_overlap": chunk_overlap}
@@ -267,7 +267,9 @@ class LearnChatHandler(BaseChatHandler):
         for dir in metadata.dirs:
             # TODO: do not relearn directories in serial, but instead
             # concurrently or in parallel
-            await self.learn_dir(dir.path, dir.chunk_size, dir.chunk_overlap)
+            await self.learn_dir(
+                dir.path, dir.chunk_size, dir.chunk_overlap, all_files=False
+            )
 
         self.save()
 
