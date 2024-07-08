@@ -4,6 +4,13 @@
   "description": "JupyterLab generative artificial intelligence integration.",
   "jupyter.lab.setting-icon": "jupyter-ai::chat",
   "jupyter.lab.setting-icon-label": "Jupyter AI Chat",
+  "jupyter.lab.shortcuts": [
+    {
+      "command": "jupyter-ai:focus-chat-input",
+      "keys": ["Accel Shift 1"],
+      "selector": "body"
+    }
+  ],
   "additionalProperties": false,
   "type": "object"
 }
