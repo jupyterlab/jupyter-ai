@@ -66,7 +66,7 @@ class MarkdownHelpFormatter(argparse.ArgumentDefaultsHelpFormatter):
 
     def _format_action_invocation(self, action):
         if not action.option_strings:
-            return super._format_action_invocation(action)
+            return super()._format_action_invocation(action)
         else:
             option_strings = [f"`{string}`" for string in action.option_strings]
             if action.nargs == 0:
