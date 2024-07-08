@@ -2279,6 +2279,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@jupyter-ai/test@workspace:packages/jupyter-ai-test":
+  version: 0.0.0-use.local
+  resolution: "@jupyter-ai/test@workspace:packages/jupyter-ai-test"
+  languageName: unknown
+  linkType: soft
+
 "@jupyter/collaboration@npm:^1":
   version: 1.2.1
   resolution: "@jupyter/collaboration@npm:1.2.1"

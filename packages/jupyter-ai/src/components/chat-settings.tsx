@@ -93,13 +93,12 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
     props.completionProvider && props.completionProvider.isEnabled()
   );
 
-  const refreshCompleterState = () => {
-    setIsCompleterEnabled(
-      props.completionProvider && props.completionProvider.isEnabled()
-    );
-  };
-
   useEffect(() => {
+    const refreshCompleterState = () => {
+      setIsCompleterEnabled(
+        props.completionProvider && props.completionProvider.isEnabled()
+      );
+    };
     props.completionProvider?.settingsChanged.connect(refreshCompleterState);
     return () => {
       props.completionProvider?.settingsChanged.disconnect(
@@ -354,6 +353,7 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
         <RendermimeMarkdown
           rmRegistry={props.rmRegistry}
           markdownStr={chatHelpMarkdown}
+          complete
         />
       )}
       {lmGlobalId && (
@@ -448,6 +448,7 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
         <RendermimeMarkdown
           rmRegistry={props.rmRegistry}
           markdownStr={completionHelpMarkdown}
+          complete
         />
       )}
       {clmGlobalId && (

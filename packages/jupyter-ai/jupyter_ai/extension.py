@@ -222,6 +222,9 @@ class AiExtension(ExtensionApp):
         # memory object used by the LM chain.
         self.settings["chat_history"] = []
 
+        # list of pending messages
+        self.settings["pending_messages"] = []
+
         # get reference to event loop
         # `asyncio.get_event_loop()` is deprecated in Python 3.11+, in favor of
         # the more readable `asyncio.get_event_loop_policy().get_event_loop()`.
