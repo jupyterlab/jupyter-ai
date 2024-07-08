@@ -107,7 +107,6 @@ class BaseChatHandler:
         self.llm_params = None
         self.llm_chain = None
 
-
     async def on_message(self, message: HumanChatMessage):
         """
         Method which receives a human message, calls `self.get_llm_chain()`, and
