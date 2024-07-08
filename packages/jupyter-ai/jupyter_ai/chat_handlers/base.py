@@ -126,9 +126,10 @@ class BaseChatHandler:
             add_help=False, description=self.help, formatter_class=MarkdownHelpFormatter
         )
         # the default help would exit; instead implement a custom help
-        self.parser.add_argument(
-            "-h", "--help", action="store_true", help="show this help message"
-        )
+        if not self.__class__.id == "help":
+            self.parser.add_argument(
+                "-h", "--help", action="store_true", help="show this help message"
+            )
         self.root_dir = os.path.abspath(os.path.expanduser(root_dir))
         self.preferred_dir = get_preferred_dir(self.root_dir, preferred_dir)
         self.dask_client_future = dask_client_future
