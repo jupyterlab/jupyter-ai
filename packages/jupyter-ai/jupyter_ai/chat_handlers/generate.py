@@ -223,14 +223,9 @@ class GenerateChatHandler(BaseChatHandler):
 
     uses_llm = True
 
-    def __init__(self, preferred_dir: str, log_dir: Optional[str], *args, **kwargs):
+    def __init__(self, log_dir: Optional[str], *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.log_dir = Path(log_dir) if log_dir else None
-        self.preferred_dir = (
-            os.path.abspath(os.path.expanduser(preferred_dir))
-            if preferred_dir != ""
-            else None
-        )
         self.llm = None
 
     def create_llm_chain(
@@ -289,11 +284,4 @@ class GenerateChatHandler(BaseChatHandler):
         response = f"An error occurred while generating the notebook. The error details have been saved to `./{log_path}`.\n\nTry running `/generate` again, as some language models require multiple attempts before a notebook is generated."
         self.reply(response, message)
 
-    @property
-    def _output_dir(self):
-        # preferred dir is preferred, but if it is not specified,
-        # or if user removed it after startup, fallback to root.
-        if self.preferred_dir and os.path.exists(self.preferred_dir):
-            return self.preferred_dir
-        else:
-            return self.root_dir
+    

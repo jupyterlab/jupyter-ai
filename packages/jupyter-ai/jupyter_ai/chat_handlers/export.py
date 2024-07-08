@@ -42,7 +42,7 @@ class ExportChatHandler(BaseChatHandler):
             else f"chat_history-{datetime.now():%Y-%m-%d-%H-%M-%S}.md"
         )  # Handles both empty args and double tap <Enter> key
         chat_file = os.path.join(
-            self.root_dir, chat_filename
+            self._output_dir, chat_filename
         )  # Do not use timestamp if filename is entered as argument
         with open(chat_file, "w") as chat_history:
             chat_history.write(markdown_content)
