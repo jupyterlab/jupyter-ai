@@ -33,6 +33,15 @@ if TYPE_CHECKING:
     from jupyter_ai.handlers import RootChatHandler
 
 
+def get_preferred_dir(root_dir: str, preferred_dir: str) -> str | None:
+    if preferred_dir != "":
+        preferred_dir = os.path.expanduser(preferred_dir)
+        if not preferred_dir.startswith(root_dir):
+            preferred_dir = os.path.join(root_dir, preferred_dir)
+        return os.path.abspath(preferred_dir)
+    return None
+
+
 # Chat handler type, with specific attributes for each
 class HandlerRoutingType(BaseModel):
     routing_method: ClassVar[Union[Literal["slash_command"]]] = ...
@@ -46,18 +55,6 @@ class SlashCommandRoutingType(HandlerRoutingType):
     """Slash ID for routing a chat command to this handler. Only one handler
     may declare a particular slash ID. Must contain only alphanumerics and
     underscores."""
-
-
-def get_preferred_dir(root_dir: str, preferred_dir: str):
-    if preferred_dir != "":
-        preferred_dir = os.path.expanduser(preferred_dir)
-        if not preferred_dir.startswith(root_dir):
-            preferred_dir = os.path.join(root_dir, preferred_dir)
-        return os.path.abspath(preferred_dir)
-    return None
-        
-
-
 
 
 class BaseChatHandler:
