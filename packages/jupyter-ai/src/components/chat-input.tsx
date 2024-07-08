@@ -287,7 +287,10 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
             InputProps={{
               ...params.InputProps,
               endAdornment: (
-                <InputAdornment position="end">
+                <InputAdornment
+                  position="end"
+                  sx={{ height: 'unset', alignSelf: 'flex-end' }}
+                >
                   <SendButton {...sendButtonProps} />
                 </InputAdornment>
               )
