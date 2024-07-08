@@ -105,7 +105,6 @@ class BaseChatHandler:
         self.parser = argparse.ArgumentParser()
         self.root_dir = os.path.abspath(os.path.expanduser(root_dir))
         self.preferred_dir = get_preferred_dir(self.root_dir, preferred_dir)
-        print(self.preferred_dir)
         self.dask_client_future = dask_client_future
         self.llm = None
         self.llm_params = None
