@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import {
   Autocomplete,
@@ -22,6 +22,7 @@ import {
   HideSource,
   AutoFixNormal
 } from '@mui/icons-material';
+import { ISignal } from '@lumino/signaling';
 
 import { AiService } from '../handler';
 import { SendButton, SendButtonProps } from './chat-input/send-button';
@@ -33,6 +34,7 @@ type ChatInputProps = {
   onSend: (selection?: AiService.Selection) => unknown;
   hasSelection: boolean;
   includeSelection: boolean;
+  focusInputSignal: ISignal<unknown, void>;
   toggleIncludeSelection: () => unknown;
   replaceSelection: boolean;
   toggleReplaceSelection: () => unknown;
@@ -130,6 +132,24 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
 
   // controls whether the slash command autocomplete is open
   const [open, setOpen] = useState<boolean>(false);
+
+  // store reference to the input element to enable focusing it easily
+  const inputRef = useRef<HTMLInputElement>();
+
+  /**
+   * Effect: connect the signal emitted on input focus request.
+   */
+  useEffect(() => {
+    const focusInputElement = () => {
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
+    };
+    props.focusInputSignal.connect(focusInputElement);
+    return () => {
+      props.focusInputSignal.disconnect(focusInputElement);
+    };
+  }, []);
 
   /**
    * Effect: Open the autocomplete when the user types a slash into an empty
@@ -284,6 +304,7 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
             multiline
             placeholder="Ask Jupyternaut"
             onKeyDown={handleKeyDown}
+            inputRef={inputRef}
             InputProps={{
               ...params.InputProps,
               endAdornment: (
