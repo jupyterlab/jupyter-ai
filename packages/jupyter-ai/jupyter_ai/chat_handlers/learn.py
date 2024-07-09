@@ -50,20 +50,22 @@ class LearnChatHandler(BaseChatHandler):
             "-a",
             "--all-files",
             action="store_true",
-            help=f"include hidden files, hidden directories, and excluded directories ({excluded_dirs})",
+            help=f"Include hidden files, hidden directories, and excluded directories ({excluded_dirs})",
         )
-        self.parser.add_argument("-v", "--verbose", action="store_true")
+        self.parser.add_argument(
+            "-v", "--verbose", action="store_true", help="Increase verbosity"
+        )
         self.parser.add_argument(
             "-d",
             "--delete",
             action="store_true",
-            help="delete everything previously learned",
+            help="Delete everything previously learned",
         )
         self.parser.add_argument(
             "-l",
             "--list",
             action="store_true",
-            help="list directories previously learned",
+            help="List directories previously learned",
         )
         self.parser.add_argument(
             "-r",
@@ -71,7 +73,7 @@ class LearnChatHandler(BaseChatHandler):
             action="store",
             default=None,
             type=str,
-            help="learn a remote document; currently only *arxiv* is supported",
+            help="Learn a remote document; currently only *arxiv* is supported",
         )
         self.parser.add_argument(
             "-c",
@@ -79,7 +81,7 @@ class LearnChatHandler(BaseChatHandler):
             action="store",
             default=DEFAULT_CHUNK_SIZE,
             type=int,
-            help="max number of characters in chunk",
+            help="Max number of characters in chunk",
         )
         self.parser.add_argument(
             "-o",
@@ -87,7 +89,7 @@ class LearnChatHandler(BaseChatHandler):
             action="store",
             default=DEFAULT_CHUNK_OVERLAP,
             type=int,
-            help="number of characters overlapping between chunks, helpful to ensure text is not split mid-word or mid-sentence",
+            help="Number of characters overlapping between chunks, helpful to ensure text is not split mid-word or mid-sentence",
         )
         self.parser.add_argument("path", nargs=argparse.REMAINDER)
         self.index_name = "default"

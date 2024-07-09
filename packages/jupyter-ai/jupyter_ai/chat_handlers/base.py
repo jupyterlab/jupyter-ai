@@ -128,7 +128,7 @@ class BaseChatHandler:
         # the default help would exit; instead implement a custom help
         if self.__class__.display_arguments_help:
             self.parser.add_argument(
-                "-h", "--help", action="store_true", help="show this help message"
+                "-h", "--help", action="store_true", help="Show this help message"
             )
         self.root_dir = os.path.abspath(os.path.expanduser(root_dir))
         self.preferred_dir = get_preferred_dir(self.root_dir, preferred_dir)
