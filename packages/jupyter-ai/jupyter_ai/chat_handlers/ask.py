@@ -63,13 +63,7 @@ class AskChatHandler(BaseChatHandler):
         args = self.parse_args(message)
         if args is None:
             return
-
-        if args.help:
-            self.reply(self.parser.format_help(), message)
-            return
-
         query = " ".join(args.query)
-
         if not query:
             self.reply(f"{self.parser.format_usage()}", message)
             return
