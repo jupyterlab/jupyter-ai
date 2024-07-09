@@ -68,13 +68,8 @@ class MarkdownHelpFormatter(argparse.ArgumentDefaultsHelpFormatter):
         if not action.option_strings:
             return super()._format_action_invocation(action)
         else:
-            option_strings = [f"`{string}`" for string in action.option_strings]
-            if action.nargs == 0:
-                return ", ".join(option_strings)
-            else:
-                default = self._get_default_metavar_for_optional(action)
-                args_string = self._format_args(action, default)
-                return ", ".join(option_strings) + " " + args_string
+            action_string = super()._format_action_invocation(action)
+            return f"`{action_string}`:"
 
     def _format_action(self, action):
         return "- " + super()._format_action(action)
