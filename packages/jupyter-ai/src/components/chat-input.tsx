@@ -280,13 +280,17 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
             {...params}
             fullWidth
             variant="outlined"
+            maxRows={20}
             multiline
             placeholder="Ask Jupyternaut"
             onKeyDown={handleKeyDown}
             InputProps={{
               ...params.InputProps,
               endAdornment: (
-                <InputAdornment position="end">
+                <InputAdornment
+                  position="end"
+                  sx={{ height: 'unset', alignSelf: 'flex-end' }}
+                >
                   <SendButton {...sendButtonProps} />
                 </InputAdornment>
               )
