@@ -4,7 +4,12 @@ import os
 from typing import Any, Coroutine, List, Optional, Tuple
 
 from dask.distributed import Client as DaskClient
-from jupyter_ai.document_loaders.directory import arxiv_to_text, get_embeddings, split
+from jupyter_ai.document_loaders.directory import (
+    EXCLUDE_DIRS,
+    arxiv_to_text,
+    get_embeddings,
+    split,
+)
 from jupyter_ai.document_loaders.splitter import ExtensionSplitter, NotebookSplitter
 from jupyter_ai.models import (
     DEFAULT_CHUNK_OVERLAP,
@@ -39,16 +44,44 @@ class LearnChatHandler(BaseChatHandler):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        excluded_dirs = ", ".join(EXCLUDE_DIRS)
         self.parser.prog = "/learn"
-        self.parser.add_argument("-a", "--all-files", action="store_true")
-        self.parser.add_argument("-v", "--verbose", action="store_true")
-        self.parser.add_argument("-d", "--delete", action="store_true")
-        self.parser.add_argument("-l", "--list", action="store_true")
         self.parser.add_argument(
-            "-r", "--remote", action="store", default=None, type=str
+            "-a",
+            "--all-files",
+            action="store_true",
+            help=f"Include hidden files, hidden directories, and excluded directories ({excluded_dirs})",
         )
         self.parser.add_argument(
-            "-c", "--chunk-size", action="store", default=DEFAULT_CHUNK_SIZE, type=int
+            "-v", "--verbose", action="store_true", help="Increase verbosity"
+        )
+        self.parser.add_argument(
+            "-d",
+            "--delete",
+            action="store_true",
+            help="Delete everything previously learned",
+        )
+        self.parser.add_argument(
+            "-l",
+            "--list",
+            action="store_true",
+            help="List directories previously learned",
+        )
+        self.parser.add_argument(
+            "-r",
+            "--remote",
+            action="store",
+            default=None,
+            type=str,
+            help="Learn a remote document; currently only *arxiv* is supported",
+        )
+        self.parser.add_argument(
+            "-c",
+            "--chunk-size",
+            action="store",
+            default=DEFAULT_CHUNK_SIZE,
+            type=int,
+            help="Max number of characters in chunk",
         )
         self.parser.add_argument(
             "-o",
@@ -56,6 +89,7 @@ class LearnChatHandler(BaseChatHandler):
             action="store",
             default=DEFAULT_CHUNK_OVERLAP,
             type=int,
+            help="Number of characters overlapping between chunks, helpful to ensure text is not split mid-word or mid-sentence",
         )
         self.parser.add_argument("path", nargs=argparse.REMAINDER)
         self.index_name = "default"

@@ -22,6 +22,7 @@ class DefaultChatHandler(BaseChatHandler):
     routing_type = SlashCommandRoutingType(slash_id=None)
 
     uses_llm = True
+    supports_help = False
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

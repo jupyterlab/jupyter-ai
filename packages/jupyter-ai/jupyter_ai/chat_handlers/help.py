@@ -54,6 +54,7 @@ class HelpChatHandler(BaseChatHandler):
     name = "Help"
     help = "Display this help message"
     routing_type = SlashCommandRoutingType(slash_id="help")
+    supports_help = False
 
     uses_llm = False
 
