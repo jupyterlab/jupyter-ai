@@ -97,7 +97,7 @@ class BaseChatHandler:
     specified by the config. Subclasses should define this. Should be set to
     `False` for handlers like `/help`."""
 
-    display_arguments_help: ClassVar[bool] = True
+    supports_help: ClassVar[bool] = True
     """Class attribute specifying whether this chat handler should
     parse the arguments and display help when user queries with
     `-h` or `--help`"""
@@ -126,7 +126,7 @@ class BaseChatHandler:
             add_help=False, description=self.help, formatter_class=MarkdownHelpFormatter
         )
         # the default help would exit; instead implement a custom help
-        if self.__class__.display_arguments_help:
+        if self.__class__.supports_help:
             self.parser.add_argument(
                 "-h", "--help", action="store_true", help="Show this help message"
             )
@@ -171,7 +171,7 @@ class BaseChatHandler:
 
         BaseChatHandler._requests_count += 1
 
-        if self.__class__.display_arguments_help:
+        if self.__class__.supports_help:
             args = self.parse_args(message, silent=True)
             if args and args.help:
                 self.reply(self.parser.format_help(), message)
