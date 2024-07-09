@@ -118,7 +118,7 @@ class LearnChatHandler(BaseChatHandler):
             if remote_type == "arxiv":
                 try:
                     id = args.path[0]
-                    args.path = [arxiv_to_text(id, self.root_dir)]
+                    args.path = [arxiv_to_text(id, self.output_dir)]
                     self.reply(
                         f"Learning arxiv file with id **{id}**, saved in **{args.path[0]}**.",
                         message,
@@ -142,7 +142,7 @@ class LearnChatHandler(BaseChatHandler):
             self.reply(f"{self.parser.format_usage()}", message)
             return
         short_path = args.path[0]
-        load_path = os.path.join(self.root_dir, short_path)
+        load_path = os.path.join(self.output_dir, short_path)
         if not os.path.exists(load_path):
             response = f"Sorry, that path doesn't exist: {load_path}"
             self.reply(response, message)

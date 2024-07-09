@@ -255,12 +255,12 @@ class AiExtension(ExtensionApp):
             "root_dir": self.serverapp.root_dir,
             "dask_client_future": self.settings["dask_client_future"],
             "model_parameters": self.settings["model_parameters"],
+            "preferred_dir": self.serverapp.contents_manager.preferred_dir,
         }
         default_chat_handler = DefaultChatHandler(**chat_handler_kwargs)
         clear_chat_handler = ClearChatHandler(**chat_handler_kwargs)
         generate_chat_handler = GenerateChatHandler(
             **chat_handler_kwargs,
-            preferred_dir=self.serverapp.contents_manager.preferred_dir,
             log_dir=self.error_logs_dir,
         )
         learn_chat_handler = LearnChatHandler(**chat_handler_kwargs)

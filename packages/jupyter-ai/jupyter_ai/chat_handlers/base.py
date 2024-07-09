@@ -33,6 +33,15 @@ if TYPE_CHECKING:
     from jupyter_ai.handlers import RootChatHandler
 
 
+def get_preferred_dir(root_dir: str, preferred_dir: str) -> str | None:
+    if preferred_dir != "":
+        preferred_dir = os.path.expanduser(preferred_dir)
+        if not preferred_dir.startswith(root_dir):
+            preferred_dir = os.path.join(root_dir, preferred_dir)
+        return os.path.abspath(preferred_dir)
+    return None
+
+
 # Chat handler type, with specific attributes for each
 class HandlerRoutingType(BaseModel):
     routing_method: ClassVar[Union[Literal["slash_command"]]] = ...
@@ -82,6 +91,7 @@ class BaseChatHandler:
         model_parameters: Dict[str, Dict],
         chat_history: List[ChatMessage],
         root_dir: str,
+        preferred_dir: Optional[str],
         dask_client_future: Awaitable[DaskClient],
     ):
         self.log = log
@@ -91,6 +101,7 @@ class BaseChatHandler:
         self._chat_history = chat_history
         self.parser = argparse.ArgumentParser()
         self.root_dir = os.path.abspath(os.path.expanduser(root_dir))
+        self.preferred_dir = get_preferred_dir(self.root_dir, preferred_dir)
         self.dask_client_future = dask_client_future
         self.llm = None
         self.llm_params = None
@@ -302,3 +313,12 @@ class BaseChatHandler:
             self.reply(response, message)
             return None
         return args
+
+    @property
+    def output_dir(self) -> str:
+        # preferred dir is preferred, but if it is not specified,
+        # or if user removed it after startup, fallback to root.
+        if self.preferred_dir and os.path.exists(self.preferred_dir):
+            return self.preferred_dir
+        else:
+            return self.root_dir
