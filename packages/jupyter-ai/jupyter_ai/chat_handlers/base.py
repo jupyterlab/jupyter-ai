@@ -315,7 +315,7 @@ class BaseChatHandler:
         return args
 
     @property
-    def output_dir(self):
+    def output_dir(self) -> str:
         # preferred dir is preferred, but if it is not specified,
         # or if user removed it after startup, fallback to root.
         if self.preferred_dir and os.path.exists(self.preferred_dir):
