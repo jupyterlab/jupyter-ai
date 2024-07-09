@@ -257,7 +257,7 @@ class GenerateChatHandler(BaseChatHandler):
 
         # create and write the notebook to disk
         notebook = create_notebook(outline)
-        final_path = os.path.join(self._output_dir, outline["title"] + ".ipynb")
+        final_path = os.path.join(self.output_dir, outline["title"] + ".ipynb")
         nbformat.write(notebook, final_path)
         return final_path
 
@@ -274,7 +274,7 @@ class GenerateChatHandler(BaseChatHandler):
 
     async def handle_exc(self, e: Exception, message: HumanChatMessage):
         timestamp = time.strftime("%Y-%m-%d-%H.%M.%S")
-        default_log_dir = Path(self._output_dir) / "jupyter-ai-logs"
+        default_log_dir = Path(self.output_dir) / "jupyter-ai-logs"
         log_dir = self.log_dir or default_log_dir
         log_dir.mkdir(parents=True, exist_ok=True)
         log_path = log_dir / f"generate-{timestamp}.log"
