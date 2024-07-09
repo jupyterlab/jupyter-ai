@@ -1,7 +1,7 @@
 from typing import List
 
 from jupyter_ai.chat_handlers.help import build_help_message
-from jupyter_ai.models import ChatMessage, ClearMessage, HumanChatMessage
+from jupyter_ai.models import ChatMessage, ClearMessage
 
 from .base import BaseChatHandler, SlashCommandRoutingType
 
@@ -19,13 +19,7 @@ class ClearChatHandler(BaseChatHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    async def process_message(self, message: HumanChatMessage):
-        args = self.parse_args(message)
-
-        if args and args.help:
-            self.reply(self.parser.format_help(), message)
-            return
-
+    async def process_message(self, _):
         for handler in self._root_chat_handlers.values():
             if not handler:
                 continue

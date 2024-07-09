@@ -32,14 +32,10 @@ class ExportChatHandler(BaseChatHandler):
 
     # Write the chat history to a markdown file with a timestamp
     async def process_message(self, message: HumanChatMessage):
-        args = self.parse_args(message)
-        if args and args.help:
-            self.reply(self.parser.format_help(), message)
-            return
-
         markdown_content = "\n\n".join(
             self.chat_message_to_markdown(msg) for msg in self._chat_history
         )
+        args = self.parse_args(message)
         chat_filename = (  # if no filename, use "chat_history" + timestamp
             args.path[0]
             if (args.path and args.path[0] != "")

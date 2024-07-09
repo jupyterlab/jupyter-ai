@@ -124,20 +124,16 @@ class LearnChatHandler(BaseChatHandler):
             self.log.error(e)
 
     async def process_message(self, message: HumanChatMessage):
-        args = self.parse_args(message)
-        if args is None:
-            return
-
-        if args.help:
-            self.reply(self.parser.format_help(), message)
-            return
-
         # If no embedding provider has been selected
         em_provider_cls, em_provider_args = self.get_embedding_provider()
         if not em_provider_cls:
             self.reply(
                 "Sorry, please select an embedding provider before using the `/learn` command."
             )
+            return
+
+        args = self.parse_args(message)
+        if args is None:
             return
 
         if args.delete:

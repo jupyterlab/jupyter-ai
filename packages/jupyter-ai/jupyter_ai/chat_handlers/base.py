@@ -102,6 +102,11 @@ class BaseChatHandler:
     specified by the config. Subclasses should define this. Should be set to
     `False` for handlers like `/help`."""
 
+    display_arguments_help: ClassVar[bool] = True
+    """Class attribute specifying whether this chat handler should
+    parse the arguments and display help when user queries with
+    `-h` or `--help`"""
+
     _requests_count = 0
     """Class attribute set to the number of requests that Jupyternaut is
     currently handling."""
@@ -126,7 +131,7 @@ class BaseChatHandler:
             add_help=False, description=self.help, formatter_class=MarkdownHelpFormatter
         )
         # the default help would exit; instead implement a custom help
-        if not self.__class__.id == "help":
+        if self.__class__.display_arguments_help:
             self.parser.add_argument(
                 "-h", "--help", action="store_true", help="show this help message"
             )
@@ -170,6 +175,13 @@ class BaseChatHandler:
                 return
 
         BaseChatHandler._requests_count += 1
+
+        if self.__class__.display_arguments_help:
+            args = self.parse_args(message, silent=True)
+            if args and args.help:
+                self.reply(self.parser.format_help(), message)
+                return
+
         try:
             await self.process_message(message)
         except Exception as e:
@@ -334,13 +346,14 @@ class BaseChatHandler:
     ):
         raise NotImplementedError("Should be implemented by subclasses")
 
-    def parse_args(self, message):
+    def parse_args(self, message, silent=False):
         args = message.body.split(" ")
         try:
             args = self.parser.parse_args(args[1:])
         except (argparse.ArgumentError, SystemExit) as e:
-            response = f"{self.parser.format_usage()}"
-            self.reply(response, message)
+            if not silent:
+                response = f"{self.parser.format_usage()}"
+                self.reply(response, message)
             return None
         return args
 
