@@ -97,10 +97,12 @@ class LearnChatHandler(BaseChatHandler):
         self.metadata = IndexMetadata(dirs=[])
         self.prev_em_id = None
 
+        self._ensure_dirs()
+        self._load()
+
+    def _ensure_dirs(self):
         if not os.path.exists(INDEX_SAVE_DIR):
             os.makedirs(INDEX_SAVE_DIR)
-
-        self._load()
 
     def _load(self):
         """Loads the vector store."""
