@@ -70,18 +70,12 @@ class BaseEmbeddingsProvider(BaseModel):
 class OllamaEmbeddingsProvider(BaseEmbeddingsProvider, OllamaEmbeddings):
     id = "ollama"
     name = "Ollama"
+    # source: https://ollama.com/library
     models = [
-        "gemma",
-        "gemma2",
-        "llama2",
-        "llama3",
-        "llama3:70b",
-        "phi3",
-        "mistral",
-        "tinyllama",
-        "qwen2",
-        "qwen2:7b",
-        "qwen2:72b",
+        "nomic-embed-text",
+        "mxbai-embed-large",
+        "all-minilm",
+        "snowflake-arctic-embed",
     ]
     model_id_key = "model"
 

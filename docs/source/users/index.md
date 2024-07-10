@@ -357,27 +357,9 @@ GPT4All support is still an early-stage feature, so some bugs may be encountered
 during usage. Our team is still actively improving support for locally-hosted
 models.
 
-### Ollama usage (early-stage)
+### Ollama usage
 
-Jupyter AI provides basic support for Ollama models.
-
-To get started, follow the instructions on the [Ollama website](https://ollama.com/) to set up `ollama` and download the models locally. Currently Jupyter AI only supports the following models:
-
-- `gemma`
-- `gemma2`
-- `llama2`,
-- `llama3`,
-- `llama3:70b`,
-- `phi3`,
-- `mistral`,
-- `tinyllama`,
-- `qwen2`,
-- `qwen2:7b`,
-- `qwen2:72b`,
-
-:::{note}
-There are plans to make the list of Ollama models configurable in the future, so users can download more models available via Ollama.
-:::
+To get started, follow the instructions on the [Ollama website](https://ollama.com/) to set up `ollama` and download the models locally. To select a model, enter the model name in the settings panel, for example `deepseek-coder-v2`.
 
 ### Asking about something in your notebook
 

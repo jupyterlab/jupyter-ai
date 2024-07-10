@@ -728,19 +728,12 @@ class OllamaProvider(BaseProvider, Ollama):
     id = "ollama"
     name = "Ollama"
     model_id_key = "model"
-    models = [
-        "gemma",
-        "gemma2",
-        "llama2",
-        "llama3",
-        "llama3:70b",
-        "phi3",
-        "mistral",
-        "tinyllama",
-        "qwen2",
-        "qwen2:7b",
-        "qwen2:72b",
-    ]
+    help = (
+        "See [https://www.ollama.com/library](https://www.ollama.com/library) for a list of models. "
+        "Pass a model's name; for example, `deepseek-coder-v2`."
+    )
+    models = ["*"]
+    registry = True
 
 
 class JsonContentHandler(LLMContentHandler):
