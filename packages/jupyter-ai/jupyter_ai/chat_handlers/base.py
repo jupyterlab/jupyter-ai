@@ -289,6 +289,8 @@ class BaseChatHandler:
             handler.broadcast_message(close_pending_msg)
             break
 
+        pending_msg.closed = True
+
     @contextlib.contextmanager
     def pending(self, text: str, ellipsis: bool = True):
         """
@@ -297,9 +299,10 @@ class BaseChatHandler:
         """
         pending_msg = self.start_pending(text, ellipsis=ellipsis)
         try:
-            yield
+            yield pending_msg
         finally:
-            self.close_pending(pending_msg)
+            if not pending_msg.closed:
+                self.close_pending(pending_msg)
 
     def get_llm_chain(self):
         lm_provider = self.config_manager.lm_provider

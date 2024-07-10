@@ -97,29 +97,28 @@ class DefaultChatHandler(BaseChatHandler):
         received_first_chunk = False
 
         # start with a pending message
-        pending_message = self.start_pending("Generating response")
+        with self.pending("Generating response") as pending_message:
+            # stream response in chunks. this works even if a provider does not
+            # implement streaming, as `astream()` defaults to yielding `_call()`
+            # when `_stream()` is not implemented on the LLM class.
+            async for chunk in self.llm_chain.astream(
+                {"input": message.body},
+                config={"configurable": {"session_id": "static_session"}},
+            ):
+                if not received_first_chunk:
+                    # when receiving the first chunk, close the pending message and
+                    # start the stream.
+                    self.close_pending(pending_message)
+                    stream_id = self._start_stream(human_msg=message)
+                    received_first_chunk = True
 
-        # stream response in chunks. this works even if a provider does not
-        # implement streaming, as `astream()` defaults to yielding `_call()`
-        # when `_stream()` is not implemented on the LLM class.
-        async for chunk in self.llm_chain.astream(
-            {"input": message.body},
-            config={"configurable": {"session_id": "static_session"}},
-        ):
-            if not received_first_chunk:
-                # when receiving the first chunk, close the pending message and
-                # start the stream.
-                self.close_pending(pending_message)
-                stream_id = self._start_stream(human_msg=message)
-                received_first_chunk = True
+                if isinstance(chunk, AIMessageChunk):
+                    self._send_stream_chunk(stream_id, chunk.content)
+                elif isinstance(chunk, str):
+                    self._send_stream_chunk(stream_id, chunk)
+                else:
+                    self.log.error(f"Unrecognized type of chunk yielded: {type(chunk)}")
+                    break
 
-            if isinstance(chunk, AIMessageChunk):
-                self._send_stream_chunk(stream_id, chunk.content)
-            elif isinstance(chunk, str):
-                self._send_stream_chunk(stream_id, chunk)
-            else:
-                self.log.error(f"Unrecognized type of chunk yielded: {type(chunk)}")
-                break
-
-        # complete stream after all chunks have been streamed
-        self._send_stream_chunk(stream_id, "", complete=True)
+            # complete stream after all chunks have been streamed
+            self._send_stream_chunk(stream_id, "", complete=True)
