@@ -357,6 +357,10 @@ GPT4All support is still an early-stage feature, so some bugs may be encountered
 during usage. Our team is still actively improving support for locally-hosted
 models.
 
+### Ollama usage
+
+To get started, follow the instructions on the [Ollama website](https://ollama.com/) to set up `ollama` and download the models locally. To select a model, enter the model name in the settings panel, for example `deepseek-coder-v2`.
+
 ### Asking about something in your notebook
 
 Jupyter AI's chat interface can include a portion of your notebook in your prompt.

@@ -37,6 +37,7 @@ from langchain_community.llms import (
     Bedrock,
     GPT4All,
     HuggingFaceEndpoint,
+    Ollama,
     SagemakerEndpoint,
     Together,
 )
@@ -721,6 +722,18 @@ class HfHubProvider(BaseProvider, HuggingFaceEndpoint):
 
     async def _acall(self, *args, **kwargs) -> Coroutine[Any, Any, str]:
         return await self._call_in_executor(*args, **kwargs)
+
+
+class OllamaProvider(BaseProvider, Ollama):
+    id = "ollama"
+    name = "Ollama"
+    model_id_key = "model"
+    help = (
+        "See [https://www.ollama.com/library](https://www.ollama.com/library) for a list of models. "
+        "Pass a model's name; for example, `deepseek-coder-v2`."
+    )
+    models = ["*"]
+    registry = True
 
 
 class JsonContentHandler(LLMContentHandler):

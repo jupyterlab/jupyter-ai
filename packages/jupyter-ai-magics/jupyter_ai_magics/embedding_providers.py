@@ -12,6 +12,7 @@ from langchain_community.embeddings import (
     BedrockEmbeddings,
     GPT4AllEmbeddings,
     HuggingFaceHubEmbeddings,
+    OllamaEmbeddings,
     QianfanEmbeddingsEndpoint,
 )
 
@@ -64,6 +65,19 @@ class BaseEmbeddingsProvider(BaseModel):
             model_kwargs[self.__class__.model_id_key] = kwargs["model_id"]
 
         super().__init__(*args, **kwargs, **model_kwargs)
+
+
+class OllamaEmbeddingsProvider(BaseEmbeddingsProvider, OllamaEmbeddings):
+    id = "ollama"
+    name = "Ollama"
+    # source: https://ollama.com/library
+    models = [
+        "nomic-embed-text",
+        "mxbai-embed-large",
+        "all-minilm",
+        "snowflake-arctic-embed",
+    ]
+    model_id_key = "model"
 
 
 class HfHubEmbeddingsProvider(BaseEmbeddingsProvider, HuggingFaceHubEmbeddings):
