@@ -19,6 +19,7 @@ from jupyter_ai.models import (
     IndexMetadata,
 )
 from jupyter_core.paths import jupyter_data_dir
+from jupyter_core.utils import ensure_dir_exists
 from langchain.schema import BaseRetriever, Document
 from langchain.text_splitter import (
     LatexTextSplitter,
@@ -97,10 +98,11 @@ class LearnChatHandler(BaseChatHandler):
         self.metadata = IndexMetadata(dirs=[])
         self.prev_em_id = None
 
-        if not os.path.exists(INDEX_SAVE_DIR):
-            os.makedirs(INDEX_SAVE_DIR)
-
+        self._ensure_dirs()
         self._load()
+
+    def _ensure_dirs(self):
+        ensure_dir_exists(INDEX_SAVE_DIR, mode=0o700)
 
     def _load(self):
         """Loads the vector store."""
