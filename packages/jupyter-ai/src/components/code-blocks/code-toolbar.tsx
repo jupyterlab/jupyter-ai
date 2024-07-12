@@ -10,6 +10,7 @@ import {
   useActiveCellContext
 } from '../../contexts/active-cell-context';
 import { TooltippedIconButton } from '../mui-extras/tooltipped-icon-button';
+import { useReplace } from '../../hooks/use-replace';
 
 export type CodeToolbarProps = {
   /**
@@ -40,7 +41,7 @@ export function CodeToolbar(props: CodeToolbarProps): JSX.Element {
     >
       <InsertAboveButton {...sharedToolbarButtonProps} />
       <InsertBelowButton {...sharedToolbarButtonProps} />
-      <ReplaceButton {...sharedToolbarButtonProps} />
+      <ReplaceButton value={props.content} />
       <CopyButton value={props.content} />
     </Box>
   );
@@ -84,16 +85,14 @@ function InsertBelowButton(props: ToolbarButtonProps) {
   );
 }
 
-function ReplaceButton(props: ToolbarButtonProps) {
-  const tooltip = props.activeCellExists
-    ? 'Replace active cell'
-    : 'Replace active cell (no active cell)';
+function ReplaceButton(props: { value: string }) {
+  const { replace, replaceDisabled, replaceLabel } = useReplace();
 
   return (
     <TooltippedIconButton
-      tooltip={tooltip}
-      disabled={!props.activeCellExists}
-      onClick={() => props.activeCellManager.replace(props.content)}
+      tooltip={replaceLabel}
+      disabled={replaceDisabled}
+      onClick={() => replace(props.value)}
     >
       <replaceCellIcon.react height="16px" width="16px" />
     </TooltippedIconButton>
