@@ -41,8 +41,9 @@ export function useReplace(): UseReplaceReturn {
 
   const replaceDisabled = !(textSelection || activeCell.exists);
 
+  const numLines = textSelection?.text.split('\n').length || 0;
   const replaceLabel = textSelection
-    ? `Replace selection (${textSelection.text.split('\n').length} lines)`
+    ? `Replace selection (${numLines} ${numLines === 1 ? 'line' : 'lines'})`
     : activeCell.exists
     ? 'Replace selection (1 active cell)'
     : 'Replace selection (no selection or active cell)';
