@@ -627,35 +627,6 @@ class HfHubProvider(BaseProvider, HuggingFaceEndpoint):
     auth_strategy = EnvAuthStrategy(name="HUGGINGFACEHUB_API_TOKEN")
     registry = True
 
-    # Override the parent's validate_environment with a custom list of valid tasks
-    @root_validator()
-    def validate_environment(cls, values: Dict) -> Dict:
-        """Validate that api key and python package exists in environment."""
-        try:
-            huggingfacehub_api_token = get_from_dict_or_env(
-                values, "huggingfacehub_api_token", "HUGGINGFACEHUB_API_TOKEN"
-            )
-        except Exception as e:
-            raise ValueError(
-                "Could not authenticate with huggingface_hub. "
-                "Please check your API token."
-            ) from e
-        try:
-            from huggingface_hub import InferenceClient
-
-            values["client"] = InferenceClient(
-                model=values["model"],
-                timeout=values["timeout"],
-                token=huggingfacehub_api_token,
-                **values["server_kwargs"],
-            )
-        except ImportError:
-            raise ValueError(
-                "Could not import huggingface_hub python package. "
-                "Please install it with `pip install huggingface_hub`."
-            )
-        return values
-
     # Handle text and image outputs
     def _call(
         self, prompt: str, stop: Optional[List[str]] = None, **kwargs: Any
