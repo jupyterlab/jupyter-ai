@@ -278,6 +278,9 @@ class BaseChatHandler:
         """
         Closes a pending message.
         """
+        if pending_msg.closed:
+            return
+
         close_pending_msg = ClosePendingMessage(
             id=pending_msg.id,
         )
