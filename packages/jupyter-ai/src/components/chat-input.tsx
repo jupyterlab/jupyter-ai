@@ -36,8 +36,6 @@ type ChatInputProps = {
   includeSelection: boolean;
   focusInputSignal: ISignal<unknown, void>;
   toggleIncludeSelection: () => unknown;
-  replaceSelection: boolean;
-  toggleReplaceSelection: () => unknown;
   sendWithShiftEnter: boolean;
   sx?: SxProps<Theme>;
 };
@@ -333,15 +331,6 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
               />
             }
             label="Include selection"
-          />
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={props.replaceSelection}
-                onChange={props.toggleReplaceSelection}
-              />
-            }
-            label="Replace selection"
           />
         </FormGroup>
       )}
