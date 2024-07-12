@@ -49,9 +49,8 @@ function ChatBody({
   >([...chatHandler.history.pending_messages]);
   const [showWelcomeMessage, setShowWelcomeMessage] = useState<boolean>(false);
   const [includeSelection, setIncludeSelection] = useState(true);
-  const [replaceSelection, setReplaceSelection] = useState(false);
   const [input, setInput] = useState('');
-  const [textSelection, replaceTextSelection] = useSelectionContext();
+  const [textSelection] = useSelectionContext();
   const [sendWithShiftEnter, setSendWithShiftEnter] = useState(true);
 
   /**
@@ -105,17 +104,7 @@ function ChatBody({
     const messageId = await chatHandler.sendMessage({ prompt, selection });
 
     // await reply from agent
-    // no need to append to messageGroups state variable, since that's already
-    // handled in the effect hooks.
-    const reply = await chatHandler.replyFor(messageId);
-    if (replaceSelection && textSelection) {
-      const { cellId, ...selectionProps } = textSelection;
-      replaceTextSelection({
-        ...selectionProps,
-        ...(cellId && { cellId }),
-        text: reply.body
-      });
-    }
+    await chatHandler.replyFor(messageId);
   };
 
   const openSettingsView = () => {
@@ -168,10 +157,6 @@ function ChatBody({
         focusInputSignal={focusInputSignal}
         toggleIncludeSelection={() =>
           setIncludeSelection(includeSelection => !includeSelection)
-        }
-        replaceSelection={replaceSelection}
-        toggleReplaceSelection={() =>
-          setReplaceSelection(replaceSelection => !replaceSelection)
         }
         sx={{
           paddingLeft: 4,
