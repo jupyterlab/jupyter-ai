@@ -10,11 +10,11 @@ type CopyButtonProps = {
 };
 
 export function CopyButton(props: CopyButtonProps): JSX.Element {
-  const { copy, label } = useCopy();
+  const { copy, copyLabel } = useCopy();
 
   return (
     <TooltippedIconButton
-      tooltip={label}
+      tooltip={copyLabel}
       placement="top"
       onClick={() => copy(props.value)}
       aria-label="Copy to clipboard"

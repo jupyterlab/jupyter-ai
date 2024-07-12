@@ -28,7 +28,7 @@ export type UseCopyReturn = {
    * This can be selectively overridden via the `labelOverrides` prop passed to
    * the `useCopy()` hook.
    */
-  label: string;
+  copyLabel: string;
   /**
    * Function that takes a string and copies it to the clipboard.
    */
@@ -41,6 +41,10 @@ const DEFAULT_LABELS_BY_COPY_STATUS: Record<CopyStatus, string> = {
   [CopyStatus.Copied]: 'Copied!'
 };
 
+/**
+ * Hook that provides a function to copy a string to a clipboard and manages
+ * related UI state. Should be used by any button that intends to copy text.
+ */
 export function useCopy(props?: UseCopyProps): UseCopyReturn {
   const [copyStatus, setCopyStatus] = useState<CopyStatus>(CopyStatus.None);
   const timeoutId = useRef<number | null>(null);
@@ -72,14 +76,14 @@ export function useCopy(props?: UseCopyProps): UseCopyReturn {
     [copyStatus]
   );
 
-  const label = {
+  const copyLabel = {
     ...DEFAULT_LABELS_BY_COPY_STATUS,
     ...props?.labelOverrides
   }[copyStatus];
 
   return {
     copyStatus,
-    label,
+    copyLabel,
     copy
   };
 }
