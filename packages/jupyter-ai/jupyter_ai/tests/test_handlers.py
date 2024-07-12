@@ -133,6 +133,30 @@ async def test_default_closes_pending_on_error(human_chat_message):
     assert isinstance(handler.messages[1], ClosePendingMessage)
 
 
+async def test_sends_closing_message_at_most_once(human_chat_message):
+    handler = TestDefaultChatHandler(
+        lm_provider=MockProvider,
+        lm_provider_params={
+            "model_id": "model",
+            "should_raise": False,
+        },
+    )
+    message = handler.start_pending("Flushing Pipe Network")
+    assert len(handler.messages) == 1
+    assert isinstance(handler.messages[0], PendingMessage)
+    assert not message.closed
+
+    handler.close_pending(message)
+    assert len(handler.messages) == 2
+    assert isinstance(handler.messages[1], ClosePendingMessage)
+    assert message.closed
+
+    # closing an already closed message does not lead to another broadcast
+    handler.close_pending(message)
+    assert len(handler.messages) == 2
+    assert message.closed
+
+
 # TODO
 # import json
 
