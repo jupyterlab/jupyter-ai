@@ -30,7 +30,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: jupyter-ai-jupyter-releaser-dist-${{ github.run_number }}
-          path: .jupyter_releaser_checkout/dist
+          path: |
+            .jupyter_releaser_checkout/packages/jupyter-ai/dist
+            .jupyter_releaser_checkout/packages/jupyter-ai-magics/dist
 
       - name: Runner debug info
         if: always()
