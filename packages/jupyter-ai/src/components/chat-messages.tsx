@@ -9,6 +9,7 @@ import { ServerConnection } from '@jupyterlab/services';
 import { AiService } from '../handler';
 import { RendermimeMarkdown } from './rendermime-markdown';
 import { useCollaboratorsContext } from '../contexts/collaborators-context';
+import { ChatMessageMenu } from './chat-messages/chat-message-menu';
 
 type ChatMessagesProps = {
   rmRegistry: IRenderMimeRegistry;
@@ -107,6 +108,10 @@ export function ChatMessageHeader(props: ChatMessageHeaderProps): JSX.Element {
       ? props.message.client.display_name
       : props.message.persona.name;
 
+  const shouldShowMenu =
+    props.message.type === 'agent' ||
+    (props.message.type === 'agent-stream' && props.message.complete);
+
   return (
     <Box
       sx={{
@@ -131,15 +136,23 @@ export function ChatMessageHeader(props: ChatMessageHeaderProps): JSX.Element {
         <Typography sx={{ fontWeight: 700, color: 'var(--jp-ui-font-color1)' }}>
           {name}
         </Typography>
-        <Typography
-          sx={{
-            fontSize: '0.8em',
-            color: 'var(--jp-ui-font-color2)',
-            fontWeight: 300
-          }}
-        >
-          {props.timestamp}
-        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <Typography
+            sx={{
+              fontSize: '0.8em',
+              color: 'var(--jp-ui-font-color2)',
+              fontWeight: 300
+            }}
+          >
+            {props.timestamp}
+          </Typography>
+          {shouldShowMenu && (
+            <ChatMessageMenu
+              message={props.message}
+              sx={{ marginLeft: '4px', marginRight: '-8px' }}
+            />
+          )}
+        </Box>
       </Box>
     </Box>
   );
