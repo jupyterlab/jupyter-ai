@@ -103,6 +103,7 @@ class PendingMessage(BaseModel):
     body: str
     persona: Persona
     ellipsis: bool = True
+    closed: bool = False
 
 
 class ClosePendingMessage(BaseModel):
