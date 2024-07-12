@@ -7,7 +7,7 @@ jobs:
     name: Lint TypeScript source
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
         with:
           python_version: "3.11.x"
@@ -22,7 +22,7 @@ jobs:
     name: Lint Python imports
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Echo environment details
         run: |
           which python
