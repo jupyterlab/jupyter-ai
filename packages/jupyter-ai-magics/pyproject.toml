@@ -23,7 +23,8 @@ dynamic = ["version", "description", "authors", "urls", "keywords"]
 dependencies = [
     "ipython",
     "importlib_metadata>=5.2.0",
-    "langchain>=0.1.0,<0.2.0",
+    "langchain>=0.2.0,<0.3.0",
+    "langchain_community>=0.2.0,<0.3.0",
     "typing_extensions>=4.5.0",
     "click~=8.0",
     "jsonpath-ng>=1.5.3,<2",
