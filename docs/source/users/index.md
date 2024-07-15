@@ -11,12 +11,12 @@ please see the {doc}`developer's guide </developers/index>`.
 ## Prerequisites
 
 You can run Jupyter AI on any system that can run a supported Python version
-from 3.8 to 3.11, including recent Windows, macOS, and Linux versions.
+from 3.8 to 3.12, including recent Windows, macOS, and Linux versions.
 
-If you use `conda`, you can install Python 3.11 in your environment by running:
+If you use `conda`, you can install Python 3.12 in your environment by running:
 
 ```
-conda install python=3.11
+conda install python=3.12
 ```
 
 The `jupyter_ai` package, which provides the lab extension and user interface in
@@ -111,9 +111,9 @@ environment.
 
 First, install
 [conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html)
-and create an environment that uses Python 3.11:
+and create an environment that uses Python 3.12:
 
-    $ conda create -n jupyter-ai python=3.11
+    $ conda create -n jupyter-ai python=3.12
     $ conda activate jupyter-ai
 
 Then, use `conda` to install JupyterLab and Jupyter AI in this Conda environment.
