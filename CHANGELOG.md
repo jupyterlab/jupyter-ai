@@ -2,6 +2,51 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 2.19.0
+
+This is a significant release that implements LLM response streaming in Jupyter AI along with several other enhancements & fixes listed below. Special thanks to @krassowski for his generous contributions this release!
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.18.1...d6bc48b6cbf39180fd4e4c89320ca25b09635545))
+
+### Enhancements made
+
+- Upgrade to `langchain~=0.2.0` and `langchain_community~=0.2.0` [#897](https://github.com/jupyterlab/jupyter-ai/pull/897) ([@dlqqq](https://github.com/dlqqq))
+- Rework selection replacement [#895](https://github.com/jupyterlab/jupyter-ai/pull/895) ([@dlqqq](https://github.com/dlqqq))
+- Ensure all slash commands support `-h/--help` [#878](https://github.com/jupyterlab/jupyter-ai/pull/878) ([@krassowski](https://github.com/krassowski))
+- Add keyboard shortcut command to focus chat input [#876](https://github.com/jupyterlab/jupyter-ai/pull/876) ([@krassowski](https://github.com/krassowski))
+- Implement LLM response streaming [#859](https://github.com/jupyterlab/jupyter-ai/pull/859) ([@dlqqq](https://github.com/dlqqq))
+- Add Ollama [#646](https://github.com/jupyterlab/jupyter-ai/pull/646) ([@jtpio](https://github.com/jtpio))
+
+### Bugs fixed
+
+- Fix streaming in `HuggingFaceHub` provider [#894](https://github.com/jupyterlab/jupyter-ai/pull/894) ([@krassowski](https://github.com/krassowski))
+- Fix removal of pending messages on error [#888](https://github.com/jupyterlab/jupyter-ai/pull/888) ([@krassowski](https://github.com/krassowski))
+- Ensuring restricted access to the `/learn` index directory [#887](https://github.com/jupyterlab/jupyter-ai/pull/887) ([@krassowski](https://github.com/krassowski))
+- Make preferred-dir the default read/write directory for slash commands [#881](https://github.com/jupyterlab/jupyter-ai/pull/881) ([@andrewfulton9](https://github.com/andrewfulton9))
+- Fix prefix removal when streaming inline completions [#879](https://github.com/jupyterlab/jupyter-ai/pull/879) ([@krassowski](https://github.com/krassowski))
+- Limit chat input height to 20 lines [#877](https://github.com/jupyterlab/jupyter-ai/pull/877) ([@krassowski](https://github.com/krassowski))
+- Do not redefine `refreshCompleterState` on each render [#875](https://github.com/jupyterlab/jupyter-ai/pull/875) ([@krassowski](https://github.com/krassowski))
+- Remove unused toolbars/menus from schema [#873](https://github.com/jupyterlab/jupyter-ai/pull/873) ([@krassowski](https://github.com/krassowski))
+- Fix plugin ID format [#872](https://github.com/jupyterlab/jupyter-ai/pull/872) ([@krassowski](https://github.com/krassowski))
+- Address error on `/learn` after change of embedding model [#870](https://github.com/jupyterlab/jupyter-ai/pull/870) ([@srdas](https://github.com/srdas))
+- Fix pending message overlapping text [#857](https://github.com/jupyterlab/jupyter-ai/pull/857) ([@michaelchia](https://github.com/michaelchia))
+- Fixes error when allowed or blocked model list is passed in config [#855](https://github.com/jupyterlab/jupyter-ai/pull/855) ([@3coins](https://github.com/3coins))
+- Fixed `/export` for timestamp, agent name [#854](https://github.com/jupyterlab/jupyter-ai/pull/854) ([@srdas](https://github.com/srdas))
+
+### Maintenance and upkeep improvements
+
+- Update to `actions/checkout@v4` [#893](https://github.com/jupyterlab/jupyter-ai/pull/893) ([@jtpio](https://github.com/jtpio))
+- Upload `jupyter-releaser` built distributions [#892](https://github.com/jupyterlab/jupyter-ai/pull/892) ([@jtpio](https://github.com/jtpio))
+- Updated integration tests workflow [#890](https://github.com/jupyterlab/jupyter-ai/pull/890) ([@krassowski](https://github.com/krassowski))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-06-21&to=2024-07-15&type=c))
+
+[@3coins](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3A3coins+updated%3A2024-06-21..2024-07-15&type=Issues) | [@andrewfulton9](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aandrewfulton9+updated%3A2024-06-21..2024-07-15&type=Issues) | [@brichet](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Abrichet+updated%3A2024-06-21..2024-07-15&type=Issues) | [@dannongruver](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adannongruver+updated%3A2024-06-21..2024-07-15&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2024-06-21..2024-07-15&type=Issues) | [@JasonWeill](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AJasonWeill+updated%3A2024-06-21..2024-07-15&type=Issues) | [@jtpio](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ajtpio+updated%3A2024-06-21..2024-07-15&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2024-06-21..2024-07-15&type=Issues) | [@lalanikarim](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Alalanikarim+updated%3A2024-06-21..2024-07-15&type=Issues) | [@michaelchia](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Amichaelchia+updated%3A2024-06-21..2024-07-15&type=Issues) | [@pedrogutobjj](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Apedrogutobjj+updated%3A2024-06-21..2024-07-15&type=Issues) | [@srdas](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2024-06-21..2024-07-15&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 2.18.1
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.18.0...37dc8ecdffedf8763e9fabfdd2769520a7af3885))
@@ -21,8 +66,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-06-20&to=2024-06-21&type=c))
 
 [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2024-06-20..2024-06-21&type=Issues) | [@srdas](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2024-06-20..2024-06-21&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 2.18.0
 
