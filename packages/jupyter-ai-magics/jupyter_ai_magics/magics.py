@@ -8,6 +8,7 @@ import warnings
 from typing import Optional
 
 import click
+import traitlets
 from IPython import get_ipython
 from IPython.core.magic import Magics, line_cell_magic, magics_class
 from IPython.display import HTML, JSON, Markdown, Math
@@ -122,6 +123,19 @@ class CellMagicError(BaseException):
 
 @magics_class
 class AiMagics(Magics):
+
+    aliases = traitlets.Dict(
+        default_value=MODEL_ID_ALIASES,
+        value_trait=traitlets.Unicode(),
+        key_trait=traitlets.Unicode(),
+        help="""Aliases for model identifiers.
+
+        Keys define aliases, values define the provider and the model to use.
+        The values should include identifiers in in the `provider:model` format.
+        """,
+        config=True,
+    )
+
     def __init__(self, shell):
         super().__init__(shell)
         self.transcript_openai = []
@@ -145,7 +159,7 @@ class AiMagics(Magics):
         self.providers = get_lm_providers()
 
         # initialize a registry of custom model/chain names
-        self.custom_model_registry = MODEL_ID_ALIASES
+        self.custom_model_registry = self.aliases
 
     def _ai_bulleted_list_models_for_provider(self, provider_id, Provider):
         output = ""
