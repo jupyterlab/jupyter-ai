@@ -38,8 +38,9 @@ def post_process_suggestion(suggestion: str, request: InlineCompletionRequest) -
         for identifier in markdown_identifiers.get(language, [language])
     ] + ["```"]
     for opening in bad_openings:
-        if suggestion.startswith(opening):
-            suggestion = suggestion[len(opening) :].lstrip()
+        # ollama models tend to add spurious whitespace
+        if suggestion.lstrip().startswith(opening):
+            suggestion = suggestion.lstrip()[len(opening) :].lstrip()
             # check for the prefix inclusion (only if there was a bad opening)
             if suggestion.startswith(request.prefix):
                 suggestion = suggestion[len(request.prefix) :]

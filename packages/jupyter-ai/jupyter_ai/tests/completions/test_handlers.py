@@ -102,6 +102,8 @@ expected_suggestions_cases = [
     ("```python\nTest python code\n```", "Test python code"),
     ("```\ntest\n```\n   \n", "test"),
     ("```hello```world```", "hello```world"),
+    (" ```\nprint(test)\n```", "print(test)"),
+    ("``` \nprint(test)\n```", "print(test)"),
 ]
 
 
