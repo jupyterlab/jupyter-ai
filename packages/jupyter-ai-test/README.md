@@ -6,7 +6,7 @@ environment. This package should never published on NPM or PyPI.
 
 ## Requirements
 
-- Python 3.8 - 3.11
+- Python 3.8 - 3.12
 - JupyterLab 4
 
 ## Install
