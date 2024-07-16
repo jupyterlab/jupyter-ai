@@ -33,7 +33,7 @@ if TYPE_CHECKING:
     from jupyter_ai.handlers import RootChatHandler
 
 
-def get_preferred_dir(root_dir: str, preferred_dir: str) -> str | None:
+def get_preferred_dir(root_dir: str, preferred_dir: str) -> Optional[str]:
     if preferred_dir != "":
         preferred_dir = os.path.expanduser(preferred_dir)
         if not preferred_dir.startswith(root_dir):
