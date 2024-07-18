@@ -6,9 +6,6 @@ import {
   SxProps,
   TextField,
   Theme,
-  FormGroup,
-  FormControlLabel,
-  Checkbox,
   InputAdornment,
   Typography
 } from '@mui/material';
@@ -32,10 +29,7 @@ type ChatInputProps = {
   value: string;
   onChange: (newValue: string) => unknown;
   onSend: (selection?: AiService.Selection) => unknown;
-  hasSelection: boolean;
-  includeSelection: boolean;
   focusInputSignal: ISignal<unknown, void>;
-  toggleIncludeSelection: () => unknown;
   sendWithShiftEnter: boolean;
   sx?: SxProps<Theme>;
   /**
@@ -326,19 +320,6 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
           />
         )}
       />
-      {props.hasSelection && (
-        <FormGroup sx={{ display: 'flex', flexDirection: 'row' }}>
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={props.includeSelection}
-                onChange={props.toggleIncludeSelection}
-              />
-            }
-            label="Include selection"
-          />
-        </FormGroup>
-      )}
     </Box>
   );
 }
