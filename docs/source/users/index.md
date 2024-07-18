@@ -839,6 +839,16 @@ Aliases' names can contain ASCII letters (uppercase and lowercase), numbers, hyp
 
 Aliases must refer to models or `LLMChain` objects; they cannot refer to other aliases.
 
+To customize the aliases on startup you can set the `c.AiMagics.aliases` tratilet in `ipython_config.py`, for example:
+
+```python
+c.AiMagics.aliases = {
+  "my_custom_alias": "my_provider:my_model"
+}
+```
+
+The location of `ipython_config.py` file is documented in [IPython configuration reference](https://ipython.readthedocs.io/en/stable/config/intro.html).
+
 ### Using magic commands with SageMaker endpoints
 
 You can use magic commands with models hosted using Amazon SageMaker.
