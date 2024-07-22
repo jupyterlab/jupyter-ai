@@ -1,6 +1,6 @@
-myst_parser
-pydata_sphinx_theme
-nbsphinx
-nbsphinx-link
 # nbsphinx-link requires older version of docutils
 docutils==0.20
+myst_parser
+nbsphinx
+nbsphinx-link
+pydata_sphinx_theme

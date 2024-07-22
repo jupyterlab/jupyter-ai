@@ -99,7 +99,7 @@ dependencies. You will need to install [pandoc](https://pandoc.org/) as well. Yo
 
 ```
 conda install -c conda-forge pandoc
-```  
+```
 
 Otherwise have a look at pandoc's [installation instructions](https://pandoc.org/installing.html).
 
