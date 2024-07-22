@@ -705,6 +705,9 @@ class OllamaProvider(BaseProvider, Ollama):
     )
     models = ["*"]
     registry = True
+    fields = [
+        TextField(key="base_url", label="Base API URL (optional)", format="text"),
+    ]
 
 
 class JsonContentHandler(LLMContentHandler):
