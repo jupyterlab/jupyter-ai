@@ -2,6 +2,35 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 2.19.1
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.19.0...cfcb3c6df4e795d877e6d0967a22ecfb880b3be3))
+
+### Enhancements made
+
+- Allow overriding the Ollama base URL [#904](https://github.com/jupyterlab/jupyter-ai/pull/904) ([@jtpio](https://github.com/jtpio))
+- Make magic aliases user-customizable [#901](https://github.com/jupyterlab/jupyter-ai/pull/901) ([@krassowski](https://github.com/krassowski))
+
+### Bugs fixed
+
+- Trim leading whitespace when processing [#900](https://github.com/jupyterlab/jupyter-ai/pull/900) ([@krassowski](https://github.com/krassowski))
+- Fix python\<3.10 compatibility [#899](https://github.com/jupyterlab/jupyter-ai/pull/899) ([@michaelchia](https://github.com/michaelchia))
+
+### Maintenance and upkeep improvements
+
+### Documentation improvements
+
+- Add notebooks to the documentation [#906](https://github.com/jupyterlab/jupyter-ai/pull/906) ([@andrewfulton9](https://github.com/andrewfulton9))
+- Update docs to reflect Python 3.12 support [#898](https://github.com/jupyterlab/jupyter-ai/pull/898) ([@dlqqq](https://github.com/dlqqq))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-07-15&to=2024-07-22&type=c))
+
+[@andrewfulton9](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aandrewfulton9+updated%3A2024-07-15..2024-07-22&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2024-07-15..2024-07-22&type=Issues) | [@jtpio](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ajtpio+updated%3A2024-07-15..2024-07-22&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2024-07-15..2024-07-22&type=Issues) | [@michaelchia](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Amichaelchia+updated%3A2024-07-15..2024-07-22&type=Issues) | [@pre-commit-ci](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Apre-commit-ci+updated%3A2024-07-15..2024-07-22&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 2.19.0
 
 This is a significant release that implements LLM response streaming in Jupyter AI along with several other enhancements & fixes listed below. Special thanks to @krassowski for his generous contributions this release!
@@ -44,8 +73,6 @@ This is a significant release that implements LLM response streaming in Jupyter 
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-06-21&to=2024-07-15&type=c))
 
 [@3coins](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3A3coins+updated%3A2024-06-21..2024-07-15&type=Issues) | [@andrewfulton9](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aandrewfulton9+updated%3A2024-06-21..2024-07-15&type=Issues) | [@brichet](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Abrichet+updated%3A2024-06-21..2024-07-15&type=Issues) | [@dannongruver](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adannongruver+updated%3A2024-06-21..2024-07-15&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2024-06-21..2024-07-15&type=Issues) | [@JasonWeill](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AJasonWeill+updated%3A2024-06-21..2024-07-15&type=Issues) | [@jtpio](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ajtpio+updated%3A2024-06-21..2024-07-15&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2024-06-21..2024-07-15&type=Issues) | [@lalanikarim](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Alalanikarim+updated%3A2024-06-21..2024-07-15&type=Issues) | [@michaelchia](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Amichaelchia+updated%3A2024-06-21..2024-07-15&type=Issues) | [@pedrogutobjj](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Apedrogutobjj+updated%3A2024-06-21..2024-07-15&type=Issues) | [@srdas](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2024-06-21..2024-07-15&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 2.18.1
 
