@@ -57,13 +57,26 @@ export namespace AiService {
     traceback: string[];
   };
 
+  export type TextSelection = {
+    type: 'text';
+    source: string;
+  };
+
+  export type CellSelection = {
+    type: 'cell';
+    source: string;
+  };
+
   export type CellWithErrorSelection = {
     type: 'cell-with-error';
     source: string;
     error: CellError;
   };
 
-  export type Selection = CellWithErrorSelection;
+  export type Selection =
+    | TextSelection
+    | CellSelection
+    | CellWithErrorSelection;
 
   export type ChatRequest = {
     prompt: string;
