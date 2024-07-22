@@ -249,7 +249,7 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
         
         message_body = chat_request.prompt
         if chat_request.selection:
-            message_body += f"\n\n```{chat_request.selection.source}```\n"
+            message_body += f"\n\n```\n{chat_request.selection.source}\n```\n"
 
         # message broadcast to chat clients
         chat_message_id = str(uuid.uuid4())
@@ -257,6 +257,7 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
             id=chat_message_id,
             time=time.time(),
             body=message_body,
+            prompt=chat_request.prompt,
             selection=chat_request.selection,
             client=self.chat_client,
         )

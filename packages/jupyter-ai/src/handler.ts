@@ -114,9 +114,20 @@ export namespace AiService {
     type: 'human';
     id: string;
     time: number;
+    /**
+     * The formatted body of the message to be rendered in the UI. Includes both
+     * `prompt` and `selection`.
+     */
     body: string;
-    client: ChatClient;
+    /**
+     * The prompt typed into the chat input by the user.
+     */
+    prompt: string;
+    /**
+     * The selection included with the prompt, if any.
+     */
     selection?: Selection;
+    client: ChatClient;
   };
 
   export type ConnectionMessage = {

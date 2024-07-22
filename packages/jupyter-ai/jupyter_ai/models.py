@@ -92,8 +92,13 @@ class HumanChatMessage(BaseModel):
     id: str
     time: float
     body: str
-    client: ChatClient
+    """The formatted body of the message to be rendered in the UI. Includes both
+    `prompt` and `selection`."""
+    prompt: str
+    """The prompt typed into the chat input by the user."""
     selection: Optional[Selection]
+    """The selection included with the prompt, if any."""
+    client: ChatClient
 
 
 class ClearMessage(BaseModel):
