@@ -35,4 +35,5 @@ maxdepth: 2
 users/index
 contributors/index
 developers/index
+examples/index
 ```

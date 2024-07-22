@@ -95,7 +95,16 @@ refresh your browser tab.
 ## Building documentation
 
 The `./scripts/install.sh` should automatically install the documentation
-dependencies. To build the documentation locally, run
+dependencies. You will need to install [pandoc](https://pandoc.org/) as well. You can install [pandoc from the conda-forge channel](https://anaconda.org/conda-forge/pandoc):
+
+```
+conda install -c conda-forge pandoc
+```
+
+Otherwise have a look at pandoc's [installation instructions](https://pandoc.org/installing.html).
+
+
+To build the documentation locally, run
 
 ```
 cd docs/
