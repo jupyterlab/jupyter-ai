@@ -246,7 +246,7 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
         except ValidationError as e:
             self.log.error(e)
             return
-        
+
         message_body = chat_request.prompt
         if chat_request.selection:
             message_body += f"\n\n```\n{chat_request.selection.source}\n```\n"

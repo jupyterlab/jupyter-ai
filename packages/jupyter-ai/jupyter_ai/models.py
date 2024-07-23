@@ -18,9 +18,11 @@ class TextSelection(BaseModel):
     type: Literal["text"] = "text"
     source: str
 
+
 class CellSelection(BaseModel):
     type: Literal["cell"] = "cell"
     source: str
+
 
 class CellWithErrorSelection(BaseModel):
     type: Literal["cell-with-error"] = "cell-with-error"
