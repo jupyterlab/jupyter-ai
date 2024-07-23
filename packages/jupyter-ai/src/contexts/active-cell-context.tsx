@@ -83,7 +83,7 @@ export class ActiveCellManager {
    * `ActiveCellContentWithError` object that describes both the active cell and
    * the error output.
    */
-  getContent(withError: false): CellContent | null;
+  getContent(withError: false): CellContent;
   getContent(withError: true): CellWithErrorContent | null;
   getContent(withError = false): CellContent | CellWithErrorContent | null {
     const sharedModel = this._activeCell?.model.sharedModel;

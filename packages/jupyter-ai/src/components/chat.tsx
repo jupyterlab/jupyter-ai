@@ -63,7 +63,6 @@ function ChatBody({
     getPersonaName(messages)
   );
   const [showWelcomeMessage, setShowWelcomeMessage] = useState<boolean>(false);
-  const [input, setInput] = useState('');
   const [sendWithShiftEnter, setSendWithShiftEnter] = useState(true);
 
   /**
@@ -101,20 +100,6 @@ function ChatBody({
       chatHandler.historyChanged.disconnect(onHistoryChange);
     };
   }, [chatHandler]);
-
-  // no need to append to messageGroups imperatively here. all of that is
-  // handled by the listeners registered in the effect hooks above.
-  // TODO: unify how text selection & cell selection are handled
-  const onSend = async (selection?: AiService.Selection) => {
-    const prompt = input;
-    setInput('');
-
-    // send message to backend
-    const messageId = await chatHandler.sendMessage({ prompt, selection });
-
-    // await reply from agent
-    await chatHandler.replyFor(messageId);
-  };
 
   const openSettingsView = () => {
     setShowWelcomeMessage(false);
@@ -158,9 +143,7 @@ function ChatBody({
         <PendingMessages messages={pendingMessages} />
       </ScrollContainer>
       <ChatInput
-        value={input}
-        onChange={setInput}
-        onSend={onSend}
+        chatHandler={chatHandler}
         focusInputSignal={focusInputSignal}
         sx={{
           paddingLeft: 4,
