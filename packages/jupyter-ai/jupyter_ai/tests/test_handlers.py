@@ -89,7 +89,7 @@ def chat_client():
 
 @pytest.fixture
 def human_chat_message(chat_client):
-    return HumanChatMessage(id="test", time=0, body="test message", client=chat_client)
+    return HumanChatMessage(id="test", time=0, body="test message", prompt="test message", client=chat_client)
 
 
 def test_learn_index_permissions(tmp_path):
