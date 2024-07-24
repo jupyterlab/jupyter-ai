@@ -158,8 +158,8 @@ Jupyter AI supports the following model providers:
 | AI21                | `ai21`               | `AI21_API_KEY`             | `ai21`                          |
 | Anthropic           | `anthropic`          | `ANTHROPIC_API_KEY`        | `langchain-anthropic`           |
 | Anthropic (chat)    | `anthropic-chat`     | `ANTHROPIC_API_KEY`        | `langchain-anthropic`           |
-| Bedrock             | `bedrock`            | N/A                        | `boto3`                         |
-| Bedrock (chat)      | `bedrock-chat`       | N/A                        | `boto3`                         |
+| Bedrock             | `bedrock`            | N/A                        | `langchain-aws`                 |
+| Bedrock (chat)      | `bedrock-chat`       | N/A                        | `langchain-aws`                 |
 | Cohere              | `cohere`             | `COHERE_API_KEY`           | `langchain_cohere`              |
 | ERNIE-Bot           | `qianfan`            | `QIANFAN_AK`, `QIANFAN_SK` | `qianfan`                       |
 | Gemini              | `gemini`             | `GOOGLE_API_KEY`           | `langchain-google-genai`        |
@@ -169,7 +169,7 @@ Jupyter AI supports the following model providers:
 | NVIDIA              | `nvidia-chat`        | `NVIDIA_API_KEY`           | `langchain_nvidia_ai_endpoints` |
 | OpenAI              | `openai`             | `OPENAI_API_KEY`           | `langchain-openai`              |
 | OpenAI (chat)       | `openai-chat`        | `OPENAI_API_KEY`           | `langchain-openai`              |
-| SageMaker           | `sagemaker-endpoint` | N/A                        | `boto3`                         |
+| SageMaker           | `sagemaker-endpoint` | N/A                        | `langchain-aws`                 |
 
 The environment variable names shown above are also the names of the settings keys used when setting up the chat interface.
 If multiple variables are listed for a provider, **all** must be specified.
