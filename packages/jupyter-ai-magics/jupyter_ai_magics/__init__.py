@@ -3,7 +3,6 @@ from ._version import __version__
 # expose embedding model providers on the package root
 from .embedding_providers import (
     BaseEmbeddingsProvider,
-    BedrockEmbeddingsProvider,
     GPT4AllEmbeddingsProvider,
     HfHubEmbeddingsProvider,
     OllamaEmbeddingsProvider,
@@ -20,13 +19,10 @@ from .models.persona import JupyternautPersona, Persona
 from .providers import (
     AI21Provider,
     BaseProvider,
-    BedrockChatProvider,
-    BedrockProvider,
     GPT4AllProvider,
     HfHubProvider,
     OllamaProvider,
     QianfanProvider,
-    SmEndpointProvider,
     TogetherAIProvider,
 )
 
