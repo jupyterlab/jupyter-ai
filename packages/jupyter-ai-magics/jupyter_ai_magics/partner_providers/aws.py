@@ -90,7 +90,12 @@ class BedrockChatProvider(BaseProvider, ChatBedrock):
 class BedrockEmbeddingsProvider(BaseEmbeddingsProvider, BedrockEmbeddings):
     id = "bedrock"
     name = "Bedrock"
-    models = ["amazon.titan-embed-text-v1", "amazon.titan-embed-text-v2:0"]
+    models = [
+        "amazon.titan-embed-text-v1", 
+        "amazon.titan-embed-text-v2:0",
+        "cohere.embed-english-v3",
+        "cohere.embed-multilingual-v3"
+    ]
     model_id_key = "model_id"
     pypi_package_deps = ["langchain-aws"]
     auth_strategy = AwsAuthStrategy()
