@@ -137,7 +137,7 @@ class SmEndpointProvider(BaseProvider, SagemakerEndpoint):
     help = (
         "Specify an endpoint name as the model ID. "
         "In addition, you must specify a region name, request schema, and response path. "
-        "For more information, see the documentation about [SageMaker endpoints deployment](https://docs.aws.amazon.com/sagemaker/latest/dg/realtime-endpoints-deployment.html) "
+        "For more information, see the documentation about [SageMaker endpoints deployment](https://docs.aws.amazon.com/sagemaker/latest/dg/realtime-endpoints-deploy-models.html) "
         "and about [using magic commands with SageMaker endpoints](https://jupyter-ai.readthedocs.io/en/latest/users/index.html#using-magic-commands-with-sagemaker-endpoints)."
     )
 
