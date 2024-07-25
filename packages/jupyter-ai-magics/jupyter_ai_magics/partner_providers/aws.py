@@ -3,7 +3,7 @@ import json
 from typing import Any, Coroutine, Dict
 
 from jsonpath_ng import parse
-from langchain_aws import Bedrock, BedrockEmbeddings, ChatBedrock, SagemakerEndpoint
+from langchain_aws import BedrockLLM, BedrockEmbeddings, ChatBedrock, SagemakerEndpoint
 from langchain_aws.llms.sagemaker_endpoint import LLMContentHandler
 from langchain_core.outputs import LLMResult
 
@@ -12,7 +12,7 @@ from ..providers import AwsAuthStrategy, BaseProvider, MultilineTextField, TextF
 
 
 # See model ID list here: https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids.html
-class BedrockProvider(BaseProvider, Bedrock):
+class BedrockProvider(BaseProvider, BedrockLLM):
     id = "bedrock"
     name = "Amazon Bedrock"
     models = [
