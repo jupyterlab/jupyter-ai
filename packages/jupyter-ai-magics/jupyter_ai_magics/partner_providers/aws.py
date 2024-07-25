@@ -3,7 +3,7 @@ import json
 from typing import Any, Coroutine, Dict
 
 from jsonpath_ng import parse
-from langchain_aws import BedrockLLM, BedrockEmbeddings, ChatBedrock, SagemakerEndpoint
+from langchain_aws import BedrockEmbeddings, BedrockLLM, ChatBedrock, SagemakerEndpoint
 from langchain_aws.llms.sagemaker_endpoint import LLMContentHandler
 from langchain_core.outputs import LLMResult
 
