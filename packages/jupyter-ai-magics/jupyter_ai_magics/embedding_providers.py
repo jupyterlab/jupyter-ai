@@ -2,14 +2,12 @@ from typing import ClassVar, List
 
 from jupyter_ai_magics.providers import (
     AuthStrategy,
-    AwsAuthStrategy,
     EnvAuthStrategy,
     Field,
     MultiEnvAuthStrategy,
 )
 from langchain.pydantic_v1 import BaseModel, Extra
 from langchain_community.embeddings import (
-    BedrockEmbeddings,
     GPT4AllEmbeddings,
     HuggingFaceHubEmbeddings,
     OllamaEmbeddings,
@@ -91,16 +89,6 @@ class HfHubEmbeddingsProvider(BaseEmbeddingsProvider, HuggingFaceHubEmbeddings):
     pypi_package_deps = ["huggingface_hub", "ipywidgets"]
     auth_strategy = EnvAuthStrategy(name="HUGGINGFACEHUB_API_TOKEN")
     registry = True
-
-
-# See model ID list here: https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids.html
-class BedrockEmbeddingsProvider(BaseEmbeddingsProvider, BedrockEmbeddings):
-    id = "bedrock"
-    name = "Bedrock"
-    models = ["amazon.titan-embed-text-v1", "amazon.titan-embed-text-v2:0"]
-    model_id_key = "model_id"
-    pypi_package_deps = ["boto3"]
-    auth_strategy = AwsAuthStrategy()
 
 
 class GPT4AllEmbeddingsProvider(BaseEmbeddingsProvider, GPT4AllEmbeddings):
