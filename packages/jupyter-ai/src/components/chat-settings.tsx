@@ -462,7 +462,9 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
       {/* API Keys section */}
       <h2 className="jp-ai-ChatSettings-header">API Keys</h2>
       {/* API key inputs for newly-used providers */}
-      {Object.entries(apiKeys).map(([apiKeyName, apiKeyValue], idx) => (
+      { Object.entries(apiKeys).length === 0 ?
+            <p>No API Keys needed for selected model</p> :
+            Object.entries(apiKeys).map(([apiKeyName, apiKeyValue], idx) => (
         <TextField
           key={idx}
           label={apiKeyName}
