@@ -40,19 +40,14 @@ type ChatBodyProps = {
  * Defaults to `'Jupyternaut'` if history is insufficient.
  */
 function getPersonaName(messages: AiService.ChatMessage[]): string {
-  let personaName = 'Jupyternaut';
-
   for (let i = messages.length - 1; i >= 0; i--) {
     const message = messages[i];
-    if (message.type !== 'agent' && message.type !== 'agent-stream') {
-      continue;
+    if (message.type === 'agent' || message.type === 'agent-stream') {
+      return message.persona.name;
     }
-
-    personaName = message.persona.name;
-    break;
   }
 
-  return personaName;
+  return 'Jupyternaut';
 }
 
 function ChatBody({
