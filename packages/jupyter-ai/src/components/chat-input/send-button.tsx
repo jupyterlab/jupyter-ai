@@ -162,7 +162,11 @@ export function SendButton(props: SendButtonProps): JSX.Element {
         }}
       >
         <MenuItem
-          onClick={() => sendWithSelection()}
+          onClick={e => {
+            sendWithSelection();
+            // prevent sending second message with no selection
+            e.stopPropagation();
+          }}
           disabled={includeSelectionDisabled}
         >
           <includeSelectionIcon.react />
