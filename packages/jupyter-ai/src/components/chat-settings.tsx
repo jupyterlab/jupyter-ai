@@ -344,6 +344,77 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
     language_model_section = <p>No language models available.</p>;
   }
 
+  let inline_completion_section;
+  if (isCompleterEnabled) {
+    inline_completion_section = (
+      <Box>
+        <Select
+          value={clmProvider?.registry ? clmProvider.id + ':*' : clmGlobalId}
+          label="Inline completion model"
+          disabled={!isCompleterEnabled}
+          onChange={e => {
+            const clmGid = e.target.value === 'null' ? null : e.target.value;
+            if (clmGid === null) {
+              setClmProvider(null);
+              return;
+            }
+
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            const nextClmProvider = getProvider(clmGid, server.lmProviders)!;
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            const nextClmLocalId = getModelLocalId(clmGid)!;
+
+            setClmProvider(nextClmProvider);
+            setCompletionHelpMarkdown(nextClmProvider?.help ?? null);
+            if (nextClmProvider.registry) {
+              setClmLocalId('');
+              setShowClmLocalId(true);
+            } else {
+              setClmLocalId(nextClmLocalId);
+              setShowClmLocalId(false);
+            }
+          }}
+          MenuProps={{ sx: { maxHeight: '50%', minHeight: 400 } }}
+        >
+          <MenuItem value="null">None</MenuItem>
+          {server.lmProviders.providers.map(lmp =>
+            lmp.models
+              .filter(lm => lmp.completion_models.includes(lm))
+              .map(lm => (
+                <MenuItem value={`${lmp.id}:${lm}`}>
+                  {lmp.name} :: {lm}
+                </MenuItem>
+              ))
+          )}
+        </Select>
+        {showClmLocalId && (
+          <TextField
+            label={clmProvider?.model_id_label || 'Local model ID'}
+            value={clmLocalId}
+            onChange={e => setClmLocalId(e.target.value)}
+            fullWidth
+          />
+        )}
+        {completionHelpMarkdown && (
+          <RendermimeMarkdown
+            rmRegistry={props.rmRegistry}
+            markdownStr={completionHelpMarkdown}
+            complete
+          />
+        )}
+        {clmGlobalId && (
+          <ModelFields
+            fields={clmProvider?.fields}
+            values={fields}
+            onChange={setFields}
+          />
+        )}
+      </Box>
+    );
+  } else {
+    inline_completion_section = <p>Inline Completer is not enabled</p>;
+  }
+
   return (
     <Box
       sx={{
@@ -401,67 +472,7 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
           selection={clmProvider}
         />
       </h2>
-      <Select
-        value={clmProvider?.registry ? clmProvider.id + ':*' : clmGlobalId}
-        label="Inline completion model"
-        disabled={!isCompleterEnabled}
-        onChange={e => {
-          const clmGid = e.target.value === 'null' ? null : e.target.value;
-          if (clmGid === null) {
-            setClmProvider(null);
-            return;
-          }
-
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          const nextClmProvider = getProvider(clmGid, server.lmProviders)!;
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          const nextClmLocalId = getModelLocalId(clmGid)!;
-
-          setClmProvider(nextClmProvider);
-          setCompletionHelpMarkdown(nextClmProvider?.help ?? null);
-          if (nextClmProvider.registry) {
-            setClmLocalId('');
-            setShowClmLocalId(true);
-          } else {
-            setClmLocalId(nextClmLocalId);
-            setShowClmLocalId(false);
-          }
-        }}
-        MenuProps={{ sx: { maxHeight: '50%', minHeight: 400 } }}
-      >
-        <MenuItem value="null">None</MenuItem>
-        {server.lmProviders.providers.map(lmp =>
-          lmp.models
-            .filter(lm => lmp.completion_models.includes(lm))
-            .map(lm => (
-              <MenuItem value={`${lmp.id}:${lm}`}>
-                {lmp.name} :: {lm}
-              </MenuItem>
-            ))
-        )}
-      </Select>
-      {showClmLocalId && (
-        <TextField
-          label={clmProvider?.model_id_label || 'Local model ID'}
-          value={clmLocalId}
-          onChange={e => setClmLocalId(e.target.value)}
-          fullWidth
-        />
-      )}
-      {completionHelpMarkdown && (
-        <RendermimeMarkdown
-          rmRegistry={props.rmRegistry}
-          markdownStr={completionHelpMarkdown}
-          complete
-        />
-      )}
-      {clmGlobalId && (
-        <ModelFields
-          fields={clmProvider?.fields}
-          values={fields}
-          onChange={setFields}
-        />
-      )}
+      {inline_completion_section}
 
       {/* API Keys section */}
       <h2 className="jp-ai-ChatSettings-header">API Keys</h2>
