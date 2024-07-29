@@ -278,24 +278,10 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
     );
   }
 
-  return (
-    <Box
-      sx={{
-        padding: '0 12px 12px',
-        boxSizing: 'border-box',
-        '& .MuiAlert-root': {
-          marginTop: 2
-        },
-        overflowY: 'auto'
-      }}
-    >
-      {/* Chat language model section */}
-      <h2
-        className="jp-ai-ChatSettings-header"
-        title="The language model used in the chat panel"
-      >
-        Language model
-      </h2>
+  var language_model_section
+  if (server.lmProviders.providers.length > 0) {
+    language_model_section = (
+      <Box>
       <Select
         value={lmProvider?.registry ? lmProvider.id + ':*' : lmGlobalId}
         label="Completion model"
@@ -356,29 +342,56 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
           onChange={setFields}
         />
       )}
+      </Box>);
+  } else {
+    language_model_section = <p>No language models available.</p>
+  }
+
+  return (
+    <Box
+      sx={{
+        padding: '0 12px 12px',
+        boxSizing: 'border-box',
+        '& .MuiAlert-root': {
+          marginTop: 2
+        },
+        overflowY: 'auto'
+      }}
+    >
+      {/* Chat language model section */}
+      <h2
+        className="jp-ai-ChatSettings-header"
+        title="The language model used in the chat panel"
+      >
+        Language model
+      </h2>
+      {language_model_section}
 
       {/* Embedding model section */}
       <h2 className="jp-ai-ChatSettings-header">Embedding model</h2>
-      <Select
-        value={emGlobalId}
-        label="Embedding model"
-        onChange={e => {
-          const emGid = e.target.value === 'null' ? null : e.target.value;
-          setEmGlobalId(emGid);
-        }}
-        MenuProps={{ sx: { maxHeight: '50%', minHeight: 400 } }}
-      >
-        <MenuItem value="null">None</MenuItem>
-        {server.emProviders.providers.map(emp =>
-          emp.models
-            .filter(em => em !== '*') // TODO: support registry providers
-            .map(em => (
-              <MenuItem value={`${emp.id}:${em}`}>
-                {emp.name} :: {em}
-              </MenuItem>
-            ))
-        )}
-      </Select>
+      {server.emProviders.providers.length > 0 ?
+        <Select
+          value={emGlobalId}
+          label="Embedding model"
+          onChange={e => {
+            const emGid = e.target.value === 'null' ? null : e.target.value;
+            setEmGlobalId(emGid);
+          }}
+          MenuProps={{ sx: { maxHeight: '50%', minHeight: 400 } }}
+        >
+          <MenuItem value="null">None</MenuItem>
+          {server.emProviders.providers.map(emp =>
+            emp.models
+              .filter(em => em !== '*') // TODO: support registry providers
+              .map(em => (
+                <MenuItem value={`${emp.id}:${em}`}>
+                  {emp.name} :: {em}
+                </MenuItem>
+              ))
+          )}
+        </Select> :
+        <p>No embedding models available.</p>
+      }
 
       {/* Completer language model section */}
       <h2 className="jp-ai-ChatSettings-header">
