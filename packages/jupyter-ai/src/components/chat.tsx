@@ -35,6 +35,26 @@ type ChatBodyProps = {
   focusInputSignal: ISignal<unknown, void>;
 };
 
+/**
+ * Determines the name of the current persona based on the message history.
+ * Defaults to `'Jupyternaut'` if history is insufficient.
+ */
+function getPersonaName(messages: AiService.ChatMessage[]): string {
+  let personaName = 'Jupyternaut';
+
+  for (let i = messages.length - 1; i >= 0; i--) {
+    const message = messages[i];
+    if (message.type !== 'agent' && message.type !== 'agent-stream') {
+      continue;
+    }
+
+    personaName = message.persona.name;
+    break;
+  }
+
+  return personaName;
+}
+
 function ChatBody({
   chatHandler,
   focusInputSignal,
@@ -47,6 +67,9 @@ function ChatBody({
   const [pendingMessages, setPendingMessages] = useState<
     AiService.PendingMessage[]
   >([...chatHandler.history.pending_messages]);
+  const [personaName, setPersonaName] = useState<string>(
+    getPersonaName(messages)
+  );
   const [showWelcomeMessage, setShowWelcomeMessage] = useState<boolean>(false);
   const [includeSelection, setIncludeSelection] = useState(true);
   const [input, setInput] = useState('');
@@ -79,6 +102,7 @@ function ChatBody({
     function onHistoryChange(_: unknown, history: AiService.ChatHistory) {
       setMessages([...history.messages]);
       setPendingMessages([...history.pending_messages]);
+      setPersonaName(getPersonaName(history.messages));
     }
 
     chatHandler.historyChanged.connect(onHistoryChange);
@@ -166,6 +190,7 @@ function ChatBody({
           borderTop: '1px solid var(--jp-border-color1)'
         }}
         sendWithShiftEnter={sendWithShiftEnter}
+        personaName={personaName}
       />
     </>
   );
