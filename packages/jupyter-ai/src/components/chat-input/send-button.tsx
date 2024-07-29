@@ -140,7 +140,6 @@ export function SendButton(props: SendButtonProps): JSX.Element {
       <Menu
         open={menuOpen}
         onClose={closeMenu}
-        disableAutoFocusItem
         anchorEl={menuAnchorEl}
         anchorOrigin={{
           vertical: 'top',
