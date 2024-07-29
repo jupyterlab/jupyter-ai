@@ -47,7 +47,7 @@ export function SendButton(props: SendButtonProps): JSX.Element {
       : textSelection
       ? `${textSelection.text.split('\n').length} lines selected`
       : activeCell.exists
-      ? '1 active cell'
+      ? 'Code from 1 active cell'
       : 'No selection or active cell';
 
   const defaultTooltip = props.sendWithShiftEnter
