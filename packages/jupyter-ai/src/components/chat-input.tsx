@@ -38,6 +38,11 @@ type ChatInputProps = {
   toggleIncludeSelection: () => unknown;
   sendWithShiftEnter: boolean;
   sx?: SxProps<Theme>;
+  /**
+   * Name of the persona, set by the selected chat model. This defaults to
+   * `'Jupyternaut'`, but can differ for custom providers.
+   */
+  personaName: string;
 };
 
 type SlashCommandOption = {
@@ -300,7 +305,7 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
             variant="outlined"
             maxRows={20}
             multiline
-            placeholder="Ask Jupyternaut"
+            placeholder={`Ask ${props.personaName}`}
             onKeyDown={handleKeyDown}
             inputRef={inputRef}
             InputProps={{
