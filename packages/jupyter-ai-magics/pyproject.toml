@@ -68,6 +68,7 @@ azure-chat-openai = "jupyter_ai_magics.partner_providers.openai:AzureChatOpenAIP
 sagemaker-endpoint = "jupyter_ai_magics.partner_providers.aws:SmEndpointProvider"
 amazon-bedrock = "jupyter_ai_magics.partner_providers.aws:BedrockProvider"
 amazon-bedrock-chat = "jupyter_ai_magics.partner_providers.aws:BedrockChatProvider"
+amazon-bedrock-custom = "jupyter_ai_magics.partner_providers.aws:BedrockCustomProvider"
 qianfan = "jupyter_ai_magics:QianfanProvider"
 nvidia-chat = "jupyter_ai_magics.partner_providers.nvidia:ChatNVIDIAProvider"
 together-ai = "jupyter_ai_magics:TogetherAIProvider"

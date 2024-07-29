@@ -104,6 +104,28 @@ class BedrockChatProvider(BaseProvider, ChatBedrock):
         return not "anthropic" in self.model_id
 
 
+class BedrockCustomProvider(BaseProvider, ChatBedrock):
+    id = "bedrock-custom"
+    name = "Amazon Bedrock (custom/provisioned)"
+    models = ["*"]
+    model_id_key = "model_id"
+    pypi_package_deps = ["langchain-aws"]
+    auth_strategy = AwsAuthStrategy()
+    fields = [
+        TextField(key="provider", label="Provider (required)", format="text"),
+        TextField(key="region_name", label="Region name (optional)", format="text"),
+        TextField(
+            key="credentials_profile_name",
+            label="AWS profile (optional)",
+            format="text",
+        ),
+    ]
+    help = (
+        "Specify the ARN of the custom/provisioned model as the model ID. For more information, see the [Amazon Bedrock model IDs documentation](https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids.html)"
+        "The model provider must be provided. This is the provider of your foundation model, e.g. `amazon`, `anthropic`, `meta`, or `mistral`."
+    )
+
+
 # See model ID list here: https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids.html
 class BedrockEmbeddingsProvider(BaseEmbeddingsProvider, BedrockEmbeddings):
     id = "bedrock"
@@ -188,3 +210,4 @@ class SmEndpointProvider(BaseProvider, SagemakerEndpoint):
 
     async def _acall(self, *args, **kwargs) -> Coroutine[Any, Any, str]:
         return await self._call_in_executor(*args, **kwargs)
+
