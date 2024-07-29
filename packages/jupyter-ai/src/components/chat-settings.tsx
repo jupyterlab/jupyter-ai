@@ -147,30 +147,23 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
     const lmAuth = lmProvider?.auth_strategy;
     const emAuth = emProvider?.auth_strategy;
     if (
-      lmAuth?.type === 'env' &&
-      !server.config.api_keys.includes(lmAuth.name)
+      lmAuth?.type === 'env'
     ) {
       newApiKeys[lmAuth.name] = '';
     }
     if (lmAuth?.type === 'multienv') {
       lmAuth.names.forEach(apiKey => {
-        if (!server.config.api_keys.includes(apiKey)) {
           newApiKeys[apiKey] = '';
-        }
       });
     }
-
     if (
-      emAuth?.type === 'env' &&
-      !server.config.api_keys.includes(emAuth.name)
+      emAuth?.type === 'env'
     ) {
       newApiKeys[emAuth.name] = '';
     }
     if (emAuth?.type === 'multienv') {
       emAuth.names.forEach(apiKey => {
-        if (!server.config.api_keys.includes(apiKey)) {
-          newApiKeys[apiKey] = '';
-        }
+        newApiKeys[apiKey] = '';
       });
     }
 
@@ -465,20 +458,21 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
       { Object.entries(apiKeys).length === 0 ?
             <p>No API Keys needed for selected model</p> :
             Object.entries(apiKeys).map(([apiKeyName, apiKeyValue], idx) => (
-        <TextField
-          key={idx}
-          label={apiKeyName}
-          value={apiKeyValue}
-          fullWidth
-          type="password"
-          onChange={e =>
-            setApiKeys(apiKeys => ({
-              ...apiKeys,
-              [apiKeyName]: e.target.value
-            }))
-          }
-        />
-      ))}
+              !server.config.api_keys.includes(apiKeyName) ?
+                <TextField
+                  key={idx}
+                  label={apiKeyName}
+                  value={apiKeyValue}
+                  fullWidth
+                  type="password"
+                  onChange={e =>
+                    setApiKeys(apiKeys => ({
+                      ...apiKeys,
+                      [apiKeyName]: e.target.value
+                    }))
+                  }
+                /> : null
+            ))}
       {/* Pre-existing API keys */}
       <ExistingApiKeys
         alert={apiKeysAlert}
