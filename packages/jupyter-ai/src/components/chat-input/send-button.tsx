@@ -111,11 +111,22 @@ export function SendButton(props: SendButtonProps): JSX.Element {
         <SendIcon />
       </TooltippedButton>
       <TooltippedButton
-        onClick={e => openMenu(e.currentTarget)}
+        onClick={e => {
+          openMenu(e.currentTarget);
+        }}
         disabled={disabled}
         tooltip=""
         buttonProps={{
-          variant: 'contained'
+          variant: 'contained',
+          onKeyDown: e => {
+            if (e.key !== 'Enter' && e.key !== ' ') {
+              return;
+            }
+            openMenu(e.currentTarget);
+            // stopping propagation of this event prevents the prompt from being
+            // sent when the dropdown button is selected and clicked via 'Enter'.
+            e.stopPropagation();
+          }
         }}
         sx={{
           minWidth: 'unset',
