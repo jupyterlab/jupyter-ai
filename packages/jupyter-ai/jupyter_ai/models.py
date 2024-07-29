@@ -14,22 +14,28 @@ class CellError(BaseModel):
     traceback: List[str]
 
 
+class TextSelection(BaseModel):
+    type: Literal["text"] = "text"
+    source: str
+
+
+class CellSelection(BaseModel):
+    type: Literal["cell"] = "cell"
+    source: str
+
+
 class CellWithErrorSelection(BaseModel):
     type: Literal["cell-with-error"] = "cell-with-error"
     source: str
     error: CellError
 
 
-Selection = Union[CellWithErrorSelection]
+Selection = Union[TextSelection, CellSelection, CellWithErrorSelection]
 
 
 # the type of message used to chat with the agent
 class ChatRequest(BaseModel):
     prompt: str
-    # TODO: This currently is only used when a user runs the /fix slash command.
-    # In the future, the frontend should set the text selection on this field in
-    # the `HumanChatMessage` it sends to JAI, instead of appending the text
-    # selection to `body` in the frontend.
     selection: Optional[Selection]
 
 
@@ -88,8 +94,13 @@ class HumanChatMessage(BaseModel):
     id: str
     time: float
     body: str
-    client: ChatClient
+    """The formatted body of the message to be rendered in the UI. Includes both
+    `prompt` and `selection`."""
+    prompt: str
+    """The prompt typed into the chat input by the user."""
     selection: Optional[Selection]
+    """The selection included with the prompt, if any."""
+    client: ChatClient
 
 
 class ClearMessage(BaseModel):

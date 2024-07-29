@@ -89,7 +89,7 @@ class FixChatHandler(BaseChatHandler):
         selection: CellWithErrorSelection = message.selection
 
         # parse additional instructions specified after `/fix`
-        extra_instructions = message.body[4:].strip() or "None."
+        extra_instructions = message.prompt[4:].strip() or "None."
 
         self.get_llm_chain()
         with self.pending("Analyzing error"):
