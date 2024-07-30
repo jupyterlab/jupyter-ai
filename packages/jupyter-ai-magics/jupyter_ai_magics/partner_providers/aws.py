@@ -109,6 +109,7 @@ class BedrockCustomProvider(BaseProvider, ChatBedrock):
     name = "Amazon Bedrock (custom/provisioned)"
     models = ["*"]
     model_id_key = "model_id"
+    model_id_label = "Model ID"
     pypi_package_deps = ["langchain-aws"]
     auth_strategy = AwsAuthStrategy()
     fields = [
@@ -124,6 +125,7 @@ class BedrockCustomProvider(BaseProvider, ChatBedrock):
         "Specify the ARN of the custom/provisioned model as the model ID. For more information, see the [Amazon Bedrock model IDs documentation](https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids.html).\n\n"
         "The model provider must also be specified below. This is the provider of your foundation model, e.g. `amazon`, `anthropic`, `meta`, or `mistral`."
     )
+    registry = True
 
 
 # See model ID list here: https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids.html
