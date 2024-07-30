@@ -275,7 +275,7 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
   }
 
   let language_model_section;
-  if (server.lmProviders.providers.length > 0) {
+  if (lmp.chat_models.length > 0) {
     language_model_section = (
       <Box>
         <Select
