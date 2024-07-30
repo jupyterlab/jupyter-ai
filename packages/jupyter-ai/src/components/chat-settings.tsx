@@ -412,7 +412,7 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
       </Box>
     );
   } else {
-    inline_completion_section = <p>Inline Completer is not enabled</p>;
+    inline_completion_section = <p>No Inline Completion models</p>;
   }
 
   return (
