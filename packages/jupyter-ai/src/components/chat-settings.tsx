@@ -274,9 +274,9 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
     );
   }
 
-  let language_model_section;
-  if (lmp.chat_models.length > 0) {
-    language_model_section = (
+  let languageModelSection;
+  if (lmProvider?.chat_models && lmProvider.chat_models.length > 0) {
+    languageModelSection = (
       <Box>
         <Select
           value={lmProvider?.registry ? lmProvider.id + ':*' : lmGlobalId}
@@ -341,12 +341,15 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
       </Box>
     );
   } else {
-    language_model_section = <p>No language models available.</p>;
+    languageModelSection = <p>No language models available.</p>;
   }
 
-  let inline_completion_section;
-  if (anyCompletionModelsAvailable) {
-    inline_completion_section = (
+  let inlineCompletionSection;
+  if (
+    lmProvider?.completion_models &&
+    lmProvider?.completion_models.length > 0
+  ) {
+    inlineCompletionSection = (
       <Box>
         <Select
           value={clmProvider?.registry ? clmProvider.id + ':*' : clmGlobalId}
@@ -412,7 +415,7 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
       </Box>
     );
   } else {
-    inline_completion_section = <p>No Inline Completion models</p>;
+    inlineCompletionSection = <p>No Inline Completion models.</p>;
   }
 
   return (
@@ -433,7 +436,7 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
       >
         Language model
       </h2>
-      {language_model_section}
+      {languageModelSection}
 
       {/* Embedding model section */}
       <h2 className="jp-ai-ChatSettings-header">Embedding model</h2>
@@ -472,13 +475,13 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
           selection={clmProvider}
         />
       </h2>
-      {inline_completion_section}
+      {inlineCompletionSection}
 
       {/* API Keys section */}
       <h2 className="jp-ai-ChatSettings-header">API Keys</h2>
       {/* API key inputs for newly-used providers */}
       {Object.entries(apiKeys).length === 0 ? (
-        <p>No API Keys needed for selected model</p>
+        <p>No API Keys needed for selected model.</p>
       ) : (
         Object.entries(apiKeys).map(([apiKeyName, apiKeyValue], idx) =>
           !server.config.api_keys.includes(apiKeyName) ? (
