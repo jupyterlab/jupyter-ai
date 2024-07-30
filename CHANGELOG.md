@@ -2,6 +2,25 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 2.20.0
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.19.1...79d66daefa2dc2f8a47b55712d7b812ee23acda4))
+
+### Enhancements made
+
+- Respect selected persona in chat input placeholder [#916](https://github.com/jupyterlab/jupyter-ai/pull/916) ([@dlqqq](https://github.com/dlqqq))
+- Migrate to `langchain-aws` for AWS providers [#909](https://github.com/jupyterlab/jupyter-ai/pull/909) ([@dlqqq](https://github.com/dlqqq))
+- Added new Bedrock Llama 3.1 models and gpt-4o-mini [#908](https://github.com/jupyterlab/jupyter-ai/pull/908) ([@srdas](https://github.com/srdas))
+- Rework selection inclusion; new Send button UX [#905](https://github.com/jupyterlab/jupyter-ai/pull/905) ([@dlqqq](https://github.com/dlqqq))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-07-22&to=2024-07-29&type=c))
+
+[@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2024-07-22..2024-07-29&type=Issues) | [@JasonWeill](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AJasonWeill+updated%3A2024-07-22..2024-07-29&type=Issues) | [@srdas](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2024-07-22..2024-07-29&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 2.19.1
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.19.0...cfcb3c6df4e795d877e6d0967a22ecfb880b3be3))
@@ -28,8 +47,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-07-15&to=2024-07-22&type=c))
 
 [@andrewfulton9](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aandrewfulton9+updated%3A2024-07-15..2024-07-22&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2024-07-15..2024-07-22&type=Issues) | [@jtpio](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ajtpio+updated%3A2024-07-15..2024-07-22&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2024-07-15..2024-07-22&type=Issues) | [@michaelchia](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Amichaelchia+updated%3A2024-07-15..2024-07-22&type=Issues) | [@pre-commit-ci](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Apre-commit-ci+updated%3A2024-07-15..2024-07-22&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 2.19.0
 
