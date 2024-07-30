@@ -345,7 +345,7 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
   }
 
   let inline_completion_section;
-  if (isCompleterEnabled) {
+  if (anyCompletionModelsAvailable) {
     inline_completion_section = (
       <Box>
         <Select
