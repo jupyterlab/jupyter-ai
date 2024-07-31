@@ -122,8 +122,8 @@ class BedrockCustomProvider(BaseProvider, ChatBedrock):
         ),
     ]
     help = (
-        "Specify the ARN of the custom/provisioned model as the model ID. For more information, see the [Amazon Bedrock model IDs documentation](https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids.html).\n\n"
-        "The model provider must also be specified below. This is the provider of your foundation model, e.g. `amazon`, `anthropic`, `meta`, or `mistral`."
+        "Specify the ARN (Amazon Resource Name) of the custom/provisioned model as the model ID. For more information, see the [Amazon Bedrock model IDs documentation](https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids.html).\n\n"
+        "The model provider must also be specified below. This is the provider of your foundation model *in lowercase*, e.g. `amazon`, `anthropic`, `meta`, or `mistral`."
     )
     registry = True
 
