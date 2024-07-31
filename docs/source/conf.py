@@ -9,7 +9,7 @@
 import time
 
 project = "Jupyter AI"
-copyright = f"2023-{time.localtime().tm_year}, Project Jupyter"
+copyright = f"2023–{time.localtime().tm_year}, Project Jupyter"
 author = "Project Jupyter"
 
 # -- General configuration ---------------------------------------------------
