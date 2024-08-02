@@ -293,71 +293,74 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
         Language model
       </h2>
 
-      {(server.lmProviders.providers.map( lmp  => lmp.chat_models.length).reduce((partialSum, num) => partialSum + num, 0))  > 0 ?(
-      <Box>
-        <Select
-          value={lmProvider?.registry ? lmProvider.id + ':*' : lmGlobalId}
-          label="Completion model"
-          onChange={e => {
-            const lmGid = e.target.value === 'null' ? null : e.target.value;
-            if (lmGid === null) {
-              setLmProvider(null);
-              return;
-            }
+      {server.lmProviders.providers
+        .map(lmp => lmp.chat_models.length)
+        .reduce((partialSum, num) => partialSum + num, 0) > 0 ? (
+        <Box>
+          <Select
+            value={lmProvider?.registry ? lmProvider.id + ':*' : lmGlobalId}
+            label="Completion model"
+            onChange={e => {
+              const lmGid = e.target.value === 'null' ? null : e.target.value;
+              if (lmGid === null) {
+                setLmProvider(null);
+                return;
+              }
 
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            const nextLmProvider = getProvider(lmGid, server.lmProviders)!;
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            const nextLmLocalId = getModelLocalId(lmGid)!;
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              const nextLmProvider = getProvider(lmGid, server.lmProviders)!;
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              const nextLmLocalId = getModelLocalId(lmGid)!;
 
-            setLmProvider(nextLmProvider);
-            setChatHelpMarkdown(nextLmProvider?.help ?? null);
-            if (nextLmProvider.registry) {
-              setLmLocalId('');
-              setShowLmLocalId(true);
-            } else {
-              setLmLocalId(nextLmLocalId);
-              setShowLmLocalId(false);
-            }
-          }}
-          MenuProps={{ sx: { maxHeight: '50%', minHeight: 400 } }}
-        >
-          <MenuItem value="null">None</MenuItem>
-          {server.lmProviders.providers.map(lmp =>
-            lmp.models
-              .filter(lm => lmp.chat_models.includes(lm))
-              .map(lm => (
-                <MenuItem value={`${lmp.id}:${lm}`}>
-                  {lmp.name} :: {lm}
-                </MenuItem>
-              ))
+              setLmProvider(nextLmProvider);
+              setChatHelpMarkdown(nextLmProvider?.help ?? null);
+              if (nextLmProvider.registry) {
+                setLmLocalId('');
+                setShowLmLocalId(true);
+              } else {
+                setLmLocalId(nextLmLocalId);
+                setShowLmLocalId(false);
+              }
+            }}
+            MenuProps={{ sx: { maxHeight: '50%', minHeight: 400 } }}
+          >
+            <MenuItem value="null">None</MenuItem>
+            {server.lmProviders.providers.map(lmp =>
+              lmp.models
+                .filter(lm => lmp.chat_models.includes(lm))
+                .map(lm => (
+                  <MenuItem value={`${lmp.id}:${lm}`}>
+                    {lmp.name} :: {lm}
+                  </MenuItem>
+                ))
+            )}
+          </Select>
+          {showLmLocalId && (
+            <TextField
+              label={lmProvider?.model_id_label || 'Local model ID'}
+              value={lmLocalId}
+              onChange={e => setLmLocalId(e.target.value)}
+              fullWidth
+            />
           )}
-        </Select>
-        {showLmLocalId && (
-          <TextField
-            label={lmProvider?.model_id_label || 'Local model ID'}
-            value={lmLocalId}
-            onChange={e => setLmLocalId(e.target.value)}
-            fullWidth
-          />
-        )}
-        {chatHelpMarkdown && (
-          <RendermimeMarkdown
-            rmRegistry={props.rmRegistry}
-            markdownStr={chatHelpMarkdown}
-            complete
-          />
-        )}
-        {lmGlobalId && (
-          <ModelFields
-            fields={lmProvider?.fields}
-            values={fields}
-            onChange={setFields}
-          />
-        )}
-      </Box>) : 
-      <p>No language models available.</p>
-      }
+          {chatHelpMarkdown && (
+            <RendermimeMarkdown
+              rmRegistry={props.rmRegistry}
+              markdownStr={chatHelpMarkdown}
+              complete
+            />
+          )}
+          {lmGlobalId && (
+            <ModelFields
+              fields={lmProvider?.fields}
+              values={fields}
+              onChange={setFields}
+            />
+          )}
+        </Box>
+      ) : (
+        <p>No language models available.</p>
+      )}
 
       {/* Embedding model section */}
       <h2 className="jp-ai-ChatSettings-header">Embedding model</h2>
@@ -396,72 +399,75 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
           selection={clmProvider}
         />
       </h2>
-      {(server.lmProviders.providers.map( lmp  => lmp.completion_models.length).reduce((partialSum, num) => partialSum + num, 0)  > 0) ?
-      (
-      <Box>
-        <Select
-          value={clmProvider?.registry ? clmProvider.id + ':*' : clmGlobalId}
-          label="Inline completion model"
-          disabled={!isCompleterEnabled}
-          onChange={e => {
-            const clmGid = e.target.value === 'null' ? null : e.target.value;
-            if (clmGid === null) {
-              setClmProvider(null);
-              return;
-            }
+      {server.lmProviders.providers
+        .map(lmp => lmp.completion_models.length)
+        .reduce((partialSum, num) => partialSum + num, 0) > 0 ? (
+        <Box>
+          <Select
+            value={clmProvider?.registry ? clmProvider.id + ':*' : clmGlobalId}
+            label="Inline completion model"
+            disabled={!isCompleterEnabled}
+            onChange={e => {
+              const clmGid = e.target.value === 'null' ? null : e.target.value;
+              if (clmGid === null) {
+                setClmProvider(null);
+                return;
+              }
 
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            const nextClmProvider = getProvider(clmGid, server.lmProviders)!;
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            const nextClmLocalId = getModelLocalId(clmGid)!;
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              const nextClmProvider = getProvider(clmGid, server.lmProviders)!;
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              const nextClmLocalId = getModelLocalId(clmGid)!;
 
-            setClmProvider(nextClmProvider);
-            setCompletionHelpMarkdown(nextClmProvider?.help ?? null);
-            if (nextClmProvider.registry) {
-              setClmLocalId('');
-              setShowClmLocalId(true);
-            } else {
-              setClmLocalId(nextClmLocalId);
-              setShowClmLocalId(false);
-            }
-          }}
-          MenuProps={{ sx: { maxHeight: '50%', minHeight: 400 } }}
-        >
-          <MenuItem value="null">None</MenuItem>
-          {server.lmProviders.providers.map(lmp =>
-            lmp.models
-              .filter(lm => lmp.completion_models.includes(lm))
-              .map(lm => (
-                <MenuItem value={`${lmp.id}:${lm}`}>
-                  {lmp.name} :: {lm}
-                </MenuItem>
-              ))
+              setClmProvider(nextClmProvider);
+              setCompletionHelpMarkdown(nextClmProvider?.help ?? null);
+              if (nextClmProvider.registry) {
+                setClmLocalId('');
+                setShowClmLocalId(true);
+              } else {
+                setClmLocalId(nextClmLocalId);
+                setShowClmLocalId(false);
+              }
+            }}
+            MenuProps={{ sx: { maxHeight: '50%', minHeight: 400 } }}
+          >
+            <MenuItem value="null">None</MenuItem>
+            {server.lmProviders.providers.map(lmp =>
+              lmp.models
+                .filter(lm => lmp.completion_models.includes(lm))
+                .map(lm => (
+                  <MenuItem value={`${lmp.id}:${lm}`}>
+                    {lmp.name} :: {lm}
+                  </MenuItem>
+                ))
+            )}
+          </Select>
+          {showClmLocalId && (
+            <TextField
+              label={clmProvider?.model_id_label || 'Local model ID'}
+              value={clmLocalId}
+              onChange={e => setClmLocalId(e.target.value)}
+              fullWidth
+            />
           )}
-        </Select>
-        {showClmLocalId && (
-          <TextField
-            label={clmProvider?.model_id_label || 'Local model ID'}
-            value={clmLocalId}
-            onChange={e => setClmLocalId(e.target.value)}
-            fullWidth
-          />
-        )}
-        {completionHelpMarkdown && (
-          <RendermimeMarkdown
-            rmRegistry={props.rmRegistry}
-            markdownStr={completionHelpMarkdown}
-            complete
-          />
-        )}
-        {clmGlobalId && (
-          <ModelFields
-            fields={clmProvider?.fields}
-            values={fields}
-            onChange={setFields}
-          />
-        )}
-      </Box>) : <p>No Inline Completion models.</p>
-      }
+          {completionHelpMarkdown && (
+            <RendermimeMarkdown
+              rmRegistry={props.rmRegistry}
+              markdownStr={completionHelpMarkdown}
+              complete
+            />
+          )}
+          {clmGlobalId && (
+            <ModelFields
+              fields={clmProvider?.fields}
+              values={fields}
+              onChange={setFields}
+            />
+          )}
+        </Box>
+      ) : (
+        <p>No Inline Completion models.</p>
+      )}
 
       {/* API Keys section */}
       <h2 className="jp-ai-ChatSettings-header">API Keys</h2>
