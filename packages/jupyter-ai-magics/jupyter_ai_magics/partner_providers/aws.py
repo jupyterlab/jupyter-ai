@@ -18,8 +18,10 @@ class BedrockProvider(BaseProvider, BedrockLLM):
     models = [
         "amazon.titan-text-express-v1",
         "amazon.titan-text-lite-v1",
+        "amazon.titan-text-premier-v1:0",
         "ai21.j2-ultra-v1",
         "ai21.j2-mid-v1",
+        "ai21.jamba-instruct-v1:0",
         "cohere.command-light-text-v14",
         "cohere.command-text-v14",
         "cohere.command-r-v1:0",
@@ -30,9 +32,11 @@ class BedrockProvider(BaseProvider, BedrockLLM):
         "meta.llama3-70b-instruct-v1:0",
         "meta.llama3-1-8b-instruct-v1:0",
         "meta.llama3-1-70b-instruct-v1:0",
+        "meta.llama3-1-405b-instruct-v1:0",
         "mistral.mistral-7b-instruct-v0:2",
         "mistral.mixtral-8x7b-instruct-v0:1",
         "mistral.mistral-large-2402-v1:0",
+        "mistral.mistral-large-2407-v1:0",
     ]
     model_id_key = "model_id"
     pypi_package_deps = ["langchain-aws"]
@@ -57,6 +61,7 @@ class BedrockChatProvider(BaseProvider, ChatBedrock):
     models = [
         "amazon.titan-text-express-v1",
         "amazon.titan-text-lite-v1",
+        "amazon.titan-text-premier-v1:0",
         "anthropic.claude-v2",
         "anthropic.claude-v2:1",
         "anthropic.claude-instant-v1",
@@ -70,9 +75,11 @@ class BedrockChatProvider(BaseProvider, ChatBedrock):
         "meta.llama3-70b-instruct-v1:0",
         "meta.llama3-1-8b-instruct-v1:0",
         "meta.llama3-1-70b-instruct-v1:0",
+        "meta.llama3-1-405b-instruct-v1:0",
         "mistral.mistral-7b-instruct-v0:2",
         "mistral.mixtral-8x7b-instruct-v0:1",
         "mistral.mistral-large-2402-v1:0",
+        "mistral.mistral-large-2407-v1:0",
     ]
     model_id_key = "model_id"
     pypi_package_deps = ["langchain-aws"]
@@ -95,6 +102,30 @@ class BedrockChatProvider(BaseProvider, ChatBedrock):
     @property
     def allows_concurrency(self):
         return not "anthropic" in self.model_id
+
+
+class BedrockCustomProvider(BaseProvider, ChatBedrock):
+    id = "bedrock-custom"
+    name = "Amazon Bedrock (custom/provisioned)"
+    models = ["*"]
+    model_id_key = "model_id"
+    model_id_label = "Model ID"
+    pypi_package_deps = ["langchain-aws"]
+    auth_strategy = AwsAuthStrategy()
+    fields = [
+        TextField(key="provider", label="Provider (required)", format="text"),
+        TextField(key="region_name", label="Region name (optional)", format="text"),
+        TextField(
+            key="credentials_profile_name",
+            label="AWS profile (optional)",
+            format="text",
+        ),
+    ]
+    help = (
+        "Specify the ARN (Amazon Resource Name) of the custom/provisioned model as the model ID. For more information, see the [Amazon Bedrock model IDs documentation](https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids.html).\n\n"
+        "The model provider must also be specified below. This is the provider of your foundation model *in lowercase*, e.g. `amazon`, `anthropic`, `meta`, or `mistral`."
+    )
+    registry = True
 
 
 # See model ID list here: https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids.html

@@ -6,8 +6,10 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
+import time
+
 project = "Jupyter AI"
-copyright = "2023, Project Jupyter"
+copyright = f"2023–{time.localtime().tm_year}, Project Jupyter"
 author = "Project Jupyter"
 
 # -- General configuration ---------------------------------------------------
