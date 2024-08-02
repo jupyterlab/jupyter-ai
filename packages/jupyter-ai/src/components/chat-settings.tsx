@@ -355,7 +355,7 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
             onChange={setFields}
           />
         )}
-      </Box>) : 
+      </Box>) :
       <p>No language models available.</p>
       }
 
