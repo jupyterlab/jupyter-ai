@@ -274,9 +274,26 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
     );
   }
 
-  let languageModelSection;
-  if (lmProvider?.chat_models && lmProvider.chat_models.length > 0) {
-    languageModelSection = (
+  return (
+    <Box
+      sx={{
+        padding: '0 12px 12px',
+        boxSizing: 'border-box',
+        '& .MuiAlert-root': {
+          marginTop: 2
+        },
+        overflowY: 'auto'
+      }}
+    >
+      {/* Chat language model section */}
+      <h2
+        className="jp-ai-ChatSettings-header"
+        title="The language model used in the chat panel"
+      >
+        Language model
+      </h2>
+
+      {(server.lmProviders.providers.map( lmp  => lmp.chat_models.length).reduce((partialSum, num) => partialSum + num, 0))  > 0 ?(
       <Box>
         <Select
           value={lmProvider?.registry ? lmProvider.id + ':*' : lmGlobalId}
@@ -338,18 +355,49 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
             onChange={setFields}
           />
         )}
-      </Box>
-    );
-  } else {
-    languageModelSection = <p>No language models available.</p>;
-  }
+      </Box>) : 
+      <p>No language models available.</p>
+      }
 
-  let inlineCompletionSection;
-  if (
-    lmProvider?.completion_models &&
-    lmProvider?.completion_models.length > 0
-  ) {
-    inlineCompletionSection = (
+      {/* Embedding model section */}
+      <h2 className="jp-ai-ChatSettings-header">Embedding model</h2>
+      {server.emProviders.providers.length > 0 ? (
+        <Select
+          value={emGlobalId}
+          label="Embedding model"
+          onChange={e => {
+            const emGid = e.target.value === 'null' ? null : e.target.value;
+            setEmGlobalId(emGid);
+          }}
+          MenuProps={{ sx: { maxHeight: '50%', minHeight: 400 } }}
+        >
+          <MenuItem value="null">None</MenuItem>
+          {server.emProviders.providers.map(emp =>
+            emp.models
+              .filter(em => em !== '*') // TODO: support registry providers
+              .map(em => (
+                <MenuItem value={`${emp.id}:${em}`}>
+                  {emp.name} :: {em}
+                </MenuItem>
+              ))
+          )}
+        </Select>
+      ) : (
+        <p>No embedding models available.</p>
+      )}
+
+      {/* Completer language model section */}
+      <h2 className="jp-ai-ChatSettings-header">
+        Inline completions model
+        <CompleterSettingsButton
+          provider={props.completionProvider}
+          openSettings={props.openInlineCompleterSettings}
+          isCompleterEnabled={isCompleterEnabled}
+          selection={clmProvider}
+        />
+      </h2>
+      {(server.lmProviders.providers.map( lmp  => lmp.completion_models.length).reduce((partialSum, num) => partialSum + num, 0)  > 0) ?
+      (
       <Box>
         <Select
           value={clmProvider?.registry ? clmProvider.id + ':*' : clmGlobalId}
@@ -412,70 +460,8 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
             onChange={setFields}
           />
         )}
-      </Box>
-    );
-  } else {
-    inlineCompletionSection = <p>No Inline Completion models.</p>;
-  }
-
-  return (
-    <Box
-      sx={{
-        padding: '0 12px 12px',
-        boxSizing: 'border-box',
-        '& .MuiAlert-root': {
-          marginTop: 2
-        },
-        overflowY: 'auto'
-      }}
-    >
-      {/* Chat language model section */}
-      <h2
-        className="jp-ai-ChatSettings-header"
-        title="The language model used in the chat panel"
-      >
-        Language model
-      </h2>
-      {languageModelSection}
-
-      {/* Embedding model section */}
-      <h2 className="jp-ai-ChatSettings-header">Embedding model</h2>
-      {server.emProviders.providers.length > 0 ? (
-        <Select
-          value={emGlobalId}
-          label="Embedding model"
-          onChange={e => {
-            const emGid = e.target.value === 'null' ? null : e.target.value;
-            setEmGlobalId(emGid);
-          }}
-          MenuProps={{ sx: { maxHeight: '50%', minHeight: 400 } }}
-        >
-          <MenuItem value="null">None</MenuItem>
-          {server.emProviders.providers.map(emp =>
-            emp.models
-              .filter(em => em !== '*') // TODO: support registry providers
-              .map(em => (
-                <MenuItem value={`${emp.id}:${em}`}>
-                  {emp.name} :: {em}
-                </MenuItem>
-              ))
-          )}
-        </Select>
-      ) : (
-        <p>No embedding models available.</p>
-      )}
-
-      {/* Completer language model section */}
-      <h2 className="jp-ai-ChatSettings-header">
-        Inline completions model
-        <CompleterSettingsButton
-          provider={props.completionProvider}
-          openSettings={props.openInlineCompleterSettings}
-          isCompleterEnabled={isCompleterEnabled}
-          selection={clmProvider}
-        />
-      </h2>
-      {inlineCompletionSection}
+      </Box>) : <p>No Inline Completion models.</p>
+      }
 
       {/* API Keys section */}
       <h2 className="jp-ai-ChatSettings-header">API Keys</h2>
