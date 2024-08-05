@@ -57,13 +57,26 @@ export namespace AiService {
     traceback: string[];
   };
 
+  export type TextSelection = {
+    type: 'text';
+    source: string;
+  };
+
+  export type CellSelection = {
+    type: 'cell';
+    source: string;
+  };
+
   export type CellWithErrorSelection = {
     type: 'cell-with-error';
     source: string;
     error: CellError;
   };
 
-  export type Selection = CellWithErrorSelection;
+  export type Selection =
+    | TextSelection
+    | CellSelection
+    | CellWithErrorSelection;
 
   export type ChatRequest = {
     prompt: string;
@@ -101,9 +114,20 @@ export namespace AiService {
     type: 'human';
     id: string;
     time: number;
+    /**
+     * The formatted body of the message to be rendered in the UI. Includes both
+     * `prompt` and `selection`.
+     */
     body: string;
-    client: ChatClient;
+    /**
+     * The prompt typed into the chat input by the user.
+     */
+    prompt: string;
+    /**
+     * The selection included with the prompt, if any.
+     */
     selection?: Selection;
+    client: ChatClient;
   };
 
   export type ConnectionMessage = {

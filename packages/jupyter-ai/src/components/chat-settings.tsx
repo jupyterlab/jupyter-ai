@@ -146,31 +146,20 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
     const newApiKeys: Record<string, string> = {};
     const lmAuth = lmProvider?.auth_strategy;
     const emAuth = emProvider?.auth_strategy;
-    if (
-      lmAuth?.type === 'env' &&
-      !server.config.api_keys.includes(lmAuth.name)
-    ) {
+    if (lmAuth?.type === 'env') {
       newApiKeys[lmAuth.name] = '';
     }
     if (lmAuth?.type === 'multienv') {
       lmAuth.names.forEach(apiKey => {
-        if (!server.config.api_keys.includes(apiKey)) {
-          newApiKeys[apiKey] = '';
-        }
+        newApiKeys[apiKey] = '';
       });
     }
-
-    if (
-      emAuth?.type === 'env' &&
-      !server.config.api_keys.includes(emAuth.name)
-    ) {
+    if (emAuth?.type === 'env') {
       newApiKeys[emAuth.name] = '';
     }
     if (emAuth?.type === 'multienv') {
       emAuth.names.forEach(apiKey => {
-        if (!server.config.api_keys.includes(apiKey)) {
-          newApiKeys[apiKey] = '';
-        }
+        newApiKeys[apiKey] = '';
       });
     }
 
@@ -303,89 +292,102 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
       >
         Language model
       </h2>
-      <Select
-        value={lmProvider?.registry ? lmProvider.id + ':*' : lmGlobalId}
-        label="Completion model"
-        onChange={e => {
-          const lmGid = e.target.value === 'null' ? null : e.target.value;
-          if (lmGid === null) {
-            setLmProvider(null);
-            return;
-          }
 
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          const nextLmProvider = getProvider(lmGid, server.lmProviders)!;
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          const nextLmLocalId = getModelLocalId(lmGid)!;
+      {server.lmProviders.providers
+        .map(lmp => lmp.chat_models.length)
+        .reduce((partialSum, num) => partialSum + num, 0) > 0 ? (
+        <Box>
+          <Select
+            value={lmProvider?.registry ? lmProvider.id + ':*' : lmGlobalId}
+            label="Completion model"
+            onChange={e => {
+              const lmGid = e.target.value === 'null' ? null : e.target.value;
+              if (lmGid === null) {
+                setLmProvider(null);
+                return;
+              }
 
-          setLmProvider(nextLmProvider);
-          setChatHelpMarkdown(nextLmProvider?.help ?? null);
-          if (nextLmProvider.registry) {
-            setLmLocalId('');
-            setShowLmLocalId(true);
-          } else {
-            setLmLocalId(nextLmLocalId);
-            setShowLmLocalId(false);
-          }
-        }}
-        MenuProps={{ sx: { maxHeight: '50%', minHeight: 400 } }}
-      >
-        <MenuItem value="null">None</MenuItem>
-        {server.lmProviders.providers.map(lmp =>
-          lmp.models
-            .filter(lm => lmp.chat_models.includes(lm))
-            .map(lm => (
-              <MenuItem value={`${lmp.id}:${lm}`}>
-                {lmp.name} :: {lm}
-              </MenuItem>
-            ))
-        )}
-      </Select>
-      {showLmLocalId && (
-        <TextField
-          label={lmProvider?.model_id_label || 'Local model ID'}
-          value={lmLocalId}
-          onChange={e => setLmLocalId(e.target.value)}
-          fullWidth
-        />
-      )}
-      {chatHelpMarkdown && (
-        <RendermimeMarkdown
-          rmRegistry={props.rmRegistry}
-          markdownStr={chatHelpMarkdown}
-          complete
-        />
-      )}
-      {lmGlobalId && (
-        <ModelFields
-          fields={lmProvider?.fields}
-          values={fields}
-          onChange={setFields}
-        />
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              const nextLmProvider = getProvider(lmGid, server.lmProviders)!;
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              const nextLmLocalId = getModelLocalId(lmGid)!;
+
+              setLmProvider(nextLmProvider);
+              setChatHelpMarkdown(nextLmProvider?.help ?? null);
+              if (nextLmProvider.registry) {
+                setLmLocalId('');
+                setShowLmLocalId(true);
+              } else {
+                setLmLocalId(nextLmLocalId);
+                setShowLmLocalId(false);
+              }
+            }}
+            MenuProps={{ sx: { maxHeight: '50%', minHeight: 400 } }}
+          >
+            <MenuItem value="null">None</MenuItem>
+            {server.lmProviders.providers.map(lmp =>
+              lmp.models
+                .filter(lm => lmp.chat_models.includes(lm))
+                .map(lm => (
+                  <MenuItem value={`${lmp.id}:${lm}`}>
+                    {lmp.name} :: {lm}
+                  </MenuItem>
+                ))
+            )}
+          </Select>
+          {showLmLocalId && (
+            <TextField
+              label={lmProvider?.model_id_label || 'Local model ID'}
+              value={lmLocalId}
+              onChange={e => setLmLocalId(e.target.value)}
+              fullWidth
+            />
+          )}
+          {chatHelpMarkdown && (
+            <RendermimeMarkdown
+              rmRegistry={props.rmRegistry}
+              markdownStr={chatHelpMarkdown}
+              complete
+            />
+          )}
+          {lmGlobalId && (
+            <ModelFields
+              fields={lmProvider?.fields}
+              values={fields}
+              onChange={setFields}
+            />
+          )}
+        </Box>
+      ) : (
+        <p>No language models available.</p>
       )}
 
       {/* Embedding model section */}
       <h2 className="jp-ai-ChatSettings-header">Embedding model</h2>
-      <Select
-        value={emGlobalId}
-        label="Embedding model"
-        onChange={e => {
-          const emGid = e.target.value === 'null' ? null : e.target.value;
-          setEmGlobalId(emGid);
-        }}
-        MenuProps={{ sx: { maxHeight: '50%', minHeight: 400 } }}
-      >
-        <MenuItem value="null">None</MenuItem>
-        {server.emProviders.providers.map(emp =>
-          emp.models
-            .filter(em => em !== '*') // TODO: support registry providers
-            .map(em => (
-              <MenuItem value={`${emp.id}:${em}`}>
-                {emp.name} :: {em}
-              </MenuItem>
-            ))
-        )}
-      </Select>
+      {server.emProviders.providers.length > 0 ? (
+        <Select
+          value={emGlobalId}
+          label="Embedding model"
+          onChange={e => {
+            const emGid = e.target.value === 'null' ? null : e.target.value;
+            setEmGlobalId(emGid);
+          }}
+          MenuProps={{ sx: { maxHeight: '50%', minHeight: 400 } }}
+        >
+          <MenuItem value="null">None</MenuItem>
+          {server.emProviders.providers.map(emp =>
+            emp.models
+              .filter(em => em !== '*') // TODO: support registry providers
+              .map(em => (
+                <MenuItem value={`${emp.id}:${em}`}>
+                  {emp.name} :: {em}
+                </MenuItem>
+              ))
+          )}
+        </Select>
+      ) : (
+        <p>No embedding models available.</p>
+      )}
 
       {/* Completer language model section */}
       <h2 className="jp-ai-ChatSettings-header">
@@ -397,86 +399,100 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
           selection={clmProvider}
         />
       </h2>
-      <Select
-        value={clmProvider?.registry ? clmProvider.id + ':*' : clmGlobalId}
-        label="Inline completion model"
-        disabled={!isCompleterEnabled}
-        onChange={e => {
-          const clmGid = e.target.value === 'null' ? null : e.target.value;
-          if (clmGid === null) {
-            setClmProvider(null);
-            return;
-          }
+      {server.lmProviders.providers
+        .map(lmp => lmp.completion_models.length)
+        .reduce((partialSum, num) => partialSum + num, 0) > 0 ? (
+        <Box>
+          <Select
+            value={clmProvider?.registry ? clmProvider.id + ':*' : clmGlobalId}
+            label="Inline completion model"
+            disabled={!isCompleterEnabled}
+            onChange={e => {
+              const clmGid = e.target.value === 'null' ? null : e.target.value;
+              if (clmGid === null) {
+                setClmProvider(null);
+                return;
+              }
 
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          const nextClmProvider = getProvider(clmGid, server.lmProviders)!;
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          const nextClmLocalId = getModelLocalId(clmGid)!;
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              const nextClmProvider = getProvider(clmGid, server.lmProviders)!;
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              const nextClmLocalId = getModelLocalId(clmGid)!;
 
-          setClmProvider(nextClmProvider);
-          setCompletionHelpMarkdown(nextClmProvider?.help ?? null);
-          if (nextClmProvider.registry) {
-            setClmLocalId('');
-            setShowClmLocalId(true);
-          } else {
-            setClmLocalId(nextClmLocalId);
-            setShowClmLocalId(false);
-          }
-        }}
-        MenuProps={{ sx: { maxHeight: '50%', minHeight: 400 } }}
-      >
-        <MenuItem value="null">None</MenuItem>
-        {server.lmProviders.providers.map(lmp =>
-          lmp.models
-            .filter(lm => lmp.completion_models.includes(lm))
-            .map(lm => (
-              <MenuItem value={`${lmp.id}:${lm}`}>
-                {lmp.name} :: {lm}
-              </MenuItem>
-            ))
-        )}
-      </Select>
-      {showClmLocalId && (
-        <TextField
-          label={clmProvider?.model_id_label || 'Local model ID'}
-          value={clmLocalId}
-          onChange={e => setClmLocalId(e.target.value)}
-          fullWidth
-        />
-      )}
-      {completionHelpMarkdown && (
-        <RendermimeMarkdown
-          rmRegistry={props.rmRegistry}
-          markdownStr={completionHelpMarkdown}
-          complete
-        />
-      )}
-      {clmGlobalId && (
-        <ModelFields
-          fields={clmProvider?.fields}
-          values={fields}
-          onChange={setFields}
-        />
+              setClmProvider(nextClmProvider);
+              setCompletionHelpMarkdown(nextClmProvider?.help ?? null);
+              if (nextClmProvider.registry) {
+                setClmLocalId('');
+                setShowClmLocalId(true);
+              } else {
+                setClmLocalId(nextClmLocalId);
+                setShowClmLocalId(false);
+              }
+            }}
+            MenuProps={{ sx: { maxHeight: '50%', minHeight: 400 } }}
+          >
+            <MenuItem value="null">None</MenuItem>
+            {server.lmProviders.providers.map(lmp =>
+              lmp.models
+                .filter(lm => lmp.completion_models.includes(lm))
+                .map(lm => (
+                  <MenuItem value={`${lmp.id}:${lm}`}>
+                    {lmp.name} :: {lm}
+                  </MenuItem>
+                ))
+            )}
+          </Select>
+          {showClmLocalId && (
+            <TextField
+              label={clmProvider?.model_id_label || 'Local model ID'}
+              value={clmLocalId}
+              onChange={e => setClmLocalId(e.target.value)}
+              fullWidth
+            />
+          )}
+          {completionHelpMarkdown && (
+            <RendermimeMarkdown
+              rmRegistry={props.rmRegistry}
+              markdownStr={completionHelpMarkdown}
+              complete
+            />
+          )}
+          {clmGlobalId && (
+            <ModelFields
+              fields={clmProvider?.fields}
+              values={fields}
+              onChange={setFields}
+            />
+          )}
+        </Box>
+      ) : (
+        <p>No Inline Completion models.</p>
       )}
 
       {/* API Keys section */}
       <h2 className="jp-ai-ChatSettings-header">API Keys</h2>
       {/* API key inputs for newly-used providers */}
-      {Object.entries(apiKeys).map(([apiKeyName, apiKeyValue], idx) => (
-        <TextField
-          key={idx}
-          label={apiKeyName}
-          value={apiKeyValue}
-          fullWidth
-          type="password"
-          onChange={e =>
-            setApiKeys(apiKeys => ({
-              ...apiKeys,
-              [apiKeyName]: e.target.value
-            }))
-          }
-        />
-      ))}
+      {Object.entries(apiKeys).length === 0 ? (
+        <p>No API Keys needed for selected model.</p>
+      ) : (
+        Object.entries(apiKeys).map(([apiKeyName, apiKeyValue], idx) =>
+          !server.config.api_keys.includes(apiKeyName) ? (
+            <TextField
+              key={idx}
+              label={apiKeyName}
+              value={apiKeyValue}
+              fullWidth
+              type="password"
+              onChange={e =>
+                setApiKeys(apiKeys => ({
+                  ...apiKeys,
+                  [apiKeyName]: e.target.value
+                }))
+              }
+            />
+          ) : null
+        )
+      )}
       {/* Pre-existing API keys */}
       <ExistingApiKeys
         alert={apiKeysAlert}

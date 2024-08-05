@@ -201,11 +201,6 @@ export function ChatMessages(props: ChatMessagesProps): JSX.Element {
       }}
     >
       {sortedMessages.map(message => {
-        // render selection in HumanChatMessage, if any
-        const markdownStr =
-          message.type === 'human' && message.selection
-            ? message.body + '\n\n```\n' + message.selection.source + '\n```\n'
-            : message.body;
         return (
           <Box key={message.id} sx={{ padding: 4 }}>
             <ChatMessageHeader
@@ -215,7 +210,7 @@ export function ChatMessages(props: ChatMessagesProps): JSX.Element {
             />
             <RendermimeMarkdown
               rmRegistry={props.rmRegistry}
-              markdownStr={markdownStr}
+              markdownStr={message.body}
               complete={
                 message.type === 'agent-stream' ? !!message.complete : true
               }

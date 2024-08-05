@@ -5,6 +5,7 @@ import { LabIcon } from '@jupyterlab/ui-components';
 import chatSvgStr from '../style/icons/chat.svg';
 import jupyternautSvg from '../style/icons/jupyternaut.svg';
 import replaceCellSvg from '../style/icons/replace-cell.svg';
+import includeSelectionSvg from '../style/icons/include-selection.svg';
 
 export const chatIcon = new LabIcon({
   name: 'jupyter-ai::chat',
@@ -19,6 +20,11 @@ export const jupyternautIcon = new LabIcon({
 export const replaceCellIcon = new LabIcon({
   name: 'jupyter-ai::replace-cell',
   svgstr: replaceCellSvg
+});
+
+export const includeSelectionIcon = new LabIcon({
+  name: 'jupyter-ai::include-selection',
+  svgstr: includeSelectionSvg
 });
 
 // this icon is only used in the status bar.

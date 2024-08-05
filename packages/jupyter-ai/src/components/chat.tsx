@@ -14,10 +14,7 @@ import { PendingMessages } from './pending-messages';
 import { ChatInput } from './chat-input';
 import { ChatSettings } from './chat-settings';
 import { AiService } from '../handler';
-import {
-  SelectionContextProvider,
-  useSelectionContext
-} from '../contexts/selection-context';
+import { SelectionContextProvider } from '../contexts/selection-context';
 import { SelectionWatcher } from '../selection-watcher';
 import { ChatHandler } from '../chat_handler';
 import { CollaboratorsContextProvider } from '../contexts/collaborators-context';
@@ -35,6 +32,21 @@ type ChatBodyProps = {
   focusInputSignal: ISignal<unknown, void>;
 };
 
+/**
+ * Determines the name of the current persona based on the message history.
+ * Defaults to `'Jupyternaut'` if history is insufficient.
+ */
+function getPersonaName(messages: AiService.ChatMessage[]): string {
+  for (let i = messages.length - 1; i >= 0; i--) {
+    const message = messages[i];
+    if (message.type === 'agent' || message.type === 'agent-stream') {
+      return message.persona.name;
+    }
+  }
+
+  return 'Jupyternaut';
+}
+
 function ChatBody({
   chatHandler,
   focusInputSignal,
@@ -47,10 +59,10 @@ function ChatBody({
   const [pendingMessages, setPendingMessages] = useState<
     AiService.PendingMessage[]
   >([...chatHandler.history.pending_messages]);
+  const [personaName, setPersonaName] = useState<string>(
+    getPersonaName(messages)
+  );
   const [showWelcomeMessage, setShowWelcomeMessage] = useState<boolean>(false);
-  const [includeSelection, setIncludeSelection] = useState(true);
-  const [input, setInput] = useState('');
-  const [textSelection] = useSelectionContext();
   const [sendWithShiftEnter, setSendWithShiftEnter] = useState(true);
 
   /**
@@ -79,6 +91,7 @@ function ChatBody({
     function onHistoryChange(_: unknown, history: AiService.ChatHistory) {
       setMessages([...history.messages]);
       setPendingMessages([...history.pending_messages]);
+      setPersonaName(getPersonaName(history.messages));
     }
 
     chatHandler.historyChanged.connect(onHistoryChange);
@@ -87,25 +100,6 @@ function ChatBody({
       chatHandler.historyChanged.disconnect(onHistoryChange);
     };
   }, [chatHandler]);
-
-  // no need to append to messageGroups imperatively here. all of that is
-  // handled by the listeners registered in the effect hooks above.
-  // TODO: unify how text selection & cell selection are handled
-  const onSend = async (selection?: AiService.Selection) => {
-    setInput('');
-
-    const prompt =
-      input +
-      (includeSelection && textSelection?.text
-        ? '\n\n```\n' + textSelection.text + '\n```'
-        : '');
-
-    // send message to backend
-    const messageId = await chatHandler.sendMessage({ prompt, selection });
-
-    // await reply from agent
-    await chatHandler.replyFor(messageId);
-  };
 
   const openSettingsView = () => {
     setShowWelcomeMessage(false);
@@ -149,15 +143,8 @@ function ChatBody({
         <PendingMessages messages={pendingMessages} />
       </ScrollContainer>
       <ChatInput
-        value={input}
-        onChange={setInput}
-        onSend={onSend}
-        hasSelection={!!textSelection?.text}
-        includeSelection={includeSelection}
+        chatHandler={chatHandler}
         focusInputSignal={focusInputSignal}
-        toggleIncludeSelection={() =>
-          setIncludeSelection(includeSelection => !includeSelection)
-        }
         sx={{
           paddingLeft: 4,
           paddingRight: 4,
@@ -166,6 +153,7 @@ function ChatBody({
           borderTop: '1px solid var(--jp-border-color1)'
         }}
         sendWithShiftEnter={sendWithShiftEnter}
+        personaName={personaName}
       />
     </>
   );
