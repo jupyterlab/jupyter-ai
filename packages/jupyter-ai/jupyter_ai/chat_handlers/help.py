@@ -2,6 +2,7 @@ from jupyter_ai.models import HumanChatMessage
 
 from .base import BaseChatHandler, SlashCommandRoutingType
 
+
 class HelpChatHandler(BaseChatHandler):
     id = "help"
     name = "Help"

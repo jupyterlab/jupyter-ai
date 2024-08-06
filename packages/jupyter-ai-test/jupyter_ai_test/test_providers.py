@@ -76,6 +76,7 @@ class TestProviderWithStreaming(BaseProvider, TestLLMWithStreaming):
     """User inputs expected by this provider when initializing it. Each `Field` `f`
     should be passed in the constructor as a keyword argument, keyed by `f.key`."""
 
+
 class TestProviderAskLearnUnsupported(BaseProvider, TestLLMWithStreaming):
     id: ClassVar[str] = "test-provider-ask-learn-unsupported"
     """ID for this provider class."""

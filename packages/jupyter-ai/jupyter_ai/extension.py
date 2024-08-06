@@ -178,9 +178,9 @@ class AiExtension(ExtensionApp):
         'Jupyternaut'.
 
         - `slash_commands_list`: A string containing a bulleted list of the
-        slash commands available to the configured language model. 
+        slash commands available to the configured language model.
         """,
-        config=True
+        config=True,
     )
 
     def initialize_settings(self):
@@ -369,9 +369,10 @@ class AiExtension(ExtensionApp):
         # call `send_help_message()` on any instance of `BaseChatHandler`. The
         # `default` chat handler should always exist, so we reference that
         # object when calling `send_help_message()`.
-        default_chat_handler: DefaultChatHandler = self.settings["jai_chat_handlers"]["default"]
+        default_chat_handler: DefaultChatHandler = self.settings["jai_chat_handlers"][
+            "default"
+        ]
         default_chat_handler.send_help_message()
-        
 
     async def _get_dask_client(self):
         return DaskClient(processes=False, asynchronous=True)

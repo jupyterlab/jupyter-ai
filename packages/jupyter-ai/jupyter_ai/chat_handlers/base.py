@@ -111,7 +111,7 @@ class BaseChatHandler:
     """Format string template that is used to build the help message. Specified
     from traitlets configuration."""
 
-    chat_handlers: Dict[str, 'BaseChatHandler']
+    chat_handlers: Dict[str, "BaseChatHandler"]
     """Dictionary of chat handlers. Allows one chat handler to reference other
     chat handlers, which is necessary for some use-cases like printing the help
     message."""
@@ -127,7 +127,7 @@ class BaseChatHandler:
         preferred_dir: Optional[str],
         dask_client_future: Awaitable[DaskClient],
         help_message_template: str,
-        chat_handlers: Dict[str, 'BaseChatHandler'],
+        chat_handlers: Dict[str, "BaseChatHandler"],
     ):
         self.log = log
         self.config_manager = config_manager
@@ -381,16 +381,18 @@ class BaseChatHandler:
             return self.preferred_dir
         else:
             return self.root_dir
-    
+
     def send_help_message(self, human_msg: Optional[HumanChatMessage] = None) -> None:
         """Sends a help message to all connected clients."""
         lm_provider = self.config_manager.lm_provider
-        unsupported_slash_commands = lm_provider.unsupported_slash_commands if lm_provider else set()
+        unsupported_slash_commands = (
+            lm_provider.unsupported_slash_commands if lm_provider else set()
+        )
         chat_handlers = self.chat_handlers
-        slash_commands = {k: v for k, v in chat_handlers.items() if k != "default" }
+        slash_commands = {k: v for k, v in chat_handlers.items() if k != "default"}
         for key in unsupported_slash_commands:
             del slash_commands[key]
-        
+
         # markdown string that lists the slash commands
         slash_commands_list = "\n".join(
             [
@@ -399,7 +401,9 @@ class BaseChatHandler:
             ]
         )
 
-        help_message_body = self.help_message_template.format(persona_name=self.persona.name, slash_commands_list=slash_commands_list)
+        help_message_body = self.help_message_template.format(
+            persona_name=self.persona.name, slash_commands_list=slash_commands_list
+        )
         help_message = AgentChatMessage(
             id=uuid4().hex,
             time=time.time(),
