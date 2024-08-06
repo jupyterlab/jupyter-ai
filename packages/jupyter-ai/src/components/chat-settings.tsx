@@ -146,20 +146,31 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
     const newApiKeys: Record<string, string> = {};
     const lmAuth = lmProvider?.auth_strategy;
     const emAuth = emProvider?.auth_strategy;
-    if (lmAuth?.type === 'env') {
+    if (
+      lmAuth?.type === 'env' &&
+      !server.config.api_keys.includes(lmAuth.name)
+    ) {
       newApiKeys[lmAuth.name] = '';
     }
     if (lmAuth?.type === 'multienv') {
       lmAuth.names.forEach(apiKey => {
-        newApiKeys[apiKey] = '';
+        if (!server.config.api_keys.includes(apiKey)) {
+          newApiKeys[apiKey] = '';
+        }
       });
     }
-    if (emAuth?.type === 'env') {
+
+    if (
+      emAuth?.type === 'env' &&
+      !server.config.api_keys.includes(emAuth.name)
+    ) {
       newApiKeys[emAuth.name] = '';
     }
     if (emAuth?.type === 'multienv') {
       emAuth.names.forEach(apiKey => {
-        newApiKeys[apiKey] = '';
+        if (!server.config.api_keys.includes(apiKey)) {
+          newApiKeys[apiKey] = '';
+        }
       });
     }
 
@@ -471,28 +482,28 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
 
       {/* API Keys section */}
       <h2 className="jp-ai-ChatSettings-header">API Keys</h2>
+
+      {Object.entries(apiKeys).length === 0 &&
+      server.config.api_keys.length === 0 ? (
+        <p>No API keys are required by the selected models.</p>
+      ) : null}
+
       {/* API key inputs for newly-used providers */}
-      {Object.entries(apiKeys).length === 0 ? (
-        <p>No API Keys needed for selected model.</p>
-      ) : (
-        Object.entries(apiKeys).map(([apiKeyName, apiKeyValue], idx) =>
-          !server.config.api_keys.includes(apiKeyName) ? (
-            <TextField
-              key={idx}
-              label={apiKeyName}
-              value={apiKeyValue}
-              fullWidth
-              type="password"
-              onChange={e =>
-                setApiKeys(apiKeys => ({
-                  ...apiKeys,
-                  [apiKeyName]: e.target.value
-                }))
-              }
-            />
-          ) : null
-        )
-      )}
+      {Object.entries(apiKeys).map(([apiKeyName, apiKeyValue], idx) => (
+        <TextField
+          key={idx}
+          label={apiKeyName}
+          value={apiKeyValue}
+          fullWidth
+          type="password"
+          onChange={e =>
+            setApiKeys(apiKeys => ({
+              ...apiKeys,
+              [apiKeyName]: e.target.value
+            }))
+          }
+        />
+      ))}
       {/* Pre-existing API keys */}
       <ExistingApiKeys
         alert={apiKeysAlert}
