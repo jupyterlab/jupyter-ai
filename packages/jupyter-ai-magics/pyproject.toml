@@ -76,6 +76,7 @@ gemini = "jupyter_ai_magics.partner_providers.gemini:GeminiProvider"
 mistralai = "jupyter_ai_magics.partner_providers.mistralai:MistralAIProvider"
 
 [project.entry-points."jupyter_ai.embeddings_model_providers"]
+azure = "jupyter_ai_magics.partner_providers.openai:AzureOpenAIEmbeddingsProvider"
 bedrock = "jupyter_ai_magics.partner_providers.aws:BedrockEmbeddingsProvider"
 cohere = "jupyter_ai_magics.partner_providers.cohere:CohereEmbeddingsProvider"
 mistralai = "jupyter_ai_magics.partner_providers.mistralai:MistralAIEmbeddingsProvider"
