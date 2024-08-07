@@ -10,10 +10,12 @@ import { AiService } from '../handler';
 import { RendermimeMarkdown } from './rendermime-markdown';
 import { useCollaboratorsContext } from '../contexts/collaborators-context';
 import { ChatMessageMenu } from './chat-messages/chat-message-menu';
+import { IJaiMessageFooter } from '../tokens';
 
 type ChatMessagesProps = {
   rmRegistry: IRenderMimeRegistry;
   messages: AiService.ChatMessage[];
+  messageFooter: IJaiMessageFooter | null;
 };
 
 type ChatMessageHeaderProps = {
@@ -215,6 +217,9 @@ export function ChatMessages(props: ChatMessagesProps): JSX.Element {
                 message.type === 'agent-stream' ? !!message.complete : true
               }
             />
+            {props.messageFooter && (
+              <props.messageFooter.component message={message} />
+            )}
           </Box>
         );
       })}

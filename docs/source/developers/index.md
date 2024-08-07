@@ -391,3 +391,50 @@ custom = "custom_package:CustomChatHandler"
 
 Then, install your package so that Jupyter AI adds custom chat handlers
 to the existing chat handlers.
+
+## Custom message footer
+
+You can provide a custom message footer that will be rendered under each message
+in the UI. To do so, you need to write or install a labextension containing a
+plugin that provides the `IJaiMessageFooter` token. This plugin should return a
+`IJaiMessageFooter` object, which defines the custom footer to be rendered.
+
+The `IJaiMessageFooter` object contains a single property `component`, which
+should reference a React component that defines the custom message footer.
+Jupyter AI will render this component under each chat message, passing the
+component a `message` prop with the definition of each chat message as an
+object. The `message` prop takes the type `AiService.ChatMessage`, where
+`AiService` is imported from `@jupyter-ai/core/handler`.
+
+Here is a reference plugin that shows some custom text under each agent message:
+
+```tsx
+import React from 'react';
+import {
+  JupyterFrontEnd,
+  JupyterFrontEndPlugin
+} from '@jupyterlab/application';
+import { IJaiMessageFooter, IJaiMessageFooterProps } from '@jupyter-ai/core/tokens';
+
+export const footerPlugin: JupyterFrontEndPlugin<IJaiMessageFooter> = {
+  id: '@your-org/your-package:custom-footer',
+  autoStart: true,
+  requires: [],
+  provides: IJaiMessageFooter,
+  activate: (app: JupyterFrontEnd): IJaiMessageFooter => {
+    return {
+      component: MessageFooter
+    };
+  }
+};
+
+function MessageFooter(props: IJaiMessageFooterProps) {
+  if (props.message.type !== 'agent' && props.message.type !== 'agent-stream') {
+    return null;
+  }
+
+  return (
+    <div>This is a test footer that renders under each agent message.</div>
+  );
+}
+```
