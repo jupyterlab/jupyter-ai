@@ -1,4 +1,4 @@
-from langchain_openai import AzureChatOpenAI, ChatOpenAI, OpenAI, OpenAIEmbeddings
+from langchain_openai import AzureChatOpenAI, ChatOpenAI, OpenAI, OpenAIEmbeddings, AzureOpenAIEmbeddings
 
 from ..embedding_providers import BaseEmbeddingsProvider
 from ..providers import BaseProvider, EnvAuthStrategy, TextField
@@ -106,3 +106,20 @@ class OpenAIEmbeddingsProvider(BaseEmbeddingsProvider, OpenAIEmbeddings):
     model_id_key = "model"
     pypi_package_deps = ["langchain_openai"]
     auth_strategy = EnvAuthStrategy(name="OPENAI_API_KEY")
+
+
+class AzureOpenAIEmbeddingsProvider(BaseEmbeddingsProvider, AzureOpenAIEmbeddings):
+    id = "azure"
+    name = "Azure OpenAI"
+    models = [
+        "text-embedding-ada-002",
+        "text-embedding-3-small",
+        "text-embedding-3-large",
+    ]
+    model_id_key = "azure_deployment"
+    pypi_package_deps = ["langchain_openai"]
+    auth_strategy = EnvAuthStrategy(
+        name="AZURE_OPENAI_API_KEY", keyword_param="openai_api_key"
+    )
+    
+    registry = True
