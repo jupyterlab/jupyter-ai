@@ -1,4 +1,10 @@
-from langchain_openai import AzureChatOpenAI, ChatOpenAI, OpenAI, OpenAIEmbeddings, AzureOpenAIEmbeddings
+from langchain_openai import (
+    AzureChatOpenAI,
+    AzureOpenAIEmbeddings,
+    ChatOpenAI,
+    OpenAI,
+    OpenAIEmbeddings,
+)
 
 from ..embedding_providers import BaseEmbeddingsProvider
 from ..providers import BaseProvider, EnvAuthStrategy, TextField
@@ -121,5 +127,5 @@ class AzureOpenAIEmbeddingsProvider(BaseEmbeddingsProvider, AzureOpenAIEmbedding
     auth_strategy = EnvAuthStrategy(
         name="AZURE_OPENAI_API_KEY", keyword_param="openai_api_key"
     )
-    
+
     registry = True
