@@ -18,7 +18,7 @@ import { ChatHandler } from './chat_handler';
 import { buildErrorWidget } from './widgets/chat-error';
 import { completionPlugin } from './completions';
 import { statusItemPlugin } from './status';
-import { IJaiCompletionProvider } from './tokens';
+import { IJaiCompletionProvider, IJaiMessageFooter } from './tokens';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { ActiveCellManager } from './contexts/active-cell-context';
 import { Signal } from '@lumino/signaling';
@@ -42,7 +42,8 @@ const plugin: JupyterFrontEndPlugin<void> = {
     IGlobalAwareness,
     ILayoutRestorer,
     IThemeManager,
-    IJaiCompletionProvider
+    IJaiCompletionProvider,
+    IJaiMessageFooter
   ],
   requires: [IRenderMimeRegistry],
   activate: async (
@@ -51,7 +52,8 @@ const plugin: JupyterFrontEndPlugin<void> = {
     globalAwareness: Awareness | null,
     restorer: ILayoutRestorer | null,
     themeManager: IThemeManager | null,
-    completionProvider: IJaiCompletionProvider | null
+    completionProvider: IJaiCompletionProvider | null,
+    messageFooter: IJaiMessageFooter | null
   ) => {
     /**
      * Initialize selection watcher singleton
@@ -88,7 +90,8 @@ const plugin: JupyterFrontEndPlugin<void> = {
         completionProvider,
         openInlineCompleterSettings,
         activeCellManager,
-        focusInputSignal
+        focusInputSignal,
+        messageFooter
       );
     } catch (e) {
       chatWidget = buildErrorWidget(themeManager);

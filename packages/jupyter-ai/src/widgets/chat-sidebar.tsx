@@ -8,7 +8,7 @@ import { Chat } from '../components/chat';
 import { chatIcon } from '../icons';
 import { SelectionWatcher } from '../selection-watcher';
 import { ChatHandler } from '../chat_handler';
-import { IJaiCompletionProvider } from '../tokens';
+import { IJaiCompletionProvider, IJaiMessageFooter } from '../tokens';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import type { ActiveCellManager } from '../contexts/active-cell-context';
 
@@ -21,7 +21,8 @@ export function buildChatSidebar(
   completionProvider: IJaiCompletionProvider | null,
   openInlineCompleterSettings: () => void,
   activeCellManager: ActiveCellManager,
-  focusInputSignal: ISignal<unknown, void>
+  focusInputSignal: ISignal<unknown, void>,
+  messageFooter: IJaiMessageFooter | null
 ): ReactWidget {
   const ChatWidget = ReactWidget.create(
     <Chat
@@ -34,6 +35,7 @@ export function buildChatSidebar(
       openInlineCompleterSettings={openInlineCompleterSettings}
       activeCellManager={activeCellManager}
       focusInputSignal={focusInputSignal}
+      messageFooter={messageFooter}
     />
   );
   ChatWidget.id = 'jupyter-ai::chat';
