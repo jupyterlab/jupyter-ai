@@ -133,6 +133,7 @@ export class ChatHandler implements IDisposable {
         break;
       case 'clear':
         this._messages = [];
+        this._pendingMessages = [];
         break;
       case 'pending':
         this._pendingMessages = [...this._pendingMessages, newMessage];

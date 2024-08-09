@@ -201,6 +201,15 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
         """Broadcasts message to all connected clients.
         Appends message to chat history.
         """
+        # do not broadcast agent messages that are replying to cleared human message
+        if (
+            isinstance(message, (AgentChatMessage, AgentStreamMessage))
+            and message.reply_to
+        ):
+            if message.reply_to not in [
+                m.id for m in self.chat_history if isinstance(m, HumanChatMessage)
+            ]:
+                return
 
         self.log.debug("Broadcasting message: %s to all clients...", message)
         client_ids = self.root_chat_handlers.keys()
