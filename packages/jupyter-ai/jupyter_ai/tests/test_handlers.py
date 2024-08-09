@@ -8,6 +8,7 @@ import pytest
 from jupyter_ai.chat_handlers import DefaultChatHandler, learn
 from jupyter_ai.config_manager import ConfigManager
 from jupyter_ai.handlers import RootChatHandler
+from jupyter_ai.history import BoundedChatHistory
 from jupyter_ai.models import (
     AgentStreamChunkMessage,
     AgentStreamMessage,
@@ -18,7 +19,6 @@ from jupyter_ai.models import (
     PendingMessage,
     Persona,
 )
-from jupyter_ai.history import BoundedChatHistory
 from jupyter_ai_magics import BaseProvider
 from langchain_community.llms import FakeListLLM
 from tornado.httputil import HTTPServerRequest
