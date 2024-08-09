@@ -10,7 +10,7 @@ from jupyter_ai_magics import BaseProvider, JupyternautPersona
 from jupyter_ai_magics.utils import get_em_providers, get_lm_providers
 from jupyter_server.extension.application import ExtensionApp
 from tornado.web import StaticFileHandler
-from traitlets import Dict, List, Unicode, Integer
+from traitlets import Dict, Integer, List, Unicode
 
 from .chat_handlers import (
     AskChatHandler,
@@ -35,7 +35,6 @@ from .handlers import (
     SlashCommandsInfoHandler,
 )
 from .history import BoundedChatHistory
-
 
 JUPYTERNAUT_AVATAR_ROUTE = JupyternautPersona.avatar_route
 JUPYTERNAUT_AVATAR_PATH = str(
