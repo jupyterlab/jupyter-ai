@@ -18,6 +18,7 @@ from jupyter_ai.models import (
     PendingMessage,
     Persona,
 )
+from jupyter_ai.history import BoundedChatHistory
 from jupyter_ai_magics import BaseProvider
 from langchain_community.llms import FakeListLLM
 from tornado.httputil import HTTPServerRequest
@@ -70,6 +71,7 @@ class TestDefaultChatHandler(DefaultChatHandler):
             root_chat_handlers={"root": root_handler},
             model_parameters={},
             chat_history=[],
+            llm_chat_history=BoundedChatHistory(k=2),
             root_dir="",
             preferred_dir="",
             dask_client_future=None,
