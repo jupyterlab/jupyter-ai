@@ -11,7 +11,6 @@ from jupyter_ai_magics.providers import BaseProvider
 from langchain_core.messages import AIMessageChunk
 from langchain_core.runnables.history import RunnableWithMessageHistory
 
-from ..history import BoundedChatHistory
 from .base import BaseChatHandler, SlashCommandRoutingType
 
 
@@ -42,10 +41,9 @@ class DefaultChatHandler(BaseChatHandler):
 
         runnable = prompt_template | llm
         if not llm.manages_history:
-            history = BoundedChatHistory(k=2)
             runnable = RunnableWithMessageHistory(
                 runnable=runnable,
-                get_session_history=lambda *args: history,
+                get_session_history=lambda *args: self.llm_chat_history,
                 input_messages_key="input",
                 history_messages_key="history",
             )

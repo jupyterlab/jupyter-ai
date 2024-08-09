@@ -28,6 +28,7 @@ from jupyter_ai.models import (
 from jupyter_ai_magics import Persona
 from jupyter_ai_magics.providers import BaseProvider
 from langchain.pydantic_v1 import BaseModel
+from langchain_core.chat_history import BaseChatMessageHistory
 
 if TYPE_CHECKING:
     from jupyter_ai.handlers import RootChatHandler
@@ -113,6 +114,7 @@ class BaseChatHandler:
         root_chat_handlers: Dict[str, "RootChatHandler"],
         model_parameters: Dict[str, Dict],
         chat_history: List[ChatMessage],
+        llm_chat_history: BaseChatMessageHistory,
         root_dir: str,
         preferred_dir: Optional[str],
         dask_client_future: Awaitable[DaskClient],
@@ -122,6 +124,7 @@ class BaseChatHandler:
         self._root_chat_handlers = root_chat_handlers
         self.model_parameters = model_parameters
         self._chat_history = chat_history
+        self.llm_chat_history = llm_chat_history
         self.parser = argparse.ArgumentParser(
             add_help=False, description=self.help, formatter_class=MarkdownHelpFormatter
         )
