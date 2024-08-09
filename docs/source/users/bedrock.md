@@ -1,6 +1,6 @@
 # Using Amazon Bedrock with Jupyter AI
 
-[**<--Back**](index.md#amazon-bedrock-usage)
+[(Return to Chat Interface page for Bedrock)](index.md#amazon-bedrock-usage)
 
 Bedrock supports many language model providers such as AI21 Labs, Amazon, Anthropic, Cohere, Meta, and Mistral AI. To use the base models from any supported provider make sure to enable them in Amazon Bedrock by using the AWS console. Go to Amazon Bedrock and select `Model Access` as shown here:
 
@@ -57,4 +57,5 @@ Once the model is fine-tuned, it will have its own `arn`, as shown below:
 
 As seen above, you may click on `Purchase provisioned throughput` to buy inference units with which to call the custom model's API. Enter the model's `arn` in Jupyter AI's Language model user interface to use the provisioned model.
 
-[**<--Back**](index.md#amazon-bedrock-usage)
+[(Return to Chat Interface page for Bedrock)](index.md#amazon-bedrock-usage)
+

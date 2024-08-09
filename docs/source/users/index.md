@@ -175,11 +175,7 @@ Jupyter AI supports the following model providers:
 The environment variable names shown above are also the names of the settings keys used when setting up the chat interface.
 If multiple variables are listed for a provider, **all** must be specified.
 
-To use the Bedrock models, you need access to the Bedrock service. For more information, see the
-[Amazon Bedrock Homepage](https://aws.amazon.com/bedrock/).
-
-To use Bedrock models, you will need to authenticate via
-[boto3](https://github.com/boto/boto3).
+To use the Bedrock models, you need access to the Bedrock service, and you will need to authenticate via [boto3](https://github.com/boto/boto3). For more information, see the [Amazon Bedrock Homepage](https://aws.amazon.com/bedrock/).
 
 You need the `pillow` Python package to use Hugging Face Hub's text-to-image models.
 
@@ -277,6 +273,8 @@ The chat backend remembers the last two exchanges in your conversation and passe
 ### Amazon Bedrock Usage
 
 Jupyter AI enables use of language models hosted on [Amazon Bedrock](https://aws.amazon.com/bedrock/) on AWS. First, ensure that you have authentication to use AWS using the `boto3` SDK with credentials stored in the `default` profile. Guidance on how to do this can be found in the [`boto3` documentation](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html).
+
+For more detailed workflows, see [Using Amazon Bedrock with Jupter AI](bedrock.md).
 
 Bedrock supports many language model providers such as AI21 Labs, Amazon, Anthropic, Cohere, Meta, and Mistral AI. To use the base models from any supported provider make sure to enable them in Amazon Bedrock by using the AWS console. You should also select embedding models in Bedrock in addition to language completion models if you intend to use retrieval augmented generation (RAG) on your documents.
 
