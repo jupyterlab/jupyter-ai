@@ -1,4 +1,4 @@
-from typing import List, Sequence, Optional
+from typing import List, Optional, Sequence
 
 from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_core.messages import BaseMessage
@@ -14,7 +14,7 @@ class BoundedChatHistory(BaseChatMessageHistory, BaseModel):
     messages and 2 AI messages.
     """
 
-    all_messages: List[BaseMessage] = Field(default_factory=list, alias='messages')
+    all_messages: List[BaseMessage] = Field(default_factory=list, alias="messages")
     size: int = 0
     k: int
 
