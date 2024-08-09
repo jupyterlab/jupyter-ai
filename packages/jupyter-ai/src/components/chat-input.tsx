@@ -207,6 +207,7 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
     props.chatHandler.sendMessage({ prompt, selection });
   }
 
+  const inputExists = !!input.trim();
   function handleKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
     if (event.key !== 'Enter') {
       return;
@@ -215,6 +216,12 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
     // do not send the message if the user was just trying to select a suggested
     // slash command from the Autocomplete component.
     if (highlighted) {
+      return;
+    }
+
+    if (!inputExists) {
+      event.stopPropagation();
+      event.preventDefault();
       return;
     }
 
@@ -240,7 +247,6 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
     </span>
   );
 
-  const inputExists = !!input.trim();
   const sendButtonProps: SendButtonProps = {
     onSend,
     sendWithShiftEnter: props.sendWithShiftEnter,
