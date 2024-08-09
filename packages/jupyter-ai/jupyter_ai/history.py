@@ -14,27 +14,27 @@ class BoundedChatHistory(BaseChatMessageHistory, BaseModel):
     messages and 2 AI messages.
     """
 
-    messages: List[BaseMessage] = Field(default_factory=list)
+    _messages: List[BaseMessage] = Field(default_factory=list)
     size: int = 0
     k: int
+
+    @property
+    def messages(self) -> List[BaseMessage]:
+        return self._messages[-self.k * 2 :]
 
     async def aget_messages(self) -> List[BaseMessage]:
         return self.messages
 
     def add_message(self, message: BaseMessage) -> None:
         """Add a self-created message to the store"""
-        self.messages.append(message)
-        self.size += 1
-
-        if self.size > self.k * 2:
-            self.messages.pop(0)
+        self._messages.append(message)
 
     async def aadd_messages(self, messages: Sequence[BaseMessage]) -> None:
         """Add messages to the store"""
         self.add_messages(messages)
 
     def clear(self) -> None:
-        self.messages = []
+        self._messages = []
 
     async def aclear(self) -> None:
         self.clear()
