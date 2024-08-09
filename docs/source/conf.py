@@ -58,6 +58,4 @@ html_theme_options = {
     ],
 }
 
-html_sidebars = {
-  "**": []
-}
+html_sidebars = {"**": []}

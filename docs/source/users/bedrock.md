@@ -58,4 +58,3 @@ Once the model is fine-tuned, it will have its own `arn`, as shown below:
 As seen above, you may click on `Purchase provisioned throughput` to buy inference units with which to call the custom model's API. Enter the model's `arn` in Jupyter AI's Language model user interface to use the provisioned model.
 
 [(Return to Chat Interface page for Bedrock)](index.md#amazon-bedrock-usage)
-
