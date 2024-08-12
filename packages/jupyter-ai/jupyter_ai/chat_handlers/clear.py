@@ -26,7 +26,6 @@ class ClearChatHandler(BaseChatHandler):
 
             # Clear chat
             handler.broadcast_message(ClearMessage())
-            self._chat_history.clear()
 
             # Build /help message and reinstate it in chat
             chat_handlers = handler.chat_handlers

@@ -24,6 +24,8 @@ from .models import (
     ChatMessage,
     ChatRequest,
     ChatUser,
+    ClearMessage,
+    ClearRequest,
     ClosePendingMessage,
     ConnectionMessage,
     HumanChatMessage,
@@ -236,17 +238,31 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
             self.pending_messages = list(
                 filter(lambda m: m.id != message.id, self.pending_messages)
             )
+        elif isinstance(message, ClearMessage):
+            if message.at:
+                self._clear_chat_history_at(message.at)
+            else:
+                self.chat_history.clear()
+                self.pending_messages.clear()
 
     async def on_message(self, message):
         self.log.debug("Message received: %s", message)
 
         try:
             message = json.loads(message)
-            chat_request = ChatRequest(**message)
+            if message.get("type") == "clear":
+                request = ClearRequest(**message)
+            else:
+                request = ChatRequest(**message)
         except ValidationError as e:
             self.log.error(e)
             return
 
+        if isinstance(request, ClearRequest):
+            self.broadcast_message(ClearMessage(at=request.at))
+            return
+
+        chat_request = request
         message_body = chat_request.prompt
         if chat_request.selection:
             message_body += f"\n\n```\n{chat_request.selection.source}\n```\n"
@@ -291,6 +307,23 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
         latency_ms = round((time.time() - start) * 1000)
         command_readable = "Default" if command == "default" else command
         self.log.info(f"{command_readable} chat handler resolved in {latency_ms} ms.")
+
+    def _clear_chat_history_at(self, msg_id: str):
+        """Clears the chat history at a specific message ID."""
+        target_msg = None
+        for msg in self.chat_history:
+            if msg.id == msg_id:
+                target_msg = msg
+
+        if msg is not None:
+            self.chat_history[:] = [
+                msg for msg in self.chat_history
+                if msg.time < target_msg.time
+            ]
+            self.pending_messages[:] = [
+                msg for msg in self.pending_messages
+                if msg.time < target_msg.time
+            ]
 
     def on_close(self):
         self.log.debug("Disconnecting client with user %s", self.client_id)

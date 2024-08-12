@@ -38,6 +38,13 @@ class ChatRequest(BaseModel):
     prompt: str
     selection: Optional[Selection]
 
+class ClearRequest(BaseModel):
+    type: Literal["clear"]
+    at: Optional[str]
+    """
+    Message ID of the ChatMessage to clear at and all messages after. 
+    If empty strig, clears all.
+    """
 
 class ChatUser(BaseModel):
     # User ID assigned by IdentityProvider.
@@ -105,6 +112,11 @@ class HumanChatMessage(BaseModel):
 
 class ClearMessage(BaseModel):
     type: Literal["clear"] = "clear"
+    at: Optional[str] = None
+    """
+    Message ID of the ChatMessage to clear at and all messages after. 
+    If not provided, clears all.
+    """
 
 
 class PendingMessage(BaseModel):

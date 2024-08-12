@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Box } from '@mui/system';
-import { Button, IconButton, Stack } from '@mui/material';
+import { Button, IconButton, Stack, Tooltip } from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import AddIcon from '@mui/icons-material/Add';
 import type { Awareness } from 'y-protocols/awareness';
 import type { IThemeManager } from '@jupyterlab/apputils';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
@@ -139,8 +140,12 @@ function ChatBody({
   return (
     <>
       <ScrollContainer sx={{ flexGrow: 1 }}>
-        <ChatMessages messages={messages} rmRegistry={renderMimeRegistry} />
-        <PendingMessages messages={pendingMessages} />
+        <ChatMessages
+          messages={messages}
+          chatHandler={chatHandler}
+          rmRegistry={renderMimeRegistry}
+        />
+        <PendingMessages messages={pendingMessages} chatHandler={chatHandler} />
       </ScrollContainer>
       <ChatInput
         chatHandler={chatHandler}
@@ -209,9 +214,20 @@ export function Chat(props: ChatProps): JSX.Element {
                   <Box />
                 )}
                 {view === ChatView.Chat ? (
-                  <IconButton onClick={() => setView(ChatView.Settings)}>
-                    <SettingsIcon />
-                  </IconButton>
+                  <Box sx={{ display: 'flex' }}>
+                    <Tooltip title="New Chat">
+                      <IconButton
+                        onClick={() =>
+                          props.chatHandler.sendMessage({ type: 'clear' })
+                        }
+                      >
+                        <AddIcon />
+                      </IconButton>
+                    </Tooltip>
+                    <IconButton onClick={() => setView(ChatView.Settings)}>
+                      <SettingsIcon />
+                    </IconButton>
+                  </Box>
                 ) : (
                   <Box />
                 )}
