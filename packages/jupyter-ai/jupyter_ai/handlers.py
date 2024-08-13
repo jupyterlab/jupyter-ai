@@ -321,12 +321,10 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
 
         if msg is not None:
             self.chat_history[:] = [
-                msg for msg in self.chat_history
-                if msg.time < target_msg.time
+                msg for msg in self.chat_history if msg.time < target_msg.time
             ]
             self.pending_messages[:] = [
-                msg for msg in self.pending_messages
-                if msg.time < target_msg.time
+                msg for msg in self.pending_messages if msg.time < target_msg.time
             ]
 
     def on_close(self):

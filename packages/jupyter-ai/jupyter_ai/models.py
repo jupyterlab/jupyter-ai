@@ -38,13 +38,15 @@ class ChatRequest(BaseModel):
     prompt: str
     selection: Optional[Selection]
 
+
 class ClearRequest(BaseModel):
     type: Literal["clear"]
     target: Optional[str]
     """
-    Message ID of the ChatMessage to clear at and all messages after. 
+    Message ID of the ChatMessage to clear at and all messages after.
     If empty strig, clears all.
     """
+
 
 class ChatUser(BaseModel):
     # User ID assigned by IdentityProvider.
@@ -114,7 +116,7 @@ class ClearMessage(BaseModel):
     type: Literal["clear"] = "clear"
     target: Optional[str] = None
     """
-    Message ID of the ChatMessage to clear at and all messages after. 
+    Message ID of the ChatMessage to clear at and all messages after.
     If not provided, clears all.
     """
 
