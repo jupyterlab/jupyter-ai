@@ -18,6 +18,7 @@ from uuid import uuid4
 
 from dask.distributed import Client as DaskClient
 from jupyter_ai.config_manager import ConfigManager, Logger
+from jupyter_ai.history import WrappedBoundedChatHistory
 from jupyter_ai.models import (
     AgentChatMessage,
     ChatMessage,
@@ -29,14 +30,10 @@ from jupyter_ai_magics import Persona
 from jupyter_ai_magics.providers import BaseProvider
 from langchain.pydantic_v1 import BaseModel
 
-from jupyter_ai.history import WrappedBoundedChatHistory
-
-
 if TYPE_CHECKING:
-    from langchain_core.chat_history import BaseChatMessageHistory
-
     from jupyter_ai.handlers import RootChatHandler
     from jupyter_ai.history import BoundedChatHistory
+    from langchain_core.chat_history import BaseChatMessageHistory
 
 
 def get_preferred_dir(root_dir: str, preferred_dir: str) -> Optional[str]:

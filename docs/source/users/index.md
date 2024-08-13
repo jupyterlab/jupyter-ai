@@ -960,7 +960,7 @@ jupyter lab --AiExtension.allowed_providers=openai --AiExtension.allowed_provide
 
 ### Chat memory size
 
-This configuration allows for setting the number of chat exchanges the model 
+This configuration allows for setting the number of chat exchanges the model
 uses as context when generating a response.
 
 One chat exchange corresponds a user message and its AI response.

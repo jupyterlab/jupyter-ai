@@ -9,7 +9,7 @@ from jupyter_ai.models import (
 )
 from jupyter_ai_magics.providers import BaseProvider
 from langchain_core.messages import AIMessageChunk
-from langchain_core.runnables import RunnableWithMessageHistory, ConfigurableFieldSpec
+from langchain_core.runnables import ConfigurableFieldSpec, RunnableWithMessageHistory
 
 from ..models import HumanChatMessage
 from .base import BaseChatHandler, SlashCommandRoutingType
