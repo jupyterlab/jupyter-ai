@@ -12,11 +12,13 @@ import { useCollaboratorsContext } from '../contexts/collaborators-context';
 import { ChatMessageMenu } from './chat-messages/chat-message-menu';
 import { ChatMessageDelete } from './chat-messages/chat-message-delete';
 import { ChatHandler } from '../chat_handler';
+import { IJaiMessageFooter } from '../tokens';
 
 type ChatMessagesProps = {
   rmRegistry: IRenderMimeRegistry;
   messages: AiService.ChatMessage[];
   chatHandler: ChatHandler;
+  messageFooter: IJaiMessageFooter | null;
 };
 
 type ChatMessageHeaderProps = {
@@ -228,6 +230,9 @@ export function ChatMessages(props: ChatMessagesProps): JSX.Element {
                 message.type === 'agent-stream' ? !!message.complete : true
               }
             />
+            {props.messageFooter && (
+              <props.messageFooter.component message={message} />
+            )}
           </Box>
         );
       })}

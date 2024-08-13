@@ -19,7 +19,7 @@ import { SelectionContextProvider } from '../contexts/selection-context';
 import { SelectionWatcher } from '../selection-watcher';
 import { ChatHandler } from '../chat_handler';
 import { CollaboratorsContextProvider } from '../contexts/collaborators-context';
-import { IJaiCompletionProvider } from '../tokens';
+import { IJaiCompletionProvider, IJaiMessageFooter } from '../tokens';
 import {
   ActiveCellContextProvider,
   ActiveCellManager
@@ -31,6 +31,7 @@ type ChatBodyProps = {
   setChatView: (view: ChatView) => void;
   rmRegistry: IRenderMimeRegistry;
   focusInputSignal: ISignal<unknown, void>;
+  messageFooter: IJaiMessageFooter | null;
 };
 
 /**
@@ -52,7 +53,8 @@ function ChatBody({
   chatHandler,
   focusInputSignal,
   setChatView: chatViewHandler,
-  rmRegistry: renderMimeRegistry
+  rmRegistry: renderMimeRegistry,
+  messageFooter
 }: ChatBodyProps): JSX.Element {
   const [messages, setMessages] = useState<AiService.ChatMessage[]>([
     ...chatHandler.history.messages
@@ -144,6 +146,7 @@ function ChatBody({
           messages={messages}
           chatHandler={chatHandler}
           rmRegistry={renderMimeRegistry}
+          messageFooter={messageFooter}
         />
         <PendingMessages messages={pendingMessages} chatHandler={chatHandler} />
       </ScrollContainer>
@@ -175,6 +178,7 @@ export type ChatProps = {
   openInlineCompleterSettings: () => void;
   activeCellManager: ActiveCellManager;
   focusInputSignal: ISignal<unknown, void>;
+  messageFooter: IJaiMessageFooter | null;
 };
 
 enum ChatView {
@@ -239,6 +243,7 @@ export function Chat(props: ChatProps): JSX.Element {
                   setChatView={setView}
                   rmRegistry={props.rmRegistry}
                   focusInputSignal={props.focusInputSignal}
+                  messageFooter={props.messageFooter}
                 />
               )}
               {view === ChatView.Settings && (
