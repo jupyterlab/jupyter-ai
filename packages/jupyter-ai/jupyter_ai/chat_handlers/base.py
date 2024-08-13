@@ -28,10 +28,15 @@ from jupyter_ai.models import (
 from jupyter_ai_magics import Persona
 from jupyter_ai_magics.providers import BaseProvider
 from langchain.pydantic_v1 import BaseModel
-from langchain_core.chat_history import BaseChatMessageHistory
+
+from jupyter_ai.history import WrappedBoundedChatHistory
+
 
 if TYPE_CHECKING:
+    from langchain_core.chat_history import BaseChatMessageHistory
+
     from jupyter_ai.handlers import RootChatHandler
+    from jupyter_ai.history import BoundedChatHistory
 
 
 def get_preferred_dir(root_dir: str, preferred_dir: str) -> Optional[str]:
@@ -114,7 +119,7 @@ class BaseChatHandler:
         root_chat_handlers: Dict[str, "RootChatHandler"],
         model_parameters: Dict[str, Dict],
         chat_history: List[ChatMessage],
-        llm_chat_history: BaseChatMessageHistory,
+        llm_chat_history: "BoundedChatHistory",
         root_dir: str,
         preferred_dir: Optional[str],
         dask_client_future: Awaitable[DaskClient],
@@ -360,6 +365,18 @@ class BaseChatHandler:
                 self.reply(response, message)
             return None
         return args
+
+    def get_llm_chat_history(
+        self,
+        human_msg: Optional[HumanChatMessage] = None,
+        **kwargs,
+    ) -> "BaseChatMessageHistory":
+        if human_msg:
+            return WrappedBoundedChatHistory(
+                history=self.llm_chat_history,
+                human_msg=human_msg,
+            )
+        return self.llm_chat_history
 
     @property
     def output_dir(self) -> str:
