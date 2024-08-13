@@ -132,14 +132,14 @@ export class ChatHandler implements IDisposable {
       case 'connection':
         break;
       case 'clear':
-        if (newMessage.at) {
-          const target_msg = this._messages.find(m => m.id === newMessage.at);
-          if (target_msg) {
+        if (newMessage.target) {
+          const targetMsg = this._messages.find(m => m.id === newMessage.target);
+          if (targetMsg) {
             this._messages = this._messages.filter(
-              msg => msg.time < target_msg.time
+              msg => msg.time < targetMsg.time
             );
             this._pendingMessages = this._pendingMessages.filter(
-              msg => msg.time < target_msg.time
+              msg => msg.time < targetMsg.time
             );
           }
         } else {

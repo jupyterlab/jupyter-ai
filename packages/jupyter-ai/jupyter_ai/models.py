@@ -40,7 +40,7 @@ class ChatRequest(BaseModel):
 
 class ClearRequest(BaseModel):
     type: Literal["clear"]
-    at: Optional[str]
+    target: Optional[str]
     """
     Message ID of the ChatMessage to clear at and all messages after. 
     If empty strig, clears all.
@@ -112,7 +112,7 @@ class HumanChatMessage(BaseModel):
 
 class ClearMessage(BaseModel):
     type: Literal["clear"] = "clear"
-    at: Optional[str] = None
+    target: Optional[str] = None
     """
     Message ID of the ChatMessage to clear at and all messages after. 
     If not provided, clears all.

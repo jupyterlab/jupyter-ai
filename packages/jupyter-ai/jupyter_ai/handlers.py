@@ -239,8 +239,8 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
                 filter(lambda m: m.id != message.id, self.pending_messages)
             )
         elif isinstance(message, ClearMessage):
-            if message.at:
-                self._clear_chat_history_at(message.at)
+            if message.target:
+                self._clear_chat_history_at(message.target)
             else:
                 self.chat_history.clear()
                 self.pending_messages.clear()
@@ -263,7 +263,7 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
             return
 
         if isinstance(request, ClearRequest):
-            self.broadcast_message(ClearMessage(at=request.at))
+            self.broadcast_message(ClearMessage(target=request.target))
             return
 
         chat_request = request
