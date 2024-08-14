@@ -233,7 +233,7 @@ class AiExtension(ExtensionApp):
         self.settings["chat_history"] = []
 
         # conversational memory object used by LM chain
-        self.settings["llm_chat_history"] = BoundedChatHistory(
+        self.settings["llm_chat_memory"] = BoundedChatHistory(
             k=self.default_max_chat_history
         )
 
@@ -267,7 +267,7 @@ class AiExtension(ExtensionApp):
             **common_handler_kargs,
             "root_chat_handlers": self.settings["jai_root_chat_handlers"],
             "chat_history": self.settings["chat_history"],
-            "llm_chat_history": self.settings["llm_chat_history"],
+            "llm_chat_memory": self.settings["llm_chat_memory"],
             "root_dir": self.serverapp.root_dir,
             "dask_client_future": self.settings["dask_client_future"],
             "model_parameters": self.settings["model_parameters"],

@@ -116,7 +116,7 @@ class BaseChatHandler:
         root_chat_handlers: Dict[str, "RootChatHandler"],
         model_parameters: Dict[str, Dict],
         chat_history: List[ChatMessage],
-        llm_chat_history: "BoundedChatHistory",
+        llm_chat_memory: "BoundedChatHistory",
         root_dir: str,
         preferred_dir: Optional[str],
         dask_client_future: Awaitable[DaskClient],
@@ -126,7 +126,7 @@ class BaseChatHandler:
         self._root_chat_handlers = root_chat_handlers
         self.model_parameters = model_parameters
         self._chat_history = chat_history
-        self.llm_chat_history = llm_chat_history
+        self.llm_chat_memory = llm_chat_memory
         self.parser = argparse.ArgumentParser(
             add_help=False, description=self.help, formatter_class=MarkdownHelpFormatter
         )
@@ -370,10 +370,10 @@ class BaseChatHandler:
     ) -> "BaseChatMessageHistory":
         if human_msg:
             return WrappedBoundedChatHistory(
-                history=self.llm_chat_history,
+                history=self.llm_chat_memory,
                 human_msg=human_msg,
             )
-        return self.llm_chat_history
+        return self.llm_chat_memory
 
     @property
     def output_dir(self) -> str:
