@@ -963,9 +963,9 @@ jupyter lab --AiExtension.allowed_providers=openai --AiExtension.allowed_provide
 This configuration allows for setting the number of chat exchanges the model
 uses as context when generating a response.
 
-One chat exchange corresponds a user message and its AI response.
-E.g. Setting value of 4 means the model will use the last 8 messages total.
-Default value is 2.
+One chat exchange corresponds to a user query message and its AI response, which counts as two messages.
+k denotes one chat exchange, i.e., two messages.
+The default value of k is 2, which corresponds to 4 messages.
 
 ```
 jupyter lab --AiExtension.default_max_chat_history=4
