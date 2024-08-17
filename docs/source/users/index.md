@@ -245,10 +245,31 @@ Before you can use the chat interface, you need to provide your API keys for the
     alt="Screen shot of the setup interface, showing model selections and key populated"
     class="screenshot" />
 
-Once you have set all the necessary keys, click the "back" (left arrow) button in the upper-left corner of the Jupyter AI side panel. The chat interface now appears, and you can ask a question using the message box at the bottom.
+Once you have set all the necessary keys, click the "back" (left arrow) button in the upper-left corner of the Jupyter AI side panel. The chat interface now appears, with a help menu of available `/` (slash) commands, and you can ask a question using the message box at the bottom.
 
 <img src="../_static/chat-icon-left-tab-bar.png"
-    alt="Screen shot of the initial, blank, chat interface."
+    alt="Screen shot of the initial chat interface."
+    class="screenshot" />
+
+You may customize the template of the chat interface from the default one. The steps are as follows:
+1. Create a new `config.py` file in your current directory with the contents you want to see in the help message, by editing the template below:
+```
+c.AiExtension.help_message_template = """
+Sup. I'm {persona_name}. This is a sassy custom help message.
+
+Here's the slash commands you can use. Use 'em or don't... I don't care.
+
+{slash_commands_list}
+""".strip()
+```
+2.  Start JupyterLab with the following command:
+```
+jupyter lab --config=config.py
+```
+The new help message will be used instead of the default, as shown below
+
+<img src="../_static/chat-icon-left-tab-bar-custom.png"
+    alt="Screen shot of the custom chat interface."
     class="screenshot" />
 
 To compose a message, type it in the text box at the bottom of the chat interface and press <kbd>ENTER</kbd> to send it. You can press <kbd>SHIFT</kbd>+<kbd>ENTER</kbd> to add a new line. (These are the default keybindings; you can change them in the chat settings pane.) Once you have sent a message, you should see a response from Jupyternaut, the Jupyter AI chatbot.

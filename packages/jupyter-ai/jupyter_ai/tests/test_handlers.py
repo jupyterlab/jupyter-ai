@@ -7,11 +7,10 @@ from unittest import mock
 import pytest
 from jupyter_ai.chat_handlers import DefaultChatHandler, learn
 from jupyter_ai.config_manager import ConfigManager
+from jupyter_ai.extension import DEFAULT_HELP_MESSAGE_TEMPLATE
 from jupyter_ai.handlers import RootChatHandler
 from jupyter_ai.history import BoundedChatHistory
 from jupyter_ai.models import (
-    AgentStreamChunkMessage,
-    AgentStreamMessage,
     ChatClient,
     ClosePendingMessage,
     HumanChatMessage,
@@ -75,6 +74,8 @@ class TestDefaultChatHandler(DefaultChatHandler):
             root_dir="",
             preferred_dir="",
             dask_client_future=None,
+            help_message_template=DEFAULT_HELP_MESSAGE_TEMPLATE,
+            chat_handlers={},
         )
 
 
