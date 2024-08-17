@@ -110,7 +110,7 @@ export class CompletionWebsocketHandler implements IDisposable {
     (value: AiService.InlineCompletionReply) => void
   > = {};
 
-  private _onClose(e: CloseEvent, reject: any) {
+  private _onClose(e: CloseEvent, reject: (reason: unknown) => void) {
     reject(new Error('Inline completion websocket disconnected'));
     console.error('Inline completion websocket disconnected');
     // only attempt re-connect if there was an abnormal closure
@@ -137,7 +137,7 @@ export class CompletionWebsocketHandler implements IDisposable {
       (token ? `?token=${encodeURIComponent(token)}` : '');
 
     const socket = (this._socket = new WebSocket(url));
-    socket.onclose = e => this._onClose(e, promise.reject);
+    socket.onclose = e => this._onClose(e, promise.reject.bind(promise));
     socket.onerror = e => promise.reject(e);
     socket.onmessage = msg => msg.data && this._onMessage(JSON.parse(msg.data));
   }

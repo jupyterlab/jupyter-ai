@@ -90,7 +90,7 @@ class BaseChatHandler:
     """What this chat handler does, which third-party models it contacts,
     the data it returns to the user, and so on, for display in the UI."""
 
-    routing_type: HandlerRoutingType = ...
+    routing_type: ClassVar[HandlerRoutingType] = ...
 
     uses_llm: ClassVar[bool] = True
     """Class attribute specifying whether this chat handler uses the LLM
@@ -102,9 +102,19 @@ class BaseChatHandler:
     parse the arguments and display help when user queries with
     `-h` or `--help`"""
 
-    _requests_count = 0
+    _requests_count: ClassVar[int] = 0
     """Class attribute set to the number of requests that Jupyternaut is
     currently handling."""
+
+    # Instance attributes
+    help_message_template: str
+    """Format string template that is used to build the help message. Specified
+    from traitlets configuration."""
+
+    chat_handlers: Dict[str, "BaseChatHandler"]
+    """Dictionary of chat handlers. Allows one chat handler to reference other
+    chat handlers, which is necessary for some use-cases like printing the help
+    message."""
 
     def __init__(
         self,
@@ -116,6 +126,8 @@ class BaseChatHandler:
         root_dir: str,
         preferred_dir: Optional[str],
         dask_client_future: Awaitable[DaskClient],
+        help_message_template: str,
+        chat_handlers: Dict[str, "BaseChatHandler"],
     ):
         self.log = log
         self.config_manager = config_manager
@@ -133,6 +145,9 @@ class BaseChatHandler:
         self.root_dir = os.path.abspath(os.path.expanduser(root_dir))
         self.preferred_dir = get_preferred_dir(self.root_dir, preferred_dir)
         self.dask_client_future = dask_client_future
+        self.help_message_template = help_message_template
+        self.chat_handlers = chat_handlers
+
         self.llm = None
         self.llm_params = None
         self.llm_chain = None
@@ -366,3 +381,37 @@ class BaseChatHandler:
             return self.preferred_dir
         else:
             return self.root_dir
+
+    def send_help_message(self, human_msg: Optional[HumanChatMessage] = None) -> None:
+        """Sends a help message to all connected clients."""
+        lm_provider = self.config_manager.lm_provider
+        unsupported_slash_commands = (
+            lm_provider.unsupported_slash_commands if lm_provider else set()
+        )
+        chat_handlers = self.chat_handlers
+        slash_commands = {k: v for k, v in chat_handlers.items() if k != "default"}
+        for key in unsupported_slash_commands:
+            del slash_commands[key]
+
+        # markdown string that lists the slash commands
+        slash_commands_list = "\n".join(
+            [
+                f"* `{command_name}` — {handler.help}"
+                for command_name, handler in slash_commands.items()
+            ]
+        )
+
+        help_message_body = self.help_message_template.format(
+            persona_name=self.persona.name, slash_commands_list=slash_commands_list
+        )
+        help_message = AgentChatMessage(
+            id=uuid4().hex,
+            time=time.time(),
+            body=help_message_body,
+            reply_to=human_msg.id if human_msg else "",
+            persona=self.persona,
+        )
+
+        self._chat_history.append(help_message)
+        for websocket in self._root_chat_handlers.values():
+            websocket.write_message(help_message.json())
