@@ -254,10 +254,7 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
             else:
                 self.chat_history.clear()
                 self.pending_messages.clear()
-                # TODO: replace once help/welcome message is part of base chat handler
-                self.loop.create_task(
-                    self.settings["jai_chat_handlers"]["/help"].process_message(None)
-                )
+                self.settings["jai_chat_handlers"]["default"].send_help_message()
 
     async def on_message(self, message):
         self.log.debug("Message received: %s", message)
