@@ -87,7 +87,7 @@ To install the JupyterLab extension, you can run:
 pip install jupyter-ai
 ```
 
-In some cases, third-party packages need to be installed, for example, because they are required by some model providers and some file formats. To ensure such cases are handled you can install every dependency which will give you access to all models currently supported by `jupyter-ai`. To install every dependency, run (and then restart JupyterLab):
+You may need to install third-party packages, for example, to use some model providers and some file formats with Jupyter AI. To handle all supported use cases, you can install every dependency, which will give you access to all models currently supported by `jupyter-ai`. To install every dependency, run the following command, and then restart JupyterLab:
 
 ```
 pip install jupyter-ai[all]
