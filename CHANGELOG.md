@@ -2,6 +2,38 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 2.21.0
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.20.0...83e368b9d04904f9eb0ad4b1f0759bf3b7bbc93d))
+
+### Enhancements made
+
+- Add optional configurable message footer [#942](https://github.com/jupyterlab/jupyter-ai/pull/942) ([@dlqqq](https://github.com/dlqqq))
+- Add support for Azure Open AI Embeddings to Jupyter AI [#940](https://github.com/jupyterlab/jupyter-ai/pull/940) ([@gsrikant7](https://github.com/gsrikant7))
+- Make help message template configurable [#938](https://github.com/jupyterlab/jupyter-ai/pull/938) ([@dlqqq](https://github.com/dlqqq))
+- Add latest Bedrock models (Titan, Llama 3.1 405b, Mistral Large 2, Jamba Instruct) [#923](https://github.com/jupyterlab/jupyter-ai/pull/923) ([@gabrielkoo](https://github.com/gabrielkoo))
+- Add support for custom/provisioned models in Bedrock [#922](https://github.com/jupyterlab/jupyter-ai/pull/922) ([@dlqqq](https://github.com/dlqqq))
+- Settings section improvement [#918](https://github.com/jupyterlab/jupyter-ai/pull/918) ([@andrewfulton9](https://github.com/andrewfulton9))
+
+### Bugs fixed
+
+- Bind reject method to promise, improve typing [#949](https://github.com/jupyterlab/jupyter-ai/pull/949) ([@krassowski](https://github.com/krassowski))
+- Fix sending empty input with Enter [#946](https://github.com/jupyterlab/jupyter-ai/pull/946) ([@michaelchia](https://github.com/michaelchia))
+- Fix saving chat settings [#935](https://github.com/jupyterlab/jupyter-ai/pull/935) ([@dlqqq](https://github.com/dlqqq))
+
+### Documentation improvements
+
+- Add documentation on how to use Amazon Bedrock  [#936](https://github.com/jupyterlab/jupyter-ai/pull/936) ([@srdas](https://github.com/srdas))
+- Update copyright template [#925](https://github.com/jupyterlab/jupyter-ai/pull/925) ([@srdas](https://github.com/srdas))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-07-29&to=2024-08-19&type=c))
+
+[@andrewfulton9](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aandrewfulton9+updated%3A2024-07-29..2024-08-19&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2024-07-29..2024-08-19&type=Issues) | [@gabrielkoo](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Agabrielkoo+updated%3A2024-07-29..2024-08-19&type=Issues) | [@gsrikant7](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Agsrikant7+updated%3A2024-07-29..2024-08-19&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2024-07-29..2024-08-19&type=Issues) | [@michaelchia](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Amichaelchia+updated%3A2024-07-29..2024-08-19&type=Issues) | [@srdas](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2024-07-29..2024-08-19&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 2.20.0
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.19.1...79d66daefa2dc2f8a47b55712d7b812ee23acda4))
@@ -18,8 +50,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-07-22&to=2024-07-29&type=c))
 
 [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2024-07-22..2024-07-29&type=Issues) | [@JasonWeill](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AJasonWeill+updated%3A2024-07-22..2024-07-29&type=Issues) | [@srdas](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2024-07-22..2024-07-29&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 2.19.1
 
