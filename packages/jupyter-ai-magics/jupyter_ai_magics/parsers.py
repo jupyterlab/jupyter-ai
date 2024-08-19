@@ -121,7 +121,7 @@ def verify_json_value(ctx, param, value):
 
 
 @click.command()
-@click.argument("model_id")
+@click.argument("model_id", required=False)
 @click.option(
     "-f",
     "--format",
@@ -156,7 +156,8 @@ def verify_json_value(ctx, param, value):
     callback=verify_json_value,
     default="{}",
 )
-def cell_magic_parser(**kwargs):
+@click.pass_context
+def cell_magic_parser(context: click.Context, **kwargs):
     """
     Invokes a language model identified by MODEL_ID, with the prompt being
     contained in all lines after the first. Both local model IDs and global
@@ -165,6 +166,8 @@ def cell_magic_parser(**kwargs):
 
     To view available language models, please run `%ai list`.
     """
+    if not kwargs["model_id"] and context.default_map:
+        kwargs["model_id"] = context.default_map["cell_magic_parser"]["model_id"]
     return CellArgs(**kwargs)
 
 
@@ -176,7 +179,7 @@ def line_magic_parser():
 
 
 @line_magic_parser.command(name="error")
-@click.argument("model_id")
+@click.argument("model_id", required=False)
 @click.option(
     "-f",
     "--format",
@@ -211,11 +214,14 @@ def line_magic_parser():
     callback=verify_json_value,
     default="{}",
 )
-def error_subparser(**kwargs):
+@click.pass_context
+def error_subparser(context: click.Context, **kwargs):
     """
     Explains the most recent error. Takes the same options (except -r) as
     the basic `%%ai` command.
     """
+    if not kwargs["model_id"] and context.default_map:
+        kwargs["model_id"] = context.default_map["error_subparser"]["model_id"]
     return ErrorArgs(**kwargs)
 
 
