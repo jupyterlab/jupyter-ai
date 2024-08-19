@@ -988,6 +988,8 @@ One chat exchange corresponds to a user query message and its AI response, which
 k denotes one chat exchange, i.e., two messages.
 The default value of k is 2, which corresponds to 4 messages.
 
+For example, if we want the default memory to be 4 exchanges, then use the following command line invocation when starting Jupyter Lab:
+
 ```
 jupyter lab --AiExtension.default_max_chat_history=4
 ```
