@@ -6,6 +6,8 @@ class GeminiProvider(BaseProvider, GoogleGenerativeAI):
     id = "gemini"
     name = "Gemini"
     models = [
+        "gemini-1.5-pro",
+        "gemini-1.5-flash",
         "gemini-1.0-pro",
         "gemini-1.0-pro-001",
         "gemini-1.0-pro-latest",
