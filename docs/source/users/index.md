@@ -87,6 +87,12 @@ To install the JupyterLab extension, you can run:
 pip install jupyter-ai
 ```
 
+You may need to install third-party packages, for example, to use some model providers and some file formats with Jupyter AI. To handle all supported use cases, you can install every dependency, which will give you access to all models currently supported by `jupyter-ai`. To install every dependency, run the following command, and then restart JupyterLab:
+
+```
+pip install jupyter-ai[all]
+```
+
 The latest major version of `jupyter-ai`, v2, only supports JupyterLab 4. If you
 need support for JupyterLab 3, you should install `jupyter-ai` v1 instead:
 
@@ -596,7 +602,7 @@ contents of the failing cell.
 
 ### Additional chat commands
 
-To clear the chat panel, use the `/clear` command. This does not reset the AI model; the model may still remember previous messages that you sent it, and it may use them to inform its responses.
+To start a new conversation, use the `/clear` command. This will clear the chat panel and reset the model's memory.
 
 ## The `%ai` and `%%ai` magic commands
 
@@ -668,6 +674,29 @@ We currently support the following language model providers:
 - `openai`
 - `openai-chat`
 - `sagemaker-endpoint`
+
+### Configuring a default model
+
+To configure a default model you can use the IPython `%config` magic:
+
+```python
+%config AiMagics.default_language_model = "anthropic:claude-v1.2"
+```
+
+Then subsequent magics can be invoked without typing in the model:
+
+```
+%%ai
+Write a poem about C++.
+```
+
+You can configure the default model for all notebooks by specifying `c.AiMagics.default_language_model` tratilet in `ipython_config.py`, for example:
+
+```python
+c.AiMagics.default_language_model = "anthropic:claude-v1.2"
+```
+
+The location of `ipython_config.py` file is documented in [IPython configuration reference](https://ipython.readthedocs.io/en/stable/config/intro.html).
 
 ### Listing available models
 
@@ -977,6 +1006,21 @@ configuration.
 
 ```
 jupyter lab --AiExtension.allowed_providers=openai --AiExtension.allowed_providers=ai21
+```
+
+### Chat memory size
+
+This configuration allows for setting the number of chat exchanges the model
+uses as context when generating a response.
+
+One chat exchange corresponds to a user query message and its AI response, which counts as two messages.
+k denotes one chat exchange, i.e., two messages.
+The default value of k is 2, which corresponds to 4 messages.
+
+For example, if we want the default memory to be 4 exchanges, then use the following command line invocation when starting Jupyter Lab:
+
+```
+jupyter lab --AiExtension.default_max_chat_history=4
 ```
 
 ### Model parameters

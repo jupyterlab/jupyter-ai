@@ -18,6 +18,7 @@ from uuid import uuid4
 
 from dask.distributed import Client as DaskClient
 from jupyter_ai.config_manager import ConfigManager, Logger
+from jupyter_ai.history import WrappedBoundedChatHistory
 from jupyter_ai.models import (
     AgentChatMessage,
     ChatMessage,
@@ -31,6 +32,8 @@ from langchain.pydantic_v1 import BaseModel
 
 if TYPE_CHECKING:
     from jupyter_ai.handlers import RootChatHandler
+    from jupyter_ai.history import BoundedChatHistory
+    from langchain_core.chat_history import BaseChatMessageHistory
 
 
 def get_preferred_dir(root_dir: str, preferred_dir: str) -> Optional[str]:
@@ -123,6 +126,7 @@ class BaseChatHandler:
         root_chat_handlers: Dict[str, "RootChatHandler"],
         model_parameters: Dict[str, Dict],
         chat_history: List[ChatMessage],
+        llm_chat_memory: "BoundedChatHistory",
         root_dir: str,
         preferred_dir: Optional[str],
         dask_client_future: Awaitable[DaskClient],
@@ -134,6 +138,7 @@ class BaseChatHandler:
         self._root_chat_handlers = root_chat_handlers
         self.model_parameters = model_parameters
         self._chat_history = chat_history
+        self.llm_chat_memory = llm_chat_memory
         self.parser = argparse.ArgumentParser(
             add_help=False, description=self.help, formatter_class=MarkdownHelpFormatter
         )
@@ -372,6 +377,18 @@ class BaseChatHandler:
                 self.reply(response, message)
             return None
         return args
+
+    def get_llm_chat_history(
+        self,
+        last_human_msg: Optional[HumanChatMessage] = None,
+        **kwargs,
+    ) -> "BaseChatMessageHistory":
+        if last_human_msg:
+            return WrappedBoundedChatHistory(
+                history=self.llm_chat_memory,
+                last_human_msg=last_human_msg,
+            )
+        return self.llm_chat_memory
 
     @property
     def output_dir(self) -> str:

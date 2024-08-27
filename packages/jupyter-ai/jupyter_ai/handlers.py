@@ -212,6 +212,16 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
             if client:
                 client.write_message(message.dict())
 
+        # do not broadcast agent messages that are replying to cleared human message
+        if (
+            isinstance(message, (AgentChatMessage, AgentStreamMessage))
+            and message.reply_to
+        ):
+            if message.reply_to not in [
+                m.id for m in self.chat_history if isinstance(m, HumanChatMessage)
+            ]:
+                return
+
         # append all messages of type `ChatMessage` directly to the chat history
         if isinstance(
             message, (HumanChatMessage, AgentChatMessage, AgentStreamMessage)

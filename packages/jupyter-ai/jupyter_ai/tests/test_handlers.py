@@ -9,6 +9,7 @@ from jupyter_ai.chat_handlers import DefaultChatHandler, learn
 from jupyter_ai.config_manager import ConfigManager
 from jupyter_ai.extension import DEFAULT_HELP_MESSAGE_TEMPLATE
 from jupyter_ai.handlers import RootChatHandler
+from jupyter_ai.history import BoundedChatHistory
 from jupyter_ai.models import (
     ChatClient,
     ClosePendingMessage,
@@ -69,6 +70,7 @@ class TestDefaultChatHandler(DefaultChatHandler):
             root_chat_handlers={"root": root_handler},
             model_parameters={},
             chat_history=[],
+            llm_chat_memory=BoundedChatHistory(k=2),
             root_dir="",
             preferred_dir="",
             dask_client_future=None,
