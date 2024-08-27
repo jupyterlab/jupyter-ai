@@ -331,7 +331,7 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
             if msg.id == msg_id:
                 target_msg = msg
 
-        if msg is not None:
+        if target_msg is not None:
             self.chat_history[:] = [
                 msg for msg in self.chat_history if msg.time < target_msg.time
             ]
