@@ -2,6 +2,7 @@ from jupyter_ai_magics.providers import BaseProvider, EnvAuthStrategy
 from langchain_google_genai import GoogleGenerativeAI
 
 
+# See list of model ids here: https://ai.google.dev/gemini-api/docs/models/gemini
 class GeminiProvider(BaseProvider, GoogleGenerativeAI):
     id = "gemini"
     name = "Gemini"
