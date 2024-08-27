@@ -675,6 +675,29 @@ We currently support the following language model providers:
 - `openai-chat`
 - `sagemaker-endpoint`
 
+### Configuring a default model
+
+To configure a default model you can use the IPython `%config` magic:
+
+```python
+%config AiMagics.default_language_model = "anthropic:claude-v1.2"
+```
+
+Then subsequent magics can be invoked without typing in the model:
+
+```
+%%ai
+Write a poem about C++.
+```
+
+You can configure the default model for all notebooks by specifying `c.AiMagics.default_language_model` tratilet in `ipython_config.py`, for example:
+
+```python
+c.AiMagics.default_language_model = "anthropic:claude-v1.2"
+```
+
+The location of `ipython_config.py` file is documented in [IPython configuration reference](https://ipython.readthedocs.io/en/stable/config/intro.html).
+
 ### Listing available models
 
 Jupyter AI also includes multiple subcommands, which may be invoked via the
