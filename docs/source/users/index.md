@@ -602,7 +602,7 @@ contents of the failing cell.
 
 ### Additional chat commands
 
-To clear the chat panel, use the `/clear` command. This does not reset the AI model; the model may still remember previous messages that you sent it, and it may use them to inform its responses.
+To start a new conversation, use the `/clear` command. This will clear the chat panel and reset the model's memory.
 
 ## The `%ai` and `%%ai` magic commands
 
@@ -1006,6 +1006,21 @@ configuration.
 
 ```
 jupyter lab --AiExtension.allowed_providers=openai --AiExtension.allowed_providers=ai21
+```
+
+### Chat memory size
+
+This configuration allows for setting the number of chat exchanges the model
+uses as context when generating a response.
+
+One chat exchange corresponds to a user query message and its AI response, which counts as two messages.
+k denotes one chat exchange, i.e., two messages.
+The default value of k is 2, which corresponds to 4 messages.
+
+For example, if we want the default memory to be 4 exchanges, then use the following command line invocation when starting Jupyter Lab:
+
+```
+jupyter lab --AiExtension.default_max_chat_history=4
 ```
 
 ### Model parameters

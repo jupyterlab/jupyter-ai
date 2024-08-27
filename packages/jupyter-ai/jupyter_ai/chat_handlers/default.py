@@ -9,9 +9,9 @@ from jupyter_ai.models import (
 )
 from jupyter_ai_magics.providers import BaseProvider
 from langchain_core.messages import AIMessageChunk
-from langchain_core.runnables.history import RunnableWithMessageHistory
+from langchain_core.runnables import ConfigurableFieldSpec, RunnableWithMessageHistory
 
-from ..history import BoundedChatHistory
+from ..models import HumanChatMessage
 from .base import BaseChatHandler, SlashCommandRoutingType
 
 
@@ -42,14 +42,18 @@ class DefaultChatHandler(BaseChatHandler):
 
         runnable = prompt_template | llm
         if not llm.manages_history:
-            history = BoundedChatHistory(k=2)
             runnable = RunnableWithMessageHistory(
                 runnable=runnable,
-                get_session_history=lambda *args: history,
+                get_session_history=self.get_llm_chat_history,
                 input_messages_key="input",
                 history_messages_key="history",
+                history_factory_config=[
+                    ConfigurableFieldSpec(
+                        id="last_human_msg",
+                        annotation=HumanChatMessage,
+                    ),
+                ],
             )
-
         self.llm_chain = runnable
 
     def _start_stream(self, human_msg: HumanChatMessage) -> str:
@@ -103,7 +107,7 @@ class DefaultChatHandler(BaseChatHandler):
             # when `_stream()` is not implemented on the LLM class.
             async for chunk in self.llm_chain.astream(
                 {"input": message.body},
-                config={"configurable": {"session_id": "static_session"}},
+                config={"configurable": {"last_human_msg": message}},
             ):
                 if not received_first_chunk:
                     # when receiving the first chunk, close the pending message and

@@ -10,7 +10,7 @@ from jupyter_ai_magics import BaseProvider, JupyternautPersona
 from jupyter_ai_magics.utils import get_em_providers, get_lm_providers
 from jupyter_server.extension.application import ExtensionApp
 from tornado.web import StaticFileHandler
-from traitlets import Dict, List, Unicode
+from traitlets import Dict, Integer, List, Unicode
 
 from .chat_handlers import (
     AskChatHandler,
@@ -33,6 +33,7 @@ from .handlers import (
     RootChatHandler,
     SlashCommandsInfoHandler,
 )
+from .history import BoundedChatHistory
 
 JUPYTERNAUT_AVATAR_ROUTE = JupyternautPersona.avatar_route
 JUPYTERNAUT_AVATAR_PATH = str(
@@ -183,6 +184,14 @@ class AiExtension(ExtensionApp):
         config=True,
     )
 
+    default_max_chat_history = Integer(
+        default_value=2,
+        help="""
+        Number of chat interactions to keep in the conversational memory object.
+        """,
+        config=True,
+    )
+
     def initialize_settings(self):
         start = time.time()
 
@@ -247,6 +256,11 @@ class AiExtension(ExtensionApp):
         # memory object used by the LM chain.
         self.settings["chat_history"] = []
 
+        # conversational memory object used by LM chain
+        self.settings["llm_chat_memory"] = BoundedChatHistory(
+            k=self.default_max_chat_history
+        )
+
         # list of pending messages
         self.settings["pending_messages"] = []
 
@@ -274,6 +288,7 @@ class AiExtension(ExtensionApp):
             "model_parameters": self.settings["model_parameters"],
             "root_chat_handlers": self.settings["jai_root_chat_handlers"],
             "chat_history": self.settings["chat_history"],
+            "llm_chat_memory": self.settings["llm_chat_memory"],
             "root_dir": self.serverapp.root_dir,
             "dask_client_future": self.settings["dask_client_future"],
             "model_parameters": self.settings["model_parameters"],
