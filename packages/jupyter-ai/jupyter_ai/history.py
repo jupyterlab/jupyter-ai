@@ -7,7 +7,6 @@ from langchain_core.pydantic_v1 import BaseModel, PrivateAttr
 
 from .models import HumanChatMessage
 
-
 MESSAGE_TIME_KEY = "_jupyter_ai_msg_time"
 
 
