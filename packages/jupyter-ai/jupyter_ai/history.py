@@ -8,6 +8,9 @@ from langchain_core.pydantic_v1 import BaseModel, PrivateAttr
 from .models import HumanChatMessage
 
 
+MESSAGE_TIME_KEY = "_jupyter_ai_msg_time"
+
+
 class BoundedChatHistory(BaseChatMessageHistory, BaseModel):
     """
     An in-memory implementation of `BaseChatMessageHistory` that stores up to
@@ -30,14 +33,31 @@ class BoundedChatHistory(BaseChatMessageHistory, BaseModel):
 
     def add_message(self, message: BaseMessage) -> None:
         """Add a self-created message to the store"""
+        # Adds a timestamp to the message as a fallback if message was not
+        # added not using WrappedBoundedChatHistory.
+        # In such a case, it possible that this message may be cleared even if
+        # the target clear message is after this one.
+        # This will occur if the current time is greater than the last_human_msg time of
+        # a future message that was added using WrappedBoundedChatHistory.
+        message.additional_kwargs[MESSAGE_TIME_KEY] = message.additional_kwargs.get(
+            MESSAGE_TIME_KEY, time.time()
+        )
         self._all_messages.append(message)
 
     async def aadd_messages(self, messages: Sequence[BaseMessage]) -> None:
         """Add messages to the store"""
         self.add_messages(messages)
 
-    def clear(self) -> None:
-        self._all_messages = []
+    def clear(self, after: float = 0.0) -> None:
+        """Clear all messages after the given time"""
+        if after:
+            self._all_messages = [
+                m
+                for m in self._all_messages
+                if m.additional_kwargs[MESSAGE_TIME_KEY] < after
+            ]
+        else:
+            self._all_messages = []
         self.clear_time = time.time()
 
     async def aclear(self) -> None:
@@ -75,6 +95,7 @@ class WrappedBoundedChatHistory(BaseChatMessageHistory, BaseModel):
     def add_message(self, message: BaseMessage) -> None:
         """Prevent adding messages to the store if clear was triggered."""
         if self.last_human_msg.time > self.history.clear_time:
+            message.additional_kwargs[MESSAGE_TIME_KEY] = self.last_human_msg.time
             self.history.add_message(message)
 
     async def aadd_messages(self, messages: Sequence[BaseMessage]) -> None:

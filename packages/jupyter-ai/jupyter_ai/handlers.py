@@ -101,6 +101,10 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
         self.settings["chat_history"] = new_history
 
     @property
+    def llm_chat_memory(self) -> List[ChatMessage]:
+        return self.settings["llm_chat_memory"]
+
+    @property
     def loop(self) -> AbstractEventLoop:
         return self.settings["jai_event_loop"]
 
@@ -254,6 +258,7 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
             else:
                 self.chat_history.clear()
                 self.pending_messages.clear()
+                self.llm_chat_memory.clear()
                 self.settings["jai_chat_handlers"]["default"].send_help_message()
 
     async def on_message(self, message):
@@ -333,6 +338,7 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
             self.pending_messages[:] = [
                 msg for msg in self.pending_messages if msg.time < target_msg.time
             ]
+            self.llm_chat_memory.clear(target_msg.time)
 
     def on_close(self):
         self.log.debug("Disconnecting client with user %s", self.client_id)

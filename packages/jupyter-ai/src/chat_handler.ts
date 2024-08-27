@@ -133,7 +133,9 @@ export class ChatHandler implements IDisposable {
         break;
       case 'clear':
         if (newMessage.target) {
-          const targetMsg = this._messages.find(m => m.id === newMessage.target);
+          const targetMsg = this._messages.find(
+            m => m.id === newMessage.target
+          );
           if (targetMsg) {
             this._messages = this._messages.filter(
               msg => msg.time < targetMsg.time
