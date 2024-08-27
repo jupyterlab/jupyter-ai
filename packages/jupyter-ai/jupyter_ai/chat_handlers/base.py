@@ -380,13 +380,13 @@ class BaseChatHandler:
 
     def get_llm_chat_history(
         self,
-        human_msg: Optional[HumanChatMessage] = None,
+        last_human_msg: Optional[HumanChatMessage] = None,
         **kwargs,
     ) -> "BaseChatMessageHistory":
-        if human_msg:
+        if last_human_msg:
             return WrappedBoundedChatHistory(
                 history=self.llm_chat_memory,
-                human_msg=human_msg,
+                last_human_msg=last_human_msg,
             )
         return self.llm_chat_memory
 

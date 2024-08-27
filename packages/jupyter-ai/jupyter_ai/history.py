@@ -46,12 +46,27 @@ class BoundedChatHistory(BaseChatMessageHistory, BaseModel):
 
 class WrappedBoundedChatHistory(BaseChatMessageHistory, BaseModel):
     """
-    Wrapper around `BoundedChatHistory` to prevent adding messages to the store
-    if a clear was triggered after message started being processed.
+    Wrapper around `BoundedChatHistory` that only appends an `AgentChatMessage`
+    if the `HumanChatMessage` it is replying to was not cleared. If a chat
+    handler is replying to a `HumanChatMessage`, it should pass this object via
+    the `last_human_msg` configuration parameter.
+
+    For example, a chat handler that is streaming a reply to a
+    `HumanChatMessage` should be called via:
+
+    ```py
+    async for chunk in self.llm_chain.astream(
+        {"input": message.body},
+        config={"configurable": {"last_human_msg": message}},
+    ):
+        ...
+    ```
+
+    Reference: https://python.langchain.com/v0.1/docs/expression_language/how_to/message_history/
     """
 
     history: BoundedChatHistory
-    human_msg: HumanChatMessage
+    last_human_msg: HumanChatMessage
 
     @property
     def messages(self) -> List[BaseMessage]:
@@ -59,7 +74,7 @@ class WrappedBoundedChatHistory(BaseChatMessageHistory, BaseModel):
 
     def add_message(self, message: BaseMessage) -> None:
         """Prevent adding messages to the store if clear was triggered."""
-        if self.human_msg.time > self.history.clear_time:
+        if self.last_human_msg.time > self.history.clear_time:
             self.history.add_message(message)
 
     async def aadd_messages(self, messages: Sequence[BaseMessage]) -> None:

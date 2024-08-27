@@ -49,7 +49,7 @@ class DefaultChatHandler(BaseChatHandler):
                 history_messages_key="history",
                 history_factory_config=[
                     ConfigurableFieldSpec(
-                        id="human_msg",
+                        id="last_human_msg",
                         annotation=HumanChatMessage,
                     ),
                 ],
@@ -107,7 +107,7 @@ class DefaultChatHandler(BaseChatHandler):
             # when `_stream()` is not implemented on the LLM class.
             async for chunk in self.llm_chain.astream(
                 {"input": message.body},
-                config={"configurable": {"human_msg": message}},
+                config={"configurable": {"last_human_msg": message}},
             ):
                 if not received_first_chunk:
                     # when receiving the first chunk, close the pending message and
