@@ -2,6 +2,31 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 2.22.0
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.21.0...79158abf7044605c5776e205dd171fe87fb64142))
+
+### Enhancements made
+
+- Add 'Generative AI' submenu [#971](https://github.com/jupyterlab/jupyter-ai/pull/971) ([@dlqqq](https://github.com/dlqqq))
+- Add Gemini 1.5 to the list of chat options [#964](https://github.com/jupyterlab/jupyter-ai/pull/964) ([@trducng](https://github.com/trducng))
+- Allow configuring a default model for cell magics (and line error magic) [#962](https://github.com/jupyterlab/jupyter-ai/pull/962) ([@krassowski](https://github.com/krassowski))
+- Make chat memory size traitlet configurable + /clear to reset memory [#943](https://github.com/jupyterlab/jupyter-ai/pull/943) ([@michaelchia](https://github.com/michaelchia))
+
+### Maintenance and upkeep improvements
+
+### Documentation improvements
+
+- Update documentation to cover installation of all dependencies [#961](https://github.com/jupyterlab/jupyter-ai/pull/961) ([@srdas](https://github.com/srdas))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-08-19&to=2024-08-29&type=c))
+
+[@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2024-08-19..2024-08-29&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2024-08-19..2024-08-29&type=Issues) | [@michaelchia](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Amichaelchia+updated%3A2024-08-19..2024-08-29&type=Issues) | [@pre-commit-ci](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Apre-commit-ci+updated%3A2024-08-19..2024-08-29&type=Issues) | [@srdas](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2024-08-19..2024-08-29&type=Issues) | [@trducng](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Atrducng+updated%3A2024-08-19..2024-08-29&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 2.21.0
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.20.0...83e368b9d04904f9eb0ad4b1f0759bf3b7bbc93d))
@@ -31,8 +56,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-07-29&to=2024-08-19&type=c))
 
 [@andrewfulton9](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aandrewfulton9+updated%3A2024-07-29..2024-08-19&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2024-07-29..2024-08-19&type=Issues) | [@gabrielkoo](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Agabrielkoo+updated%3A2024-07-29..2024-08-19&type=Issues) | [@gsrikant7](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Agsrikant7+updated%3A2024-07-29..2024-08-19&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2024-07-29..2024-08-19&type=Issues) | [@michaelchia](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Amichaelchia+updated%3A2024-07-29..2024-08-19&type=Issues) | [@srdas](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2024-07-29..2024-08-19&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 2.20.0
 
