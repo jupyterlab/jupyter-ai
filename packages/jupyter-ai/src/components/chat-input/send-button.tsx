@@ -85,7 +85,8 @@ export function SendButton(props: SendButtonProps): JSX.Element {
     if (activeCell.exists) {
       props.onSend({
         type: 'cell',
-        source: activeCell.manager.getContent(false).source
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        source: activeCell.manager.getContent(false)!.source
       });
       closeMenu();
       return;

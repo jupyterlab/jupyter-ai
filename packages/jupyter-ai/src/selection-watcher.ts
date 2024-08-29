@@ -76,6 +76,7 @@ function getTextSelection(widget: Widget | null): Selection | null {
     start,
     end,
     text,
+    numLines: text.split('\n').length,
     widgetId: widget.id,
     ...(cellId && {
       cellId
@@ -88,6 +89,10 @@ export type Selection = CodeEditor.ITextSelection & {
    * The text within the selection as a string.
    */
   text: string;
+  /**
+   * Number of lines contained by the text selection.
+   */
+  numLines: number;
   /**
    * The ID of the document widget in which the selection was made.
    */
@@ -107,6 +112,10 @@ export class SelectionWatcher {
     });
 
     setInterval(this._poll.bind(this), 200);
+  }
+
+  get selection(): Selection | null {
+    return this._selection;
   }
 
   get selectionChanged(): Signal<this, Selection | null> {
