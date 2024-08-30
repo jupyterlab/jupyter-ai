@@ -41,6 +41,7 @@ from .models import (
 if TYPE_CHECKING:
     from jupyter_ai_magics.embedding_providers import BaseEmbeddingsProvider
     from jupyter_ai_magics.providers import BaseProvider
+    from .history import BoundChatHistory
 
 
 class ChatHistoryHandler(BaseAPIHandler):
@@ -101,7 +102,7 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
         self.settings["chat_history"] = new_history
 
     @property
-    def llm_chat_memory(self) -> List[ChatMessage]:
+    def llm_chat_memory(self) -> "BoundChatHistory":
         return self.settings["llm_chat_memory"]
 
     @property
