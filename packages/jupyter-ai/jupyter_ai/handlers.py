@@ -41,6 +41,7 @@ from .models import (
 if TYPE_CHECKING:
     from jupyter_ai_magics.embedding_providers import BaseEmbeddingsProvider
     from jupyter_ai_magics.providers import BaseProvider
+
     from .history import BoundChatHistory
 
 
