@@ -44,7 +44,7 @@ class ClearRequest(BaseModel):
     target: Optional[str]
     """
     Message ID of the ChatMessage to clear at and all messages after.
-    If empty strig, clears all.
+    If not provided, this requests the backend to clear all messages.
     """
 
 
@@ -117,7 +117,7 @@ class ClearMessage(BaseModel):
     target: Optional[str] = None
     """
     Message ID of the ChatMessage to clear at and all messages after.
-    If not provided, clears all.
+    If not provided, this instructs the frontend to clear all messages.
     """
 
 
