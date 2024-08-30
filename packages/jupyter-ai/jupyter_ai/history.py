@@ -21,6 +21,7 @@ class BoundedChatHistory(BaseChatMessageHistory, BaseModel):
 
     k: int
     clear_time: float = 0.0
+    clear_after: float = 0.0
     _all_messages: List[BaseMessage] = PrivateAttr(default_factory=list)
 
     @property
@@ -58,6 +59,7 @@ class BoundedChatHistory(BaseChatMessageHistory, BaseModel):
         else:
             self._all_messages = []
         self.clear_time = time.time()
+        self.clear_after = after
 
     async def aclear(self) -> None:
         self.clear()
@@ -92,8 +94,13 @@ class WrappedBoundedChatHistory(BaseChatMessageHistory, BaseModel):
         return self.history.messages
 
     def add_message(self, message: BaseMessage) -> None:
-        """Prevent adding messages to the store if clear was triggered."""
-        if self.last_human_msg.time > self.history.clear_time:
+        # prevent adding pending messages to the store if clear was triggered.
+        # if partial clearing, allow adding pending messages that were not cleared.
+        if (
+            self.last_human_msg.time
+            > self.history.clear_time | self.last_human_msg.time
+            < self.history.clear_after
+        ):
             message.additional_kwargs[MESSAGE_TIME_KEY] = self.last_human_msg.time
             self.history.add_message(message)
 
