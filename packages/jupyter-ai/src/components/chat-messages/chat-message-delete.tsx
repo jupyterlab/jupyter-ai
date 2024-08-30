@@ -1,9 +1,10 @@
 import React from 'react';
-import { IconButton, SxProps } from '@mui/material';
+import { SxProps } from '@mui/material';
 import { Close } from '@mui/icons-material';
 
 import { AiService } from '../../handler';
 import { ChatHandler } from '../../chat_handler';
+import { TooltippedIconButton } from '../mui-extras/tooltipped-icon-button';
 
 type DeleteButtonProps = {
   message: AiService.ChatMessage;
@@ -17,12 +18,13 @@ export function ChatMessageDelete(props: DeleteButtonProps): JSX.Element {
     target: props.message.id
   };
   return (
-    <IconButton
+    <TooltippedIconButton
       onClick={() => props.chatHandler.sendMessage(request)}
       sx={props.sx}
+      tooltip="Delete this and all future messages"
     >
       <Close />
-    </IconButton>
+    </TooltippedIconButton>
   );
 }
 

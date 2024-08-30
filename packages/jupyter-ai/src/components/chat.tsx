@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Box } from '@mui/system';
-import { Button, IconButton, Stack, Tooltip } from '@mui/material';
+import { Button, IconButton, Stack } from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import AddIcon from '@mui/icons-material/Add';
@@ -25,10 +25,13 @@ import {
   ActiveCellManager
 } from '../contexts/active-cell-context';
 import { ScrollContainer } from './scroll-container';
+import { TooltippedIconButton } from './mui-extras/tooltipped-icon-button';
 
 type ChatBodyProps = {
   chatHandler: ChatHandler;
-  setChatView: (view: ChatView) => void;
+  openSettingsView: () => void;
+  showWelcomeMessage: boolean;
+  setShowWelcomeMessage: (show: boolean) => void;
   rmRegistry: IRenderMimeRegistry;
   focusInputSignal: ISignal<unknown, void>;
   messageFooter: IJaiMessageFooter | null;
@@ -52,7 +55,9 @@ function getPersonaName(messages: AiService.ChatMessage[]): string {
 function ChatBody({
   chatHandler,
   focusInputSignal,
-  setChatView: chatViewHandler,
+  openSettingsView,
+  showWelcomeMessage,
+  setShowWelcomeMessage,
   rmRegistry: renderMimeRegistry,
   messageFooter
 }: ChatBodyProps): JSX.Element {
@@ -65,7 +70,6 @@ function ChatBody({
   const [personaName, setPersonaName] = useState<string>(
     getPersonaName(messages)
   );
-  const [showWelcomeMessage, setShowWelcomeMessage] = useState<boolean>(false);
   const [sendWithShiftEnter, setSendWithShiftEnter] = useState(true);
 
   /**
@@ -103,11 +107,6 @@ function ChatBody({
       chatHandler.historyChanged.disconnect(onHistoryChange);
     };
   }, [chatHandler]);
-
-  const openSettingsView = () => {
-    setShowWelcomeMessage(false);
-    chatViewHandler(ChatView.Settings);
-  };
 
   if (showWelcomeMessage) {
     return (
@@ -188,6 +187,12 @@ enum ChatView {
 
 export function Chat(props: ChatProps): JSX.Element {
   const [view, setView] = useState<ChatView>(props.chatView || ChatView.Chat);
+  const [showWelcomeMessage, setShowWelcomeMessage] = useState<boolean>(false);
+
+  const openSettingsView = () => {
+    setShowWelcomeMessage(false);
+    setView(ChatView.Settings);
+  };
 
   return (
     <JlThemeProvider themeManager={props.themeManager}>
@@ -219,16 +224,17 @@ export function Chat(props: ChatProps): JSX.Element {
                 )}
                 {view === ChatView.Chat ? (
                   <Box sx={{ display: 'flex' }}>
-                    <Tooltip title="New Chat">
-                      <IconButton
+                    {!showWelcomeMessage && (
+                      <TooltippedIconButton
                         onClick={() =>
                           props.chatHandler.sendMessage({ type: 'clear' })
                         }
+                        tooltip="New chat"
                       >
                         <AddIcon />
-                      </IconButton>
-                    </Tooltip>
-                    <IconButton onClick={() => setView(ChatView.Settings)}>
+                      </TooltippedIconButton>
+                    )}
+                    <IconButton onClick={() => openSettingsView()}>
                       <SettingsIcon />
                     </IconButton>
                   </Box>
@@ -240,7 +246,9 @@ export function Chat(props: ChatProps): JSX.Element {
               {view === ChatView.Chat && (
                 <ChatBody
                   chatHandler={props.chatHandler}
-                  setChatView={setView}
+                  openSettingsView={openSettingsView}
+                  showWelcomeMessage={showWelcomeMessage}
+                  setShowWelcomeMessage={setShowWelcomeMessage}
                   rmRegistry={props.rmRegistry}
                   focusInputSignal={props.focusInputSignal}
                   messageFooter={props.messageFooter}
