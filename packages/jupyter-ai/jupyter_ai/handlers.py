@@ -210,14 +210,6 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
         Appends message to chat history.
         """
 
-        self.log.debug("Broadcasting message: %s to all clients...", message)
-        client_ids = self.root_chat_handlers.keys()
-
-        for client_id in client_ids:
-            client = self.root_chat_handlers[client_id]
-            if client:
-                client.write_message(message.dict())
-
         # do not broadcast agent messages that are replying to cleared human message
         if (
             isinstance(message, (AgentChatMessage, AgentStreamMessage))
@@ -227,6 +219,14 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
                 m.id for m in self.chat_history if isinstance(m, HumanChatMessage)
             ]:
                 return
+
+        self.log.debug("Broadcasting message: %s to all clients...", message)
+        client_ids = self.root_chat_handlers.keys()
+
+        for client_id in client_ids:
+            client = self.root_chat_handlers[client_id]
+            if client:
+                client.write_message(message.dict())
 
         # append all messages of type `ChatMessage` directly to the chat history
         if isinstance(
@@ -328,19 +328,15 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
 
     def _clear_chat_history_at(self, msg_id: str):
         """Clears the chat history at a specific message ID."""
-        target_msg = None
-        for msg in self.chat_history:
-            if msg.id == msg_id:
-                target_msg = msg
-
-        if target_msg is not None:
-            self.chat_history[:] = [
-                msg for msg in self.chat_history if msg.time < target_msg.time
-            ]
-            self.pending_messages[:] = [
-                msg for msg in self.pending_messages if msg.time < target_msg.time
-            ]
-            self.llm_chat_memory.clear(target_msg.time)
+        self.chat_history[:] = [
+            msg
+            for msg in self.chat_history
+            if msg.id != msg_id and getattr(msg, "reply_to", None) != msg_id
+        ]
+        self.pending_messages[:] = [
+            msg for msg in self.pending_messages if msg.reply_to != msg_id
+        ]
+        self.llm_chat_memory.clear(msg_id)
 
     def on_close(self):
         self.log.debug("Disconnecting client with user %s", self.client_id)

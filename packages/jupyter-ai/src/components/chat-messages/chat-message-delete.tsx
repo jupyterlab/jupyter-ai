@@ -21,7 +21,7 @@ export function ChatMessageDelete(props: DeleteButtonProps): JSX.Element {
     <TooltippedIconButton
       onClick={() => props.chatHandler.sendMessage(request)}
       sx={props.sx}
-      tooltip="Delete this and all future messages"
+      tooltip="Delete this exchange"
     >
       <Close />
     </TooltippedIconButton>

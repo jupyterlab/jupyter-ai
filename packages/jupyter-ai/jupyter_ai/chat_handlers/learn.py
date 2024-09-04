@@ -187,7 +187,7 @@ class LearnChatHandler(BaseChatHandler):
         # delete and relearn index if embedding model was changed
         await self.delete_and_relearn()
 
-        with self.pending(f"Loading and splitting files for {load_path}"):
+        with self.pending(f"Loading and splitting files for {load_path}", message):
             try:
                 await self.learn_dir(
                     load_path, args.chunk_size, args.chunk_overlap, args.all_files

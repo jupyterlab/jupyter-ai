@@ -151,6 +151,7 @@ export namespace AiService {
     id: string;
     time: number;
     body: string;
+    reply_to: string;
     persona: Persona;
     ellipsis: boolean;
   };

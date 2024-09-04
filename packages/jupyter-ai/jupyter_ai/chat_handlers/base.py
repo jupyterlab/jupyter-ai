@@ -270,7 +270,13 @@ class BaseChatHandler:
     def persona(self):
         return self.config_manager.persona
 
-    def start_pending(self, text: str, ellipsis: bool = True) -> PendingMessage:
+    def start_pending(
+        self,
+        text: str,
+        human_msg: Optional[HumanChatMessage] = None,
+        *,
+        ellipsis: bool = True,
+    ) -> PendingMessage:
         """
         Sends a pending message to the client.
 
@@ -282,6 +288,7 @@ class BaseChatHandler:
             id=uuid4().hex,
             time=time.time(),
             body=text,
+            reply_to=human_msg.id if human_msg else "",
             persona=Persona(name=persona.name, avatar_route=persona.avatar_route),
             ellipsis=ellipsis,
         )
@@ -315,12 +322,18 @@ class BaseChatHandler:
         pending_msg.closed = True
 
     @contextlib.contextmanager
-    def pending(self, text: str, ellipsis: bool = True):
+    def pending(
+        self,
+        text: str,
+        human_msg: Optional[HumanChatMessage] = None,
+        *,
+        ellipsis: bool = True,
+    ):
         """
         Context manager that sends a pending message to the client, and closes
         it after the block is executed.
         """
-        pending_msg = self.start_pending(text, ellipsis=ellipsis)
+        pending_msg = self.start_pending(text, human_msg=human_msg, ellipsis=ellipsis)
         try:
             yield pending_msg
         finally:
@@ -378,17 +391,15 @@ class BaseChatHandler:
             return None
         return args
 
-    def get_llm_chat_history(
+    def get_llm_chat_memory(
         self,
-        last_human_msg: Optional[HumanChatMessage] = None,
+        last_human_msg: HumanChatMessage,
         **kwargs,
     ) -> "BaseChatMessageHistory":
-        if last_human_msg:
-            return WrappedBoundedChatHistory(
-                history=self.llm_chat_memory,
-                last_human_msg=last_human_msg,
-            )
-        return self.llm_chat_memory
+        return WrappedBoundedChatHistory(
+            history=self.llm_chat_memory,
+            last_human_msg=last_human_msg,
+        )
 
     @property
     def output_dir(self) -> str:

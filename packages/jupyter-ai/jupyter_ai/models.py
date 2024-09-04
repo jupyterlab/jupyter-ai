@@ -126,6 +126,7 @@ class PendingMessage(BaseModel):
     id: str
     time: float
     body: str
+    reply_to: str
     persona: Persona
     ellipsis: bool = True
     closed: bool = False
