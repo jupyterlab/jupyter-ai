@@ -49,11 +49,11 @@ function sortMessages(
      */
 
     const aOriginTimestamp =
-      a.type === 'agent' && a.reply_to in timestampsById
+      "reply_to" in a && a.reply_to in timestampsById
         ? timestampsById[a.reply_to]
         : a.time;
     const bOriginTimestamp =
-      b.type === 'agent' && b.reply_to in timestampsById
+      "reply_to" in b && b.reply_to in timestampsById
         ? timestampsById[b.reply_to]
         : b.time;
 
