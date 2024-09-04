@@ -1,5 +1,5 @@
 import time
-from typing import List, Sequence, Optional
+from typing import List, Optional, Sequence
 
 from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_core.messages import BaseMessage
