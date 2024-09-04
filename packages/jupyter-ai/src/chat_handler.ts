@@ -135,11 +135,11 @@ export class ChatHandler implements IDisposable {
         if (newMessage.target) {
           this._messages = this._messages.filter(
             msg =>
-              msg.id != newMessage.target &&
-              !('reply_to' in msg && msg.reply_to == newMessage.target)
+              msg.id !== newMessage.target &&
+              !('reply_to' in msg && msg.reply_to === newMessage.target)
           );
           this._pendingMessages = this._pendingMessages.filter(
-            msg => msg.reply_to != newMessage.target
+            msg => msg.reply_to !== newMessage.target
           );
         } else {
           this._messages = [];
