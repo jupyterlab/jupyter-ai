@@ -1,5 +1,5 @@
 import time
-from typing import List, Optional, Sequence
+from typing import List, Optional, Sequence, Set
 
 from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_core.messages import BaseMessage
@@ -21,7 +21,7 @@ class BoundedChatHistory(BaseChatMessageHistory, BaseModel):
 
     k: int
     clear_time: float = 0.0
-    clear_msg_id: Optional[str] = None
+    cleared_msgs: Set[str] = set()
     _all_messages: List[BaseMessage] = PrivateAttr(default_factory=list)
 
     @property
@@ -53,10 +53,11 @@ class BoundedChatHistory(BaseChatMessageHistory, BaseModel):
                 for m in self._all_messages
                 if m.additional_kwargs[HUMAN_MSG_ID_KEY] != human_msg_id
             ]
+            self.cleared_msgs.add(human_msg_id)
         else:
             self._all_messages = []
-        self.clear_time = time.time()
-        self.clear_msg_id = human_msg_id
+            self.cleared_msgs = set()
+            self.clear_time = time.time()
 
     async def aclear(self) -> None:
         self.clear()
@@ -92,10 +93,10 @@ class WrappedBoundedChatHistory(BaseChatMessageHistory, BaseModel):
 
     def add_message(self, message: BaseMessage) -> None:
         # prevent adding pending messages to the store if clear was triggered.
-        # if targeted clearing, allow adding pending messages that were not cleared.
-        if self.last_human_msg.time > self.history.clear_time or (
-            self.history.clear_msg_id
-            and self.last_human_msg.id != self.history.clear_msg_id
+        # if targeted clearing, prevent adding target message if still pending.
+        if (
+            self.last_human_msg.time > self.history.clear_time
+            and self.last_human_msg.id not in self.history.cleared_msgs
         ):
             message.additional_kwargs[HUMAN_MSG_ID_KEY] = self.last_human_msg.id
             self.history.add_message(message)
