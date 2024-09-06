@@ -43,7 +43,7 @@ class ClearRequest(BaseModel):
     type: Literal["clear"]
     target: Optional[str]
     """
-    Message ID of the ChatMessage to clear at and all messages after.
+    Message ID of the HumanChatMessage to delete an exchange at.
     If not provided, this requests the backend to clear all messages.
     """
 
@@ -116,7 +116,7 @@ class ClearMessage(BaseModel):
     type: Literal["clear"] = "clear"
     target: Optional[str] = None
     """
-    Message ID of the ChatMessage to clear at and all messages after.
+    Message ID of the HumanChatMessage to delete an exchange at.
     If not provided, this instructs the frontend to clear all messages.
     """
 

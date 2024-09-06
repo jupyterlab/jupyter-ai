@@ -327,7 +327,9 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
         self.log.info(f"{command_readable} chat handler resolved in {latency_ms} ms.")
 
     def _clear_chat_history_at(self, msg_id: str):
-        """Clears the chat history at a specific message ID."""
+        """
+        Clears a conversation exchange given a human message ID `msg_id`.
+        """
         self.chat_history[:] = [
             msg
             for msg in self.chat_history
