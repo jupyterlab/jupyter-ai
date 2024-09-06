@@ -46,7 +46,9 @@ class BoundedChatHistory(BaseChatMessageHistory, BaseModel):
         self.add_messages(messages)
 
     def clear(self, human_msg_id: Optional[str] = None) -> None:
-        """Clear all messages after the given time"""
+        """Clears conversation exchanges. If `human_msg_id` is provided, only
+        clears the respective human message and its reply. Otherwise, clears
+        all messages."""
         if human_msg_id:
             self._all_messages = [
                 m
