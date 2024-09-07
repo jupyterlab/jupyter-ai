@@ -56,7 +56,10 @@ export class JaiInlineProvider
   ): Promise<IInlineCompletionList<IInlineCompletionItem>> {
     const allowedTriggerKind = this._settings.triggerKind;
     const triggerKind = context.triggerKind;
-    if (allowedTriggerKind === 'manual' && triggerKind !== InlineCompletionTriggerKind.Invoke) {
+    if (
+      allowedTriggerKind === 'manual' &&
+      triggerKind !== InlineCompletionTriggerKind.Invoke
+    ) {
       // Short-circuit if user requested to only invoke inline completions
       // on manual trigger for jupyter-ai. Users may still get completions
       // from other (e.g. less expensive or faster) providers.
@@ -293,7 +296,7 @@ export namespace JaiInlineProvider {
   }
 
   export interface ISettings {
-    triggerKind: 'any' | 'manual',
+    triggerKind: 'any' | 'manual';
     maxPrefix: number;
     maxSuffix: number;
     debouncerDelay: number;
