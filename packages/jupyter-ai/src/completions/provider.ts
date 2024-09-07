@@ -54,6 +54,14 @@ export class JaiInlineProvider
     request: CompletionHandler.IRequest,
     context: IInlineCompletionContext
   ): Promise<IInlineCompletionList<IInlineCompletionItem>> {
+    const allowedTriggerKind = this._settings.triggerKind;
+    const triggerKind = context.triggerKind;
+    if (allowedTriggerKind === 'manual' && triggerKind !== InlineCompletionTriggerKind.Invoke) {
+      // Short-circuit if user requested to only invoke inline completions
+      // on manual trigger for jupyter-ai. Users may still get completions
+      // from other (e.g. less expensive or faster) providers.
+      return { items: [] };
+    }
     const mime = request.mimeType ?? 'text/plain';
     const language = this.options.languageRegistry.findByMIME(mime);
     if (!language) {
@@ -142,6 +150,16 @@ export class JaiInlineProvider
     const knownLanguages = this.options.languageRegistry.getLanguages();
     return {
       properties: {
+        triggerKind: {
+          title: 'Inline completions trigger',
+          type: 'string',
+          oneOf: [
+            { const: 'any', title: 'Automatic (on typing or invocation)' },
+            { const: 'manual', title: 'Only when invoked manually' }
+          ],
+          description:
+            'When to trigger inline completions when using jupyter-ai.'
+        },
         maxPrefix: {
           title: 'Maximum prefix length',
           minimum: 1,
@@ -275,6 +293,7 @@ export namespace JaiInlineProvider {
   }
 
   export interface ISettings {
+    triggerKind: 'any' | 'manual',
     maxPrefix: number;
     maxSuffix: number;
     debouncerDelay: number;
@@ -284,6 +303,7 @@ export namespace JaiInlineProvider {
   }
 
   export const DEFAULT_SETTINGS: ISettings = {
+    triggerKind: 'any',
     maxPrefix: 10000,
     maxSuffix: 10000,
     // The debouncer delay handling is implemented upstream in JupyterLab;
