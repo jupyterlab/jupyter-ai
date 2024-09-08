@@ -47,6 +47,11 @@ class ClearRequest(BaseModel):
     If not provided, this requests the backend to clear all messages.
     """
 
+    after: Optional[bool]
+    """
+    Whether to clear target and all subsequent exchanges.
+    """
+
 
 class ChatUser(BaseModel):
     # User ID assigned by IdentityProvider.
@@ -114,9 +119,9 @@ class HumanChatMessage(BaseModel):
 
 class ClearMessage(BaseModel):
     type: Literal["clear"] = "clear"
-    target: Optional[str] = None
+    targets: Optional[List[str]] = None
     """
-    Message ID of the HumanChatMessage to delete an exchange at.
+    Message IDs of the HumanChatMessage to delete an exchange at.
     If not provided, this instructs the frontend to clear all messages.
     """
 

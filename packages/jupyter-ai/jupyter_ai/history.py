@@ -45,17 +45,17 @@ class BoundedChatHistory(BaseChatMessageHistory, BaseModel):
         """Add messages to the store"""
         self.add_messages(messages)
 
-    def clear(self, human_msg_id: Optional[str] = None) -> None:
+    def clear(self, human_msg_ids: Optional[List[str]] = None) -> None:
         """Clears conversation exchanges. If `human_msg_id` is provided, only
         clears the respective human message and its reply. Otherwise, clears
         all messages."""
-        if human_msg_id:
+        if human_msg_ids:
             self._all_messages = [
                 m
                 for m in self._all_messages
-                if m.additional_kwargs[HUMAN_MSG_ID_KEY] != human_msg_id
+                if m.additional_kwargs[HUMAN_MSG_ID_KEY] not in human_msg_ids
             ]
-            self.cleared_msgs.add(human_msg_id)
+            self.cleared_msgs.update(human_msg_ids)
         else:
             self._all_messages = []
             self.cleared_msgs = set()
@@ -95,7 +95,6 @@ class WrappedBoundedChatHistory(BaseChatMessageHistory, BaseModel):
 
     def add_message(self, message: BaseMessage) -> None:
         # prevent adding pending messages to the store if clear was triggered.
-        # if targeted clearing, prevent adding target message if still pending.
         if (
             self.last_human_msg.time > self.history.clear_time
             and self.last_human_msg.id not in self.history.cleared_msgs

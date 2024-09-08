@@ -86,6 +86,7 @@ export namespace AiService {
   export type ClearRequest = {
     type: 'clear';
     target?: string;
+    after?: boolean;
   };
 
   export type Collaborator = {
@@ -143,7 +144,7 @@ export namespace AiService {
 
   export type ClearMessage = {
     type: 'clear';
-    target?: string;
+    targets?: string[];
   };
 
   export type PendingMessage = {
