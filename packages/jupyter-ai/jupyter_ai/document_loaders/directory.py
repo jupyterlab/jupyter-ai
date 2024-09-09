@@ -3,6 +3,7 @@ import itertools
 import os
 import tarfile
 from datetime import datetime
+from glob import iglob
 from pathlib import Path
 from typing import List
 
@@ -138,7 +139,9 @@ def collect_filepaths(path, all_files: bool):
 def split(path, all_files: bool, splitter):
     """Splits files into chunks for vector db in RAG"""
     chunks = []
-    filepaths = collect_filepaths(path, all_files)
+    filepaths = set()
+    for glob_path in iglob(path, include_hidden=all_files, recursive=True):
+        filepaths.update(collect_filepaths(glob_path, all_files))
     for filepath in filepaths:
         document = dask.delayed(path_to_doc)(filepath)
         chunk = dask.delayed(split_document)(document, splitter)
