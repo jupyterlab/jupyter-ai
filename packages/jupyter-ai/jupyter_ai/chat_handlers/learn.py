@@ -1,6 +1,7 @@
 import argparse
 import json
 import os
+from glob import iglob
 from typing import Any, Coroutine, List, Optional, Tuple
 
 from dask.distributed import Client as DaskClient
@@ -180,9 +181,13 @@ class LearnChatHandler(BaseChatHandler):
         short_path = args.path[0]
         load_path = os.path.join(self.output_dir, short_path)
         if not os.path.exists(load_path):
-            response = f"Sorry, that path doesn't exist: {load_path}"
-            self.reply(response, message)
-            return
+            try:
+                # check if globbing the load path will return anything
+                next(iglob(load_path))
+            except StopIteration:
+                response = f"Sorry, that path doesn't exist: {load_path}"
+                self.reply(response, message)
+                return
 
         # delete and relearn index if embedding model was changed
         await self.delete_and_relearn()
@@ -193,11 +198,16 @@ class LearnChatHandler(BaseChatHandler):
                     load_path, args.chunk_size, args.chunk_overlap, args.all_files
                 )
             except Exception as e:
-                response = f"""Learn documents in **{load_path}** failed. {str(e)}."""
+                response = """Learn documents in **{}** failed. {}.""".format(
+                    load_path.replace("*", r"\*"),
+                    str(e),
+                )
             else:
                 self.save()
-                response = f"""🎉 I have learned documents at **{load_path}** and I am ready to answer questions about them.
-                    You can ask questions about these docs by prefixing your message with **/ask**."""
+                response = """🎉 I have learned documents at **%s** and I am ready to answer questions about them.
+                    You can ask questions about these docs by prefixing your message with **/ask**.""" % (
+                    load_path.replace("*", r"\*")
+                )
         self.reply(response, message)
 
     def _build_list_response(self):
