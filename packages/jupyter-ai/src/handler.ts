@@ -83,6 +83,12 @@ export namespace AiService {
     selection?: Selection;
   };
 
+  export type ClearRequest = {
+    type: 'clear';
+    target?: string;
+    after?: boolean;
+  };
+
   export type Collaborator = {
     username: string;
     initials: string;
@@ -138,6 +144,7 @@ export namespace AiService {
 
   export type ClearMessage = {
     type: 'clear';
+    targets?: string[];
   };
 
   export type PendingMessage = {
@@ -145,6 +152,7 @@ export namespace AiService {
     id: string;
     time: number;
     body: string;
+    reply_to: string;
     persona: Persona;
     ellipsis: boolean;
   };
@@ -165,6 +173,8 @@ export namespace AiService {
     content: string;
     stream_complete: boolean;
   };
+
+  export type Request = ChatRequest | ClearRequest;
 
   export type ChatMessage =
     | AgentChatMessage

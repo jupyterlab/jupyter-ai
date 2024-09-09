@@ -39,7 +39,7 @@ export class ChatHandler implements IDisposable {
    * Sends a message across the WebSocket. Promise resolves to the message ID
    * when the server sends the same message back, acknowledging receipt.
    */
-  public sendMessage(message: AiService.ChatRequest): Promise<string> {
+  public sendMessage(message: AiService.Request): Promise<string> {
     return new Promise(resolve => {
       this._socket?.send(JSON.stringify(message));
       this._sendResolverQueue.push(resolve);
@@ -132,8 +132,20 @@ export class ChatHandler implements IDisposable {
       case 'connection':
         break;
       case 'clear':
-        this._messages = [];
-        this._pendingMessages = [];
+        if (newMessage.targets) {
+          const targets = newMessage.targets;
+          this._messages = this._messages.filter(
+            msg =>
+              !targets.includes(msg.id) &&
+              !('reply_to' in msg && targets.includes(msg.reply_to))
+          );
+          this._pendingMessages = this._pendingMessages.filter(
+            msg => !targets.includes(msg.reply_to)
+          );
+        } else {
+          this._messages = [];
+          this._pendingMessages = [];
+        }
         break;
       case 'pending':
         this._pendingMessages = [...this._pendingMessages, newMessage];

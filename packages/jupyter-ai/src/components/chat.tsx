@@ -3,6 +3,7 @@ import { Box } from '@mui/system';
 import { Button, IconButton, Stack } from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import AddIcon from '@mui/icons-material/Add';
 import type { Awareness } from 'y-protocols/awareness';
 import type { IThemeManager } from '@jupyterlab/apputils';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
@@ -24,10 +25,13 @@ import {
   ActiveCellManager
 } from '../contexts/active-cell-context';
 import { ScrollContainer } from './scroll-container';
+import { TooltippedIconButton } from './mui-extras/tooltipped-icon-button';
 
 type ChatBodyProps = {
   chatHandler: ChatHandler;
-  setChatView: (view: ChatView) => void;
+  openSettingsView: () => void;
+  showWelcomeMessage: boolean;
+  setShowWelcomeMessage: (show: boolean) => void;
   rmRegistry: IRenderMimeRegistry;
   focusInputSignal: ISignal<unknown, void>;
   messageFooter: IJaiMessageFooter | null;
@@ -51,7 +55,9 @@ function getPersonaName(messages: AiService.ChatMessage[]): string {
 function ChatBody({
   chatHandler,
   focusInputSignal,
-  setChatView: chatViewHandler,
+  openSettingsView,
+  showWelcomeMessage,
+  setShowWelcomeMessage,
   rmRegistry: renderMimeRegistry,
   messageFooter
 }: ChatBodyProps): JSX.Element {
@@ -64,7 +70,6 @@ function ChatBody({
   const [personaName, setPersonaName] = useState<string>(
     getPersonaName(messages)
   );
-  const [showWelcomeMessage, setShowWelcomeMessage] = useState<boolean>(false);
   const [sendWithShiftEnter, setSendWithShiftEnter] = useState(true);
 
   /**
@@ -103,11 +108,6 @@ function ChatBody({
     };
   }, [chatHandler]);
 
-  const openSettingsView = () => {
-    setShowWelcomeMessage(false);
-    chatViewHandler(ChatView.Settings);
-  };
-
   if (showWelcomeMessage) {
     return (
       <Box
@@ -143,10 +143,11 @@ function ChatBody({
       <ScrollContainer sx={{ flexGrow: 1 }}>
         <ChatMessages
           messages={messages}
+          chatHandler={chatHandler}
           rmRegistry={renderMimeRegistry}
           messageFooter={messageFooter}
         />
-        <PendingMessages messages={pendingMessages} />
+        <PendingMessages messages={pendingMessages} chatHandler={chatHandler} />
       </ScrollContainer>
       <ChatInput
         chatHandler={chatHandler}
@@ -186,6 +187,12 @@ enum ChatView {
 
 export function Chat(props: ChatProps): JSX.Element {
   const [view, setView] = useState<ChatView>(props.chatView || ChatView.Chat);
+  const [showWelcomeMessage, setShowWelcomeMessage] = useState<boolean>(false);
+
+  const openSettingsView = () => {
+    setShowWelcomeMessage(false);
+    setView(ChatView.Settings);
+  };
 
   return (
     <JlThemeProvider themeManager={props.themeManager}>
@@ -216,9 +223,21 @@ export function Chat(props: ChatProps): JSX.Element {
                   <Box />
                 )}
                 {view === ChatView.Chat ? (
-                  <IconButton onClick={() => setView(ChatView.Settings)}>
-                    <SettingsIcon />
-                  </IconButton>
+                  <Box sx={{ display: 'flex' }}>
+                    {!showWelcomeMessage && (
+                      <TooltippedIconButton
+                        onClick={() =>
+                          props.chatHandler.sendMessage({ type: 'clear' })
+                        }
+                        tooltip="New chat"
+                      >
+                        <AddIcon />
+                      </TooltippedIconButton>
+                    )}
+                    <IconButton onClick={() => openSettingsView()}>
+                      <SettingsIcon />
+                    </IconButton>
+                  </Box>
                 ) : (
                   <Box />
                 )}
@@ -227,7 +246,9 @@ export function Chat(props: ChatProps): JSX.Element {
               {view === ChatView.Chat && (
                 <ChatBody
                   chatHandler={props.chatHandler}
-                  setChatView={setView}
+                  openSettingsView={openSettingsView}
+                  showWelcomeMessage={showWelcomeMessage}
+                  setShowWelcomeMessage={setShowWelcomeMessage}
                   rmRegistry={props.rmRegistry}
                   focusInputSignal={props.focusInputSignal}
                   messageFooter={props.messageFooter}

@@ -39,6 +39,20 @@ class ChatRequest(BaseModel):
     selection: Optional[Selection]
 
 
+class ClearRequest(BaseModel):
+    type: Literal["clear"]
+    target: Optional[str]
+    """
+    Message ID of the HumanChatMessage to delete an exchange at.
+    If not provided, this requests the backend to clear all messages.
+    """
+
+    after: Optional[bool]
+    """
+    Whether to clear target and all subsequent exchanges.
+    """
+
+
 class ChatUser(BaseModel):
     # User ID assigned by IdentityProvider.
     username: str
@@ -105,6 +119,11 @@ class HumanChatMessage(BaseModel):
 
 class ClearMessage(BaseModel):
     type: Literal["clear"] = "clear"
+    targets: Optional[List[str]] = None
+    """
+    Message IDs of the HumanChatMessage to delete an exchange at.
+    If not provided, this instructs the frontend to clear all messages.
+    """
 
 
 class PendingMessage(BaseModel):
@@ -112,6 +131,7 @@ class PendingMessage(BaseModel):
     id: str
     time: float
     body: str
+    reply_to: str
     persona: Persona
     ellipsis: bool = True
     closed: bool = False

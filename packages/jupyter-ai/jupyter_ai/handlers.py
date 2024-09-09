@@ -24,6 +24,8 @@ from .models import (
     ChatMessage,
     ChatRequest,
     ChatUser,
+    ClearMessage,
+    ClearRequest,
     ClosePendingMessage,
     ConnectionMessage,
     HumanChatMessage,
@@ -39,6 +41,8 @@ from .models import (
 if TYPE_CHECKING:
     from jupyter_ai_magics.embedding_providers import BaseEmbeddingsProvider
     from jupyter_ai_magics.providers import BaseProvider
+
+    from .history import BoundChatHistory
 
 
 class ChatHistoryHandler(BaseAPIHandler):
@@ -97,6 +101,10 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
     @chat_history.setter
     def chat_history(self, new_history):
         self.settings["chat_history"] = new_history
+
+    @property
+    def llm_chat_memory(self) -> "BoundChatHistory":
+        return self.settings["llm_chat_memory"]
 
     @property
     def loop(self) -> AbstractEventLoop:
@@ -202,14 +210,6 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
         Appends message to chat history.
         """
 
-        self.log.debug("Broadcasting message: %s to all clients...", message)
-        client_ids = self.root_chat_handlers.keys()
-
-        for client_id in client_ids:
-            client = self.root_chat_handlers[client_id]
-            if client:
-                client.write_message(message.dict())
-
         # do not broadcast agent messages that are replying to cleared human message
         if (
             isinstance(message, (AgentChatMessage, AgentStreamMessage))
@@ -219,6 +219,14 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
                 m.id for m in self.chat_history if isinstance(m, HumanChatMessage)
             ]:
                 return
+
+        self.log.debug("Broadcasting message: %s to all clients...", message)
+        client_ids = self.root_chat_handlers.keys()
+
+        for client_id in client_ids:
+            client = self.root_chat_handlers[client_id]
+            if client:
+                client.write_message(message.dict())
 
         # append all messages of type `ChatMessage` directly to the chat history
         if isinstance(
@@ -246,17 +254,48 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
             self.pending_messages = list(
                 filter(lambda m: m.id != message.id, self.pending_messages)
             )
+        elif isinstance(message, ClearMessage):
+            if message.targets:
+                self._clear_chat_history_at(message.targets)
+            else:
+                self.chat_history.clear()
+                self.pending_messages.clear()
+                self.llm_chat_memory.clear()
+                self.settings["jai_chat_handlers"]["default"].send_help_message()
 
     async def on_message(self, message):
         self.log.debug("Message received: %s", message)
 
         try:
             message = json.loads(message)
-            chat_request = ChatRequest(**message)
+            if message.get("type") == "clear":
+                request = ClearRequest(**message)
+            else:
+                request = ChatRequest(**message)
         except ValidationError as e:
             self.log.error(e)
             return
 
+        if isinstance(request, ClearRequest):
+            if not request.target:
+                targets = None
+            elif request.after:
+                target_msg = None
+                for msg in self.chat_history:
+                    if msg.id == request.target:
+                        target_msg = msg
+                if target_msg:
+                    targets = [
+                        msg.id
+                        for msg in self.chat_history
+                        if msg.time >= target_msg.time and msg.type == "human"
+                    ]
+            else:
+                targets = [request.target]
+            self.broadcast_message(ClearMessage(targets=targets))
+            return
+
+        chat_request = request
         message_body = chat_request.prompt
         if chat_request.selection:
             message_body += f"\n\n```\n{chat_request.selection.source}\n```\n"
@@ -301,6 +340,20 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
         latency_ms = round((time.time() - start) * 1000)
         command_readable = "Default" if command == "default" else command
         self.log.info(f"{command_readable} chat handler resolved in {latency_ms} ms.")
+
+    def _clear_chat_history_at(self, msg_ids: List[str]):
+        """
+        Clears conversation exchanges associated with list of human message IDs.
+        """
+        self.chat_history[:] = [
+            msg
+            for msg in self.chat_history
+            if msg.id not in msg_ids and getattr(msg, "reply_to", None) not in msg_ids
+        ]
+        self.pending_messages[:] = [
+            msg for msg in self.pending_messages if msg.reply_to not in msg_ids
+        ]
+        self.llm_chat_memory.clear(msg_ids)
 
     def on_close(self):
         self.log.debug("Disconnecting client with user %s", self.client_id)

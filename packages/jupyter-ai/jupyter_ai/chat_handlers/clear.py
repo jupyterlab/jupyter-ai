@@ -23,9 +23,4 @@ class ClearChatHandler(BaseChatHandler):
                 continue
 
             handler.broadcast_message(ClearMessage())
-            self._chat_history.clear()
-            self.llm_chat_memory.clear()
             break
-
-        # re-send help message
-        self.send_help_message()

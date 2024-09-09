@@ -10,16 +10,20 @@ import { AiService } from '../handler';
 import { RendermimeMarkdown } from './rendermime-markdown';
 import { useCollaboratorsContext } from '../contexts/collaborators-context';
 import { ChatMessageMenu } from './chat-messages/chat-message-menu';
+import { ChatMessageDelete } from './chat-messages/chat-message-delete';
+import { ChatHandler } from '../chat_handler';
 import { IJaiMessageFooter } from '../tokens';
 
 type ChatMessagesProps = {
   rmRegistry: IRenderMimeRegistry;
   messages: AiService.ChatMessage[];
+  chatHandler: ChatHandler;
   messageFooter: IJaiMessageFooter | null;
 };
 
 type ChatMessageHeaderProps = {
   message: AiService.ChatMessage;
+  chatHandler: ChatHandler;
   timestamp: string;
   sx?: SxProps<Theme>;
 };
@@ -113,6 +117,7 @@ export function ChatMessageHeader(props: ChatMessageHeaderProps): JSX.Element {
   const shouldShowMenu =
     props.message.type === 'agent' ||
     (props.message.type === 'agent-stream' && props.message.complete);
+  const shouldShowDelete = props.message.type === 'human';
 
   return (
     <Box
@@ -151,6 +156,13 @@ export function ChatMessageHeader(props: ChatMessageHeaderProps): JSX.Element {
           {shouldShowMenu && (
             <ChatMessageMenu
               message={props.message}
+              sx={{ marginLeft: '4px', marginRight: '-8px' }}
+            />
+          )}
+          {shouldShowDelete && (
+            <ChatMessageDelete
+              message={props.message}
+              chatHandler={props.chatHandler}
               sx={{ marginLeft: '4px', marginRight: '-8px' }}
             />
           )}
@@ -208,6 +220,7 @@ export function ChatMessages(props: ChatMessagesProps): JSX.Element {
             <ChatMessageHeader
               message={message}
               timestamp={timestamps[message.id]}
+              chatHandler={props.chatHandler}
               sx={{ marginBottom: 3 }}
             />
             <RendermimeMarkdown

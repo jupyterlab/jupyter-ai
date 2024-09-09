@@ -44,7 +44,7 @@ class DefaultChatHandler(BaseChatHandler):
         if not llm.manages_history:
             runnable = RunnableWithMessageHistory(
                 runnable=runnable,
-                get_session_history=self.get_llm_chat_history,
+                get_session_history=self.get_llm_chat_memory,
                 input_messages_key="input",
                 history_messages_key="history",
                 history_factory_config=[
@@ -101,7 +101,7 @@ class DefaultChatHandler(BaseChatHandler):
         received_first_chunk = False
 
         # start with a pending message
-        with self.pending("Generating response") as pending_message:
+        with self.pending("Generating response", message) as pending_message:
             # stream response in chunks. this works even if a provider does not
             # implement streaming, as `astream()` defaults to yielding `_call()`
             # when `_stream()` is not implemented on the LLM class.
