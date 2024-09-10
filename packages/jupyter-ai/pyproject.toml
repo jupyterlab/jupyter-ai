@@ -50,6 +50,8 @@ test = [
     "pytest-tornasync",
     "pytest-jupyter",
     "syrupy~=4.0.8",
+    "types-jsonschema",
+    "mypy"
 ]
 
 dev = ["jupyter_ai_magics[dev]"]
