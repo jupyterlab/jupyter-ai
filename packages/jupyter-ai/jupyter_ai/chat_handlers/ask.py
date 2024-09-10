@@ -1,5 +1,6 @@
 import argparse
 from typing import Dict, Type
+from jupyterlab_collaborative_chat.ychat import YChat
 
 from jupyter_ai.models import HumanChatMessage
 from jupyter_ai_magics.providers import BaseProvider
@@ -59,13 +60,13 @@ class AskChatHandler(BaseChatHandler):
             verbose=False,
         )
 
-    async def process_message(self, message: HumanChatMessage):
-        args = self.parse_args(message)
+    async def process_message(self, message: HumanChatMessage, chat: YChat):
+        args = self.parse_args(message, chat)
         if args is None:
             return
         query = " ".join(args.query)
         if not query:
-            self.reply(f"{self.parser.format_usage()}", message)
+            self.reply(f"{self.parser.format_usage()}", chat, message)
             return
 
         self.get_llm_chain()
@@ -74,7 +75,7 @@ class AskChatHandler(BaseChatHandler):
             with self.pending("Searching learned documents", message):
                 result = await self.llm_chain.acall({"question": query})
                 response = result["answer"]
-            self.reply(response, message)
+            self.reply(response, chat, message)
         except AssertionError as e:
             self.log.error(e)
             response = """Sorry, an error occurred while reading the from the learned documents.
@@ -82,4 +83,4 @@ class AskChatHandler(BaseChatHandler):
             `/learn -d` command and then re-submitting the `learn <directory>` to learn the documents,
             and then asking the question again.
             """
-            self.reply(response, message)
+            self.reply(response, chat, message)

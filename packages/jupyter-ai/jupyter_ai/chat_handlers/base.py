@@ -6,6 +6,7 @@ import traceback
 from typing import (
     TYPE_CHECKING,
     Awaitable,
+    Callable,
     ClassVar,
     Dict,
     List,
@@ -15,6 +16,7 @@ from typing import (
     Union,
 )
 from uuid import uuid4
+from jupyterlab_collaborative_chat.ychat import YChat
 
 from dask.distributed import Client as DaskClient
 from jupyter_ai.config_manager import ConfigManager, Logger
@@ -132,6 +134,7 @@ class BaseChatHandler:
         dask_client_future: Awaitable[DaskClient],
         help_message_template: str,
         chat_handlers: Dict[str, "BaseChatHandler"],
+        write_message: Callable[[YChat, str], None]
     ):
         self.log = log
         self.config_manager = config_manager
@@ -157,13 +160,16 @@ class BaseChatHandler:
         self.llm_params = None
         self.llm_chain = None
 
-    async def on_message(self, message: HumanChatMessage):
+        self.write_message = write_message
+
+    async def on_message(self, message: HumanChatMessage, chat: YChat):
         """
         Method which receives a human message, calls `self.get_llm_chain()`, and
         processes the message via `self.process_message()`, calling
         `self.handle_exc()` when an exception is raised. This method is called
         by RootChatHandler when it routes a human message to this chat handler.
         """
+        self.log.warn(f"MESSAGE SENT {message.body}")
         lm_provider_klass = self.config_manager.lm_provider
 
         # ensure the current slash command is supported
@@ -173,7 +179,8 @@ class BaseChatHandler:
             )
             if slash_command in lm_provider_klass.unsupported_slash_commands:
                 self.reply(
-                    "Sorry, the selected language model does not support this slash command."
+                    "Sorry, the selected language model does not support this slash command.",
+                    chat
                 )
                 return
 
@@ -185,6 +192,7 @@ class BaseChatHandler:
             if not lm_provider.allows_concurrency:
                 self.reply(
                     "The currently selected language model can process only one request at a time. Please wait for me to reply before sending another question.",
+                    chat,
                     message,
                 )
                 return
@@ -192,43 +200,43 @@ class BaseChatHandler:
         BaseChatHandler._requests_count += 1
 
         if self.__class__.supports_help:
-            args = self.parse_args(message, silent=True)
+            args = self.parse_args(message, chat, silent=True)
             if args and args.help:
-                self.reply(self.parser.format_help(), message)
+                self.reply(self.parser.format_help(), chat, message)
                 return
 
         try:
-            await self.process_message(message)
+            await self.process_message(message, chat)
         except Exception as e:
             try:
                 # we try/except `handle_exc()` in case it was overriden and
                 # raises an exception by accident.
-                await self.handle_exc(e, message)
+                await self.handle_exc(e, message, chat)
             except Exception as e:
                 await self._default_handle_exc(e, message)
         finally:
             BaseChatHandler._requests_count -= 1
 
-    async def process_message(self, message: HumanChatMessage):
+    async def process_message(self, message: HumanChatMessage, chat: YChat):
         """
         Processes a human message routed to this chat handler. Chat handlers
         (subclasses) must implement this method. Don't forget to call
-        `self.reply(<response>, message)` at the end!
+        `self.reply(<response>, chat, message)` at the end!
 
         The method definition does not need to be wrapped in a try/except block;
         any exceptions raised here are caught by `self.handle_exc()`.
         """
         raise NotImplementedError("Should be implemented by subclasses.")
 
-    async def handle_exc(self, e: Exception, message: HumanChatMessage):
+    async def handle_exc(self, e: Exception, message: HumanChatMessage, chat: YChat):
         """
         Handles an exception raised by `self.process_message()`. A default
         implementation is provided, however chat handlers (subclasses) should
         implement this method to provide a more helpful error response.
         """
-        await self._default_handle_exc(e, message)
+        await self._default_handle_exc(e, message, chat)
 
-    async def _default_handle_exc(self, e: Exception, message: HumanChatMessage):
+    async def _default_handle_exc(self, e: Exception, message: HumanChatMessage, chat: YChat):
         """
         The default definition of `handle_exc()`. This is the default used when
         the `handle_exc()` excepts.
@@ -238,15 +246,15 @@ class BaseChatHandler:
         if lm_provider and lm_provider.is_api_key_exc(e):
             provider_name = getattr(self.config_manager.lm_provider, "name", "")
             response = f"Oops! There's a problem connecting to {provider_name}. Please update your {provider_name} API key in the chat settings."
-            self.reply(response, message)
+            self.reply(response, chat, message)
             return
         formatted_e = traceback.format_exc()
         response = (
             f"Sorry, an error occurred. Details below:\n\n```\n{formatted_e}\n```"
         )
-        self.reply(response, message)
+        self.reply(response, chat, message)
 
-    def reply(self, response: str, human_msg: Optional[HumanChatMessage] = None):
+    def reply(self, response: str, chat: YChat, human_msg: Optional[HumanChatMessage] = None):
         """
         Sends an agent message, usually in response to a received
         `HumanChatMessage`.
@@ -259,12 +267,13 @@ class BaseChatHandler:
             persona=self.persona,
         )
 
-        for handler in self._root_chat_handlers.values():
-            if not handler:
-                continue
+        self.write_message(chat, response)
+        # for handler in self._root_chat_handlers.values():
+        #     if not handler:
+        #         continue
 
-            handler.broadcast_message(agent_msg)
-            break
+        #     handler.broadcast_message(agent_msg)
+        #     break
 
     @property
     def persona(self):
@@ -380,14 +389,14 @@ class BaseChatHandler:
     ):
         raise NotImplementedError("Should be implemented by subclasses")
 
-    def parse_args(self, message, silent=False):
+    def parse_args(self, message, chat, silent=False):
         args = message.body.split(" ")
         try:
             args = self.parser.parse_args(args[1:])
         except (argparse.ArgumentError, SystemExit) as e:
             if not silent:
                 response = f"{self.parser.format_usage()}"
-                self.reply(response, message)
+                self.reply(response, chat, message)
             return None
         return args
 
