@@ -499,7 +499,7 @@ To teach Jupyter AI about a folder full of documentation, for example, run `/lea
     alt='Screen shot of "/learn docs/" command and a response.'
     class="screenshot" />
 
-The `/learn` command also supports unix shell-style wildcard matching. This allows fine-grained file selection for learning. For example, to learn on only notebooks in a directory you can use `/learn **/*.ipynb` and all notebooks within your base (or preferred directory if set) will be indexed, while all other file extensions will be ignored.
+The `/learn` command also supports unix shell-style wildcard matching. This allows fine-grained file selection for learning. For example, to learn on only notebooks in all directories you can use `/learn **/*.ipynb` and all notebooks within your base (or preferred directory if set) will be indexed, while all other file extensions will be ignored.
 
 :::{warning}
 :name: unix shell-style wildcard matching
