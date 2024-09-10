@@ -28,3 +28,22 @@ jobs:
         run: |
           set -eux
           pytest -vv -r ap --cov jupyter_ai
+
+  typing-tests:
+    name: Linux
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Base Setup
+        uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
+
+      - name: Install extension dependencies and build the extension
+        run: ./scripts/install.sh
+
+      - name: Execute unit tests
+        run: |
+          set -eux
+          mypy --version
+          mypy packages/jupyter-ai
