@@ -230,14 +230,12 @@ class AiExtension(ExtensionApp):
         )
 
     async def connect_chat(self, logger: EventLogger, schema_id: str, data: dict) -> None:
-        self.log.warn(f"New DOC {data["room"]}")
         if data["room"].startswith("text:chat:") \
             and data["action"] == "initialize"\
             and data["msg"] == "Room initialized":
 
             self.log.info(f"Collaborative chat server is listening for {data["room"]}")
             chat = await self.get_chat(data["room"])
-            self.log.warn(f"Chat {chat}")
             callback = partial(self.on_change, chat)
             chat.ymessages.observe(callback)
 
@@ -261,13 +259,9 @@ class AiExtension(ExtensionApp):
             if not "insert" in change.keys():
                 continue
             messages = change["insert"]
-            self.log.warn(f"New messages {messages}")
             for message in messages:
-                self.log.warn(f"SENDER {message["sender"]}")
-                self.log.warn(f"BOT {BOT["username"]}")
 
                 if message["sender"] == BOT["username"] or message["raw_time"]:
-                    self.log.warn("HERE WE ARE")
                     continue
                 try:
                     chat_message = HumanChatMessage(
@@ -280,12 +274,10 @@ class AiExtension(ExtensionApp):
                     )
                 except Exception as e:
                     self.log.error(e)
-                self.log.warn(f"BUILT HUMAN MESSAGE {chat_message}")
                 self.serverapp.io_loop.asyncio_loop.create_task(self._route(chat_message, chat))
 
     async def _route(self, message: HumanChatMessage, chat: YChat):
         """Method that routes an incoming message to the appropriate handler."""
-        self.log.warn(f"ROUTING {message}")
         chat_handlers = self.settings["jai_chat_handlers"]
         default = chat_handlers["default"]
         # Split on any whitespace, either spaces or newlines
@@ -523,7 +515,7 @@ class AiExtension(ExtensionApp):
         default_chat_handler: DefaultChatHandler = self.settings["jai_chat_handlers"][
             "default"
         ]
-        default_chat_handler.send_help_message()
+        default_chat_handler.send_help_message(None)
 
     async def _get_dask_client(self):
         return DaskClient(processes=False, asynchronous=True)

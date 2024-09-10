@@ -173,7 +173,6 @@ class BaseChatHandler:
         `self.handle_exc()` when an exception is raised. This method is called
         by RootChatHandler when it routes a human message to this chat handler.
         """
-        self.log.warn(f"MESSAGE SENT {message.body}")
         lm_provider_klass = self.config_manager.lm_provider
 
         # ensure the current slash command is supported
@@ -424,7 +423,7 @@ class BaseChatHandler:
         else:
             return self.root_dir
 
-    def send_help_message(self, human_msg: Optional[HumanChatMessage] = None) -> None:
+    def send_help_message(self, chat: YChat | None, human_msg: Optional[HumanChatMessage] = None) -> None:
         """Sends a help message to all connected clients."""
         lm_provider = self.config_manager.lm_provider
         unsupported_slash_commands = (
@@ -454,6 +453,16 @@ class BaseChatHandler:
             persona=self.persona,
         )
 
-        self._chat_history.append(help_message)
-        for websocket in self._root_chat_handlers.values():
-            websocket.write_message(help_message.json())
+        if chat is not None:
+            self.write_message(chat, help_message_body)
+        else:
+            help_message = AgentChatMessage(
+                id=uuid4().hex,
+                time=time.time(),
+                body=help_message_body,
+                reply_to=human_msg.id if human_msg else "",
+                persona=self.persona,
+            )
+            self._chat_history.append(help_message)
+            for websocket in self._root_chat_handlers.values():
+                websocket.write_message(help_message.json())
