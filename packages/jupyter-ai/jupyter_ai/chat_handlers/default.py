@@ -1,6 +1,7 @@
 import time
 from typing import Dict, Type
 from uuid import uuid4
+from jupyterlab_collaborative_chat.ychat import YChat
 
 from jupyter_ai.models import (
     AgentStreamChunkMessage,
@@ -80,7 +81,7 @@ class DefaultChatHandler(BaseChatHandler):
 
         return stream_id
 
-    def _send_stream_chunk(self, stream_id: str, content: str, complete: bool = False):
+    def _send_stream_chunk(self, stream_id: str, content: str, chat: YChat, complete: bool = False):
         """
         Sends an `agent-stream-chunk` message containing content that should be
         appended to an existing `agent-stream` message with ID `stream_id`.
@@ -88,15 +89,16 @@ class DefaultChatHandler(BaseChatHandler):
         stream_chunk_msg = AgentStreamChunkMessage(
             id=stream_id, content=content, stream_complete=complete
         )
+        self.write_message(chat, stream_chunk_msg.content)
+        # for handler in self._root_chat_handlers.values():
+        #     if not handler:
+        #         continue
 
-        for handler in self._root_chat_handlers.values():
-            if not handler:
-                continue
+        #     handler.broadcast_message(stream_chunk_msg)
+        #     break
 
-            handler.broadcast_message(stream_chunk_msg)
-            break
-
-    async def process_message(self, message: HumanChatMessage):
+    async def process_message(self, message: HumanChatMessage, chat: YChat):
+        self.log.warning("PROCESS IN DEFAULT HANDLER")
         self.get_llm_chain()
         received_first_chunk = False
 
@@ -119,10 +121,10 @@ class DefaultChatHandler(BaseChatHandler):
                 if isinstance(chunk, AIMessageChunk):
                     self._send_stream_chunk(stream_id, chunk.content)
                 elif isinstance(chunk, str):
-                    self._send_stream_chunk(stream_id, chunk)
+                    self._send_stream_chunk(stream_id, chunk, chat)
                 else:
                     self.log.error(f"Unrecognized type of chunk yielded: {type(chunk)}")
                     break
 
             # complete stream after all chunks have been streamed
-            self._send_stream_chunk(stream_id, "", complete=True)
+            self._send_stream_chunk(stream_id, "", chat, complete=True)

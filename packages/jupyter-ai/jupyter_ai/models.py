@@ -100,7 +100,7 @@ class HumanChatMessage(BaseModel):
     """The prompt typed into the chat input by the user."""
     selection: Optional[Selection]
     """The selection included with the prompt, if any."""
-    client: ChatClient
+    client: Optional[ChatClient]
 
 
 class ClearMessage(BaseModel):

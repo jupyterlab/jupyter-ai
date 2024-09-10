@@ -2,15 +2,27 @@ import os
 import re
 import time
 import types
+import uuid
 
 from dask.distributed import Client as DaskClient
 from importlib_metadata import entry_points
 from jupyter_ai.chat_handlers.learn import Retriever
+from jupyter_ai.models import HumanChatMessage
 from jupyter_ai_magics import BaseProvider, JupyternautPersona
 from jupyter_ai_magics.utils import get_em_providers, get_lm_providers
 from jupyter_server.extension.application import ExtensionApp
 from tornado.web import StaticFileHandler
 from traitlets import Dict, Integer, List, Unicode
+from jupyter_collaboration import __version__ as jupyter_collaboration_version
+from jupyterlab_collaborative_chat.ychat import YChat
+
+from functools import partial
+from jupyter_collaboration.utils import JUPYTER_COLLABORATION_EVENTS_URI
+from jupyter_events import EventLogger
+from jupyter_server.extension.application import ExtensionApp
+from jupyter_server.utils import url_path_join
+
+from pycrdt import ArrayEvent
 
 from .chat_handlers import (
     AskChatHandler,
@@ -40,6 +52,17 @@ JUPYTERNAUT_AVATAR_PATH = str(
     os.path.join(os.path.dirname(__file__), "static", "jupyternaut.svg")
 )
 
+
+if int(jupyter_collaboration_version[0]) >= 3:
+    COLLAB_VERSION = 3
+else:
+    COLLAB_VERSION = 2
+
+BOT = {
+    "username": str(uuid.uuid4()),
+    "name": "Jupyternaut",
+    "display_name": "Jupyternaut"
+}
 
 DEFAULT_HELP_MESSAGE_TEMPLATE = """Hi there! I'm {persona_name}, your programming assistant.
 You can ask me a question using the text box below. You can also use these commands:
@@ -192,6 +215,112 @@ class AiExtension(ExtensionApp):
         config=True,
     )
 
+    def initialize(self):
+        super().initialize()
+        self.event_logger = self.serverapp.web_app.settings["event_logger"]
+        self.event_logger.add_listener(
+            schema_id=JUPYTER_COLLABORATION_EVENTS_URI,
+            listener=self.connect_chat
+        )
+
+    async def connect_chat(self, logger: EventLogger, schema_id: str, data: dict) -> None:
+        self.log.warn(f"New DOC {data["room"]}")
+        if data["room"].startswith("text:chat:") \
+            and data["action"] == "initialize"\
+            and data["msg"] == "Room initialized":
+
+            self.log.info(f"Collaborative chat server is listening for {data["room"]}")
+            chat = await self.get_chat(data["room"])
+            self.log.warn(f"Chat {chat}")
+            callback = partial(self.on_change, chat)
+            chat.ymessages.observe(callback)
+
+    async def get_chat(self, room_id: str) -> YChat:
+        if COLLAB_VERSION == 3:
+            collaboration = self.serverapp.web_app.settings["jupyter_server_ydoc"]
+            document = await collaboration.get_document(
+                room_id=room_id,
+                copy=False
+            )
+        else:
+            collaboration = self.serverapp.web_app.settings["jupyter_collaboration"]
+            server = collaboration.ywebsocket_server
+
+            room = await server.get_room(room_id)
+            document = room._document
+        return document
+
+    def on_change(self, chat: YChat, events: ArrayEvent) -> None:
+        for change in events.delta:
+            if not "insert" in change.keys():
+                continue
+            messages = change["insert"]
+            self.log.warn(f"New messages {messages}")
+            for message in messages:
+                self.log.warn(f"SENDER {message["sender"]}")
+                self.log.warn(f"BOT {BOT["username"]}")
+
+                if message["sender"] == BOT["username"] or message["raw_time"]:
+                    self.log.warn("HERE WE ARE")
+                    continue
+                try:
+                    chat_message = HumanChatMessage(
+                        id=message["id"],
+                        time=time.time(),
+                        body=message["body"],
+                        prompt="",
+                        selection=None,
+                        client=None,
+                    )
+                except Exception as e:
+                    self.log.error(e)
+                self.log.warn(f"BUILT HUMAN MESSAGE {chat_message}")
+                self.serverapp.io_loop.asyncio_loop.create_task(self._route(chat_message, chat))
+
+    async def _route(self, message: HumanChatMessage, chat: YChat):
+        """Method that routes an incoming message to the appropriate handler."""
+        self.log.warn(f"ROUTING {message}")
+        chat_handlers = self.settings["jai_chat_handlers"]
+        default = chat_handlers["default"]
+        # Split on any whitespace, either spaces or newlines
+        maybe_command = message.body.split(None, 1)[0]
+        is_command = (
+            message.body.startswith("/")
+            and maybe_command in chat_handlers.keys()
+            and maybe_command != "default"
+        )
+        command = maybe_command if is_command else "default"
+
+        start = time.time()
+        if is_command:
+            await chat_handlers[command].on_message(message, chat)
+        else:
+            await default.on_message(message, chat)
+
+        latency_ms = round((time.time() - start) * 1000)
+        command_readable = "Default" if command == "default" else command
+        self.log.info(f"{command_readable} chat handler resolved in {latency_ms} ms.")
+
+    def write_message(self, chat: YChat, body: str) -> None:
+        BOT["avatar_url"] = url_path_join(
+            self.settings.get("base_url", "/"),
+            "api/ai/static/jupyternaut.svg"
+        )
+        bot = chat.get_user_by_name(BOT["name"])
+        if not bot:
+            chat.set_user(BOT)
+        else:
+            BOT["username"] = bot["username"]
+
+        chat.add_message({
+            "type": "msg",
+            "body": body,
+            "id": str(uuid.uuid4()),
+            "time": time.time(),
+            "sender": BOT["username"],
+            "raw_time": False
+        })
+
     def initialize_settings(self):
         start = time.time()
 
@@ -295,6 +424,7 @@ class AiExtension(ExtensionApp):
             "preferred_dir": self.serverapp.contents_manager.preferred_dir,
             "help_message_template": self.help_message_template,
             "chat_handlers": chat_handlers,
+            "write_message": self.write_message
         }
         default_chat_handler = DefaultChatHandler(**chat_handler_kwargs)
         clear_chat_handler = ClearChatHandler(**chat_handler_kwargs)

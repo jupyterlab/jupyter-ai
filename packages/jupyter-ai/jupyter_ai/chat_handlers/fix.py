@@ -1,4 +1,5 @@
 from typing import Dict, Type
+from jupyterlab_collaborative_chat.ychat import YChat
 
 from jupyter_ai.models import CellWithErrorSelection, HumanChatMessage
 from jupyter_ai_magics.providers import BaseProvider
@@ -77,10 +78,11 @@ class FixChatHandler(BaseChatHandler):
         self.llm = llm
         self.llm_chain = LLMChain(llm=llm, prompt=FIX_PROMPT_TEMPLATE, verbose=True)
 
-    async def process_message(self, message: HumanChatMessage):
+    async def process_message(self, message: HumanChatMessage, chat: YChat):
         if not (message.selection and message.selection.type == "cell-with-error"):
             self.reply(
                 "`/fix` requires an active code cell with error output. Please click on a cell with error output and retry.",
+                chat,
                 message,
             )
             return
@@ -101,4 +103,4 @@ class FixChatHandler(BaseChatHandler):
                 error_value=selection.error.value,
                 traceback="\n".join(selection.error.traceback),
             )
-        self.reply(response, message)
+        self.reply(response, chat, message)
