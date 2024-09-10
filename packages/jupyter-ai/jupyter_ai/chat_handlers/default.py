@@ -1,7 +1,6 @@
 import time
 from typing import Dict, Type
 from uuid import uuid4
-from jupyterlab_collaborative_chat.ychat import YChat
 
 from jupyter_ai.models import (
     AgentStreamChunkMessage,
@@ -12,6 +11,11 @@ from jupyter_ai_magics.providers import BaseProvider
 from langchain_core.messages import AIMessageChunk
 from langchain_core.runnables import ConfigurableFieldSpec
 from langchain_core.runnables.history import RunnableWithMessageHistory
+
+try:
+    from jupyterlab_collaborative_chat.ychat import YChat
+except:
+    from typing import Any as YChat
 
 from ..models import HumanChatMessage
 from .base import BaseChatHandler, SlashCommandRoutingType
@@ -82,24 +86,25 @@ class DefaultChatHandler(BaseChatHandler):
 
         return stream_id
 
-    def _send_stream_chunk(self, stream_id: str, content: str, chat: YChat, complete: bool = False):
+    def _send_stream_chunk(self, stream_id: str, content: str, chat: YChat | None, complete: bool = False):
         """
         Sends an `agent-stream-chunk` message containing content that should be
         appended to an existing `agent-stream` message with ID `stream_id`.
         """
-        stream_chunk_msg = AgentStreamChunkMessage(
-            id=stream_id, content=content, stream_complete=complete
-        )
-        self.write_message(chat, stream_chunk_msg.content)
-        # for handler in self._root_chat_handlers.values():
-        #     if not handler:
-        #         continue
+        if chat is not None:
+            self.write_message(chat, content)
+        else:
+            stream_chunk_msg = AgentStreamChunkMessage(
+                id=stream_id, content=content, stream_complete=complete
+            )
+            for handler in self._root_chat_handlers.values():
+                if not handler:
+                    continue
 
-        #     handler.broadcast_message(stream_chunk_msg)
-        #     break
+                handler.broadcast_message(stream_chunk_msg)
+                break
 
-    async def process_message(self, message: HumanChatMessage, chat: YChat):
-        self.log.warning("PROCESS IN DEFAULT HANDLER")
+    async def process_message(self, message: HumanChatMessage, chat: YChat | None):
         self.get_llm_chain()
         received_first_chunk = False
 

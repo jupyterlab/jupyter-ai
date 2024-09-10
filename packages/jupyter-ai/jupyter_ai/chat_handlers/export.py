@@ -2,9 +2,13 @@ import argparse
 import os
 from datetime import datetime
 from typing import List
-from jupyterlab_collaborative_chat.ychat import YChat
 
 from jupyter_ai.models import AgentChatMessage, HumanChatMessage
+
+try:
+    from jupyterlab_collaborative_chat.ychat import YChat
+except:
+    from typing import Any as YChat
 
 from .base import BaseChatHandler, SlashCommandRoutingType
 
@@ -32,7 +36,7 @@ class ExportChatHandler(BaseChatHandler):
             return ""
 
     # Write the chat history to a markdown file with a timestamp
-    async def process_message(self, message: HumanChatMessage, chat: YChat):
+    async def process_message(self, message: HumanChatMessage, chat: YChat | None):
         markdown_content = "\n\n".join(
             self.chat_message_to_markdown(msg) for msg in self._chat_history
         )

@@ -16,7 +16,6 @@ from typing import (
     Union,
 )
 from uuid import uuid4
-from jupyterlab_collaborative_chat.ychat import YChat
 
 from dask.distributed import Client as DaskClient
 from jupyter_ai.config_manager import ConfigManager, Logger
@@ -31,6 +30,11 @@ from jupyter_ai.models import (
 from jupyter_ai_magics import Persona
 from jupyter_ai_magics.providers import BaseProvider
 from langchain.pydantic_v1 import BaseModel
+
+try:
+    from jupyterlab_collaborative_chat.ychat import YChat
+except:
+    from typing import Any as YChat
 
 if TYPE_CHECKING:
     from jupyter_ai.handlers import RootChatHandler
@@ -134,7 +138,7 @@ class BaseChatHandler:
         dask_client_future: Awaitable[DaskClient],
         help_message_template: str,
         chat_handlers: Dict[str, "BaseChatHandler"],
-        write_message: Callable[[YChat, str], None]
+        write_message: Callable[[YChat, str], None] | None = None
     ):
         self.log = log
         self.config_manager = config_manager
@@ -162,7 +166,7 @@ class BaseChatHandler:
 
         self.write_message = write_message
 
-    async def on_message(self, message: HumanChatMessage, chat: YChat):
+    async def on_message(self, message: HumanChatMessage, chat: YChat| None = None):
         """
         Method which receives a human message, calls `self.get_llm_chain()`, and
         processes the message via `self.process_message()`, calling
@@ -217,7 +221,7 @@ class BaseChatHandler:
         finally:
             BaseChatHandler._requests_count -= 1
 
-    async def process_message(self, message: HumanChatMessage, chat: YChat):
+    async def process_message(self, message: HumanChatMessage, chat: YChat | None):
         """
         Processes a human message routed to this chat handler. Chat handlers
         (subclasses) must implement this method. Don't forget to call
@@ -228,7 +232,7 @@ class BaseChatHandler:
         """
         raise NotImplementedError("Should be implemented by subclasses.")
 
-    async def handle_exc(self, e: Exception, message: HumanChatMessage, chat: YChat):
+    async def handle_exc(self, e: Exception, message: HumanChatMessage, chat: YChat | None):
         """
         Handles an exception raised by `self.process_message()`. A default
         implementation is provided, however chat handlers (subclasses) should
@@ -236,7 +240,7 @@ class BaseChatHandler:
         """
         await self._default_handle_exc(e, message, chat)
 
-    async def _default_handle_exc(self, e: Exception, message: HumanChatMessage, chat: YChat):
+    async def _default_handle_exc(self, e: Exception, message: HumanChatMessage, chat: YChat | None):
         """
         The default definition of `handle_exc()`. This is the default used when
         the `handle_exc()` excepts.
@@ -254,26 +258,27 @@ class BaseChatHandler:
         )
         self.reply(response, chat, message)
 
-    def reply(self, response: str, chat: YChat, human_msg: Optional[HumanChatMessage] = None):
+    def reply(self, response: str, chat: YChat | None, human_msg: Optional[HumanChatMessage] = None):
         """
         Sends an agent message, usually in response to a received
         `HumanChatMessage`.
         """
-        agent_msg = AgentChatMessage(
-            id=uuid4().hex,
-            time=time.time(),
-            body=response,
-            reply_to=human_msg.id if human_msg else "",
-            persona=self.persona,
-        )
+        if chat is not None:
+            self.write_message(chat, response)
+        else:
+            agent_msg = AgentChatMessage(
+                id=uuid4().hex,
+                time=time.time(),
+                body=response,
+                reply_to=human_msg.id if human_msg else "",
+                persona=self.persona,
+            )
+            for handler in self._root_chat_handlers.values():
+                if not handler:
+                    continue
 
-        self.write_message(chat, response)
-        # for handler in self._root_chat_handlers.values():
-        #     if not handler:
-        #         continue
-
-        #     handler.broadcast_message(agent_msg)
-        #     break
+                handler.broadcast_message(agent_msg)
+                break
 
     @property
     def persona(self):

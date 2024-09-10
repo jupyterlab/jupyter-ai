@@ -2,7 +2,6 @@ import argparse
 import json
 import os
 from typing import Any, Coroutine, List, Optional, Tuple
-from jupyterlab_collaborative_chat.ychat import YChat
 
 from dask.distributed import Client as DaskClient
 from jupyter_ai.document_loaders.directory import (
@@ -29,6 +28,11 @@ from langchain.text_splitter import (
     RecursiveCharacterTextSplitter,
 )
 from langchain_community.vectorstores import FAISS
+
+try:
+    from jupyterlab_collaborative_chat.ychat import YChat
+except:
+    from typing import Any as YChat
 
 from .base import BaseChatHandler, SlashCommandRoutingType
 
@@ -128,7 +132,7 @@ class LearnChatHandler(BaseChatHandler):
             )
             self.log.error(e)
 
-    async def process_message(self, message: HumanChatMessage, chat: YChat):
+    async def process_message(self, message: HumanChatMessage, chat: YChat | None):
         # If no embedding provider has been selected
         em_provider_cls, em_provider_args = self.get_embedding_provider()
         if not em_provider_cls:
@@ -255,7 +259,7 @@ class LearnChatHandler(BaseChatHandler):
             )
         self.metadata.dirs = dirs
 
-    async def delete_and_relearn(self, chat: YChat):
+    async def delete_and_relearn(self, chat: YChat | None):
         """Delete the vector store and relearn all indexed directories if
         necessary. If the embedding model is unchanged, this method does
         nothing."""
@@ -300,7 +304,7 @@ class LearnChatHandler(BaseChatHandler):
             if os.path.isfile(path):
                 os.remove(path)
 
-    async def relearn(self, metadata: IndexMetadata, chat: YChat):
+    async def relearn(self, metadata: IndexMetadata, chat: YChat | None):
         # Index all dirs in the metadata
         if not metadata.dirs:
             return

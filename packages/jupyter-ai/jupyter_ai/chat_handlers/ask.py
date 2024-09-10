@@ -1,12 +1,16 @@
 import argparse
 from typing import Dict, Type
-from jupyterlab_collaborative_chat.ychat import YChat
 
 from jupyter_ai.models import HumanChatMessage
 from jupyter_ai_magics.providers import BaseProvider
 from langchain.chains import ConversationalRetrievalChain
 from langchain.memory import ConversationBufferWindowMemory
 from langchain_core.prompts import PromptTemplate
+
+try:
+    from jupyterlab_collaborative_chat.ychat import YChat
+except:
+    from typing import Any as YChat
 
 from .base import BaseChatHandler, SlashCommandRoutingType
 
@@ -60,7 +64,7 @@ class AskChatHandler(BaseChatHandler):
             verbose=False,
         )
 
-    async def process_message(self, message: HumanChatMessage, chat: YChat):
+    async def process_message(self, message: HumanChatMessage, chat: YChat | None):
         args = self.parse_args(message, chat)
         if args is None:
             return
