@@ -13,6 +13,7 @@ from typing import (
     Optional,
     Type,
     Union,
+    cast,
 )
 from uuid import uuid4
 
@@ -28,6 +29,7 @@ from jupyter_ai.models import (
 )
 from jupyter_ai_magics import Persona
 from jupyter_ai_magics.providers import BaseProvider
+from langchain.chains import LLMChain
 from langchain.pydantic_v1 import BaseModel
 
 if TYPE_CHECKING:
@@ -36,8 +38,8 @@ if TYPE_CHECKING:
     from langchain_core.chat_history import BaseChatMessageHistory
 
 
-def get_preferred_dir(root_dir: str, preferred_dir: str) -> Optional[str]:
-    if preferred_dir != "":
+def get_preferred_dir(root_dir: str, preferred_dir: Optional[str]) -> Optional[str]:
+    if preferred_dir is not None and preferred_dir != "":
         preferred_dir = os.path.expanduser(preferred_dir)
         if not preferred_dir.startswith(root_dir):
             preferred_dir = os.path.join(root_dir, preferred_dir)
@@ -47,7 +49,7 @@ def get_preferred_dir(root_dir: str, preferred_dir: str) -> Optional[str]:
 
 # Chat handler type, with specific attributes for each
 class HandlerRoutingType(BaseModel):
-    routing_method: ClassVar[Union[Literal["slash_command"]]] = ...
+    routing_method: ClassVar[Union[Literal["slash_command"]]]
     """The routing method that sends commands to this handler."""
 
 
@@ -83,17 +85,17 @@ class BaseChatHandler:
     multiple chat handler classes."""
 
     # Class attributes
-    id: ClassVar[str] = ...
+    id: ClassVar[str]
     """ID for this chat handler; should be unique"""
 
-    name: ClassVar[str] = ...
+    name: ClassVar[str]
     """User-facing name of this handler"""
 
-    help: ClassVar[str] = ...
+    help: ClassVar[str]
     """What this chat handler does, which third-party models it contacts,
     the data it returns to the user, and so on, for display in the UI."""
 
-    routing_type: ClassVar[HandlerRoutingType] = ...
+    routing_type: ClassVar[HandlerRoutingType]
 
     uses_llm: ClassVar[bool] = True
     """Class attribute specifying whether this chat handler uses the LLM
@@ -153,9 +155,9 @@ class BaseChatHandler:
         self.help_message_template = help_message_template
         self.chat_handlers = chat_handlers
 
-        self.llm = None
-        self.llm_params = None
-        self.llm_chain = None
+        self.llm: Optional[BaseProvider] = None
+        self.llm_params: Optional[dict] = None
+        self.llm_chain: Optional[LLMChain] = None
 
     async def on_message(self, message: HumanChatMessage):
         """
@@ -168,9 +170,8 @@ class BaseChatHandler:
 
         # ensure the current slash command is supported
         if self.routing_type.routing_method == "slash_command":
-            slash_command = (
-                "/" + self.routing_type.slash_id if self.routing_type.slash_id else ""
-            )
+            routing_type = cast(SlashCommandRoutingType, self.routing_type)
+            slash_command = "/" + routing_type.slash_id if routing_type.slash_id else ""
             if slash_command in lm_provider_klass.unsupported_slash_commands:
                 self.reply(
                     "Sorry, the selected language model does not support this slash command."

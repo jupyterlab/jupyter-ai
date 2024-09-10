@@ -25,7 +25,7 @@ class BoundedChatHistory(BaseChatMessageHistory, BaseModel):
     _all_messages: List[BaseMessage] = PrivateAttr(default_factory=list)
 
     @property
-    def messages(self) -> List[BaseMessage]:
+    def messages(self) -> List[BaseMessage]:  # type:ignore[override]
         if self.k is None:
             return self._all_messages
         return self._all_messages[-self.k * 2 :]
@@ -92,7 +92,7 @@ class WrappedBoundedChatHistory(BaseChatMessageHistory, BaseModel):
     last_human_msg: HumanChatMessage
 
     @property
-    def messages(self) -> List[BaseMessage]:
+    def messages(self) -> List[BaseMessage]:  # type:ignore[override]
         return self.history.messages
 
     def add_message(self, message: BaseMessage) -> None:

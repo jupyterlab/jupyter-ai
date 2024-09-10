@@ -223,7 +223,9 @@ class LearnChatHandler(BaseChatHandler):
         }
         splitter = ExtensionSplitter(
             splitters=splitters,
-            default_splitter=RecursiveCharacterTextSplitter(**splitter_kwargs),
+            default_splitter=RecursiveCharacterTextSplitter(
+                **splitter_kwargs  # type:ignore[arg-type]
+            ),
         )
 
         delayed = split(path, all_files, splitter=splitter)
@@ -352,7 +354,7 @@ class LearnChatHandler(BaseChatHandler):
         self, query: str
     ) -> Coroutine[Any, Any, List[Document]]:
         if not self.index:
-            return []
+            return []  # type:ignore[return-value]
 
         await self.delete_and_relearn()
         docs = self.index.similarity_search(query)
@@ -370,12 +372,14 @@ class LearnChatHandler(BaseChatHandler):
 
 
 class Retriever(BaseRetriever):
-    learn_chat_handler: LearnChatHandler = None
+    learn_chat_handler: LearnChatHandler = None  # type:ignore[assignment]
 
-    def _get_relevant_documents(self, query: str) -> List[Document]:
+    def _get_relevant_documents(  # type:ignore[override]
+        self, query: str
+    ) -> List[Document]:
         raise NotImplementedError()
 
-    async def _aget_relevant_documents(
+    async def _aget_relevant_documents(  # type:ignore[override]
         self, query: str
     ) -> Coroutine[Any, Any, List[Document]]:
         docs = await self.learn_chat_handler.aget_relevant_documents(query)

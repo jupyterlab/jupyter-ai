@@ -43,6 +43,7 @@ class InlineCompletionItem(BaseModel):
 
 class CompletionError(BaseModel):
     type: str
+    title: str
     traceback: str
 
 

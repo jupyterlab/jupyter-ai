@@ -4,7 +4,7 @@ import time
 import uuid
 from asyncio import AbstractEventLoop
 from dataclasses import asdict
-from typing import TYPE_CHECKING, Dict, List, Optional
+from typing import TYPE_CHECKING, Dict, List, Optional, cast
 
 import tornado
 from jupyter_ai.chat_handlers import BaseChatHandler, SlashCommandRoutingType
@@ -42,13 +42,11 @@ if TYPE_CHECKING:
     from jupyter_ai_magics.embedding_providers import BaseEmbeddingsProvider
     from jupyter_ai_magics.providers import BaseProvider
 
-    from .history import BoundChatHistory
+    from .history import BoundedChatHistory
 
 
 class ChatHistoryHandler(BaseAPIHandler):
     """Handler to return message history"""
-
-    _messages = []
 
     @property
     def chat_history(self) -> List[ChatMessage]:
@@ -103,7 +101,7 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
         self.settings["chat_history"] = new_history
 
     @property
-    def llm_chat_memory(self) -> "BoundChatHistory":
+    def llm_chat_memory(self) -> "BoundedChatHistory":
         return self.settings["llm_chat_memory"]
 
     @property
@@ -401,7 +399,7 @@ class ProviderHandler(BaseAPIHandler):
             if self.blocked_models:
                 return model_id not in self.blocked_models
             else:
-                return model_id in self.allowed_models
+                return model_id in cast(List, self.allowed_models)
 
         # filter out every model w/ model ID according to allow/blocklist
         for provider in providers:

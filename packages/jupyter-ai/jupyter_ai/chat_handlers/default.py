@@ -41,10 +41,10 @@ class DefaultChatHandler(BaseChatHandler):
         prompt_template = llm.get_chat_prompt_template()
         self.llm = llm
 
-        runnable = prompt_template | llm
+        runnable = prompt_template | llm  # type:ignore
         if not llm.manages_history:
             runnable = RunnableWithMessageHistory(
-                runnable=runnable,
+                runnable=runnable,  #  type:ignore[arg-type]
                 get_session_history=self.get_llm_chat_memory,
                 input_messages_key="input",
                 history_messages_key="history",
@@ -106,6 +106,7 @@ class DefaultChatHandler(BaseChatHandler):
             # stream response in chunks. this works even if a provider does not
             # implement streaming, as `astream()` defaults to yielding `_call()`
             # when `_stream()` is not implemented on the LLM class.
+            assert self.llm_chain
             async for chunk in self.llm_chain.astream(
                 {"input": message.body},
                 config={"configurable": {"last_human_msg": message}},
@@ -117,7 +118,7 @@ class DefaultChatHandler(BaseChatHandler):
                     stream_id = self._start_stream(human_msg=message)
                     received_first_chunk = True
 
-                if isinstance(chunk, AIMessageChunk):
+                if isinstance(chunk, AIMessageChunk) and isinstance(chunk.content, str):
                     self._send_stream_chunk(stream_id, chunk.content)
                 elif isinstance(chunk, str):
                     self._send_stream_chunk(stream_id, chunk)
