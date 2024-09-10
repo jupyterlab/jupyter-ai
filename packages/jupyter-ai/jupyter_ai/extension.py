@@ -188,7 +188,13 @@ class AiExtension(ExtensionApp):
         default_value=2,
         help="""
         Number of chat interactions to keep in the conversational memory object.
+
+        An interaction is defined as an exchange between a human and AI, thus
+        comprising of one or two messages.
+
+        Set to `None` to keep all interactions.
         """,
+        allow_none=True,
         config=True,
     )
 
