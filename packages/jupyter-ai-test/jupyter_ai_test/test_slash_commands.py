@@ -1,6 +1,9 @@
 from jupyter_ai.chat_handlers.base import BaseChatHandler, SlashCommandRoutingType
 from jupyter_ai.models import HumanChatMessage
-
+try:
+    from jupyterlab_collaborative_chat.ychat import YChat
+except:
+    from typing import Any as YChat
 
 class TestSlashCommand(BaseChatHandler):
     """
@@ -25,5 +28,5 @@ class TestSlashCommand(BaseChatHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    async def process_message(self, message: HumanChatMessage):
-        self.reply("This is the `/test` slash command.")
+    async def process_message(self, message: HumanChatMessage, chat: YChat):
+        self.reply("This is the `/test` slash command.", chat)

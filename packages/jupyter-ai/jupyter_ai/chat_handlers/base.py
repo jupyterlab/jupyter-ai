@@ -216,7 +216,7 @@ class BaseChatHandler:
                 # raises an exception by accident.
                 await self.handle_exc(e, message, chat)
             except Exception as e:
-                await self._default_handle_exc(e, message)
+                await self._default_handle_exc(e, message, chat)
         finally:
             BaseChatHandler._requests_count -= 1
 

@@ -1,3 +1,4 @@
+import { IAutocompletionRegistry } from '@jupyter/chat';
 import {
   JupyterFrontEnd,
   JupyterFrontEndPlugin,
@@ -21,6 +22,7 @@ import { statusItemPlugin } from './status';
 import { IJaiCompletionProvider, IJaiCore, IJaiMessageFooter } from './tokens';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { ActiveCellManager } from './contexts/active-cell-context';
+import { autocompletion } from './slash-autocompletion';
 import { Signal } from '@lumino/signaling';
 import { menuPlugin } from './plugins/menu-plugin';
 
@@ -126,4 +128,25 @@ const plugin: JupyterFrontEndPlugin<IJaiCore> = {
   }
 };
 
-export default [plugin, statusItemPlugin, completionPlugin, menuPlugin];
+/**
+ * Add slash commands to collaborative chat.
+ */
+const collaborative_autocompletion: JupyterFrontEndPlugin<void> = {
+  id: '@jupyter-ai/core:autocompletion',
+  autoStart: true,
+  requires: [IAutocompletionRegistry],
+  activate: async (
+    app: JupyterFrontEnd,
+    autocompletionRegistry: IAutocompletionRegistry
+  ) => {
+    autocompletionRegistry.add('ai', autocompletion);
+  }
+};
+
+export default [
+  plugin,
+  statusItemPlugin,
+  completionPlugin,
+  menuPlugin,
+  collaborative_autocompletion
+];
