@@ -600,9 +600,15 @@ contents of the failing cell.
     class="screenshot" style="max-width:65%" />
 
 
+### Using custom tools in chat
+
+In order to use your own custom tools in chat, create a tools file named `mytools.py` in the default directory. Then use the `/tools` command with your query. For details on how to build your custom tools file and usage of the `/tools` command, refer to [Using your custom tools library in the chat interface](tools.md).
+
+
 ### Additional chat commands
 
 To start a new conversation, use the `/clear` command. This will clear the chat panel and reset the model's memory.
+
 
 ## The `%ai` and `%%ai` magic commands
 

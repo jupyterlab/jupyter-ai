@@ -7,3 +7,4 @@ from .fix import FixChatHandler
 from .generate import GenerateChatHandler
 from .help import HelpChatHandler
 from .learn import LearnChatHandler
+from .tools import ToolsChatHandler

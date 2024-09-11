@@ -21,6 +21,7 @@ from .chat_handlers import (
     GenerateChatHandler,
     HelpChatHandler,
     LearnChatHandler,
+    ToolsChatHandler,
 )
 from .completions.handlers import DefaultInlineCompletionHandler
 from .config_manager import ConfigManager
@@ -315,6 +316,7 @@ class AiExtension(ExtensionApp):
         export_chat_handler = ExportChatHandler(**chat_handler_kwargs)
 
         fix_chat_handler = FixChatHandler(**chat_handler_kwargs)
+        tools_chat_handler = ToolsChatHandler(**chat_handler_kwargs)
 
         chat_handlers["default"] = default_chat_handler
         chat_handlers["/ask"] = ask_chat_handler
@@ -323,6 +325,7 @@ class AiExtension(ExtensionApp):
         chat_handlers["/learn"] = learn_chat_handler
         chat_handlers["/export"] = export_chat_handler
         chat_handlers["/fix"] = fix_chat_handler
+        chat_handlers["/tools"] = tools_chat_handler
 
         slash_command_pattern = r"^[a-zA-Z0-9_]+$"
         for chat_handler_ep in chat_handler_eps:
