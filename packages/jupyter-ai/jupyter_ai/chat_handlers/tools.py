@@ -1,17 +1,3 @@
-##### TO DO #####
-# - icon for /tools
-# - Where to put the mytools.py file?
-# - Pass tools file location on startup, or in chat, or keep one file, or handle multiple tool files.
-# - Handling the different providers (Chat*) and models (model_id)
-# - To integrate with chat history and memory or not?
-# - How to suppress the problem with % sign messing up output?
-# - Show full exchange or only the answer?
-# - Error handling 
-# - Documentation
-# - What's the best way to add this to magics?
-# - Long term: Using the more advanced features of LangGraph, Agents, Multi-agentic workflows, etc. 
-
-
 import argparse
 from typing import Dict, Type
 
