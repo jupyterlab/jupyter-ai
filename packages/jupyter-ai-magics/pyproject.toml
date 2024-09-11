@@ -48,6 +48,7 @@ all = [
     "langchain_mistralai",
     "langchain_nvidia_ai_endpoints",
     "langchain_openai",
+    "langchain_ollama",
     "pillow",
     "boto3",
     "qianfan",
