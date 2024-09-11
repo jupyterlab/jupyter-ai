@@ -54,7 +54,6 @@ class ToolsChatHandler(BaseChatHandler):
 
     uses_llm = True
 
-    # def __init__(self, retriever, *args, **kwargs):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
