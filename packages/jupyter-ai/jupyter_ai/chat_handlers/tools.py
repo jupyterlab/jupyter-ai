@@ -1,35 +1,31 @@
 import argparse
-from typing import Dict, Type
-
-from jupyter_ai.models import HumanChatMessage
-from jupyter_ai_magics.providers import BaseProvider
-from langchain.chains import ConversationalRetrievalChain
-from langchain.memory import ConversationBufferWindowMemory
-from langchain_core.prompts import PromptTemplate
-from langchain.chains import LLMChain
-
-from .base import BaseChatHandler, SlashCommandRoutingType
+import math
 
 # LangGraph imports for using tools
 import os
 import re
-import numpy as np
-import math
-from typing import Literal
+from typing import Dict, Literal, Type
 
-from langchain_core.messages import AIMessage
-from langchain_core.tools import tool
-from langgraph.prebuilt import ToolNode
-from langgraph.graph import StateGraph, MessagesState
+import numpy as np
+from jupyter_ai.models import HumanChatMessage
+from jupyter_ai_magics.providers import BaseProvider
+from langchain.chains import ConversationalRetrievalChain, LLMChain
+from langchain.memory import ConversationBufferWindowMemory
+from langchain_anthropic import ChatAnthropic
 
 # Chat Providers (add more as needed)
 from langchain_aws import ChatBedrock
-from langchain_ollama import ChatOllama
-from langchain_anthropic import ChatAnthropic
-from langchain_openai import ChatOpenAI, AzureChatOpenAI
 from langchain_cohere import ChatCohere
+from langchain_core.messages import AIMessage
+from langchain_core.prompts import PromptTemplate
+from langchain_core.tools import tool
 from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_ollama import ChatOllama
+from langchain_openai import AzureChatOpenAI, ChatOpenAI
+from langgraph.graph import MessagesState, StateGraph
+from langgraph.prebuilt import ToolNode
 
+from .base import BaseChatHandler, SlashCommandRoutingType
 
 PROMPT_TEMPLATE = """Given the following conversation and a follow up question, rephrase the follow up question to be a standalone question.
 
@@ -37,18 +33,18 @@ Chat History:
 {chat_history}
 Follow Up Input: {question}
 Standalone question:
-Format the answer to be as pretty as possible. 
+Format the answer to be as pretty as possible.
 """
 CONDENSE_PROMPT = PromptTemplate.from_template(PROMPT_TEMPLATE)
 
 
 class ToolsChatHandler(BaseChatHandler):
     """Processes messages prefixed with /tools. This actor will
-    bind a <tool_name>.py collection of tools to the LLM and  
+    bind a <tool_name>.py collection of tools to the LLM and
     build a computational graph to direct queries to tools
-    that apply to the prompt. If there is no appropriate tool, 
+    that apply to the prompt. If there is no appropriate tool,
     the LLM will default to a standard chat response from the LLM
-    without using tools. 
+    without using tools.
     """
 
     id = "tools"
@@ -65,12 +61,13 @@ class ToolsChatHandler(BaseChatHandler):
         # self._retriever = retriever
         self.parser.prog = "/tools"
         self.parser.add_argument("query", nargs=argparse.REMAINDER)
-        self.tools_file_path = os.path.join(self.output_dir, 'mytools.py') # Maybe pass as parameter?
-        self.chat_provider = "" # Default, updated with function `setChatProvider`
-
+        self.tools_file_path = os.path.join(
+            self.output_dir, "mytools.py"
+        )  # Maybe pass as parameter?
+        self.chat_provider = ""  # Default, updated with function `setChatProvider`
 
     # https://python.langchain.com/v0.2/docs/integrations/platforms/
-    def setChatProvider(self, provider): # For selecting the model to bind tools with
+    def setChatProvider(self, provider):  # For selecting the model to bind tools with
         try:
             if "bedrock" in provider.name.lower():
                 chat_provider = "ChatBedrock"
@@ -92,7 +89,6 @@ class ToolsChatHandler(BaseChatHandler):
             response = """The related chat provider is not supported."""
             self.reply(response)
 
-
     def create_llm_chain(
         self, provider: Type[BaseProvider], provider_params: Dict[str, str]
     ):
@@ -106,15 +102,13 @@ class ToolsChatHandler(BaseChatHandler):
         memory = ConversationBufferWindowMemory(
             memory_key="chat_history", return_messages=True, k=2
         )
-        self.llm_chain = LLMChain(llm=self.llm, 
-                                  prompt=CONDENSE_PROMPT, 
-                                  memory=memory,
-                                  verbose=False)
-
+        self.llm_chain = LLMChain(
+            llm=self.llm, prompt=CONDENSE_PROMPT, memory=memory, verbose=False
+        )
 
     # #### TOOLS FOR USE WITH LANGGRAPH #####
     """
-    Bind tools to LLM and provide chat functionality. 
+    Bind tools to LLM and provide chat functionality.
     Call:
         /tools <query>
     """
@@ -134,22 +128,23 @@ class ToolsChatHandler(BaseChatHandler):
         Returns:
             list: A list of function names.
         """
-        with open(tools_file_path, 'r') as file:
+        with open(tools_file_path) as file:
             content = file.read()
             # Use a regular expression to find the function names
-            tool_pattern = r'@tool\n\s*def\s+(\w+)'
+            tool_pattern = r"@tool\n\s*def\s+(\w+)"
             tools = re.findall(tool_pattern, content)
         return tools
 
     def toolChat(self, query):
         print("TOOL CHAT", query)
-        for chunk in self.app.stream({"messages": [("human", query)]}, stream_mode="values"):
+        for chunk in self.app.stream(
+            {"messages": [("human", query)]}, stream_mode="values"
+        ):
             response = chunk["messages"][-1].pretty_print()
         return response
 
-    
     ##### MAIN FUNCTION #####
-    def useLLMwithTools(self, chat_provider, model_name, tools_file_path, query): 
+    def useLLMwithTools(self, chat_provider, model_name, tools_file_path, query):
 
         def call_tool(state: MessagesState):
             messages = state["messages"]
@@ -160,18 +155,21 @@ class ToolsChatHandler(BaseChatHandler):
         file_path = tools_file_path
         with open(file_path) as file:
             exec(file.read())
-        
+
         # Get tool names and create node with tools
         tools = ToolsChatHandler.get_tool_names(file_path)
         tools = [eval(j) for j in tools]
         tool_node = ToolNode(tools)
-        
+
         # Bind tools to LLM
-        if chat_provider=="ChatBedrock":
-            self.model_with_tools = eval(chat_provider)(model_id=model_name, 
-                                                model_kwargs={"temperature": 0}).bind_tools(tools)    
+        if chat_provider == "ChatBedrock":
+            self.model_with_tools = eval(chat_provider)(
+                model_id=model_name, model_kwargs={"temperature": 0}
+            ).bind_tools(tools)
         else:
-            self.model_with_tools = eval(chat_provider)(model=model_name, temperature=0).bind_tools(tools)
+            self.model_with_tools = eval(chat_provider)(
+                model=model_name, temperature=0
+            ).bind_tools(tools)
 
         # Initialize graph
         agentic_workflow = StateGraph(MessagesState)
@@ -180,16 +178,17 @@ class ToolsChatHandler(BaseChatHandler):
         agentic_workflow.add_node("tools", tool_node)
         # Add edges to the graph
         agentic_workflow.add_edge("__start__", "agent")
-        agentic_workflow.add_conditional_edges("agent", ToolsChatHandler.conditional_continue)
+        agentic_workflow.add_conditional_edges(
+            "agent", ToolsChatHandler.conditional_continue
+        )
         agentic_workflow.add_edge("tools", "agent")
         # Compile graph
         app = agentic_workflow.compile()
-        
+
         # Run query
         # res = ToolsChatHandler.toolChat(self, query)
         res = app.invoke({"messages": query})
         return res["messages"][-1].content
-
 
     async def process_message(self, message: HumanChatMessage):
         args = self.parse_args(message)
@@ -201,22 +200,20 @@ class ToolsChatHandler(BaseChatHandler):
             return
 
         self.get_llm_chain()
-                
+
         try:
             with self.pending("Using LLM with tools ..."):
                 # result = await self.llm_chain.acall({"question": query})
-                response = self.useLLMwithTools(self.chat_provider, 
-                                                self.llm.model_id, 
-                                                self.tools_file_path, 
-                                                query)
+                response = self.useLLMwithTools(
+                    self.chat_provider, self.llm.model_id, self.tools_file_path, query
+                )
                 self.reply(response, message)
         except Exception as e:
             self.log.error(e)
-            response = """Sorry, tool usage failed. 
-            Either (i) this LLM does not accept tools, (ii) there an error in 
-            the custom tools file, (iii) you may also want to check the 
-            location of the tools file, or (iv) you may need to install the 
-            `langchain_<provider_name>` package. (v) Finally, check that you have 
+            response = """Sorry, tool usage failed.
+            Either (i) this LLM does not accept tools, (ii) there an error in
+            the custom tools file, (iii) you may also want to check the
+            location of the tools file, or (iv) you may need to install the
+            `langchain_<provider_name>` package. (v) Finally, check that you have
             authorized access to the LLM."""
             self.reply(response, message)
-
