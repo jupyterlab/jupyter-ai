@@ -45,8 +45,8 @@ if TYPE_CHECKING:
     from jupyter_ai_magics.embedding_providers import BaseEmbeddingsProvider
     from jupyter_ai_magics.providers import BaseProvider
 
-    from .context_providers import BaseContextProvider
     from .history import BoundedChatHistory
+    from .context_providers import BaseContextProvider
 
 
 class ChatHistoryHandler(BaseAPIHandler):
