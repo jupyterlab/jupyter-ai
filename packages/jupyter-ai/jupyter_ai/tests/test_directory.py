@@ -63,3 +63,12 @@ def test_collect_filepaths(staging_dir):
     assert len(results) == 2
     condition = lambda p: p.suffix in [".py", ".ipynb"]
     assert all(map(condition, results))
+
+    # test unix wildcard pattern returning only directories
+    pattern_path = f"{str(staging_dir_filepath)}*/"
+    results = collect_filepaths(pattern_path, all_files)
+    assert len(result) == 4
+    filenames = [fp.name for fp in result]
+
+    assert "file0.html" in filenames  # Check that valid file is included
+    assert "file3.xyz" not in filenames  # Check that invalid file is excluded
