@@ -105,7 +105,7 @@ class DefaultChatHandler(BaseChatHandler):
         self.get_llm_chain()
         received_first_chunk = False
 
-        inputs = {"input": self.replace_prompt(message.body)}
+        inputs = {"input": message.body}
         if "context" in self.prompt_template.input_variables:
             # include context from context providers.
             try:
@@ -114,6 +114,7 @@ class DefaultChatHandler(BaseChatHandler):
                 self.reply(str(e), message)
                 return
             inputs["context"] = context_prompt
+            inputs["input"] = self.replace_prompt(inputs["input"])
 
         # start with a pending message
         with self.pending("Generating response", message) as pending_message:
