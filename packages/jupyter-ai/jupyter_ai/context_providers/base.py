@@ -173,6 +173,10 @@ class BaseCommandContextProvider(BaseContextProvider):
 
 
 def _is_within_backticks(match, text):
+    # potentially buggy if there is a stray backtick in text
+    # e.g. "help me count the backticks '`' in @file:file.txt".
+    # better addressed by having a better instance detection mechanism
+    # such as placing commands with special tags.
     start, _ = match.span()
     before = text[:start]
     return before.count("`") % 2 == 1
