@@ -121,16 +121,20 @@ def collect_filepaths(path, all_files: bool):
     if os.path.isfile(path):
         filepaths = [Path(path)]
     else:
-        filepaths = []
-        for dir, subdirs, filenames in os.walk(path):
-            # Filter out hidden filenames, hidden directories, and excluded directories,
-            # unless "all files" are requested
-            if not all_files:
-                subdirs[:] = [
-                    d for d in subdirs if not (d[0] == "." or d in EXCLUDE_DIRS)
-                ]
-                filenames = [f for f in filenames if not f[0] == "."]
-            filepaths.extend([Path(dir) / filename for filename in filenames])
+        filepaths = set()
+        for glob_path in iglob(str(path), include_hidden=all_files, recursive=True):
+            if os.path.isfile(glob_path):
+                filepaths.add(Path(glob_path))
+                continue
+            for dir, subdirs, filenames in os.walk(glob_path):
+                # Filter out hidden filenames, hidden directories, and excluded directories,
+                # unless "all files" are requested
+                if not all_files:
+                    subdirs[:] = [
+                        d for d in subdirs if not (d[0] == "." or d in EXCLUDE_DIRS)
+                    ]
+                    filenames = [f for f in filenames if not f[0] == "."]
+                filepaths.update([Path(dir) / filename for filename in filenames])
     valid_exts = {j.lower() for j in SUPPORTED_EXTS}
     filepaths = [fp for fp in filepaths if fp.suffix.lower() in valid_exts]
     return filepaths
@@ -139,9 +143,7 @@ def collect_filepaths(path, all_files: bool):
 def split(path, all_files: bool, splitter):
     """Splits files into chunks for vector db in RAG"""
     chunks = []
-    filepaths = set()
-    for glob_path in iglob(path, include_hidden=all_files, recursive=True):
-        filepaths.update(collect_filepaths(glob_path, all_files))
+    filepaths = collect_filepaths(path, all_files)
     for filepath in filepaths:
         document = dask.delayed(path_to_doc)(filepath)
         chunk = dask.delayed(split_document)(document, splitter)

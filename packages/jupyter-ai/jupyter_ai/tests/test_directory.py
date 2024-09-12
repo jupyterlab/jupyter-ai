@@ -54,3 +54,10 @@ def test_collect_filepaths(staging_dir):
     filenames = [fp.name for fp in result]
     assert "file0.html" in filenames  # Check that valid file is included
     assert "file3.xyz" not in filenames  # Check that invalid file is excluded
+
+    # test unix wildcard pattern
+    pattern_path = os.path.join(staging_dir_filepath, "**/*.py")
+    print(pattern_path)
+    results = collect_filepaths(pattern_path, all_files)
+    assert len(results) == 1
+    assert results[0].suffix == ".py"
