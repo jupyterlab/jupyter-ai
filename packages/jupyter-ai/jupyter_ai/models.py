@@ -263,3 +263,37 @@ class ListSlashCommandsEntry(BaseModel):
 
 class ListSlashCommandsResponse(BaseModel):
     slash_commands: List[ListSlashCommandsEntry] = []
+
+
+class ListOptionsEntry(BaseModel):
+    type: Literal["/", "@"]
+    id: str
+    label: str
+    description: str
+
+    @classmethod
+    def from_command(
+        cls,
+        type: Literal["/", "@"],
+        id: str,
+        description: str,
+        requires_arg: bool = False,
+    ):
+        label = type + id + (":" if requires_arg else " ")
+        return cls(type=type, id=id, description=description, label=label)
+
+    @classmethod
+    def from_arg(
+        cls,
+        type: Literal["/", "@"],
+        id: str,
+        description: str,
+        arg: str,
+        is_complete: bool = True,
+    ):
+        label = type + id + ":" + arg + (" " if is_complete else "")
+        return cls(type=type, id=id, description=description, label=label)
+
+
+class ListOptionsResponse(BaseModel):
+    options: List[ListOptionsEntry] = []

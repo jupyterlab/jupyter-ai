@@ -1,3 +1,4 @@
+import asyncio
 import time
 from typing import Dict, Type
 from uuid import uuid4
@@ -13,6 +14,7 @@ from langchain_core.runnables import ConfigurableFieldSpec
 from langchain_core.runnables.history import RunnableWithMessageHistory
 
 from ..models import HumanChatMessage
+from ..context_providers import ContextProviderException
 from .base import BaseChatHandler, SlashCommandRoutingType
 
 
@@ -27,6 +29,7 @@ class DefaultChatHandler(BaseChatHandler):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.prompt_template = None
 
     def create_llm_chain(
         self, provider: Type[BaseProvider], provider_params: Dict[str, str]
@@ -40,6 +43,7 @@ class DefaultChatHandler(BaseChatHandler):
 
         prompt_template = llm.get_chat_prompt_template()
         self.llm = llm
+        self.prompt_template = prompt_template
 
         runnable = prompt_template | llm  # type:ignore
         if not llm.manages_history:
@@ -101,6 +105,16 @@ class DefaultChatHandler(BaseChatHandler):
         self.get_llm_chain()
         received_first_chunk = False
 
+        inputs = {"input": message.body}
+        if "context" in self.prompt_template.input_variables:
+            # include context from context providers.
+            try:
+                context_prompt = await self.make_context_prompt(message)
+            except ContextProviderException as e:
+                self.reply(str(e), message)
+                return
+            inputs["context"] = context_prompt
+
         # start with a pending message
         with self.pending("Generating response", message) as pending_message:
             # stream response in chunks. this works even if a provider does not
@@ -108,7 +122,7 @@ class DefaultChatHandler(BaseChatHandler):
             # when `_stream()` is not implemented on the LLM class.
             assert self.llm_chain
             async for chunk in self.llm_chain.astream(
-                {"input": message.body},
+                inputs,
                 config={"configurable": {"last_human_msg": message}},
             ):
                 if not received_first_chunk:
@@ -128,3 +142,13 @@ class DefaultChatHandler(BaseChatHandler):
 
             # complete stream after all chunks have been streamed
             self._send_stream_chunk(stream_id, "", complete=True)
+
+    async def make_context_prompt(self, human_msg: HumanChatMessage) -> str:
+        return "\n\n".join(
+            await asyncio.gather(
+                *[
+                    provider.make_context_prompt(human_msg)
+                    for provider in self.context_providers.values()
+                ]
+            )
+        )

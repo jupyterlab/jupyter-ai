@@ -315,4 +315,38 @@ export namespace AiService {
   export async function listSlashCommands(): Promise<ListSlashCommandsResponse> {
     return requestAPI<ListSlashCommandsResponse>('chats/slash_commands');
   }
+
+  export type AutocompleteOption = {
+    type: '/' | '@';
+    id: string;
+    description: string;
+    label: string;
+  };
+
+  export type ListAutocompleteOptionsResponse = {
+    options: AutocompleteOption[];
+  };
+
+  export type AutocompleteArgOptionsRequest = {
+    id: string;
+    arg_prefix: string;
+  };
+
+  export async function listAutocompleteOptions(): Promise<ListAutocompleteOptionsResponse> {
+    return requestAPI<ListAutocompleteOptionsResponse>(
+      'chats/autocomplete_options'
+    );
+  }
+
+  export async function listAutocompleteArgOptions(
+    request: AutocompleteArgOptionsRequest
+  ): Promise<ListAutocompleteOptionsResponse> {
+    return requestAPI<ListAutocompleteOptionsResponse>(
+      'chats/autocomplete_options',
+      {
+        method: 'POST',
+        body: JSON.stringify(request)
+      }
+    );
+  }
 }

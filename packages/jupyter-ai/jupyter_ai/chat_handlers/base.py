@@ -35,6 +35,7 @@ from langchain.pydantic_v1 import BaseModel
 if TYPE_CHECKING:
     from jupyter_ai.handlers import RootChatHandler
     from jupyter_ai.history import BoundedChatHistory
+    from jupyter_ai.context_providers import BaseContextProvider
     from langchain_core.chat_history import BaseChatMessageHistory
 
 
@@ -121,6 +122,10 @@ class BaseChatHandler:
     chat handlers, which is necessary for some use-cases like printing the help
     message."""
 
+    context_providers: Dict[str, Type["BaseContextProvider"]]
+    """Dictionary of context providers. Allows chat handlers to reference
+    context providers, which can be used to provide context to the LLM."""
+
     def __init__(
         self,
         log: Logger,
@@ -134,6 +139,7 @@ class BaseChatHandler:
         dask_client_future: Awaitable[DaskClient],
         help_message_template: str,
         chat_handlers: Dict[str, "BaseChatHandler"],
+        context_providers: Dict[str, Type["BaseContextProvider"]],
     ):
         self.log = log
         self.config_manager = config_manager
@@ -154,6 +160,7 @@ class BaseChatHandler:
         self.dask_client_future = dask_client_future
         self.help_message_template = help_message_template
         self.chat_handlers = chat_handlers
+        self.context_providers = context_providers
 
         self.llm: Optional[BaseProvider] = None
         self.llm_params: Optional[dict] = None

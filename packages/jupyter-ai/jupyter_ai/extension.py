@@ -22,6 +22,7 @@ from .chat_handlers import (
     HelpChatHandler,
     LearnChatHandler,
 )
+from .context_providers import FileContextProvider, LearnedContextProvider
 from .completions.handlers import DefaultInlineCompletionHandler
 from .config_manager import ConfigManager
 from .handlers import (
@@ -32,6 +33,7 @@ from .handlers import (
     ModelProviderHandler,
     RootChatHandler,
     SlashCommandsInfoHandler,
+    AutocompleteOptionsHandler,
 )
 from .history import BoundedChatHistory
 
@@ -58,6 +60,7 @@ class AiExtension(ExtensionApp):
         (r"api/ai/chats/?", RootChatHandler),
         (r"api/ai/chats/history?", ChatHistoryHandler),
         (r"api/ai/chats/slash_commands?", SlashCommandsInfoHandler),
+        (r"api/ai/chats/autocomplete_options?", AutocompleteOptionsHandler),
         (r"api/ai/providers?", ModelProviderHandler),
         (r"api/ai/providers/embeddings?", EmbeddingsModelProviderHandler),
         (r"api/ai/completion/inline/?", DefaultInlineCompletionHandler),
@@ -285,6 +288,10 @@ class AiExtension(ExtensionApp):
 
         eps = entry_points()
 
+        # Create empty context providers dict to be filled later.
+        # This is created early to use as kwargs for chat handlers.
+        self.settings["jai_context_providers"] = {}
+
         # initialize chat handlers
         chat_handler_eps = eps.select(group="jupyter_ai.chat_handlers")
         chat_handlers = {}
@@ -301,6 +308,7 @@ class AiExtension(ExtensionApp):
             "preferred_dir": self.serverapp.contents_manager.preferred_dir,
             "help_message_template": self.help_message_template,
             "chat_handlers": chat_handlers,
+            "context_providers": self.settings["jai_context_providers"],
         }
         default_chat_handler = DefaultChatHandler(**chat_handler_kwargs)
         clear_chat_handler = ClearChatHandler(**chat_handler_kwargs)
@@ -375,6 +383,58 @@ class AiExtension(ExtensionApp):
 
         # bind chat handlers to settings
         self.settings["jai_chat_handlers"] = chat_handlers
+
+        # initialize context providers
+        context_providers = self.settings["jai_context_providers"]
+        context_providers_kwargs = {
+            "log": self.log,
+            "config_manager": self.settings["jai_config_manager"],
+            "model_parameters": self.settings["model_parameters"],
+            "chat_history": self.settings["chat_history"],
+            "llm_chat_memory": self.settings["llm_chat_memory"],
+            "root_dir": self.serverapp.root_dir,
+            "dask_client_future": self.settings["dask_client_future"],
+            "model_parameters": self.settings["model_parameters"],
+            "preferred_dir": self.serverapp.contents_manager.preferred_dir,
+            "chat_handlers": self.settings["jai_chat_handlers"],
+            "context_providers": self.settings["jai_context_providers"],
+        }
+        context_providers_clses = [
+            FileContextProvider,
+            LearnedContextProvider,
+        ]
+        context_providers_eps = eps.select(group="jupyter_ai.context_providers")
+        for context_provider_ep in context_providers_eps:
+            try:
+                context_provider = context_provider_ep.load()
+            except Exception as err:
+                self.log.error(
+                    f"Unable to load context provider class from entry point `{context_provider_ep.name}`: "
+                    + f"Unexpected {err=}, {type(err)=}"
+                )
+                continue
+            context_providers_clses.append(context_provider)
+
+        for context_provider in context_providers_clses:
+            if context_provider.id in context_providers:
+                self.log.error(
+                    f"Unable to register context provider `{context_provider.id}` because it already exists"
+                )
+                continue
+
+            if context_provider.is_command and not re.match(
+                r"^[a-zA-Z0-9_]+$", context_provider.id
+            ):
+                self.log.error(
+                    f"Context provider `{context_provider.id}` is an invalid ID; "
+                    + f"must contain only letters, numbers, and underscores"
+                )
+                continue
+
+            context_providers[context_provider.id] = context_provider(
+                **context_providers_kwargs
+            )
+            self.log.info(f"Registered context provider `{context_provider.id}`.")
 
         # show help message at server start
         self._show_help_message()

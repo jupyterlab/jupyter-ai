@@ -33,6 +33,8 @@ from .models import (
     ListProvidersResponse,
     ListSlashCommandsEntry,
     ListSlashCommandsResponse,
+    ListOptionsEntry,
+    ListOptionsResponse,
     Message,
     PendingMessage,
     UpdateConfigRequest,
@@ -43,6 +45,7 @@ if TYPE_CHECKING:
     from jupyter_ai_magics.providers import BaseProvider
 
     from .history import BoundedChatHistory
+    from .context_providers import BaseContextProvider
 
 
 class ChatHistoryHandler(BaseAPIHandler):
@@ -571,3 +574,101 @@ class SlashCommandsInfoHandler(BaseAPIHandler):
         # sort slash commands by slash id and deliver the response
         response.slash_commands.sort(key=lambda sc: sc.slash_id)
         self.finish(response.json())
+
+
+class AutocompleteOptionsHandler(BaseAPIHandler):
+    """List context that are currently available to the user."""
+
+    @property
+    def config_manager(self) -> ConfigManager:
+        return self.settings["jai_config_manager"]
+
+    @property
+    def context_providers(self) -> Dict[str, "BaseContextProvider"]:
+        return self.settings["jai_context_providers"]
+
+    @property
+    def chat_handlers(self) -> Dict[str, "BaseChatHandler"]:
+        return self.settings["jai_chat_handlers"]
+
+    @web.authenticated
+    def get(self):
+        response = ListOptionsResponse()
+
+        # if no selected LLM, return an empty response
+        if not self.config_manager.lm_provider:
+            self.finish(response.json())
+            return
+
+        response.options = (
+            self._get_slash_command_options() + self._get_context_provider_options()
+        )
+        self.finish(response.json())
+
+    @web.authenticated
+    def post(self):
+        try:
+            data = self.get_json_body()
+            context_provider = self.context_providers.get(data["id"])
+            arg_prefix = data["arg_prefix"]
+            response = ListOptionsResponse()
+
+            if not context_provider:
+                self.finish(response.json())
+                return
+
+            response.options = context_provider.get_arg_options(arg_prefix)
+            self.finish(response.json())
+        except (ValidationError, WriteConflictError, KeyEmptyError) as e:
+            self.log.exception(e)
+            raise HTTPError(500, str(e)) from e
+        except ValueError as e:
+            self.log.exception(e)
+            raise HTTPError(500, str(e.cause) if hasattr(e, "cause") else str(e))
+        except Exception as e:
+            self.log.exception(e)
+            raise HTTPError(
+                500, "Unexpected error occurred while updating the context provider."
+            ) from e
+
+    def _get_slash_command_options(self) -> List[ListOptionsEntry]:
+        options = []
+        for id, chat_handler in self.chat_handlers.items():
+            # filter out any chat handler that is not a slash command
+            if (
+                id == "default"
+                or chat_handler.routing_type.routing_method != "slash_command"
+            ):
+                continue
+
+            # hint the type of this attribute
+            routing_type: SlashCommandRoutingType = chat_handler.routing_type
+
+            # filter out any chat handler that is unsupported by the current LLM
+            if (
+                "/" + routing_type.slash_id
+                in self.config_manager.lm_provider.unsupported_slash_commands
+            ):
+                continue
+
+            options.append(
+                ListOptionsEntry.from_command(
+                    type="/", id=routing_type.slash_id, description=chat_handler.help
+                )
+            )
+        options.sort(key=lambda opt: opt.id)
+        return options
+
+    def _get_context_provider_options(self) -> List[ListOptionsEntry]:
+        options = [
+            ListOptionsEntry.from_command(
+                type="@",
+                id=context_provider.id,
+                description=context_provider.description,
+                requires_arg=context_provider.requires_arg,
+            )
+            for context_provider in self.context_providers.values()
+            if context_provider.is_command
+        ]
+        options.sort(key=lambda opt: opt.id)
+        return options
