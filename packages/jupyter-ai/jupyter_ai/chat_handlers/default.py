@@ -15,7 +15,6 @@ from langchain_core.runnables.history import RunnableWithMessageHistory
 
 from ..context_providers import ContextProviderException
 from ..models import HumanChatMessage
-from ..context_providers import ContextProviderException
 from .base import BaseChatHandler, SlashCommandRoutingType
 
 
