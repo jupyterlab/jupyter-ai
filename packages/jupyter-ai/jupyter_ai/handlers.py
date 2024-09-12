@@ -581,7 +581,7 @@ class AutocompleteOptionsHandler(BaseAPIHandler):
     """List context that are currently available to the user."""
 
     @property
-    def config_manager(self) -> ConfigManager:
+    def config_manager(self) -> ConfigManager:  # type:ignore[override]
         return self.settings["jai_config_manager"]
 
     @property
@@ -638,16 +638,16 @@ class AutocompleteOptionsHandler(BaseAPIHandler):
             # filter out any chat handler that is not a slash command
             if (
                 id == "default"
-                or chat_handler.routing_type.routing_method != "slash_command"
+                or not isinstance(chat_handler.routing_type, SlashCommandRoutingType)
             ):
                 continue
 
-            # hint the type of this attribute
-            routing_type: SlashCommandRoutingType = chat_handler.routing_type
+            routing_type = chat_handler.routing_type
 
             # filter out any chat handler that is unsupported by the current LLM
             if (
-                "/" + routing_type.slash_id
+                not routing_type.slash_id
+                or "/" + routing_type.slash_id
                 in self.config_manager.lm_provider.unsupported_slash_commands
             ):
                 continue

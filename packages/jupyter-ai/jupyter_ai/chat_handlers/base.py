@@ -122,7 +122,7 @@ class BaseChatHandler:
     chat handlers, which is necessary for some use-cases like printing the help
     message."""
 
-    context_providers: Dict[str, Type["BaseContextProvider"]]
+    context_providers: Dict[str, "BaseContextProvider"]
     """Dictionary of context providers. Allows chat handlers to reference
     context providers, which can be used to provide context to the LLM."""
 
@@ -139,7 +139,7 @@ class BaseChatHandler:
         dask_client_future: Awaitable[DaskClient],
         help_message_template: str,
         chat_handlers: Dict[str, "BaseChatHandler"],
-        context_providers: Dict[str, Type["BaseContextProvider"]],
+        context_providers: Dict[str, "BaseContextProvider"],
     ):
         self.log = log
         self.config_manager = config_manager
