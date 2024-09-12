@@ -52,7 +52,7 @@ For more information, see the [documentation](https://jupyter-ai.readthedocs.io)
 
 class AiExtension(ExtensionApp):
     name = "jupyter_ai"
-    handlers = [
+    handlers = [  # type:ignore[assignment]
         (r"api/ai/api_keys/(?P<api_key_name>\w+)", ApiKeysHandler),
         (r"api/ai/config/?", GlobalConfigHandler),
         (r"api/ai/chats/?", RootChatHandler),
@@ -188,7 +188,13 @@ class AiExtension(ExtensionApp):
         default_value=2,
         help="""
         Number of chat interactions to keep in the conversational memory object.
+
+        An interaction is defined as an exchange between a human and AI, thus
+        comprising of one or two messages.
+
+        Set to `None` to keep all interactions.
         """,
+        allow_none=True,
         config=True,
     )
 

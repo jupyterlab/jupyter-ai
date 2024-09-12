@@ -31,7 +31,7 @@ def arxiv_to_text(id: str, output_dir: str) -> str:
         output path to the downloaded TeX file
     """
 
-    import arxiv
+    import arxiv  # type:ignore[import-not-found,import-untyped]
 
     outfile = f"{id}-{datetime.now():%Y-%m-%d-%H-%M}.tex"
     download_filename = "downloaded-paper.tar.gz"
@@ -143,7 +143,9 @@ def collect_filepaths(path, all_files: bool):
 def split(path, all_files: bool, splitter):
     """Splits files into chunks for vector db in RAG"""
     chunks = []
-    filepaths = collect_filepaths(path, all_files)
+    filepaths = set()
+    for glob_path in iglob(path, include_hidden=all_files, recursive=True):
+        filepaths.update(collect_filepaths(glob_path, all_files))
     for filepath in filepaths:
         document = dask.delayed(path_to_doc)(filepath)
         chunk = dask.delayed(split_document)(document, splitter)

@@ -4,7 +4,7 @@ import time
 import uuid
 from asyncio import AbstractEventLoop
 from dataclasses import asdict
-from typing import TYPE_CHECKING, Dict, List, Optional
+from typing import TYPE_CHECKING, Dict, List, Optional, cast
 
 import tornado
 from jupyter_ai.chat_handlers import BaseChatHandler, SlashCommandRoutingType
@@ -42,13 +42,11 @@ if TYPE_CHECKING:
     from jupyter_ai_magics.embedding_providers import BaseEmbeddingsProvider
     from jupyter_ai_magics.providers import BaseProvider
 
-    from .history import BoundChatHistory
+    from .history import BoundedChatHistory
 
 
 class ChatHistoryHandler(BaseAPIHandler):
     """Handler to return message history"""
-
-    _messages = []
 
     @property
     def chat_history(self) -> List[ChatMessage]:
@@ -103,7 +101,7 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
         self.settings["chat_history"] = new_history
 
     @property
-    def llm_chat_memory(self) -> "BoundChatHistory":
+    def llm_chat_memory(self) -> "BoundedChatHistory":
         return self.settings["llm_chat_memory"]
 
     @property
@@ -145,6 +143,7 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
         environment."""
         # Get a dictionary of all loaded extensions.
         # (`serverapp` is a property on all `JupyterHandler` subclasses)
+        assert self.serverapp
         extensions = self.serverapp.extension_manager.extensions
         collaborative = (
             "jupyter_collaboration" in extensions
@@ -401,7 +400,7 @@ class ProviderHandler(BaseAPIHandler):
             if self.blocked_models:
                 return model_id not in self.blocked_models
             else:
-                return model_id in self.allowed_models
+                return model_id in cast(List, self.allowed_models)
 
         # filter out every model w/ model ID according to allow/blocklist
         for provider in providers:
@@ -514,7 +513,7 @@ class GlobalConfigHandler(BaseAPIHandler):
 
 class ApiKeysHandler(BaseAPIHandler):
     @property
-    def config_manager(self) -> ConfigManager:
+    def config_manager(self) -> ConfigManager:  # type:ignore[override]
         return self.settings["jai_config_manager"]
 
     @web.authenticated
@@ -529,7 +528,7 @@ class SlashCommandsInfoHandler(BaseAPIHandler):
     """List slash commands that are currently available to the user."""
 
     @property
-    def config_manager(self) -> ConfigManager:
+    def config_manager(self) -> ConfigManager:  # type:ignore[override]
         return self.settings["jai_config_manager"]
 
     @property

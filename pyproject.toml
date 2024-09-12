@@ -43,3 +43,8 @@ ignore_imports = ["jupyter_ai_magics.providers -> pydantic"]
 
 [tool.pytest.ini_options]
 addopts = "--ignore packages/jupyter-ai-module-cookiecutter"
+
+[tool.mypy]
+exclude = [
+  "tests"
+]
