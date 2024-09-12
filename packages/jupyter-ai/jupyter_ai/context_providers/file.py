@@ -1,11 +1,11 @@
-import os
 import glob
+import os
 import re
 from typing import List
 
 import nbformat
-from jupyter_ai.models import ListOptionsEntry, HumanChatMessage
 from jupyter_ai.document_loaders.directory import SUPPORTED_EXTS
+from jupyter_ai.models import HumanChatMessage, ListOptionsEntry
 
 from .base import BaseCommandContextProvider, ContextProviderException
 

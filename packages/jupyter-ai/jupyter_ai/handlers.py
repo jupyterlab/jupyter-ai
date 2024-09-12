@@ -30,12 +30,12 @@ from .models import (
     ClosePendingMessage,
     ConnectionMessage,
     HumanChatMessage,
+    ListOptionsEntry,
+    ListOptionsResponse,
     ListProvidersEntry,
     ListProvidersResponse,
     ListSlashCommandsEntry,
     ListSlashCommandsResponse,
-    ListOptionsEntry,
-    ListOptionsResponse,
     Message,
     PendingMessage,
     UpdateConfigRequest,
@@ -45,8 +45,8 @@ if TYPE_CHECKING:
     from jupyter_ai_magics.embedding_providers import BaseEmbeddingsProvider
     from jupyter_ai_magics.providers import BaseProvider
 
-    from .history import BoundedChatHistory
     from .context_providers import BaseContextProvider
+    from .history import BoundedChatHistory
 
 
 class ChatHistoryHandler(BaseAPIHandler):

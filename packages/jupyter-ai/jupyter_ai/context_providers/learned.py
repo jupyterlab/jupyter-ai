@@ -1,11 +1,10 @@
 from typing import List
 
-from jupyter_ai.models import HumanChatMessage
 from jupyter_ai.chat_handlers.learn import Retriever
+from jupyter_ai.models import HumanChatMessage
 
 from .base import BaseCommandContextProvider
 from .file import FileContextProvider
-
 
 FILE_CHUNK_TEMPLATE = """
 Snippet from file: {filepath}

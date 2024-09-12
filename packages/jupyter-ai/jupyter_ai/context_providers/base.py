@@ -1,29 +1,16 @@
 import abc
-import re
-from typing import ClassVar, List
-
 import os
-from typing import (
-    TYPE_CHECKING,
-    Awaitable,
-    ClassVar,
-    Dict,
-    List,
-    Optional,
-)
+import re
+from typing import TYPE_CHECKING, Awaitable, ClassVar, Dict, List, Optional
 
 from dask.distributed import Client as DaskClient
-from jupyter_ai.config_manager import ConfigManager, Logger
-from jupyter_ai.models import (
-    ChatMessage,
-    HumanChatMessage,
-)
 from jupyter_ai.chat_handlers.base import get_preferred_dir
-from jupyter_ai.models import ListOptionsEntry, HumanChatMessage
+from jupyter_ai.config_manager import ConfigManager, Logger
+from jupyter_ai.models import ChatMessage, HumanChatMessage, ListOptionsEntry
 
 if TYPE_CHECKING:
-    from jupyter_ai.history import BoundedChatHistory
     from jupyter_ai.chat_handlers import BaseChatHandler
+    from jupyter_ai.history import BoundedChatHistory
 
 
 class BaseContextProvider(abc.ABC):

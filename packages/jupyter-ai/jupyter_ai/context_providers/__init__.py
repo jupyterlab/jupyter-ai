@@ -1,6 +1,6 @@
 from .base import (
-    BaseContextProvider,
     BaseCommandContextProvider,
+    BaseContextProvider,
     ContextProviderException,
 )
 from .file import FileContextProvider

@@ -2,14 +2,10 @@ import logging
 from unittest import mock
 
 import pytest
-from jupyter_ai.context_providers import FileContextProvider
 from jupyter_ai.config_manager import ConfigManager
+from jupyter_ai.context_providers import FileContextProvider
 from jupyter_ai.history import BoundedChatHistory
-from jupyter_ai.models import (
-    ChatClient,
-    HumanChatMessage,
-    Persona,
-)
+from jupyter_ai.models import ChatClient, HumanChatMessage, Persona
 
 
 @pytest.fixture

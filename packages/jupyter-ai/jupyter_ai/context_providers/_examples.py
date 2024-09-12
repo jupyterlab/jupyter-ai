@@ -1,13 +1,11 @@
 # This file is for illustrative purposes
 # It is to be deleted before merging
 from jupyter_ai.models import HumanChatMessage
-from langchain_community.retrievers import WikipediaRetriever
-from langchain_community.retrievers import ArxivRetriever
-from langchain_core.prompts import ChatPromptTemplate
+from langchain_community.retrievers import ArxivRetriever, WikipediaRetriever
 from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import ChatPromptTemplate
 
-from .base import BaseContextProvider, BaseCommandContextProvider
-
+from .base import BaseCommandContextProvider, BaseContextProvider
 
 # Examples of the ease of implementing retriever based context providers
 ARXIV_TEMPLATE = """

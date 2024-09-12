@@ -13,8 +13,8 @@ from langchain_core.messages import AIMessageChunk
 from langchain_core.runnables import ConfigurableFieldSpec
 from langchain_core.runnables.history import RunnableWithMessageHistory
 
-from ..models import HumanChatMessage
 from ..context_providers import ContextProviderException
+from ..models import HumanChatMessage
 from .base import BaseChatHandler, SlashCommandRoutingType
 
 
