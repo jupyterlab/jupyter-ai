@@ -36,6 +36,7 @@ if TYPE_CHECKING:
     from jupyter_ai.context_providers import BaseContextProvider
     from jupyter_ai.handlers import RootChatHandler
     from jupyter_ai.history import BoundedChatHistory
+    from jupyter_ai.context_providers import BaseContextProvider
     from langchain_core.chat_history import BaseChatMessageHistory
 
 

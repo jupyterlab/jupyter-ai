@@ -36,6 +36,8 @@ from .models import (
     ListProvidersResponse,
     ListSlashCommandsEntry,
     ListSlashCommandsResponse,
+    ListOptionsEntry,
+    ListOptionsResponse,
     Message,
     PendingMessage,
     UpdateConfigRequest,

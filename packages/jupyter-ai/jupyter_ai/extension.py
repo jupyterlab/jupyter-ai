@@ -22,6 +22,7 @@ from .chat_handlers import (
     HelpChatHandler,
     LearnChatHandler,
 )
+from .context_providers import FileContextProvider, LearnedContextProvider
 from .completions.handlers import DefaultInlineCompletionHandler
 from .config_manager import ConfigManager
 from .context_providers import FileContextProvider, LearnedContextProvider
@@ -34,6 +35,7 @@ from .handlers import (
     ModelProviderHandler,
     RootChatHandler,
     SlashCommandsInfoHandler,
+    AutocompleteOptionsHandler,
 )
 from .history import BoundedChatHistory
 
