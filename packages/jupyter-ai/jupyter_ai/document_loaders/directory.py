@@ -30,7 +30,7 @@ def arxiv_to_text(id: str, output_dir: str) -> str:
         output path to the downloaded TeX file
     """
 
-    import arxiv
+    import arxiv  # type:ignore[import-not-found,import-untyped]
 
     outfile = f"{id}-{datetime.now():%Y-%m-%d-%H-%M}.tex"
     download_filename = "downloaded-paper.tar.gz"

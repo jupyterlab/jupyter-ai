@@ -52,7 +52,7 @@ For more information, see the [documentation](https://jupyter-ai.readthedocs.io)
 
 class AiExtension(ExtensionApp):
     name = "jupyter_ai"
-    handlers = [
+    handlers = [  # type:ignore[assignment]
         (r"api/ai/api_keys/(?P<api_key_name>\w+)", ApiKeysHandler),
         (r"api/ai/config/?", GlobalConfigHandler),
         (r"api/ai/chats/?", RootChatHandler),

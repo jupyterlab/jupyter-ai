@@ -3,7 +3,7 @@ import logging
 import os
 import shutil
 import time
-from typing import List, Optional, Union
+from typing import List, Optional, Type, Union
 
 from deepmerge import always_merger as Merger
 from jsonschema import Draft202012Validator as Validator
@@ -60,7 +60,7 @@ class BlockedModelError(Exception):
     pass
 
 
-def _validate_provider_authn(config: GlobalConfig, provider: AnyProvider):
+def _validate_provider_authn(config: GlobalConfig, provider: Type[AnyProvider]):
     # TODO: handle non-env auth strategies
     if not provider.auth_strategy or provider.auth_strategy.type != "env":
         return
@@ -147,7 +147,7 @@ class ConfigManager(Configurable):
             os.makedirs(os.path.dirname(self.schema_path), exist_ok=True)
             shutil.copy(OUR_SCHEMA_PATH, self.schema_path)
 
-    def _init_validator(self) -> Validator:
+    def _init_validator(self) -> None:
         with open(OUR_SCHEMA_PATH, encoding="utf-8") as f:
             schema = json.loads(f.read())
             Validator.check_schema(schema)
@@ -364,7 +364,7 @@ class ConfigManager(Configurable):
         config_dict["api_keys"].pop(key_name, None)
         self._write_config(GlobalConfig(**config_dict))
 
-    def update_config(self, config_update: UpdateConfigRequest):
+    def update_config(self, config_update: UpdateConfigRequest):  # type:ignore
         last_write = os.stat(self.config_path).st_mtime_ns
         if config_update.last_read and config_update.last_read < last_write:
             raise WriteConflictError(
