@@ -636,9 +636,8 @@ class AutocompleteOptionsHandler(BaseAPIHandler):
         options = []
         for id, chat_handler in self.chat_handlers.items():
             # filter out any chat handler that is not a slash command
-            if (
-                id == "default"
-                or not isinstance(chat_handler.routing_type, SlashCommandRoutingType)
+            if id == "default" or not isinstance(
+                chat_handler.routing_type, SlashCommandRoutingType
             ):
                 continue
 
