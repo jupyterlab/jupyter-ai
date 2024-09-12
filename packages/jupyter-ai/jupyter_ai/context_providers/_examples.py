@@ -6,7 +6,7 @@ from langchain_community.retrievers import ArxivRetriever
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 
-from .base import BaseContextProvider
+from .base import BaseContextProvider, BaseCommandContextProvider
 
 
 # Examples of the ease of implementing retriever based context providers
@@ -19,7 +19,7 @@ Publish Date: {publish_date}
 """.strip()
 
 
-class ArxivContextProvider(BaseContextProvider):
+class ArxivContextProvider(BaseCommandContextProvider):
     id = "arvix"
     description = "Include papers from Arxiv"
     remove_from_prompt = True
@@ -61,7 +61,7 @@ the queries with ’**’. Question: \
 {x} Answer:"""
 
 
-class WikiContextProvider(BaseContextProvider):
+class WikiContextProvider(BaseCommandContextProvider):
     id = "wiki"
     description = "Include knowledge from Wikipedia"
     remove_from_prompt = True

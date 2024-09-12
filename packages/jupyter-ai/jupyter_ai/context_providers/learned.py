@@ -3,7 +3,7 @@ from typing import List
 from jupyter_ai.models import HumanChatMessage
 from jupyter_ai.chat_handlers.learn import Retriever
 
-from .base import BaseContextProvider
+from .base import BaseCommandContextProvider
 from .file import FileContextProvider
 
 
@@ -15,7 +15,7 @@ Snippet from file: {filepath}
 """.strip()
 
 
-class LearnedContextProvider(BaseContextProvider):
+class LearnedContextProvider(BaseCommandContextProvider):
     id = "learned"
     description = "Include learned context"
     remove_from_prompt = True

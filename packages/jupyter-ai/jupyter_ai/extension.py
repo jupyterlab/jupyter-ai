@@ -422,9 +422,7 @@ class AiExtension(ExtensionApp):
                 )
                 continue
 
-            if context_provider.is_command and not re.match(
-                r"^[a-zA-Z0-9_]+$", context_provider.id
-            ):
+            if not re.match(r"^[a-zA-Z0-9_]+$", context_provider.id):
                 self.log.error(
                     f"Context provider `{context_provider.id}` is an invalid ID; "
                     + f"must contain only letters, numbers, and underscores"

@@ -105,7 +105,7 @@ class DefaultChatHandler(BaseChatHandler):
         self.get_llm_chain()
         received_first_chunk = False
 
-        inputs = {"input": message.body}
+        inputs = {"input": self.replace_prompt(message.body)}
         if "context" in self.prompt_template.input_variables:
             # include context from context providers.
             try:
@@ -152,3 +152,10 @@ class DefaultChatHandler(BaseChatHandler):
                 ]
             )
         )
+
+    def replace_prompt(self, prompt: str) -> str:
+        # modifies prompt by the context providers.
+        # some providers may modify or remove their '@' commands from the prompt.
+        for provider in self.context_providers.values():
+            prompt = provider.replace_prompt(prompt)
+        return prompt

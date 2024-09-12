@@ -19,7 +19,7 @@ def human_chat_message() -> HumanChatMessage:
     )
     prompt = (
         "@file:test1.py @file @file:dir/test2.md test test\n"
-        "@file:/dir/test3.png test@file:test4.py"
+        "@file:/dir/test3.png test@file:test4.py ```\n@file:test5.py\n```"
     )
     return HumanChatMessage(
         id="test",
@@ -57,7 +57,7 @@ def test_find_instances(file_context_provider, human_chat_message):
 def test_replace_prompt(file_context_provider, human_chat_message):
     expected = (
         "'test1.py' @file 'dir/test2.md' test test\n"
-        "'/dir/test3.png' test@file:test4.py"
+        "'/dir/test3.png' test@file:test4.py ```\n@file:test5.py\n```"
     )
     prompt = file_context_provider.replace_prompt(human_chat_message.prompt)
     assert prompt == expected

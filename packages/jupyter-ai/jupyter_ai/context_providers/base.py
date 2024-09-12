@@ -29,13 +29,6 @@ if TYPE_CHECKING:
 class BaseContextProvider(abc.ABC):
     id: ClassVar[str]
     description: ClassVar[str]
-    requires_arg: ClassVar[bool] = False
-    is_command: ClassVar[bool] = (
-        True  # whether the context provider can be invoked from chat
-    )
-    remove_from_prompt: ClassVar[bool] = (
-        False  # whether the command should be removed from prompt
-    )
 
     def __init__(
         self,
@@ -65,14 +58,6 @@ class BaseContextProvider(abc.ABC):
 
         self.llm = None
 
-    @property
-    def pattern(self) -> str:
-        return (
-            rf"(?<![^\s.])@{self.id}:[^\s]+"
-            if self.requires_arg
-            else rf"(?<![^\s.])@{self.id}(?![^\s.])"
-        )
-
     @abc.abstractmethod
     async def make_context_prompt(self, message: HumanChatMessage) -> str:
         """Returns a context prompt for all instances of the context provider
@@ -80,36 +65,12 @@ class BaseContextProvider(abc.ABC):
         """
         pass
 
-    def get_arg_options(self, arg_prefix: str) -> List[ListOptionsEntry]:
-        """Returns a list of autocomplete options for arguments to the command
-        based on the prefix.
-        Only triggered if ':' is present after the command id (e.g. '@file:').
-        """
-        return []
-
     def replace_prompt(self, prompt: str) -> str:
-        """Cleans up instances of the command from the prompt before
-        sending it to the LLM
-        """
-        if self.remove_from_prompt:
-            return re.sub(self.pattern, "", prompt)
+        """Modifies the prompt before sending it to the LLM."""
         return prompt
 
-    def _find_instances(self, text: str) -> List[str]:
-        # finds instances of the context provider command in the text
-        matches = re.finditer(self.pattern, text)
-        results = []
-        for match in matches:
-            start, end = match.span()
-            before = text[:start]
-            after = text[end:]
-            # Check if the match is within backticks
-            if before.count("`") % 2 == 0 and after.count("`") % 2 == 0:
-                results.append(match.group())
-        return results
-
     def _clean_prompt(self, text: str) -> str:
-        # useful for cleaning up the prompt before sending it to a retriever
+        # util for cleaning up the prompt before sending it to a retriever
         for provider in self.context_providers.values():
             text = provider.replace_prompt(text)
         return text
@@ -150,6 +111,71 @@ class BaseContextProvider(abc.ABC):
             llm = lm_provider(**unified_parameters)
             self.llm = llm
         return self.llm
+
+
+class BaseCommandContextProvider(BaseContextProvider):
+    requires_arg: ClassVar[bool] = False
+    remove_from_prompt: ClassVar[bool] = (
+        False  # whether the command should be removed from prompt
+    )
+
+    @property
+    def pattern(self) -> str:
+        return (
+            rf"(?<![^\s.])@{self.id}:[^\s]+"
+            if self.requires_arg
+            else rf"(?<![^\s.])@{self.id}(?![^\s.])"
+        )
+
+    def replace_prompt(self, prompt: str) -> str:
+        """Cleans up instances of the command from the prompt before
+        sending it to the LLM
+        """
+
+        def replace(match):
+            if _is_within_backticks(match, prompt):
+                return match.group()
+            return self._replace_instance(match.group())
+
+        return re.sub(self.pattern, replace, prompt)
+
+    def get_arg_options(self, arg_prefix: str) -> List[ListOptionsEntry]:
+        """Returns a list of autocomplete options for arguments to the command
+        based on the prefix.
+        Only triggered if ':' is present after the command id (e.g. '@file:').
+        """
+        if self.requires_arg:
+            # default implementation that should be modified if 'requires_arg' is True
+            return [
+                ListOptionsEntry.from_arg(
+                    type="@",
+                    id=self.id,
+                    description=self.description,
+                    arg=arg_prefix,
+                    is_complete=True,
+                )
+            ]
+        return []
+
+    def _find_instances(self, text: str) -> List[str]:
+        # finds instances of the context provider command in the text
+        matches = re.finditer(self.pattern, text)
+        results = []
+        for match in matches:
+            if not _is_within_backticks(match, text):
+                results.append(match.group())
+        return results
+
+    def _replace_instance(self, instance: str) -> str:
+        if self.remove_from_prompt:
+            return ""
+        return instance
+
+
+def _is_within_backticks(match, text):
+    start, _ = match.span()
+    before = text[:start]
+    return before.count("`") % 2 == 1
 
 
 class ContextProviderException(Exception):

@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Dict, List, Optional, cast
 import tornado
 from jupyter_ai.chat_handlers import BaseChatHandler, SlashCommandRoutingType
 from jupyter_ai.config_manager import ConfigManager, KeyEmptyError, WriteConflictError
+from jupyter_ai.context_providers import BaseCommandContextProvider
 from jupyter_server.base.handlers import APIHandler as BaseAPIHandler
 from jupyter_server.base.handlers import JupyterHandler
 from langchain.pydantic_v1 import ValidationError
@@ -668,7 +669,7 @@ class AutocompleteOptionsHandler(BaseAPIHandler):
                 requires_arg=context_provider.requires_arg,
             )
             for context_provider in self.context_providers.values()
-            if context_provider.is_command
+            if isinstance(context_provider, BaseCommandContextProvider)
         ]
         options.sort(key=lambda opt: opt.id)
         return options

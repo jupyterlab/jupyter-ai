@@ -7,7 +7,7 @@ import nbformat
 from jupyter_ai.models import ListOptionsEntry, HumanChatMessage
 from jupyter_ai.document_loaders.directory import SUPPORTED_EXTS
 
-from .base import BaseContextProvider, ContextProviderException
+from .base import BaseCommandContextProvider, ContextProviderException
 
 FILE_CONTEXT_TEMPLATE = """
 File: {filepath}
@@ -17,19 +17,11 @@ File: {filepath}
 """.strip()
 
 
-class FileContextProvider(BaseContextProvider):
+class FileContextProvider(BaseCommandContextProvider):
     id = "file"
     description = "Include file contents"
     requires_arg = True
     header = "Following are contents of files referenced:"
-
-    def replace_prompt(self, prompt: str) -> str:
-        # replaces instances of @file:<filepath> with '<filepath>'
-        def substitute(match):
-            filepath = match.group(0).partition(":")[2]
-            return f"'{filepath}'"
-
-        return re.sub(self.pattern, substitute, prompt)
 
     def get_arg_options(self, arg_prefix: str) -> List[ListOptionsEntry]:
         is_abs = not os.path.isabs(arg_prefix)
@@ -105,6 +97,11 @@ class FileContextProvider(BaseContextProvider):
             nb = nbformat.reads(content, as_version=4)
             return "\n\n".join([cell.source for cell in nb.cells])
         return content
+
+    def _replace_instance(self, instance: str) -> str:
+        # replaces instances of @file:<filepath> with '<filepath>'
+        filepath = instance.partition(":")[2]
+        return f"'{filepath}'"
 
     def get_filepaths(self, message: HumanChatMessage) -> List[str]:
         filepaths = []
