@@ -17,6 +17,7 @@ def staging_dir(static_test_files_dir, jp_ai_staging_dir) -> Path:
     file6_path = static_test_files_dir / "file3.csv"
     file7_path = static_test_files_dir / "file3.xyz"
     file8_path = static_test_files_dir / "file4.pdf"
+    file9_path = static_test_files_dir / "file9.ipynb"
 
     job_staging_dir = jp_ai_staging_dir / "TestDir"
     job_staging_dir.mkdir()
@@ -33,6 +34,7 @@ def staging_dir(static_test_files_dir, jp_ai_staging_dir) -> Path:
     shutil.copy2(file6_path, job_staging_hiddendir)
     shutil.copy2(file7_path, job_staging_subdir)
     shutil.copy2(file8_path, job_staging_hiddendir)
+    shutil.copy2(file9_path, job_staging_subdir)
 
     return job_staging_dir
 
@@ -49,14 +51,15 @@ def test_collect_filepaths(staging_dir):
     # Call the function we want to test
     result = collect_filepaths(staging_dir_filepath, all_files)
 
-    assert len(result) == 3  # Test number of valid files
+    assert len(result) == 4  # Test number of valid files
 
     filenames = [fp.name for fp in result]
     assert "file0.html" in filenames  # Check that valid file is included
     assert "file3.xyz" not in filenames  # Check that invalid file is excluded
 
     # test unix wildcard pattern
-    pattern_path = os.path.join(staging_dir_filepath, "**/*.py")
+    pattern_path = os.path.join(staging_dir_filepath, "**/*.*py*")
     results = collect_filepaths(pattern_path, all_files)
-    assert len(results) == 1
-    assert results[0].suffix == ".py"
+    assert len(results) == 2
+    condition = lambda p: p.suffix in [".py", ".ipynb"]
+    assert all(map(condition, results))
