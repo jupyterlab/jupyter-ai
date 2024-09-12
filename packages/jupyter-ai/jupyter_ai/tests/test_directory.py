@@ -57,7 +57,6 @@ def test_collect_filepaths(staging_dir):
 
     # test unix wildcard pattern
     pattern_path = os.path.join(staging_dir_filepath, "**/*.py")
-    print(pattern_path)
     results = collect_filepaths(pattern_path, all_files)
     assert len(results) == 1
     assert results[0].suffix == ".py"
