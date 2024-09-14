@@ -6,7 +6,7 @@ import nbformat
 from jupyter_ai.document_loaders.directory import SUPPORTED_EXTS
 from jupyter_ai.models import HumanChatMessage, ListOptionsEntry
 
-from .base import BaseCommandContextProvider, ContextProviderException, ContextCommand
+from .base import BaseCommandContextProvider, ContextCommand, ContextProviderException
 
 FILE_CONTEXT_TEMPLATE = """
 File: {filepath}

@@ -1,8 +1,8 @@
 from .base import (
     BaseCommandContextProvider,
     BaseContextProvider,
-    ContextProviderException,
     ContextCommand,
+    ContextProviderException,
 )
 from .file import FileContextProvider
 from .learned import LearnedContextProvider
