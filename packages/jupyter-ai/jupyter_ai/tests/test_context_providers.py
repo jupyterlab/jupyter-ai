@@ -17,7 +17,7 @@ def human_chat_message() -> HumanChatMessage:
         "@file:test1.py @file @file:dir/test2.md test test\n"
         "@file:/dir/test3.png\n"
         "test@file:fail1.py\n"
-        "@file:dir\ test\ /test\ 4.py\n"  # spaces with escape
+        "@file:dir\\ test\\ /test\\ 4.py\n"  # spaces with escape
         "@file:'test 5.py' @file:\"test6 .py\"\n"  # quotes with spaces
         "@file:'test7.py test\"\n"  # do not allow for mixed quotes
         "```\n@file:fail2.py\n```\n"  # do not look within backticks
@@ -54,7 +54,7 @@ def test_find_instances(file_context_provider, human_chat_message):
         "@file:test1.py",
         "@file:dir/test2.md",
         "@file:/dir/test3.png",
-        "@file:dir\ test\ /test\ 4.py",
+        r"@file:dir\ test\ /test\ 4.py",
         "@file:'test 5.py'",
         '@file:"test6 .py"',
         "@file:'test7.py",
