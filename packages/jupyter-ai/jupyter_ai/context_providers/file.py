@@ -1,13 +1,12 @@
 import glob
 import os
-import re
 from typing import List
 
 import nbformat
 from jupyter_ai.document_loaders.directory import SUPPORTED_EXTS
 from jupyter_ai.models import HumanChatMessage, ListOptionsEntry
 
-from .base import BaseCommandContextProvider, ContextProviderException
+from .base import BaseCommandContextProvider, ContextProviderException, ContextCommand
 
 FILE_CONTEXT_TEMPLATE = """
 File: {filepath}
@@ -24,7 +23,6 @@ class FileContextProvider(BaseCommandContextProvider):
     header = "Following are contents of files referenced:"
 
     def get_arg_options(self, arg_prefix: str) -> List[ListOptionsEntry]:
-        arg_prefix = arg_prefix.replace("\\ ", " ")
         is_abs = not os.path.isabs(arg_prefix)
         path_prefix = arg_prefix if is_abs else os.path.join(self.base_dir, arg_prefix)
         path_prefix = path_prefix
@@ -46,39 +44,39 @@ class FileContextProvider(BaseCommandContextProvider):
             type="@",
             id=self.id,
             description="Directory" if is_dir else "File",
-            arg=path.replace(" ", "\\ "),
+            arg=path,
             is_complete=not is_dir,
         )
 
     async def make_context_prompt(self, message: HumanChatMessage) -> str:
-        instances = set(self._find_instances(message.prompt))
-        if not instances:
+        commands = set(self._find_commands(message.prompt))
+        if not commands:
             return ""
         context = "\n\n".join(
-            [context for i in instances if (context := self._make_instance_context(i))]
+            [context for i in commands if (context := self._make_command_context(i))]
         )
         if not context:
             return ""
         return self.header + "\n" + context
 
-    def _make_instance_context(self, instance: str) -> str:
-        filepath = _get_filepath(instance)
+    def _make_command_context(self, command: ContextCommand) -> str:
+        filepath = command.arg or ""
         if not os.path.isabs(filepath):
             filepath = os.path.join(self.base_dir, filepath)
 
         if not os.path.exists(filepath):
             raise ContextProviderException(
                 f"File not found while trying to read '{filepath}' "
-                f"triggered by `{instance}`."
+                f"triggered by `{command}`."
             )
         if os.path.isdir(filepath):
             raise ContextProviderException(
-                f"Cannot read directory '{filepath}' triggered by `{instance}`. "
+                f"Cannot read directory '{filepath}' triggered by `{command}`. "
                 f"Only files are supported."
             )
         if os.path.splitext(filepath)[1] not in SUPPORTED_EXTS:
             raise ContextProviderException(
-                f"Cannot read unsupported file type '{filepath}' triggered by `{instance}`. "
+                f"Cannot read unsupported file type '{filepath}' triggered by `{command}`. "
                 f"Supported file extensions are: {', '.join(SUPPORTED_EXTS)}."
             )
         try:
@@ -87,7 +85,7 @@ class FileContextProvider(BaseCommandContextProvider):
         except PermissionError:
             raise ContextProviderException(
                 f"Permission denied while trying to read '{filepath}' "
-                f"triggered by `{instance}`."
+                f"triggered by `{command}`."
             )
         return FILE_CONTEXT_TEMPLATE.format(
             filepath=filepath,
@@ -100,20 +98,16 @@ class FileContextProvider(BaseCommandContextProvider):
             return "\n\n".join([cell.source for cell in nb.cells])
         return content
 
-    def _replace_instance(self, instance: str) -> str:
-        # replaces instances of @file:<filepath> with '<filepath>'
-        filepath = _get_filepath(instance)
+    def _replace_command(self, command: ContextCommand) -> str:
+        # replaces commands of @file:<filepath> with '<filepath>'
+        filepath = command.arg or ""
         return f"'{filepath}'"
 
     def get_filepaths(self, message: HumanChatMessage) -> List[str]:
         filepaths = []
-        for instance in self._find_instances(message.prompt):
-            filepath = instance.partition(":")[2]
+        for command in self._find_commands(message.prompt):
+            filepath = command.arg or ""
             if not os.path.isabs(filepath):
                 filepath = os.path.join(self.base_dir, filepath)
             filepaths.append(filepath)
         return filepaths
-
-
-def _get_filepath(instance: str) -> str:
-    return instance.partition(":")[2].strip("'\"").replace("\\ ", " ")

@@ -25,7 +25,7 @@ class LearnedContextProvider(BaseCommandContextProvider):
         self.retriever = Retriever(learn_chat_handler=self.chat_handlers["/learn"])
 
     async def make_context_prompt(self, message: HumanChatMessage) -> str:
-        if not self.retriever or not self._find_instances(message.prompt):
+        if not self.retriever or not self._find_commands(message.prompt):
             return ""
         query = self._clean_prompt(message.body)
         docs = await self.retriever.ainvoke(query)

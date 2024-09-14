@@ -45,7 +45,7 @@ if TYPE_CHECKING:
     from jupyter_ai_magics.embedding_providers import BaseEmbeddingsProvider
     from jupyter_ai_magics.providers import BaseProvider
 
-    from .context_providers import BaseContextProvider
+    from .context_providers import BaseContextProvider, ContextCommand
     from .history import BoundedChatHistory
 
 
@@ -611,10 +611,15 @@ class AutocompleteOptionsHandler(BaseAPIHandler):
         try:
             data = self.get_json_body()
             context_provider = self.context_providers.get(data["id"])
-            arg_prefix = data["arg_prefix"]
+            cmd_prefix = data["cmd_prefix"]
             response = ListOptionsResponse()
 
-            if not context_provider:
+            arg_prefix = ContextCommand(cmd=cmd_prefix).arg
+            if (
+                arg_prefix is None
+                or not context_provider
+                or not isinstance(context_provider, BaseCommandContextProvider)
+            ):
                 self.finish(response.json())
                 return
 

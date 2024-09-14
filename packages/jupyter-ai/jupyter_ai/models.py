@@ -291,6 +291,7 @@ class ListOptionsEntry(BaseModel):
         arg: str,
         is_complete: bool = True,
     ):
+        arg = arg.replace("\\ ", " ").replace(" ", "\\ ")  # escape spaces
         label = type + id + ":" + arg + (" " if is_complete else "")
         return cls(type=type, id=id, description=description, label=label)
 

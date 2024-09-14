@@ -7,6 +7,7 @@ from dask.distributed import Client as DaskClient
 from jupyter_ai.chat_handlers.base import get_preferred_dir
 from jupyter_ai.config_manager import ConfigManager, Logger
 from jupyter_ai.models import ChatMessage, HumanChatMessage, ListOptionsEntry
+from langchain.pydantic_v1 import BaseModel
 
 if TYPE_CHECKING:
     from jupyter_ai.chat_handlers import BaseChatHandler
@@ -47,7 +48,7 @@ class BaseContextProvider(abc.ABC):
 
     @abc.abstractmethod
     async def make_context_prompt(self, message: HumanChatMessage) -> str:
-        """Returns a context prompt for all instances of the context provider
+        """Returns a context prompt for all commands of the context provider
         command.
         """
         pass
@@ -100,6 +101,23 @@ class BaseContextProvider(abc.ABC):
         return self.llm
 
 
+class ContextCommand(BaseModel):
+    cmd: str
+
+    @property
+    def id(self) -> str:
+        return self.cmd.partition(":")[0][1:]
+
+    @property
+    def arg(self) -> Optional[str]:
+        if ":" not in self.cmd:
+            return None
+        return self.cmd.partition(":")[2].strip("'\"").replace("\\ ", " ")
+
+    def __str__(self):
+        return self.cmd
+
+
 class BaseCommandContextProvider(BaseContextProvider):
     requires_arg: ClassVar[bool] = False
     remove_from_prompt: ClassVar[bool] = (
@@ -116,14 +134,12 @@ class BaseCommandContextProvider(BaseContextProvider):
         )
 
     def replace_prompt(self, prompt: str) -> str:
-        """Cleans up instances of the command from the prompt before
-        sending it to the LLM
-        """
+        """Cleans up commands from the prompt before sending it to the LLM"""
 
         def replace(match):
             if _is_within_backticks(match, prompt):
                 return match.group()
-            return self._replace_instance(match.group())
+            return self._replace_command(ContextCommand(cmd=match.group()))
 
         return re.sub(self.pattern, replace, prompt)
 
@@ -145,26 +161,26 @@ class BaseCommandContextProvider(BaseContextProvider):
             ]
         return []
 
-    def _find_instances(self, text: str) -> List[str]:
-        # finds instances of the context provider command in the text
+    def _find_commands(self, text: str) -> List[ContextCommand]:
+        # finds commands of the context provider in the text
         matches = re.finditer(self.pattern, text)
         results = []
         for match in matches:
             if not _is_within_backticks(match, text):
-                results.append(match.group())
+                results.append(ContextCommand(cmd=match.group()))
         return results
 
-    def _replace_instance(self, instance: str) -> str:
+    def _replace_command(self, command: ContextCommand) -> str:
         if self.remove_from_prompt:
             return ""
-        return instance
+        return command.cmd
 
 
 def _is_within_backticks(match, text):
     # potentially buggy if there is a stray backtick in text
     # e.g. "help me count the backticks '`' ... ```\n...@cmd in code\n```".
     # can be addressed by having selection in context rather than in prompt.
-    # more generally addressed by having a better instance detection mechanism
+    # more generally addressed by having a better command detection mechanism
     # such as placing commands within special tags.
     start, end = match.span()
     before = text[:start]

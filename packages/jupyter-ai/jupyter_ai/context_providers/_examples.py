@@ -28,7 +28,7 @@ class ArxivContextProvider(BaseCommandContextProvider):
         self.retriever = ArxivRetriever()
 
     async def make_context_prompt(self, message: HumanChatMessage) -> str:
-        if not self._find_instances(message.prompt):
+        if not self._find_commands(message.prompt):
             return ""
         query = self._clean_prompt(message.body)
         docs = await self.retriever.ainvoke(query)
@@ -70,7 +70,7 @@ class WikiContextProvider(BaseCommandContextProvider):
         self.retriever = WikipediaRetriever()
 
     async def make_context_prompt(self, message: HumanChatMessage) -> str:
-        if not self._find_instances(message.prompt):
+        if not self._find_commands(message.prompt):
             return ""
         prompt = self._clean_prompt(message.body)
         search_query = await self._rewrite_prompt(prompt)
