@@ -24,8 +24,10 @@ class FileContextProvider(BaseCommandContextProvider):
     header = "Following are contents of files referenced:"
 
     def get_arg_options(self, arg_prefix: str) -> List[ListOptionsEntry]:
+        arg_prefix = arg_prefix.replace("\\ ", " ")
         is_abs = not os.path.isabs(arg_prefix)
         path_prefix = arg_prefix if is_abs else os.path.join(self.base_dir, arg_prefix)
+        path_prefix = path_prefix
         return [
             self._make_option(path, is_abs, is_dir)
             for path in glob.glob(path_prefix + "*")
@@ -44,7 +46,7 @@ class FileContextProvider(BaseCommandContextProvider):
             type="@",
             id=self.id,
             description="Directory" if is_dir else "File",
-            arg=path,
+            arg=path.replace(" ", "\\ "),
             is_complete=not is_dir,
         )
 
@@ -60,7 +62,7 @@ class FileContextProvider(BaseCommandContextProvider):
         return self.header + "\n" + context
 
     def _make_instance_context(self, instance: str) -> str:
-        filepath = instance.partition(":")[2]
+        filepath = _get_filepath(instance)
         if not os.path.isabs(filepath):
             filepath = os.path.join(self.base_dir, filepath)
 
@@ -100,7 +102,7 @@ class FileContextProvider(BaseCommandContextProvider):
 
     def _replace_instance(self, instance: str) -> str:
         # replaces instances of @file:<filepath> with '<filepath>'
-        filepath = instance.partition(":")[2]
+        filepath = _get_filepath(instance)
         return f"'{filepath}'"
 
     def get_filepaths(self, message: HumanChatMessage) -> List[str]:
@@ -111,3 +113,7 @@ class FileContextProvider(BaseCommandContextProvider):
                 filepath = os.path.join(self.base_dir, filepath)
             filepaths.append(filepath)
         return filepaths
+
+
+def _get_filepath(instance: str) -> str:
+    return instance.partition(":")[2].strip("'\"").replace("\\ ", " ")

@@ -15,7 +15,12 @@ def human_chat_message() -> HumanChatMessage:
     )
     prompt = (
         "@file:test1.py @file @file:dir/test2.md test test\n"
-        "@file:/dir/test3.png test@file:test4.py ```\n@file:test5.py\n```"
+        "@file:/dir/test3.png\n"
+        "test@file:fail1.py\n"
+        "@file:dir\ test\ /test\ 4.py\n"  # spaces with escape
+        "@file:'test 5.py' @file:\"test6 .py\"\n"  # quotes with spaces
+        "@file:'test7.py test\"\n"  # do not allow for mixed quotes
+        "```\n@file:fail2.py\n```\n"  # do not look within backticks
     )
     return HumanChatMessage(
         id="test",
@@ -45,7 +50,15 @@ def file_context_provider() -> FileContextProvider:
 
 
 def test_find_instances(file_context_provider, human_chat_message):
-    expected = ["@file:test1.py", "@file:dir/test2.md", "@file:/dir/test3.png"]
+    expected = [
+        "@file:test1.py",
+        "@file:dir/test2.md",
+        "@file:/dir/test3.png",
+        "@file:dir\ test\ /test\ 4.py",
+        "@file:'test 5.py'",
+        '@file:"test6 .py"',
+        "@file:'test7.py",
+    ]
     instances = file_context_provider._find_instances(human_chat_message.prompt)
     assert instances == expected
 
@@ -53,7 +66,12 @@ def test_find_instances(file_context_provider, human_chat_message):
 def test_replace_prompt(file_context_provider, human_chat_message):
     expected = (
         "'test1.py' @file 'dir/test2.md' test test\n"
-        "'/dir/test3.png' test@file:test4.py ```\n@file:test5.py\n```"
+        "'/dir/test3.png'\n"
+        "test@file:fail1.py\n"
+        "'dir test /test 4.py'\n"
+        "'test 5.py' 'test6 .py'\n"
+        "'test7.py' test\"\n"
+        "```\n@file:fail2.py\n```\n"  # do not look within backticks
     )
     prompt = file_context_provider.replace_prompt(human_chat_message.prompt)
     assert prompt == expected

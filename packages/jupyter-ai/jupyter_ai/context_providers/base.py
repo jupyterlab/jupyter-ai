@@ -108,8 +108,9 @@ class BaseCommandContextProvider(BaseContextProvider):
 
     @property
     def pattern(self) -> str:
+        # arg pattern allows for arguments between quotes or spaces with escape character ('\ ')
         return (
-            rf"(?<![^\s.])@{self.id}:[^\s]+"
+            rf"(?<![^\s.])@{self.id}:(?:'[^']+'|\"[^\"]+\"|[^\s\\]+(?:\\ [^\s\\]*)*)"
             if self.requires_arg
             else rf"(?<![^\s.])@{self.id}(?![^\s.])"
         )

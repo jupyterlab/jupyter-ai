@@ -120,7 +120,7 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
   useEffect(() => {
     async function getAutocompleteArgOptions() {
       let options: AiService.AutocompleteOption[] = [];
-      const lastWord = input.split(/\s+/).pop() || '';
+      const lastWord = input.split(/(?<!\\)\s+/).pop() || '';
       if (lastWord.startsWith('@') && lastWord.includes(':')) {
         const [id, argPrefix] = lastWord.split(':', 2);
         // get option that matches the command
@@ -284,7 +284,7 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
     options: AiService.AutocompleteOption[],
     inputValue: string
   ): AiService.AutocompleteOption[] {
-    const lastWord = inputValue.split(/\s+/).pop() || '';
+    const lastWord = inputValue.split(/(?<!\\)\s+/).pop() || '';
     if (
       (lastWord.startsWith('/') && lastWord === inputValue) ||
       lastWord.startsWith('@')
