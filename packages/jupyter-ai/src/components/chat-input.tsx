@@ -122,7 +122,7 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
       let options: AiService.AutocompleteOption[] = [];
       const lastWord = input.split(/(?<!\\)\s+/).pop() || '';
       if (lastWord.startsWith('@') && lastWord.includes(':')) {
-        const [id, argPrefix] = lastWord.split(':', 2);
+        const id = lastWord.split(':', 1)[0];
         // get option that matches the command
         const option = autocompleteCommandOptions.find(
           option => option.id === id.slice(1) && option.type === '@'
@@ -130,7 +130,7 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
         if (option) {
           const response = await AiService.listAutocompleteArgOptions({
             id: option.id,
-            arg_prefix: argPrefix
+            cmd: lastWord
           });
           options = response.options;
         }

@@ -329,7 +329,7 @@ export namespace AiService {
 
   export type AutocompleteArgOptionsRequest = {
     id: string;
-    arg_prefix: string;
+    cmd: string;
   };
 
   export async function listAutocompleteOptions(): Promise<ListAutocompleteOptionsResponse> {

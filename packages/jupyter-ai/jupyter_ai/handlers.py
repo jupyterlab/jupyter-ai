@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Dict, List, Optional, cast
 import tornado
 from jupyter_ai.chat_handlers import BaseChatHandler, SlashCommandRoutingType
 from jupyter_ai.config_manager import ConfigManager, KeyEmptyError, WriteConflictError
-from jupyter_ai.context_providers import BaseCommandContextProvider
+from jupyter_ai.context_providers import BaseCommandContextProvider, ContextCommand
 from jupyter_server.base.handlers import APIHandler as BaseAPIHandler
 from jupyter_server.base.handlers import JupyterHandler
 from langchain.pydantic_v1 import ValidationError
@@ -45,7 +45,7 @@ if TYPE_CHECKING:
     from jupyter_ai_magics.embedding_providers import BaseEmbeddingsProvider
     from jupyter_ai_magics.providers import BaseProvider
 
-    from .context_providers import BaseContextProvider, ContextCommand
+    from .context_providers import BaseContextProvider
     from .history import BoundedChatHistory
 
 
@@ -611,10 +611,10 @@ class AutocompleteOptionsHandler(BaseAPIHandler):
         try:
             data = self.get_json_body()
             context_provider = self.context_providers.get(data["id"])
-            cmd_prefix = data["cmd_prefix"]
+            cmd = data["cmd"]
             response = ListOptionsResponse()
 
-            arg_prefix = ContextCommand(cmd=cmd_prefix).arg
+            arg_prefix = ContextCommand(cmd=cmd).arg
             if (
                 arg_prefix is None
                 or not context_provider

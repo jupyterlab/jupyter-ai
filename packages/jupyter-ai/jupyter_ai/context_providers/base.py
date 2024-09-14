@@ -114,8 +114,11 @@ class ContextCommand(BaseModel):
             return None
         return self.cmd.partition(":")[2].strip("'\"").replace("\\ ", " ")
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.cmd
+
+    def __hash__(self) -> int:
+        return hash(self.cmd)
 
 
 class BaseCommandContextProvider(BaseContextProvider):
