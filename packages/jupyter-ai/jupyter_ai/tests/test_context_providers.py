@@ -59,8 +59,11 @@ def test_find_instances(file_context_provider, human_chat_message):
         '@file:"test6 .py"',
         "@file:'test7.py",
     ]
-    instances = file_context_provider._find_instances(human_chat_message.prompt)
-    assert instances == expected
+    commands = [
+        cmd.cmd
+        for cmd in file_context_provider._find_commands(human_chat_message.prompt)
+    ]
+    assert commands == expected
 
 
 def test_replace_prompt(file_context_provider, human_chat_message):
