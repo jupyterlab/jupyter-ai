@@ -1,6 +1,6 @@
 import argparse
-import math
 import ast
+import math
 
 # LangGraph imports for using tools
 import os
@@ -63,8 +63,7 @@ class ToolsChatHandler(BaseChatHandler):
             self.output_dir, "mytools.py"
         )  # Maybe pass as parameter?
 
-
-# https://python.langchain.com/v0.2/docs/integrations/platforms/
+    # https://python.langchain.com/v0.2/docs/integrations/platforms/
     def setChatProvider(self, provider):  # For selecting the model to bind tools with
         try:
             if "bedrock" in provider.name.lower():
@@ -86,7 +85,6 @@ class ToolsChatHandler(BaseChatHandler):
             self.log.error(e)
             response = """The related chat provider is not supported."""
             self.reply(response)
-
 
     def create_llm_chain(
         self, provider: Type[BaseProvider], provider_params: Dict[str, str]
@@ -134,7 +132,7 @@ class ToolsChatHandler(BaseChatHandler):
             for node in ast.walk(tree):
                 if isinstance(node, ast.FunctionDef):
                     for decorator in node.decorator_list:
-                        if isinstance(decorator, ast.Name) and decorator.id == 'tool':
+                        if isinstance(decorator, ast.Name) and decorator.id == "tool":
                             tools.append(node.name)
         return tools
 
@@ -150,15 +148,16 @@ class ToolsChatHandler(BaseChatHandler):
     def useLLMwithTools(self, query):
         """
         LangGraph documentation : https://langchain-ai.github.io/langgraph/tutorials/introduction/
-        The code below: 
+        The code below:
         1. Extracts the function names in the custom tools file
         2. Adds the tools to the Tool Node
         3. Binds the Tool Node to the LLM
         4. Sets up a basic LangGraph with nodes and edges
         5. Compiles the graph into a runnable app
         6. This function is then called with a prompt
-        Every time a query is submitted the langgraph is rebuilt in case the tools file has been changed. 
+        Every time a query is submitted the langgraph is rebuilt in case the tools file has been changed.
         """
+
         def call_tool(state: MessagesState):
             messages = state["messages"]
             response = self.model_with_tools.invoke(messages)
@@ -181,11 +180,11 @@ class ToolsChatHandler(BaseChatHandler):
         # ).bind_tools(tools)
         if self.chat_provider == "ChatBedrock":
             self.model_with_tools = eval(self.chat_provider)(
-                model_id=self.llm.model_id, #model_kwargs={"temperature": 0}
+                model_id=self.llm.model_id,  # model_kwargs={"temperature": 0}
             ).bind_tools(tools)
         else:
             self.model_with_tools = eval(self.chat_provider)(
-                model=self.llm.model_id, #temperature=0
+                model=self.llm.model_id,  # temperature=0
             ).bind_tools(tools)
 
         # Initialize graph
