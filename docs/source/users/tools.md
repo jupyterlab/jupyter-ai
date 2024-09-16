@@ -2,7 +2,19 @@
 
 In many situations LLMs will handle complex mathematical formulas quite well and return correct answers, but this is often not the case. Even for textual repsonses, using custom functions can constrain responses to formats and content that is more accurate and acceptable.
 
-Jupyter AI includes a slash command `/tools` that directs the LLM to use functions from a tools library that you provide. This is a single file titled `mytools.py` which may be stored in the default directory, that is, the one from which Jupyter is started. We provide an example of the tools file here, containing just three functions. Make sure to add the `@tool` decorator to each function and to import all packages that are not already installed within each function. The functions below are common financial formulas that are widely in use and you may expect that an LLM would be trained on these. While this is accurate, we will see that the LLM is unable to accurately execute the math in these formulas.
+Jupyter AI includes a slash command `/tools` that directs the LLM to use functions from a tools library that you provide. This is a single file titled `mytools.py` which will be stored under `.jupyter/jupyter-ai/tools/`. 
+
+The usage of this slash command is as follows:
+
+`/tools -t <tools_file_name> <query>`
+
+For example, we may try:
+
+`/tools -t mytools.py What is the sum of 1 and 2?`
+
+Note that since the file has to be placed in `.jupyter/jupyter-ai/tools/`, only file name is needed in the command. 
+
+We provide an example of the tools file here, containing just three functions. Make sure to add the `@tool` decorator to each function and to import all packages that are not already installed within each function. The functions below are common financial formulas that are widely in use and you may expect that an LLM would be trained on these. While this is accurate, we will see that the LLM is unable to accurately execute the math in these formulas.
 
 ```
 @tool
@@ -56,7 +68,7 @@ def calculate_monthly_payment(principal, annual_interest_rate, loan_term_years):
     return monthly_payment
 ```
 
-Each function contains the `@tool` decorator and the required imports. Note also the comment string that describes what each tool does. This will help direct the LLM to relevant tool. Providing sufficient guiding comments in the function is helpful in the form of comment strings, variable annotations, and expolicit argument comments, example of which are shown in the code above. For example, default values in comments will be used by the LLM if the user forgets to provide them (for example, see the explicit mention of a 6% interest rate in `calculate_monthly_payment` function above).
+Each function contains the `@tool` decorator and the required imports. Note also the comment string that describes what each tool does. This will help direct the LLM to relevant tool. Providing sufficient guiding comments in the function is helpful in the form of comment strings, variable annotations, and explicit argument comments, example of which are shown in the code above. For example, default values in comments will be used by the LLM if the user forgets to provide them (for example, see the explicit mention of a 6% interest rate in `calculate_monthly_payment` function above).
 
 When the `/tools` command is used, Jupyter AI will bind the custom tools file to the LLM currently in use and build a `LangGraph` (https://langchain-ai.github.io/langgraph/). It will use this graph to respond to the query and use the appropriate tools, if available.
 

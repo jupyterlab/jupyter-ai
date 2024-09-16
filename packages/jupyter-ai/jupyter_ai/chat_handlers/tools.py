@@ -1,6 +1,8 @@
 import argparse
 import ast
 import math
+import ast
+from pathlib import Path
 
 # LangGraph imports for using tools
 import os
@@ -58,10 +60,19 @@ class ToolsChatHandler(BaseChatHandler):
         super().__init__(*args, **kwargs)
 
         self.parser.prog = "/tools"
+        self.parser.add_argument(
+            "-t",
+            "--tools",
+            action="store",
+            default=None,
+            type=str,
+            help="Use tools in the given file name",
+        )
         self.parser.add_argument("query", nargs=argparse.REMAINDER)
-        self.tools_file_path = os.path.join(
-            self.output_dir, "mytools.py"
-        )  # Maybe pass as parameter?
+        self.tools_file_path = None
+        # os.path.join(
+        #     Path.home(), ".jupyter/jupyter-ai/tools", "mytools.py"
+        # )  # Maybe pass as parameter?
 
     # https://python.langchain.com/v0.2/docs/integrations/platforms/
     def setChatProvider(self, provider):  # For selecting the model to bind tools with
@@ -110,14 +121,14 @@ class ToolsChatHandler(BaseChatHandler):
         /tools <query>
     """
 
-    def conditional_continue(state: MessagesState) -> Literal["tools", "__end__"]:
+    def conditional_continue(self, state: MessagesState) -> Literal["tools", "__end__"]:
         messages = state["messages"]
         last_message = messages[-1]
         if last_message.tool_calls:
             return "tools"
         return "__end__"
 
-    def get_tool_names(tools_file_path):
+    def get_tool_names(self, tools_file_path):
         """
         Read a file and extract the function names following the @tool decorator.
         Args:
@@ -125,16 +136,19 @@ class ToolsChatHandler(BaseChatHandler):
         Returns:
             list: A list of function names.
         """
-        with open(tools_file_path) as file:
-            content = file.read()
-            tree = ast.parse(content)
-            tools = []
-            for node in ast.walk(tree):
-                if isinstance(node, ast.FunctionDef):
-                    for decorator in node.decorator_list:
-                        if isinstance(decorator, ast.Name) and decorator.id == "tool":
-                            tools.append(node.name)
-        return tools
+        try:
+            with open(tools_file_path) as file:
+                content = file.read()
+                tree = ast.parse(content)
+                tools = []
+                for node in ast.walk(tree):
+                    if isinstance(node, ast.FunctionDef):
+                        for decorator in node.decorator_list:
+                            if isinstance(decorator, ast.Name) and decorator.id == 'tool':
+                                tools.append(node.name)
+            return tools
+        except FileNotFoundError as e:
+            self.reply(f"Tools file not found at {tools_file_path}.")
 
     def toolChat(self, query):
         print("TOOL CHAT", query)
@@ -169,7 +183,7 @@ class ToolsChatHandler(BaseChatHandler):
             exec(file.read())
 
         # Get tool names and create node with tools
-        tool_names = ToolsChatHandler.get_tool_names(file_path)
+        tool_names = self.get_tool_names(file_path)
         tools = [eval(j) for j in tool_names]
         tool_node = ToolNode(tools)
 
@@ -195,7 +209,7 @@ class ToolsChatHandler(BaseChatHandler):
         # Add edges to the graph
         agentic_workflow.add_edge("__start__", "agent")
         agentic_workflow.add_conditional_edges(
-            "agent", ToolsChatHandler.conditional_continue
+            "agent", self.conditional_continue
         )
         agentic_workflow.add_edge("tools", "agent")
         # Compile graph
@@ -210,6 +224,12 @@ class ToolsChatHandler(BaseChatHandler):
         args = self.parse_args(message)
         if args is None:
             return
+
+        if args.tools:
+            self.tools_file_path = os.path.join(
+                Path.home(), ".jupyter/jupyter-ai/tools", args.tools
+            ) 
+
         query = " ".join(args.query)
         if not query:
             self.reply(f"{self.parser.format_usage()}", message)
@@ -226,7 +246,7 @@ class ToolsChatHandler(BaseChatHandler):
             response = """Sorry, tool usage failed.
             Either (i) this LLM does not accept tools, (ii) there an error in
             the custom tools file, (iii) you may also want to check the
-            location of the tools file, or (iv) you may need to install the
+            location and name of the tools file, or (iv) you may need to install the
             `langchain_<provider_name>` package. (v) Finally, check that you have
             authorized access to the LLM."""
             self.reply(response, message)
