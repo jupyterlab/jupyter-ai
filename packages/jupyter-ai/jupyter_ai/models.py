@@ -70,8 +70,7 @@ class ChatClient(ChatUser):
     id: str
 
 
-class AgentChatMessage(BaseModel):
-    type: Literal["agent"] = "agent"
+class BaseAgentMessage(BaseModel):
     id: str
     time: float
     body: str
@@ -89,7 +88,11 @@ class AgentChatMessage(BaseModel):
     """
 
 
-class AgentStreamMessage(AgentChatMessage):
+class AgentChatMessage(BaseAgentMessage):
+    type: Literal["agent"] = "agent"
+
+
+class AgentStreamMessage(BaseAgentMessage):
     type: Literal["agent-stream"] = "agent-stream"
     complete: bool
     # other attrs inherited from `AgentChatMessage`
@@ -138,15 +141,13 @@ class PendingMessage(BaseModel):
 
 
 class ClosePendingMessage(BaseModel):
-    type: Literal["pending"] = "close-pending"
+    type: Literal["close-pending"] = "close-pending"
     id: str
 
 
 # the type of messages being broadcast to clients
 ChatMessage = Union[
-    AgentChatMessage,
-    HumanChatMessage,
-    AgentStreamMessage,
+    AgentChatMessage, HumanChatMessage, AgentStreamMessage, AgentStreamChunkMessage
 ]
 
 
@@ -164,8 +165,7 @@ class ConnectionMessage(BaseModel):
 
 
 Message = Union[
-    AgentChatMessage,
-    HumanChatMessage,
+    ChatMessage,
     ConnectionMessage,
     ClearMessage,
     PendingMessage,
