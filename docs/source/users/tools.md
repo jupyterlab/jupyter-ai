@@ -2,7 +2,7 @@
 
 In many situations LLMs will handle complex mathematical formulas quite well and return correct answers, but this is often not the case. Even for textual repsonses, using custom functions can constrain responses to formats and content that is more accurate and acceptable.
 
-Jupyter AI includes a slash command `/tools` that directs the LLM to use functions from a tools library that you provide. This is a single file titled `mytools.py` which will be stored under `.jupyter/jupyter-ai/tools/`. 
+Jupyter AI includes a slash command `/tools` that directs the LLM to use functions from a tools library that you provide. This is a single file titled `mytools.py` which will be stored under `.jupyter/jupyter-ai/tools/`.
 
 The usage of this slash command is as follows:
 
@@ -12,7 +12,7 @@ For example, we may try:
 
 `/tools -t mytools.py What is the sum of 1 and 2?`
 
-Note that since the file has to be placed in `.jupyter/jupyter-ai/tools/`, only file name is needed in the command. 
+Note that since the file has to be placed in `.jupyter/jupyter-ai/tools/`, only file name is needed in the command.
 
 We provide an example of the tools file here, containing just three functions. Make sure to add the `@tool` decorator to each function and to import all packages that are not already installed within each function. The functions below are common financial formulas that are widely in use and you may expect that an LLM would be trained on these. While this is accurate, we will see that the LLM is unable to accurately execute the math in these formulas.
 

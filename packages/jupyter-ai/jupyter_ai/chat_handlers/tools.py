@@ -1,11 +1,10 @@
 import argparse
 import ast
 import math
-import ast
-from pathlib import Path
 
 # LangGraph imports for using tools
 import os
+from pathlib import Path
 from typing import Dict, Literal, Type
 
 import numpy as np
@@ -144,7 +143,10 @@ class ToolsChatHandler(BaseChatHandler):
                 for node in ast.walk(tree):
                     if isinstance(node, ast.FunctionDef):
                         for decorator in node.decorator_list:
-                            if isinstance(decorator, ast.Name) and decorator.id == 'tool':
+                            if (
+                                isinstance(decorator, ast.Name)
+                                and decorator.id == "tool"
+                            ):
                                 tools.append(node.name)
             return tools
         except FileNotFoundError as e:
@@ -208,9 +210,7 @@ class ToolsChatHandler(BaseChatHandler):
         agentic_workflow.add_node("tools", tool_node)
         # Add edges to the graph
         agentic_workflow.add_edge("__start__", "agent")
-        agentic_workflow.add_conditional_edges(
-            "agent", self.conditional_continue
-        )
+        agentic_workflow.add_conditional_edges("agent", self.conditional_continue)
         agentic_workflow.add_edge("tools", "agent")
         # Compile graph
         app = agentic_workflow.compile()
@@ -228,7 +228,7 @@ class ToolsChatHandler(BaseChatHandler):
         if args.tools:
             self.tools_file_path = os.path.join(
                 Path.home(), ".jupyter/jupyter-ai/tools", args.tools
-            ) 
+            )
 
         query = " ".join(args.query)
         if not query:
