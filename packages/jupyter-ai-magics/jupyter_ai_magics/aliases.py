@@ -6,4 +6,5 @@ MODEL_ID_ALIASES = {
     "ernie-bot": "qianfan:ERNIE-Bot",
     "ernie-bot-4": "qianfan:ERNIE-Bot-4",
     "titan": "bedrock:amazon.titan-tg1-large",
+    "openrouter-claude": "openrouter:anthropic/claude-3.5-sonnet:beta",
 }
