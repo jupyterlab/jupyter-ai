@@ -136,25 +136,9 @@ def collect_filepaths(path, all_files: bool):
         filepaths = walk_directory(path, all_files)
     else:
         filepaths = []
-        directories = []
         for glob_path in iglob(str(path), include_hidden=all_files, recursive=True):
             if os.path.isfile(glob_path):
                 filepaths.append(Path(glob_path))
-                continue
-            # only keep directories if no files
-            elif len(filepaths) == 0:
-                directories.append(glob_path)
-        # walk the directories if only directories are returned from iglob
-        if not filepaths and directories:
-            filepaths = list(
-                {
-                    Path(path)
-                    for dir_paths in map(
-                        lambda p: walk_directory(p, all_files), directories
-                    )
-                    for path in dir_paths
-                }
-            )
     valid_exts = {j.lower() for j in SUPPORTED_EXTS}
     filepaths = [fp for fp in filepaths if fp.suffix.lower() in valid_exts]
     return filepaths
