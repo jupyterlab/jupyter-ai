@@ -785,6 +785,15 @@ A function that computes the lowest common multiples of two integers, and
 a function that runs 5 test cases of the lowest common multiple function
 ```
 
+### Clearing the chat history
+
+You can run the `%ai reset` line magic command to clear the chat history. After you do this,
+previous magic commands you've run will no longer be added as context in requests.
+
+```
+%ai reset
+```
+
 ### Interpolating in prompts
 
 Using curly brace syntax, you can include variables and other Python expressions in your
