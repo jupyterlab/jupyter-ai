@@ -1,11 +1,10 @@
 from typing import Dict
 
+from jupyter_ai_magics import BaseProvider
+from jupyter_ai_magics.providers import EnvAuthStrategy, TextField
 from langchain_core.pydantic_v1 import root_validator
 from langchain_core.utils import convert_to_secret_str, get_from_dict_or_env
 from langchain_openai import ChatOpenAI
-
-from jupyter_ai_magics import BaseProvider
-from jupyter_ai_magics.providers import EnvAuthStrategy, TextField
 
 
 class ChatOpenRouter(ChatOpenAI):
