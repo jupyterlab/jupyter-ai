@@ -15,6 +15,7 @@ from jupyter_ai_magics.aliases import MODEL_ID_ALIASES
 from jupyter_ai_magics.utils import decompose_model_id, get_lm_providers
 from langchain.chains import LLMChain
 from langchain.schema import HumanMessage
+from langchain_core.messages import AIMessage
 
 from ._version import __version__
 from .parsers import (
@@ -24,6 +25,7 @@ from .parsers import (
     HelpArgs,
     ListArgs,
     RegisterArgs,
+    ResetArgs,
     UpdateArgs,
     VersionArgs,
     cell_magic_parser,
@@ -146,7 +148,7 @@ class AiMagics(Magics):
 
     def __init__(self, shell):
         super().__init__(shell)
-        self.transcript_openai = []
+        self.transcript = []
 
         # suppress warning when using old Anthropic provider
         warnings.filterwarnings(
@@ -437,6 +439,12 @@ class AiMagics(Magics):
 
         return self.run_ai_cell(cell_args, prompt)
 
+    def _append_exchange(self, prompt: str, output: str):
+        """Appends a conversational exchange between user and an OpenAI Chat
+        model to a transcript that will be included in future exchanges."""
+        self.transcript.append(HumanMessage(prompt))
+        self.transcript.append(AIMessage(output))
+
     def _decompose_model_id(self, model_id: str):
         """Breaks down a model ID into a two-tuple (provider_id, local_model_id). Returns (None, None) if indeterminate."""
         # custom_model_registry maps keys to either a model name (a string) or an LLMChain.
@@ -499,6 +507,9 @@ class AiMagics(Magics):
 
     def handle_version(self, args: VersionArgs):
         return __version__
+
+    def handle_reset(self, args: ResetArgs):
+        self.transcript = []
 
     def run_ai_cell(self, args: CellArgs, prompt: str):
         provider_id, local_model_id = self._decompose_model_id(args.model_id)
@@ -578,12 +589,29 @@ class AiMagics(Magics):
         prompt = prompt.format_map(FormatDict(ip.user_ns))
 
         if provider.is_chat_provider:
-            result = provider.generate([[HumanMessage(content=prompt)]])
+            result = provider.generate(
+                [[*self.transcript, HumanMessage(content=prompt)]]
+            )
         else:
             # generate output from model via provider
-            result = provider.generate([prompt])
+            if self.transcript:
+                transcript = [
+                    (
+                        f"<HUMAN>{message.content}</HUMAN>"
+                        if message.type == "human"
+                        else message.content
+                    )
+                    for message in self.transcript + [HumanMessage(content=prompt)]
+                ]
+            else:
+                transcript = [prompt]
+            result = provider.generate(transcript)
 
         output = result.generations[0][0].text
+
+        # append exchange to transcript
+        self._append_exchange(prompt, output)
+
         md = {"jupyter_ai": {"provider_id": provider_id, "model_id": local_model_id}}
 
         return self.display_output(output, args.format, md)
@@ -628,6 +656,8 @@ class AiMagics(Magics):
                 return self.handle_update(args)
             if args.type == "version":
                 return self.handle_version(args)
+            if args.type == "reset":
+                return self.handle_reset(args)
         except ValueError as e:
             print(e, file=sys.stderr)
             return
