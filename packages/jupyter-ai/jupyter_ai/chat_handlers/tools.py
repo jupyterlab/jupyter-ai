@@ -69,9 +69,7 @@ class ToolsChatHandler(BaseChatHandler):
         )
         self.parser.add_argument("query", nargs=argparse.REMAINDER)
         self.tools_file_path = None
-        # os.path.join(
-        #     Path.home(), ".jupyter/jupyter-ai/tools", "mytools.py"
-        # )  # Maybe pass as parameter?
+
 
     # https://python.langchain.com/v0.2/docs/integrations/platforms/
     def setChatProvider(self, provider):  # For selecting the model to bind tools with
