@@ -65,34 +65,19 @@ class ToolsChatHandler(BaseChatHandler):
             action="store",
             default=None,
             type=str,
-            help="Use tools in the given file name",
+            help="Uses tools in the given file name",
         )
+        self.parser.add_argument(
+            "-l",
+            "--list",
+            action="store_true",
+            help="Lists available files in tools directory.",
+        )
+
         self.parser.add_argument("query", nargs=argparse.REMAINDER)
         self.tools_file_path = None
 
     # https://python.langchain.com/v0.2/docs/integrations/platforms/
-    def setChatProvider(self, provider):  # For selecting the model to bind tools with
-        try:
-            if "bedrock" in provider.name.lower():
-                chat_provider = "ChatBedrock"
-            elif "ollama" in provider.name.lower():
-                chat_provider = "ChatOllama"
-            elif "anthropic" in provider.name.lower():
-                chat_provider = "ChatAnthropic"
-            elif "azure" in provider.name.lower():
-                chat_provider = "AzureChatOpenAI"
-            elif "openai" in provider.name.lower():
-                chat_provider = "ChatOpenAI"
-            elif "cohere" in provider.name.lower():
-                chat_provider = "ChatCohere"
-            elif "google" in provider.name.lower():
-                chat_provider = "ChatGoogleGenerativeAI"
-            return chat_provider
-        except Exception as e:
-            self.log.error(e)
-            response = """The related chat provider is not supported."""
-            self.reply(response)
-
     def create_llm_chain(
         self, provider: Type[BaseProvider], provider_params: Dict[str, str]
     ):
@@ -102,7 +87,7 @@ class ToolsChatHandler(BaseChatHandler):
         }
         llm = provider(**unified_parameters)
         self.llm = llm
-        self.chat_provider = self.setChatProvider(provider)
+        # self.chat_provider = self.setChatProvider(provider)
         memory = ConversationBufferWindowMemory(
             memory_key="chat_history", return_messages=True, k=2
         )
@@ -123,8 +108,22 @@ class ToolsChatHandler(BaseChatHandler):
         if last_message.tool_calls:
             return "tools"
         return "__end__"
+    
+    # Get required tool files from ``.jupyter/jupyter-ai/tools/``
+    def getToolFiles(self, fpath):
+        if os.path.isfile(fpath):
+            file_paths = [fpath]
+        elif os.path.isdir(fpath):
+            file_paths = []
+            for filename in os.listdir(fpath):
+                file_paths.append(os.path.join(fpath, filename))
+        else:
+            self.reply("No tools found.")
+            return
+        return file_paths
 
-    def get_tool_names(self, tools_file_path):
+
+    def getToolNames(self, tools_file_path):
         """
         Read a file and extract the function names following the @tool decorator.
         Args:
@@ -145,8 +144,8 @@ class ToolsChatHandler(BaseChatHandler):
                                 and decorator.id == "tool"
                             ):
                                 tools.append(node.name)
-            return tools
-        except FileNotFoundError as e:
+            return tools # this is a list
+        except FileNotFoundError as e: # to do
             self.reply(f"Tools file not found at {tools_file_path}.")
 
     def toolChat(self, query):
@@ -156,6 +155,7 @@ class ToolsChatHandler(BaseChatHandler):
         ):
             response = chunk["messages"][-1].pretty_print()
         return response
+
 
     ##### MAIN FUNCTION #####
     def useLLMwithTools(self, query):
@@ -171,35 +171,38 @@ class ToolsChatHandler(BaseChatHandler):
         Every time a query is submitted the langgraph is rebuilt in case the tools file has been changed.
         """
 
+        # Calls the requisite tool in the LangGraph
         def call_tool(state: MessagesState):
             messages = state["messages"]
             response = self.model_with_tools.invoke(messages)
             return {"messages": [response]}
+        
+        # Get all tool objects from the tool files
+        def getTools(file_paths):
+            if len(file_paths)>0:
+                tool_names = []
+                for file_path in file_paths:
+                    with open(file_path) as file:
+                        exec(file.read())
+                    tool_names = tool_names + self.getToolNames(file_path)
+                tools = [eval(j) for j in tool_names]
+                return tools
 
-        # Read in the tools file, WARNING - THIS USES EXEC()
-        file_path = self.tools_file_path
-        with open(file_path) as file:
-            exec(file.read())
-
-        # Get tool names and create node with tools
-        tool_names = self.get_tool_names(file_path)
-        tools = [eval(j) for j in tool_names]
+        # Get tool file(s), then tools within tool files, and create tool node from tools
+        file_paths = self.getToolFiles(self.tools_file_path)
+        tools = getTools(file_paths)
         tool_node = ToolNode(tools)
 
         # Bind tools to LLM
-        # print("SELF.LLM_CLASS", self.llm.__class__.id, "MODEL", self.llm.model_id, "CHAT PROVIDER", eval(self.chat_provider.__class__), "SELF.LLM.CHAT_MODELS", self.llm.chat_models)
-        # self.model_with_tools = self.llm.__class__(
-        #     model_id=self.llm.model_id
-        # ).bind_tools(tools)
-        if self.chat_provider == "ChatBedrock":
-            self.model_with_tools = eval(self.chat_provider)(
-                model_id=self.llm.model_id,  # model_kwargs={"temperature": 0}
+        # Check if the LLM class takes tools else advise user accordingly. 
+        # Can be extended to include temperature parameter
+        try:
+            self.model_with_tools = self.llm.__class__(
+                model_id=self.llm.model_id
             ).bind_tools(tools)
-        else:
-            self.model_with_tools = eval(self.chat_provider)(
-                model=self.llm.model_id,  # temperature=0
-            ).bind_tools(tools)
-
+        except Exception as e: 
+            self.reply(f"Not a chat model, cannot be used with tools. {e}")
+            
         # Initialize graph
         agentic_workflow = StateGraph(MessagesState)
         # Define the agent and tool nodes we will cycle between
@@ -222,9 +225,17 @@ class ToolsChatHandler(BaseChatHandler):
         if args is None:
             return
 
-        if args.tools:
+        if args.list:
+            tool_files = os.listdir(os.path.join(Path.home(), ".jupyter/jupyter-ai/tools"))
+            self.reply(f"The available tools files are: {tool_files}")
+            return
+        elif args.tools:
             self.tools_file_path = os.path.join(
                 Path.home(), ".jupyter/jupyter-ai/tools", args.tools
+            )
+        else: 
+            self.tools_file_path = os.path.join(
+                Path.home(), ".jupyter/jupyter-ai/tools"
             )
 
         query = " ".join(args.query)

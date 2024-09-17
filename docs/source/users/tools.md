@@ -2,19 +2,43 @@
 
 In many situations LLMs will handle complex mathematical formulas quite well and return correct answers, but this is often not the case. Even for textual repsonses, using custom functions can constrain responses to formats and content that is more accurate and acceptable.
 
-Jupyter AI includes a slash command `/tools` that directs the LLM to use functions from a tools library that you provide. This is a single file titled `mytools.py` which will be stored under `.jupyter/jupyter-ai/tools/`.
+Jupyter AI includes a slash command `/tools` that directs the LLM to use functions from a tools library that you provide. You can have multiple tool files stored in the subdirectory `.jupyter/jupyter-ai/tools/`.
 
-The usage of this slash command is as follows:
+You can use a single tool file from this subdirectory. In this case the usage of this slash command is as follows:
 
-`/tools -t <tools_file_name> <query>`
+```
+/tools -t <tools_file_name> <query>
+```
 
-For example, we may try:
+For example, we may try using a tools file called `arithmetic.py`. Note that since the file has to be placed in `.jupyter/jupyter-ai/tools/`, only file name is needed in the command.
 
-`/tools -t mytools.py What is the sum of 1 and 2?`
+```
+/tools -t arithmetic.py What is the sum of 1 and 2?
+```
 
-Note that since the file has to be placed in `.jupyter/jupyter-ai/tools/`, only file name is needed in the command.
+The contents of the example file `arithmetic.py` are very simple: 
 
-We provide an example of the tools file here, containing just three functions. Make sure to add the `@tool` decorator to each function and to import all packages that are not already installed within each function. The functions below are common financial formulas that are widely in use and you may expect that an LLM would be trained on these. While this is accurate, we will see that the LLM is unable to accurately execute the math in these formulas.
+```
+@tool
+def multiply(first_number: float, second_number: float):
+    """Multiplies two numbers together."""
+    return first_number * second_number
+
+@tool
+def add(first_number: float, second_number: float):
+    """Adds two numbers together."""
+    return first_number + second_number
+```
+
+The result is shown below:
+
+<img src="../_static/tools_simple_example.png"
+    width="75%"
+    alt='Use of the arithmetic tools file.'
+    class="screenshot" />
+
+
+We provide another example of tahe tools file here, containing just three functions, called `finance.py`. Make sure to add the `@tool` decorator to each function and to import all packages that are not already installed within each function. The functions below are common financial formulas that are widely in use and you may expect that an LLM would be trained on these. While this is accurate, we will see that the LLM is unable to accurately execute the math in these formulas.
 
 ```
 @tool
@@ -87,3 +111,21 @@ Next, use the `/tools` command with the same query to get the correct answer:
     class="screenshot" />
 
 You can try the other tools in this example or build your own custom tools file to experiment with this feature.
+
+If you do not want to use any specific tool file, that is, use all the tool files together, the command is simply:
+
+```
+/tools <query>
+```
+
+To list all the tool file names: 
+
+```
+/tools -l
+```
+
+and the response is 
+
+```
+The available tools files are: ['arithmetic.py', 'finance.py']
+```
