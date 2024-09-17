@@ -106,7 +106,7 @@ class ContextCommand(BaseModel):
 
     @property
     def id(self) -> str:
-        return self.cmd.partition(":")[0][1:]
+        return self.cmd.partition(":")[0]
 
     @property
     def arg(self) -> Optional[str]:
@@ -122,10 +122,16 @@ class ContextCommand(BaseModel):
 
 
 class BaseCommandContextProvider(BaseContextProvider):
+    id_prefix: ClassVar[str] = "@"
+    only_start: ClassVar[bool] = False
     requires_arg: ClassVar[bool] = False
     remove_from_prompt: ClassVar[bool] = (
         False  # whether the command should be removed from prompt
     )
+
+    @property
+    def command_id(self) -> str:
+        return self.id_prefix + self.id
 
     @property
     def pattern(self) -> str:
@@ -153,20 +159,14 @@ class BaseCommandContextProvider(BaseContextProvider):
         """
         if self.requires_arg:
             # default implementation that should be modified if 'requires_arg' is True
-            return [
-                ListOptionsEntry.from_arg(
-                    type="@",
-                    id=self.id,
-                    description=self.description,
-                    arg=arg_prefix,
-                    is_complete=True,
-                )
-            ]
+            return [self._make_arg_option(arg_prefix)]
         return []
 
     def _find_commands(self, text: str) -> List[ContextCommand]:
         # finds commands of the context provider in the text
-        matches = re.finditer(self.pattern, text)
+        matches = list(re.finditer(self.pattern, text))
+        if self.only_start:
+            matches = [match for match in matches if match.start() == 0]
         results = []
         for match in matches:
             if not _is_within_backticks(match, text):
@@ -177,6 +177,21 @@ class BaseCommandContextProvider(BaseContextProvider):
         if self.remove_from_prompt:
             return ""
         return command.cmd
+
+    def _make_arg_option(
+        self,
+        arg: str,
+        *,
+        is_complete: bool = True,
+        description: Optional[str] = None,
+    ) -> ListOptionsEntry:
+        return ListOptionsEntry.from_arg(
+            id=self.command_id,
+            description=description or self.description,
+            only_start=self.only_start,
+            arg=arg,
+            is_complete=is_complete,
+        )
 
 
 def _is_within_backticks(match, text):

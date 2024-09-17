@@ -45,14 +45,15 @@ type ChatInputProps = {
  * unclear whether custom icons should be defined within a Lumino plugin (in the
  * frontend) or served from a static server route (in the backend).
  */
-const DEFAULT_SLASH_COMMAND_ICONS: Record<string, JSX.Element> = {
-  ask: <FindInPage />,
-  clear: <HideSource />,
-  export: <Download />,
-  fix: <AutoFixNormal />,
-  generate: <MenuBook />,
-  help: <Help />,
-  learn: <School />,
+const DEFAULT_COMMAND_ICONS: Record<string, JSX.Element> = {
+  '/ask': <FindInPage />,
+  '/clear': <HideSource />,
+  '/export': <Download />,
+  '/fix': <AutoFixNormal />,
+  '/generate': <MenuBook />,
+  '/help': <Help />,
+  '/learn': <School />,
+  '@file': <FindInPage />,
   unknown: <MoreHoriz />
 };
 
@@ -64,9 +65,9 @@ function renderAutocompleteOption(
   option: AiService.AutocompleteOption
 ): JSX.Element {
   const icon =
-    option.id in DEFAULT_SLASH_COMMAND_ICONS
-      ? DEFAULT_SLASH_COMMAND_ICONS[option.id]
-      : DEFAULT_SLASH_COMMAND_ICONS.unknown;
+    option.id in DEFAULT_COMMAND_ICONS
+      ? DEFAULT_COMMAND_ICONS[option.id]
+      : DEFAULT_COMMAND_ICONS.unknown;
 
   return (
     <li {...optionProps}>
@@ -120,12 +121,12 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
   useEffect(() => {
     async function getAutocompleteArgOptions() {
       let options: AiService.AutocompleteOption[] = [];
-      const lastWord = input.split(/(?<!\\)\s+/).pop() || '';
-      if (lastWord.startsWith('@') && lastWord.includes(':')) {
+      const lastWord = getLastWord(input);
+      if (lastWord.includes(':')) {
         const id = lastWord.split(':', 1)[0];
         // get option that matches the command
         const option = autocompleteCommandOptions.find(
-          option => option.id === id.slice(1) && option.type === '@'
+          option => option.id === id
         );
         if (option) {
           const response = await AiService.listAutocompleteArgOptions({
@@ -149,10 +150,10 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
     }
   }, [autocompleteCommandOptions, autocompleteArgOptions]);
 
-  // whether any option is highlighted in the slash command autocomplete
+  // whether any option is highlighted in the autocomplete
   const [highlighted, setHighlighted] = useState<boolean>(false);
 
-  // controls whether the slash command autocomplete is open
+  // controls whether the autocomplete is open
   const [open, setOpen] = useState<boolean>(false);
 
   // store reference to the input element to enable focusing it easily
@@ -178,7 +179,7 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
    * chat input. Close the autocomplete when the user clears the chat input.
    */
   useEffect(() => {
-    if (input === '/' || input.endsWith('@')) {
+    if (filterAutocompleteOptions(autocompleteOptions, input).length > 0) {
       setOpen(true);
       return;
     }
@@ -284,14 +285,15 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
     options: AiService.AutocompleteOption[],
     inputValue: string
   ): AiService.AutocompleteOption[] {
-    const lastWord = inputValue.split(/(?<!\\)\s+/).pop() || '';
-    if (
-      (lastWord.startsWith('/') && lastWord === inputValue) ||
-      lastWord.startsWith('@')
-    ) {
-      return options.filter(option => option.label.startsWith(lastWord));
+    const lastWord = getLastWord(inputValue);
+    if (lastWord === '') {
+      return [];
     }
-    return [];
+    const isStart = lastWord === inputValue;
+    return options.filter(
+      option =>
+        option.label.startsWith(lastWord) && (!option.only_start || isStart)
+    );
   }
 
   return (
@@ -386,4 +388,8 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
       />
     </Box>
   );
+}
+
+function getLastWord(input: string): string {
+  return input.split(/(?<!\\)\s+/).pop() || '';
 }

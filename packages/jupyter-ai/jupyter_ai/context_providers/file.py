@@ -27,7 +27,11 @@ class FileContextProvider(BaseCommandContextProvider):
         path_prefix = arg_prefix if is_abs else os.path.join(self.base_dir, arg_prefix)
         path_prefix = path_prefix
         return [
-            self._make_option(path, is_abs, is_dir)
+            self._make_arg_option(
+                arg=self._make_path(path, is_abs, is_dir),
+                description="Directory" if is_dir else "File",
+                is_complete=not is_dir,
+            )
             for path in glob.glob(path_prefix + "*")
             if (
                 (is_dir := os.path.isdir(path))
@@ -35,18 +39,12 @@ class FileContextProvider(BaseCommandContextProvider):
             )
         ]
 
-    def _make_option(self, path: str, is_abs: bool, is_dir: bool) -> ListOptionsEntry:
+    def _make_path(self, path: str, is_abs: bool, is_dir: bool) -> str:
         if not is_abs:
             path = os.path.relpath(path, self.base_dir)
         if is_dir:
             path += "/"
-        return ListOptionsEntry.from_arg(
-            type="@",
-            id=self.id,
-            description="Directory" if is_dir else "File",
-            arg=path,
-            is_complete=not is_dir,
-        )
+        return path
 
     async def make_context_prompt(self, message: HumanChatMessage) -> str:
         commands = set(self._find_commands(message.prompt))

@@ -266,34 +266,41 @@ class ListSlashCommandsResponse(BaseModel):
 
 
 class ListOptionsEntry(BaseModel):
-    type: Literal["/", "@"]
     id: str
+    # includes the command prefix. e.g. "/clear", "@file".
     label: str
     description: str
+    only_start: bool
+    # only allows autocomplete to be triggered if command is at start of input
 
     @classmethod
     def from_command(
         cls,
-        type: Literal["/", "@"],
         id: str,
         description: str,
+        only_start: bool = False,
         requires_arg: bool = False,
     ):
-        label = type + id + (":" if requires_arg else " ")
-        return cls(type=type, id=id, description=description, label=label)
+        label = id + (":" if requires_arg else " ")
+        return cls(id=id, description=description, label=label, only_start=only_start)
 
     @classmethod
     def from_arg(
         cls,
-        type: Literal["/", "@"],
         id: str,
         description: str,
         arg: str,
+        only_start: bool = False,
         is_complete: bool = True,
     ):
         arg = arg.replace("\\ ", " ").replace(" ", "\\ ")  # escape spaces
-        label = type + id + ":" + arg + (" " if is_complete else "")
-        return cls(type=type, id=id, description=description, label=label)
+        label = id + ":" + arg + (" " if is_complete else "")
+        return cls(
+            id=id,
+            description=description,
+            label=label,
+            only_start=only_start,
+        )
 
 
 class ListOptionsResponse(BaseModel):

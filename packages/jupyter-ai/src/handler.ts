@@ -317,10 +317,10 @@ export namespace AiService {
   }
 
   export type AutocompleteOption = {
-    type: '/' | '@';
     id: string;
     description: string;
     label: string;
+    only_start: boolean;
   };
 
   export type ListAutocompleteOptionsResponse = {

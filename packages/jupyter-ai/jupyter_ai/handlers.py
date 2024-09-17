@@ -610,7 +610,15 @@ class AutocompleteOptionsHandler(BaseAPIHandler):
     def post(self):
         try:
             data = self.get_json_body()
-            context_provider = self.context_providers.get(data["id"])
+            context_provider = next(
+                (
+                    cp
+                    for cp in self.context_providers.values()
+                    if isinstance(cp, BaseCommandContextProvider)
+                    and cp.command_id == data["id"]
+                ),
+                None,
+            )
             cmd = data["cmd"]
             response = ListOptionsResponse()
 
@@ -658,7 +666,9 @@ class AutocompleteOptionsHandler(BaseAPIHandler):
 
             options.append(
                 ListOptionsEntry.from_command(
-                    type="/", id=routing_type.slash_id, description=chat_handler.help
+                    id="/" + routing_type.slash_id,
+                    description=chat_handler.help,
+                    only_start=True,
                 )
             )
         options.sort(key=lambda opt: opt.id)
@@ -667,9 +677,9 @@ class AutocompleteOptionsHandler(BaseAPIHandler):
     def _get_context_provider_options(self) -> List[ListOptionsEntry]:
         options = [
             ListOptionsEntry.from_command(
-                type="@",
-                id=context_provider.id,
+                id=context_provider.command_id,
                 description=context_provider.description,
+                only_start=context_provider.only_start,
                 requires_arg=context_provider.requires_arg,
             )
             for context_provider in self.context_providers.values()
