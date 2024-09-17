@@ -108,7 +108,7 @@ class ToolsChatHandler(BaseChatHandler):
         if last_message.tool_calls:
             return "tools"
         return "__end__"
-    
+
     # Get required tool files from ``.jupyter/jupyter-ai/tools/``
     def getToolFiles(self, fpath):
         if os.path.isfile(fpath):
@@ -121,7 +121,6 @@ class ToolsChatHandler(BaseChatHandler):
             self.reply("No tools found.")
             return
         return file_paths
-
 
     def getToolNames(self, tools_file_path):
         """
@@ -144,8 +143,8 @@ class ToolsChatHandler(BaseChatHandler):
                                 and decorator.id == "tool"
                             ):
                                 tools.append(node.name)
-            return tools # this is a list
-        except FileNotFoundError as e: # to do
+            return tools  # this is a list
+        except FileNotFoundError as e:  # to do
             self.reply(f"Tools file not found at {tools_file_path}.")
 
     def toolChat(self, query):
@@ -155,7 +154,6 @@ class ToolsChatHandler(BaseChatHandler):
         ):
             response = chunk["messages"][-1].pretty_print()
         return response
-
 
     ##### MAIN FUNCTION #####
     def useLLMwithTools(self, query):
@@ -176,10 +174,10 @@ class ToolsChatHandler(BaseChatHandler):
             messages = state["messages"]
             response = self.model_with_tools.invoke(messages)
             return {"messages": [response]}
-        
+
         # Get all tool objects from the tool files
         def getTools(file_paths):
-            if len(file_paths)>0:
+            if len(file_paths) > 0:
                 tool_names = []
                 for file_path in file_paths:
                     with open(file_path) as file:
@@ -194,15 +192,15 @@ class ToolsChatHandler(BaseChatHandler):
         tool_node = ToolNode(tools)
 
         # Bind tools to LLM
-        # Check if the LLM class takes tools else advise user accordingly. 
+        # Check if the LLM class takes tools else advise user accordingly.
         # Can be extended to include temperature parameter
         try:
             self.model_with_tools = self.llm.__class__(
                 model_id=self.llm.model_id
             ).bind_tools(tools)
-        except Exception as e: 
+        except Exception as e:
             self.reply(f"Not a chat model, cannot be used with tools. {e}")
-            
+
         # Initialize graph
         agentic_workflow = StateGraph(MessagesState)
         # Define the agent and tool nodes we will cycle between
@@ -226,14 +224,16 @@ class ToolsChatHandler(BaseChatHandler):
             return
 
         if args.list:
-            tool_files = os.listdir(os.path.join(Path.home(), ".jupyter/jupyter-ai/tools"))
+            tool_files = os.listdir(
+                os.path.join(Path.home(), ".jupyter/jupyter-ai/tools")
+            )
             self.reply(f"The available tools files are: {tool_files}")
             return
         elif args.tools:
             self.tools_file_path = os.path.join(
                 Path.home(), ".jupyter/jupyter-ai/tools", args.tools
             )
-        else: 
+        else:
             self.tools_file_path = os.path.join(
                 Path.home(), ".jupyter/jupyter-ai/tools"
             )

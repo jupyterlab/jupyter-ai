@@ -16,7 +16,7 @@ For example, we may try using a tools file called `arithmetic.py`. Note that sin
 /tools -t arithmetic.py What is the sum of 1 and 2?
 ```
 
-The contents of the example file `arithmetic.py` are very simple: 
+The contents of the example file `arithmetic.py` are very simple:
 
 ```
 @tool
@@ -118,13 +118,13 @@ If you do not want to use any specific tool file, that is, use all the tool file
 /tools <query>
 ```
 
-To list all the tool file names: 
+To list all the tool file names:
 
 ```
 /tools -l
 ```
 
-and the response is 
+and the response is
 
 ```
 The available tools files are: ['arithmetic.py', 'finance.py']
