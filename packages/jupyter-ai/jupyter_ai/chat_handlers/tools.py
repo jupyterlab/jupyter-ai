@@ -104,7 +104,6 @@ class ToolsChatHandler(BaseChatHandler):
             return
         return file_paths
 
-
     def useLLMwithTools(self, query):
         """
         LangGraph documentation : https://langchain-ai.github.io/langgraph/tutorials/introduction/
@@ -149,10 +148,10 @@ class ToolsChatHandler(BaseChatHandler):
                     except FileNotFoundError as e:  # to do
                         self.reply(f"Tools file not found at {file_path}.")
                         return
-                    
+
                     tool_names = tool_names + tool_list
                 tools = [eval(j) for j in tool_names]
-                return tools # a list of function objects
+                return tools  # a list of function objects
             else:
                 self.reply("No available tool files.")
 
