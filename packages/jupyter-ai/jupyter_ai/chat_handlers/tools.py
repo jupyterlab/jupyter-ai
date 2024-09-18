@@ -104,30 +104,6 @@ class ToolsChatHandler(BaseChatHandler):
             return
         return file_paths
 
-    def getToolNames(self, tools_file_path):
-        """
-        Read a file and extract the function names following the @tool decorator.
-        Args:
-            file_path (str): The path to the file.
-        Returns:
-            list: A list of function names.
-        """
-        try:
-            with open(tools_file_path) as file:
-                content = file.read()
-                tree = ast.parse(content)
-                tools = []
-                for node in ast.walk(tree):
-                    if isinstance(node, ast.FunctionDef):
-                        for decorator in node.decorator_list:
-                            if (
-                                isinstance(decorator, ast.Name)
-                                and decorator.id == "tool"
-                            ):
-                                tools.append(node.name)
-            return tools  # this is a list
-        except FileNotFoundError as e:  # to do
-            self.reply(f"Tools file not found at {tools_file_path}.")
 
     def useLLMwithTools(self, query):
         """
@@ -155,13 +131,34 @@ class ToolsChatHandler(BaseChatHandler):
                 for file_path in file_paths:
                     with open(file_path) as file:
                         exec(file.read())
-                    tool_names = tool_names + self.getToolNames(file_path)
+                    # For each tool file, collect tool list
+                    try:
+                        with open(file_path) as file:
+                            content = file.read()
+                            tree = ast.parse(content)
+                            tool_list = []
+                            for node in ast.walk(tree):
+                                if isinstance(node, ast.FunctionDef):
+                                    for decorator in node.decorator_list:
+                                        if (
+                                            isinstance(decorator, ast.Name)
+                                            and decorator.id == "tool"
+                                        ):
+                                            tool_list.append(node.name)
+                        # return tools  # this is a list
+                    except FileNotFoundError as e:  # to do
+                        self.reply(f"Tools file not found at {file_path}.")
+                        return
+                    
+                    tool_names = tool_names + tool_list
                 tools = [eval(j) for j in tool_names]
-                return tools
+                return tools # a list of function objects
+            else:
+                self.reply("No available tool files.")
 
         # Get tool file(s), then tools within tool files, and create tool node from tools
-        file_paths = self.getToolFiles()
-        tools = getTools(file_paths)
+        tool_files = self.getToolFiles()
+        tools = getTools(tool_files)
         tool_node = ToolNode(tools)
 
         # Bind tools to LLM
