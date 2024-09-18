@@ -3,13 +3,12 @@ import ast
 import os
 from pathlib import Path
 from typing import Dict, Literal, Type
-import numpy as np
 
+import numpy as np
 from jupyter_ai.models import HumanChatMessage
 from jupyter_ai_magics.providers import BaseProvider
 from langchain.chains import ConversationalRetrievalChain, LLMChain
 from langchain.memory import ConversationBufferWindowMemory
-
 from langchain_core.messages import AIMessage
 from langchain_core.prompts import PromptTemplate
 from langchain_core.tools import tool
@@ -17,7 +16,6 @@ from langgraph.graph import MessagesState, StateGraph
 from langgraph.prebuilt import ToolNode
 
 from .base import BaseChatHandler, SlashCommandRoutingType
-
 
 PROMPT_TEMPLATE = """Given the following conversation and a follow up question, rephrase the follow up question to be a standalone question.
 
