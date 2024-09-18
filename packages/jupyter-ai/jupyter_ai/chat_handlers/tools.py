@@ -1,6 +1,5 @@
 import argparse
 import ast
-# import math
 
 # LangGraph imports for using tools
 import os
@@ -12,7 +11,6 @@ from jupyter_ai.models import HumanChatMessage
 from jupyter_ai_magics.providers import BaseProvider
 from langchain.chains import ConversationalRetrievalChain, LLMChain
 from langchain.memory import ConversationBufferWindowMemory
-# from langchain_anthropic import ChatAnthropic
 
 # Chat Providers (add more as needed)
 # from langchain_aws import ChatBedrock
@@ -20,6 +18,7 @@ from langchain.memory import ConversationBufferWindowMemory
 from langchain_core.messages import AIMessage
 from langchain_core.prompts import PromptTemplate
 from langchain_core.tools import tool
+
 # from langchain_google_genai import ChatGoogleGenerativeAI
 # from langchain_ollama import ChatOllama
 # from langchain_openai import AzureChatOpenAI, ChatOpenAI
@@ -27,6 +26,15 @@ from langgraph.graph import MessagesState, StateGraph
 from langgraph.prebuilt import ToolNode
 
 from .base import BaseChatHandler, SlashCommandRoutingType
+
+# import math
+
+
+
+# from langchain_anthropic import ChatAnthropic
+
+
+
 
 PROMPT_TEMPLATE = """Given the following conversation and a follow up question, rephrase the follow up question to be a standalone question.
 
@@ -95,7 +103,6 @@ class ToolsChatHandler(BaseChatHandler):
             llm=self.llm, prompt=CONDENSE_PROMPT, memory=memory, verbose=False
         )
 
-
     def conditional_continue(self, state: MessagesState) -> Literal["tools", "__end__"]:
         messages = state["messages"]
         last_message = messages[-1]
@@ -140,7 +147,6 @@ class ToolsChatHandler(BaseChatHandler):
             return tools  # this is a list
         except FileNotFoundError as e:  # to do
             self.reply(f"Tools file not found at {tools_file_path}.")
-
 
     def useLLMwithTools(self, query):
         """
