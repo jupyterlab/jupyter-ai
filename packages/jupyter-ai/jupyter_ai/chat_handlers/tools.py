@@ -18,6 +18,7 @@ from langgraph.prebuilt import ToolNode
 
 from .base import BaseChatHandler, SlashCommandRoutingType
 
+
 PROMPT_TEMPLATE = """Given the following conversation and a follow up question, rephrase the follow up question to be a standalone question.
 
 Chat History:
@@ -85,7 +86,6 @@ class ToolsChatHandler(BaseChatHandler):
             llm=self.llm, prompt=CONDENSE_PROMPT, memory=memory, verbose=False
         )
 
-
     def conditional_continue(self, state: MessagesState) -> Literal["tools", "__end__"]:
         messages = state["messages"]
         last_message = messages[-1]
@@ -130,7 +130,6 @@ class ToolsChatHandler(BaseChatHandler):
             return tools  # this is a list
         except FileNotFoundError as e:  # to do
             self.reply(f"Tools file not found at {tools_file_path}.")
-
 
     def useLLMwithTools(self, query):
         """
