@@ -29,6 +29,7 @@ dependencies = [
     "typing_extensions>=4.5.0",
     "click~=8.0",
     "jsonpath-ng>=1.5.3,<2",
+    "langgraph",
 ]
 
 [project.optional-dependencies]
@@ -49,7 +50,6 @@ all = [
     "langchain_nvidia_ai_endpoints",
     "langchain_openai",
     "langchain_ollama",
-    "langgraph",
     "pillow",
     "boto3",
     "qianfan",

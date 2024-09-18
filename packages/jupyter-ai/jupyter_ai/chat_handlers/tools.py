@@ -1,6 +1,6 @@
 import argparse
 import ast
-import math
+# import math
 
 # LangGraph imports for using tools
 import os
@@ -12,17 +12,17 @@ from jupyter_ai.models import HumanChatMessage
 from jupyter_ai_magics.providers import BaseProvider
 from langchain.chains import ConversationalRetrievalChain, LLMChain
 from langchain.memory import ConversationBufferWindowMemory
-from langchain_anthropic import ChatAnthropic
+# from langchain_anthropic import ChatAnthropic
 
 # Chat Providers (add more as needed)
-from langchain_aws import ChatBedrock
-from langchain_cohere import ChatCohere
+# from langchain_aws import ChatBedrock
+# from langchain_cohere import ChatCohere
 from langchain_core.messages import AIMessage
 from langchain_core.prompts import PromptTemplate
 from langchain_core.tools import tool
-from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_ollama import ChatOllama
-from langchain_openai import AzureChatOpenAI, ChatOpenAI
+# from langchain_google_genai import ChatGoogleGenerativeAI
+# from langchain_ollama import ChatOllama
+# from langchain_openai import AzureChatOpenAI, ChatOpenAI
 from langgraph.graph import MessagesState, StateGraph
 from langgraph.prebuilt import ToolNode
 
@@ -95,12 +95,6 @@ class ToolsChatHandler(BaseChatHandler):
             llm=self.llm, prompt=CONDENSE_PROMPT, memory=memory, verbose=False
         )
 
-    # #### TOOLS FOR USE WITH LANGGRAPH #####
-    """
-    Bind tools to LLM and provide chat functionality.
-    Call:
-        /tools <query>
-    """
 
     def conditional_continue(self, state: MessagesState) -> Literal["tools", "__end__"]:
         messages = state["messages"]
@@ -110,13 +104,13 @@ class ToolsChatHandler(BaseChatHandler):
         return "__end__"
 
     # Get required tool files from ``.jupyter/jupyter-ai/tools/``
-    def getToolFiles(self, fpath):
-        if os.path.isfile(fpath):
-            file_paths = [fpath]
-        elif os.path.isdir(fpath):
+    def getToolFiles(self):
+        if os.path.isfile(self.tools_file_path):
+            file_paths = [self.tools_file_path]
+        elif os.path.isdir(self.tools_file_path):
             file_paths = []
-            for filename in os.listdir(fpath):
-                file_paths.append(os.path.join(fpath, filename))
+            for filename in os.listdir(self.tools_file_path):
+                file_paths.append(os.path.join(self.tools_file_path, filename))
         else:
             self.reply("No tools found.")
             return
@@ -147,15 +141,7 @@ class ToolsChatHandler(BaseChatHandler):
         except FileNotFoundError as e:  # to do
             self.reply(f"Tools file not found at {tools_file_path}.")
 
-    def toolChat(self, query):
-        print("TOOL CHAT", query)
-        for chunk in self.app.stream(
-            {"messages": [("human", query)]}, stream_mode="values"
-        ):
-            response = chunk["messages"][-1].pretty_print()
-        return response
 
-    ##### MAIN FUNCTION #####
     def useLLMwithTools(self, query):
         """
         LangGraph documentation : https://langchain-ai.github.io/langgraph/tutorials/introduction/
@@ -187,7 +173,7 @@ class ToolsChatHandler(BaseChatHandler):
                 return tools
 
         # Get tool file(s), then tools within tool files, and create tool node from tools
-        file_paths = self.getToolFiles(self.tools_file_path)
+        file_paths = self.getToolFiles()
         tools = getTools(file_paths)
         tool_node = ToolNode(tools)
 
