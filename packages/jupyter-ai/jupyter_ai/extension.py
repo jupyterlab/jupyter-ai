@@ -229,6 +229,10 @@ class AiExtension(ExtensionApp):
             listener=self.connect_chat
         )
 
+        # Keep the message indexes to avoid extra computation looking for a message when
+        # updating it.
+        self.messages_indexes = {}
+
     async def connect_chat(self, logger: EventLogger, schema_id: str, data: dict) -> None:
         if data["room"].startswith("text:chat:") \
             and data["action"] == "initialize"\
@@ -299,7 +303,7 @@ class AiExtension(ExtensionApp):
         command_readable = "Default" if command == "default" else command
         self.log.info(f"{command_readable} chat handler resolved in {latency_ms} ms.")
 
-    def write_message(self, chat: YChat, body: str) -> None:
+    def write_message(self, chat: YChat, body: str, id: str | None = None) -> str:
         BOT["avatar_url"] = url_path_join(
             self.settings.get("base_url", "/"),
             "api/ai/static/jupyternaut.svg"
@@ -310,14 +314,21 @@ class AiExtension(ExtensionApp):
         else:
             BOT["username"] = bot["username"]
 
-        chat.add_message({
+        index = self.messages_indexes[id] if id else None
+        id = id if id else str(uuid.uuid4())
+        new_index = chat.set_message({
             "type": "msg",
             "body": body,
-            "id": str(uuid.uuid4()),
+            "id": id if id else str(uuid.uuid4()),
             "time": time.time(),
             "sender": BOT["username"],
             "raw_time": False
-        })
+        }, index, True)
+
+        if new_index != index:
+            self.messages_indexes[id] = new_index
+
+        return id
 
     def initialize_settings(self):
         start = time.time()

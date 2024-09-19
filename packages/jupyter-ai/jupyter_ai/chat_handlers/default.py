@@ -11,6 +11,7 @@ from jupyter_ai_magics.providers import BaseProvider
 from langchain_core.messages import AIMessageChunk
 from langchain_core.runnables import ConfigurableFieldSpec
 from langchain_core.runnables.history import RunnableWithMessageHistory
+from langchain_core.outputs.generation import GenerationChunk
 
 try:
     from jupyterlab_collaborative_chat.ychat import YChat
@@ -62,27 +63,29 @@ class DefaultChatHandler(BaseChatHandler):
             )
         self.llm_chain = runnable
 
-    def _start_stream(self, human_msg: HumanChatMessage) -> str:
+    def _start_stream(self, human_msg: HumanChatMessage, chat: YChat | None) -> str:
         """
         Sends an `agent-stream` message to indicate the start of a response
         stream. Returns the ID of the message, denoted as the `stream_id`.
         """
-        stream_id = uuid4().hex
-        stream_msg = AgentStreamMessage(
-            id=stream_id,
-            time=time.time(),
-            body="",
-            reply_to=human_msg.id,
-            persona=self.persona,
-            complete=False,
-        )
+        if chat is not None:
+            stream_id = self.write_message(chat, "")
+        else:
+            stream_id = uuid4().hex
+            stream_msg = AgentStreamMessage(
+                id=stream_id,
+                time=time.time(),
+                body="",
+                reply_to=human_msg.id,
+                persona=self.persona,
+                complete=False,
+            )
+            for handler in self._root_chat_handlers.values():
+                if not handler:
+                    continue
 
-        for handler in self._root_chat_handlers.values():
-            if not handler:
-                continue
-
-            handler.broadcast_message(stream_msg)
-            break
+                handler.broadcast_message(stream_msg)
+                break
 
         return stream_id
 
@@ -92,7 +95,7 @@ class DefaultChatHandler(BaseChatHandler):
         appended to an existing `agent-stream` message with ID `stream_id`.
         """
         if chat is not None:
-            self.write_message(chat, content)
+            self.write_message(chat, content, stream_id)
         else:
             stream_chunk_msg = AgentStreamChunkMessage(
                 id=stream_id, content=content, stream_complete=complete
@@ -121,11 +124,11 @@ class DefaultChatHandler(BaseChatHandler):
                     # when receiving the first chunk, close the pending message and
                     # start the stream.
                     self.close_pending(pending_message)
-                    stream_id = self._start_stream(human_msg=message)
+                    stream_id = self._start_stream(message, chat)
                     received_first_chunk = True
 
                 if isinstance(chunk, AIMessageChunk):
-                    self._send_stream_chunk(stream_id, chunk.content)
+                    self._send_stream_chunk(stream_id, chunk.content, chat)
                 elif isinstance(chunk, str):
                     self._send_stream_chunk(stream_id, chunk, chat)
                 else:

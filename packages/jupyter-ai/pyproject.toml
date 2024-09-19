@@ -33,6 +33,7 @@ dependencies = [
     "typing_extensions>=4.5.0",
     "traitlets>=5.0",
     "deepmerge>=1.0",
+    "jupyterlab-collaborative-chat",
 ]
 
 dynamic = ["version", "description", "authors", "urls", "keywords"]
@@ -55,8 +56,6 @@ test = [
 dev = ["jupyter_ai_magics[dev]"]
 
 all = ["jupyter_ai_magics[all]", "pypdf", "arxiv"]
-
-collaborative = ["jupyterlab-collaborative-chat"]
 
 [tool.hatch.version]
 source = "nodejs"
