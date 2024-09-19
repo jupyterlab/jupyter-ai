@@ -84,7 +84,6 @@ class ToolsChatHandler(BaseChatHandler):
             llm=self.llm, prompt=CONDENSE_PROMPT, memory=memory, verbose=False
         )
 
-    
     # Get required tool files from ``.jupyter/jupyter-ai/tools/``
     def getToolFiles(self) -> list:
         if os.path.isfile(self.tools_file_path):
@@ -115,14 +114,13 @@ class ToolsChatHandler(BaseChatHandler):
             messages = state["messages"]
             response = self.model_with_tools.invoke(messages)
             return {"messages": [response]}
-        
+
         def conditional_continue(state: MessagesState) -> Literal["tools", "__end__"]:
             messages = state["messages"]
             last_message = messages[-1]
             if last_message.tool_calls:
                 return "tools"
             return "__end__"
-
 
         # Get all tool objects from the tool files
         def getTools(file_paths):
