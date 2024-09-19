@@ -92,7 +92,7 @@ class ToolsChatHandler(BaseChatHandler):
         return "__end__"
 
     # Get required tool files from ``.jupyter/jupyter-ai/tools/``
-    def getToolFiles(self):
+    def getToolFiles(self) -> list:
         if os.path.isfile(self.tools_file_path):
             file_paths = [self.tools_file_path]
         elif os.path.isdir(self.tools_file_path):
@@ -105,7 +105,7 @@ class ToolsChatHandler(BaseChatHandler):
         return file_paths
 
 
-    def useLLMwithTools(self, query):
+    def useLLMwithTools(self, query: str) -> str:
         """
         LangGraph documentation : https://langchain-ai.github.io/langgraph/tutorials/introduction/
         The code below:
@@ -119,7 +119,7 @@ class ToolsChatHandler(BaseChatHandler):
         """
 
         # Calls the requisite tool in the LangGraph
-        def call_tool(state: MessagesState):
+        def call_tool(state: MessagesState) -> Dict[str, list]:
             messages = state["messages"]
             response = self.model_with_tools.invoke(messages)
             return {"messages": [response]}
