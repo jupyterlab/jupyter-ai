@@ -101,7 +101,6 @@ class ToolsChatHandler(BaseChatHandler):
                 file_paths.append(os.path.join(self.tools_file_path, filename))
         else:
             self.reply("No tools found.")
-            return
         return file_paths
 
 
