@@ -84,13 +84,7 @@ class ToolsChatHandler(BaseChatHandler):
             llm=self.llm, prompt=CONDENSE_PROMPT, memory=memory, verbose=False
         )
 
-    def conditional_continue(self, state: MessagesState) -> Literal["tools", "__end__"]:
-        messages = state["messages"]
-        last_message = messages[-1]
-        if last_message.tool_calls:
-            return "tools"
-        return "__end__"
-
+    
     # Get required tool files from ``.jupyter/jupyter-ai/tools/``
     def getToolFiles(self) -> list:
         if os.path.isfile(self.tools_file_path):
@@ -121,6 +115,14 @@ class ToolsChatHandler(BaseChatHandler):
             messages = state["messages"]
             response = self.model_with_tools.invoke(messages)
             return {"messages": [response]}
+        
+        def conditional_continue(state: MessagesState) -> Literal["tools", "__end__"]:
+            messages = state["messages"]
+            last_message = messages[-1]
+            if last_message.tool_calls:
+                return "tools"
+            return "__end__"
+
 
         # Get all tool objects from the tool files
         def getTools(file_paths):
@@ -176,13 +178,12 @@ class ToolsChatHandler(BaseChatHandler):
         agentic_workflow.add_node("tools", tool_node)
         # Add edges to the graph
         agentic_workflow.add_edge("__start__", "agent")
-        agentic_workflow.add_conditional_edges("agent", self.conditional_continue)
+        agentic_workflow.add_conditional_edges("agent", conditional_continue)
         agentic_workflow.add_edge("tools", "agent")
         # Compile graph
         app = agentic_workflow.compile()
 
         # Run query
-        # res = ToolsChatHandler.toolChat(self, query) # For all Human and AI messages, if needed later
         res = app.invoke({"messages": query})
         return res["messages"][-1].content
 
