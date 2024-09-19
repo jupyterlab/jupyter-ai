@@ -80,9 +80,8 @@ AI:"""
 
 HUMAN_MESSAGE_TEMPLATE = """
 {% if context %}
-<context>
+Context:
 {{context}}
-</context>
 
 {% endif %}
 {{input}}
