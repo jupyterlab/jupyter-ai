@@ -103,7 +103,6 @@ class ToolsChatHandler(BaseChatHandler):
             self.reply("No tools found.")
         return file_paths
 
-
     def useLLMwithTools(self, query: str) -> str:
         """
         LangGraph documentation : https://langchain-ai.github.io/langgraph/tutorials/introduction/
