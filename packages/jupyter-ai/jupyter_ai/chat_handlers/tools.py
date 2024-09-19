@@ -104,7 +104,6 @@ class ToolsChatHandler(BaseChatHandler):
             return
         return file_paths
 
-
     def useLLMwithTools(self, query: str) -> str:
         """
         LangGraph documentation : https://langchain-ai.github.io/langgraph/tutorials/introduction/
