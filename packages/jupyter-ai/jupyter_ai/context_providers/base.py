@@ -146,9 +146,9 @@ class BaseCommandContextProvider(BaseContextProvider):
         """Cleans up commands from the prompt before sending it to the LLM"""
 
         def replace(match):
-            if _is_within_backticks(match, prompt):
-                return match.group()
-            return self._replace_command(ContextCommand(cmd=match.group()))
+            if _is_command_call(match, prompt):
+                return self._replace_command(ContextCommand(cmd=match.group()))
+            return match.group()
 
         return re.sub(self.pattern, replace, prompt)
 
@@ -169,7 +169,7 @@ class BaseCommandContextProvider(BaseContextProvider):
             matches = [match for match in matches if match.start() == 0]
         results = []
         for match in matches:
-            if not _is_within_backticks(match, text):
+            if _is_command_call(match, text):
                 results.append(ContextCommand(cmd=match.group()))
         return results
 
@@ -194,7 +194,12 @@ class BaseCommandContextProvider(BaseContextProvider):
         )
 
 
-def _is_within_backticks(match, text):
+def _is_command_call(match, text):
+    """Check if the match is a command call rather than a part of a code block.
+    This is done by checking if there is an even number of backticks before and
+    after the match. If there is an odd number of backticks, the match is likely
+    inside a code block.
+    """
     # potentially buggy if there is a stray backtick in text
     # e.g. "help me count the backticks '`' ... ```\n...@cmd in code\n```".
     # can be addressed by having selection in context rather than in prompt.
@@ -203,7 +208,7 @@ def _is_within_backticks(match, text):
     start, end = match.span()
     before = text[:start]
     after = text[end:]
-    return before.count("`") % 2 == 1 and after.count("`") % 2 == 1
+    return before.count("`") % 2 == 0 or after.count("`") % 2 == 0
 
 
 class ContextProviderException(Exception):
