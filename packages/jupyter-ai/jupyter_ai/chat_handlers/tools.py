@@ -8,6 +8,8 @@ import numpy as np
 from jupyter_ai.models import HumanChatMessage
 from jupyter_ai_magics.providers import BaseProvider
 from langchain_core.prompts import PromptTemplate
+from langchain_core.runnables import ConfigurableFieldSpec
+from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_core.tools import tool
 from langgraph.graph import MessagesState, StateGraph
 from langgraph.prebuilt import ToolNode
@@ -81,7 +83,6 @@ class ToolsChatHandler(BaseChatHandler):
         llm = provider(**unified_parameters)
         self.llm = llm
         return llm
-    
 
     # https://python.langchain.com/v0.2/docs/integrations/platforms/'
     def create_llm_chain(
@@ -137,17 +138,15 @@ class ToolsChatHandler(BaseChatHandler):
         Every time a query is submitted the langgraph is rebuilt in case the tools file has been changed.
         """
 
-        
         def call_tool(state: MessagesState) -> Dict[str, list]:
             """Calls the requisite tool in the LangGraph"""
             messages = state["messages"]
             response = self.model_with_tools.invoke(messages)
             return {"messages": [response]}
-        
 
         def conditional_continue(state: MessagesState) -> Literal["tools", "__end__"]:
             """
-            Branches from tool back to the agent or ends the 
+            Branches from tool back to the agent or ends the
             computation on the langgraph
             """
             messages = state["messages"]
@@ -195,7 +194,9 @@ class ToolsChatHandler(BaseChatHandler):
         # Bind tools to LLM
         # Check if the LLM class takes tools else advise user accordingly.
         # Can be extended to include temperature parameter
-        self.llm = self.setup_llm(self.config_manager.lm_provider, self.config_manager.lm_provider_params)
+        self.llm = self.setup_llm(
+            self.config_manager.lm_provider, self.config_manager.lm_provider_params
+        )
         try:
             self.model_with_tools = self.llm.__class__(
                 model_id=self.llm.model_id
