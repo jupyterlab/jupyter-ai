@@ -29,21 +29,30 @@ Format the answer to be as pretty as possible.
 """
 CONDENSE_PROMPT = PromptTemplate.from_template(PROMPT_TEMPLATE)
 
+
 class ExceptionNoToolsFile(Exception):
     """Missing tools file"""
+
     pass
+
 
 class ExceptionModelDoesTakeTools(Exception):
     """Model is not a chat model that takes tools"""
+
     pass
+
 
 class ExceptionModelNotAuthorized(Exception):
     """Authentication failed for model authorization"""
+
     pass
+
 
 class ExceptionNotChatModel(Exception):
     """Not a chat model"""
+
     pass
+
 
 class ToolsChatHandler(BaseChatHandler):
     """Processes messages prefixed with /tools. This actor will
@@ -165,7 +174,6 @@ class ToolsChatHandler(BaseChatHandler):
                 return "tools"
             return "__end__"
 
-
         def get_tools(file_paths: list) -> list:
             """Get all tool objects from the tool files"""
             if len(file_paths) > 0:
@@ -233,7 +241,6 @@ class ToolsChatHandler(BaseChatHandler):
         res = app.invoke({"messages": query})
         return res["messages"][-1].content
 
-
     async def process_message(self, message: HumanChatMessage):
         args = self.parse_args(message)
         if args is None:
@@ -264,7 +271,9 @@ class ToolsChatHandler(BaseChatHandler):
         except ExceptionModelDoesTakeTools:
             self.reply(f"Not a chat model that takes tools.")
         except ExceptionModelNotAuthorized:
-            self.reply(f"API failed. Model not authorized or provider package not installed.")
+            self.reply(
+                f"API failed. Model not authorized or provider package not installed."
+            )
         except ExceptionNotChatModel:
             self.reply(f"Not a chat model, cannot be used with tools.")
         except Exception as e:
