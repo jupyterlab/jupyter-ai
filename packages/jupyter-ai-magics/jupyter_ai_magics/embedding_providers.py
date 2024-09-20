@@ -5,6 +5,7 @@ from jupyter_ai_magics.providers import (
     EnvAuthStrategy,
     Field,
     MultiEnvAuthStrategy,
+    TextField,
 )
 from langchain.pydantic_v1 import BaseModel, Extra
 from langchain_community.embeddings import (
