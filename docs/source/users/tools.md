@@ -38,7 +38,7 @@ The result is shown below:
     class="screenshot" />
 
 
-We provide another example of tahe tools file here, containing just three functions, called `finance.py`. Make sure to add the `@tool` decorator to each function and to import all packages that are not already installed within each function. The functions below are common financial formulas that are widely in use and you may expect that an LLM would be trained on these. While this is accurate, we will see that the LLM is unable to accurately execute the math in these formulas.
+We provide another example of the tools file here, called `finance.py`, containing just three functions. Make sure to add the `@tool` decorator to each function and to import all packages that are required within each function. The functions below are common financial formulas that are widely in use and you may expect that an LLM would be trained on these. While this is accurate, we will see that the LLM is unable to accurately execute the math in these formulas.
 
 ```
 @tool
@@ -51,6 +51,7 @@ def BlackMertonScholes_Call(S: float, # current stock price
                            ):
     """Black-Scholes-Merton option pricing model for call options"""
     from scipy.stats import norm
+    import numpy as np
     d1 = (np.log(S/K) + (r-d+0.5*v**2)*T)/(v*np.sqrt(T))
     d2 = d1 - v*np.sqrt(T)
     call_option_price = S*np.exp(-d*T)*norm.cdf(d1) - K*np.exp(-r*T)*norm.cdf(d2)
@@ -66,6 +67,7 @@ def BlackMertonScholes_Put(S: float, # current stock price
                            ):
     """Black-Scholes-Merton option pricing model for put options"""
     from scipy.stats import norm
+    import numpy as np
     d1 = (np.log(S/K) + (r-d+0.5*v**2)*T)/(v*np.sqrt(T))
     d2 = d1 - v*np.sqrt(T)
     put_option_price =  K*np.exp(-r*T)*norm.cdf(-d2) - S*np.exp(-d*T)*norm.cdf(-d1)

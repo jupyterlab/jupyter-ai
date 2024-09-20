@@ -31,6 +31,21 @@ Format the answer to be as pretty as possible.
 """
 CONDENSE_PROMPT = PromptTemplate.from_template(PROMPT_TEMPLATE)
 
+class ExceptionNoToolsFile(Exception):
+    """Missing tools file"""
+    pass
+
+class ExceptionModelDoesTakeTools(Exception):
+    """Model is not a chat model that takes tools"""
+    pass
+
+class ExceptionModelNotAuthorized(Exception):
+    """Authentication failed for model authorization"""
+    pass
+
+class ExceptionNotChatModel(Exception):
+    """Not a chat model"""
+    pass
 
 class ToolsChatHandler(BaseChatHandler):
     """Processes messages prefixed with /tools. This actor will
@@ -115,15 +130,16 @@ class ToolsChatHandler(BaseChatHandler):
         Gets required tool files from TOOLS_DIR
         which is the directory in which all tool files are placed.
         """
-        if os.path.isfile(self.tools_file_path):
-            file_paths = [self.tools_file_path]
-        elif os.path.isdir(self.tools_file_path):
-            file_paths = []
-            for filename in os.listdir(self.tools_file_path):
-                file_paths.append(os.path.join(self.tools_file_path, filename))
-        else:
-            self.reply("No tools found.")
-        return file_paths
+        try:
+            if os.path.isfile(self.tools_file_path):
+                file_paths = [self.tools_file_path]
+            elif os.path.isdir(self.tools_file_path):
+                file_paths = []
+                for filename in os.listdir(self.tools_file_path):
+                    file_paths.append(os.path.join(self.tools_file_path, filename))
+            return file_paths
+        except UnboundLocalError as e:
+            raise ExceptionNoToolsFile()
 
     def use_llm_with_tools(self, query: str) -> str:
         """
@@ -156,7 +172,7 @@ class ToolsChatHandler(BaseChatHandler):
             return "__end__"
 
 
-        def get_tools(file_paths):
+        def get_tools(file_paths: list) -> list:
             """Get all tool objects from the tool files"""
             if len(file_paths) > 0:
                 tool_names = []
@@ -177,8 +193,7 @@ class ToolsChatHandler(BaseChatHandler):
                                         ):
                                             tool_list.append(node.name)
                     except FileNotFoundError as e:  # to do
-                        self.reply(f"Tools file not found at {file_path}.")
-                        return
+                        raise ExceptionNoToolsFile()
 
                     tool_names = tool_names + tool_list
                 tools = [eval(j) for j in tool_names]
@@ -197,12 +212,16 @@ class ToolsChatHandler(BaseChatHandler):
         self.llm = self.setup_llm(
             self.config_manager.lm_provider, self.config_manager.lm_provider_params
         )
+        if not self.llm.is_chat_provider:
+            raise ExceptionNotChatModel()
         try:
             self.model_with_tools = self.llm.__class__(
                 model_id=self.llm.model_id
             ).bind_tools(tools)
-        except Exception as e:
-            self.reply(f"Not a chat model, cannot be used with tools. {e}")
+        except AttributeError:
+            raise ExceptionModelDoesTakeTools()
+        except Exception:
+            raise ExceptionModelNotAuthorized()
 
         # Initialize graph
         agentic_workflow = StateGraph(MessagesState)
@@ -219,6 +238,7 @@ class ToolsChatHandler(BaseChatHandler):
         # Run query
         res = app.invoke({"messages": query})
         return res["messages"][-1].content
+
 
     async def process_message(self, message: HumanChatMessage):
         args = self.parse_args(message)
@@ -251,12 +271,13 @@ class ToolsChatHandler(BaseChatHandler):
             with self.pending("Using LLM with tools ..."):
                 response = self.use_llm_with_tools(query)
                 self.reply(response, message)
+        except ExceptionNoToolsFile:
+            self.reply(f"Tools file not found at {self.tools_file_path}.")
+        except ExceptionModelDoesTakeTools:
+            self.reply(f"Not a chat model that takes tools.")
+        except ExceptionModelNotAuthorized:
+            self.reply(f"API failed. Model not authorized or provider package not installed.")
+        except ExceptionNotChatModel:
+            self.reply(f"Not a chat model, cannot be used with tools.")
         except Exception as e:
             self.log.error(e)
-            response = """Sorry, tool usage failed.
-            Either (i) this LLM does not accept tools, (ii) there an error in
-            the custom tools file, (iii) you may also want to check the
-            location and name of the tools file, or (iv) you may need to install the
-            `langchain_<provider_name>` package. (v) Finally, check that you have
-            authorized access to the LLM."""
-            self.reply(response, message)
