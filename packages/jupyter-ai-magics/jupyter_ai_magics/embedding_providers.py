@@ -76,6 +76,9 @@ class OllamaEmbeddingsProvider(BaseEmbeddingsProvider, OllamaEmbeddings):
         "snowflake-arctic-embed",
     ]
     model_id_key = "model"
+    fields = [
+        TextField(key="base_url", label="Base API URL (optional)", format="text"),
+    ]
 
 
 class HfHubEmbeddingsProvider(BaseEmbeddingsProvider, HuggingFaceHubEmbeddings):
