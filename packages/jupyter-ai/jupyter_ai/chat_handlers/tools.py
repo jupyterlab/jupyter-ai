@@ -7,13 +7,13 @@ from typing import Dict, Literal, Type
 import numpy as np
 from jupyter_ai.models import HumanChatMessage
 from jupyter_ai_magics.providers import BaseProvider
-from langchain.chains import ConversationalRetrievalChain, LLMChain
-from langchain.memory import ConversationBufferWindowMemory
-from langchain_core.messages import AIMessage
 from langchain_core.prompts import PromptTemplate
 from langchain_core.tools import tool
 from langgraph.graph import MessagesState, StateGraph
 from langgraph.prebuilt import ToolNode
+from langchain_core.runnables import ConfigurableFieldSpec
+from langchain_core.runnables.history import RunnableWithMessageHistory
+
 
 from .base import BaseChatHandler, SlashCommandRoutingType
 
@@ -66,26 +66,53 @@ class ToolsChatHandler(BaseChatHandler):
         self.parser.add_argument("query", nargs=argparse.REMAINDER)
         self.tools_file_path = None
 
-    # https://python.langchain.com/v0.2/docs/integrations/platforms/
-    def create_llm_chain(
+    
+    def setup_llm(
         self, provider: Type[BaseProvider], provider_params: Dict[str, str]
     ):
+        """Sets up the LLM before creating the LLm Chain"""
         unified_parameters = {
+            "verbose": True,
             **provider_params,
             **(self.get_model_parameters(provider, provider_params)),
         }
         llm = provider(**unified_parameters)
         self.llm = llm
-        # self.chat_provider = self.setChatProvider(provider)
-        memory = ConversationBufferWindowMemory(
-            memory_key="chat_history", return_messages=True, k=2
-        )
-        self.llm_chain = LLMChain(
-            llm=self.llm, prompt=CONDENSE_PROMPT, memory=memory, verbose=False
-        )
+        return llm
+    
 
-    # Get required tool files from ``.jupyter/jupyter-ai/tools/``
+    # https://python.langchain.com/v0.2/docs/integrations/platforms/'
+    # Use 
+    def create_llm_chain(
+        self, provider: Type[BaseProvider], provider_params: Dict[str, str]
+    ):
+        """Uses the LLM set up to create the LLM Chain"""
+        llm = self.setup_llm(provider, provider_params)
+        prompt_template = llm.get_chat_prompt_template()
+        self.llm = llm
+
+        runnable = prompt_template | llm  # type:ignore
+        if not llm.manages_history:
+            runnable = RunnableWithMessageHistory(
+                runnable=runnable,  #  type:ignore[arg-type]
+                get_session_history=self.get_llm_chat_memory,
+                input_messages_key="input",
+                history_messages_key="history",
+                history_factory_config=[
+                    ConfigurableFieldSpec(
+                        id="last_human_msg",
+                        annotation=HumanChatMessage,
+                    ),
+                ],
+            )
+        self.llm_chain = runnable
+
+    
     def getToolFiles(self) -> list:
+        """
+        Gets required tool files from `.jupyter/jupyter-ai/tools/`
+        which is the directory in which all tool files are placed.
+        """
         if os.path.isfile(self.tools_file_path):
             file_paths = [self.tools_file_path]
         elif os.path.isdir(self.tools_file_path):
@@ -109,21 +136,28 @@ class ToolsChatHandler(BaseChatHandler):
         Every time a query is submitted the langgraph is rebuilt in case the tools file has been changed.
         """
 
-        # Calls the requisite tool in the LangGraph
+        
         def call_tool(state: MessagesState) -> Dict[str, list]:
+            """Calls the requisite tool in the LangGraph"""
             messages = state["messages"]
             response = self.model_with_tools.invoke(messages)
             return {"messages": [response]}
+        
 
         def conditional_continue(state: MessagesState) -> Literal["tools", "__end__"]:
+            """
+            Branches from tool back to the agent or ends the 
+            computation on the langgraph
+            """
             messages = state["messages"]
             last_message = messages[-1]
-            if last_message.tool_calls != []:
+            if last_message.tool_calls:
                 return "tools"
             return "__end__"
 
-        # Get all tool objects from the tool files
+
         def getTools(file_paths):
+            """Get all tool objects from the tool files"""
             if len(file_paths) > 0:
                 tool_names = []
                 for file_path in file_paths:
@@ -143,7 +177,6 @@ class ToolsChatHandler(BaseChatHandler):
                                             and decorator.id == "tool"
                                         ):
                                             tool_list.append(node.name)
-                        # return tools  # this is a list
                     except FileNotFoundError as e:  # to do
                         self.reply(f"Tools file not found at {file_path}.")
                         return
@@ -162,6 +195,7 @@ class ToolsChatHandler(BaseChatHandler):
         # Bind tools to LLM
         # Check if the LLM class takes tools else advise user accordingly.
         # Can be extended to include temperature parameter
+        self.llm = self.setup_llm(self.config_manager.lm_provider, self.config_manager.lm_provider_params)
         try:
             self.model_with_tools = self.llm.__class__(
                 model_id=self.llm.model_id
