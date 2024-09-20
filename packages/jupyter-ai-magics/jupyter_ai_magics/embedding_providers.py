@@ -5,6 +5,7 @@ from jupyter_ai_magics.providers import (
     EnvAuthStrategy,
     Field,
     MultiEnvAuthStrategy,
+    TextField,
 )
 from langchain.pydantic_v1 import BaseModel, Extra
 from langchain_community.embeddings import (
@@ -76,6 +77,9 @@ class OllamaEmbeddingsProvider(BaseEmbeddingsProvider, OllamaEmbeddings):
         "snowflake-arctic-embed",
     ]
     model_id_key = "model"
+    fields = [
+        TextField(key="base_url", label="Base API URL (optional)", format="text"),
+    ]
 
 
 class HfHubEmbeddingsProvider(BaseEmbeddingsProvider, HuggingFaceHubEmbeddings):
