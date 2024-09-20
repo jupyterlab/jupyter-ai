@@ -14,8 +14,10 @@ from langgraph.prebuilt import ToolNode
 from langchain_core.runnables import ConfigurableFieldSpec
 from langchain_core.runnables.history import RunnableWithMessageHistory
 
-
 from .base import BaseChatHandler, SlashCommandRoutingType
+
+from jupyter_core.paths import jupyter_config_dir
+TOOLS_DIR = os.path.join(jupyter_config_dir(), "jupyter-ai", "tools")
 
 PROMPT_TEMPLATE = """Given the following conversation and a follow up question, rephrase the follow up question to be a standalone question.
 
@@ -70,7 +72,7 @@ class ToolsChatHandler(BaseChatHandler):
     def setup_llm(
         self, provider: Type[BaseProvider], provider_params: Dict[str, str]
     ):
-        """Sets up the LLM before creating the LLm Chain"""
+        """Sets up the LLM before creating the LLM Chain"""
         unified_parameters = {
             "verbose": True,
             **provider_params,
@@ -82,7 +84,6 @@ class ToolsChatHandler(BaseChatHandler):
     
 
     # https://python.langchain.com/v0.2/docs/integrations/platforms/'
-    # Use 
     def create_llm_chain(
         self, provider: Type[BaseProvider], provider_params: Dict[str, str]
     ):
@@ -108,9 +109,9 @@ class ToolsChatHandler(BaseChatHandler):
         self.llm_chain = runnable
 
     
-    def getToolFiles(self) -> list:
+    def get_tool_files(self) -> list:
         """
-        Gets required tool files from `.jupyter/jupyter-ai/tools/`
+        Gets required tool files from TOOLS_DIR
         which is the directory in which all tool files are placed.
         """
         if os.path.isfile(self.tools_file_path):
@@ -123,7 +124,7 @@ class ToolsChatHandler(BaseChatHandler):
             self.reply("No tools found.")
         return file_paths
 
-    def useLLMwithTools(self, query: str) -> str:
+    def use_llm_with_tools(self, query: str) -> str:
         """
         LangGraph documentation : https://langchain-ai.github.io/langgraph/tutorials/introduction/
         The code below:
@@ -156,15 +157,14 @@ class ToolsChatHandler(BaseChatHandler):
             return "__end__"
 
 
-        def getTools(file_paths):
+        def get_tools(file_paths):
             """Get all tool objects from the tool files"""
             if len(file_paths) > 0:
                 tool_names = []
                 for file_path in file_paths:
                     with open(file_path) as file:
                         exec(file.read())
-                    # For each tool file, collect tool list
-                    try:
+                    try: # For each tool file, collect tool list
                         with open(file_path) as file:
                             content = file.read()
                             tree = ast.parse(content)
@@ -188,8 +188,8 @@ class ToolsChatHandler(BaseChatHandler):
                 self.reply("No available tool files.")
 
         # Get tool file(s), then tools within tool files, and create tool node from tools
-        tool_files = self.getToolFiles()
-        tools = getTools(tool_files)
+        tool_files = self.get_tool_files()
+        tools = get_tools(tool_files)
         tool_node = ToolNode(tools)
 
         # Bind tools to LLM
@@ -226,17 +226,17 @@ class ToolsChatHandler(BaseChatHandler):
 
         if args.list:
             tool_files = os.listdir(
-                os.path.join(Path.home(), ".jupyter/jupyter-ai/tools")
+                os.path.join(Path.home(), TOOLS_DIR)
             )
             self.reply(f"The available tools files are: {tool_files}")
             return
         elif args.tools:
             self.tools_file_path = os.path.join(
-                Path.home(), ".jupyter/jupyter-ai/tools", args.tools
+                Path.home(), TOOLS_DIR, args.tools
             )
         else:
             self.tools_file_path = os.path.join(
-                Path.home(), ".jupyter/jupyter-ai/tools"
+                Path.home(), TOOLS_DIR
             )
 
         query = " ".join(args.query)
@@ -248,7 +248,7 @@ class ToolsChatHandler(BaseChatHandler):
 
         try:
             with self.pending("Using LLM with tools ..."):
-                response = self.useLLMwithTools(query)
+                response = self.use_llm_with_tools(query)
                 self.reply(response, message)
         except Exception as e:
             self.log.error(e)
