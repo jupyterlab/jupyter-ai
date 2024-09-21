@@ -267,7 +267,7 @@ class ListSlashCommandsResponse(BaseModel):
 
 class ListOptionsEntry(BaseModel):
     id: str
-    """ID of the autocomplete option. 
+    """ID of the autocomplete option.
     Includes the command prefix. E.g. "/clear", "@file"."""
     label: str
     """Text that will be inserted into the prompt when the option is selected.
