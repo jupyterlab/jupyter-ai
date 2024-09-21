@@ -50,7 +50,7 @@ class FileContextProvider(BaseCommandContextProvider):
         self, message: HumanChatMessage, commands: List[ContextCommand]
     ) -> str:
         context = "\n\n".join(
-            [context for i in commands if (context := self._make_command_context(i))]
+            [context for i in set(commands) if (context := self._make_command_context(i))]
         )
         if not context:
             return ""

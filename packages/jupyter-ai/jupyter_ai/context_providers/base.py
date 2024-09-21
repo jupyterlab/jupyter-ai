@@ -152,7 +152,7 @@ class BaseCommandContextProvider(_BaseContextProvider):
         """Returns a context prompt for all commands of the context provider
         command.
         """
-        commands = set(self._find_commands(message.prompt))
+        commands = self._find_commands(message.prompt)
         if not commands:
             return ""
         return await self._make_context_prompt(message, commands)
