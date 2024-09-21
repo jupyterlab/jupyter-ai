@@ -3,7 +3,7 @@ from typing import List
 from jupyter_ai.chat_handlers.learn import Retriever
 from jupyter_ai.models import HumanChatMessage
 
-from .base import BaseCommandContextProvider
+from .base import BaseCommandContextProvider, ContextCommand
 from .file import FileContextProvider
 
 FILE_CHUNK_TEMPLATE = """
@@ -24,8 +24,10 @@ class LearnedContextProvider(BaseCommandContextProvider):
         super().__init__(**kwargs)
         self.retriever = Retriever(learn_chat_handler=self.chat_handlers["/learn"])
 
-    async def make_context_prompt(self, message: HumanChatMessage) -> str:
-        if not self.retriever or not self._find_commands(message.prompt):
+    async def _make_context_prompt(
+        self, message: HumanChatMessage, commands: List[ContextCommand]
+    ) -> str:
+        if not self.retriever:
             return ""
         query = self._clean_prompt(message.body)
         docs = await self.retriever.ainvoke(query)

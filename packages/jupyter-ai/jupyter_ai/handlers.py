@@ -45,7 +45,7 @@ if TYPE_CHECKING:
     from jupyter_ai_magics.embedding_providers import BaseEmbeddingsProvider
     from jupyter_ai_magics.providers import BaseProvider
 
-    from .context_providers import BaseContextProvider
+    from .context_providers import BaseCommandContextProvider
     from .history import BoundedChatHistory
 
 
@@ -585,7 +585,7 @@ class AutocompleteOptionsHandler(BaseAPIHandler):
         return self.settings["jai_config_manager"]
 
     @property
-    def context_providers(self) -> Dict[str, "BaseContextProvider"]:
+    def context_providers(self) -> Dict[str, "BaseCommandContextProvider"]:
         return self.settings["jai_context_providers"]
 
     @property
@@ -601,49 +601,30 @@ class AutocompleteOptionsHandler(BaseAPIHandler):
             self.finish(response.json())
             return
 
-        response.options = (
-            self._get_slash_command_options() + self._get_context_provider_options()
-        )
-        self.finish(response.json())
-
-    @web.authenticated
-    def post(self):
-        try:
-            data = self.get_json_body()
+        partial_cmd = self.get_query_argument("partialCommand", None)
+        if partial_cmd:
+            # if providing options for partial command argument
+            cmd = ContextCommand(cmd=partial_cmd)
             context_provider = next(
                 (
                     cp
                     for cp in self.context_providers.values()
                     if isinstance(cp, BaseCommandContextProvider)
-                    and cp.command_id == data["id"]
+                    and cp.command_id == cmd.id
                 ),
                 None,
             )
-            cmd = data["cmd"]
-            response = ListOptionsResponse()
-
-            arg_prefix = ContextCommand(cmd=cmd).arg
             if (
-                arg_prefix is None
-                or not context_provider
-                or not isinstance(context_provider, BaseCommandContextProvider)
+                cmd.arg is not None
+                and context_provider
+                and isinstance(context_provider, BaseCommandContextProvider)
             ):
-                self.finish(response.json())
-                return
-
-            response.options = context_provider.get_arg_options(arg_prefix)
-            self.finish(response.json())
-        except (ValidationError, WriteConflictError, KeyEmptyError) as e:
-            self.log.exception(e)
-            raise HTTPError(500, str(e)) from e
-        except ValueError as e:
-            self.log.exception(e)
-            raise HTTPError(500, str(e.cause) if hasattr(e, "cause") else str(e))
-        except Exception as e:
-            self.log.exception(e)
-            raise HTTPError(
-                500, "Unexpected error occurred while updating the context provider."
-            ) from e
+                response.options = context_provider.get_arg_options(cmd.arg)
+        else:
+            response.options = (
+                self._get_slash_command_options() + self._get_context_provider_options()
+            )
+        self.finish(response.json())
 
     def _get_slash_command_options(self) -> List[ListOptionsEntry]:
         options = []
@@ -665,10 +646,11 @@ class AutocompleteOptionsHandler(BaseAPIHandler):
                 continue
 
             options.append(
-                ListOptionsEntry.from_command(
+                self._make_autocomplete_option(
                     id="/" + routing_type.slash_id,
                     description=chat_handler.help,
                     only_start=True,
+                    requires_arg=False,
                 )
             )
         options.sort(key=lambda opt: opt.id)
@@ -676,7 +658,7 @@ class AutocompleteOptionsHandler(BaseAPIHandler):
 
     def _get_context_provider_options(self) -> List[ListOptionsEntry]:
         options = [
-            ListOptionsEntry.from_command(
+            self._make_autocomplete_option(
                 id=context_provider.command_id,
                 description=context_provider.description,
                 only_start=context_provider.only_start,
@@ -687,3 +669,15 @@ class AutocompleteOptionsHandler(BaseAPIHandler):
         ]
         options.sort(key=lambda opt: opt.id)
         return options
+
+    def _make_autocomplete_option(
+        self,
+        id: str,
+        description: str,
+        only_start: bool,
+        requires_arg: bool,
+    ):
+        label = id + (":" if requires_arg else " ")
+        return ListOptionsEntry(
+            id=id, description=description, label=label, only_start=only_start
+        )

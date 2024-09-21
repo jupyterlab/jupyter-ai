@@ -267,40 +267,16 @@ class ListSlashCommandsResponse(BaseModel):
 
 class ListOptionsEntry(BaseModel):
     id: str
-    # includes the command prefix. e.g. "/clear", "@file".
+    """ID of the autocomplete option. 
+    Includes the command prefix. E.g. "/clear", "@file"."""
     label: str
+    """Text that will be inserted into the prompt when the option is selected.
+    Includes a space at the end if the option is complete.
+    Partial suggestions do not include the space and may trigger future suggestions."""
     description: str
+    """Text next to the option in the autocomplete list."""
     only_start: bool
-    # only allows autocomplete to be triggered if command is at start of input
-
-    @classmethod
-    def from_command(
-        cls,
-        id: str,
-        description: str,
-        only_start: bool = False,
-        requires_arg: bool = False,
-    ):
-        label = id + (":" if requires_arg else " ")
-        return cls(id=id, description=description, label=label, only_start=only_start)
-
-    @classmethod
-    def from_arg(
-        cls,
-        id: str,
-        description: str,
-        arg: str,
-        only_start: bool = False,
-        is_complete: bool = True,
-    ):
-        arg = arg.replace("\\ ", " ").replace(" ", "\\ ")  # escape spaces
-        label = id + ":" + arg + (" " if is_complete else "")
-        return cls(
-            id=id,
-            description=description,
-            label=label,
-            only_start=only_start,
-        )
+    """Whether to command can only be inserted at the start of the prompt."""
 
 
 class ListOptionsResponse(BaseModel):

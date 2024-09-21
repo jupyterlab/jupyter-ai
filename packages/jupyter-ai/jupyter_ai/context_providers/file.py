@@ -46,10 +46,9 @@ class FileContextProvider(BaseCommandContextProvider):
             path += "/"
         return path
 
-    async def make_context_prompt(self, message: HumanChatMessage) -> str:
-        commands = set(self._find_commands(message.prompt))
-        if not commands:
-            return ""
+    async def _make_context_prompt(
+        self, message: HumanChatMessage, commands: List[ContextCommand]
+    ) -> str:
         context = "\n\n".join(
             [context for i in commands if (context := self._make_command_context(i))]
         )

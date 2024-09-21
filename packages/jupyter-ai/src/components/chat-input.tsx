@@ -129,10 +129,7 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
           option => option.id === id
         );
         if (option) {
-          const response = await AiService.listAutocompleteArgOptions({
-            id: option.id,
-            cmd: lastWord
-          });
+          const response = await AiService.listAutocompleteArgOptions(lastWord);
           options = response.options;
         }
       }

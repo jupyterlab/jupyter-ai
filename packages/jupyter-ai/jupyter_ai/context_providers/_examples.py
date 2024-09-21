@@ -1,11 +1,13 @@
 # This file is for illustrative purposes
 # It is to be deleted before merging
+from typing import List
+
 from jupyter_ai.models import HumanChatMessage
 from langchain_community.retrievers import ArxivRetriever, WikipediaRetriever
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 
-from .base import BaseCommandContextProvider, BaseContextProvider
+from .base import BaseCommandContextProvider, ContextCommand, _BaseContextProvider
 
 # Examples of the ease of implementing retriever based context providers
 ARXIV_TEMPLATE = """
@@ -27,9 +29,9 @@ class ArxivContextProvider(BaseCommandContextProvider):
         super().__init__(**kwargs)
         self.retriever = ArxivRetriever()
 
-    async def make_context_prompt(self, message: HumanChatMessage) -> str:
-        if not self._find_commands(message.prompt):
-            return ""
+    async def _make_context_prompt(
+        self, message: HumanChatMessage, commands: List[ContextCommand]
+    ) -> str:
         query = self._clean_prompt(message.body)
         docs = await self.retriever.ainvoke(query)
         context = "\n\n".join(
@@ -69,9 +71,9 @@ class WikiContextProvider(BaseCommandContextProvider):
         super().__init__(**kwargs)
         self.retriever = WikipediaRetriever()
 
-    async def make_context_prompt(self, message: HumanChatMessage) -> str:
-        if not self._find_commands(message.prompt):
-            return ""
+    async def _make_context_prompt(
+        self, message: HumanChatMessage, commands: List[ContextCommand]
+    ) -> str:
         prompt = self._clean_prompt(message.body)
         search_query = await self._rewrite_prompt(prompt)
         docs = await self.retriever.ainvoke(search_query)
@@ -105,7 +107,7 @@ class WikiContextProvider(BaseCommandContextProvider):
 # default chat will automatically invoke this context provider to add
 # solutions retrieved from a custom error database or a stackoverflow / google
 # retriever pipeline to find solutions for errors.
-class ErrorContextProvider(BaseContextProvider):
+class ErrorContextProvider(_BaseContextProvider):
     id = "error"
     description = "Include custom error context"
     remove_from_prompt = True

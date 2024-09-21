@@ -1,6 +1,5 @@
 from .base import (
     BaseCommandContextProvider,
-    BaseContextProvider,
     ContextCommand,
     ContextProviderException,
 )

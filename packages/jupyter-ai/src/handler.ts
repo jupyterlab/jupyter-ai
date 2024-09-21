@@ -327,11 +327,6 @@ export namespace AiService {
     options: AutocompleteOption[];
   };
 
-  export type AutocompleteArgOptionsRequest = {
-    id: string;
-    cmd: string;
-  };
-
   export async function listAutocompleteOptions(): Promise<ListAutocompleteOptionsResponse> {
     return requestAPI<ListAutocompleteOptionsResponse>(
       'chats/autocomplete_options'
@@ -339,14 +334,11 @@ export namespace AiService {
   }
 
   export async function listAutocompleteArgOptions(
-    request: AutocompleteArgOptionsRequest
+    partialCommand: string
   ): Promise<ListAutocompleteOptionsResponse> {
     return requestAPI<ListAutocompleteOptionsResponse>(
-      'chats/autocomplete_options',
-      {
-        method: 'POST',
-        body: JSON.stringify(request)
-      }
+      'chats/autocomplete_options?partialCommand=' +
+        encodeURIComponent(partialCommand)
     );
   }
 }

@@ -14,9 +14,11 @@ if TYPE_CHECKING:
     from jupyter_ai.history import BoundedChatHistory
 
 
-class BaseContextProvider(abc.ABC):
+class _BaseContextProvider(abc.ABC):
     id: ClassVar[str]
+    """Unique identifier for the context provider command."""
     description: ClassVar[str]
+    """Short description for what is added to the context."""
 
     def __init__(
         self,
@@ -30,7 +32,7 @@ class BaseContextProvider(abc.ABC):
         preferred_dir: Optional[str],
         dask_client_future: Awaitable[DaskClient],
         chat_handlers: Dict[str, "BaseChatHandler"],
-        context_providers: Dict[str, "BaseContextProvider"],
+        context_providers: Dict[str, "BaseCommandContextProvider"],
     ):
         preferred_dir = preferred_dir or ""
         self.log = log
@@ -121,13 +123,17 @@ class ContextCommand(BaseModel):
         return hash(self.cmd)
 
 
-class BaseCommandContextProvider(BaseContextProvider):
+class BaseCommandContextProvider(_BaseContextProvider):
     id_prefix: ClassVar[str] = "@"
-    only_start: ClassVar[bool] = False
+    """Prefix symbol for command. Generally should not be overridden."""
+
+    # Configuration
     requires_arg: ClassVar[bool] = False
-    remove_from_prompt: ClassVar[bool] = (
-        False  # whether the command should be removed from prompt
-    )
+    """Whether command has an argument. E.g. '@file:<filepath>'."""
+    remove_from_prompt: ClassVar[bool] = False
+    """Whether the command should be removed from prompt when passing to LLM."""
+    only_start: ClassVar[bool] = False
+    """Whether to command can only be inserted at the start of the prompt."""
 
     @property
     def command_id(self) -> str:
@@ -141,6 +147,22 @@ class BaseCommandContextProvider(BaseContextProvider):
             if self.requires_arg
             else rf"(?<![^\s.])@{self.id}(?![^\s.])"
         )
+
+    async def make_context_prompt(self, message: HumanChatMessage) -> str:
+        """Returns a context prompt for all commands of the context provider
+        command.
+        """
+        commands = set(self._find_commands(message.prompt))
+        if not commands:
+            return ""
+        return await self._make_context_prompt(message, commands)
+
+    @abc.abstractmethod
+    async def _make_context_prompt(
+        self, message: HumanChatMessage, commands: List[ContextCommand]
+    ) -> str:
+        """Returns a context prompt for the given commands."""
+        pass
 
     def replace_prompt(self, prompt: str) -> str:
         """Cleans up commands from the prompt before sending it to the LLM"""
@@ -185,12 +207,13 @@ class BaseCommandContextProvider(BaseContextProvider):
         is_complete: bool = True,
         description: Optional[str] = None,
     ) -> ListOptionsEntry:
-        return ListOptionsEntry.from_arg(
+        arg = arg.replace("\\ ", " ").replace(" ", "\\ ")  # escape spaces
+        label = self.command_id + ":" + arg + (" " if is_complete else "")
+        return ListOptionsEntry(
             id=self.command_id,
             description=description or self.description,
+            label=label,
             only_start=self.only_start,
-            arg=arg,
-            is_complete=is_complete,
         )
 
 
