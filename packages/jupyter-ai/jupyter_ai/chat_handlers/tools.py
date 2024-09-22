@@ -174,39 +174,35 @@ class ToolsChatHandler(BaseChatHandler):
                 return "tools"
             return "__end__"
 
-        def get_tools(file_paths: list) -> list:
-            """Get all tool objects from the tool files"""
+        def get_tools(file_paths: list):
+            """
+            Gets all tool objects from the tool files.
+            Returns tool objects of functions that have the `@tool` decorator. 
+            Ignores all code in tool files that does not relate to tool functions.
+            """
             if len(file_paths) > 0:
-                tool_names = []
-                for file_path in file_paths:
-                    with open(file_path) as file:
-                        exec(file.read())
-                    try:  # For each tool file, collect tool list
+                tools = [] # tool objects
+                for file_path in file_paths: 
+                    try:  # For each tool file, collect tool list and function source code
                         with open(file_path) as file:
                             content = file.read()
-                            tree = ast.parse(content)
-                            tool_list = []
-                            for node in ast.walk(tree):
+                            tree = ast.parse(content) # Build AST tree
+                            for node in ast.walk(tree): # Get the nodes with @tool decorator 
                                 if isinstance(node, ast.FunctionDef):
                                     for decorator in node.decorator_list:
-                                        if (
-                                            isinstance(decorator, ast.Name)
-                                            and decorator.id == "tool"
-                                        ):
-                                            tool_list.append(node.name)
-                    except FileNotFoundError as e:  # to do
+                                        if (isinstance(decorator, ast.Name) and decorator.id == "tool"):
+                                            exec(ast.unparse(node)) # dynamically execute the tool function (object in memory)
+                                            tools.append(eval(node.name)) # adds function to tool objects list
+                    except FileNotFoundError:  
                         raise ExceptionNoToolsFile()
-
-                    tool_names = tool_names + tool_list
-                tools = [eval(j) for j in tool_names]
                 return tools  # a list of function objects
             else:
                 self.reply("No available tool files.")
 
         # Get tool file(s), then tools within tool files, and create tool node from tools
-        tool_files = self.get_tool_files()
-        tools = get_tools(tool_files)
-        tool_node = ToolNode(tools)
+        tool_files = self.get_tool_files() # Get all tool files (python modules)
+        tools = get_tools(tool_files) # get tool objects
+        tool_node = ToolNode(tools) # create a LangGraph node with tool objects
 
         # Bind tools to LLM
         # Check if the LLM class takes tools else advise user accordingly.
