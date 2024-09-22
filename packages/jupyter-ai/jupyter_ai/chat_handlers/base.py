@@ -437,8 +437,17 @@ class BaseChatHandler:
             ]
         )
 
+        context_commands_list = "\n".join(
+            [
+                f"* `{cp.command_id}` — {cp.help}"
+                for cp in self.context_providers.values()
+            ]
+        )
+
         help_message_body = self.help_message_template.format(
-            persona_name=self.persona.name, slash_commands_list=slash_commands_list
+            persona_name=self.persona.name,
+            slash_commands_list=slash_commands_list,
+            context_commands_list=context_commands_list,
         )
         help_message = AgentChatMessage(
             id=uuid4().hex,

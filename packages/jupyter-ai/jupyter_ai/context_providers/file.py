@@ -18,7 +18,7 @@ File: {filepath}
 
 class FileContextProvider(BaseCommandContextProvider):
     id = "file"
-    description = "Include file contents"
+    help = "Include selected file's contents"
     requires_arg = True
     header = "Following are contents of files referenced:"
 

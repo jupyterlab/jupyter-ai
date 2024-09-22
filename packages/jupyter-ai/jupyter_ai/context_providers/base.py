@@ -17,8 +17,9 @@ if TYPE_CHECKING:
 class _BaseContextProvider(abc.ABC):
     id: ClassVar[str]
     """Unique identifier for the context provider command."""
-    description: ClassVar[str]
-    """Short description for what is added to the context."""
+    help: ClassVar[str]
+    """What this chat handler does, which third-party models it contacts,
+    the data it returns to the user, and so on, for display in the UI."""
 
     def __init__(
         self,
@@ -211,7 +212,7 @@ class BaseCommandContextProvider(_BaseContextProvider):
         label = self.command_id + ":" + arg + (" " if is_complete else "")
         return ListOptionsEntry(
             id=self.command_id,
-            description=description or self.description,
+            description=description or self.help,
             label=label,
             only_start=self.only_start,
         )

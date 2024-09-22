@@ -16,7 +16,7 @@ Snippet from file: {filepath}
 
 class LearnedContextProvider(BaseCommandContextProvider):
     id = "learned"
-    description = "Include learned context"
+    help = "Include content indexed from `/learn`"
     remove_from_prompt = True
     header = "Following are snippets from potentially relevant files:"
 

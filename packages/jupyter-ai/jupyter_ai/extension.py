@@ -51,6 +51,9 @@ DEFAULT_HELP_MESSAGE_TEMPLATE = """Hi there! I'm {persona_name}, your programmin
 You can ask me a question using the text box below. You can also use these commands:
 {slash_commands_list}
 
+You can use the following commands to add context to your questions:
+{context_commands_list}
+
 Jupyter AI includes [magic commands](https://jupyter-ai.readthedocs.io/en/latest/users/index.html#the-ai-and-ai-magic-commands) that you can use in your notebooks.
 For more information, see the [documentation](https://jupyter-ai.readthedocs.io).
 """

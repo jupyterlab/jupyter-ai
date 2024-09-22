@@ -660,7 +660,7 @@ class AutocompleteOptionsHandler(BaseAPIHandler):
         options = [
             self._make_autocomplete_option(
                 id=context_provider.command_id,
-                description=context_provider.description,
+                description=context_provider.help,
                 only_start=context_provider.only_start,
                 requires_arg=context_provider.requires_arg,
             )
