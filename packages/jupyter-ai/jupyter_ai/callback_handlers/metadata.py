@@ -23,4 +23,4 @@ class MetadataCallbackHandler(BaseCallbackHandler):
         if not (len(response.generations) and len(response.generations[0])):
             return
 
-        self.jai_metadata = response.generations[0][0].generation_info
+        self.jai_metadata = response.generations[0][0].generation_info or {}
