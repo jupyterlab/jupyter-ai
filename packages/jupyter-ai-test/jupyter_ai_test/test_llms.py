@@ -50,9 +50,9 @@ class TestLLMWithStreaming(LLM):
     ) -> Iterator[GenerationChunk]:
         time.sleep(1)
         yield GenerationChunk(
-            text="Hello! This is a dummy response from a test LLM. I will now count from 1 to 20.\n\n",
+            text="Hello! This is a dummy response from a test LLM. I will now count from 1 to 5.\n\n",
             generation_info={"test_metadata_field":"foobar"}
         )
-        for i in range(1, 21):
-            time.sleep(0.5)
+        for i in range(1, 6):
+            time.sleep(0.2)
             yield GenerationChunk(text=f"{i}, ")
