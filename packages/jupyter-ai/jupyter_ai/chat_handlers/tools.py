@@ -226,9 +226,9 @@ class ToolsChatHandler(BaseChatHandler):
         try:
             self.model_with_tools = self.llm.__class__(
                 model_id=self.llm.model_id
-            ).bind_tools(
+            ).bind_tools( # type:ignore[attr-defined]
                 tools
-            )  # type:ignore[attr-defined]
+            )  
         except AttributeError:
             raise ExceptionModelDoesTakeTools()
         except Exception:
