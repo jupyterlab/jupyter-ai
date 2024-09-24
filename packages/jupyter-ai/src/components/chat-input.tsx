@@ -203,8 +203,8 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
       });
       return;
     } else if (currSlashCommand === '/learn') {
-      const prompt_split = prompt.split(' ');
-      if (prompt_split[prompt_split.length - 1] === '') {
+      const promptSplit = prompt.split(' ');
+      if (promptSplit[promptSplit.length - 1] === '') {
         showDialog({
           title: 'No directory specified for /learn',
           body: '/learn will create embeddings on all valid files under your root directory (or preferred directory if set.) This may take a long time.',
