@@ -170,7 +170,8 @@ class ToolsChatHandler(BaseChatHandler):
             """
             messages = state["messages"]
             last_message = messages[-1]
-            if len(last_message.tool_calls)>0:
+            # if last_message.tool_calls:
+            if hasattr(last_message, 'tool_calls') and last_message.tool_calls:
                 return "tools"
             return "__end__"
 
@@ -219,12 +220,13 @@ class ToolsChatHandler(BaseChatHandler):
         self.llm = self.setup_llm(
             self.config_manager.lm_provider, self.config_manager.lm_provider_params
         )
+        assert self.llm
         if not self.llm.is_chat_provider:
             raise ExceptionNotChatModel()
         try:
             self.model_with_tools = self.llm.__class__(
                 model_id=self.llm.model_id
-            ).bind_tools(tools)
+            ).bind_tools(tools) # type:ignore[attr-defined]
         except AttributeError:
             raise ExceptionModelDoesTakeTools()
         except Exception:
