@@ -214,6 +214,8 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
             props.chatHandler.sendMessage({ prompt, selection });
           }
         });
+      } else {
+        props.chatHandler.sendMessage({ prompt, selection });
       }
       return;
     }
