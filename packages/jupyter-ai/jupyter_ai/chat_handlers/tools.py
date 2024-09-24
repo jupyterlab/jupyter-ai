@@ -170,7 +170,7 @@ class ToolsChatHandler(BaseChatHandler):
             """
             messages = state["messages"]
             last_message = messages[-1]
-            if len(last_message.tool_calls)>0:
+            if len(last_message.tool_calls) > 0:
                 return "tools"
             return "__end__"
 
