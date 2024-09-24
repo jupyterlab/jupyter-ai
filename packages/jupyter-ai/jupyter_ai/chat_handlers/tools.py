@@ -171,7 +171,7 @@ class ToolsChatHandler(BaseChatHandler):
             messages = state["messages"]
             last_message = messages[-1]
             # if last_message.tool_calls:
-            if hasattr(last_message, 'tool_calls') and last_message.tool_calls:
+            if hasattr(last_message, "tool_calls") and last_message.tool_calls:
                 return "tools"
             return "__end__"
 
@@ -226,7 +226,9 @@ class ToolsChatHandler(BaseChatHandler):
         try:
             self.model_with_tools = self.llm.__class__(
                 model_id=self.llm.model_id
-            ).bind_tools(tools) # type:ignore[attr-defined]
+            ).bind_tools(
+                tools
+            )  # type:ignore[attr-defined]
         except AttributeError:
             raise ExceptionModelDoesTakeTools()
         except Exception:
