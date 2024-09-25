@@ -24,10 +24,7 @@ from .chat_handlers import (
 )
 from .completions.handlers import DefaultInlineCompletionHandler
 from .config_manager import ConfigManager
-from .context_providers import (
-    BaseCommandContextProvider,
-    FileContextProvider,
-)
+from .context_providers import BaseCommandContextProvider, FileContextProvider
 from .handlers import (
     ApiKeysHandler,
     AutocompleteOptionsHandler,
