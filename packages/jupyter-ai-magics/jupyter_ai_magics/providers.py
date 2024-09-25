@@ -67,11 +67,25 @@ If you do not know the answer to a question, answer truthfully by responding tha
 The following is a friendly conversation between you and a human.
 """.strip()
 
-CHAT_DEFAULT_TEMPLATE = """Current conversation:
-{history}
-Human: {input}
+CHAT_DEFAULT_TEMPLATE = """
+{% if context %}
+Context:
+{{context}}
+
+{% endif %}
+Current conversation:
+{{history}}
+Human: {{input}}
 AI:"""
 
+HUMAN_MESSAGE_TEMPLATE = """
+{% if context %}
+Context:
+{{context}}
+
+{% endif %}
+{{input}}
+"""
 
 COMPLETION_SYSTEM_PROMPT = """
 You are an application built to provide helpful code completion suggestions.
@@ -400,17 +414,21 @@ class BaseProvider(BaseModel, metaclass=ProviderMetaclass):
                         CHAT_SYSTEM_PROMPT
                     ).format(provider_name=name, local_model_id=self.model_id),
                     MessagesPlaceholder(variable_name="history"),
-                    HumanMessagePromptTemplate.from_template("{input}"),
+                    HumanMessagePromptTemplate.from_template(
+                        HUMAN_MESSAGE_TEMPLATE,
+                        template_format="jinja2",
+                    ),
                 ]
             )
         else:
             return PromptTemplate(
-                input_variables=["history", "input"],
+                input_variables=["history", "input", "context"],
                 template=CHAT_SYSTEM_PROMPT.format(
                     provider_name=name, local_model_id=self.model_id
                 )
                 + "\n\n"
                 + CHAT_DEFAULT_TEMPLATE,
+                template_format="jinja2",
             )
 
     def get_completion_prompt_template(self) -> PromptTemplate:

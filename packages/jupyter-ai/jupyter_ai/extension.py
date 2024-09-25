@@ -24,8 +24,10 @@ from .chat_handlers import (
 )
 from .completions.handlers import DefaultInlineCompletionHandler
 from .config_manager import ConfigManager
+from .context_providers import BaseCommandContextProvider, FileContextProvider
 from .handlers import (
     ApiKeysHandler,
+    AutocompleteOptionsHandler,
     ChatHistoryHandler,
     EmbeddingsModelProviderHandler,
     GlobalConfigHandler,
@@ -45,6 +47,9 @@ DEFAULT_HELP_MESSAGE_TEMPLATE = """Hi there! I'm {persona_name}, your programmin
 You can ask me a question using the text box below. You can also use these commands:
 {slash_commands_list}
 
+You can use the following commands to add context to your questions:
+{context_commands_list}
+
 Jupyter AI includes [magic commands](https://jupyter-ai.readthedocs.io/en/latest/users/index.html#the-ai-and-ai-magic-commands) that you can use in your notebooks.
 For more information, see the [documentation](https://jupyter-ai.readthedocs.io).
 """
@@ -58,6 +63,7 @@ class AiExtension(ExtensionApp):
         (r"api/ai/chats/?", RootChatHandler),
         (r"api/ai/chats/history?", ChatHistoryHandler),
         (r"api/ai/chats/slash_commands?", SlashCommandsInfoHandler),
+        (r"api/ai/chats/autocomplete_options?", AutocompleteOptionsHandler),
         (r"api/ai/providers?", ModelProviderHandler),
         (r"api/ai/providers/embeddings?", EmbeddingsModelProviderHandler),
         (r"api/ai/completion/inline/?", DefaultInlineCompletionHandler),
@@ -283,9 +289,64 @@ class AiExtension(ExtensionApp):
         # consumers a Future that resolves to the Dask client when awaited.
         self.settings["dask_client_future"] = loop.create_task(self._get_dask_client())
 
-        eps = entry_points()
+        # Create empty context providers dict to be filled later.
+        # This is created early to use as kwargs for chat handlers.
+        self.settings["jai_context_providers"] = {}
 
         # initialize chat handlers
+        self._init_chat_handlers()
+
+        # initialize context providers
+        self._init_context_provders()
+
+        # show help message at server start
+        self._show_help_message()
+
+        latency_ms = round((time.time() - start) * 1000)
+        self.log.info(f"Initialized Jupyter AI server extension in {latency_ms} ms.")
+
+    def _show_help_message(self):
+        """
+        Method that ensures a dynamically-generated help message is included in
+        the chat history shown to users.
+        """
+        # call `send_help_message()` on any instance of `BaseChatHandler`. The
+        # `default` chat handler should always exist, so we reference that
+        # object when calling `send_help_message()`.
+        default_chat_handler: DefaultChatHandler = self.settings["jai_chat_handlers"][
+            "default"
+        ]
+        default_chat_handler.send_help_message()
+
+    async def _get_dask_client(self):
+        return DaskClient(processes=False, asynchronous=True)
+
+    async def stop_extension(self):
+        """
+        Public method called by Jupyter Server when the server is stopping.
+        This calls the cleanup code defined in `self._stop_exception()` inside
+        an exception handler, as the server halts if this method raises an
+        exception.
+        """
+        try:
+            await self._stop_extension()
+        except Exception as e:
+            self.log.error("Jupyter AI raised an exception while stopping:")
+            self.log.exception(e)
+
+    async def _stop_extension(self):
+        """
+        Private method that defines the cleanup code to run when the server is
+        stopping.
+        """
+        if "dask_client_future" in self.settings:
+            dask_client: DaskClient = await self.settings["dask_client_future"]
+            self.log.info("Closing Dask client.")
+            await dask_client.close()
+            self.log.debug("Closed Dask client.")
+
+    def _init_chat_handlers(self):
+        eps = entry_points()
         chat_handler_eps = eps.select(group="jupyter_ai.chat_handlers")
         chat_handlers = {}
         chat_handler_kwargs = {
@@ -301,6 +362,7 @@ class AiExtension(ExtensionApp):
             "preferred_dir": self.serverapp.contents_manager.preferred_dir,
             "help_message_template": self.help_message_template,
             "chat_handlers": chat_handlers,
+            "context_providers": self.settings["jai_context_providers"],
         }
         default_chat_handler = DefaultChatHandler(**chat_handler_kwargs)
         clear_chat_handler = ClearChatHandler(**chat_handler_kwargs)
@@ -376,48 +438,58 @@ class AiExtension(ExtensionApp):
         # bind chat handlers to settings
         self.settings["jai_chat_handlers"] = chat_handlers
 
-        # show help message at server start
-        self._show_help_message()
-
-        latency_ms = round((time.time() - start) * 1000)
-        self.log.info(f"Initialized Jupyter AI server extension in {latency_ms} ms.")
-
-    def _show_help_message(self):
-        """
-        Method that ensures a dynamically-generated help message is included in
-        the chat history shown to users.
-        """
-        # call `send_help_message()` on any instance of `BaseChatHandler`. The
-        # `default` chat handler should always exist, so we reference that
-        # object when calling `send_help_message()`.
-        default_chat_handler: DefaultChatHandler = self.settings["jai_chat_handlers"][
-            "default"
+    def _init_context_provders(self):
+        eps = entry_points()
+        context_providers_eps = eps.select(group="jupyter_ai.context_providers")
+        context_providers = self.settings["jai_context_providers"]
+        context_providers_kwargs = {
+            "log": self.log,
+            "config_manager": self.settings["jai_config_manager"],
+            "model_parameters": self.settings["model_parameters"],
+            "chat_history": self.settings["chat_history"],
+            "llm_chat_memory": self.settings["llm_chat_memory"],
+            "root_dir": self.serverapp.root_dir,
+            "dask_client_future": self.settings["dask_client_future"],
+            "model_parameters": self.settings["model_parameters"],
+            "preferred_dir": self.serverapp.contents_manager.preferred_dir,
+            "chat_handlers": self.settings["jai_chat_handlers"],
+            "context_providers": self.settings["jai_context_providers"],
+        }
+        context_providers_clses = [
+            FileContextProvider,
         ]
-        default_chat_handler.send_help_message()
+        for context_provider_ep in context_providers_eps:
+            try:
+                context_provider = context_provider_ep.load()
+            except Exception as err:
+                self.log.error(
+                    f"Unable to load context provider class from entry point `{context_provider_ep.name}`: "
+                    + f"Unexpected {err=}, {type(err)=}"
+                )
+                continue
+            context_providers_clses.append(context_provider)
 
-    async def _get_dask_client(self):
-        return DaskClient(processes=False, asynchronous=True)
+        for context_provider in context_providers_clses:
+            if not issubclass(context_provider, BaseCommandContextProvider):
+                self.log.error(
+                    f"Unable to register context provider `{context_provider.id}` because it does not inherit from `BaseCommandContextProvider`"
+                )
+                continue
 
-    async def stop_extension(self):
-        """
-        Public method called by Jupyter Server when the server is stopping.
-        This calls the cleanup code defined in `self._stop_exception()` inside
-        an exception handler, as the server halts if this method raises an
-        exception.
-        """
-        try:
-            await self._stop_extension()
-        except Exception as e:
-            self.log.error("Jupyter AI raised an exception while stopping:")
-            self.log.exception(e)
+            if context_provider.id in context_providers:
+                self.log.error(
+                    f"Unable to register context provider `{context_provider.id}` because it already exists"
+                )
+                continue
 
-    async def _stop_extension(self):
-        """
-        Private method that defines the cleanup code to run when the server is
-        stopping.
-        """
-        if "dask_client_future" in self.settings:
-            dask_client: DaskClient = await self.settings["dask_client_future"]
-            self.log.info("Closing Dask client.")
-            await dask_client.close()
-            self.log.debug("Closed Dask client.")
+            if not re.match(r"^[a-zA-Z0-9_]+$", context_provider.id):
+                self.log.error(
+                    f"Context provider `{context_provider.id}` is an invalid ID; "
+                    + f"must contain only letters, numbers, and underscores"
+                )
+                continue
+
+            context_providers[context_provider.id] = context_provider(
+                **context_providers_kwargs
+            )
+            self.log.info(f"Registered context provider `{context_provider.id}`.")

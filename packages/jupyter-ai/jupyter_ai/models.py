@@ -263,3 +263,21 @@ class ListSlashCommandsEntry(BaseModel):
 
 class ListSlashCommandsResponse(BaseModel):
     slash_commands: List[ListSlashCommandsEntry] = []
+
+
+class ListOptionsEntry(BaseModel):
+    id: str
+    """ID of the autocomplete option.
+    Includes the command prefix. E.g. "/clear", "@file"."""
+    label: str
+    """Text that will be inserted into the prompt when the option is selected.
+    Includes a space at the end if the option is complete.
+    Partial suggestions do not include the space and may trigger future suggestions."""
+    description: str
+    """Text next to the option in the autocomplete list."""
+    only_start: bool
+    """Whether to command can only be inserted at the start of the prompt."""
+
+
+class ListOptionsResponse(BaseModel):
+    options: List[ListOptionsEntry] = []
