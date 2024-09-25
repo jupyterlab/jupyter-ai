@@ -170,6 +170,7 @@ export class ChatHandler implements IDisposable {
         }
 
         streamMessage.body += newMessage.content;
+        streamMessage.metadata = newMessage.metadata;
         if (newMessage.stream_complete) {
           streamMessage.complete = true;
         }

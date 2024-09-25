@@ -1,8 +1,9 @@
 import asyncio
 import time
-from typing import Dict, Type
+from typing import Any, Dict, Type
 from uuid import uuid4
 
+from jupyter_ai.callback_handlers import MetadataCallbackHandler
 from jupyter_ai.models import (
     AgentStreamChunkMessage,
     AgentStreamMessage,
@@ -85,13 +86,19 @@ class DefaultChatHandler(BaseChatHandler):
 
         return stream_id
 
-    def _send_stream_chunk(self, stream_id: str, content: str, complete: bool = False):
+    def _send_stream_chunk(
+        self,
+        stream_id: str,
+        content: str,
+        complete: bool = False,
+        metadata: Dict[str, Any] = {},
+    ):
         """
         Sends an `agent-stream-chunk` message containing content that should be
         appended to an existing `agent-stream` message with ID `stream_id`.
         """
         stream_chunk_msg = AgentStreamChunkMessage(
-            id=stream_id, content=content, stream_complete=complete
+            id=stream_id, content=content, stream_complete=complete, metadata=metadata
         )
 
         for handler in self._root_chat_handlers.values():
@@ -104,6 +111,7 @@ class DefaultChatHandler(BaseChatHandler):
     async def process_message(self, message: HumanChatMessage):
         self.get_llm_chain()
         received_first_chunk = False
+        assert self.llm_chain
 
         inputs = {"input": message.body}
         if "context" in self.prompt_template.input_variables:
@@ -121,10 +129,13 @@ class DefaultChatHandler(BaseChatHandler):
             # stream response in chunks. this works even if a provider does not
             # implement streaming, as `astream()` defaults to yielding `_call()`
             # when `_stream()` is not implemented on the LLM class.
-            assert self.llm_chain
+            metadata_handler = MetadataCallbackHandler()
             async for chunk in self.llm_chain.astream(
                 inputs,
-                config={"configurable": {"last_human_msg": message}},
+                config={
+                    "configurable": {"last_human_msg": message},
+                    "callbacks": [metadata_handler],
+                },
             ):
                 if not received_first_chunk:
                     # when receiving the first chunk, close the pending message and
@@ -142,7 +153,9 @@ class DefaultChatHandler(BaseChatHandler):
                     break
 
             # complete stream after all chunks have been streamed
-            self._send_stream_chunk(stream_id, "", complete=True)
+            self._send_stream_chunk(
+                stream_id, "", complete=True, metadata=metadata_handler.jai_metadata
+            )
 
     async def make_context_prompt(self, human_msg: HumanChatMessage) -> str:
         return "\n\n".join(

@@ -60,7 +60,8 @@ export function PendingMessages(
       time: lastMessage.time,
       body: '',
       reply_to: '',
-      persona: lastMessage.persona
+      persona: lastMessage.persona,
+      metadata: {}
     });
 
     // timestamp format copied from ChatMessage
