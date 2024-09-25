@@ -27,7 +27,6 @@ from .config_manager import ConfigManager
 from .context_providers import (
     BaseCommandContextProvider,
     FileContextProvider,
-    LearnedContextProvider,
 )
 from .handlers import (
     ApiKeysHandler,
@@ -461,7 +460,6 @@ class AiExtension(ExtensionApp):
         }
         context_providers_clses = [
             FileContextProvider,
-            LearnedContextProvider,
         ]
         for context_provider_ep in context_providers_eps:
             try:
