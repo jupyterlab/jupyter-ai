@@ -86,16 +86,19 @@ class DefaultChatHandler(BaseChatHandler):
 
         return stream_id
 
-    def _send_stream_chunk(self, stream_id: str, content: str, complete: bool = False, metadata: Dict[str, Any] = {}):
+    def _send_stream_chunk(
+        self,
+        stream_id: str,
+        content: str,
+        complete: bool = False,
+        metadata: Dict[str, Any] = {},
+    ):
         """
         Sends an `agent-stream-chunk` message containing content that should be
         appended to an existing `agent-stream` message with ID `stream_id`.
         """
         stream_chunk_msg = AgentStreamChunkMessage(
-            id=stream_id,
-            content=content,
-            stream_complete=complete,
-            metadata=metadata
+            id=stream_id, content=content, stream_complete=complete, metadata=metadata
         )
 
         for handler in self._root_chat_handlers.values():
@@ -131,7 +134,7 @@ class DefaultChatHandler(BaseChatHandler):
                 inputs,
                 config={
                     "configurable": {"last_human_msg": message},
-                    "callbacks": [metadata_handler]
+                    "callbacks": [metadata_handler],
                 },
             ):
                 if not received_first_chunk:
@@ -150,7 +153,9 @@ class DefaultChatHandler(BaseChatHandler):
                     break
 
             # complete stream after all chunks have been streamed
-            self._send_stream_chunk(stream_id, "", complete=True, metadata=metadata_handler.jai_metadata)
+            self._send_stream_chunk(
+                stream_id, "", complete=True, metadata=metadata_handler.jai_metadata
+            )
 
     async def make_context_prompt(self, human_msg: HumanChatMessage) -> str:
         return "\n\n".join(

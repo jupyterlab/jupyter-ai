@@ -86,7 +86,7 @@ class BaseAgentMessage(BaseModel):
     The persona of the selected provider. If the selected provider is `None`,
     this defaults to a description of `JupyternautPersona`.
     """
-    
+
     metadata: Dict[str, Any] = {}
     """
     Message metadata set by a provider after fully processing an input. The
@@ -120,7 +120,6 @@ class AgentStreamChunkMessage(BaseModel):
     chunk should override any metadata from previous chunks. See the docstring
     on `BaseAgentMessage.metadata` for information.
     """
-
 
 
 class HumanChatMessage(BaseModel):

@@ -1,6 +1,7 @@
 from langchain_core.callbacks import BaseCallbackHandler
 from langchain_core.outputs import LLMResult
 
+
 class MetadataCallbackHandler(BaseCallbackHandler):
     """
     When passed as a callback handler, this stores the LLMResult's
