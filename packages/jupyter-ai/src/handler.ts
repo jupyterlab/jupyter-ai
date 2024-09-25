@@ -114,6 +114,7 @@ export namespace AiService {
     body: string;
     reply_to: string;
     persona: Persona;
+    metadata: Record<string, any>;
   };
 
   export type HumanChatMessage = {
@@ -172,6 +173,7 @@ export namespace AiService {
     id: string;
     content: string;
     stream_complete: boolean;
+    metadata: Record<string, any>;
   };
 
   export type Request = ChatRequest | ClearRequest;
