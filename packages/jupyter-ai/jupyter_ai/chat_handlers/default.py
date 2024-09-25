@@ -13,7 +13,7 @@ from langchain_core.messages import AIMessageChunk
 from langchain_core.runnables import ConfigurableFieldSpec
 from langchain_core.runnables.history import RunnableWithMessageHistory
 
-from ..context_providers import ContextProviderException
+from ..context_providers import ContextProviderException, find_commands
 from ..models import HumanChatMessage
 from .base import BaseChatHandler, SlashCommandRoutingType
 
@@ -150,6 +150,7 @@ class DefaultChatHandler(BaseChatHandler):
                 *[
                     provider.make_context_prompt(human_msg)
                     for provider in self.context_providers.values()
+                    if find_commands(provider, human_msg.prompt)
                 ]
             )
         )

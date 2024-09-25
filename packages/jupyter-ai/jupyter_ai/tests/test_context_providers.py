@@ -3,7 +3,7 @@ from unittest import mock
 
 import pytest
 from jupyter_ai.config_manager import ConfigManager
-from jupyter_ai.context_providers import FileContextProvider
+from jupyter_ai.context_providers import FileContextProvider, find_commands
 from jupyter_ai.history import BoundedChatHistory
 from jupyter_ai.models import ChatClient, HumanChatMessage, Persona
 
@@ -61,7 +61,7 @@ def test_find_instances(file_context_provider, human_chat_message):
     ]
     commands = [
         cmd.cmd
-        for cmd in file_context_provider._find_commands(human_chat_message.prompt)
+        for cmd in find_commands(file_context_provider, human_chat_message.prompt)
     ]
     assert commands == expected
 

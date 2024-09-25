@@ -144,16 +144,16 @@ class BaseCommandContextProvider(_BaseContextProvider):
     def pattern(self) -> str:
         # arg pattern allows for arguments between quotes or spaces with escape character ('\ ')
         return (
-            rf"(?<![^\s.])@{self.id}:(?:'[^']+'|\"[^\"]+\"|[^\s\\]+(?:\\ [^\s\\]*)*)"
+            rf"(?<![^\s.]){self.command_id}:(?:'[^']+'|\"[^\"]+\"|[^\s\\]+(?:\\ [^\s\\]*)*)"
             if self.requires_arg
-            else rf"(?<![^\s.])@{self.id}(?![^\s.])"
+            else rf"(?<![^\s.]){self.command_id}(?![^\s.])"
         )
 
     async def make_context_prompt(self, message: HumanChatMessage) -> str:
         """Returns a context prompt for all commands of the context provider
         command.
         """
-        commands = self._find_commands(message.prompt)
+        commands = find_commands(self, message.prompt)
         if not commands:
             return ""
         return await self._make_context_prompt(message, commands)
@@ -185,17 +185,6 @@ class BaseCommandContextProvider(_BaseContextProvider):
             return [self._make_arg_option(arg_prefix)]
         return []
 
-    def _find_commands(self, text: str) -> List[ContextCommand]:
-        # finds commands of the context provider in the text
-        matches = list(re.finditer(self.pattern, text))
-        if self.only_start:
-            matches = [match for match in matches if match.start() == 0]
-        results = []
-        for match in matches:
-            if _is_command_call(match, text):
-                results.append(ContextCommand(cmd=match.group()))
-        return results
-
     def _replace_command(self, command: ContextCommand) -> str:
         if self.remove_from_prompt:
             return ""
@@ -218,6 +207,25 @@ class BaseCommandContextProvider(_BaseContextProvider):
         )
 
 
+def find_commands(
+    context_provider: BaseCommandContextProvider, text: str
+) -> List[ContextCommand]:
+    # finds commands of the context provider in the text
+    matches = list(re.finditer(context_provider.pattern, text))
+    if context_provider.only_start:
+        matches = [match for match in matches if match.start() == 0]
+    results = []
+    for match in matches:
+        if _is_command_call(match, text):
+            results.append(ContextCommand(cmd=match.group()))
+    return results
+
+
+class ContextProviderException(Exception):
+    # Used to generate a response when a context provider fails
+    pass
+
+
 def _is_command_call(match, text):
     """Check if the match is a command call rather than a part of a code block.
     This is done by checking if there is an even number of backticks before and
@@ -233,8 +241,3 @@ def _is_command_call(match, text):
     before = text[:start]
     after = text[end:]
     return before.count("`") % 2 == 0 or after.count("`") % 2 == 0
-
-
-class ContextProviderException(Exception):
-    # Used to generate a response when a context provider fails
-    pass

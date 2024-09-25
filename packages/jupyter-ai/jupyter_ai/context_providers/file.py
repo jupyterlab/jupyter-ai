@@ -6,7 +6,12 @@ import nbformat
 from jupyter_ai.document_loaders.directory import SUPPORTED_EXTS
 from jupyter_ai.models import HumanChatMessage, ListOptionsEntry
 
-from .base import BaseCommandContextProvider, ContextCommand, ContextProviderException
+from .base import (
+    BaseCommandContextProvider,
+    ContextCommand,
+    ContextProviderException,
+    find_commands,
+)
 
 FILE_CONTEXT_TEMPLATE = """
 File: {filepath}
@@ -106,7 +111,7 @@ class FileContextProvider(BaseCommandContextProvider):
 
     def get_filepaths(self, message: HumanChatMessage) -> List[str]:
         filepaths = []
-        for command in self._find_commands(message.prompt):
+        for command in find_commands(self, message.prompt):
             filepath = command.arg or ""
             if not os.path.isabs(filepath):
                 filepath = os.path.join(self.base_dir, filepath)
