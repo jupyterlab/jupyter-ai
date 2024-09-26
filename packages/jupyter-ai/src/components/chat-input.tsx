@@ -20,7 +20,6 @@ import {
   AutoFixNormal
 } from '@mui/icons-material';
 import { ISignal } from '@lumino/signaling';
-import { Dialog as Dialog, showDialog } from '@jupyterlab/apputils';
 
 import { AiService } from '../handler';
 import { SendButton, SendButtonProps } from './chat-input/send-button';
@@ -224,22 +223,6 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
         prompt,
         selection: { ...cellWithError, type: 'cell-with-error' }
       });
-      return;
-    } else if (currSlashCommand === '/learn') {
-      const promptSplit = prompt.split(' ');
-      if (promptSplit[promptSplit.length - 1] === '') {
-        showDialog({
-          title: 'No directory specified for /learn',
-          body: '/learn will create embeddings on all valid files under your root directory (or preferred directory if set.) This may take a long time.',
-          buttons: [Dialog.cancelButton(), Dialog.warnButton({ label: 'Ok' })]
-        }).then(result => {
-          if (result.button.accept) {
-            props.chatHandler.sendMessage({ prompt, selection });
-          }
-        });
-      } else {
-        props.chatHandler.sendMessage({ prompt, selection });
-      }
       return;
     }
 
