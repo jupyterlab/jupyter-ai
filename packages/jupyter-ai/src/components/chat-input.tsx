@@ -39,12 +39,6 @@ type ChatInputProps = {
   personaName: string;
 };
 
-type SlashCommandOption = {
-  id: string;
-  label: string;
-  description: string;
-};
-
 /**
  * List of icons per slash command, shown in the autocomplete popup.
  *
@@ -52,28 +46,29 @@ type SlashCommandOption = {
  * unclear whether custom icons should be defined within a Lumino plugin (in the
  * frontend) or served from a static server route (in the backend).
  */
-const DEFAULT_SLASH_COMMAND_ICONS: Record<string, JSX.Element> = {
-  ask: <FindInPage />,
-  clear: <HideSource />,
-  export: <Download />,
-  fix: <AutoFixNormal />,
-  generate: <MenuBook />,
-  help: <Help />,
-  learn: <School />,
+const DEFAULT_COMMAND_ICONS: Record<string, JSX.Element> = {
+  '/ask': <FindInPage />,
+  '/clear': <HideSource />,
+  '/export': <Download />,
+  '/fix': <AutoFixNormal />,
+  '/generate': <MenuBook />,
+  '/help': <Help />,
+  '/learn': <School />,
+  '@file': <FindInPage />,
   unknown: <MoreHoriz />
 };
 
 /**
  * Renders an option shown in the slash command autocomplete.
  */
-function renderSlashCommandOption(
+function renderAutocompleteOption(
   optionProps: React.HTMLAttributes<HTMLLIElement>,
-  option: SlashCommandOption
+  option: AiService.AutocompleteOption
 ): JSX.Element {
   const icon =
-    option.id in DEFAULT_SLASH_COMMAND_ICONS
-      ? DEFAULT_SLASH_COMMAND_ICONS[option.id]
-      : DEFAULT_SLASH_COMMAND_ICONS.unknown;
+    option.id in DEFAULT_COMMAND_ICONS
+      ? DEFAULT_COMMAND_ICONS[option.id]
+      : DEFAULT_COMMAND_ICONS.unknown;
 
   return (
     <li {...optionProps}>
@@ -100,8 +95,14 @@ function renderSlashCommandOption(
 
 export function ChatInput(props: ChatInputProps): JSX.Element {
   const [input, setInput] = useState('');
-  const [slashCommandOptions, setSlashCommandOptions] = useState<
-    SlashCommandOption[]
+  const [autocompleteOptions, setAutocompleteOptions] = useState<
+    AiService.AutocompleteOption[]
+  >([]);
+  const [autocompleteCommandOptions, setAutocompleteCommandOptions] = useState<
+    AiService.AutocompleteOption[]
+  >([]);
+  const [autocompleteArgOptions, setAutocompleteArgOptions] = useState<
+    AiService.AutocompleteOption[]
   >([]);
   const [currSlashCommand, setCurrSlashCommand] = useState<string | null>(null);
   const activeCell = useActiveCellContext();
@@ -111,24 +112,46 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
    * initial mount to populate the slash command autocomplete.
    */
   useEffect(() => {
-    async function getSlashCommands() {
-      const slashCommands = (await AiService.listSlashCommands())
-        .slash_commands;
-      setSlashCommandOptions(
-        slashCommands.map<SlashCommandOption>(slashCommand => ({
-          id: slashCommand.slash_id,
-          label: '/' + slashCommand.slash_id + ' ',
-          description: slashCommand.description
-        }))
-      );
+    async function getAutocompleteCommandOptions() {
+      const response = await AiService.listAutocompleteOptions();
+      setAutocompleteCommandOptions(response.options);
     }
-    getSlashCommands();
+    getAutocompleteCommandOptions();
   }, []);
 
-  // whether any option is highlighted in the slash command autocomplete
+  useEffect(() => {
+    async function getAutocompleteArgOptions() {
+      let options: AiService.AutocompleteOption[] = [];
+      const lastWord = getLastWord(input);
+      if (lastWord.includes(':')) {
+        const id = lastWord.split(':', 1)[0];
+        // get option that matches the command
+        const option = autocompleteCommandOptions.find(
+          option => option.id === id
+        );
+        if (option) {
+          const response = await AiService.listAutocompleteArgOptions(lastWord);
+          options = response.options;
+        }
+      }
+      setAutocompleteArgOptions(options);
+    }
+    getAutocompleteArgOptions();
+  }, [autocompleteCommandOptions, input]);
+
+  // Combine the fixed options with the argument options
+  useEffect(() => {
+    if (autocompleteArgOptions.length > 0) {
+      setAutocompleteOptions(autocompleteArgOptions);
+    } else {
+      setAutocompleteOptions(autocompleteCommandOptions);
+    }
+  }, [autocompleteCommandOptions, autocompleteArgOptions]);
+
+  // whether any option is highlighted in the autocomplete
   const [highlighted, setHighlighted] = useState<boolean>(false);
 
-  // controls whether the slash command autocomplete is open
+  // controls whether the autocomplete is open
   const [open, setOpen] = useState<boolean>(false);
 
   // store reference to the input element to enable focusing it easily
@@ -154,7 +177,7 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
    * chat input. Close the autocomplete when the user clears the chat input.
    */
   useEffect(() => {
-    if (input === '/') {
+    if (filterAutocompleteOptions(autocompleteOptions, input).length > 0) {
       setOpen(true);
       return;
     }
@@ -272,12 +295,40 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
     currSlashCommand
   };
 
+  function filterAutocompleteOptions(
+    options: AiService.AutocompleteOption[],
+    inputValue: string
+  ): AiService.AutocompleteOption[] {
+    const lastWord = getLastWord(inputValue);
+    if (lastWord === '') {
+      return [];
+    }
+    const isStart = lastWord === inputValue;
+    return options.filter(
+      option =>
+        option.label.startsWith(lastWord) && (!option.only_start || isStart)
+    );
+  }
+
   return (
     <Box sx={props.sx}>
       <Autocomplete
         autoHighlight
         freeSolo
         inputValue={input}
+        filterOptions={(options, { inputValue }) => {
+          return filterAutocompleteOptions(options, inputValue);
+        }}
+        onChange={(_, option) => {
+          const value = typeof option === 'string' ? option : option.label;
+          let matchLength = 0;
+          for (let i = 1; i <= value.length; i++) {
+            if (input.endsWith(value.slice(0, i))) {
+              matchLength = i;
+            }
+          }
+          setInput(input + value.slice(matchLength));
+        }}
         onInputChange={(_, newValue: string) => {
           setInput(newValue);
         }}
@@ -290,12 +341,16 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
             setHighlighted(!!highlightedOption);
           }
         }
-        onClose={() => setOpen(false)}
+        onClose={(_, reason) => {
+          if (reason !== 'selectOption' || input.endsWith(' ')) {
+            setOpen(false);
+          }
+        }}
         // set this to an empty string to prevent the last selected slash
         // command from being shown in blue
         value=""
         open={open}
-        options={slashCommandOptions}
+        options={autocompleteOptions}
         // hide default extra right padding in the text field
         disableClearable
         // ensure the autocomplete popup always renders on top
@@ -309,7 +364,7 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
             }
           }
         }}
-        renderOption={renderSlashCommandOption}
+        renderOption={renderAutocompleteOption}
         ListboxProps={{
           sx: {
             '& .MuiAutocomplete-option': {
@@ -347,4 +402,8 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
       />
     </Box>
   );
+}
+
+function getLastWord(input: string): string {
+  return input.split(/(?<!\\)\s+/).pop() || '';
 }

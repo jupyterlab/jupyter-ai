@@ -74,6 +74,10 @@ function sortMessages(
 export function ChatMessageHeader(props: ChatMessageHeaderProps): JSX.Element {
   const collaborators = useCollaboratorsContext();
 
+  if (props.message.type === 'agent-stream' && props.message.complete) {
+    console.log(props.message.metadata);
+  }
+
   const sharedStyles: SxProps<Theme> = {
     height: '24px',
     width: '24px'

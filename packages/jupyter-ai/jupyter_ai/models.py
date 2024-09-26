@@ -87,6 +87,14 @@ class BaseAgentMessage(BaseModel):
     this defaults to a description of `JupyternautPersona`.
     """
 
+    metadata: Dict[str, Any] = {}
+    """
+    Message metadata set by a provider after fully processing an input. The
+    contents of this dictionary are provider-dependent, and can be any
+    dictionary with string keys. This field is not to be displayed directly to
+    the user, and is intended solely for developer purposes.
+    """
+
 
 class AgentChatMessage(BaseAgentMessage):
     type: Literal["agent"] = "agent"
@@ -101,9 +109,17 @@ class AgentStreamMessage(BaseAgentMessage):
 class AgentStreamChunkMessage(BaseModel):
     type: Literal["agent-stream-chunk"] = "agent-stream-chunk"
     id: str
+    """ID of the parent `AgentStreamMessage`."""
     content: str
+    """The string to append to the `AgentStreamMessage` referenced by `id`."""
     stream_complete: bool
-    """Indicates whether this chunk message completes the referenced stream."""
+    """Indicates whether this chunk completes the stream referenced by `id`."""
+    metadata: Dict[str, Any] = {}
+    """
+    The metadata of the stream referenced by `id`. Metadata from the latest
+    chunk should override any metadata from previous chunks. See the docstring
+    on `BaseAgentMessage.metadata` for information.
+    """
 
 
 class HumanChatMessage(BaseModel):
@@ -263,3 +279,21 @@ class ListSlashCommandsEntry(BaseModel):
 
 class ListSlashCommandsResponse(BaseModel):
     slash_commands: List[ListSlashCommandsEntry] = []
+
+
+class ListOptionsEntry(BaseModel):
+    id: str
+    """ID of the autocomplete option.
+    Includes the command prefix. E.g. "/clear", "@file"."""
+    label: str
+    """Text that will be inserted into the prompt when the option is selected.
+    Includes a space at the end if the option is complete.
+    Partial suggestions do not include the space and may trigger future suggestions."""
+    description: str
+    """Text next to the option in the autocomplete list."""
+    only_start: bool
+    """Whether to command can only be inserted at the start of the prompt."""
+
+
+class ListOptionsResponse(BaseModel):
+    options: List[ListOptionsEntry] = []
