@@ -109,7 +109,10 @@ expected_suggestions_cases = [
     ("```\n# load json file\nimport\n```", "# load json file\nimport"),
     (" ```\n# load json file\nimport\n```", "# load json file\nimport"),
     ("``` \n# load json file\nimport\n```", "# load json file\nimport"),
-    ("\n```python\n# load json file\nimport\n```", "# load json file\nimport",),
+    (
+        "\n```python\n# load json file\nimport\n```",
+        "# load json file\nimport",
+    ),
 ]
 
 
