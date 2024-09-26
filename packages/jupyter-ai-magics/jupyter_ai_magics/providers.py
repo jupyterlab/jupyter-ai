@@ -29,12 +29,7 @@ from langchain.schema import LLMResult
 from langchain.schema.output_parser import StrOutputParser
 from langchain.schema.runnable import Runnable
 from langchain_community.chat_models import QianfanChatEndpoint
-from langchain_community.llms import (
-    AI21,
-    GPT4All,
-    HuggingFaceEndpoint,
-    Together,
-)
+from langchain_community.llms import AI21, GPT4All, HuggingFaceEndpoint, Together
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.language_models.llms import BaseLLM
 
@@ -704,7 +699,6 @@ class HfHubProvider(BaseProvider, HuggingFaceEndpoint):
 
     async def _acall(self, *args, **kwargs) -> Coroutine[Any, Any, str]:
         return await self._call_in_executor(*args, **kwargs)
-
 
 
 class TogetherAIProvider(BaseProvider, Together):

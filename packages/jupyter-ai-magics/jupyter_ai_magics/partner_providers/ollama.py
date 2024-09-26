@@ -30,4 +30,3 @@ class OllamaEmbeddingsProvider(BaseEmbeddingsProvider, OllamaEmbeddings):
         "snowflake-arctic-embed",
     ]
     model_id_key = "model"
-
