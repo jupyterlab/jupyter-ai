@@ -5,7 +5,6 @@ from .embedding_providers import (
     BaseEmbeddingsProvider,
     GPT4AllEmbeddingsProvider,
     HfHubEmbeddingsProvider,
-    OllamaEmbeddingsProvider,
     QianfanEmbeddingsEndpointProvider,
 )
 from .exception import store_exception
@@ -21,7 +20,6 @@ from .providers import (
     BaseProvider,
     GPT4AllProvider,
     HfHubProvider,
-    OllamaProvider,
     QianfanProvider,
     TogetherAIProvider,
 )
