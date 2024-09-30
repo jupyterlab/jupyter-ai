@@ -130,7 +130,7 @@ class ToolsChatHandler(BaseChatHandler):
 
     def get_tool_files(self) -> list:
         """
-        Gets required tool files from TOOLS_DIR
+        Gets required tool files from TOOLS_DIR: `.jupyter/jupyter-ai/tools/`
         which is the directory in which all tool files are placed.
         """
         try:
@@ -233,7 +233,7 @@ class ToolsChatHandler(BaseChatHandler):
             raise ExceptionModelDoesTakeTools()
         except Exception:
             raise ExceptionModelNotAuthorized()
-
+        
         # Initialize graph
         agentic_workflow = StateGraph(MessagesState)
         # Define the agent and tool nodes we will cycle between
@@ -247,8 +247,11 @@ class ToolsChatHandler(BaseChatHandler):
         app = agentic_workflow.compile()
 
         # Run query
-        res = app.invoke({"messages": query})
-        return res["messages"][-1].content
+        try:
+            res = app.invoke({"messages": query})
+            return res["messages"][-1].content
+        except Exception as e:
+            self.log.error(e)
 
     async def process_message(self, message: HumanChatMessage):
         args = self.parse_args(message)
@@ -269,21 +272,25 @@ class ToolsChatHandler(BaseChatHandler):
             self.reply(f"{self.parser.format_usage()}", message)
             return
 
-        self.get_llm_chain()
+        # self.get_llm_chain()
 
         try:
             with self.pending("Using LLM with tools ..."):
                 response = self.use_llm_with_tools(query)
                 self.reply(response, message)
-        except ExceptionNoToolsFile:
+        except ExceptionNoToolsFile as e:
             self.reply(f"Tools file not found at {self.tools_file_path}.")
-        except ExceptionModelDoesTakeTools:
+            self.log.error(e)
+        except ExceptionModelDoesTakeTools as e:
             self.reply(f"Not a chat model that takes tools.")
-        except ExceptionModelNotAuthorized:
+            self.log.error(e)
+        except ExceptionModelNotAuthorized as e:
             self.reply(
                 f"API failed. Model not authorized or provider package not installed."
             )
-        except ExceptionNotChatModel:
+            self.log.error(e)
+        except ExceptionNotChatModel as e:
             self.reply(f"Not a chat model, cannot be used with tools.")
+            self.log.error(e)
         except Exception as e:
             self.log.error(e)
