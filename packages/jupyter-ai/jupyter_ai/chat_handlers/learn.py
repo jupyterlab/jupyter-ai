@@ -180,7 +180,7 @@ class LearnChatHandler(BaseChatHandler):
             no_path_arg_message = (
                 "Please specify a directory or pattern you would like to "
                 'learn on. "/learn" supports directories relative to '
-                "the root (or prefferred dir, if set) and unix-style "
+                "the root (or preferred dir, if set) and Unix-style "
                 "wildcard matching.\n\n"
                 "Examples:\n"
                 "- Learn on the root directory recursively: `/learn .`\n"
