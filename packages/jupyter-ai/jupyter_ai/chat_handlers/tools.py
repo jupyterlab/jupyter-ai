@@ -233,7 +233,7 @@ class ToolsChatHandler(BaseChatHandler):
             raise ExceptionModelDoesTakeTools()
         except Exception:
             raise ExceptionModelNotAuthorized()
-        
+
         # Initialize graph
         agentic_workflow = StateGraph(MessagesState)
         # Define the agent and tool nodes we will cycle between
