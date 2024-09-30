@@ -610,9 +610,9 @@ class AiMagics(Magics):
             if self.transcript:
                 transcript = [
                     (
-                        f"<HUMAN>{message.content}</HUMAN>"
-                        if message.type == "human"
-                        else message.content
+                        f"AI: {message.content}"
+                        if message.type == "ai"
+                        else f"{message.type.title()}: {message.content}"
                     )
                     for message in self.transcript[-2 * self.max_history :]
                     + [HumanMessage(content=prompt)]
