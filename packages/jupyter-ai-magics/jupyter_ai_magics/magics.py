@@ -146,6 +146,14 @@ class AiMagics(Magics):
         config=True,
     )
 
+    max_history = traitlets.Int(
+        default_value=2,
+        allow_none=False,
+        help="""Maximum number of exchanges (user/assistant) to include in the history
+        when invoking a chat model, defaults to 2.
+        """,
+    )
+
     def __init__(self, shell):
         super().__init__(shell)
         self.transcript = []
