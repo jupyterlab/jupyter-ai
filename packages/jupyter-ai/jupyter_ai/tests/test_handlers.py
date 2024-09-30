@@ -76,6 +76,7 @@ class TestDefaultChatHandler(DefaultChatHandler):
             dask_client_future=None,
             help_message_template=DEFAULT_HELP_MESSAGE_TEMPLATE,
             chat_handlers={},
+            context_providers={},
         )
 
 

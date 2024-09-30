@@ -29,13 +29,7 @@ from langchain.schema import LLMResult
 from langchain.schema.output_parser import StrOutputParser
 from langchain.schema.runnable import Runnable
 from langchain_community.chat_models import QianfanChatEndpoint
-from langchain_community.llms import (
-    AI21,
-    GPT4All,
-    HuggingFaceEndpoint,
-    Ollama,
-    Together,
-)
+from langchain_community.llms import AI21, GPT4All, HuggingFaceEndpoint, Together
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.language_models.llms import BaseLLM
 
@@ -67,11 +61,25 @@ If you do not know the answer to a question, answer truthfully by responding tha
 The following is a friendly conversation between you and a human.
 """.strip()
 
-CHAT_DEFAULT_TEMPLATE = """Current conversation:
-{history}
-Human: {input}
+CHAT_DEFAULT_TEMPLATE = """
+{% if context %}
+Context:
+{{context}}
+
+{% endif %}
+Current conversation:
+{{history}}
+Human: {{input}}
 AI:"""
 
+HUMAN_MESSAGE_TEMPLATE = """
+{% if context %}
+Context:
+{{context}}
+
+{% endif %}
+{{input}}
+"""
 
 COMPLETION_SYSTEM_PROMPT = """
 You are an application built to provide helpful code completion suggestions.
@@ -400,17 +408,21 @@ class BaseProvider(BaseModel, metaclass=ProviderMetaclass):
                         CHAT_SYSTEM_PROMPT
                     ).format(provider_name=name, local_model_id=self.model_id),
                     MessagesPlaceholder(variable_name="history"),
-                    HumanMessagePromptTemplate.from_template("{input}"),
+                    HumanMessagePromptTemplate.from_template(
+                        HUMAN_MESSAGE_TEMPLATE,
+                        template_format="jinja2",
+                    ),
                 ]
             )
         else:
             return PromptTemplate(
-                input_variables=["history", "input"],
+                input_variables=["history", "input", "context"],
                 template=CHAT_SYSTEM_PROMPT.format(
                     provider_name=name, local_model_id=self.model_id
                 )
                 + "\n\n"
                 + CHAT_DEFAULT_TEMPLATE,
+                template_format="jinja2",
             )
 
     def get_completion_prompt_template(self) -> PromptTemplate:
@@ -687,21 +699,6 @@ class HfHubProvider(BaseProvider, HuggingFaceEndpoint):
 
     async def _acall(self, *args, **kwargs) -> Coroutine[Any, Any, str]:
         return await self._call_in_executor(*args, **kwargs)
-
-
-class OllamaProvider(BaseProvider, Ollama):
-    id = "ollama"
-    name = "Ollama"
-    model_id_key = "model"
-    help = (
-        "See [https://www.ollama.com/library](https://www.ollama.com/library) for a list of models. "
-        "Pass a model's name; for example, `deepseek-coder-v2`."
-    )
-    models = ["*"]
-    registry = True
-    fields = [
-        TextField(key="base_url", label="Base API URL (optional)", format="text"),
-    ]
 
 
 class TogetherAIProvider(BaseProvider, Together):
