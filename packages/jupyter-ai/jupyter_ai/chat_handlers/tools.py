@@ -247,11 +247,8 @@ class ToolsChatHandler(BaseChatHandler):
         app = agentic_workflow.compile()
 
         # Run query
-        try:
-            res = app.invoke({"messages": query})
-            return res["messages"][-1].content
-        except Exception as e:
-            self.log.error(e)
+        res = app.invoke({"messages": query})
+        return res["messages"][-1].content
 
     async def process_message(self, message: HumanChatMessage):
         args = self.parse_args(message)
