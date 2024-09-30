@@ -185,7 +185,7 @@ class LearnChatHandler(BaseChatHandler):
                 "Examples:\n"
                 "- Learn on the root directory recursively: `/learn .`\n"
                 "- Learn on files in the root directory: `/learn *`\n"
-                "- Learn all python files under the root directory recursevely: `/learn **/*.py`"
+                "- Learn all python files under the root directory recursively: `/learn **/*.py`"
             )
             self.reply(f"{self.parser.format_usage()}\n\n {no_path_arg_message}")
             return
