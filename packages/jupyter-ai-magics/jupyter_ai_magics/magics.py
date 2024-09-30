@@ -598,7 +598,12 @@ class AiMagics(Magics):
 
         if provider.is_chat_provider:
             result = provider.generate(
-                [[*self.transcript, HumanMessage(content=prompt)]]
+                [
+                    [
+                        *self.transcript[-2 * self.max_history :],
+                        HumanMessage(content=prompt),
+                    ]
+                ]
             )
         else:
             # generate output from model via provider
@@ -609,7 +614,8 @@ class AiMagics(Magics):
                         if message.type == "human"
                         else message.content
                     )
-                    for message in self.transcript + [HumanMessage(content=prompt)]
+                    for message in self.transcript[-2 * self.max_history :]
+                    + [HumanMessage(content=prompt)]
                 ]
             else:
                 transcript = [prompt]
