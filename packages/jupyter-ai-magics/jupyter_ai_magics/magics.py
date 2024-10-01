@@ -597,15 +597,9 @@ class AiMagics(Magics):
         ip = self.shell
         prompt = prompt.format_map(FormatDict(ip.user_ns))
 
+        context = self.transcript[-2 * self.max_history :] if self.max_history else []
         if provider.is_chat_provider:
-            result = provider.generate(
-                [
-                    [
-                        *self.transcript[-2 * self.max_history :],
-                        HumanMessage(content=prompt),
-                    ]
-                ]
-            )
+            result = provider.generate([[*context, HumanMessage(content=prompt)]])
         else:
             # generate output from model via provider
             if self.transcript:
@@ -615,8 +609,7 @@ class AiMagics(Magics):
                         if message.type == "ai"
                         else f"{message.type.title()}: {message.content}"
                     )
-                    for message in self.transcript[-2 * self.max_history :]
-                    + [HumanMessage(content=prompt)]
+                    for message in context + [HumanMessage(content=prompt)]
                 ]
             else:
                 transcript = [prompt]
