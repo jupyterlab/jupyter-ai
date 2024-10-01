@@ -152,6 +152,7 @@ class AiMagics(Magics):
         help="""Maximum number of exchanges (user/assistant) to include in the history
         when invoking a chat model, defaults to 2.
         """,
+        config=True,
     )
 
     def __init__(self, shell):
