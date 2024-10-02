@@ -67,3 +67,43 @@ export const IJaiCore = new Token<IJaiCore>(
   'jupyter_ai:core',
   'The core implementation of the frontend.'
 );
+
+/**
+ * An object that describes an interaction event from the user.
+ *
+ * Jupyter AI natively emits 4 event types: "copy", "replace-selection",
+ * "insert-above", or "insert-below". These are all emitted by the code toolbar
+ * rendered underneath code blocks in the chat sidebar.
+ */
+export type TelemetryEvent = {
+  /**
+   * Type of the interaction.
+   *
+   * Frontend extensions may add other event types in custom components. Custom
+   * events can be emitted via the `useTelemetry()` hook.
+   */
+  type: 'copy' | 'replace-selection' | 'insert-above' | 'insert-below' | string;
+  /**
+   * Message that was interacted with by the user, if any.
+   */
+  parentMessage?: AiService.ChatMessage;
+  /**
+   * The code block within `parentMessage.` that was the subject of the
+   * interaction, if any.
+   */
+  code?: string;
+};
+
+export interface IJaiTelemetryHandler {
+  onEvent: (e: TelemetryEvent) => unknown;
+}
+
+/**
+ * An optional plugin that handles telemetry events emitted via user
+ * interactions, when provided by a separate labextension. Not provided by
+ * default.
+ */
+export const IJaiTelemetryHandler = new Token<IJaiTelemetryHandler>(
+  'jupyter_ai:telemetry',
+  'An optional plugin that handles telemetry events emitted via interactions on agent messages, when provided by a separate labextension. Not provided by default.'
+);
