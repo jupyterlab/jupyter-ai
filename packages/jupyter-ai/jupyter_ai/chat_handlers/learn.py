@@ -175,7 +175,7 @@ class LearnChatHandler(BaseChatHandler):
                     return
 
         # Make sure the path exists.
-        if (not len(args.path) == 1) or (not args.path[0]):
+        if not (len(args.path) == 1 and args.path[0]):
             print(self.parser.format_usage())
             no_path_arg_message = (
                 "Please specify a directory or pattern you would like to "
