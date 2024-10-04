@@ -2,6 +2,26 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 2.24.1
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.24.0...f3692d94dfbb4837714888d0e69f6c7ca3ba547c))
+
+### Enhancements made
+
+- Make path argument required on /learn [#1012](https://github.com/jupyterlab/jupyter-ai/pull/1012) ([@andrewfulton9](https://github.com/andrewfulton9))
+
+### Bugs fixed
+
+- Export tokens from `lib/index.js` [#1019](https://github.com/jupyterlab/jupyter-ai/pull/1019) ([@dlqqq](https://github.com/dlqqq))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-09-26&to=2024-10-04&type=c))
+
+[@andrewfulton9](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aandrewfulton9+updated%3A2024-09-26..2024-10-04&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2024-09-26..2024-10-04&type=Issues) | [@hockeymomonow](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ahockeymomonow+updated%3A2024-09-26..2024-10-04&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 2.24.0
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.23.0...e6ec9e9ba4336168ce7874c09d07157be8bbff5a))
@@ -37,8 +57,6 @@ Thank you @michaelchia for developing this feature!
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-09-11&to=2024-09-26&type=c))
 
 [@akaihola](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aakaihola+updated%3A2024-09-11..2024-09-26&type=Issues) | [@andrewfulton9](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aandrewfulton9+updated%3A2024-09-11..2024-09-26&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2024-09-11..2024-09-26&type=Issues) | [@ellisonbg](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aellisonbg+updated%3A2024-09-11..2024-09-26&type=Issues) | [@hockeymomonow](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ahockeymomonow+updated%3A2024-09-11..2024-09-26&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2024-09-11..2024-09-26&type=Issues) | [@michaelchia](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Amichaelchia+updated%3A2024-09-11..2024-09-26&type=Issues) | [@srdas](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2024-09-11..2024-09-26&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 2.23.0
 
