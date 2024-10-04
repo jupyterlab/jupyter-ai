@@ -107,8 +107,8 @@ expected_suggestions_cases = [
     ("```\n# load json file\n```", "\n# load json file"),
     ("```\ndef function():\n    pass\n```", "\ndef function():\n    pass"),
     (
-        "```\n# load json file\nimport json\nwith open('path-to-file','r') as f:```", 
-        "\nimport json\nwith open('path-to-file','r') as f:" 
+        "```\n# load json file\nimport json\nwith open('path-to-file','r') as f:```",
+        "\nimport json\nwith open('path-to-file','r') as f:",
     ),
 ]
 
