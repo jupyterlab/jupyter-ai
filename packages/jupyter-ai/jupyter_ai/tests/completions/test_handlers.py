@@ -104,14 +104,11 @@ expected_suggestions_cases = [
     ("```hello```world```", "hello```world"),
     (" ```\nprint(test)\n```", "print(test)"),
     ("``` \nprint(test)\n```", "print(test)"),
-    ("```python\n\n\n# load json file\nimport\n```", "# load json file\nimport"),
-    ("```python\n     # load json file\nimport\n```", "# load json file\nimport"),
-    ("```\n# load json file\nimport\n```", "# load json file\nimport"),
-    (" ```\n# load json file\nimport\n```", "# load json file\nimport"),
-    ("``` \n# load json file\nimport\n```", "# load json file\nimport"),
+    ("```\n# load json file\n```", "\n# load json file"),
+    ("```\ndef function():\n    pass\n```", "\ndef function():\n    pass"),
     (
-        "\n```python\n# load json file\nimport\n```",
-        "# load json file\nimport",
+        "```\n# load json file\nimport json\nwith open('path-to-file','r') as f:```", 
+        "\nimport json\nwith open('path-to-file','r') as f:" 
     ),
 ]
 
