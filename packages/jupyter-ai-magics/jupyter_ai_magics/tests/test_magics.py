@@ -57,6 +57,7 @@ def test_default_model_error_line(ip):
 PROMPT = HumanMessage(
     content=("Write code for me please\n\nProduce output in markdown format only.")
 )
+RESPONSE = AIMessage(content="Leet code")
 AI1 = AIMessage("ai1")
 H1 = HumanMessage("h1")
 AI2 = AIMessage("ai2")
@@ -87,7 +88,7 @@ AI3 = AIMessage("ai3")
 def test_max_history(ip, transcript, max_history, expected_context):
     ip.extension_manager.load_extension("jupyter_ai_magics")
     ai_magics = ip.magics_manager.registry["AiMagics"]
-    ai_magics.transcript = transcript
+    ai_magics.transcript = transcript.copy()
     ai_magics.max_history = max_history
     provider = ai_magics._get_provider("openrouter")
     with patch.object(provider, "generate") as generate, patch.dict(
@@ -110,6 +111,7 @@ def test_max_history(ip, transcript, max_history, expected_context):
         }
     }
     assert result.url is None
+    assert ai_magics.transcript == [*transcript, PROMPT, RESPONSE]
 
 
 def test_reset(ip):
