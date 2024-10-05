@@ -602,8 +602,8 @@ class AiMagics(Magics):
             result = provider.generate([[*context, HumanMessage(content=prompt)]])
         else:
             # generate output from model via provider
-            if self.transcript:
-                transcript = [
+            if context:
+                inputs = [
                     (
                         f"AI: {message.content}"
                         if message.type == "ai"
@@ -612,8 +612,8 @@ class AiMagics(Magics):
                     for message in context + [HumanMessage(content=prompt)]
                 ]
             else:
-                transcript = [prompt]
-            result = provider.generate(transcript)
+                inputs = [prompt]
+            result = provider.generate(inputs)
 
         output = result.generations[0][0].text
 
