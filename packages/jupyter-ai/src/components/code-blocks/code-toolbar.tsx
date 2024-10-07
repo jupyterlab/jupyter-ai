@@ -16,12 +16,13 @@ import { useReplace } from '../../hooks/use-replace';
 import { useCopy } from '../../hooks/use-copy';
 import { AiService } from '../../handler';
 import { useTelemetry } from '../../contexts/telemetry-context';
+import { TelemetryEvent } from '../../tokens';
 
 export type CodeToolbarProps = {
   /**
    * The content of the Markdown code block this component is attached to.
    */
-  content: string;
+  code: string;
   /**
    * Parent message which contains the code referenced by `content`.
    */
@@ -31,7 +32,7 @@ export type CodeToolbarProps = {
 export function CodeToolbar(props: CodeToolbarProps): JSX.Element {
   const activeCell = useActiveCellContext();
   const sharedToolbarButtonProps: ToolbarButtonProps = {
-    content: props.content,
+    code: props.code,
     activeCellManager: activeCell.manager,
     activeCellExists: activeCell.exists,
     parentMessage: props.parentMessage
@@ -58,11 +59,41 @@ export function CodeToolbar(props: CodeToolbarProps): JSX.Element {
 }
 
 type ToolbarButtonProps = {
-  content: string;
+  code: string;
   activeCellExists: boolean;
   activeCellManager: ActiveCellManager;
   parentMessage?: AiService.ChatMessage;
+  // TODO: parentMessage should always be defined, but this can be undefined
+  // when the code toolbar appears in Markdown help messages in the Settings
+  // UI. The Settings UI should use a different component to render Markdown,
+  // and should never render code toolbars within it.
 };
+
+function buildTelemetryEvent(
+  type: string,
+  props: ToolbarButtonProps
+): TelemetryEvent {
+  const charCount = props.code.length;
+  // number of lines = number of newlines + 1
+  const lineCount = (props.code.match(/\n/g) ?? []).length + 1;
+
+  return {
+    type,
+    message: {
+      id: props.parentMessage?.id ?? '',
+      type: props.parentMessage?.type ?? 'human',
+      time: props.parentMessage?.time ?? 0,
+      metadata:
+        props.parentMessage && 'metadata' in props.parentMessage
+          ? props.parentMessage.metadata
+          : {}
+    },
+    code: {
+      charCount,
+      lineCount
+    }
+  };
+}
 
 function InsertAboveButton(props: ToolbarButtonProps) {
   const telemetryHandler = useTelemetry();
@@ -74,14 +105,10 @@ function InsertAboveButton(props: ToolbarButtonProps) {
     <TooltippedIconButton
       tooltip={tooltip}
       onClick={() => {
-        props.activeCellManager.insertAbove(props.content);
+        props.activeCellManager.insertAbove(props.code);
 
         try {
-          telemetryHandler.onEvent({
-            type: 'insert-above',
-            parentMessage: props.parentMessage,
-            code: props.content
-          });
+          telemetryHandler.onEvent(buildTelemetryEvent('insert-above', props));
         } catch (e) {
           console.error(e);
           return;
@@ -105,14 +132,10 @@ function InsertBelowButton(props: ToolbarButtonProps) {
       tooltip={tooltip}
       disabled={!props.activeCellExists}
       onClick={() => {
-        props.activeCellManager.insertBelow(props.content);
+        props.activeCellManager.insertBelow(props.code);
 
         try {
-          telemetryHandler.onEvent({
-            type: 'insert-below',
-            parentMessage: props.parentMessage,
-            code: props.content
-          });
+          telemetryHandler.onEvent(buildTelemetryEvent('insert-below', props));
         } catch (e) {
           console.error(e);
           return;
@@ -133,14 +156,10 @@ function ReplaceButton(props: ToolbarButtonProps) {
       tooltip={replaceLabel}
       disabled={replaceDisabled}
       onClick={() => {
-        replace(props.content);
+        replace(props.code);
 
         try {
-          telemetryHandler.onEvent({
-            type: 'replace',
-            parentMessage: props.parentMessage,
-            code: props.content
-          });
+          telemetryHandler.onEvent(buildTelemetryEvent('replace', props));
         } catch (e) {
           console.error(e);
           return;
@@ -161,14 +180,10 @@ export function CopyButton(props: ToolbarButtonProps): JSX.Element {
       tooltip={copyLabel}
       placement="top"
       onClick={() => {
-        copy(props.content);
+        copy(props.code);
 
         try {
-          telemetryHandler.onEvent({
-            type: 'copy',
-            parentMessage: props.parentMessage,
-            code: props.content
-          });
+          telemetryHandler.onEvent(buildTelemetryEvent('copy', props));
         } catch (e) {
           console.error(e);
           return;

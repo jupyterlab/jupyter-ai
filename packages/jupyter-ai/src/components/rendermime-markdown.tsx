@@ -93,7 +93,7 @@ function RendermimeMarkdownBase(props: RendermimeMarkdownProps): JSX.Element {
         newCodeToolbarDefns.push([
           codeToolbarRoot,
           {
-            content: preBlock.textContent || '',
+            code: preBlock.textContent || '',
             parentMessage: props.parentMessage
           }
         ]);

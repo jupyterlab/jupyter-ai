@@ -71,9 +71,9 @@ export const IJaiCore = new Token<IJaiCore>(
 /**
  * An object that describes an interaction event from the user.
  *
- * Jupyter AI natively emits 4 event types: "copy", "replace-selection",
- * "insert-above", or "insert-below". These are all emitted by the code toolbar
- * rendered underneath code blocks in the chat sidebar.
+ * Jupyter AI natively emits 4 event types: "copy", "replace", "insert-above",
+ * or "insert-below". These are all emitted by the code toolbar rendered
+ * underneath code blocks in the chat sidebar.
  */
 export type TelemetryEvent = {
   /**
@@ -82,16 +82,38 @@ export type TelemetryEvent = {
    * Frontend extensions may add other event types in custom components. Custom
    * events can be emitted via the `useTelemetry()` hook.
    */
-  type: 'copy' | 'replace-selection' | 'insert-above' | 'insert-below' | string;
+  type: 'copy' | 'replace' | 'insert-above' | 'insert-below' | string;
   /**
-   * Message that was interacted with by the user, if any.
+   * Anonymized details about the message that was interacted with.
    */
-  parentMessage?: AiService.ChatMessage;
+  message: {
+    /**
+     * ID of the message assigned by Jupyter AI.
+     */
+    id: string;
+    /**
+     * Type of the message.
+     */
+    type: AiService.ChatMessage['type'];
+    /**
+     * UNIX timestamp of the message.
+     */
+    time: number;
+    /**
+     * Metadata associated with the message, yielded by the underlying language
+     * model provider.
+     */
+    metadata?: Record<string, unknown>;
+  };
   /**
-   * The code block within `parentMessage.` that was the subject of the
-   * interaction, if any.
+   * Anonymized details about the code block that was interacted with, if any.
+   * This is left optional for custom events like message upvote/downvote that
+   * do not involve interaction with a specific code block.
    */
-  code?: string;
+  code?: {
+    charCount: number;
+    lineCount: number;
+  };
 };
 
 export interface IJaiTelemetryHandler {
