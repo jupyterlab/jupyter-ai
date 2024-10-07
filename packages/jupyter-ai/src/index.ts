@@ -128,4 +128,5 @@ const plugin: JupyterFrontEndPlugin<IJaiCore> = {
 
 export default [plugin, statusItemPlugin, completionPlugin, menuPlugin];
 
+export * from './contexts';
 export * from './tokens';
