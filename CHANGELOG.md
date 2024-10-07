@@ -2,6 +2,26 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 2.25.0
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.24.1...097dbe48722e255173c6504e6de835c297c553ab))
+
+### Enhancements made
+
+- Export context hooks from NPM package entry point [#1020](https://github.com/jupyterlab/jupyter-ai/pull/1020) ([@dlqqq](https://github.com/dlqqq))
+- Add support for optional telemetry plugin [#1018](https://github.com/jupyterlab/jupyter-ai/pull/1018) ([@dlqqq](https://github.com/dlqqq))
+- Add back history and reset subcommand in magics [#997](https://github.com/jupyterlab/jupyter-ai/pull/997) ([@akaihola](https://github.com/akaihola))
+
+### Maintenance and upkeep improvements
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-10-04&to=2024-10-07&type=c))
+
+[@akaihola](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aakaihola+updated%3A2024-10-04..2024-10-07&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2024-10-04..2024-10-07&type=Issues) | [@jtpio](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ajtpio+updated%3A2024-10-04..2024-10-07&type=Issues) | [@pre-commit-ci](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Apre-commit-ci+updated%3A2024-10-04..2024-10-07&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 2.24.1
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.24.0...f3692d94dfbb4837714888d0e69f6c7ca3ba547c))
@@ -19,8 +39,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-09-26&to=2024-10-04&type=c))
 
 [@andrewfulton9](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aandrewfulton9+updated%3A2024-09-26..2024-10-04&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2024-09-26..2024-10-04&type=Issues) | [@hockeymomonow](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ahockeymomonow+updated%3A2024-09-26..2024-10-04&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 2.24.0
 
