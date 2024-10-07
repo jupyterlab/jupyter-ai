@@ -249,6 +249,7 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
                 ):
                     stream_message: AgentStreamMessage = history_message
                     stream_message.body += chunk.content
+                    stream_message.metadata = chunk.metadata
                     stream_message.complete = chunk.stream_complete
                     break
         elif isinstance(message, PendingMessage):
