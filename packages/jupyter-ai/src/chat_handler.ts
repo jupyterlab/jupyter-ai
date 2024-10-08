@@ -177,6 +177,11 @@ export class ChatHandler implements IDisposable {
         this._messages = [...this._messages];
         break;
       }
+      case 'stop': {
+        // TODO set complete = true here? or 'cancelled' would be better
+        console.log('stop');
+        break;
+      }
       default:
         // human or agent chat message
         this._messages = [...this._messages, newMessage];

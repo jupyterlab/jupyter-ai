@@ -293,6 +293,8 @@ class AiExtension(ExtensionApp):
         # This is created early to use as kwargs for chat handlers.
         self.settings["jai_context_providers"] = {}
 
+        self.settings["jai_message_interrupted"] = {}
+
         # initialize chat handlers
         self._init_chat_handlers()
 
@@ -358,11 +360,11 @@ class AiExtension(ExtensionApp):
             "llm_chat_memory": self.settings["llm_chat_memory"],
             "root_dir": self.serverapp.root_dir,
             "dask_client_future": self.settings["dask_client_future"],
-            "model_parameters": self.settings["model_parameters"],
             "preferred_dir": self.serverapp.contents_manager.preferred_dir,
             "help_message_template": self.help_message_template,
             "chat_handlers": chat_handlers,
             "context_providers": self.settings["jai_context_providers"],
+            "message_interrupted": self.settings["jai_message_interrupted"],
         }
         default_chat_handler = DefaultChatHandler(**chat_handler_kwargs)
         clear_chat_handler = ClearChatHandler(**chat_handler_kwargs)
@@ -450,7 +452,6 @@ class AiExtension(ExtensionApp):
             "llm_chat_memory": self.settings["llm_chat_memory"],
             "root_dir": self.serverapp.root_dir,
             "dask_client_future": self.settings["dask_client_future"],
-            "model_parameters": self.settings["model_parameters"],
             "preferred_dir": self.serverapp.contents_manager.preferred_dir,
             "chat_handlers": self.settings["jai_chat_handlers"],
             "context_providers": self.settings["jai_context_providers"],

@@ -1,6 +1,6 @@
 import asyncio
 import time
-from typing import Any, Dict, Type
+from typing import Any, Dict, Type, Union
 from uuid import uuid4
 
 from jupyter_ai.callback_handlers import MetadataCallbackHandler
@@ -8,6 +8,7 @@ from jupyter_ai.models import (
     AgentStreamChunkMessage,
     AgentStreamMessage,
     HumanChatMessage,
+    StopMessage,
 )
 from jupyter_ai_magics.providers import BaseProvider
 from langchain_core.messages import AIMessageChunk
@@ -15,8 +16,11 @@ from langchain_core.runnables import ConfigurableFieldSpec
 from langchain_core.runnables.history import RunnableWithMessageHistory
 
 from ..context_providers import ContextProviderException, find_commands
-from ..models import HumanChatMessage
 from .base import BaseChatHandler, SlashCommandRoutingType
+
+
+class GenerationInterrupted(asyncio.CancelledError):
+    """Exception raised when streaming is cancelled by the user"""
 
 
 class DefaultChatHandler(BaseChatHandler):
@@ -108,7 +112,7 @@ class DefaultChatHandler(BaseChatHandler):
             handler.broadcast_message(stream_chunk_msg)
             break
 
-    async def process_message(self, message: HumanChatMessage):
+    async def process_message(self, message: Union[HumanChatMessage, StopMessage]):
         self.get_llm_chain()
         received_first_chunk = False
         assert self.llm_chain
@@ -130,19 +134,32 @@ class DefaultChatHandler(BaseChatHandler):
             # implement streaming, as `astream()` defaults to yielding `_call()`
             # when `_stream()` is not implemented on the LLM class.
             metadata_handler = MetadataCallbackHandler()
-            async for chunk in self.llm_chain.astream(
+            chunk_generator = self.llm_chain.astream(
                 inputs,
                 config={
                     "configurable": {"last_human_msg": message},
                     "callbacks": [metadata_handler],
                 },
-            ):
+            )
+            async for chunk in chunk_generator:
                 if not received_first_chunk:
                     # when receiving the first chunk, close the pending message and
                     # start the stream.
                     self.close_pending(pending_message)
                     stream_id = self._start_stream(human_msg=message)
                     received_first_chunk = True
+                    self.message_interrupted[stream_id] = asyncio.Event()
+
+                if self.message_interrupted[stream_id].is_set():
+                    try:
+                        # notify the model provider that streaming was interrupted
+                        # (this is essential to allow the model to stop generating)
+                        chunk_generator.athrow(GenerationInterrupted())
+                    except GenerationInterrupted:
+                        # do not let the exception bubble up in case if
+                        # the provider did not handle it
+                        pass
+                    break
 
                 if isinstance(chunk, AIMessageChunk) and isinstance(chunk.content, str):
                     self._send_stream_chunk(stream_id, chunk.content)

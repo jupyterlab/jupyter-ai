@@ -39,6 +39,12 @@ class ChatRequest(BaseModel):
     selection: Optional[Selection]
 
 
+class StopRequest(BaseModel):
+    """Request sent by human asking to stop streaming/generating the response"""
+
+    type: Literal["stop"]
+
+
 class ClearRequest(BaseModel):
     type: Literal["clear"]
     target: Optional[str]
@@ -134,6 +140,13 @@ class HumanChatMessage(BaseModel):
     selection: Optional[Selection]
     """The selection included with the prompt, if any."""
     client: ChatClient
+
+
+class StopMessage(BaseModel):
+    """Message broadcast to clients after receiving a request to stop stop streaming or generating response"""
+
+    type: Literal["stop"] = "stop"
+    target: str
 
 
 class ClearMessage(BaseModel):

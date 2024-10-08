@@ -2,6 +2,7 @@ import React, { useCallback, useState } from 'react';
 import { Box, Menu, MenuItem, Typography } from '@mui/material';
 import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown';
 import SendIcon from '@mui/icons-material/Send';
+import StopIcon from '@mui/icons-material/Stop';
 
 import { TooltippedButton } from '../mui-extras/tooltipped-button';
 import { includeSelectionIcon } from '../../icons';
@@ -13,7 +14,9 @@ const FIX_TOOLTIP = '/fix requires an active code cell with an error';
 
 export type SendButtonProps = {
   onSend: (selection?: AiService.Selection) => unknown;
+  onStop: () => void;
   sendWithShiftEnter: boolean;
+  streaming: boolean;
   currSlashCommand: string | null;
   inputExists: boolean;
   activeCellHasError: boolean;
@@ -34,10 +37,10 @@ export function SendButton(props: SendButtonProps): JSX.Element {
     setMenuOpen(false);
   }, []);
 
-  const disabled =
-    props.currSlashCommand === '/fix'
-      ? !props.inputExists || !props.activeCellHasError
-      : !props.inputExists;
+  let disabled = props.streaming ? false : !props.inputExists;
+  if (props.currSlashCommand === '/fix' && !props.activeCellHasError) {
+    disabled = true;
+  }
 
   const includeSelectionDisabled = !(activeCell.exists || textSelection);
 
@@ -57,6 +60,8 @@ export function SendButton(props: SendButtonProps): JSX.Element {
   const tooltip =
     props.currSlashCommand === '/fix' && !props.activeCellHasError
       ? FIX_TOOLTIP
+      : props.streaming
+      ? 'Stop streaming'
       : !props.inputExists
       ? 'Message must not be empty'
       : defaultTooltip;
@@ -96,7 +101,7 @@ export function SendButton(props: SendButtonProps): JSX.Element {
   return (
     <Box sx={{ display: 'flex', flexWrap: 'nowrap' }}>
       <TooltippedButton
-        onClick={() => props.onSend()}
+        onClick={() => props.streaming ? props.onStop() : props.onSend()}
         disabled={disabled}
         tooltip={tooltip}
         buttonProps={{
@@ -109,7 +114,7 @@ export function SendButton(props: SendButtonProps): JSX.Element {
           borderRadius: '2px 0px 0px 2px'
         }}
       >
-        <SendIcon />
+        {props.streaming ? <StopIcon /> : <SendIcon />}
       </TooltippedButton>
       <TooltippedButton
         onClick={e => {
