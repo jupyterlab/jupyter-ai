@@ -89,6 +89,10 @@ export namespace AiService {
     after?: boolean;
   };
 
+  export type StopRequest = {
+    type: 'stop';
+  }
+
   export type Collaborator = {
     username: string;
     initials: string;
@@ -148,6 +152,10 @@ export namespace AiService {
     targets?: string[];
   };
 
+  export type StopMessage = {
+    type: 'stop';
+  };
+
   export type PendingMessage = {
     type: 'pending';
     id: string;
@@ -176,7 +184,7 @@ export namespace AiService {
     metadata: Record<string, any>;
   };
 
-  export type Request = ChatRequest | ClearRequest;
+  export type Request = ChatRequest | ClearRequest | StopRequest;
 
   export type ChatMessage =
     | AgentChatMessage
@@ -191,7 +199,8 @@ export namespace AiService {
     | PendingMessage
     | ClosePendingMessage
     | AgentStreamMessage
-    | AgentStreamChunkMessage;
+    | AgentStreamChunkMessage
+    | StopMessage;
 
   export type ChatHistory = {
     messages: ChatMessage[];

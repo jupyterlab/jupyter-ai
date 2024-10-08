@@ -2,9 +2,9 @@ import getpass
 import json
 import time
 import uuid
-from asyncio import AbstractEventLoop
+from asyncio import AbstractEventLoop, Event
 from dataclasses import asdict
-from typing import TYPE_CHECKING, Dict, List, Optional, cast
+from typing import TYPE_CHECKING, Dict, List, Optional, Set, cast
 
 import tornado
 from jupyter_ai.chat_handlers import BaseChatHandler, SlashCommandRoutingType
@@ -38,6 +38,8 @@ from .models import (
     ListSlashCommandsResponse,
     Message,
     PendingMessage,
+    StopMessage,
+    StopRequest,
     UpdateConfigRequest,
 )
 
@@ -103,6 +105,10 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
     @chat_history.setter
     def chat_history(self, new_history):
         self.settings["chat_history"] = new_history
+
+    @property
+    def message_interrupted(self) -> Dict[str, Event]:
+        return self.settings["jai_message_interrupted"]
 
     @property
     def llm_chat_memory(self) -> "BoundedChatHistory":
@@ -279,6 +285,8 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
             message = json.loads(message)
             if message.get("type") == "clear":
                 request = ClearRequest(**message)
+            elif message.get("type") == "stop":
+                request = StopRequest(**message)
             else:
                 request = ChatRequest(**message)
         except ValidationError as e:
@@ -304,6 +312,16 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
             self.broadcast_message(ClearMessage(targets=targets))
             return
 
+        if isinstance(request, StopRequest):
+            for history_message in self.chat_history[::-1]:
+                if (
+                    history_message.type == "agent-stream"
+                    and not history_message.complete
+                ):
+                    self.message_interrupted[history_message.id].set()
+            self.broadcast_message(StopMessage(target=history_message.id))
+            return
+
         chat_request = request
         message_body = chat_request.prompt
         if chat_request.selection:
@@ -323,9 +341,6 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
         # broadcast the message to other clients
         self.broadcast_message(message=chat_message)
 
-        # do not await this, as it blocks the parent task responsible for
-        # handling messages from a websocket.  instead, process each message
-        # as a distinct concurrent task.
         self.loop.create_task(self._route(chat_message))
 
     async def _route(self, message):
