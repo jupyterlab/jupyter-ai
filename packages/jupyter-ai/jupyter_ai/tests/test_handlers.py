@@ -77,6 +77,7 @@ class TestDefaultChatHandler(DefaultChatHandler):
             help_message_template=DEFAULT_HELP_MESSAGE_TEMPLATE,
             chat_handlers={},
             context_providers={},
+            message_interrupted={},
         )
 
 
