@@ -178,8 +178,13 @@ export class ChatHandler implements IDisposable {
         break;
       }
       case 'stop': {
-        // TODO set complete = true here? or 'cancelled' would be better
-        console.log('stop');
+        const streamMessage = this._messages.find<AiService.AgentStreamMessage>(
+          (m): m is AiService.AgentStreamMessage =>
+            m.type === 'agent-stream' && m.id === newMessage.target
+        );
+        if (streamMessage) {
+          streamMessage.interrupted = true;
+        }
         break;
       }
       default:
