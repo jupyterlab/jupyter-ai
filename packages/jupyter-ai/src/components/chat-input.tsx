@@ -274,7 +274,7 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
   const sendButtonProps: SendButtonProps = {
     onSend,
     onStop: () => {
-      props.chatHandler.sendMessage({type: "stop"})
+      props.chatHandler.sendMessage({ type: 'stop' });
     },
     sendWithShiftEnter: props.sendWithShiftEnter,
     streaming: props.streaming,
