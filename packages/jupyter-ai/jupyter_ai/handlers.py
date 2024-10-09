@@ -369,6 +369,18 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
         """
         Clears conversation exchanges associated with list of human message IDs.
         """
+        messages_to_interrupt = [
+            msg
+            for msg in self.chat_history
+            if (
+                msg.type == "agent-stream"
+                and getattr(msg, "reply_to", None) in msg_ids
+                and not msg.complete
+            )
+        ]
+        for msg in messages_to_interrupt:
+            self.message_interrupted[msg.id].set()
+
         self.chat_history[:] = [
             msg
             for msg in self.chat_history
