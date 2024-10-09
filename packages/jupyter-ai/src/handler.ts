@@ -154,6 +154,7 @@ export namespace AiService {
 
   export type StopMessage = {
     type: 'stop';
+    target: string;
   };
 
   export type PendingMessage = {
@@ -174,6 +175,7 @@ export namespace AiService {
   export type AgentStreamMessage = Omit<AgentChatMessage, 'type'> & {
     type: 'agent-stream';
     complete: boolean;
+    interrupted?: boolean;
   };
 
   export type AgentStreamChunkMessage = {

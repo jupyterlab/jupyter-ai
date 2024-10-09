@@ -8,7 +8,6 @@ from jupyter_ai.models import (
     AgentStreamChunkMessage,
     AgentStreamMessage,
     HumanChatMessage,
-    StopMessage,
 )
 from jupyter_ai_magics.providers import BaseProvider
 from langchain_core.messages import AIMessageChunk
