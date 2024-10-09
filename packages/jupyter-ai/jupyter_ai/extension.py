@@ -293,6 +293,8 @@ class AiExtension(ExtensionApp):
         # This is created early to use as kwargs for chat handlers.
         self.settings["jai_context_providers"] = {}
 
+        # Create empty dictionary for events communicating that
+        # message generation/streaming got interrupted.
         self.settings["jai_message_interrupted"] = {}
 
         # initialize chat handlers

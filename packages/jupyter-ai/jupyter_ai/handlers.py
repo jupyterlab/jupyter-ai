@@ -4,7 +4,7 @@ import time
 import uuid
 from asyncio import AbstractEventLoop, Event
 from dataclasses import asdict
-from typing import TYPE_CHECKING, Dict, List, Optional, Set, cast
+from typing import TYPE_CHECKING, Dict, List, Optional, cast
 
 import tornado
 from jupyter_ai.chat_handlers import BaseChatHandler, SlashCommandRoutingType
@@ -318,7 +318,12 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
                     history_message.type == "agent-stream"
                     and not history_message.complete
                 ):
-                    self.message_interrupted[history_message.id].set()
+                    try:
+                        self.message_interrupted[history_message.id].set()
+                    except KeyError:
+                        # do nothing if the message was already interrupted
+                        # or stream got completed (thread-safe way!)
+                        pass
             self.broadcast_message(StopMessage(target=history_message.id))
             return
 
@@ -341,6 +346,9 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
         # broadcast the message to other clients
         self.broadcast_message(message=chat_message)
 
+        # do not await this, as it blocks the parent task responsible for
+        # handling messages from a websocket.  instead, process each message
+        # as a distinct concurrent task.
         self.loop.create_task(self._route(chat_message))
 
     async def _route(self, message):
@@ -379,7 +387,12 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
             )
         ]
         for msg in messages_to_interrupt:
-            self.message_interrupted[msg.id].set()
+            try:
+                self.message_interrupted[msg.id].set()
+            except KeyError:
+                # do nothing if the message was already interrupted
+                # or stream got completed (thread-safe way!)
+                pass
 
         self.chat_history[:] = [
             msg
