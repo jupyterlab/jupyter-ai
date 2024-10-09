@@ -101,7 +101,7 @@ export function SendButton(props: SendButtonProps): JSX.Element {
   return (
     <Box sx={{ display: 'flex', flexWrap: 'nowrap' }}>
       <TooltippedButton
-        onClick={() => props.streaming ? props.onStop() : props.onSend()}
+        onClick={() => (props.streaming ? props.onStop() : props.onSend())}
         disabled={disabled}
         tooltip={tooltip}
         buttonProps={{

@@ -157,7 +157,10 @@ function ChatBody({
       <ChatInput
         chatHandler={chatHandler}
         focusInputSignal={focusInputSignal}
-        streaming={messages.filter(m => m.type === "agent-stream" && !m.complete).length !== 0}
+        streaming={
+          messages.filter(m => m.type === 'agent-stream' && !m.complete)
+            .length !== 0
+        }
         sx={{
           paddingLeft: 4,
           paddingRight: 4,
