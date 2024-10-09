@@ -3,6 +3,7 @@ import contextlib
 import os
 import time
 import traceback
+from asyncio import Event
 from typing import (
     TYPE_CHECKING,
     Awaitable,
@@ -126,6 +127,10 @@ class BaseChatHandler:
     """Dictionary of context providers. Allows chat handlers to reference
     context providers, which can be used to provide context to the LLM."""
 
+    message_interrupted: Dict[str, Event]
+    """Dictionary mapping an agent message identifier to an asyncio Event
+    which indicates if the message generation/streaming was interrupted."""
+
     def __init__(
         self,
         log: Logger,
@@ -140,6 +145,7 @@ class BaseChatHandler:
         help_message_template: str,
         chat_handlers: Dict[str, "BaseChatHandler"],
         context_providers: Dict[str, "BaseCommandContextProvider"],
+        message_interrupted: Dict[str, Event],
     ):
         self.log = log
         self.config_manager = config_manager
@@ -161,6 +167,7 @@ class BaseChatHandler:
         self.help_message_template = help_message_template
         self.chat_handlers = chat_handlers
         self.context_providers = context_providers
+        self.message_interrupted = message_interrupted
 
         self.llm: Optional[BaseProvider] = None
         self.llm_params: Optional[dict] = None

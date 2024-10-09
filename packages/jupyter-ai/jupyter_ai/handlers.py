@@ -2,7 +2,7 @@ import getpass
 import json
 import time
 import uuid
-from asyncio import AbstractEventLoop
+from asyncio import AbstractEventLoop, Event
 from dataclasses import asdict
 from typing import TYPE_CHECKING, Dict, List, Optional, cast
 
@@ -38,6 +38,8 @@ from .models import (
     ListSlashCommandsResponse,
     Message,
     PendingMessage,
+    StopMessage,
+    StopRequest,
     UpdateConfigRequest,
 )
 
@@ -103,6 +105,10 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
     @chat_history.setter
     def chat_history(self, new_history):
         self.settings["chat_history"] = new_history
+
+    @property
+    def message_interrupted(self) -> Dict[str, Event]:
+        return self.settings["jai_message_interrupted"]
 
     @property
     def llm_chat_memory(self) -> "BoundedChatHistory":
@@ -274,6 +280,8 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
             message = json.loads(message)
             if message.get("type") == "clear":
                 request = ClearRequest(**message)
+            elif message.get("type") == "stop":
+                request = StopRequest(**message)
             else:
                 request = ChatRequest(**message)
         except ValidationError as e:
@@ -297,6 +305,21 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
             else:
                 targets = [request.target]
             self.broadcast_message(ClearMessage(targets=targets))
+            return
+
+        if isinstance(request, StopRequest):
+            for history_message in self.chat_history[::-1]:
+                if (
+                    history_message.type == "agent-stream"
+                    and not history_message.complete
+                ):
+                    try:
+                        self.message_interrupted[history_message.id].set()
+                    except KeyError:
+                        # do nothing if the message was already interrupted
+                        # or stream got completed (thread-safe way!)
+                        pass
+            self.broadcast_message(StopMessage(target=history_message.id))
             return
 
         chat_request = request
@@ -349,6 +372,23 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
         """
         Clears conversation exchanges associated with list of human message IDs.
         """
+        messages_to_interrupt = [
+            msg
+            for msg in self.chat_history
+            if (
+                msg.type == "agent-stream"
+                and getattr(msg, "reply_to", None) in msg_ids
+                and not msg.complete
+            )
+        ]
+        for msg in messages_to_interrupt:
+            try:
+                self.message_interrupted[msg.id].set()
+            except KeyError:
+                # do nothing if the message was already interrupted
+                # or stream got completed (thread-safe way!)
+                pass
+
         self.chat_history[:] = [
             msg
             for msg in self.chat_history
