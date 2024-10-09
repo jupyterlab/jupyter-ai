@@ -1,6 +1,6 @@
 import asyncio
 import time
-from typing import Any, Dict, Type, Union
+from typing import Any, Dict, Type
 from uuid import uuid4
 
 from jupyter_ai.callback_handlers import MetadataCallbackHandler
@@ -112,7 +112,7 @@ class DefaultChatHandler(BaseChatHandler):
             handler.broadcast_message(stream_chunk_msg)
             break
 
-    async def process_message(self, message: Union[HumanChatMessage, StopMessage]):
+    async def process_message(self, message: HumanChatMessage):
         self.get_llm_chain()
         received_first_chunk = False
         assert self.llm_chain
@@ -173,6 +173,7 @@ class DefaultChatHandler(BaseChatHandler):
             self._send_stream_chunk(
                 stream_id, "", complete=True, metadata=metadata_handler.jai_metadata
             )
+            del self.message_interrupted[stream_id]
 
     async def make_context_prompt(self, human_msg: HumanChatMessage) -> str:
         return "\n\n".join(
