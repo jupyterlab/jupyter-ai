@@ -154,7 +154,7 @@ class DefaultChatHandler(BaseChatHandler):
                     try:
                         # notify the model provider that streaming was interrupted
                         # (this is essential to allow the model to stop generating)
-                        chunk_generator.athrow(GenerationInterrupted())
+                        await chunk_generator.athrow(GenerationInterrupted())
                     except GenerationInterrupted:
                         # do not let the exception bubble up in case if
                         # the provider did not handle it
