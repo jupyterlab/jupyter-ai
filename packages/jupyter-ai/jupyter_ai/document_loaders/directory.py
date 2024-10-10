@@ -98,7 +98,8 @@ SUPPORTED_EXTS = {
     ".txt",
     ".html",
     ".pdf",
-    ".tex",  # added for raw latex files from arxiv
+    ".tex",
+    ".json",
 }
 
 
