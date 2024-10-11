@@ -21,7 +21,7 @@ jobs:
           - dependency-type: minimum
             python-version: "3.9"
           - dependency-type: standard
-            python-version: "3.13"
+            python-version: "3.12"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
