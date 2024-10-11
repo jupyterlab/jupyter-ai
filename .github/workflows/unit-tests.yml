@@ -15,6 +15,7 @@ jobs:
     name: Unit tests (Python ${{ matrix.python-version }}, ${{ matrix.dependency-type }} dependencies)
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         include:
           - dependency-type: minimum
@@ -30,9 +31,6 @@ jobs:
         with:
           python_version: ${{ matrix.python-version }}
           dependency_type: ${{ matrix.dependency-type }}
-
-      - name: Install extension dependencies and build the extension
-        run: ./scripts/install.sh
 
       - name: Execute unit tests
         run: |
