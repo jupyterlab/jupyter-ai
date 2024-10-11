@@ -91,8 +91,9 @@ def test_max_history(ip, transcript, max_history, expected_context):
     ai_magics.transcript = transcript.copy()
     ai_magics.max_history = max_history
     provider = ai_magics._get_provider("openrouter")
-    with patch.object(provider, "generate") as generate, patch.dict(
-        os.environ, OPENROUTER_API_KEY="123"
+    with (
+        patch.object(provider, "generate") as generate,
+        patch.dict(os.environ, OPENROUTER_API_KEY="123"),
     ):
         generate.return_value.generations = [[Mock(text="Leet code")]]
         result = ip.run_cell_magic(
