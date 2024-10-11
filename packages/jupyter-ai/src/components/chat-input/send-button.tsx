@@ -38,15 +38,28 @@ export function SendButton(props: SendButtonProps): JSX.Element {
   }, []);
 
   const isStreaming = props.streaming.length !== 0;
-  let disabled = isStreaming ? false : !props.inputExists;
-  if (props.currSlashCommand === '/fix' && !props.activeCellHasError) {
+
+  let action: 'send' | 'stop' | 'fix' = props.inputExists
+    ? 'send'
+    : isStreaming
+    ? 'stop'
+    : 'send';
+  if (props.currSlashCommand === '/fix') {
+    action = 'fix';
+  }
+
+  let disabled = false;
+  if (action === 'send' && !props.inputExists) {
+    disabled = true;
+  }
+  if (action === 'fix' && !props.activeCellHasError) {
     disabled = true;
   }
 
   const includeSelectionDisabled = !(activeCell.exists || textSelection);
 
   const includeSelectionTooltip =
-    props.currSlashCommand === '/fix'
+    action === 'fix'
       ? FIX_TOOLTIP
       : textSelection
       ? `${textSelection.text.split('\n').length} lines selected`
@@ -59,9 +72,9 @@ export function SendButton(props: SendButtonProps): JSX.Element {
     : 'Send message (ENTER)';
 
   const tooltip =
-    props.currSlashCommand === '/fix' && !props.activeCellHasError
+    action === 'fix' && !props.activeCellHasError
       ? FIX_TOOLTIP
-      : isStreaming
+      : action === 'stop'
       ? 'Stop streaming'
       : !props.inputExists
       ? 'Message must not be empty'
@@ -71,7 +84,7 @@ export function SendButton(props: SendButtonProps): JSX.Element {
     // if the current slash command is `/fix`, `props.onSend()` should always
     // include the code cell with error output, so the `selection` argument does
     // not need to be defined.
-    if (props.currSlashCommand === '/fix') {
+    if (action === 'fix') {
       props.onSend();
       closeMenu();
       return;
@@ -102,7 +115,11 @@ export function SendButton(props: SendButtonProps): JSX.Element {
   return (
     <Box sx={{ display: 'flex', flexWrap: 'nowrap' }}>
       <TooltippedButton
-        onClick={() => (isStreaming ? props.onStop(props.streaming[props.streaming.length - 1]) : props.onSend())}
+        onClick={() =>
+          action === 'stop'
+            ? props.onStop(props.streaming[props.streaming.length - 1])
+            : props.onSend()
+        }
         disabled={disabled}
         tooltip={tooltip}
         buttonProps={{
@@ -115,7 +132,7 @@ export function SendButton(props: SendButtonProps): JSX.Element {
           borderRadius: '2px 0px 0px 2px'
         }}
       >
-        {isStreaming ? <StopIcon /> : <SendIcon />}
+        {action === 'stop' ? <StopIcon /> : <SendIcon />}
       </TooltippedButton>
       <TooltippedButton
         onClick={e => {

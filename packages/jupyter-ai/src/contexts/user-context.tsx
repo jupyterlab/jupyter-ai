@@ -2,10 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import type { User } from '@jupyterlab/services';
 import { PartialJSONObject } from '@lumino/coreutils';
 
-const UserContext = React.createContext<
-  User.IUser | null
->(null);
-
+const UserContext = React.createContext<User.IUser | null>(null);
 
 export function useUserContext(): User.IUser | null {
   return useContext(UserContext);
@@ -24,16 +21,15 @@ export function UserContextProvider({
 
   useEffect(() => {
     userManager.ready.then(() => {
-      setUser({identity: userManager.identity!, permissions: userManager.permissions as PartialJSONObject});
+      setUser({
+        identity: userManager.identity!,
+        permissions: userManager.permissions as PartialJSONObject
+      });
     });
     userManager.userChanged.connect((sender, newUser) => {
       setUser(newUser);
     });
   }, []);
 
-  return (
-    <UserContext.Provider value={user}>
-      {children}
-    </UserContext.Provider>
-  );
+  return <UserContext.Provider value={user}>{children}</UserContext.Provider>;
 }

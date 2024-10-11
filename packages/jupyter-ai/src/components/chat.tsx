@@ -146,11 +146,19 @@ function ChatBody({
     );
   }
 
-  const myHumanMessageIds = new Set(messages.filter(m => m.type === 'human' && m.client.username === user?.identity.username).map(m => m.id));
+  const myHumanMessageIds = new Set(
+    messages
+      .filter(
+        m => m.type === 'human' && m.client.username === user?.identity.username
+      )
+      .map(m => m.id)
+  );
 
-  const myStreamedMessages = messages.filter(m =>
-    m.type === 'agent-stream' && !m.complete
-    && myHumanMessageIds.has(m.reply_to)
+  const myStreamedMessages = messages.filter(
+    m =>
+      m.type === 'agent-stream' &&
+      !m.complete &&
+      myHumanMessageIds.has(m.reply_to)
   ) as AiService.AgentStreamMessage[];
 
   return (
@@ -195,7 +203,7 @@ export type ChatProps = {
   focusInputSignal: ISignal<unknown, void>;
   messageFooter: IJaiMessageFooter | null;
   telemetryHandler: IJaiTelemetryHandler | null;
-  userManager: User.IManager
+  userManager: User.IManager;
 };
 
 enum ChatView {
@@ -220,7 +228,7 @@ export function Chat(props: ChatProps): JSX.Element {
             activeCellManager={props.activeCellManager}
           >
             <TelemetryContextProvider telemetryHandler={props.telemetryHandler}>
-              <UserContextProvider userManager={props.userManager} >
+              <UserContextProvider userManager={props.userManager}>
                 <Box
                   // root box should not include padding as it offsets the vertical
                   // scrollbar to the left
@@ -234,7 +242,9 @@ export function Chat(props: ChatProps): JSX.Element {
                   }}
                 >
                   {/* top bar */}
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <Box
+                    sx={{ display: 'flex', justifyContent: 'space-between' }}
+                  >
                     {view !== ChatView.Chat ? (
                       <IconButton onClick={() => setView(ChatView.Chat)}>
                         <ArrowBackIcon />
