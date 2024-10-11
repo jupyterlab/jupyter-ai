@@ -315,7 +315,8 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
         if isinstance(request, StopRequest):
             for history_message in self.chat_history[::-1]:
                 if (
-                    history_message.type == "agent-stream"
+                    history_message.id == request.target
+                    and history_message.type == "agent-stream"
                     and not history_message.complete
                 ):
                     try:
@@ -324,7 +325,7 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
                         # do nothing if the message was already interrupted
                         # or stream got completed (thread-safe way!)
                         pass
-            self.broadcast_message(StopMessage(target=history_message.id))
+                    self.broadcast_message(StopMessage(target=request.target))
             return
 
         chat_request = request

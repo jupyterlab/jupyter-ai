@@ -43,6 +43,10 @@ class StopRequest(BaseModel):
     """Request sent by human asking to stop streaming/generating the response"""
 
     type: Literal["stop"]
+    target: str
+    """
+    Message ID of the agent chat message to stop streaming.
+    """
 
 
 class ClearRequest(BaseModel):

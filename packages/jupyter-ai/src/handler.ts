@@ -91,6 +91,7 @@ export namespace AiService {
 
   export type StopRequest = {
     type: 'stop';
+    target: string;
   };
 
   export type Collaborator = {

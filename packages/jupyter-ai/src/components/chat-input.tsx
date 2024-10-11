@@ -36,7 +36,10 @@ type ChatInputProps = {
    * `'Jupyternaut'`, but can differ for custom providers.
    */
   personaName: string;
-  streaming: boolean;
+  /**
+   * List of streaming messages that are owned by the current user.
+   */
+  streaming: AiService.AgentStreamMessage[];
 };
 
 /**
@@ -273,8 +276,11 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
 
   const sendButtonProps: SendButtonProps = {
     onSend,
-    onStop: () => {
-      props.chatHandler.sendMessage({ type: 'stop' });
+    onStop: (message: AiService.AgentStreamMessage) => {
+      props.chatHandler.sendMessage({
+        type: 'stop',
+        target: message.id
+      });
     },
     sendWithShiftEnter: props.sendWithShiftEnter,
     streaming: props.streaming,
