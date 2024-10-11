@@ -32,6 +32,12 @@ jobs:
           python_version: ${{ matrix.python-version }}
           dependency_type: ${{ matrix.dependency-type }}
 
+      - name: Install extension dependencies and build the extension
+        run: ./scripts/install.sh
+
+      - name: List installed versions
+        run: pip list
+
       - name: Execute unit tests
         run: |
           set -eux
