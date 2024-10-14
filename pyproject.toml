@@ -6,7 +6,10 @@ build-backend = "hatchling.build"
 name = "jupyter_ai_monorepo"
 dynamic = ["version", "description", "authors", "urls", "keywords"]
 requires-python = ">=3.8"
-dependencies = []
+dependencies = [
+    "jupyter-ai-magics @ {root:uri}/packages/jupyter-ai-magics",
+    "jupyter-ai @ {root:uri}/packages/jupyter-ai"
+]
 
 [project.optional-dependencies]
 build = []
