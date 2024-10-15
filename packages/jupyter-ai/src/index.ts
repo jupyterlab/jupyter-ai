@@ -8,7 +8,9 @@ import {
 import {
   IWidgetTracker,
   ReactWidget,
-  IThemeManager
+  IThemeManager,
+  MainAreaWidget,
+  ICommandPalette
 } from '@jupyterlab/apputils';
 import { IDocumentWidget } from '@jupyterlab/docregistry';
 import { IGlobalAwareness } from '@jupyter/collaboration';
@@ -25,6 +27,7 @@ import { ActiveCellManager } from './contexts/active-cell-context';
 import { autocompletion } from './slash-autocompletion';
 import { Signal } from '@lumino/signaling';
 import { menuPlugin } from './plugins/menu-plugin';
+import { buildAiSettings } from './widgets/settings-widget';
 
 export type DocumentTracker = IWidgetTracker<IDocumentWidget>;
 
@@ -33,6 +36,10 @@ export namespace CommandIDs {
    * Command to focus the input.
    */
   export const focusChatInput = 'jupyter-ai:focus-chat-input';
+  /**
+   * Command to open the AI settings.
+   */
+  export const openAiSettings = 'jupyter-ai:open-settings';
 }
 
 /**
@@ -43,6 +50,7 @@ const plugin: JupyterFrontEndPlugin<IJaiCore> = {
   autoStart: true,
   requires: [IRenderMimeRegistry],
   optional: [
+    ICommandPalette,
     IGlobalAwareness,
     ILayoutRestorer,
     IThemeManager,
@@ -53,6 +61,7 @@ const plugin: JupyterFrontEndPlugin<IJaiCore> = {
   activate: async (
     app: JupyterFrontEnd,
     rmRegistry: IRenderMimeRegistry,
+    palette: ICommandPalette | null,
     globalAwareness: Awareness | null,
     restorer: ILayoutRestorer | null,
     themeManager: IThemeManager | null,
@@ -82,9 +91,46 @@ const plugin: JupyterFrontEndPlugin<IJaiCore> = {
 
     const focusInputSignal = new Signal<unknown, void>({});
 
-    let chatWidget: ReactWidget;
+    // Create a AI settings widget.
+    let aiSettings: MainAreaWidget<ReactWidget>;
+    let settingsWidget: ReactWidget;
     try {
       await chatHandler.initialize();
+      settingsWidget = buildAiSettings(
+        rmRegistry,
+        completionProvider,
+        openInlineCompleterSettings
+      );
+    } catch (e) {
+      settingsWidget = buildErrorWidget(themeManager);
+    }
+
+    // Add a command to open settings widget in main area.
+    app.commands.addCommand(CommandIDs.openAiSettings, {
+      execute: () => {
+        if (!aiSettings || aiSettings.isDisposed) {
+          aiSettings = new MainAreaWidget({ content: settingsWidget });
+          aiSettings.id = 'jupyter-ai-settings';
+          aiSettings.title.label = 'AI settings';
+          aiSettings.title.closable = true;
+        }
+        if (!aiSettings.isAttached) {
+          app?.shell.add(aiSettings, 'main');
+        }
+        app.shell.activateById(aiSettings.id);
+      },
+      label: 'AI settings'
+    });
+
+    if (palette) {
+      palette.addItem({
+        category: 'jupyter-ai',
+        command: CommandIDs.openAiSettings
+      });
+    }
+
+    let chatWidget: ReactWidget;
+    try {
       chatWidget = buildChatSidebar(
         selectionWatcher,
         chatHandler,
