@@ -171,9 +171,14 @@ class DefaultChatHandler(BaseChatHandler):
                     break
 
             # complete stream after all chunks have been streamed
-            stream_tombstone = "\n\n(AI response stopped by user)" if stream_interrupted else ""
+            stream_tombstone = (
+                "\n\n(AI response stopped by user)" if stream_interrupted else ""
+            )
             self._send_stream_chunk(
-                stream_id, stream_tombstone, complete=True, metadata=metadata_handler.jai_metadata
+                stream_id,
+                stream_tombstone,
+                complete=True,
+                metadata=metadata_handler.jai_metadata,
             )
             del self.message_interrupted[stream_id]
 
