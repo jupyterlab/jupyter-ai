@@ -91,7 +91,6 @@ export namespace AiService {
 
   export type StopRequest = {
     type: 'stop';
-    target: string;
   };
 
   export type Collaborator = {
@@ -153,11 +152,6 @@ export namespace AiService {
     targets?: string[];
   };
 
-  export type StopMessage = {
-    type: 'stop';
-    target: string;
-  };
-
   export type PendingMessage = {
     type: 'pending';
     id: string;
@@ -176,7 +170,6 @@ export namespace AiService {
   export type AgentStreamMessage = Omit<AgentChatMessage, 'type'> & {
     type: 'agent-stream';
     complete: boolean;
-    interrupted?: boolean;
   };
 
   export type AgentStreamChunkMessage = {
@@ -202,8 +195,7 @@ export namespace AiService {
     | PendingMessage
     | ClosePendingMessage
     | AgentStreamMessage
-    | AgentStreamChunkMessage
-    | StopMessage;
+    | AgentStreamChunkMessage;
 
   export type ChatHistory = {
     messages: ChatMessage[];

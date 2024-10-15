@@ -177,16 +177,6 @@ export class ChatHandler implements IDisposable {
         this._messages = [...this._messages];
         break;
       }
-      case 'stop': {
-        const streamMessage = this._messages.find<AiService.AgentStreamMessage>(
-          (m): m is AiService.AgentStreamMessage =>
-            m.type === 'agent-stream' && m.id === newMessage.target
-        );
-        if (streamMessage) {
-          streamMessage.interrupted = true;
-        }
-        break;
-      }
       default:
         // human or agent chat message
         this._messages = [...this._messages, newMessage];

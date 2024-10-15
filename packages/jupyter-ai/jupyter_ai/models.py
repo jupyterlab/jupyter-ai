@@ -40,13 +40,15 @@ class ChatRequest(BaseModel):
 
 
 class StopRequest(BaseModel):
-    """Request sent by human asking to stop streaming/generating the response"""
+    """
+    A request from a user to stop streaming all messages that are replying to
+    messages previously sent by that user. This request does not stop all
+    streaming responses for all users, but only the user that issued the
+    request. User identity is determined by the `username` from the
+    `IdentityProvider` instance available to each WebSocket handler.
+    """
 
     type: Literal["stop"]
-    target: str
-    """
-    Message ID of the agent chat message to stop streaming.
-    """
 
 
 class ClearRequest(BaseModel):

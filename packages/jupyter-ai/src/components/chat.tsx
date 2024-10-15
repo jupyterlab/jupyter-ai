@@ -146,6 +146,7 @@ function ChatBody({
     );
   }
 
+  // set of IDs of messages sent by the current user.
   const myHumanMessageIds = new Set(
     messages
       .filter(
@@ -154,12 +155,14 @@ function ChatBody({
       .map(m => m.id)
   );
 
-  const myStreamedMessages = messages.filter(
+  // whether the backend is currently streaming a reply to any message sent by
+  // the current user.
+  const streamingReplyHere = messages.some(
     m =>
       m.type === 'agent-stream' &&
-      !m.complete &&
-      myHumanMessageIds.has(m.reply_to)
-  ) as AiService.AgentStreamMessage[];
+      myHumanMessageIds.has(m.reply_to) &&
+      !m.complete
+  );
 
   return (
     <>
@@ -175,7 +178,7 @@ function ChatBody({
       <ChatInput
         chatHandler={chatHandler}
         focusInputSignal={focusInputSignal}
-        streaming={myStreamedMessages}
+        streamingReplyHere={streamingReplyHere}
         sx={{
           paddingLeft: 4,
           paddingRight: 4,

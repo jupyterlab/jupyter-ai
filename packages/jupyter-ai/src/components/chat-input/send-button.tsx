@@ -14,12 +14,16 @@ const FIX_TOOLTIP = '/fix requires an active code cell with an error';
 
 export type SendButtonProps = {
   onSend: (selection?: AiService.Selection) => unknown;
-  onStop: (message: AiService.AgentStreamMessage) => void;
+  onStop: () => unknown;
   sendWithShiftEnter: boolean;
-  streaming: AiService.AgentStreamMessage[];
   currSlashCommand: string | null;
   inputExists: boolean;
   activeCellHasError: boolean;
+  /**
+   * Whether the backend is streaming a reply to any message sent by the current
+   * user.
+   */
+  streamingReplyHere: boolean;
 };
 
 export function SendButton(props: SendButtonProps): JSX.Element {
@@ -37,11 +41,9 @@ export function SendButton(props: SendButtonProps): JSX.Element {
     setMenuOpen(false);
   }, []);
 
-  const isStreaming = props.streaming.length !== 0;
-
   let action: 'send' | 'stop' | 'fix' = props.inputExists
     ? 'send'
-    : isStreaming
+    : props.streamingReplyHere
     ? 'stop'
     : 'send';
   if (props.currSlashCommand === '/fix') {
@@ -115,11 +117,7 @@ export function SendButton(props: SendButtonProps): JSX.Element {
   return (
     <Box sx={{ display: 'flex', flexWrap: 'nowrap' }}>
       <TooltippedButton
-        onClick={() =>
-          action === 'stop'
-            ? props.onStop(props.streaming[props.streaming.length - 1])
-            : props.onSend()
-        }
+        onClick={() => (action === 'stop' ? props.onStop() : props.onSend())}
         disabled={disabled}
         tooltip={tooltip}
         buttonProps={{

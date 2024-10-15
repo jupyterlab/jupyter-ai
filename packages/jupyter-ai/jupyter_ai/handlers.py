@@ -4,7 +4,7 @@ import time
 import uuid
 from asyncio import AbstractEventLoop, Event
 from dataclasses import asdict
-from typing import TYPE_CHECKING, Dict, List, Optional, cast
+from typing import TYPE_CHECKING, Dict, List, Optional, Set, cast
 
 import tornado
 from jupyter_ai.chat_handlers import BaseChatHandler, SlashCommandRoutingType
@@ -313,19 +313,7 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
             return
 
         if isinstance(request, StopRequest):
-            for history_message in self.chat_history[::-1]:
-                if (
-                    history_message.id == request.target
-                    and history_message.type == "agent-stream"
-                    and not history_message.complete
-                ):
-                    try:
-                        self.message_interrupted[history_message.id].set()
-                    except KeyError:
-                        # do nothing if the message was already interrupted
-                        # or stream got completed (thread-safe way!)
-                        pass
-                    self.broadcast_message(StopMessage(target=request.target))
+            self.on_stop_request()
             return
 
         chat_request = request
@@ -351,6 +339,34 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
         # handling messages from a websocket.  instead, process each message
         # as a distinct concurrent task.
         self.loop.create_task(self._route(chat_message))
+
+    def on_stop_request(self):
+        # set of message IDs that were submitted by this user, determined by the
+        # username associated with this WebSocket connection.
+        current_user_messages: Set[str] = set()
+        for message in self.chat_history:
+            if (
+                message.type == "human"
+                and message.client.username == self.current_user.username
+            ):
+                current_user_messages.add(message.id)
+
+        # set of `AgentStreamMessage` IDs to stop
+        streams_to_stop: Set[str] = set()
+        for message in self.chat_history:
+            if (
+                message.type == "agent-stream"
+                and message.reply_to in current_user_messages
+            ):
+                streams_to_stop.add(message.id)
+
+        for stream_id in streams_to_stop:
+            try:
+                self.message_interrupted[stream_id].set()
+            except KeyError:
+                # do nothing if the message was already interrupted
+                # or stream got completed (thread-safe way!)
+                pass
 
     async def _route(self, message):
         """Method that routes an incoming message to the appropriate handler."""

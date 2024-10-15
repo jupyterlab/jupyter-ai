@@ -37,9 +37,10 @@ type ChatInputProps = {
    */
   personaName: string;
   /**
-   * List of streaming messages that are owned by the current user.
+   * Whether the backend is streaming a reply to any message sent by the current
+   * user.
    */
-  streaming: AiService.AgentStreamMessage[];
+  streamingReplyHere: boolean;
 };
 
 /**
@@ -276,14 +277,13 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
 
   const sendButtonProps: SendButtonProps = {
     onSend,
-    onStop: (message: AiService.AgentStreamMessage) => {
+    onStop: () => {
       props.chatHandler.sendMessage({
-        type: 'stop',
-        target: message.id
+        type: 'stop'
       });
     },
+    streamingReplyHere: props.streamingReplyHere,
     sendWithShiftEnter: props.sendWithShiftEnter,
-    streaming: props.streaming,
     inputExists,
     activeCellHasError: activeCell.hasError,
     currSlashCommand
