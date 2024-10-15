@@ -140,6 +140,7 @@ class DefaultChatHandler(BaseChatHandler):
                     "callbacks": [metadata_handler],
                 },
             )
+            stream_interrupted = False
             async for chunk in chunk_generator:
                 if not received_first_chunk:
                     # when receiving the first chunk, close the pending message and
@@ -158,6 +159,7 @@ class DefaultChatHandler(BaseChatHandler):
                         # do not let the exception bubble up in case if
                         # the provider did not handle it
                         pass
+                    stream_interrupted = True
                     break
 
                 if isinstance(chunk, AIMessageChunk) and isinstance(chunk.content, str):
@@ -169,8 +171,9 @@ class DefaultChatHandler(BaseChatHandler):
                     break
 
             # complete stream after all chunks have been streamed
+            stream_tombstone = "\n\n(AI response stopped by user)" if stream_interrupted else ""
             self._send_stream_chunk(
-                stream_id, "", complete=True, metadata=metadata_handler.jai_metadata
+                stream_id, stream_tombstone, complete=True, metadata=metadata_handler.jai_metadata
             )
             del self.message_interrupted[stream_id]
 
