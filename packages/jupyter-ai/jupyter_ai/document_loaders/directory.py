@@ -136,7 +136,7 @@ def collect_filepaths(path, all_files: bool):
         filepaths = walk_directory(path, all_files)
     else:
         filepaths = []
-        for glob_path in iglob(str(path), include_hidden=all_files, recursive=True):
+        for glob_path in iglob(str(path), recursive=True):
             if os.path.isfile(glob_path):
                 filepaths.append(Path(glob_path))
     valid_exts = {j.lower() for j in SUPPORTED_EXTS}
