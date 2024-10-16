@@ -84,7 +84,7 @@ class LearnChatHandler(BaseChatHandler):
             action="store",
             default=DEFAULT_CHUNK_SIZE,
             type=int,
-            help="Max number of characters in chunk",
+            help="Maximum number of characters per chunk. This argument is not supported on JSON files.",
         )
         self.parser.add_argument(
             "-o",
@@ -92,7 +92,7 @@ class LearnChatHandler(BaseChatHandler):
             action="store",
             default=DEFAULT_CHUNK_OVERLAP,
             type=int,
-            help="Number of characters overlapping between chunks, helpful to ensure text is not split mid-word or mid-sentence",
+            help="Number of characters that may overlap between chunks, which can help ensure a document is not split mid-word or mid-sentence. This argument is not supported on JSON files.",
         )
         self.parser.add_argument("path", nargs=argparse.REMAINDER)
         self.index_name = "default"
@@ -241,7 +241,7 @@ class LearnChatHandler(BaseChatHandler):
             ".md": MarkdownTextSplitter(**splitter_kwargs),
             ".tex": LatexTextSplitter(**splitter_kwargs),
             ".ipynb": NotebookSplitter(**splitter_kwargs),
-            ".json": RecursiveJsonSplitter(**splitter_kwargs),
+            ".json": RecursiveJsonSplitter(),
         }
         splitter = ExtensionSplitter(
             splitters=splitters,
