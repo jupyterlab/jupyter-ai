@@ -27,6 +27,7 @@ from langchain.text_splitter import (
     MarkdownTextSplitter,
     PythonCodeTextSplitter,
     RecursiveCharacterTextSplitter,
+    RecursiveJsonSplitter,
 )
 from langchain_community.vectorstores import FAISS
 
@@ -240,6 +241,7 @@ class LearnChatHandler(BaseChatHandler):
             ".md": MarkdownTextSplitter(**splitter_kwargs),
             ".tex": LatexTextSplitter(**splitter_kwargs),
             ".ipynb": NotebookSplitter(**splitter_kwargs),
+            ".json": RecursiveJsonSplitter(**splitter_kwargs),
         }
         splitter = ExtensionSplitter(
             splitters=splitters,
