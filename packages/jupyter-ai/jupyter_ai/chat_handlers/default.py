@@ -15,8 +15,11 @@ from langchain_core.runnables import ConfigurableFieldSpec
 from langchain_core.runnables.history import RunnableWithMessageHistory
 
 from ..context_providers import ContextProviderException, find_commands
-from ..models import HumanChatMessage
 from .base import BaseChatHandler, SlashCommandRoutingType
+
+
+class GenerationInterrupted(asyncio.CancelledError):
+    """Exception raised when streaming is cancelled by the user"""
 
 
 class DefaultChatHandler(BaseChatHandler):
@@ -130,19 +133,34 @@ class DefaultChatHandler(BaseChatHandler):
             # implement streaming, as `astream()` defaults to yielding `_call()`
             # when `_stream()` is not implemented on the LLM class.
             metadata_handler = MetadataCallbackHandler()
-            async for chunk in self.llm_chain.astream(
+            chunk_generator = self.llm_chain.astream(
                 inputs,
                 config={
                     "configurable": {"last_human_msg": message},
                     "callbacks": [metadata_handler],
                 },
-            ):
+            )
+            stream_interrupted = False
+            async for chunk in chunk_generator:
                 if not received_first_chunk:
                     # when receiving the first chunk, close the pending message and
                     # start the stream.
                     self.close_pending(pending_message)
                     stream_id = self._start_stream(human_msg=message)
                     received_first_chunk = True
+                    self.message_interrupted[stream_id] = asyncio.Event()
+
+                if self.message_interrupted[stream_id].is_set():
+                    try:
+                        # notify the model provider that streaming was interrupted
+                        # (this is essential to allow the model to stop generating)
+                        await chunk_generator.athrow(GenerationInterrupted())
+                    except GenerationInterrupted:
+                        # do not let the exception bubble up in case if
+                        # the provider did not handle it
+                        pass
+                    stream_interrupted = True
+                    break
 
                 if isinstance(chunk, AIMessageChunk) and isinstance(chunk.content, str):
                     self._send_stream_chunk(stream_id, chunk.content)
@@ -153,9 +171,16 @@ class DefaultChatHandler(BaseChatHandler):
                     break
 
             # complete stream after all chunks have been streamed
-            self._send_stream_chunk(
-                stream_id, "", complete=True, metadata=metadata_handler.jai_metadata
+            stream_tombstone = (
+                "\n\n(AI response stopped by user)" if stream_interrupted else ""
             )
+            self._send_stream_chunk(
+                stream_id,
+                stream_tombstone,
+                complete=True,
+                metadata=metadata_handler.jai_metadata,
+            )
+            del self.message_interrupted[stream_id]
 
     async def make_context_prompt(self, human_msg: HumanChatMessage) -> str:
         return "\n\n".join(

@@ -101,7 +101,8 @@ const plugin: JupyterFrontEndPlugin<IJaiCore> = {
         activeCellManager,
         focusInputSignal,
         messageFooter,
-        telemetryHandler
+        telemetryHandler,
+        app.serviceManager.user
       );
     } catch (e) {
       chatWidget = buildErrorWidget(themeManager);

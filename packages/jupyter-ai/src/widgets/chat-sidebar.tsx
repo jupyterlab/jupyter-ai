@@ -2,6 +2,7 @@ import React from 'react';
 import { ISignal } from '@lumino/signaling';
 import { ReactWidget } from '@jupyterlab/apputils';
 import type { IThemeManager } from '@jupyterlab/apputils';
+import type { User } from '@jupyterlab/services';
 import type { Awareness } from 'y-protocols/awareness';
 
 import { Chat } from '../components/chat';
@@ -27,7 +28,8 @@ export function buildChatSidebar(
   activeCellManager: ActiveCellManager,
   focusInputSignal: ISignal<unknown, void>,
   messageFooter: IJaiMessageFooter | null,
-  telemetryHandler: IJaiTelemetryHandler | null
+  telemetryHandler: IJaiTelemetryHandler | null,
+  userManager: User.IManager
 ): ReactWidget {
   const ChatWidget = ReactWidget.create(
     <Chat
@@ -42,6 +44,7 @@ export function buildChatSidebar(
       focusInputSignal={focusInputSignal}
       messageFooter={messageFooter}
       telemetryHandler={telemetryHandler}
+      userManager={userManager}
     />
   );
   ChatWidget.id = 'jupyter-ai::chat';

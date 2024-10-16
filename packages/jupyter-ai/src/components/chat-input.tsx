@@ -36,6 +36,11 @@ type ChatInputProps = {
    * `'Jupyternaut'`, but can differ for custom providers.
    */
   personaName: string;
+  /**
+   * Whether the backend is streaming a reply to any message sent by the current
+   * user.
+   */
+  streamingReplyHere: boolean;
 };
 
 /**
@@ -272,6 +277,12 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
 
   const sendButtonProps: SendButtonProps = {
     onSend,
+    onStop: () => {
+      props.chatHandler.sendMessage({
+        type: 'stop'
+      });
+    },
+    streamingReplyHere: props.streamingReplyHere,
     sendWithShiftEnter: props.sendWithShiftEnter,
     inputExists,
     activeCellHasError: activeCell.hasError,

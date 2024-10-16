@@ -39,6 +39,18 @@ class ChatRequest(BaseModel):
     selection: Optional[Selection]
 
 
+class StopRequest(BaseModel):
+    """
+    A request from a user to stop streaming all messages that are replying to
+    messages previously sent by that user. This request does not stop all
+    streaming responses for all users, but only the user that issued the
+    request. User identity is determined by the `username` from the
+    `IdentityProvider` instance available to each WebSocket handler.
+    """
+
+    type: Literal["stop"]
+
+
 class ClearRequest(BaseModel):
     type: Literal["clear"]
     target: Optional[str]
@@ -134,6 +146,13 @@ class HumanChatMessage(BaseModel):
     selection: Optional[Selection]
     """The selection included with the prompt, if any."""
     client: ChatClient
+
+
+class StopMessage(BaseModel):
+    """Message broadcast to clients after receiving a request to stop stop streaming or generating response"""
+
+    type: Literal["stop"] = "stop"
+    target: str
 
 
 class ClearMessage(BaseModel):
