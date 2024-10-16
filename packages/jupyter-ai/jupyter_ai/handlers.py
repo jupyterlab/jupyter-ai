@@ -149,10 +149,15 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
         # (`serverapp` is a property on all `JupyterHandler` subclasses)
         assert self.serverapp
         extensions = self.serverapp.extension_manager.extensions
-        collaborative = (
+        collaborative_legacy = (
             "jupyter_collaboration" in extensions
             and extensions["jupyter_collaboration"].enabled
         )
+        collaborative_v3 = (
+            "jupyter_server_ydoc" in extensions
+            and extensions["jupyter_server_ydoc"].enabled
+        )
+        collaborative = collaborative_legacy or collaborative_v3
 
         if collaborative:
             names = self.current_user.name.split(" ", maxsplit=2)
