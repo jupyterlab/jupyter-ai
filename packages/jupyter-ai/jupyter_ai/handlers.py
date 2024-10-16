@@ -174,7 +174,7 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
         login = getpass.getuser()
         initials = login[0].capitalize()
         return ChatUser(
-            username=login,
+            username=self.current_user.username,
             initials=initials,
             name=login,
             display_name=login,
