@@ -148,13 +148,6 @@ class HumanChatMessage(BaseModel):
     client: ChatClient
 
 
-class StopMessage(BaseModel):
-    """Message broadcast to clients after receiving a request to stop stop streaming or generating response"""
-
-    type: Literal["stop"] = "stop"
-    target: str
-
-
 class ClearMessage(BaseModel):
     type: Literal["clear"] = "clear"
     targets: Optional[List[str]] = None
