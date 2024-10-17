@@ -38,7 +38,6 @@ from .models import (
     ListSlashCommandsResponse,
     Message,
     PendingMessage,
-    StopMessage,
     StopRequest,
     UpdateConfigRequest,
 )
