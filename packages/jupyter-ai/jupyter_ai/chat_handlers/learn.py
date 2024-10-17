@@ -175,8 +175,18 @@ class LearnChatHandler(BaseChatHandler):
                     return
 
         # Make sure the path exists.
-        if not len(args.path) == 1:
-            self.reply(f"{self.parser.format_usage()}", message)
+        if not (len(args.path) == 1 and args.path[0]):
+            no_path_arg_message = (
+                "Please specify a directory or pattern you would like to "
+                'learn on. "/learn" supports directories relative to '
+                "the root (or preferred dir, if set) and Unix-style "
+                "wildcard matching.\n\n"
+                "Examples:\n"
+                "- Learn on the root directory recursively: `/learn .`\n"
+                "- Learn on files in the root directory: `/learn *`\n"
+                "- Learn all python files under the root directory recursively: `/learn **/*.py`"
+            )
+            self.reply(f"{self.parser.format_usage()}\n\n {no_path_arg_message}")
             return
         short_path = args.path[0]
         load_path = os.path.join(self.output_dir, short_path)

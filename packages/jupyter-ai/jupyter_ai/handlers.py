@@ -2,9 +2,9 @@ import getpass
 import json
 import time
 import uuid
-from asyncio import AbstractEventLoop
+from asyncio import AbstractEventLoop, Event
 from dataclasses import asdict
-from typing import TYPE_CHECKING, Dict, List, Optional, cast
+from typing import TYPE_CHECKING, Dict, List, Optional, Set, cast
 
 import tornado
 from jupyter_ai.chat_handlers import BaseChatHandler, SlashCommandRoutingType
@@ -38,6 +38,8 @@ from .models import (
     ListSlashCommandsResponse,
     Message,
     PendingMessage,
+    StopMessage,
+    StopRequest,
     UpdateConfigRequest,
 )
 
@@ -105,6 +107,10 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
         self.settings["chat_history"] = new_history
 
     @property
+    def message_interrupted(self) -> Dict[str, Event]:
+        return self.settings["jai_message_interrupted"]
+
+    @property
     def llm_chat_memory(self) -> "BoundedChatHistory":
         return self.settings["llm_chat_memory"]
 
@@ -149,10 +155,15 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
         # (`serverapp` is a property on all `JupyterHandler` subclasses)
         assert self.serverapp
         extensions = self.serverapp.extension_manager.extensions
-        collaborative = (
+        collaborative_legacy = (
             "jupyter_collaboration" in extensions
             and extensions["jupyter_collaboration"].enabled
         )
+        collaborative_v3 = (
+            "jupyter_server_ydoc" in extensions
+            and extensions["jupyter_server_ydoc"].enabled
+        )
+        collaborative = collaborative_legacy or collaborative_v3
 
         if collaborative:
             names = self.current_user.name.split(" ", maxsplit=2)
@@ -174,7 +185,7 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
         login = getpass.getuser()
         initials = login[0].capitalize()
         return ChatUser(
-            username=login,
+            username=self.current_user.username,
             initials=initials,
             name=login,
             display_name=login,
@@ -249,6 +260,7 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
                 ):
                     stream_message: AgentStreamMessage = history_message
                     stream_message.body += chunk.content
+                    stream_message.metadata = chunk.metadata
                     stream_message.complete = chunk.stream_complete
                     break
         elif isinstance(message, PendingMessage):
@@ -273,6 +285,8 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
             message = json.loads(message)
             if message.get("type") == "clear":
                 request = ClearRequest(**message)
+            elif message.get("type") == "stop":
+                request = StopRequest(**message)
             else:
                 request = ChatRequest(**message)
         except ValidationError as e:
@@ -298,6 +312,10 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
             self.broadcast_message(ClearMessage(targets=targets))
             return
 
+        if isinstance(request, StopRequest):
+            self.on_stop_request()
+            return
+
         chat_request = request
         message_body = chat_request.prompt
         if chat_request.selection:
@@ -321,6 +339,34 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
         # handling messages from a websocket.  instead, process each message
         # as a distinct concurrent task.
         self.loop.create_task(self._route(chat_message))
+
+    def on_stop_request(self):
+        # set of message IDs that were submitted by this user, determined by the
+        # username associated with this WebSocket connection.
+        current_user_messages: Set[str] = set()
+        for message in self.chat_history:
+            if (
+                message.type == "human"
+                and message.client.username == self.current_user.username
+            ):
+                current_user_messages.add(message.id)
+
+        # set of `AgentStreamMessage` IDs to stop
+        streams_to_stop: Set[str] = set()
+        for message in self.chat_history:
+            if (
+                message.type == "agent-stream"
+                and message.reply_to in current_user_messages
+            ):
+                streams_to_stop.add(message.id)
+
+        for stream_id in streams_to_stop:
+            try:
+                self.message_interrupted[stream_id].set()
+            except KeyError:
+                # do nothing if the message was already interrupted
+                # or stream got completed (thread-safe way!)
+                pass
 
     async def _route(self, message):
         """Method that routes an incoming message to the appropriate handler."""
@@ -348,6 +394,23 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
         """
         Clears conversation exchanges associated with list of human message IDs.
         """
+        messages_to_interrupt = [
+            msg
+            for msg in self.chat_history
+            if (
+                msg.type == "agent-stream"
+                and getattr(msg, "reply_to", None) in msg_ids
+                and not msg.complete
+            )
+        ]
+        for msg in messages_to_interrupt:
+            try:
+                self.message_interrupted[msg.id].set()
+            except KeyError:
+                # do nothing if the message was already interrupted
+                # or stream got completed (thread-safe way!)
+                pass
+
         self.chat_history[:] = [
             msg
             for msg in self.chat_history

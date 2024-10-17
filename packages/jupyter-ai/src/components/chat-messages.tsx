@@ -74,10 +74,6 @@ function sortMessages(
 export function ChatMessageHeader(props: ChatMessageHeaderProps): JSX.Element {
   const collaborators = useCollaboratorsContext();
 
-  if (props.message.type === 'agent-stream' && props.message.complete) {
-    console.log(props.message.metadata);
-  }
-
   const sharedStyles: SxProps<Theme> = {
     height: '24px',
     width: '24px'
@@ -228,8 +224,9 @@ export function ChatMessages(props: ChatMessagesProps): JSX.Element {
               sx={{ marginBottom: 3 }}
             />
             <RendermimeMarkdown
-              rmRegistry={props.rmRegistry}
               markdownStr={message.body}
+              rmRegistry={props.rmRegistry}
+              parentMessage={message}
               complete={
                 message.type === 'agent-stream' ? !!message.complete : true
               }

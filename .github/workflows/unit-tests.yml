@@ -12,17 +12,31 @@ on:
 
 jobs:
   unit-tests:
-    name: Unit tests
+    name: Unit tests (Python ${{ matrix.python-version }}, ${{ matrix.dependency-type }} dependencies)
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - dependency-type: minimum
+            python-version: "3.9"
+          - dependency-type: standard
+            python-version: "3.12"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Base Setup
         uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
+        with:
+          python_version: ${{ matrix.python-version }}
+          dependency_type: ${{ matrix.dependency-type }}
 
       - name: Install extension dependencies and build the extension
         run: ./scripts/install.sh
+
+      - name: List installed versions
+        run: pip list
 
       - name: Execute unit tests
         run: |

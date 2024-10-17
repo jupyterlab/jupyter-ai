@@ -89,6 +89,10 @@ export namespace AiService {
     after?: boolean;
   };
 
+  export type StopRequest = {
+    type: 'stop';
+  };
+
   export type Collaborator = {
     username: string;
     initials: string;
@@ -176,7 +180,7 @@ export namespace AiService {
     metadata: Record<string, any>;
   };
 
-  export type Request = ChatRequest | ClearRequest;
+  export type Request = ChatRequest | ClearRequest | StopRequest;
 
   export type ChatMessage =
     | AgentChatMessage
