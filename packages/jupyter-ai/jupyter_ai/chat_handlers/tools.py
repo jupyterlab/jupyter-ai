@@ -224,9 +224,7 @@ class ToolsChatHandler(BaseChatHandler):
         if not self.llm.is_chat_provider:
             raise ExceptionNotChatModel()
         try:
-            self.model_with_tools = self.llm.__class__(
-                model_id=self.llm.model_id
-            ).bind_tools(  # type:ignore[attr-defined]
+            self.model_with_tools = self.llm.bind_tools(  # type:ignore[attr-defined]
                 tools
             )
         except AttributeError:
