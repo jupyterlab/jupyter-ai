@@ -112,6 +112,48 @@ Next, use the `/tools` command with the same query to get the correct answer:
     alt='Incorrect use of the Black-Merton-Scholes formula for pricing a put option.'
     class="screenshot" />
 
+As a third example, we prepare a tools file called `filetools.py` that has the following code:
+```
+@tool
+def list_files(dir_path):
+    """Returns a list of files in the directory path"""
+    import os
+    file_list = os.listdir(dir_path)
+    file_list = [os.path.join(dir_path, f) for f in file_list]
+    print('Preparing file list')
+    return file_list
+
+
+@tool
+def rename_file_extensions(file_list, old_extension, new_extension):
+    """Renames file extensions from old_extension to new_extension"""
+    import os
+    for filename in file_list:
+        if filename.endswith(old_extension):
+            new_filename = filename.replace(old_extension, new_extension)
+            os.rename(filename, new_filename)
+            print(f'Renamed {filename} to {new_filename}')
+    return
+```
+
+There is a function `list_files` that collects all the file names in a target folder and another function `rename_file_extensions` that changes file names with specific extensions to new ones. Note that the second function needs to invoke the first function as an intermediate step.
+
+We test the first function as shown below:
+
+<img src="../_static/tools_file_list.png"
+    width="75%"
+    alt='Get the list of all filenames in a target folder.'
+    class="screenshot" />
+
+Next, test the second function:
+
+<img src="../_static/tools_rename_files.png"
+    width="75%"
+    alt='Change file extensions for selected filenames in a target folder.'
+    class="screenshot" />
+
+We see that the file extensions have been changed. The logs show that the LLM has used both tools, getting the file list using the first function and then passing it to the second function to change the file extensions.
+
 You can try the other tools in this example or build your own custom tools file to experiment with this feature.
 
 If you do not want to use any specific tool file, that is, use all the tool files together, the command is simply:
@@ -129,5 +171,5 @@ To list all the tool file names:
 and the response is
 
 ```
-The available tools files are: ['arithmetic.py', 'finance.py']
+The available tools files are: ['arithmetic.py', 'finance.py', 'filetools.py']
 ```
