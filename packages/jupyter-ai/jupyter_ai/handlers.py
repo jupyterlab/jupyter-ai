@@ -293,21 +293,10 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
             return
 
         if isinstance(request, ClearRequest):
-            if not request.target:
-                targets = None
-            elif request.after:
-                target_msg = None
-                for msg in self.chat_history:
-                    if msg.id == request.target:
-                        target_msg = msg
-                if target_msg:
-                    targets = [
-                        msg.id
-                        for msg in self.chat_history
-                        if msg.time >= target_msg.time and msg.type == "human"
-                    ]
-            else:
+            if request.target:
                 targets = [request.target]
+            else:
+                targets = None
             self.broadcast_message(ClearMessage(targets=targets))
             return
 

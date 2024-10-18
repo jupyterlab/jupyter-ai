@@ -59,12 +59,6 @@ class ClearRequest(BaseModel):
     If not provided, this requests the backend to clear all messages.
     """
 
-    after: Optional[bool]
-    """
-    Whether to clear target and all subsequent exchanges.
-    """
-
-
 class ChatUser(BaseModel):
     # User ID assigned by IdentityProvider.
     username: str
