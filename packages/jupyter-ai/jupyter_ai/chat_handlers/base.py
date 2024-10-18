@@ -16,6 +16,7 @@ from typing import (
     Union,
     cast,
 )
+from typing import get_args as get_type_args
 from uuid import uuid4
 
 from dask.distributed import Client as DaskClient
@@ -26,6 +27,7 @@ from jupyter_ai.models import (
     ChatMessage,
     ClosePendingMessage,
     HumanChatMessage,
+    Message,
     PendingMessage,
 )
 from jupyter_ai_magics import Persona
@@ -261,6 +263,26 @@ class BaseChatHandler:
         )
         self.reply(response, message)
 
+    def broadcast_message(self, message: Message):
+        """
+        Broadcasts a message to all WebSocket connections. If there are no
+        WebSocket connections and the message is a chat message, this method
+        directly appends to `self.chat_history`.
+        """
+        broadcast = False
+        for websocket in self._root_chat_handlers.values():
+            if not websocket:
+                continue
+
+            websocket.broadcast_message(message)
+            broadcast = True
+            break
+
+        if not broadcast:
+            if isinstance(message, get_type_args(ChatMessage)):
+                cast(ChatMessage, message)
+                self._chat_history.append(message)
+
     def reply(self, response: str, human_msg: Optional[HumanChatMessage] = None):
         """
         Sends an agent message, usually in response to a received
@@ -274,12 +296,7 @@ class BaseChatHandler:
             persona=self.persona,
         )
 
-        for handler in self._root_chat_handlers.values():
-            if not handler:
-                continue
-
-            handler.broadcast_message(agent_msg)
-            break
+        self.broadcast_message(agent_msg)
 
     @property
     def persona(self):
@@ -308,12 +325,7 @@ class BaseChatHandler:
             ellipsis=ellipsis,
         )
 
-        for handler in self._root_chat_handlers.values():
-            if not handler:
-                continue
-
-            handler.broadcast_message(pending_msg)
-            break
+        self.broadcast_message(pending_msg)
         return pending_msg
 
     def close_pending(self, pending_msg: PendingMessage):
@@ -327,13 +339,7 @@ class BaseChatHandler:
             id=pending_msg.id,
         )
 
-        for handler in self._root_chat_handlers.values():
-            if not handler:
-                continue
-
-            handler.broadcast_message(close_pending_msg)
-            break
-
+        self.broadcast_message(close_pending_msg)
         pending_msg.closed = True
 
     @contextlib.contextmanager
@@ -464,6 +470,4 @@ class BaseChatHandler:
             persona=self.persona,
         )
 
-        self._chat_history.append(help_message)
-        for websocket in self._root_chat_handlers.values():
-            websocket.write_message(help_message.json())
+        self.broadcast_message(help_message)

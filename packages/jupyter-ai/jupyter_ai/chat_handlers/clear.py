@@ -1,4 +1,4 @@
-from jupyter_ai.models import ClearMessage
+from jupyter_ai.models import ClearRequest
 
 from .base import BaseChatHandler, SlashCommandRoutingType
 
@@ -17,10 +17,10 @@ class ClearChatHandler(BaseChatHandler):
         super().__init__(*args, **kwargs)
 
     async def process_message(self, _):
-        # Clear chat
+        # Clear chat by triggering `RootChatHandler.on_clear_request()`.
         for handler in self._root_chat_handlers.values():
             if not handler:
                 continue
 
-            handler.broadcast_message(ClearMessage())
+            handler.on_clear_request(ClearRequest())
             break

@@ -86,7 +86,6 @@ export namespace AiService {
   export type ClearRequest = {
     type: 'clear';
     target?: string;
-    after?: boolean;
   };
 
   export type StopRequest = {

@@ -52,16 +52,11 @@ class StopRequest(BaseModel):
 
 
 class ClearRequest(BaseModel):
-    type: Literal["clear"]
+    type: Literal["clear"] = "clear"
     target: Optional[str]
     """
     Message ID of the HumanChatMessage to delete an exchange at.
     If not provided, this requests the backend to clear all messages.
-    """
-
-    after: Optional[bool]
-    """
-    Whether to clear target and all subsequent exchanges.
     """
 
 
@@ -146,13 +141,6 @@ class HumanChatMessage(BaseModel):
     selection: Optional[Selection]
     """The selection included with the prompt, if any."""
     client: ChatClient
-
-
-class StopMessage(BaseModel):
-    """Message broadcast to clients after receiving a request to stop stop streaming or generating response"""
-
-    type: Literal["stop"] = "stop"
-    target: str
 
 
 class ClearMessage(BaseModel):
