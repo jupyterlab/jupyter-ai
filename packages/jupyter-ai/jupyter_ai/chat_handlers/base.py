@@ -9,7 +9,6 @@ from typing import (
     Awaitable,
     ClassVar,
     Dict,
-    get_args as get_type_args,
     List,
     Literal,
     Optional,
@@ -17,6 +16,7 @@ from typing import (
     Union,
     cast,
 )
+from typing import get_args as get_type_args
 from uuid import uuid4
 
 from dask.distributed import Client as DaskClient
