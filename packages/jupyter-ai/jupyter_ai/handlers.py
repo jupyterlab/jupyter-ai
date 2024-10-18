@@ -319,7 +319,7 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
         # handling messages from a websocket.  instead, process each message
         # as a distinct concurrent task.
         self.loop.create_task(self._route(chat_message))
-    
+
     def on_clear_request(self, request: ClearRequest):
         target = request.target
 
@@ -340,7 +340,7 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
         self.cleared_message_ids.add(target)
         for msg in self.chat_history[::-1]:
             # interrupt the single message
-            if (msg.type == "agent-stream" and getattr(msg, "reply_to", None) == target):
+            if msg.type == "agent-stream" and getattr(msg, "reply_to", None) == target:
                 try:
                     self.message_interrupted[msg.id].set()
                 except KeyError:
@@ -409,7 +409,6 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
         latency_ms = round((time.time() - start) * 1000)
         command_readable = "Default" if command == "default" else command
         self.log.info(f"{command_readable} chat handler resolved in {latency_ms} ms.")
-
 
     def on_close(self):
         self.log.debug("Disconnecting client with user %s", self.client_id)

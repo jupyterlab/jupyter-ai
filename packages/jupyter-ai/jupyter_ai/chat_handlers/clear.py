@@ -1,4 +1,5 @@
 from jupyter_ai.models import ClearRequest
+
 from .base import BaseChatHandler, SlashCommandRoutingType
 
 

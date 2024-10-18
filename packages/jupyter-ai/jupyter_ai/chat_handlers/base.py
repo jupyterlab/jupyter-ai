@@ -26,8 +26,8 @@ from jupyter_ai.models import (
     ChatMessage,
     ClosePendingMessage,
     HumanChatMessage,
-    PendingMessage,
     Message,
+    PendingMessage,
 )
 from jupyter_ai_magics import Persona
 from jupyter_ai_magics.providers import BaseProvider
@@ -261,7 +261,7 @@ class BaseChatHandler:
             f"Sorry, an error occurred. Details below:\n\n```\n{formatted_e}\n```"
         )
         self.reply(response, message)
-    
+
     def broadcast_message(self, message: Message):
         """
         Broadcasts a message to all WebSocket connections. If there are no
@@ -276,10 +276,9 @@ class BaseChatHandler:
             websocket.broadcast_message(message)
             broadcast = True
             break
-            
+
         if not broadcast:
             self._chat_history.append(message)
-        
 
     def reply(self, response: str, human_msg: Optional[HumanChatMessage] = None):
         """
@@ -295,7 +294,6 @@ class BaseChatHandler:
         )
 
         self.broadcast_message(agent_msg)
-
 
     @property
     def persona(self):
