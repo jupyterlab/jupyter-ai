@@ -1,9 +1,9 @@
 import argparse
+import asyncio
 import contextlib
 import os
 import time
 import traceback
-import asyncio
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -21,26 +21,26 @@ from typing import get_args as get_type_args
 from uuid import uuid4
 
 from dask.distributed import Client as DaskClient
+from jupyter_ai.callback_handlers import MetadataCallbackHandler
 from jupyter_ai.config_manager import ConfigManager, Logger
 from jupyter_ai.history import WrappedBoundedChatHistory
 from jupyter_ai.models import (
     AgentChatMessage,
-    AgentStreamMessage,
     AgentStreamChunkMessage,
+    AgentStreamMessage,
     ChatMessage,
     ClosePendingMessage,
     HumanChatMessage,
     Message,
     PendingMessage,
 )
-from jupyter_ai.callback_handlers import MetadataCallbackHandler
 from jupyter_ai_magics import Persona
 from jupyter_ai_magics.providers import BaseProvider
-
 from langchain.pydantic_v1 import BaseModel
 from langchain_core.messages import AIMessageChunk
 from langchain_core.runnables import Runnable
-from langchain_core.runnables.config import RunnableConfig, merge_configs as merge_runnable_configs
+from langchain_core.runnables.config import RunnableConfig
+from langchain_core.runnables.config import merge_configs as merge_runnable_configs
 from langchain_core.runnables.utils import Input
 
 if TYPE_CHECKING:
@@ -513,8 +513,13 @@ class BaseChatHandler:
             id=stream_id, content=content, stream_complete=complete, metadata=metadata
         )
         self.broadcast_message(stream_chunk_msg)
-    
-    async def stream_reply(self, input: Input, human_msg: HumanChatMessage, config: Optional[RunnableConfig] = None):
+
+    async def stream_reply(
+        self,
+        input: Input,
+        human_msg: HumanChatMessage,
+        config: Optional[RunnableConfig] = None,
+    ):
         """
         Streams a reply to a human message by invoking
         `self.llm_chain.astream()`. A LangChain `Runnable` instance must be
@@ -538,7 +543,7 @@ class BaseChatHandler:
         metadata_handler = MetadataCallbackHandler()
         base_config: RunnableConfig = {
             "configurable": {"last_human_msg": human_msg},
-            "callbacks": [metadata_handler]
+            "callbacks": [metadata_handler],
         }
         merged_config: RunnableConfig = merge_runnable_configs(base_config, config)
 
@@ -547,10 +552,7 @@ class BaseChatHandler:
             # stream response in chunks. this works even if a provider does not
             # implement streaming, as `astream()` defaults to yielding `_call()`
             # when `_stream()` is not implemented on the LLM class.
-            chunk_generator = self.llm_chain.astream(
-                input,
-                config=merged_config
-            )
+            chunk_generator = self.llm_chain.astream(input, config=merged_config)
             stream_interrupted = False
             async for chunk in chunk_generator:
                 if not received_first_chunk:
@@ -569,7 +571,9 @@ class BaseChatHandler:
                         # note: `mypy` flags this line, claiming that `athrow` is
                         # not defined on `AsyncIterator`. This is why an ignore
                         # comment is placed here.
-                        await chunk_generator.athrow(GenerationInterrupted()) # type:ignore[attr-defined]
+                        await chunk_generator.athrow(  # type:ignore[attr-defined]
+                            GenerationInterrupted()
+                        )
                     except GenerationInterrupted:
                         # do not let the exception bubble up in case if
                         # the provider did not handle it
@@ -600,4 +604,3 @@ class BaseChatHandler:
 
 class GenerationInterrupted(asyncio.CancelledError):
     """Exception raised when streaming is cancelled by the user"""
-

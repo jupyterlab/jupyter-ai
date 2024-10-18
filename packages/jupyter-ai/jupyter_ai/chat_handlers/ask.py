@@ -75,7 +75,9 @@ class AskChatHandler(BaseChatHandler):
                 assert self.llm_chain
                 # TODO: migrate this class to use a LCEL `Runnable` instead of
                 # `Chain`, then remove the below ignore comment.
-                result = await self.llm_chain.acall({"question": query}) # type:ignore[attr-defined]
+                result = await self.llm_chain.acall(  # type:ignore[attr-defined]
+                    {"question": query}
+                )
                 response = result["answer"]
             self.reply(response, message)
         except AssertionError as e:

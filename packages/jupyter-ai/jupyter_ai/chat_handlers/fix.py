@@ -77,7 +77,9 @@ class FixChatHandler(BaseChatHandler):
         self.llm = llm
         # TODO: migrate this class to use a LCEL `Runnable` instead of
         # `Chain`, then remove the below ignore comment.
-        self.llm_chain = LLMChain(llm=llm, prompt=FIX_PROMPT_TEMPLATE, verbose=True) # type:ignore[arg-type]
+        self.llm_chain = LLMChain(  # type:ignore[arg-type]
+            llm=llm, prompt=FIX_PROMPT_TEMPLATE, verbose=True
+        )
 
     async def process_message(self, message: HumanChatMessage):
         if not (message.selection and message.selection.type == "cell-with-error"):
@@ -98,7 +100,7 @@ class FixChatHandler(BaseChatHandler):
             assert self.llm_chain
             # TODO: migrate this class to use a LCEL `Runnable` instead of
             # `Chain`, then remove the below ignore comment.
-            response = await self.llm_chain.apredict( # type:ignore[attr-defined]
+            response = await self.llm_chain.apredict(  # type:ignore[attr-defined]
                 extra_instructions=extra_instructions,
                 stop=["\nHuman:"],
                 cell_content=selection.source,
