@@ -3,9 +3,10 @@ import contextlib
 import os
 import time
 import traceback
-from asyncio import Event
+import asyncio
 from typing import (
     TYPE_CHECKING,
+    Any,
     Awaitable,
     ClassVar,
     Dict,
@@ -24,16 +25,23 @@ from jupyter_ai.config_manager import ConfigManager, Logger
 from jupyter_ai.history import WrappedBoundedChatHistory
 from jupyter_ai.models import (
     AgentChatMessage,
+    AgentStreamMessage,
+    AgentStreamChunkMessage,
     ChatMessage,
     ClosePendingMessage,
     HumanChatMessage,
     Message,
     PendingMessage,
 )
+from jupyter_ai.callback_handlers import MetadataCallbackHandler
 from jupyter_ai_magics import Persona
 from jupyter_ai_magics.providers import BaseProvider
-from langchain.chains import LLMChain
+
 from langchain.pydantic_v1 import BaseModel
+from langchain_core.messages import AIMessageChunk
+from langchain_core.runnables import Runnable
+from langchain_core.runnables.config import RunnableConfig, merge_configs as merge_runnable_configs
+from langchain_core.runnables.utils import Input
 
 if TYPE_CHECKING:
     from jupyter_ai.context_providers import BaseCommandContextProvider
@@ -129,7 +137,7 @@ class BaseChatHandler:
     """Dictionary of context providers. Allows chat handlers to reference
     context providers, which can be used to provide context to the LLM."""
 
-    message_interrupted: Dict[str, Event]
+    message_interrupted: Dict[str, asyncio.Event]
     """Dictionary mapping an agent message identifier to an asyncio Event
     which indicates if the message generation/streaming was interrupted."""
 
@@ -147,7 +155,7 @@ class BaseChatHandler:
         help_message_template: str,
         chat_handlers: Dict[str, "BaseChatHandler"],
         context_providers: Dict[str, "BaseCommandContextProvider"],
-        message_interrupted: Dict[str, Event],
+        message_interrupted: Dict[str, asyncio.Event],
     ):
         self.log = log
         self.config_manager = config_manager
@@ -173,7 +181,7 @@ class BaseChatHandler:
 
         self.llm: Optional[BaseProvider] = None
         self.llm_params: Optional[dict] = None
-        self.llm_chain: Optional[LLMChain] = None
+        self.llm_chain: Optional[Runnable] = None
 
     async def on_message(self, message: HumanChatMessage):
         """
@@ -471,3 +479,120 @@ class BaseChatHandler:
         )
 
         self.broadcast_message(help_message)
+
+    def _start_stream(self, human_msg: HumanChatMessage) -> str:
+        """
+        Sends an `agent-stream` message to indicate the start of a response
+        stream. Returns the ID of the message, denoted as the `stream_id`.
+        """
+        stream_id = uuid4().hex
+        stream_msg = AgentStreamMessage(
+            id=stream_id,
+            time=time.time(),
+            body="",
+            reply_to=human_msg.id,
+            persona=self.persona,
+            complete=False,
+        )
+
+        self.broadcast_message(stream_msg)
+        return stream_id
+
+    def _send_stream_chunk(
+        self,
+        stream_id: str,
+        content: str,
+        complete: bool = False,
+        metadata: Dict[str, Any] = {},
+    ) -> None:
+        """
+        Sends an `agent-stream-chunk` message containing content that should be
+        appended to an existing `agent-stream` message with ID `stream_id`.
+        """
+        stream_chunk_msg = AgentStreamChunkMessage(
+            id=stream_id, content=content, stream_complete=complete, metadata=metadata
+        )
+        self.broadcast_message(stream_chunk_msg)
+    
+    async def stream_reply(self, input: Input, human_msg: HumanChatMessage, config: Optional[RunnableConfig] = None):
+        """
+        Streams a reply to a human message by invoking
+        `self.llm_chain.astream()`. A LangChain `Runnable` instance must be
+        bound to `self.llm_chain` before invoking this method.
+
+        Arguments
+        ---------
+        - `input`: The input to your runnable. The type of `input` depends on
+        the runnable in `self.llm_chain`, but is usually a dictionary whose keys
+        refer to input variables in your prompt template.
+
+        - `human_msg`: The `HumanChatMessage` being replied to.
+
+        - `config` (optional): A `RunnableConfig` object that specifies
+        additional configuration when streaming from the runnable.
+        """
+        assert self.llm_chain
+
+        received_first_chunk = False
+        metadata_handler = MetadataCallbackHandler()
+        base_config: RunnableConfig = {
+            "configurable": {"last_human_msg": human_msg},
+            "callbacks": [metadata_handler]
+        }
+        merged_config: RunnableConfig = merge_runnable_configs(base_config, config)
+
+        # start with a pending message
+        with self.pending("Generating response", human_msg) as pending_message:
+            # stream response in chunks. this works even if a provider does not
+            # implement streaming, as `astream()` defaults to yielding `_call()`
+            # when `_stream()` is not implemented on the LLM class.
+            chunk_generator = self.llm_chain.astream(
+                input,
+                config=merged_config
+            )
+            stream_interrupted = False
+            async for chunk in chunk_generator:
+                if not received_first_chunk:
+                    # when receiving the first chunk, close the pending message and
+                    # start the stream.
+                    self.close_pending(pending_message)
+                    stream_id = self._start_stream(human_msg=human_msg)
+                    received_first_chunk = True
+                    self.message_interrupted[stream_id] = asyncio.Event()
+
+                if self.message_interrupted[stream_id].is_set():
+                    try:
+                        # notify the model provider that streaming was interrupted
+                        # (this is essential to allow the model to stop generating)
+                        await chunk_generator.athrow(GenerationInterrupted())
+                    except GenerationInterrupted:
+                        # do not let the exception bubble up in case if
+                        # the provider did not handle it
+                        pass
+                    stream_interrupted = True
+                    break
+
+                if isinstance(chunk, AIMessageChunk) and isinstance(chunk.content, str):
+                    self._send_stream_chunk(stream_id, chunk.content)
+                elif isinstance(chunk, str):
+                    self._send_stream_chunk(stream_id, chunk)
+                else:
+                    self.log.error(f"Unrecognized type of chunk yielded: {type(chunk)}")
+                    break
+
+            # complete stream after all chunks have been streamed
+            stream_tombstone = (
+                "\n\n(AI response stopped by user)" if stream_interrupted else ""
+            )
+            self._send_stream_chunk(
+                stream_id,
+                stream_tombstone,
+                complete=True,
+                metadata=metadata_handler.jai_metadata,
+            )
+            del self.message_interrupted[stream_id]
+
+
+class GenerationInterrupted(asyncio.CancelledError):
+    """Exception raised when streaming is cancelled by the user"""
+
