@@ -52,7 +52,7 @@ class StopRequest(BaseModel):
 
 
 class ClearRequest(BaseModel):
-    type: Literal["clear"]
+    type: Literal["clear"] = "clear"
     target: Optional[str]
     """
     Message ID of the HumanChatMessage to delete an exchange at.

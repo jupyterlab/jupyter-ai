@@ -121,6 +121,13 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
     def pending_messages(self) -> List[PendingMessage]:
         return self.settings["pending_messages"]
 
+    @property
+    def cleared_message_ids(self) -> Set[str]:
+        """Set of `HumanChatMessage.id` that were cleared via `ClearRequest`."""
+        if "cleared_message_ids" not in self.settings:
+            self.settings["cleared_message_ids"] = set()
+        return self.settings["cleared_message_ids"]
+
     @pending_messages.setter
     def pending_messages(self, new_pending_messages):
         self.settings["pending_messages"] = new_pending_messages
@@ -226,12 +233,9 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
         # do not broadcast agent messages that are replying to cleared human message
         if (
             isinstance(message, (AgentChatMessage, AgentStreamMessage))
-            and message.reply_to
+            and message.reply_to in self.cleared_message_ids
         ):
-            if message.reply_to not in [
-                m.id for m in self.chat_history if isinstance(m, HumanChatMessage)
-            ]:
-                return
+            return
 
         self.log.debug("Broadcasting message: %s to all clients...", message)
         client_ids = self.root_chat_handlers.keys()
@@ -268,14 +272,6 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
             self.pending_messages = list(
                 filter(lambda m: m.id != message.id, self.pending_messages)
             )
-        elif isinstance(message, ClearMessage):
-            if message.targets:
-                self._clear_chat_history_at(message.targets)
-            else:
-                self.chat_history.clear()
-                self.pending_messages.clear()
-                self.llm_chat_memory.clear()
-                self.settings["jai_chat_handlers"]["default"].send_help_message()
 
     async def on_message(self, message):
         self.log.debug("Message received: %s", message)
@@ -293,11 +289,7 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
             return
 
         if isinstance(request, ClearRequest):
-            if request.target:
-                targets = [request.target]
-            else:
-                targets = None
-            self.broadcast_message(ClearMessage(targets=targets))
+            self.on_clear_request(request)
             return
 
         if isinstance(request, StopRequest):
@@ -327,6 +319,46 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
         # handling messages from a websocket.  instead, process each message
         # as a distinct concurrent task.
         self.loop.create_task(self._route(chat_message))
+    
+    def on_clear_request(self, request: ClearRequest):
+        target = request.target
+
+        # if no target, clear all messages
+        if not target:
+            for msg in self.chat_history:
+                if msg.type == "human":
+                    self.cleared_message_ids.add(msg.id)
+
+            self.chat_history.clear()
+            self.pending_messages.clear()
+            self.llm_chat_memory.clear()
+            self.broadcast_message(ClearMessage())
+            self.settings["jai_chat_handlers"]["default"].send_help_message()
+            return
+
+        # otherwise, clear a single message
+        self.cleared_message_ids.add(target)
+        for msg in self.chat_history[::-1]:
+            # interrupt the single message
+            if (msg.type == "agent-stream" and getattr(msg, "reply_to", None) == target):
+                try:
+                    self.message_interrupted[msg.id].set()
+                except KeyError:
+                    # do nothing if the message was already interrupted
+                    # or stream got completed (thread-safe way!)
+                    pass
+                break
+
+        self.chat_history[:] = [
+            msg
+            for msg in self.chat_history
+            if msg.id != target and getattr(msg, "reply_to", None) != target
+        ]
+        self.pending_messages[:] = [
+            msg for msg in self.pending_messages if msg.reply_to != target
+        ]
+        self.llm_chat_memory.clear([target])
+        self.broadcast_message(ClearMessage(targets=[target]))
 
     def on_stop_request(self):
         # set of message IDs that were submitted by this user, determined by the
@@ -378,36 +410,6 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
         command_readable = "Default" if command == "default" else command
         self.log.info(f"{command_readable} chat handler resolved in {latency_ms} ms.")
 
-    def _clear_chat_history_at(self, msg_ids: List[str]):
-        """
-        Clears conversation exchanges associated with list of human message IDs.
-        """
-        messages_to_interrupt = [
-            msg
-            for msg in self.chat_history
-            if (
-                msg.type == "agent-stream"
-                and getattr(msg, "reply_to", None) in msg_ids
-                and not msg.complete
-            )
-        ]
-        for msg in messages_to_interrupt:
-            try:
-                self.message_interrupted[msg.id].set()
-            except KeyError:
-                # do nothing if the message was already interrupted
-                # or stream got completed (thread-safe way!)
-                pass
-
-        self.chat_history[:] = [
-            msg
-            for msg in self.chat_history
-            if msg.id not in msg_ids and getattr(msg, "reply_to", None) not in msg_ids
-        ]
-        self.pending_messages[:] = [
-            msg for msg in self.pending_messages if msg.reply_to not in msg_ids
-        ]
-        self.llm_chat_memory.clear(msg_ids)
 
     def on_close(self):
         self.log.debug("Disconnecting client with user %s", self.client_id)
