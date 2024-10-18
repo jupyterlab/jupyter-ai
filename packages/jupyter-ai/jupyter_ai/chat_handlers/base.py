@@ -532,6 +532,7 @@ class BaseChatHandler:
         additional configuration when streaming from the runnable.
         """
         assert self.llm_chain
+        assert isinstance(self.llm_chain, Runnable)
 
         received_first_chunk = False
         metadata_handler = MetadataCallbackHandler()
@@ -564,7 +565,11 @@ class BaseChatHandler:
                     try:
                         # notify the model provider that streaming was interrupted
                         # (this is essential to allow the model to stop generating)
-                        await chunk_generator.athrow(GenerationInterrupted())
+                        #
+                        # note: `mypy` flags this line, claiming that `athrow` is
+                        # not defined on `AsyncIterator`. This is why an ignore
+                        # comment is placed here.
+                        await chunk_generator.athrow(GenerationInterrupted()) # type:ignore[attr-defined]
                     except GenerationInterrupted:
                         # do not let the exception bubble up in case if
                         # the provider did not handle it

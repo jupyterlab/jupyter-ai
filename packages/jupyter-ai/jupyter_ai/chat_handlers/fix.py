@@ -2,7 +2,7 @@ from typing import Dict, Type
 
 from jupyter_ai.models import CellWithErrorSelection, HumanChatMessage
 from jupyter_ai_magics.providers import BaseProvider
-from langchain.chains import LLMChain
+from langchain.chains.llm import LLMChain
 from langchain.prompts import PromptTemplate
 
 from .base import BaseChatHandler, SlashCommandRoutingType
@@ -75,7 +75,9 @@ class FixChatHandler(BaseChatHandler):
         llm = provider(**unified_parameters)
 
         self.llm = llm
-        self.llm_chain = LLMChain(llm=llm, prompt=FIX_PROMPT_TEMPLATE, verbose=True)
+        # TODO: migrate this class to use a LCEL `Runnable` instead of
+        # `Chain`, then remove the below ignore comment.
+        self.llm_chain = LLMChain(llm=llm, prompt=FIX_PROMPT_TEMPLATE, verbose=True) # type:ignore[arg-type]
 
     async def process_message(self, message: HumanChatMessage):
         if not (message.selection and message.selection.type == "cell-with-error"):
@@ -94,7 +96,9 @@ class FixChatHandler(BaseChatHandler):
         self.get_llm_chain()
         with self.pending("Analyzing error", message):
             assert self.llm_chain
-            response = await self.llm_chain.apredict(
+            # TODO: migrate this class to use a LCEL `Runnable` instead of
+            # `Chain`, then remove the below ignore comment.
+            response = await self.llm_chain.apredict( # type:ignore[attr-defined]
                 extra_instructions=extra_instructions,
                 stop=["\nHuman:"],
                 cell_content=selection.source,
