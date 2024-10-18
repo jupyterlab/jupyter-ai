@@ -121,16 +121,16 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
     def pending_messages(self) -> List[PendingMessage]:
         return self.settings["pending_messages"]
 
+    @pending_messages.setter
+    def pending_messages(self, new_pending_messages):
+        self.settings["pending_messages"] = new_pending_messages
+
     @property
     def cleared_message_ids(self) -> Set[str]:
         """Set of `HumanChatMessage.id` that were cleared via `ClearRequest`."""
         if "cleared_message_ids" not in self.settings:
             self.settings["cleared_message_ids"] = set()
         return self.settings["cleared_message_ids"]
-
-    @pending_messages.setter
-    def pending_messages(self, new_pending_messages):
-        self.settings["pending_messages"] = new_pending_messages
 
     def initialize(self):
         self.log.debug("Initializing websocket connection %s", self.request.path)

@@ -9,6 +9,7 @@ from typing import (
     Awaitable,
     ClassVar,
     Dict,
+    get_args as get_type_args,
     List,
     Literal,
     Optional,
@@ -265,8 +266,8 @@ class BaseChatHandler:
     def broadcast_message(self, message: Message):
         """
         Broadcasts a message to all WebSocket connections. If there are no
-        WebSocket connections, this method directly appends to
-        `self.chat_history`.
+        WebSocket connections and the message is a chat message, this method
+        directly appends to `self.chat_history`.
         """
         broadcast = False
         for websocket in self._root_chat_handlers.values():
@@ -278,7 +279,9 @@ class BaseChatHandler:
             break
 
         if not broadcast:
-            self._chat_history.append(message)
+            if isinstance(message, get_type_args(ChatMessage)):
+                cast(ChatMessage, message)
+                self._chat_history.append(message)
 
     def reply(self, response: str, human_msg: Optional[HumanChatMessage] = None):
         """
