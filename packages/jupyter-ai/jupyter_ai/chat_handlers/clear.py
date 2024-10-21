@@ -1,4 +1,4 @@
-from jupyter_ai.models import ClearMessage
+from jupyter_ai.models import ClearRequest
 
 try:
     from jupyterlab_collaborative_chat.ychat import YChat
@@ -22,10 +22,10 @@ class ClearChatHandler(BaseChatHandler):
         super().__init__(*args, **kwargs)
 
     async def process_message(self, _, chat: YChat | None):
-        # Clear chat
+        # Clear chat by triggering `RootChatHandler.on_clear_request()`.
         for handler in self._root_chat_handlers.values():
             if not handler:
                 continue
 
-            handler.broadcast_message(ClearMessage())
+            handler.on_clear_request(ClearRequest())
             break

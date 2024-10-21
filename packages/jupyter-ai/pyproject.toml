@@ -32,7 +32,7 @@ dependencies = [
     "faiss-cpu<=1.8.0",          # Not distributed by official repo
     "typing_extensions>=4.5.0",
     "traitlets>=5.0",
-    "deepmerge>=1.0",
+    "deepmerge>=2.0,<3",
     "jupyterlab-collaborative-chat",
 ]
 
@@ -51,6 +51,8 @@ test = [
     "pytest-tornasync",
     "pytest-jupyter",
     "syrupy~=4.0.8",
+    "types-jsonschema",
+    "mypy",
 ]
 
 dev = ["jupyter_ai_magics[dev]"]

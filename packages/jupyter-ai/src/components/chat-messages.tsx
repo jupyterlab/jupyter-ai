@@ -224,8 +224,9 @@ export function ChatMessages(props: ChatMessagesProps): JSX.Element {
               sx={{ marginBottom: 3 }}
             />
             <RendermimeMarkdown
-              rmRegistry={props.rmRegistry}
               markdownStr={message.body}
+              rmRegistry={props.rmRegistry}
+              parentMessage={message}
               complete={
                 message.type === 'agent-stream' ? !!message.complete : true
               }

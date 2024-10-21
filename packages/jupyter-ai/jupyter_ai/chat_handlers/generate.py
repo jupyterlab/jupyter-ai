@@ -230,7 +230,7 @@ class GenerateChatHandler(BaseChatHandler):
     def __init__(self, log_dir: Optional[str], *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.log_dir = Path(log_dir) if log_dir else None
-        self.llm = None
+        self.llm: Optional[BaseProvider] = None
 
     def create_llm_chain(
         self, provider: Type[BaseProvider], provider_params: Dict[str, str]
@@ -252,6 +252,7 @@ class GenerateChatHandler(BaseChatHandler):
         # Save the user input prompt, the description property is now LLM generated.
         outline["prompt"] = prompt
 
+        assert self.llm
         if self.llm.allows_concurrency:
             # fill the outline concurrently
             await afill_outline(outline, llm=self.llm, verbose=True)

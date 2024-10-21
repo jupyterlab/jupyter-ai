@@ -48,6 +48,7 @@ all = [
     "langchain_mistralai",
     "langchain_nvidia_ai_endpoints",
     "langchain_openai",
+    "langchain_ollama",
     "pillow",
     "boto3",
     "qianfan",
@@ -61,7 +62,7 @@ anthropic-chat = "jupyter_ai_magics.partner_providers.anthropic:ChatAnthropicPro
 cohere = "jupyter_ai_magics.partner_providers.cohere:CohereProvider"
 gpt4all = "jupyter_ai_magics:GPT4AllProvider"
 huggingface_hub = "jupyter_ai_magics:HfHubProvider"
-ollama = "jupyter_ai_magics:OllamaProvider"
+ollama = "jupyter_ai_magics.partner_providers.ollama:OllamaProvider"
 openai = "jupyter_ai_magics.partner_providers.openai:OpenAIProvider"
 openai-chat = "jupyter_ai_magics.partner_providers.openai:ChatOpenAIProvider"
 azure-chat-openai = "jupyter_ai_magics.partner_providers.openai:AzureChatOpenAIProvider"
@@ -74,6 +75,7 @@ nvidia-chat = "jupyter_ai_magics.partner_providers.nvidia:ChatNVIDIAProvider"
 together-ai = "jupyter_ai_magics:TogetherAIProvider"
 gemini = "jupyter_ai_magics.partner_providers.gemini:GeminiProvider"
 mistralai = "jupyter_ai_magics.partner_providers.mistralai:MistralAIProvider"
+openrouter = "jupyter_ai_magics.partner_providers.openrouter:OpenRouterProvider"
 
 [project.entry-points."jupyter_ai.embeddings_model_providers"]
 azure = "jupyter_ai_magics.partner_providers.openai:AzureOpenAIEmbeddingsProvider"
@@ -82,7 +84,7 @@ cohere = "jupyter_ai_magics.partner_providers.cohere:CohereEmbeddingsProvider"
 mistralai = "jupyter_ai_magics.partner_providers.mistralai:MistralAIEmbeddingsProvider"
 gpt4all = "jupyter_ai_magics:GPT4AllEmbeddingsProvider"
 huggingface_hub = "jupyter_ai_magics:HfHubEmbeddingsProvider"
-ollama = "jupyter_ai_magics:OllamaEmbeddingsProvider"
+ollama = "jupyter_ai_magics.partner_providers.ollama:OllamaEmbeddingsProvider"
 openai = "jupyter_ai_magics.partner_providers.openai:OpenAIEmbeddingsProvider"
 qianfan = "jupyter_ai_magics:QianfanEmbeddingsEndpointProvider"
 

@@ -95,6 +95,10 @@ class UpdateArgs(BaseModel):
     target: str
 
 
+class ResetArgs(BaseModel):
+    type: Literal["reset"] = "reset"
+
+
 class LineMagicGroup(click.Group):
     """Helper class to print the help string for cell magics as well when
     `%ai --help` is called."""
@@ -277,3 +281,12 @@ def register_subparser(**kwargs):
 def register_subparser(**kwargs):
     """Update an alias called NAME to refer to the model or chain named TARGET."""
     return UpdateArgs(**kwargs)
+
+
+@line_magic_parser.command(
+    name="reset",
+    short_help="Clear the conversation transcript.",
+)
+def register_subparser(**kwargs):
+    """Clear the conversation transcript."""
+    return ResetArgs()

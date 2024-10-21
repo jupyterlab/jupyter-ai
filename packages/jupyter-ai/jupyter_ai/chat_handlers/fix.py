@@ -99,6 +99,7 @@ class FixChatHandler(BaseChatHandler):
 
         self.get_llm_chain()
         with self.pending("Analyzing error", message):
+            assert self.llm_chain
             response = await self.llm_chain.apredict(
                 extra_instructions=extra_instructions,
                 stop=["\nHuman:"],

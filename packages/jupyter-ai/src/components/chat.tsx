@@ -7,6 +7,7 @@ import AddIcon from '@mui/icons-material/Add';
 import type { Awareness } from 'y-protocols/awareness';
 import type { IThemeManager } from '@jupyterlab/apputils';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
+import type { User } from '@jupyterlab/services';
 import { ISignal } from '@lumino/signaling';
 
 import { JlThemeProvider } from './jl-theme-provider';
@@ -19,13 +20,19 @@ import { SelectionContextProvider } from '../contexts/selection-context';
 import { SelectionWatcher } from '../selection-watcher';
 import { ChatHandler } from '../chat_handler';
 import { CollaboratorsContextProvider } from '../contexts/collaborators-context';
-import { IJaiCompletionProvider, IJaiMessageFooter } from '../tokens';
+import {
+  IJaiCompletionProvider,
+  IJaiMessageFooter,
+  IJaiTelemetryHandler
+} from '../tokens';
 import {
   ActiveCellContextProvider,
   ActiveCellManager
 } from '../contexts/active-cell-context';
+import { UserContextProvider, useUserContext } from '../contexts/user-context';
 import { ScrollContainer } from './scroll-container';
 import { TooltippedIconButton } from './mui-extras/tooltipped-icon-button';
+import { TelemetryContextProvider } from '../contexts/telemetry-context';
 
 type ChatBodyProps = {
   chatHandler: ChatHandler;
@@ -71,6 +78,7 @@ function ChatBody({
     getPersonaName(messages)
   );
   const [sendWithShiftEnter, setSendWithShiftEnter] = useState(true);
+  const user = useUserContext();
 
   /**
    * Effect: fetch config on initial render
@@ -138,6 +146,24 @@ function ChatBody({
     );
   }
 
+  // set of IDs of messages sent by the current user.
+  const myHumanMessageIds = new Set(
+    messages
+      .filter(
+        m => m.type === 'human' && m.client.username === user?.identity.username
+      )
+      .map(m => m.id)
+  );
+
+  // whether the backend is currently streaming a reply to any message sent by
+  // the current user.
+  const streamingReplyHere = messages.some(
+    m =>
+      m.type === 'agent-stream' &&
+      myHumanMessageIds.has(m.reply_to) &&
+      !m.complete
+  );
+
   return (
     <>
       <ScrollContainer sx={{ flexGrow: 1 }}>
@@ -152,6 +178,7 @@ function ChatBody({
       <ChatInput
         chatHandler={chatHandler}
         focusInputSignal={focusInputSignal}
+        streamingReplyHere={streamingReplyHere}
         sx={{
           paddingLeft: 4,
           paddingRight: 4,
@@ -178,6 +205,8 @@ export type ChatProps = {
   activeCellManager: ActiveCellManager;
   focusInputSignal: ISignal<unknown, void>;
   messageFooter: IJaiMessageFooter | null;
+  telemetryHandler: IJaiTelemetryHandler | null;
+  userManager: User.IManager;
 };
 
 enum ChatView {
@@ -201,69 +230,75 @@ export function Chat(props: ChatProps): JSX.Element {
           <ActiveCellContextProvider
             activeCellManager={props.activeCellManager}
           >
-            <Box
-              // root box should not include padding as it offsets the vertical
-              // scrollbar to the left
-              sx={{
-                width: '100%',
-                height: '100%',
-                boxSizing: 'border-box',
-                background: 'var(--jp-layout-color0)',
-                display: 'flex',
-                flexDirection: 'column'
-              }}
-            >
-              {/* top bar */}
-              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                {view !== ChatView.Chat ? (
-                  <IconButton onClick={() => setView(ChatView.Chat)}>
-                    <ArrowBackIcon />
-                  </IconButton>
-                ) : (
-                  <Box />
-                )}
-                {view === ChatView.Chat ? (
-                  <Box sx={{ display: 'flex' }}>
-                    {!showWelcomeMessage && (
-                      <TooltippedIconButton
-                        onClick={() =>
-                          props.chatHandler.sendMessage({ type: 'clear' })
-                        }
-                        tooltip="New chat"
-                      >
-                        <AddIcon />
-                      </TooltippedIconButton>
+            <TelemetryContextProvider telemetryHandler={props.telemetryHandler}>
+              <UserContextProvider userManager={props.userManager}>
+                <Box
+                  // root box should not include padding as it offsets the vertical
+                  // scrollbar to the left
+                  sx={{
+                    width: '100%',
+                    height: '100%',
+                    boxSizing: 'border-box',
+                    background: 'var(--jp-layout-color0)',
+                    display: 'flex',
+                    flexDirection: 'column'
+                  }}
+                >
+                  {/* top bar */}
+                  <Box
+                    sx={{ display: 'flex', justifyContent: 'space-between' }}
+                  >
+                    {view !== ChatView.Chat ? (
+                      <IconButton onClick={() => setView(ChatView.Chat)}>
+                        <ArrowBackIcon />
+                      </IconButton>
+                    ) : (
+                      <Box />
                     )}
-                    <IconButton onClick={() => openSettingsView()}>
-                      <SettingsIcon />
-                    </IconButton>
+                    {view === ChatView.Chat ? (
+                      <Box sx={{ display: 'flex' }}>
+                        {!showWelcomeMessage && (
+                          <TooltippedIconButton
+                            onClick={() =>
+                              props.chatHandler.sendMessage({ type: 'clear' })
+                            }
+                            tooltip="New chat"
+                          >
+                            <AddIcon />
+                          </TooltippedIconButton>
+                        )}
+                        <IconButton onClick={() => openSettingsView()}>
+                          <SettingsIcon />
+                        </IconButton>
+                      </Box>
+                    ) : (
+                      <Box />
+                    )}
                   </Box>
-                ) : (
-                  <Box />
-                )}
-              </Box>
-              {/* body */}
-              {view === ChatView.Chat && (
-                <ChatBody
-                  chatHandler={props.chatHandler}
-                  openSettingsView={openSettingsView}
-                  showWelcomeMessage={showWelcomeMessage}
-                  setShowWelcomeMessage={setShowWelcomeMessage}
-                  rmRegistry={props.rmRegistry}
-                  focusInputSignal={props.focusInputSignal}
-                  messageFooter={props.messageFooter}
-                />
-              )}
-              {view === ChatView.Settings && (
-                <ChatSettings
-                  rmRegistry={props.rmRegistry}
-                  completionProvider={props.completionProvider}
-                  openInlineCompleterSettings={
-                    props.openInlineCompleterSettings
-                  }
-                />
-              )}
-            </Box>
+                  {/* body */}
+                  {view === ChatView.Chat && (
+                    <ChatBody
+                      chatHandler={props.chatHandler}
+                      openSettingsView={openSettingsView}
+                      showWelcomeMessage={showWelcomeMessage}
+                      setShowWelcomeMessage={setShowWelcomeMessage}
+                      rmRegistry={props.rmRegistry}
+                      focusInputSignal={props.focusInputSignal}
+                      messageFooter={props.messageFooter}
+                    />
+                  )}
+                  {view === ChatView.Settings && (
+                    <ChatSettings
+                      rmRegistry={props.rmRegistry}
+                      completionProvider={props.completionProvider}
+                      openInlineCompleterSettings={
+                        props.openInlineCompleterSettings
+                      }
+                    />
+                  )}
+                </Box>
+              </UserContextProvider>
+            </TelemetryContextProvider>
           </ActiveCellContextProvider>
         </CollaboratorsContextProvider>
       </SelectionContextProvider>

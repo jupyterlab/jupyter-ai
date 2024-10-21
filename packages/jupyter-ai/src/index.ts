@@ -21,7 +21,12 @@ import { ChatHandler } from './chat_handler';
 import { buildErrorWidget } from './widgets/chat-error';
 import { completionPlugin } from './completions';
 import { statusItemPlugin } from './status';
-import { IJaiCompletionProvider, IJaiCore, IJaiMessageFooter } from './tokens';
+import {
+  IJaiCompletionProvider,
+  IJaiCore,
+  IJaiMessageFooter,
+  IJaiTelemetryHandler
+} from './tokens';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { ActiveCellManager } from './contexts/active-cell-context';
 import { autocompletion } from './slash-autocompletion';
@@ -55,7 +60,8 @@ const plugin: JupyterFrontEndPlugin<IJaiCore> = {
     ILayoutRestorer,
     IThemeManager,
     IJaiCompletionProvider,
-    IJaiMessageFooter
+    IJaiMessageFooter,
+    IJaiTelemetryHandler
   ],
   provides: IJaiCore,
   activate: async (
@@ -66,7 +72,8 @@ const plugin: JupyterFrontEndPlugin<IJaiCore> = {
     restorer: ILayoutRestorer | null,
     themeManager: IThemeManager | null,
     completionProvider: IJaiCompletionProvider | null,
-    messageFooter: IJaiMessageFooter | null
+    messageFooter: IJaiMessageFooter | null,
+    telemetryHandler: IJaiTelemetryHandler | null
   ) => {
     /**
      * Initialize selection watcher singleton
@@ -141,7 +148,9 @@ const plugin: JupyterFrontEndPlugin<IJaiCore> = {
         openInlineCompleterSettings,
         activeCellManager,
         focusInputSignal,
-        messageFooter
+        messageFooter,
+        telemetryHandler,
+        app.serviceManager.user
       );
     } catch (e) {
       chatWidget = buildErrorWidget(themeManager);
@@ -196,3 +205,6 @@ export default [
   menuPlugin,
   collaborative_autocompletion
 ];
+
+export * from './contexts';
+export * from './tokens';

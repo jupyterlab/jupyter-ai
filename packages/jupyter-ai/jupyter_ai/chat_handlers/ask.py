@@ -77,6 +77,7 @@ class AskChatHandler(BaseChatHandler):
 
         try:
             with self.pending("Searching learned documents", message):
+                assert self.llm_chain
                 result = await self.llm_chain.acall({"question": query})
                 response = result["answer"]
             self.reply(response, chat, message)

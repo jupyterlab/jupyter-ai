@@ -3,6 +3,7 @@ import itertools
 import os
 import tarfile
 from datetime import datetime
+from glob import iglob
 from pathlib import Path
 from typing import List
 
@@ -30,7 +31,7 @@ def arxiv_to_text(id: str, output_dir: str) -> str:
         output path to the downloaded TeX file
     """
 
-    import arxiv
+    import arxiv  # type:ignore[import-not-found,import-untyped]
 
     outfile = f"{id}-{datetime.now():%Y-%m-%d-%H-%M}.tex"
     download_filename = "downloaded-paper.tar.gz"
@@ -97,7 +98,8 @@ SUPPORTED_EXTS = {
     ".txt",
     ".html",
     ".pdf",
-    ".tex",  # added for raw latex files from arxiv
+    ".tex",
+    ".json",
 }
 
 
@@ -107,6 +109,18 @@ def split_document(document, splitter: TextSplitter) -> List[Document]:
 
 def flatten(*chunk_lists):
     return list(itertools.chain(*chunk_lists))
+
+
+def walk_directory(directory, all_files):
+    filepaths = []
+    for dir, subdirs, filenames in os.walk(directory):
+        # Filter out hidden filenames, hidden directories, and excluded directories,
+        # unless "all files" are requested
+        if not all_files:
+            subdirs[:] = [d for d in subdirs if not (d[0] == "." or d in EXCLUDE_DIRS)]
+            filenames = [f for f in filenames if not f[0] == "."]
+        filepaths += [Path(dir) / filename for filename in filenames]
+    return filepaths
 
 
 def collect_filepaths(path, all_files: bool):
@@ -119,17 +133,13 @@ def collect_filepaths(path, all_files: bool):
     # Check if the path points to a single file
     if os.path.isfile(path):
         filepaths = [Path(path)]
+    elif os.path.isdir(path):
+        filepaths = walk_directory(path, all_files)
     else:
         filepaths = []
-        for dir, subdirs, filenames in os.walk(path):
-            # Filter out hidden filenames, hidden directories, and excluded directories,
-            # unless "all files" are requested
-            if not all_files:
-                subdirs[:] = [
-                    d for d in subdirs if not (d[0] == "." or d in EXCLUDE_DIRS)
-                ]
-                filenames = [f for f in filenames if not f[0] == "."]
-            filepaths.extend([Path(dir) / filename for filename in filenames])
+        for glob_path in iglob(str(path), recursive=True):
+            if os.path.isfile(glob_path):
+                filepaths.append(Path(glob_path))
     valid_exts = {j.lower() for j in SUPPORTED_EXTS}
     filepaths = [fp for fp in filepaths if fp.suffix.lower() in valid_exts]
     return filepaths

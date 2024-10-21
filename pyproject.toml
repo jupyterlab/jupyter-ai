@@ -5,8 +5,11 @@ build-backend = "hatchling.build"
 [project]
 name = "jupyter_ai_monorepo"
 dynamic = ["version", "description", "authors", "urls", "keywords"]
-requires-python = ">=3.8"
-dependencies = []
+requires-python = ">=3.9"
+dependencies = [
+    "jupyter-ai-magics @ {root:uri}/packages/jupyter-ai-magics",
+    "jupyter-ai @ {root:uri}/packages/jupyter-ai"
+]
 
 [project.optional-dependencies]
 build = []
@@ -21,6 +24,15 @@ text = "BSD 3-Clause License"
 [tool.hatch.version]
 source = "nodejs"
 path = "package.json"
+
+[tool.hatch.build]
+packages = [
+    "packages/jupyter-ai-magics",
+    "packages/jupyter-ai"
+]
+
+[tool.hatch.metadata]
+allow-direct-references = true
 
 [tool.check-manifest]
 ignore = [".*"]
@@ -43,3 +55,8 @@ ignore_imports = ["jupyter_ai_magics.providers -> pydantic"]
 
 [tool.pytest.ini_options]
 addopts = "--ignore packages/jupyter-ai-module-cookiecutter"
+
+[tool.mypy]
+exclude = [
+  "tests"
+]

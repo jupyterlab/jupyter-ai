@@ -499,6 +499,13 @@ To teach Jupyter AI about a folder full of documentation, for example, run `/lea
     alt='Screen shot of "/learn docs/" command and a response.'
     class="screenshot" />
 
+The `/learn` command also supports unix shell-style wildcard matching. This allows fine-grained file selection for learning. For example, to learn on only notebooks in all directories you can use `/learn **/*.ipynb` and all notebooks within your base (or preferred directory if set) will be indexed, while all other file extensions will be ignored.
+
+:::{warning}
+:name: unix shell-style wildcard matching
+Certain patterns may cause `/learn` to run more slowly. For instance `/learn **` may cause directories to be walked multiple times in search of files.
+:::
+
 You can then use `/ask` to ask a question specifically about the data that you taught Jupyter AI with `/learn`.
 
 <img src="../_static/chat-ask-command.png"
@@ -776,6 +783,34 @@ include calls to nonexistent (hallucinated) APIs.
 %%ai chatgpt -f code
 A function that computes the lowest common multiples of two integers, and
 a function that runs 5 test cases of the lowest common multiple function
+```
+
+### Configuring the amount of history to include in the context
+
+By default, two previous Human/AI message exchanges are included in the context of the new prompt.
+You can change this using the IPython `%config` magic, for example:
+
+```python
+%config AiMagics.max_history = 4
+```
+
+Note that old messages are still kept locally in memory,
+so they will be included in the context of the next prompt after raising the `max_history` value.
+
+You can configure the value for all notebooks
+by specifying `c.AiMagics.max_history` traitlet in `ipython_config.py`, for example:
+
+```python
+c.AiMagics.max_history = 4
+```
+
+### Clearing the chat history
+
+You can run the `%ai reset` line magic command to clear the chat history. After you do this,
+previous magic commands you've run will no longer be added as context in requests.
+
+```
+%ai reset
 ```
 
 ### Interpolating in prompts

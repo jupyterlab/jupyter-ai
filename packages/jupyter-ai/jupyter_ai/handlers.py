@@ -2,13 +2,14 @@ import getpass
 import json
 import time
 import uuid
-from asyncio import AbstractEventLoop
+from asyncio import AbstractEventLoop, Event
 from dataclasses import asdict
-from typing import TYPE_CHECKING, Dict, List, Optional
+from typing import TYPE_CHECKING, Dict, List, Optional, Set, cast
 
 import tornado
 from jupyter_ai.chat_handlers import BaseChatHandler, SlashCommandRoutingType
 from jupyter_ai.config_manager import ConfigManager, KeyEmptyError, WriteConflictError
+from jupyter_ai.context_providers import BaseCommandContextProvider, ContextCommand
 from jupyter_server.base.handlers import APIHandler as BaseAPIHandler
 from jupyter_server.base.handlers import JupyterHandler
 from langchain.pydantic_v1 import ValidationError
@@ -29,12 +30,15 @@ from .models import (
     ClosePendingMessage,
     ConnectionMessage,
     HumanChatMessage,
+    ListOptionsEntry,
+    ListOptionsResponse,
     ListProvidersEntry,
     ListProvidersResponse,
     ListSlashCommandsEntry,
     ListSlashCommandsResponse,
     Message,
     PendingMessage,
+    StopRequest,
     UpdateConfigRequest,
 )
 
@@ -42,13 +46,12 @@ if TYPE_CHECKING:
     from jupyter_ai_magics.embedding_providers import BaseEmbeddingsProvider
     from jupyter_ai_magics.providers import BaseProvider
 
-    from .history import BoundChatHistory
+    from .context_providers import BaseCommandContextProvider
+    from .history import BoundedChatHistory
 
 
 class ChatHistoryHandler(BaseAPIHandler):
     """Handler to return message history"""
-
-    _messages = []
 
     @property
     def chat_history(self) -> List[ChatMessage]:
@@ -103,7 +106,11 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
         self.settings["chat_history"] = new_history
 
     @property
-    def llm_chat_memory(self) -> "BoundChatHistory":
+    def message_interrupted(self) -> Dict[str, Event]:
+        return self.settings["jai_message_interrupted"]
+
+    @property
+    def llm_chat_memory(self) -> "BoundedChatHistory":
         return self.settings["llm_chat_memory"]
 
     @property
@@ -117,6 +124,13 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
     @pending_messages.setter
     def pending_messages(self, new_pending_messages):
         self.settings["pending_messages"] = new_pending_messages
+
+    @property
+    def cleared_message_ids(self) -> Set[str]:
+        """Set of `HumanChatMessage.id` that were cleared via `ClearRequest`."""
+        if "cleared_message_ids" not in self.settings:
+            self.settings["cleared_message_ids"] = set()
+        return self.settings["cleared_message_ids"]
 
     def initialize(self):
         self.log.debug("Initializing websocket connection %s", self.request.path)
@@ -145,11 +159,17 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
         environment."""
         # Get a dictionary of all loaded extensions.
         # (`serverapp` is a property on all `JupyterHandler` subclasses)
+        assert self.serverapp
         extensions = self.serverapp.extension_manager.extensions
-        collaborative = (
+        collaborative_legacy = (
             "jupyter_collaboration" in extensions
             and extensions["jupyter_collaboration"].enabled
         )
+        collaborative_v3 = (
+            "jupyter_server_ydoc" in extensions
+            and extensions["jupyter_server_ydoc"].enabled
+        )
+        collaborative = collaborative_legacy or collaborative_v3
 
         if collaborative:
             names = self.current_user.name.split(" ", maxsplit=2)
@@ -171,7 +191,7 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
         login = getpass.getuser()
         initials = login[0].capitalize()
         return ChatUser(
-            username=login,
+            username=self.current_user.username,
             initials=initials,
             name=login,
             display_name=login,
@@ -213,12 +233,9 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
         # do not broadcast agent messages that are replying to cleared human message
         if (
             isinstance(message, (AgentChatMessage, AgentStreamMessage))
-            and message.reply_to
+            and message.reply_to in self.cleared_message_ids
         ):
-            if message.reply_to not in [
-                m.id for m in self.chat_history if isinstance(m, HumanChatMessage)
-            ]:
-                return
+            return
 
         self.log.debug("Broadcasting message: %s to all clients...", message)
         client_ids = self.root_chat_handlers.keys()
@@ -246,6 +263,7 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
                 ):
                     stream_message: AgentStreamMessage = history_message
                     stream_message.body += chunk.content
+                    stream_message.metadata = chunk.metadata
                     stream_message.complete = chunk.stream_complete
                     break
         elif isinstance(message, PendingMessage):
@@ -254,14 +272,6 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
             self.pending_messages = list(
                 filter(lambda m: m.id != message.id, self.pending_messages)
             )
-        elif isinstance(message, ClearMessage):
-            if message.targets:
-                self._clear_chat_history_at(message.targets)
-            else:
-                self.chat_history.clear()
-                self.pending_messages.clear()
-                self.llm_chat_memory.clear()
-                self.settings["jai_chat_handlers"]["default"].send_help_message()
 
     async def on_message(self, message):
         self.log.debug("Message received: %s", message)
@@ -270,6 +280,8 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
             message = json.loads(message)
             if message.get("type") == "clear":
                 request = ClearRequest(**message)
+            elif message.get("type") == "stop":
+                request = StopRequest(**message)
             else:
                 request = ChatRequest(**message)
         except ValidationError as e:
@@ -277,22 +289,11 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
             return
 
         if isinstance(request, ClearRequest):
-            if not request.target:
-                targets = None
-            elif request.after:
-                target_msg = None
-                for msg in self.chat_history:
-                    if msg.id == request.target:
-                        target_msg = msg
-                if target_msg:
-                    targets = [
-                        msg.id
-                        for msg in self.chat_history
-                        if msg.time >= target_msg.time and msg.type == "human"
-                    ]
-            else:
-                targets = [request.target]
-            self.broadcast_message(ClearMessage(targets=targets))
+            self.on_clear_request(request)
+            return
+
+        if isinstance(request, StopRequest):
+            self.on_stop_request()
             return
 
         chat_request = request
@@ -319,6 +320,74 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
         # as a distinct concurrent task.
         self.loop.create_task(self._route(chat_message))
 
+    def on_clear_request(self, request: ClearRequest):
+        target = request.target
+
+        # if no target, clear all messages
+        if not target:
+            for msg in self.chat_history:
+                if msg.type == "human":
+                    self.cleared_message_ids.add(msg.id)
+
+            self.chat_history.clear()
+            self.pending_messages.clear()
+            self.llm_chat_memory.clear()
+            self.broadcast_message(ClearMessage())
+            self.settings["jai_chat_handlers"]["default"].send_help_message()
+            return
+
+        # otherwise, clear a single message
+        self.cleared_message_ids.add(target)
+        for msg in self.chat_history[::-1]:
+            # interrupt the single message
+            if msg.type == "agent-stream" and getattr(msg, "reply_to", None) == target:
+                try:
+                    self.message_interrupted[msg.id].set()
+                except KeyError:
+                    # do nothing if the message was already interrupted
+                    # or stream got completed (thread-safe way!)
+                    pass
+                break
+
+        self.chat_history[:] = [
+            msg
+            for msg in self.chat_history
+            if msg.id != target and getattr(msg, "reply_to", None) != target
+        ]
+        self.pending_messages[:] = [
+            msg for msg in self.pending_messages if msg.reply_to != target
+        ]
+        self.llm_chat_memory.clear([target])
+        self.broadcast_message(ClearMessage(targets=[target]))
+
+    def on_stop_request(self):
+        # set of message IDs that were submitted by this user, determined by the
+        # username associated with this WebSocket connection.
+        current_user_messages: Set[str] = set()
+        for message in self.chat_history:
+            if (
+                message.type == "human"
+                and message.client.username == self.current_user.username
+            ):
+                current_user_messages.add(message.id)
+
+        # set of `AgentStreamMessage` IDs to stop
+        streams_to_stop: Set[str] = set()
+        for message in self.chat_history:
+            if (
+                message.type == "agent-stream"
+                and message.reply_to in current_user_messages
+            ):
+                streams_to_stop.add(message.id)
+
+        for stream_id in streams_to_stop:
+            try:
+                self.message_interrupted[stream_id].set()
+            except KeyError:
+                # do nothing if the message was already interrupted
+                # or stream got completed (thread-safe way!)
+                pass
+
     async def _route(self, message):
         """Method that routes an incoming message to the appropriate handler."""
         default = self.chat_handlers["default"]
@@ -340,20 +409,6 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
         latency_ms = round((time.time() - start) * 1000)
         command_readable = "Default" if command == "default" else command
         self.log.info(f"{command_readable} chat handler resolved in {latency_ms} ms.")
-
-    def _clear_chat_history_at(self, msg_ids: List[str]):
-        """
-        Clears conversation exchanges associated with list of human message IDs.
-        """
-        self.chat_history[:] = [
-            msg
-            for msg in self.chat_history
-            if msg.id not in msg_ids and getattr(msg, "reply_to", None) not in msg_ids
-        ]
-        self.pending_messages[:] = [
-            msg for msg in self.pending_messages if msg.reply_to not in msg_ids
-        ]
-        self.llm_chat_memory.clear(msg_ids)
 
     def on_close(self):
         self.log.debug("Disconnecting client with user %s", self.client_id)
@@ -401,7 +456,7 @@ class ProviderHandler(BaseAPIHandler):
             if self.blocked_models:
                 return model_id not in self.blocked_models
             else:
-                return model_id in self.allowed_models
+                return model_id in cast(List, self.allowed_models)
 
         # filter out every model w/ model ID according to allow/blocklist
         for provider in providers:
@@ -514,7 +569,7 @@ class GlobalConfigHandler(BaseAPIHandler):
 
 class ApiKeysHandler(BaseAPIHandler):
     @property
-    def config_manager(self) -> ConfigManager:
+    def config_manager(self) -> ConfigManager:  # type:ignore[override]
         return self.settings["jai_config_manager"]
 
     @web.authenticated
@@ -529,7 +584,7 @@ class SlashCommandsInfoHandler(BaseAPIHandler):
     """List slash commands that are currently available to the user."""
 
     @property
-    def config_manager(self) -> ConfigManager:
+    def config_manager(self) -> ConfigManager:  # type:ignore[override]
         return self.settings["jai_config_manager"]
 
     @property
@@ -572,3 +627,109 @@ class SlashCommandsInfoHandler(BaseAPIHandler):
         # sort slash commands by slash id and deliver the response
         response.slash_commands.sort(key=lambda sc: sc.slash_id)
         self.finish(response.json())
+
+
+class AutocompleteOptionsHandler(BaseAPIHandler):
+    """List context that are currently available to the user."""
+
+    @property
+    def config_manager(self) -> ConfigManager:  # type:ignore[override]
+        return self.settings["jai_config_manager"]
+
+    @property
+    def context_providers(self) -> Dict[str, "BaseCommandContextProvider"]:
+        return self.settings["jai_context_providers"]
+
+    @property
+    def chat_handlers(self) -> Dict[str, "BaseChatHandler"]:
+        return self.settings["jai_chat_handlers"]
+
+    @web.authenticated
+    def get(self):
+        response = ListOptionsResponse()
+
+        # if no selected LLM, return an empty response
+        if not self.config_manager.lm_provider:
+            self.finish(response.json())
+            return
+
+        partial_cmd = self.get_query_argument("partialCommand", None)
+        if partial_cmd:
+            # if providing options for partial command argument
+            cmd = ContextCommand(cmd=partial_cmd)
+            context_provider = next(
+                (
+                    cp
+                    for cp in self.context_providers.values()
+                    if isinstance(cp, BaseCommandContextProvider)
+                    and cp.command_id == cmd.id
+                ),
+                None,
+            )
+            if (
+                cmd.arg is not None
+                and context_provider
+                and isinstance(context_provider, BaseCommandContextProvider)
+            ):
+                response.options = context_provider.get_arg_options(cmd.arg)
+        else:
+            response.options = (
+                self._get_slash_command_options() + self._get_context_provider_options()
+            )
+        self.finish(response.json())
+
+    def _get_slash_command_options(self) -> List[ListOptionsEntry]:
+        options = []
+        for id, chat_handler in self.chat_handlers.items():
+            # filter out any chat handler that is not a slash command
+            if id == "default" or not isinstance(
+                chat_handler.routing_type, SlashCommandRoutingType
+            ):
+                continue
+
+            routing_type = chat_handler.routing_type
+
+            # filter out any chat handler that is unsupported by the current LLM
+            if (
+                not routing_type.slash_id
+                or "/" + routing_type.slash_id
+                in self.config_manager.lm_provider.unsupported_slash_commands
+            ):
+                continue
+
+            options.append(
+                self._make_autocomplete_option(
+                    id="/" + routing_type.slash_id,
+                    description=chat_handler.help,
+                    only_start=True,
+                    requires_arg=False,
+                )
+            )
+        options.sort(key=lambda opt: opt.id)
+        return options
+
+    def _get_context_provider_options(self) -> List[ListOptionsEntry]:
+        options = [
+            self._make_autocomplete_option(
+                id=context_provider.command_id,
+                description=context_provider.help,
+                only_start=context_provider.only_start,
+                requires_arg=context_provider.requires_arg,
+            )
+            for context_provider in self.context_providers.values()
+            if isinstance(context_provider, BaseCommandContextProvider)
+        ]
+        options.sort(key=lambda opt: opt.id)
+        return options
+
+    def _make_autocomplete_option(
+        self,
+        id: str,
+        description: str,
+        only_start: bool,
+        requires_arg: bool,
+    ):
+        label = id + (":" if requires_arg else " ")
+        return ListOptionsEntry(
+            id=id, description=description, label=label, only_start=only_start
+        )

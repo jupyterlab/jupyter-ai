@@ -2,13 +2,13 @@ name: E2E Tests
 
 # suppress warning raised by https://github.com/jupyter/jupyter_core/pull/292
 env:
-  JUPYTER_PLATFORM_DIRS: '1'
+  JUPYTER_PLATFORM_DIRS: "1"
 
 on:
   push:
     branches: main
   pull_request:
-    branches: '*'
+    branches: "*"
 
 jobs:
   e2e-tests:
@@ -41,17 +41,17 @@ jobs:
             ${{ github.workspace }}/pw-browsers
           key: ${{ runner.os }}-${{ hashFiles('packages/jupyter-ai/ui-tests/yarn.lock') }}
 
-      - name: Install browser
+      - name: Install Chromium
         working-directory: packages/jupyter-ai/ui-tests
         run: jlpm install-chromium
 
-      - name: Execute e2e tests
+      - name: Run E2E tests
         working-directory: packages/jupyter-ai/ui-tests
         run: jlpm test
 
-      - name: Upload Playwright Test report
+      - name: Upload Playwright test report
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: jupyter-ai-playwright-tests-linux
           path: |

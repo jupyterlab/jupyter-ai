@@ -3,6 +3,7 @@ import contextlib
 import os
 import time
 import traceback
+from asyncio import Event
 from typing import (
     TYPE_CHECKING,
     Awaitable,
@@ -14,7 +15,9 @@ from typing import (
     Optional,
     Type,
     Union,
+    cast,
 )
+from typing import get_args as get_type_args
 from uuid import uuid4
 
 from dask.distributed import Client as DaskClient
@@ -25,10 +28,12 @@ from jupyter_ai.models import (
     ChatMessage,
     ClosePendingMessage,
     HumanChatMessage,
+    Message,
     PendingMessage,
 )
 from jupyter_ai_magics import Persona
 from jupyter_ai_magics.providers import BaseProvider
+from langchain.chains import LLMChain
 from langchain.pydantic_v1 import BaseModel
 
 try:
@@ -37,13 +42,14 @@ except:
     from typing import Any as YChat
 
 if TYPE_CHECKING:
+    from jupyter_ai.context_providers import BaseCommandContextProvider
     from jupyter_ai.handlers import RootChatHandler
     from jupyter_ai.history import BoundedChatHistory
     from langchain_core.chat_history import BaseChatMessageHistory
 
 
-def get_preferred_dir(root_dir: str, preferred_dir: str) -> Optional[str]:
-    if preferred_dir != "":
+def get_preferred_dir(root_dir: str, preferred_dir: Optional[str]) -> Optional[str]:
+    if preferred_dir is not None and preferred_dir != "":
         preferred_dir = os.path.expanduser(preferred_dir)
         if not preferred_dir.startswith(root_dir):
             preferred_dir = os.path.join(root_dir, preferred_dir)
@@ -53,7 +59,7 @@ def get_preferred_dir(root_dir: str, preferred_dir: str) -> Optional[str]:
 
 # Chat handler type, with specific attributes for each
 class HandlerRoutingType(BaseModel):
-    routing_method: ClassVar[Union[Literal["slash_command"]]] = ...
+    routing_method: ClassVar[Union[Literal["slash_command"]]]
     """The routing method that sends commands to this handler."""
 
 
@@ -89,17 +95,17 @@ class BaseChatHandler:
     multiple chat handler classes."""
 
     # Class attributes
-    id: ClassVar[str] = ...
+    id: ClassVar[str]
     """ID for this chat handler; should be unique"""
 
-    name: ClassVar[str] = ...
+    name: ClassVar[str]
     """User-facing name of this handler"""
 
-    help: ClassVar[str] = ...
+    help: ClassVar[str]
     """What this chat handler does, which third-party models it contacts,
     the data it returns to the user, and so on, for display in the UI."""
 
-    routing_type: ClassVar[HandlerRoutingType] = ...
+    routing_type: ClassVar[HandlerRoutingType]
 
     uses_llm: ClassVar[bool] = True
     """Class attribute specifying whether this chat handler uses the LLM
@@ -125,6 +131,14 @@ class BaseChatHandler:
     chat handlers, which is necessary for some use-cases like printing the help
     message."""
 
+    context_providers: Dict[str, "BaseCommandContextProvider"]
+    """Dictionary of context providers. Allows chat handlers to reference
+    context providers, which can be used to provide context to the LLM."""
+
+    message_interrupted: Dict[str, Event]
+    """Dictionary mapping an agent message identifier to an asyncio Event
+    which indicates if the message generation/streaming was interrupted."""
+
     def __init__(
         self,
         log: Logger,
@@ -138,7 +152,9 @@ class BaseChatHandler:
         dask_client_future: Awaitable[DaskClient],
         help_message_template: str,
         chat_handlers: Dict[str, "BaseChatHandler"],
-        write_message: Callable[[YChat, str], None] | None = None
+        context_providers: Dict[str, "BaseCommandContextProvider"],
+        message_interrupted: Dict[str, Event],
+        write_message: Callable[[YChat, str], None] | None = None,
     ):
         self.log = log
         self.config_manager = config_manager
@@ -159,10 +175,12 @@ class BaseChatHandler:
         self.dask_client_future = dask_client_future
         self.help_message_template = help_message_template
         self.chat_handlers = chat_handlers
+        self.context_providers = context_providers
+        self.message_interrupted = message_interrupted
 
-        self.llm = None
-        self.llm_params = None
-        self.llm_chain = None
+        self.llm: Optional[BaseProvider] = None
+        self.llm_params: Optional[dict] = None
+        self.llm_chain: Optional[LLMChain] = None
 
         self.write_message = write_message
 
@@ -177,9 +195,8 @@ class BaseChatHandler:
 
         # ensure the current slash command is supported
         if self.routing_type.routing_method == "slash_command":
-            slash_command = (
-                "/" + self.routing_type.slash_id if self.routing_type.slash_id else ""
-            )
+            routing_type = cast(SlashCommandRoutingType, self.routing_type)
+            slash_command = "/" + routing_type.slash_id if routing_type.slash_id else ""
             if slash_command in lm_provider_klass.unsupported_slash_commands:
                 self.reply(
                     "Sorry, the selected language model does not support this slash command.",
@@ -257,6 +274,26 @@ class BaseChatHandler:
         )
         self.reply(response, chat, message)
 
+    def broadcast_message(self, message: Message):
+        """
+        Broadcasts a message to all WebSocket connections. If there are no
+        WebSocket connections and the message is a chat message, this method
+        directly appends to `self.chat_history`.
+        """
+        broadcast = False
+        for websocket in self._root_chat_handlers.values():
+            if not websocket:
+                continue
+
+            websocket.broadcast_message(message)
+            broadcast = True
+            break
+
+        if not broadcast:
+            if isinstance(message, get_type_args(ChatMessage)):
+                cast(ChatMessage, message)
+                self._chat_history.append(message)
+
     def reply(self, response: str, chat: YChat | None, human_msg: Optional[HumanChatMessage] = None):
         """
         Sends an agent message, usually in response to a received
@@ -272,12 +309,7 @@ class BaseChatHandler:
                 reply_to=human_msg.id if human_msg else "",
                 persona=self.persona,
             )
-            for handler in self._root_chat_handlers.values():
-                if not handler:
-                    continue
-
-                handler.broadcast_message(agent_msg)
-                break
+            self.broadcast_message(agent_msg)
 
     @property
     def persona(self):
@@ -306,12 +338,7 @@ class BaseChatHandler:
             ellipsis=ellipsis,
         )
 
-        for handler in self._root_chat_handlers.values():
-            if not handler:
-                continue
-
-            handler.broadcast_message(pending_msg)
-            break
+        self.broadcast_message(pending_msg)
         return pending_msg
 
     def close_pending(self, pending_msg: PendingMessage):
@@ -325,13 +352,7 @@ class BaseChatHandler:
             id=pending_msg.id,
         )
 
-        for handler in self._root_chat_handlers.values():
-            if not handler:
-                continue
-
-            handler.broadcast_message(close_pending_msg)
-            break
-
+        self.broadcast_message(close_pending_msg)
         pending_msg.closed = True
 
     @contextlib.contextmanager
@@ -442,8 +463,17 @@ class BaseChatHandler:
             ]
         )
 
+        context_commands_list = "\n".join(
+            [
+                f"* `{cp.command_id}` — {cp.help}"
+                for cp in self.context_providers.values()
+            ]
+        )
+
         help_message_body = self.help_message_template.format(
-            persona_name=self.persona.name, slash_commands_list=slash_commands_list
+            persona_name=self.persona.name,
+            slash_commands_list=slash_commands_list,
+            context_commands_list=context_commands_list,
         )
         help_message = AgentChatMessage(
             id=uuid4().hex,
@@ -463,6 +493,4 @@ class BaseChatHandler:
                 reply_to=human_msg.id if human_msg else "",
                 persona=self.persona,
             )
-            self._chat_history.append(help_message)
-            for websocket in self._root_chat_handlers.values():
-                websocket.write_message(help_message.json())
+            self.broadcast_message(help_message)

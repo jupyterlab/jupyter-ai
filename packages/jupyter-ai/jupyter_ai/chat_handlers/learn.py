@@ -1,6 +1,7 @@
 import argparse
 import json
 import os
+from glob import iglob
 from typing import Any, Coroutine, List, Optional, Tuple
 
 from dask.distributed import Client as DaskClient
@@ -183,15 +184,29 @@ class LearnChatHandler(BaseChatHandler):
                     return
 
         # Make sure the path exists.
-        if not len(args.path) == 1:
-            self.reply(f"{self.parser.format_usage()}", chat, message)
+        if not (len(args.path) == 1 and args.path[0]):
+            no_path_arg_message = (
+                "Please specify a directory or pattern you would like to "
+                'learn on. "/learn" supports directories relative to '
+                "the root (or preferred dir, if set) and Unix-style "
+                "wildcard matching.\n\n"
+                "Examples:\n"
+                "- Learn on the root directory recursively: `/learn .`\n"
+                "- Learn on files in the root directory: `/learn *`\n"
+                "- Learn all python files under the root directory recursively: `/learn **/*.py`"
+            )
+            self.reply(f"{self.parser.format_usage()}\n\n {no_path_arg_message}", chat)
             return
         short_path = args.path[0]
         load_path = os.path.join(self.output_dir, short_path)
         if not os.path.exists(load_path):
-            response = f"Sorry, that path doesn't exist: {load_path}"
-            self.reply(response, chat, message)
-            return
+            try:
+                # check if globbing the load path will return anything
+                next(iglob(load_path))
+            except StopIteration:
+                response = f"Sorry, that path doesn't exist: {load_path}"
+                self.reply(response, chat, message)
+                return
 
         # delete and relearn index if embedding model was changed
         await self.delete_and_relearn(chat)
@@ -202,11 +217,16 @@ class LearnChatHandler(BaseChatHandler):
                     load_path, args.chunk_size, args.chunk_overlap, args.all_files
                 )
             except Exception as e:
-                response = f"""Learn documents in **{load_path}** failed. {str(e)}."""
+                response = """Learn documents in **{}** failed. {}.""".format(
+                    load_path.replace("*", r"\*"),
+                    str(e),
+                )
             else:
                 self.save()
-                response = f"""🎉 I have learned documents at **{load_path}** and I am ready to answer questions about them.
-                    You can ask questions about these docs by prefixing your message with **/ask**."""
+                response = """🎉 I have learned documents at **%s** and I am ready to answer questions about them.
+                    You can ask questions about these docs by prefixing your message with **/ask**.""" % (
+                    load_path.replace("*", r"\*")
+                )
         self.reply(response, chat, message)
 
     def _build_list_response(self):
@@ -232,7 +252,9 @@ class LearnChatHandler(BaseChatHandler):
         }
         splitter = ExtensionSplitter(
             splitters=splitters,
-            default_splitter=RecursiveCharacterTextSplitter(**splitter_kwargs),
+            default_splitter=RecursiveCharacterTextSplitter(
+                **splitter_kwargs  # type:ignore[arg-type]
+            ),
         )
 
         delayed = split(path, all_files, splitter=splitter)
@@ -361,7 +383,7 @@ class LearnChatHandler(BaseChatHandler):
         self, query: str
     ) -> Coroutine[Any, Any, List[Document]]:
         if not self.index:
-            return []
+            return []  # type:ignore[return-value]
 
         await self.delete_and_relearn()
         docs = self.index.similarity_search(query)
@@ -379,12 +401,14 @@ class LearnChatHandler(BaseChatHandler):
 
 
 class Retriever(BaseRetriever):
-    learn_chat_handler: LearnChatHandler = None
+    learn_chat_handler: LearnChatHandler = None  # type:ignore[assignment]
 
-    def _get_relevant_documents(self, query: str) -> List[Document]:
+    def _get_relevant_documents(  # type:ignore[override]
+        self, query: str
+    ) -> List[Document]:
         raise NotImplementedError()
 
-    async def _aget_relevant_documents(
+    async def _aget_relevant_documents(  # type:ignore[override]
         self, query: str
     ) -> Coroutine[Any, Any, List[Document]]:
         docs = await self.learn_chat_handler.aget_relevant_documents(query)

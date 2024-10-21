@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -eux
 # install core packages
 pip install jupyterlab~=4.0
 cp playground/config.example.py playground/config.py
