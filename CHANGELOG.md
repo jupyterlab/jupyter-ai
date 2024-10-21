@@ -2,6 +2,43 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 2.26.0
+
+This release notably includes the addition of a "Stop streaming" button, which takes over the "Send" button when a reply is streaming and the chat input is empty. While Jupyternaut is streaming a reply to a user, the user has the option to click the "Stop streaming" button to interrupt Jupyternaut and stop it from streaming further. Thank you @krassowski for contributing this feature! 🎉
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.25.0...838dfa9cdcbd8fc0373e3c056c677b016531a68c))
+
+### Enhancements made
+
+- Support Quarto Markdown in `/learn` [#1047](https://github.com/jupyterlab/jupyter-ai/pull/1047) ([@dlqqq](https://github.com/dlqqq))
+- Update requirements contributors doc [#1045](https://github.com/jupyterlab/jupyter-ai/pull/1045) ([@JasonWeill](https://github.com/JasonWeill))
+- Remove clear_message_ids from RootChatHandler [#1042](https://github.com/jupyterlab/jupyter-ai/pull/1042) ([@michaelchia](https://github.com/michaelchia))
+- Migrate streaming logic to `BaseChatHandler`  [#1039](https://github.com/jupyterlab/jupyter-ai/pull/1039) ([@dlqqq](https://github.com/dlqqq))
+- Unify message clearing & broadcast logic [#1038](https://github.com/jupyterlab/jupyter-ai/pull/1038) ([@dlqqq](https://github.com/dlqqq))
+- Learn from JSON files [#1024](https://github.com/jupyterlab/jupyter-ai/pull/1024) ([@jlsajfj](https://github.com/jlsajfj))
+- Allow users to stop message streaming [#1022](https://github.com/jupyterlab/jupyter-ai/pull/1022) ([@krassowski](https://github.com/krassowski))
+
+### Bugs fixed
+
+- Always use `username` from `IdentityProvider` [#1034](https://github.com/jupyterlab/jupyter-ai/pull/1034) ([@krassowski](https://github.com/krassowski))
+
+### Maintenance and upkeep improvements
+
+- Support `jupyter-collaboration` v3 [#1035](https://github.com/jupyterlab/jupyter-ai/pull/1035) ([@krassowski](https://github.com/krassowski))
+- Test Python 3.9 and 3.12 on CI, test minimum dependencies [#1029](https://github.com/jupyterlab/jupyter-ai/pull/1029) ([@krassowski](https://github.com/krassowski))
+
+### Documentation improvements
+
+- Update requirements contributors doc [#1045](https://github.com/jupyterlab/jupyter-ai/pull/1045) ([@JasonWeill](https://github.com/JasonWeill))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-10-07&to=2024-10-21&type=c))
+
+[@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2024-10-07..2024-10-21&type=Issues) | [@JasonWeill](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AJasonWeill+updated%3A2024-10-07..2024-10-21&type=Issues) | [@jlsajfj](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ajlsajfj+updated%3A2024-10-07..2024-10-21&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2024-10-07..2024-10-21&type=Issues) | [@michaelchia](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Amichaelchia+updated%3A2024-10-07..2024-10-21&type=Issues) | [@pre-commit-ci](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Apre-commit-ci+updated%3A2024-10-07..2024-10-21&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 2.25.0
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.24.1...097dbe48722e255173c6504e6de835c297c553ab))
@@ -19,8 +56,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-10-04&to=2024-10-07&type=c))
 
 [@akaihola](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aakaihola+updated%3A2024-10-04..2024-10-07&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2024-10-04..2024-10-07&type=Issues) | [@jtpio](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ajtpio+updated%3A2024-10-04..2024-10-07&type=Issues) | [@pre-commit-ci](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Apre-commit-ci+updated%3A2024-10-04..2024-10-07&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 2.24.1
 

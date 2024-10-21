@@ -1,6 +1,6 @@
 {
   "name": "@jupyter-ai/core",
-  "version": "2.25.0",
+  "version": "2.26.0",
   "description": "A generative AI extension for JupyterLab",
   "keywords": [
     "jupyter",
