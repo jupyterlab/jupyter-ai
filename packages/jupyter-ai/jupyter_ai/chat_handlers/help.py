@@ -1,3 +1,5 @@
+from typing import Optional
+
 from jupyter_ai.models import HumanChatMessage
 
 try:
