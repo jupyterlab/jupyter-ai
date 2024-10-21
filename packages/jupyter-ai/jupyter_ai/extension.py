@@ -3,6 +3,7 @@ import re
 import time
 import types
 import uuid
+from functools import partial
 
 from dask.distributed import Client as DaskClient
 from importlib_metadata import entry_points
@@ -10,19 +11,15 @@ from jupyter_ai.chat_handlers.learn import Retriever
 from jupyter_ai.models import HumanChatMessage
 from jupyter_ai_magics import BaseProvider, JupyternautPersona
 from jupyter_ai_magics.utils import get_em_providers, get_lm_providers
-from jupyter_server.extension.application import ExtensionApp
-from tornado.web import StaticFileHandler
-from traitlets import Dict, Integer, List, Unicode
 from jupyter_collaboration import __version__ as jupyter_collaboration_version
-from jupyterlab_collaborative_chat.ychat import YChat
-
-from functools import partial
 from jupyter_collaboration.utils import JUPYTER_COLLABORATION_EVENTS_URI
 from jupyter_events import EventLogger
 from jupyter_server.extension.application import ExtensionApp
 from jupyter_server.utils import url_path_join
-
+from jupyterlab_collaborative_chat.ychat import YChat
 from pycrdt import ArrayEvent
+from tornado.web import StaticFileHandler
+from traitlets import Dict, Integer, List, Unicode
 
 from .chat_handlers import (
     AskChatHandler,
@@ -63,7 +60,7 @@ else:
 BOT = {
     "username": str(uuid.uuid4()),
     "name": "Jupyternaut",
-    "display_name": "Jupyternaut"
+    "display_name": "Jupyternaut",
 }
 
 DEFAULT_HELP_MESSAGE_TEMPLATE = """Hi there! I'm {persona_name}, your programming assistant.
@@ -231,18 +228,21 @@ class AiExtension(ExtensionApp):
         super().initialize()
         self.event_logger = self.serverapp.web_app.settings["event_logger"]
         self.event_logger.add_listener(
-            schema_id=JUPYTER_COLLABORATION_EVENTS_URI,
-            listener=self.connect_chat
+            schema_id=JUPYTER_COLLABORATION_EVENTS_URI, listener=self.connect_chat
         )
 
         # Keep the message indexes to avoid extra computation looking for a message when
         # updating it.
         self.messages_indexes = {}
 
-    async def connect_chat(self, logger: EventLogger, schema_id: str, data: dict) -> None:
-        if data["room"].startswith("text:chat:") \
-            and data["action"] == "initialize"\
-            and data["msg"] == "Room initialized":
+    async def connect_chat(
+        self, logger: EventLogger, schema_id: str, data: dict
+    ) -> None:
+        if (
+            data["room"].startswith("text:chat:")
+            and data["action"] == "initialize"
+            and data["msg"] == "Room initialized"
+        ):
 
             self.log.info(f"Collaborative chat server is listening for {data["room"]}")
             chat = await self.get_chat(data["room"])
@@ -252,10 +252,7 @@ class AiExtension(ExtensionApp):
     async def get_chat(self, room_id: str) -> YChat:
         if COLLAB_VERSION == 3:
             collaboration = self.serverapp.web_app.settings["jupyter_server_ydoc"]
-            document = await collaboration.get_document(
-                room_id=room_id,
-                copy=False
-            )
+            document = await collaboration.get_document(room_id=room_id, copy=False)
         else:
             collaboration = self.serverapp.web_app.settings["jupyter_collaboration"]
             server = collaboration.ywebsocket_server
@@ -284,7 +281,9 @@ class AiExtension(ExtensionApp):
                     )
                 except Exception as e:
                     self.log.error(e)
-                self.serverapp.io_loop.asyncio_loop.create_task(self._route(chat_message, chat))
+                self.serverapp.io_loop.asyncio_loop.create_task(
+                    self._route(chat_message, chat)
+                )
 
     async def _route(self, message: HumanChatMessage, chat: YChat):
         """Method that routes an incoming message to the appropriate handler."""
@@ -311,8 +310,7 @@ class AiExtension(ExtensionApp):
 
     def write_message(self, chat: YChat, body: str, id: str | None = None) -> str:
         BOT["avatar_url"] = url_path_join(
-            self.settings.get("base_url", "/"),
-            "api/ai/static/jupyternaut.svg"
+            self.settings.get("base_url", "/"), "api/ai/static/jupyternaut.svg"
         )
         bot = chat.get_user_by_name(BOT["name"])
         if not bot:
@@ -322,14 +320,18 @@ class AiExtension(ExtensionApp):
 
         index = self.messages_indexes[id] if id else None
         id = id if id else str(uuid.uuid4())
-        new_index = chat.set_message({
-            "type": "msg",
-            "body": body,
-            "id": id if id else str(uuid.uuid4()),
-            "time": time.time(),
-            "sender": BOT["username"],
-            "raw_time": False
-        }, index, True)
+        new_index = chat.set_message(
+            {
+                "type": "msg",
+                "body": body,
+                "id": id if id else str(uuid.uuid4()),
+                "time": time.time(),
+                "sender": BOT["username"],
+                "raw_time": False,
+            },
+            index,
+            True,
+        )
 
         if new_index != index:
             self.messages_indexes[id] = new_index

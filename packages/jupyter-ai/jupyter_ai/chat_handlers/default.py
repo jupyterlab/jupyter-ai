@@ -11,9 +11,9 @@ from jupyter_ai.models import (
 )
 from jupyter_ai_magics.providers import BaseProvider
 from langchain_core.messages import AIMessageChunk
+from langchain_core.outputs.generation import GenerationChunk
 from langchain_core.runnables import ConfigurableFieldSpec
 from langchain_core.runnables.history import RunnableWithMessageHistory
-from langchain_core.outputs.generation import GenerationChunk
 
 try:
     from jupyterlab_collaborative_chat.ychat import YChat
@@ -113,7 +113,10 @@ class DefaultChatHandler(BaseChatHandler):
             self.write_message(chat, content, stream_id)
         else:
             stream_chunk_msg = AgentStreamChunkMessage(
-                id=stream_id, content=content, stream_complete=complete, metadata=metadata
+                id=stream_id,
+                content=content,
+                stream_complete=complete,
+                metadata=metadata,
             )
             for handler in self._root_chat_handlers.values():
                 if not handler:

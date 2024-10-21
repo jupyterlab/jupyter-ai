@@ -1,9 +1,11 @@
 from jupyter_ai.chat_handlers.base import BaseChatHandler, SlashCommandRoutingType
 from jupyter_ai.models import HumanChatMessage
+
 try:
     from jupyterlab_collaborative_chat.ychat import YChat
 except:
     from typing import Any as YChat
+
 
 class TestSlashCommand(BaseChatHandler):
     """

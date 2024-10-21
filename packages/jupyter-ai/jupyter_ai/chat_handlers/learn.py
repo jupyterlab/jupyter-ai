@@ -139,7 +139,7 @@ class LearnChatHandler(BaseChatHandler):
         if not em_provider_cls:
             self.reply(
                 "Sorry, please select an embedding provider before using the `/learn` command.",
-                chat
+                chat,
             )
             return
 
@@ -149,7 +149,9 @@ class LearnChatHandler(BaseChatHandler):
 
         if args.delete:
             self.delete()
-            self.reply(f"👍 I have deleted everything I previously learned.", chat, message)
+            self.reply(
+                f"👍 I have deleted everything I previously learned.", chat, message
+            )
             return
 
         if args.list:
@@ -170,8 +172,9 @@ class LearnChatHandler(BaseChatHandler):
                 except ModuleNotFoundError as e:
                     self.log.error(e)
                     self.reply(
-                        "No `arxiv` package found. " "Install with `pip install arxiv`.",
-                        chat
+                        "No `arxiv` package found. "
+                        "Install with `pip install arxiv`.",
+                        chat,
                     )
                     return
                 except Exception as e:
@@ -179,7 +182,7 @@ class LearnChatHandler(BaseChatHandler):
                     self.reply(
                         "An error occurred while processing the arXiv file. "
                         f"Please verify that the arxiv id {id} is correct.",
-                        chat
+                        chat,
                     )
                     return
 

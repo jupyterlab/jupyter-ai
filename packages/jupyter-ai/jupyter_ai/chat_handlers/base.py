@@ -184,7 +184,7 @@ class BaseChatHandler:
 
         self.write_message = write_message
 
-    async def on_message(self, message: HumanChatMessage, chat: YChat| None = None):
+    async def on_message(self, message: HumanChatMessage, chat: YChat | None = None):
         """
         Method which receives a human message, calls `self.get_llm_chain()`, and
         processes the message via `self.process_message()`, calling
@@ -200,7 +200,7 @@ class BaseChatHandler:
             if slash_command in lm_provider_klass.unsupported_slash_commands:
                 self.reply(
                     "Sorry, the selected language model does not support this slash command.",
-                    chat
+                    chat,
                 )
                 return
 
@@ -248,7 +248,9 @@ class BaseChatHandler:
         """
         raise NotImplementedError("Should be implemented by subclasses.")
 
-    async def handle_exc(self, e: Exception, message: HumanChatMessage, chat: YChat | None):
+    async def handle_exc(
+        self, e: Exception, message: HumanChatMessage, chat: YChat | None
+    ):
         """
         Handles an exception raised by `self.process_message()`. A default
         implementation is provided, however chat handlers (subclasses) should
@@ -256,7 +258,9 @@ class BaseChatHandler:
         """
         await self._default_handle_exc(e, message, chat)
 
-    async def _default_handle_exc(self, e: Exception, message: HumanChatMessage, chat: YChat | None):
+    async def _default_handle_exc(
+        self, e: Exception, message: HumanChatMessage, chat: YChat | None
+    ):
         """
         The default definition of `handle_exc()`. This is the default used when
         the `handle_exc()` excepts.
@@ -294,7 +298,12 @@ class BaseChatHandler:
                 cast(ChatMessage, message)
                 self._chat_history.append(message)
 
-    def reply(self, response: str, chat: YChat | None, human_msg: Optional[HumanChatMessage] = None):
+    def reply(
+        self,
+        response: str,
+        chat: YChat | None,
+        human_msg: Optional[HumanChatMessage] = None,
+    ):
         """
         Sends an agent message, usually in response to a received
         `HumanChatMessage`.
@@ -444,7 +453,9 @@ class BaseChatHandler:
         else:
             return self.root_dir
 
-    def send_help_message(self, chat: YChat | None, human_msg: Optional[HumanChatMessage] = None) -> None:
+    def send_help_message(
+        self, chat: YChat | None, human_msg: Optional[HumanChatMessage] = None
+    ) -> None:
         """Sends a help message to all connected clients."""
         lm_provider = self.config_manager.lm_provider
         unsupported_slash_commands = (
