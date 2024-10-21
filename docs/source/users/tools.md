@@ -148,7 +148,7 @@ We test the first function as shown below:
 Next, test the second function:
 
 <img src="../_static/tools_rename_files.png"
-    width="75%"
+    width="100%"
     alt='Change file extensions for selected filenames in a target folder.'
     class="screenshot" />
 
