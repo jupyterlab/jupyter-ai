@@ -503,12 +503,15 @@ class BaseChatHandler:
         stream_id: str,
         content: str,
         complete: bool = False,
-        metadata: Dict[str, Any] = {},
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> None:
         """
         Sends an `agent-stream-chunk` message containing content that should be
         appended to an existing `agent-stream` message with ID `stream_id`.
         """
+        if not metadata:
+            metadata = {}
+
         stream_chunk_msg = AgentStreamChunkMessage(
             id=stream_id, content=content, stream_complete=complete, metadata=metadata
         )
