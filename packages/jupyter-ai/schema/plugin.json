@@ -20,7 +20,6 @@
           {
             "type": "separator",
             "rank": 110
-
           },
           {
             "command": "jupyter-ai:open-settings",

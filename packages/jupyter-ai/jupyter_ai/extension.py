@@ -244,7 +244,7 @@ class AiExtension(ExtensionApp):
             and data["msg"] == "Room initialized"
         ):
 
-            self.log.info(f"Collaborative chat server is listening for {data["room"]}")
+            self.log.info(f"Collaborative chat server is listening for {data['room']}")
             chat = await self.get_chat(data["room"])
             callback = partial(self.on_change, chat)
             chat.ymessages.observe(callback)
