@@ -1,6 +1,6 @@
 import asyncio
 import time
-from typing import Any, Dict, Type
+from typing import Any, Dict, Optional, Type
 from uuid import uuid4
 
 from jupyter_ai.callback_handlers import MetadataCallbackHandler
@@ -71,7 +71,7 @@ class DefaultChatHandler(BaseChatHandler):
             )
         self.llm_chain = runnable
 
-    def _start_stream(self, human_msg: HumanChatMessage, chat: YChat | None) -> str:
+    def _start_stream(self, human_msg: HumanChatMessage, chat: Optional[YChat]) -> str:
         """
         Sends an `agent-stream` message to indicate the start of a response
         stream. Returns the ID of the message, denoted as the `stream_id`.
@@ -125,7 +125,7 @@ class DefaultChatHandler(BaseChatHandler):
                 handler.broadcast_message(stream_chunk_msg)
                 break
 
-    async def process_message(self, message: HumanChatMessage, chat: YChat | None):
+    async def process_message(self, message: HumanChatMessage, chat: Optional[YChat]):
         self.get_llm_chain()
         received_first_chunk = False
         assert self.llm_chain

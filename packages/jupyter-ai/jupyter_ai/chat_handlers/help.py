@@ -20,5 +20,5 @@ class HelpChatHandler(BaseChatHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    async def process_message(self, message: HumanChatMessage, chat: YChat | None):
+    async def process_message(self, message: HumanChatMessage, chat: Optional[YChat]):
         self.send_help_message(chat, message)

@@ -1,7 +1,7 @@
 import argparse
 import os
 from datetime import datetime
-from typing import List
+from typing import List, Optional
 
 from jupyter_ai.models import AgentChatMessage, HumanChatMessage
 
@@ -36,7 +36,7 @@ class ExportChatHandler(BaseChatHandler):
             return ""
 
     # Write the chat history to a markdown file with a timestamp
-    async def process_message(self, message: HumanChatMessage, chat: YChat | None):
+    async def process_message(self, message: HumanChatMessage, chat: Optional[YChat]):
         markdown_content = "\n\n".join(
             self.chat_message_to_markdown(msg) for msg in self._chat_history
         )

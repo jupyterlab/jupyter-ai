@@ -1,5 +1,5 @@
 import argparse
-from typing import Dict, Type
+from typing import Dict, Optional, Type
 
 from jupyter_ai.models import HumanChatMessage
 from jupyter_ai_magics.providers import BaseProvider
@@ -64,7 +64,7 @@ class AskChatHandler(BaseChatHandler):
             verbose=False,
         )
 
-    async def process_message(self, message: HumanChatMessage, chat: YChat | None):
+    async def process_message(self, message: HumanChatMessage, chat: Optional[YChat]):
         args = self.parse_args(message, chat)
         if args is None:
             return

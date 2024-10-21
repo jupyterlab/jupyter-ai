@@ -267,7 +267,7 @@ class GenerateChatHandler(BaseChatHandler):
         nbformat.write(notebook, final_path)
         return final_path
 
-    async def process_message(self, message: HumanChatMessage, chat: YChat | None):
+    async def process_message(self, message: HumanChatMessage, chat: Optional[YChat]):
         self.get_llm_chain()
 
         # first send a verification message to user
@@ -279,7 +279,7 @@ class GenerateChatHandler(BaseChatHandler):
         self.reply(response, chat, message)
 
     async def handle_exc(
-        self, e: Exception, message: HumanChatMessage, chat: YChat | None
+        self, e: Exception, message: HumanChatMessage, chat: Optional[YChat]
     ):
         timestamp = time.strftime("%Y-%m-%d-%H.%M.%S")
         default_log_dir = Path(self.output_dir) / "jupyter-ai-logs"

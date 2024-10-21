@@ -184,7 +184,7 @@ class BaseChatHandler:
 
         self.write_message = write_message
 
-    async def on_message(self, message: HumanChatMessage, chat: YChat | None = None):
+    async def on_message(self, message: HumanChatMessage, chat: Optional[YChat] = None):
         """
         Method which receives a human message, calls `self.get_llm_chain()`, and
         processes the message via `self.process_message()`, calling
@@ -237,7 +237,7 @@ class BaseChatHandler:
         finally:
             BaseChatHandler._requests_count -= 1
 
-    async def process_message(self, message: HumanChatMessage, chat: YChat | None):
+    async def process_message(self, message: HumanChatMessage, chat: Optional[YChat]):
         """
         Processes a human message routed to this chat handler. Chat handlers
         (subclasses) must implement this method. Don't forget to call
@@ -249,7 +249,7 @@ class BaseChatHandler:
         raise NotImplementedError("Should be implemented by subclasses.")
 
     async def handle_exc(
-        self, e: Exception, message: HumanChatMessage, chat: YChat | None
+        self, e: Exception, message: HumanChatMessage, chat: Optional[YChat]
     ):
         """
         Handles an exception raised by `self.process_message()`. A default
@@ -259,7 +259,7 @@ class BaseChatHandler:
         await self._default_handle_exc(e, message, chat)
 
     async def _default_handle_exc(
-        self, e: Exception, message: HumanChatMessage, chat: YChat | None
+        self, e: Exception, message: HumanChatMessage, chat: Optional[YChat]
     ):
         """
         The default definition of `handle_exc()`. This is the default used when
@@ -301,7 +301,7 @@ class BaseChatHandler:
     def reply(
         self,
         response: str,
-        chat: YChat | None,
+        chat: Optional[YChat],
         human_msg: Optional[HumanChatMessage] = None,
     ):
         """
@@ -454,7 +454,7 @@ class BaseChatHandler:
             return self.root_dir
 
     def send_help_message(
-        self, chat: YChat | None, human_msg: Optional[HumanChatMessage] = None
+        self, chat: Optional[YChat], human_msg: Optional[HumanChatMessage] = None
     ) -> None:
         """Sends a help message to all connected clients."""
         lm_provider = self.config_manager.lm_provider

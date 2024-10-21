@@ -133,7 +133,7 @@ class LearnChatHandler(BaseChatHandler):
             )
             self.log.error(e)
 
-    async def process_message(self, message: HumanChatMessage, chat: YChat | None):
+    async def process_message(self, message: HumanChatMessage, chat: Optional[YChat]):
         # If no embedding provider has been selected
         em_provider_cls, em_provider_args = self.get_embedding_provider()
         if not em_provider_cls:
@@ -284,7 +284,7 @@ class LearnChatHandler(BaseChatHandler):
             )
         self.metadata.dirs = dirs
 
-    async def delete_and_relearn(self, chat: YChat | None):
+    async def delete_and_relearn(self, chat: Optional[YChat]):
         """Delete the vector store and relearn all indexed directories if
         necessary. If the embedding model is unchanged, this method does
         nothing."""
@@ -329,7 +329,7 @@ class LearnChatHandler(BaseChatHandler):
             if os.path.isfile(path):
                 os.remove(path)
 
-    async def relearn(self, metadata: IndexMetadata, chat: YChat | None):
+    async def relearn(self, metadata: IndexMetadata, chat: Optional[YChat]):
         # Index all dirs in the metadata
         if not metadata.dirs:
             return
