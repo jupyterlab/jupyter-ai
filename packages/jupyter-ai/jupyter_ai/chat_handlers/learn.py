@@ -284,7 +284,7 @@ class LearnChatHandler(BaseChatHandler):
             )
         self.metadata.dirs = dirs
 
-    async def delete_and_relearn(self, chat: Optional[YChat]):
+    async def delete_and_relearn(self, chat: Optional[YChat]=None):
         """Delete the vector store and relearn all indexed directories if
         necessary. If the embedding model is unchanged, this method does
         nothing."""

@@ -162,7 +162,7 @@ class BaseChatHandler:
         chat_handlers: Dict[str, "BaseChatHandler"],
         context_providers: Dict[str, "BaseCommandContextProvider"],
         message_interrupted: Dict[str, asyncio.Event],
-        write_message: Callable[[YChat, str], None] | None = None,
+        write_message: Callable[[YChat, str, Optional[str]], None],
     ):
         self.log = log
         self.config_manager = config_manager
@@ -317,7 +317,7 @@ class BaseChatHandler:
         `HumanChatMessage`.
         """
         if chat is not None:
-            self.write_message(chat, response)
+            self.write_message(chat, response, None)
         else:
             agent_msg = AgentChatMessage(
                 id=uuid4().hex,
@@ -507,7 +507,7 @@ class BaseChatHandler:
         )
 
         if chat is not None:
-            self.write_message(chat, help_message_body)
+            self.write_message(chat, help_message_body, None)
         else:
             help_message = AgentChatMessage(
                 id=uuid4().hex,
@@ -518,13 +518,13 @@ class BaseChatHandler:
             )
             self.broadcast_message(help_message)
 
-    def _start_stream(self, human_msg: HumanChatMessage, chat: Optional[YChat]) -> str:
+    def _start_stream(self, human_msg: HumanChatMessage, chat: Optional[YChat]) -> str | None:
         """
         Sends an `agent-stream` message to indicate the start of a response
         stream. Returns the ID of the message, denoted as the `stream_id`.
         """
         if chat is not None:
-            stream_id = self.write_message(chat, "")
+            stream_id = self.write_message(chat, "", None)
         else:
             stream_id = uuid4().hex
             stream_msg = AgentStreamMessage(
@@ -542,7 +542,7 @@ class BaseChatHandler:
 
     def _send_stream_chunk(
         self,
-        stream_id: str,
+        stream_id: str | None,
         content: str,
         chat: Optional[YChat],
         complete: bool = False,

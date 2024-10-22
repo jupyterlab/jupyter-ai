@@ -2,6 +2,7 @@ import os
 import re
 import time
 import types
+from typing import Optional
 import uuid
 from functools import partial
 
@@ -318,7 +319,7 @@ class AiExtension(ExtensionApp):
         command_readable = "Default" if command == "default" else command
         self.log.info(f"{command_readable} chat handler resolved in {latency_ms} ms.")
 
-    def write_message(self, chat: YChat, body: str, id: str | None = None) -> str:
+    def write_message(self, chat: YChat, body: str, id: Optional[str]=None) -> str:
         bot = chat.get_user(BOT["username"])
         if not bot:
             chat.set_user(BOT)
