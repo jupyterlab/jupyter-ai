@@ -142,7 +142,7 @@ class DefaultChatHandler(BaseChatHandler):
             inputs["input"] = self.replace_prompt(inputs["input"])
 
         # start with a pending message
-        with self.pending("Generating response", message) as pending_message:
+        with self.pending("Generating response", message, chat=chat) as pending_message:
             # stream response in chunks. this works even if a provider does not
             # implement streaming, as `astream()` defaults to yielding `_call()`
             # when `_stream()` is not implemented on the LLM class.
@@ -159,7 +159,7 @@ class DefaultChatHandler(BaseChatHandler):
                 if not received_first_chunk:
                     # when receiving the first chunk, close the pending message and
                     # start the stream.
-                    self.close_pending(pending_message)
+                    self.close_pending(pending_message, chat=chat)
                     stream_id = self._start_stream(message, chat)
                     received_first_chunk = True
                     self.message_interrupted[stream_id] = asyncio.Event()

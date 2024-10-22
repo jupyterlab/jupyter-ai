@@ -329,6 +329,7 @@ class BaseChatHandler:
         text: str,
         human_msg: Optional[HumanChatMessage] = None,
         *,
+        chat: Optional[YChat] = None,
         ellipsis: bool = True,
     ) -> PendingMessage:
         """
@@ -347,10 +348,13 @@ class BaseChatHandler:
             ellipsis=ellipsis,
         )
 
-        self.broadcast_message(pending_msg)
+        if chat is not None:
+            chat.awareness.set_local_state_field("isWriting", True)
+        else :
+            self.broadcast_message(pending_msg)
         return pending_msg
 
-    def close_pending(self, pending_msg: PendingMessage):
+    def close_pending(self, pending_msg: PendingMessage, chat: Optional[YChat] = None):
         """
         Closes a pending message.
         """
@@ -361,7 +365,10 @@ class BaseChatHandler:
             id=pending_msg.id,
         )
 
-        self.broadcast_message(close_pending_msg)
+        if chat is not None:
+            chat.awareness.set_local_state_field("isWriting", False)
+        else:
+            self.broadcast_message(close_pending_msg)
         pending_msg.closed = True
 
     @contextlib.contextmanager
@@ -370,18 +377,22 @@ class BaseChatHandler:
         text: str,
         human_msg: Optional[HumanChatMessage] = None,
         *,
+        chat: Optional[YChat] = None,
         ellipsis: bool = True,
     ):
         """
         Context manager that sends a pending message to the client, and closes
         it after the block is executed.
+
+        TODO: Simplify it by only modifying the awareness as soon as collaborative chat
+        is the only used chat.
         """
-        pending_msg = self.start_pending(text, human_msg=human_msg, ellipsis=ellipsis)
+        pending_msg = self.start_pending(text, human_msg=human_msg, chat=chat, ellipsis=ellipsis)
         try:
             yield pending_msg
         finally:
             if not pending_msg.closed:
-                self.close_pending(pending_msg)
+                self.close_pending(pending_msg, chat=chat)
 
     def get_llm_chain(self):
         lm_provider = self.config_manager.lm_provider

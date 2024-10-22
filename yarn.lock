@@ -2220,7 +2220,7 @@ __metadata:
     "@babel/preset-env": ^7.0.0
     "@emotion/react": ^11.10.5
     "@emotion/styled": ^11.10.5
-    "@jupyter/chat": ^0.4.0
+    "@jupyter/chat": ^0.5.0
     "@jupyter/collaboration": ^1
     "@jupyterlab/application": ^4.2.0
     "@jupyterlab/apputils": ^4.2.0
@@ -2286,15 +2286,16 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@jupyter/chat@npm:^0.4.0":
-  version: 0.4.0
-  resolution: "@jupyter/chat@npm:0.4.0"
+"@jupyter/chat@npm:^0.5.0":
+  version: 0.5.0
+  resolution: "@jupyter/chat@npm:0.5.0"
   dependencies:
     "@emotion/react": ^11.10.5
     "@emotion/styled": ^11.10.5
     "@jupyter/react-components": ^0.15.2
     "@jupyterlab/application": ^4.2.0
     "@jupyterlab/apputils": ^4.3.0
+    "@jupyterlab/fileeditor": ^4.2.0
     "@jupyterlab/notebook": ^4.2.0
     "@jupyterlab/rendermime": ^4.2.0
     "@jupyterlab/ui-components": ^4.2.0
@@ -2306,7 +2307,7 @@ __metadata:
     clsx: ^2.1.0
     react: ^18.2.0
     react-dom: ^18.2.0
-  checksum: 6e309c8e70cf480103eb26f3109da417c58d2e6844d5e56e63feabf71926f9dba6f9bc85caff765dfc574a8fd7ed803a8c03e5d812c28568dcf6ec918bbd2e66
+  checksum: 0c935344e3cf8b60ded1df83c1b608f77becd7ea8c82c175a8588606c6c56a46525130b429b5acfaab441d9ccac9d478b25646bdb8aa3dfd1af82c8f372e07cf
   languageName: node
   linkType: hard
 

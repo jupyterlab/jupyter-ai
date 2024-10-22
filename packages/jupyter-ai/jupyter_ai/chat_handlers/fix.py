@@ -98,7 +98,7 @@ class FixChatHandler(BaseChatHandler):
         extra_instructions = message.prompt[4:].strip() or "None."
 
         self.get_llm_chain()
-        with self.pending("Analyzing error", message):
+        with self.pending("Analyzing error", message, chat=chat):
             assert self.llm_chain
             response = await self.llm_chain.apredict(
                 extra_instructions=extra_instructions,

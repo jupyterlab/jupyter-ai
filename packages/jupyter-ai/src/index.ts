@@ -1,10 +1,10 @@
 import { IAutocompletionRegistry } from '@jupyter/chat';
+import { IGlobalAwareness } from '@jupyter/collaboration';
 import {
   JupyterFrontEnd,
   JupyterFrontEndPlugin,
   ILayoutRestorer
 } from '@jupyterlab/application';
-
 import {
   IWidgetTracker,
   ReactWidget,
@@ -13,13 +13,16 @@ import {
   ICommandPalette
 } from '@jupyterlab/apputils';
 import { IDocumentWidget } from '@jupyterlab/docregistry';
-import { IGlobalAwareness } from '@jupyter/collaboration';
+import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
+import { Signal } from '@lumino/signaling';
 import type { Awareness } from 'y-protocols/awareness';
-import { buildChatSidebar } from './widgets/chat-sidebar';
-import { SelectionWatcher } from './selection-watcher';
+
 import { ChatHandler } from './chat_handler';
-import { buildErrorWidget } from './widgets/chat-error';
 import { completionPlugin } from './completions';
+import { ActiveCellManager } from './contexts/active-cell-context';
+import { SelectionWatcher } from './selection-watcher';
+import { menuPlugin } from './plugins/menu-plugin';
+import { autocompletion } from './slash-autocompletion';
 import { statusItemPlugin } from './status';
 import {
   IJaiCompletionProvider,
@@ -27,11 +30,8 @@ import {
   IJaiMessageFooter,
   IJaiTelemetryHandler
 } from './tokens';
-import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
-import { ActiveCellManager } from './contexts/active-cell-context';
-import { autocompletion } from './slash-autocompletion';
-import { Signal } from '@lumino/signaling';
-import { menuPlugin } from './plugins/menu-plugin';
+import { buildErrorWidget } from './widgets/chat-error';
+import { buildChatSidebar } from './widgets/chat-sidebar';
 import { buildAiSettings } from './widgets/settings-widget';
 
 export type DocumentTracker = IWidgetTracker<IDocumentWidget>;

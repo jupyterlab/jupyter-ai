@@ -57,10 +57,13 @@ if int(jupyter_collaboration_version[0]) >= 3:
 else:
     COLLAB_VERSION = 2
 
+# The BOT currently has a fixed username, because this username is used has key in chats,
+# it needs to constant. Do we need to change it ?
 BOT = {
-    "username": str(uuid.uuid4()),
+    "username": '5f6a7570-7974-6572-6e61-75742d626f74',
     "name": "Jupyternaut",
     "display_name": "Jupyternaut",
+    "initials": "J"
 }
 
 DEFAULT_HELP_MESSAGE_TEMPLATE = """Hi there! I'm {persona_name}, your programming assistant.
@@ -246,6 +249,13 @@ class AiExtension(ExtensionApp):
 
             self.log.info(f"Collaborative chat server is listening for {data['room']}")
             chat = await self.get_chat(data["room"])
+
+            # Add the bot user to the chat document awareness.
+            BOT["avatar_url"] = url_path_join(
+                self.settings.get("base_url", "/"), "api/ai/static/jupyternaut.svg"
+            )
+            chat.awareness.set_local_state_field("user", BOT)
+
             callback = partial(self.on_change, chat)
             chat.ymessages.observe(callback)
 
@@ -309,14 +319,9 @@ class AiExtension(ExtensionApp):
         self.log.info(f"{command_readable} chat handler resolved in {latency_ms} ms.")
 
     def write_message(self, chat: YChat, body: str, id: str | None = None) -> str:
-        BOT["avatar_url"] = url_path_join(
-            self.settings.get("base_url", "/"), "api/ai/static/jupyternaut.svg"
-        )
-        bot = chat.get_user_by_name(BOT["name"])
+        bot = chat.get_user(BOT["username"])
         if not bot:
             chat.set_user(BOT)
-        else:
-            BOT["username"] = bot["username"]
 
         index = self.messages_indexes[id] if id else None
         id = id if id else str(uuid.uuid4())
