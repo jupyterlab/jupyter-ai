@@ -1,6 +1,6 @@
 {
   "name": "@jupyter-ai/test",
-  "version": "2.25.0",
+  "version": "2.26.0",
   "description": "Jupyter AI test package. Not published on NPM or PyPI.",
   "private": true,
   "homepage": "https://github.com/jupyterlab/jupyter-ai",

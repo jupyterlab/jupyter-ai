@@ -80,7 +80,11 @@ class FixChatHandler(BaseChatHandler):
         llm = provider(**unified_parameters)
 
         self.llm = llm
-        self.llm_chain = LLMChain(llm=llm, prompt=FIX_PROMPT_TEMPLATE, verbose=True)
+        # TODO: migrate this class to use a LCEL `Runnable` instead of
+        # `Chain`, then remove the below ignore comment.
+        self.llm_chain = LLMChain(  # type:ignore[arg-type]
+            llm=llm, prompt=FIX_PROMPT_TEMPLATE, verbose=True
+        )
 
     async def process_message(self, message: HumanChatMessage, chat: Optional[YChat]):
         if not (message.selection and message.selection.type == "cell-with-error"):
@@ -100,7 +104,9 @@ class FixChatHandler(BaseChatHandler):
         self.get_llm_chain()
         with self.pending("Analyzing error", message, chat=chat):
             assert self.llm_chain
-            response = await self.llm_chain.apredict(
+            # TODO: migrate this class to use a LCEL `Runnable` instead of
+            # `Chain`, then remove the below ignore comment.
+            response = await self.llm_chain.apredict(  # type:ignore[attr-defined]
                 extra_instructions=extra_instructions,
                 stop=["\nHuman:"],
                 cell_content=selection.source,

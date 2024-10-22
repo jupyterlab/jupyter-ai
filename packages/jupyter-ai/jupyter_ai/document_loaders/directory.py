@@ -86,6 +86,7 @@ EXCLUDE_DIRS = {
 SUPPORTED_EXTS = {
     ".py",
     ".md",
+    ".qmd",
     ".R",
     ".Rmd",
     ".jl",
