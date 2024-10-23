@@ -1,9 +1,14 @@
-from typing import Dict, Type
+from typing import Dict, Optional, Type
 
 from jupyter_ai.models import CellWithErrorSelection, HumanChatMessage
 from jupyter_ai_magics.providers import BaseProvider
 from langchain.chains import LLMChain
 from langchain.prompts import PromptTemplate
+
+try:
+    from jupyterlab_collaborative_chat.ychat import YChat
+except:
+    from typing import Any as YChat
 
 from .base import BaseChatHandler, SlashCommandRoutingType
 
@@ -81,10 +86,11 @@ class FixChatHandler(BaseChatHandler):
             llm=llm, prompt=FIX_PROMPT_TEMPLATE, verbose=True
         )
 
-    async def process_message(self, message: HumanChatMessage):
+    async def process_message(self, message: HumanChatMessage, chat: Optional[YChat]):
         if not (message.selection and message.selection.type == "cell-with-error"):
             self.reply(
                 "`/fix` requires an active code cell with error output. Please click on a cell with error output and retry.",
+                chat,
                 message,
             )
             return
@@ -96,7 +102,7 @@ class FixChatHandler(BaseChatHandler):
         extra_instructions = message.prompt[4:].strip() or "None."
 
         self.get_llm_chain()
-        with self.pending("Analyzing error", message):
+        with self.pending("Analyzing error", message, chat=chat):
             assert self.llm_chain
             # TODO: migrate this class to use a LCEL `Runnable` instead of
             # `Chain`, then remove the below ignore comment.
@@ -108,4 +114,4 @@ class FixChatHandler(BaseChatHandler):
                 error_value=selection.error.value,
                 traceback="\n".join(selection.error.traceback),
             )
-        self.reply(response, message)
+        self.reply(response, chat, message)

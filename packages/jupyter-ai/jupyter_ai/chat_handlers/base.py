@@ -8,6 +8,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Awaitable,
+    Callable,
     ClassVar,
     Dict,
     List,
@@ -42,6 +43,11 @@ from langchain_core.runnables import Runnable
 from langchain_core.runnables.config import RunnableConfig
 from langchain_core.runnables.config import merge_configs as merge_runnable_configs
 from langchain_core.runnables.utils import Input
+
+try:
+    from jupyterlab_collaborative_chat.ychat import YChat
+except:
+    from typing import Any as YChat
 
 if TYPE_CHECKING:
     from jupyter_ai.context_providers import BaseCommandContextProvider
@@ -156,6 +162,7 @@ class BaseChatHandler:
         chat_handlers: Dict[str, "BaseChatHandler"],
         context_providers: Dict[str, "BaseCommandContextProvider"],
         message_interrupted: Dict[str, asyncio.Event],
+        write_message: Callable[[YChat, str, Optional[str]], None],
     ):
         self.log = log
         self.config_manager = config_manager
@@ -183,7 +190,9 @@ class BaseChatHandler:
         self.llm_params: Optional[dict] = None
         self.llm_chain: Optional[Runnable] = None
 
-    async def on_message(self, message: HumanChatMessage):
+        self.write_message = write_message
+
+    async def on_message(self, message: HumanChatMessage, chat: Optional[YChat] = None):
         """
         Method which receives a human message, calls `self.get_llm_chain()`, and
         processes the message via `self.process_message()`, calling
@@ -198,7 +207,8 @@ class BaseChatHandler:
             slash_command = "/" + routing_type.slash_id if routing_type.slash_id else ""
             if slash_command in lm_provider_klass.unsupported_slash_commands:
                 self.reply(
-                    "Sorry, the selected language model does not support this slash command."
+                    "Sorry, the selected language model does not support this slash command.",
+                    chat,
                 )
                 return
 
@@ -210,6 +220,7 @@ class BaseChatHandler:
             if not lm_provider.allows_concurrency:
                 self.reply(
                     "The currently selected language model can process only one request at a time. Please wait for me to reply before sending another question.",
+                    chat,
                     message,
                 )
                 return
@@ -217,43 +228,47 @@ class BaseChatHandler:
         BaseChatHandler._requests_count += 1
 
         if self.__class__.supports_help:
-            args = self.parse_args(message, silent=True)
+            args = self.parse_args(message, chat, silent=True)
             if args and args.help:
-                self.reply(self.parser.format_help(), message)
+                self.reply(self.parser.format_help(), chat, message)
                 return
 
         try:
-            await self.process_message(message)
+            await self.process_message(message, chat)
         except Exception as e:
             try:
                 # we try/except `handle_exc()` in case it was overriden and
                 # raises an exception by accident.
-                await self.handle_exc(e, message)
+                await self.handle_exc(e, message, chat)
             except Exception as e:
-                await self._default_handle_exc(e, message)
+                await self._default_handle_exc(e, message, chat)
         finally:
             BaseChatHandler._requests_count -= 1
 
-    async def process_message(self, message: HumanChatMessage):
+    async def process_message(self, message: HumanChatMessage, chat: Optional[YChat]):
         """
         Processes a human message routed to this chat handler. Chat handlers
         (subclasses) must implement this method. Don't forget to call
-        `self.reply(<response>, message)` at the end!
+        `self.reply(<response>, chat, message)` at the end!
 
         The method definition does not need to be wrapped in a try/except block;
         any exceptions raised here are caught by `self.handle_exc()`.
         """
         raise NotImplementedError("Should be implemented by subclasses.")
 
-    async def handle_exc(self, e: Exception, message: HumanChatMessage):
+    async def handle_exc(
+        self, e: Exception, message: HumanChatMessage, chat: Optional[YChat]
+    ):
         """
         Handles an exception raised by `self.process_message()`. A default
         implementation is provided, however chat handlers (subclasses) should
         implement this method to provide a more helpful error response.
         """
-        await self._default_handle_exc(e, message)
+        await self._default_handle_exc(e, message, chat)
 
-    async def _default_handle_exc(self, e: Exception, message: HumanChatMessage):
+    async def _default_handle_exc(
+        self, e: Exception, message: HumanChatMessage, chat: Optional[YChat]
+    ):
         """
         The default definition of `handle_exc()`. This is the default used when
         the `handle_exc()` excepts.
@@ -263,13 +278,13 @@ class BaseChatHandler:
         if lm_provider and lm_provider.is_api_key_exc(e):
             provider_name = getattr(self.config_manager.lm_provider, "name", "")
             response = f"Oops! There's a problem connecting to {provider_name}. Please update your {provider_name} API key in the chat settings."
-            self.reply(response, message)
+            self.reply(response, chat, message)
             return
         formatted_e = traceback.format_exc()
         response = (
             f"Sorry, an error occurred. Details below:\n\n```\n{formatted_e}\n```"
         )
-        self.reply(response, message)
+        self.reply(response, chat, message)
 
     def broadcast_message(self, message: Message):
         """
@@ -291,20 +306,27 @@ class BaseChatHandler:
                 cast(ChatMessage, message)
                 self._chat_history.append(message)
 
-    def reply(self, response: str, human_msg: Optional[HumanChatMessage] = None):
+    def reply(
+        self,
+        response: str,
+        chat: Optional[YChat],
+        human_msg: Optional[HumanChatMessage] = None,
+    ):
         """
         Sends an agent message, usually in response to a received
         `HumanChatMessage`.
         """
-        agent_msg = AgentChatMessage(
-            id=uuid4().hex,
-            time=time.time(),
-            body=response,
-            reply_to=human_msg.id if human_msg else "",
-            persona=self.persona,
-        )
-
-        self.broadcast_message(agent_msg)
+        if chat is not None:
+            self.write_message(chat, response, None)
+        else:
+            agent_msg = AgentChatMessage(
+                id=uuid4().hex,
+                time=time.time(),
+                body=response,
+                reply_to=human_msg.id if human_msg else "",
+                persona=self.persona,
+            )
+            self.broadcast_message(agent_msg)
 
     @property
     def persona(self):
@@ -315,6 +337,7 @@ class BaseChatHandler:
         text: str,
         human_msg: Optional[HumanChatMessage] = None,
         *,
+        chat: Optional[YChat] = None,
         ellipsis: bool = True,
     ) -> PendingMessage:
         """
@@ -333,10 +356,13 @@ class BaseChatHandler:
             ellipsis=ellipsis,
         )
 
-        self.broadcast_message(pending_msg)
+        if chat is not None:
+            chat.awareness.set_local_state_field("isWriting", True)
+        else :
+            self.broadcast_message(pending_msg)
         return pending_msg
 
-    def close_pending(self, pending_msg: PendingMessage):
+    def close_pending(self, pending_msg: PendingMessage, chat: Optional[YChat] = None):
         """
         Closes a pending message.
         """
@@ -347,7 +373,10 @@ class BaseChatHandler:
             id=pending_msg.id,
         )
 
-        self.broadcast_message(close_pending_msg)
+        if chat is not None:
+            chat.awareness.set_local_state_field("isWriting", False)
+        else:
+            self.broadcast_message(close_pending_msg)
         pending_msg.closed = True
 
     @contextlib.contextmanager
@@ -356,18 +385,22 @@ class BaseChatHandler:
         text: str,
         human_msg: Optional[HumanChatMessage] = None,
         *,
+        chat: Optional[YChat] = None,
         ellipsis: bool = True,
     ):
         """
         Context manager that sends a pending message to the client, and closes
         it after the block is executed.
+
+        TODO: Simplify it by only modifying the awareness as soon as collaborative chat
+        is the only used chat.
         """
-        pending_msg = self.start_pending(text, human_msg=human_msg, ellipsis=ellipsis)
+        pending_msg = self.start_pending(text, human_msg=human_msg, chat=chat, ellipsis=ellipsis)
         try:
             yield pending_msg
         finally:
             if not pending_msg.closed:
-                self.close_pending(pending_msg)
+                self.close_pending(pending_msg, chat=chat)
 
     def get_llm_chain(self):
         lm_provider = self.config_manager.lm_provider
@@ -409,14 +442,14 @@ class BaseChatHandler:
     ):
         raise NotImplementedError("Should be implemented by subclasses")
 
-    def parse_args(self, message, silent=False):
+    def parse_args(self, message, chat, silent=False):
         args = message.body.split(" ")
         try:
             args = self.parser.parse_args(args[1:])
         except (argparse.ArgumentError, SystemExit) as e:
             if not silent:
                 response = f"{self.parser.format_usage()}"
-                self.reply(response, message)
+                self.reply(response, chat, message)
             return None
         return args
 
@@ -439,7 +472,9 @@ class BaseChatHandler:
         else:
             return self.root_dir
 
-    def send_help_message(self, human_msg: Optional[HumanChatMessage] = None) -> None:
+    def send_help_message(
+        self, chat: Optional[YChat], human_msg: Optional[HumanChatMessage] = None
+    ) -> None:
         """Sends a help message to all connected clients."""
         lm_provider = self.config_manager.lm_provider
         unsupported_slash_commands = (
@@ -470,38 +505,46 @@ class BaseChatHandler:
             slash_commands_list=slash_commands_list,
             context_commands_list=context_commands_list,
         )
-        help_message = AgentChatMessage(
-            id=uuid4().hex,
-            time=time.time(),
-            body=help_message_body,
-            reply_to=human_msg.id if human_msg else "",
-            persona=self.persona,
-        )
 
-        self.broadcast_message(help_message)
+        if chat is not None:
+            self.write_message(chat, help_message_body, None)
+        else:
+            help_message = AgentChatMessage(
+                id=uuid4().hex,
+                time=time.time(),
+                body=help_message_body,
+                reply_to=human_msg.id if human_msg else "",
+                persona=self.persona,
+            )
+            self.broadcast_message(help_message)
 
-    def _start_stream(self, human_msg: HumanChatMessage) -> str:
+    def _start_stream(self, human_msg: HumanChatMessage, chat: Optional[YChat]) -> str | None:
         """
         Sends an `agent-stream` message to indicate the start of a response
         stream. Returns the ID of the message, denoted as the `stream_id`.
         """
-        stream_id = uuid4().hex
-        stream_msg = AgentStreamMessage(
-            id=stream_id,
-            time=time.time(),
-            body="",
-            reply_to=human_msg.id,
-            persona=self.persona,
-            complete=False,
-        )
+        if chat is not None:
+            stream_id = self.write_message(chat, "", None)
+        else:
+            stream_id = uuid4().hex
+            stream_msg = AgentStreamMessage(
+                id=stream_id,
+                time=time.time(),
+                body="",
+                reply_to=human_msg.id,
+                persona=self.persona,
+                complete=False,
+            )
 
-        self.broadcast_message(stream_msg)
+            self.broadcast_message(stream_msg)
+
         return stream_id
 
     def _send_stream_chunk(
         self,
-        stream_id: str,
+        stream_id: str | None,
         content: str,
+        chat: Optional[YChat],
         complete: bool = False,
         metadata: Optional[Dict[str, Any]] = None,
     ) -> None:
@@ -509,18 +552,22 @@ class BaseChatHandler:
         Sends an `agent-stream-chunk` message containing content that should be
         appended to an existing `agent-stream` message with ID `stream_id`.
         """
-        if not metadata:
-            metadata = {}
+        if chat is not None:
+            self.write_message(chat, content, stream_id)
+        else:
+            if not metadata:
+                metadata = {}
 
-        stream_chunk_msg = AgentStreamChunkMessage(
-            id=stream_id, content=content, stream_complete=complete, metadata=metadata
-        )
-        self.broadcast_message(stream_chunk_msg)
+            stream_chunk_msg = AgentStreamChunkMessage(
+                id=stream_id, content=content, stream_complete=complete, metadata=metadata
+            )
+            self.broadcast_message(stream_chunk_msg)
 
     async def stream_reply(
         self,
         input: Input,
         human_msg: HumanChatMessage,
+        chat: Optional[YChat],
         config: Optional[RunnableConfig] = None,
     ):
         """
@@ -551,7 +598,7 @@ class BaseChatHandler:
         merged_config: RunnableConfig = merge_runnable_configs(base_config, config)
 
         # start with a pending message
-        with self.pending("Generating response", human_msg) as pending_message:
+        with self.pending("Generating response", human_msg, chat=chat) as pending_message:
             # stream response in chunks. this works even if a provider does not
             # implement streaming, as `astream()` defaults to yielding `_call()`
             # when `_stream()` is not implemented on the LLM class.
@@ -561,8 +608,8 @@ class BaseChatHandler:
                 if not received_first_chunk:
                     # when receiving the first chunk, close the pending message and
                     # start the stream.
-                    self.close_pending(pending_message)
-                    stream_id = self._start_stream(human_msg=human_msg)
+                    self.close_pending(pending_message, chat=chat)
+                    stream_id = self._start_stream(human_msg=human_msg, chat=chat)
                     received_first_chunk = True
                     self.message_interrupted[stream_id] = asyncio.Event()
 
@@ -585,9 +632,9 @@ class BaseChatHandler:
                     break
 
                 if isinstance(chunk, AIMessageChunk) and isinstance(chunk.content, str):
-                    self._send_stream_chunk(stream_id, chunk.content)
+                    self._send_stream_chunk(stream_id, chunk.content, chat=chat)
                 elif isinstance(chunk, str):
-                    self._send_stream_chunk(stream_id, chunk)
+                    self._send_stream_chunk(stream_id, chunk, chat=chat)
                 else:
                     self.log.error(f"Unrecognized type of chunk yielded: {type(chunk)}")
                     break
@@ -599,6 +646,7 @@ class BaseChatHandler:
             self._send_stream_chunk(
                 stream_id,
                 stream_tombstone,
+                chat=chat,
                 complete=True,
                 metadata=metadata_handler.jai_metadata,
             )

@@ -2,13 +2,23 @@ import os
 import re
 import time
 import types
+from typing import Optional
+import uuid
+from functools import partial
 
 from dask.distributed import Client as DaskClient
 from importlib_metadata import entry_points
 from jupyter_ai.chat_handlers.learn import Retriever
+from jupyter_ai.models import HumanChatMessage
 from jupyter_ai_magics import BaseProvider, JupyternautPersona
 from jupyter_ai_magics.utils import get_em_providers, get_lm_providers
+from jupyter_collaboration import __version__ as jupyter_collaboration_version
+from jupyter_collaboration.utils import JUPYTER_COLLABORATION_EVENTS_URI
+from jupyter_events import EventLogger
 from jupyter_server.extension.application import ExtensionApp
+from jupyter_server.utils import url_path_join
+from jupyterlab_collaborative_chat.ychat import YChat
+from pycrdt import ArrayEvent
 from tornado.web import StaticFileHandler
 from traitlets import Dict, Integer, List, Unicode
 
@@ -42,6 +52,20 @@ JUPYTERNAUT_AVATAR_PATH = str(
     os.path.join(os.path.dirname(__file__), "static", "jupyternaut.svg")
 )
 
+
+if int(jupyter_collaboration_version[0]) >= 3:
+    COLLAB_VERSION = 3
+else:
+    COLLAB_VERSION = 2
+
+# The BOT currently has a fixed username, because this username is used has key in chats,
+# it needs to constant. Do we need to change it ?
+BOT = {
+    "username": '5f6a7570-7974-6572-6e61-75742d626f74',
+    "name": "Jupyternaut",
+    "display_name": "Jupyternaut",
+    "initials": "J"
+}
 
 DEFAULT_HELP_MESSAGE_TEMPLATE = """Hi there! I'm {persona_name}, your programming assistant.
 You can ask me a question using the text box below. You can also use these commands:
@@ -204,6 +228,122 @@ class AiExtension(ExtensionApp):
         config=True,
     )
 
+    def initialize(self):
+        super().initialize()
+        self.event_logger = self.serverapp.web_app.settings["event_logger"]
+        self.event_logger.add_listener(
+            schema_id=JUPYTER_COLLABORATION_EVENTS_URI, listener=self.connect_chat
+        )
+
+        # Keep the message indexes to avoid extra computation looking for a message when
+        # updating it.
+        self.messages_indexes = {}
+
+    async def connect_chat(
+        self, logger: EventLogger, schema_id: str, data: dict
+    ) -> None:
+        if (
+            data["room"].startswith("text:chat:")
+            and data["action"] == "initialize"
+            and data["msg"] == "Room initialized"
+        ):
+
+            self.log.info(f"Collaborative chat server is listening for {data['room']}")
+            chat = await self.get_chat(data["room"])
+
+            # Add the bot user to the chat document awareness.
+            BOT["avatar_url"] = url_path_join(
+                self.settings.get("base_url", "/"), "api/ai/static/jupyternaut.svg"
+            )
+            chat.awareness.set_local_state_field("user", BOT)
+
+            callback = partial(self.on_change, chat)
+            chat.ymessages.observe(callback)
+
+    async def get_chat(self, room_id: str) -> YChat:
+        if COLLAB_VERSION == 3:
+            collaboration = self.serverapp.web_app.settings["jupyter_server_ydoc"]
+            document = await collaboration.get_document(room_id=room_id, copy=False)
+        else:
+            collaboration = self.serverapp.web_app.settings["jupyter_collaboration"]
+            server = collaboration.ywebsocket_server
+
+            room = await server.get_room(room_id)
+            document = room._document
+        return document
+
+    def on_change(self, chat: YChat, events: ArrayEvent) -> None:
+        for change in events.delta:
+            if not "insert" in change.keys():
+                continue
+            messages = change["insert"]
+            for message in messages:
+
+                if message["sender"] == BOT["username"] or message["raw_time"]:
+                    continue
+                try:
+                    chat_message = HumanChatMessage(
+                        id=message["id"],
+                        time=time.time(),
+                        body=message["body"],
+                        prompt="",
+                        selection=None,
+                        client=None,
+                    )
+                except Exception as e:
+                    self.log.error(e)
+                self.serverapp.io_loop.asyncio_loop.create_task(
+                    self._route(chat_message, chat)
+                )
+
+    async def _route(self, message: HumanChatMessage, chat: YChat):
+        """Method that routes an incoming message to the appropriate handler."""
+        chat_handlers = self.settings["jai_chat_handlers"]
+        default = chat_handlers["default"]
+        # Split on any whitespace, either spaces or newlines
+        maybe_command = message.body.split(None, 1)[0]
+        is_command = (
+            message.body.startswith("/")
+            and maybe_command in chat_handlers.keys()
+            and maybe_command != "default"
+        )
+        command = maybe_command if is_command else "default"
+
+        start = time.time()
+        if is_command:
+            await chat_handlers[command].on_message(message, chat)
+        else:
+            await default.on_message(message, chat)
+
+        latency_ms = round((time.time() - start) * 1000)
+        command_readable = "Default" if command == "default" else command
+        self.log.info(f"{command_readable} chat handler resolved in {latency_ms} ms.")
+
+    def write_message(self, chat: YChat, body: str, id: Optional[str]=None) -> str:
+        bot = chat.get_user(BOT["username"])
+        if not bot:
+            chat.set_user(BOT)
+
+        index = self.messages_indexes[id] if id else None
+        id = id if id else str(uuid.uuid4())
+        new_index = chat.set_message(
+            {
+                "type": "msg",
+                "body": body,
+                "id": id if id else str(uuid.uuid4()),
+                "time": time.time(),
+                "sender": BOT["username"],
+                "raw_time": False,
+            },
+            index,
+            True,
+        )
+
+        if new_index != index:
+            self.messages_indexes[id] = new_index
+
+        return id
+
     def initialize_settings(self):
         start = time.time()
 
@@ -320,7 +460,7 @@ class AiExtension(ExtensionApp):
         default_chat_handler: DefaultChatHandler = self.settings["jai_chat_handlers"][
             "default"
         ]
-        default_chat_handler.send_help_message()
+        default_chat_handler.send_help_message(None)
 
     async def _get_dask_client(self):
         return DaskClient(processes=False, asynchronous=True)
@@ -365,6 +505,7 @@ class AiExtension(ExtensionApp):
             "preferred_dir": self.serverapp.contents_manager.preferred_dir,
             "help_message_template": self.help_message_template,
             "chat_handlers": chat_handlers,
+            "write_message": self.write_message,
             "context_providers": self.settings["jai_context_providers"],
             "message_interrupted": self.settings["jai_message_interrupted"],
         }

@@ -12,6 +12,27 @@
       "preventDefault": false
     }
   ],
+  "jupyter.lab.menus": {
+    "main": [
+      {
+        "id": "jp-mainmenu-settings",
+        "items": [
+          {
+            "type": "separator",
+            "rank": 110
+          },
+          {
+            "command": "jupyter-ai:open-settings",
+            "rank": 110
+          },
+          {
+            "type": "separator",
+            "rank": 110
+          }
+        ]
+      }
+    ]
+  },
   "additionalProperties": false,
   "type": "object"
 }

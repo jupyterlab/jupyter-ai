@@ -1,11 +1,16 @@
 import argparse
-from typing import Dict, Type
+from typing import Dict, Optional, Type
 
 from jupyter_ai.models import HumanChatMessage
 from jupyter_ai_magics.providers import BaseProvider
 from langchain.chains import ConversationalRetrievalChain
 from langchain.memory import ConversationBufferWindowMemory
 from langchain_core.prompts import PromptTemplate
+
+try:
+    from jupyterlab_collaborative_chat.ychat import YChat
+except:
+    from typing import Any as YChat
 
 from .base import BaseChatHandler, SlashCommandRoutingType
 
@@ -59,19 +64,19 @@ class AskChatHandler(BaseChatHandler):
             verbose=False,
         )
 
-    async def process_message(self, message: HumanChatMessage):
-        args = self.parse_args(message)
+    async def process_message(self, message: HumanChatMessage, chat: Optional[YChat]):
+        args = self.parse_args(message, chat)
         if args is None:
             return
         query = " ".join(args.query)
         if not query:
-            self.reply(f"{self.parser.format_usage()}", message)
+            self.reply(f"{self.parser.format_usage()}", chat, message)
             return
 
         self.get_llm_chain()
 
         try:
-            with self.pending("Searching learned documents", message):
+            with self.pending("Searching learned documents", message, chat=chat):
                 assert self.llm_chain
                 # TODO: migrate this class to use a LCEL `Runnable` instead of
                 # `Chain`, then remove the below ignore comment.
@@ -79,7 +84,7 @@ class AskChatHandler(BaseChatHandler):
                     {"question": query}
                 )
                 response = result["answer"]
-            self.reply(response, message)
+            self.reply(response, chat, message)
         except AssertionError as e:
             self.log.error(e)
             response = """Sorry, an error occurred while reading the from the learned documents.
@@ -87,4 +92,4 @@ class AskChatHandler(BaseChatHandler):
             `/learn -d` command and then re-submitting the `learn <directory>` to learn the documents,
             and then asking the question again.
             """
-            self.reply(response, message)
+            self.reply(response, chat, message)
