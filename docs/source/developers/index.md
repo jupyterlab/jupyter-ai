@@ -392,40 +392,170 @@ custom = "custom_package:CustomChatHandler"
 Then, install your package so that Jupyter AI adds custom chat handlers
 to the existing chat handlers.
 
-## Streaming output
+## Streaming output from slash commands
 
-Jupyter AI supports streaming output in the chat session. When submitting a chat prompt, the response is streamed so that the time to first token seen is minimal, leading to a pleasing user experience. Streaming the response is also visually pleasing. Streaming output is also enabled when the contextual command `@file` is used, where standard chat is enhanced with supplying a file as context using `@file`. Support for streaming responses in standard chat and contextual chat is provided by the base chat handler in `base.py` through the `BaseChatHandler` class with functions `_start_stream`, `_send_stream_chunk`, and `stream_reply`.
+Jupyter AI supports streaming output in the chat session. When submitting a chat prompt, the response is streamed so that the time to first token seen is minimal, leading to a pleasing user experience. Streaming the response is also visually pleasing. Support for streaming responses in chat is provided by the base chat handler in `base.py` through the `BaseChatHandler` class with functions `_start_stream`, `_send_stream_chunk`, and `stream_reply`.
 
-The streaming functionality uses LangChain's Expression Language (LCEL). LCEL is a declarative way to compose [Runnables](https://python.langchain.com/api_reference/core/runnables/langchain_core.runnables.base.Runnable.html) into chains. Any chain constructed this way will automatically have sync, async, batch, and streaming support. The main composition primitives are RunnableSequence and RunnableParallel. The `stream_reply` function leverages the LCEL Runnable as shown here:
+The streaming functionality uses LangChain's Expression Language (LCEL). LCEL is a declarative way to compose [Runnables](https://python.langchain.com/api_reference/core/runnables/langchain_core.runnables.base.Runnable.html) into chains. Any chain constructed this way will automatically have sync, async, batch, and streaming support. The main composition primitives are RunnableSequence and RunnableParallel. 
+
+Creating the LLM chain as a runnable can be seen in the following example from the module `fix.py`, where the appropriate prompt template is piped into the LLM to create a runnable:
+
+```python
+def create_llm_chain(
+        self, provider: Type[BaseProvider], provider_params: Dict[str, str]
+    ):
+        unified_parameters = {
+            "verbose": True,
+            **provider_params,
+            **(self.get_model_parameters(provider, provider_params)),
+        }
+        llm = provider(**unified_parameters)
+        self.llm = llm
+        prompt_template = FIX_PROMPT_TEMPLATE
+        self.prompt_template = prompt_template
+
+        runnable = prompt_template | llm  # type:ignore
+        if not llm.manages_history:
+            runnable = RunnableWithMessageHistory(
+                runnable=runnable,  #  type:ignore[arg-type]
+                get_session_history=self.get_llm_chat_memory,
+                input_messages_key="extra_instructions",
+                history_messages_key="history",
+                history_factory_config=[
+                    ConfigurableFieldSpec(
+                        id="last_human_msg",
+                        annotation=HumanChatMessage,
+                    ),
+                ],
+            )
+        self.llm_chain = runnable
+```
+
+The content of the prompt template fed into the runnable will vary depending on the type of chat handler. The prompt template is populated in the `process_message` function and as an example, see the `/fix` message handling here, where the dictionary `inputs` is passed to the prompt template in the LLM chain:
+
+```python
+async def process_message(self, message: HumanChatMessage):
+        if not (message.selection and message.selection.type == "cell-with-error"):
+            self.reply(
+                "`/fix` requires an active code cell with error output. Please click on a cell with error output and retry.",
+                message,
+            )
+            return
+
+        # hint type of selection
+        selection: CellWithErrorSelection = message.selection
+
+        # parse additional instructions specified after `/fix`
+        extra_instructions = message.prompt[4:].strip() or "None."
+
+        self.get_llm_chain()
+        assert self.llm_chain
+
+        inputs = {
+            "extra_instructions": extra_instructions,
+            "cell_content": selection.source,
+            "traceback": selection.error.traceback,
+            "error_name": selection.error.name,
+            "error_value": selection.error.value,
+        }
+        await self.stream_reply(inputs, message, pending_msg="Analyzing error")
+```
+
+The last line of `process_message` above calls `stream_reply` in `base.py`. 
+Note that a custom pending message may also be passed. 
+The `stream_reply` function leverages the LCEL Runnable as shown here:
 
 ```python
 async def stream_reply(
-    self,
-    input: Input,
-    human_msg: HumanChatMessage,
-    config: Optional[RunnableConfig] = None,
-):
-    """
-    Streams a reply to a human message by invoking
-    `self.llm_chain.astream()`. A LangChain `Runnable` instance must be
-    bound to `self.llm_chain` before invoking this method.
+        self,
+        input: Input,
+        human_msg: HumanChatMessage,
+        pending_msg="Generating response",
+        config: Optional[RunnableConfig] = None,
+    ):
+        """
+        Streams a reply to a human message by invoking
+        `self.llm_chain.astream()`. A LangChain `Runnable` instance must be
+        bound to `self.llm_chain` before invoking this method.
 
-    Arguments
-    ---------
-    - `input`: The input to your runnable. The type of `input` depends on
-    the runnable in `self.llm_chain`, but is usually a dictionary whose keys
-    refer to input variables in your prompt template.
+        Arguments
+        ---------
+        - `input`: The input to your runnable. The type of `input` depends on
+        the runnable in `self.llm_chain`, but is usually a dictionary whose keys
+        refer to input variables in your prompt template.
 
-    - `human_msg`: The `HumanChatMessage` being replied to.
+        - `human_msg`: The `HumanChatMessage` being replied to.
 
-    - `config` (optional): A `RunnableConfig` object that specifies
-    additional configuration when streaming from the runnable.
-    """
-    assert self.llm_chain
-    assert isinstance(self.llm_chain, Runnable)
+        - `config` (optional): A `RunnableConfig` object that specifies
+        additional configuration when streaming from the runnable.
+        """
+        assert self.llm_chain
+        assert isinstance(self.llm_chain, Runnable)
+
+        received_first_chunk = False
+        metadata_handler = MetadataCallbackHandler()
+        base_config: RunnableConfig = {
+            "configurable": {"last_human_msg": human_msg},
+            "callbacks": [metadata_handler],
+        }
+        merged_config: RunnableConfig = merge_runnable_configs(base_config, config)
+
+        # start with a pending message
+        with self.pending(pending_msg, human_msg) as pending_message:
+            # stream response in chunks. this works even if a provider does not
+            # implement streaming, as `astream()` defaults to yielding `_call()`
+            # when `_stream()` is not implemented on the LLM class.
+            chunk_generator = self.llm_chain.astream(input, config=merged_config)
+            stream_interrupted = False
+            async for chunk in chunk_generator:
+                if not received_first_chunk:
+                    # when receiving the first chunk, close the pending message and
+                    # start the stream.
+                    self.close_pending(pending_message)
+                    stream_id = self._start_stream(human_msg=human_msg)
+                    received_first_chunk = True
+                    self.message_interrupted[stream_id] = asyncio.Event()
+
+                if self.message_interrupted[stream_id].is_set():
+                    try:
+                        # notify the model provider that streaming was interrupted
+                        # (this is essential to allow the model to stop generating)
+                        #
+                        # note: `mypy` flags this line, claiming that `athrow` is
+                        # not defined on `AsyncIterator`. This is why an ignore
+                        # comment is placed here.
+                        await chunk_generator.athrow(  # type:ignore[attr-defined]
+                            GenerationInterrupted()
+                        )
+                    except GenerationInterrupted:
+                        # do not let the exception bubble up in case if
+                        # the provider did not handle it
+                        pass
+                    stream_interrupted = True
+                    break
+
+                if isinstance(chunk, AIMessageChunk) and isinstance(chunk.content, str):
+                    self._send_stream_chunk(stream_id, chunk.content)
+                elif isinstance(chunk, str):
+                    self._send_stream_chunk(stream_id, chunk)
+                else:
+                    self.log.error(f"Unrecognized type of chunk yielded: {type(chunk)}")
+                    break
+
+            # complete stream after all chunks have been streamed
+            stream_tombstone = (
+                "\n\n(AI response stopped by user)" if stream_interrupted else ""
+            )
+            self._send_stream_chunk(
+                stream_id,
+                stream_tombstone,
+                complete=True,
+                metadata=metadata_handler.jai_metadata,
+            )
+            del self.message_interrupted[stream_id]
 ```
 
-The rest of the function chunks up the response and streams it one chunk at a time.
+The function chunks up the response and streams it one chunk at a time.
 
 
 ## Custom message footer
