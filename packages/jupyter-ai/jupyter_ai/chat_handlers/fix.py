@@ -81,19 +81,6 @@ class FixChatHandler(BaseChatHandler):
         self.prompt_template = prompt_template
 
         runnable = prompt_template | llm  # type:ignore
-        if not llm.manages_history:
-            runnable = RunnableWithMessageHistory(
-                runnable=runnable,  #  type:ignore[arg-type]
-                get_session_history=self.get_llm_chat_memory,
-                input_messages_key="extra_instructions",
-                history_messages_key="history",
-                history_factory_config=[
-                    ConfigurableFieldSpec(
-                        id="last_human_msg",
-                        annotation=HumanChatMessage,
-                    ),
-                ],
-            )
         self.llm_chain = runnable
 
     async def process_message(self, message: HumanChatMessage):
