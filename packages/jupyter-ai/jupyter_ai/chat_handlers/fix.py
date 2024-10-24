@@ -1,4 +1,3 @@
-import asyncio
 from typing import Dict, Type
 
 from jupyter_ai.models import CellWithErrorSelection, HumanChatMessage
@@ -7,7 +6,6 @@ from langchain.prompts import PromptTemplate
 from langchain_core.runnables import ConfigurableFieldSpec
 from langchain_core.runnables.history import RunnableWithMessageHistory
 
-from ..context_providers import ContextProviderException, find_commands
 from .base import BaseChatHandler, SlashCommandRoutingType
 
 FIX_STRING_TEMPLATE = """
@@ -79,7 +77,7 @@ class FixChatHandler(BaseChatHandler):
         }
         llm = provider(**unified_parameters)
         self.llm = llm
-        prompt_template = llm.get_chat_prompt_template()
+        prompt_template = FIX_PROMPT_TEMPLATE 
         self.prompt_template = prompt_template
 
         runnable = prompt_template | llm  # type:ignore
@@ -87,7 +85,7 @@ class FixChatHandler(BaseChatHandler):
             runnable = RunnableWithMessageHistory(
                 runnable=runnable,  #  type:ignore[arg-type]
                 get_session_history=self.get_llm_chat_memory,
-                input_messages_key="input",
+                input_messages_key="extra_instructions",
                 history_messages_key="history",
                 history_factory_config=[
                     ConfigurableFieldSpec(
@@ -115,33 +113,11 @@ class FixChatHandler(BaseChatHandler):
         self.get_llm_chain()
         assert self.llm_chain
 
-        inputs = {"input": message.body}
-        if "context" in self.prompt_template.input_variables:
-            # include context from context providers.
-            try:
-                context_prompt = await self.make_context_prompt(message)
-            except ContextProviderException as e:
-                self.reply(str(e), message)
-                return
-            inputs["context"] = context_prompt
-            inputs["input"] = self.replace_prompt(inputs["input"])
-
+        inputs = {
+            "extra_instructions": extra_instructions,
+            "cell_content": selection.source,
+            "traceback": selection.error.traceback,
+            "error_name": selection.error.name,
+            "error_value": selection.error.value,
+        }
         await self.stream_reply(inputs, message, pending_msg="Analyzing error")
-
-    async def make_context_prompt(self, human_msg: HumanChatMessage) -> str:
-        return "\n\n".join(
-            await asyncio.gather(
-                *[
-                    provider.make_context_prompt(human_msg)
-                    for provider in self.context_providers.values()
-                    if find_commands(provider, human_msg.prompt)
-                ]
-            )
-        )
-
-    def replace_prompt(self, prompt: str) -> str:
-        # modifies prompt by the context providers.
-        # some providers may modify or remove their '@' commands from the prompt.
-        for provider in self.context_providers.values():
-            prompt = provider.replace_prompt(prompt)
-        return prompt
