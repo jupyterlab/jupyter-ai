@@ -126,7 +126,7 @@ class FixChatHandler(BaseChatHandler):
             inputs["context"] = context_prompt
             inputs["input"] = self.replace_prompt(inputs["input"])
 
-        await self.stream_reply(inputs, message)
+        await self.stream_reply(inputs, message, pending_msg="Analyzing error")
 
     async def make_context_prompt(self, human_msg: HumanChatMessage) -> str:
         return "\n\n".join(
