@@ -77,7 +77,7 @@ class FixChatHandler(BaseChatHandler):
         }
         llm = provider(**unified_parameters)
         self.llm = llm
-        prompt_template = FIX_PROMPT_TEMPLATE 
+        prompt_template = FIX_PROMPT_TEMPLATE
         self.prompt_template = prompt_template
 
         runnable = prompt_template | llm  # type:ignore
