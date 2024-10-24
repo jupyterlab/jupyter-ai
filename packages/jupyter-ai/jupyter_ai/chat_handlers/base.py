@@ -539,6 +539,9 @@ class BaseChatHandler:
 
         - `config` (optional): A `RunnableConfig` object that specifies
         additional configuration when streaming from the runnable.
+
+         - `pending_msg` (optional): Changes the default pending message from
+        "Generating response".
         """
         assert self.llm_chain
         assert isinstance(self.llm_chain, Runnable)
