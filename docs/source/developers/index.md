@@ -396,7 +396,7 @@ to the existing chat handlers.
 
 Jupyter AI supports streaming output in the chat session. When submitting a chat prompt, the response is streamed so that the time to first token seen is minimal, leading to a pleasing user experience. Streaming the response is also visually pleasing. Support for streaming responses in chat is provided by the base chat handler in `base.py` through the `BaseChatHandler` class with functions `_start_stream`, `_send_stream_chunk`, and `stream_reply`.
 
-The streaming functionality uses LangChain's Expression Language (LCEL). LCEL is a declarative way to compose [Runnables](https://python.langchain.com/api_reference/core/runnables/langchain_core.runnables.base.Runnable.html) into chains. Any chain constructed this way will automatically have sync, async, batch, and streaming support. The main composition primitives are RunnableSequence and RunnableParallel. 
+The streaming functionality uses LangChain's Expression Language (LCEL). LCEL is a declarative way to compose [Runnables](https://python.langchain.com/api_reference/core/runnables/langchain_core.runnables.base.Runnable.html) into chains. Any chain constructed this way will automatically have sync, async, batch, and streaming support. The main composition primitives are RunnableSequence and RunnableParallel.
 
 Creating the LLM chain as a runnable can be seen in the following example from the module `fix.py`, where the appropriate prompt template is piped into the LLM to create a runnable:
 
@@ -461,8 +461,8 @@ async def process_message(self, message: HumanChatMessage):
         await self.stream_reply(inputs, message, pending_msg="Analyzing error")
 ```
 
-The last line of `process_message` above calls `stream_reply` in `base.py`. 
-Note that a custom pending message may also be passed. 
+The last line of `process_message` above calls `stream_reply` in `base.py`.
+Note that a custom pending message may also be passed.
 The `stream_reply` function leverages the LCEL Runnable as shown here:
 
 ```python
