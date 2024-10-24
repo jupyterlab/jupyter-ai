@@ -392,7 +392,6 @@ custom = "custom_package:CustomChatHandler"
 Then, install your package so that Jupyter AI adds custom chat handlers
 to the existing chat handlers.
 
-
 ## Custom message footer
 
 You can provide a custom message footer that will be rendered under each message
