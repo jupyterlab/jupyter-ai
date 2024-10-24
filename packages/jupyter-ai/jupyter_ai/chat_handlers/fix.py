@@ -2,8 +2,9 @@ from typing import Dict, Type
 
 from jupyter_ai.models import CellWithErrorSelection, HumanChatMessage
 from jupyter_ai_magics.providers import BaseProvider
-from langchain.chains import LLMChain
 from langchain.prompts import PromptTemplate
+from langchain_core.runnables import ConfigurableFieldSpec
+from langchain_core.runnables.history import RunnableWithMessageHistory
 
 from .base import BaseChatHandler, SlashCommandRoutingType
 
@@ -64,22 +65,23 @@ class FixChatHandler(BaseChatHandler):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.prompt_template = None
 
     def create_llm_chain(
         self, provider: Type[BaseProvider], provider_params: Dict[str, str]
     ):
         unified_parameters = {
+            "verbose": True,
             **provider_params,
             **(self.get_model_parameters(provider, provider_params)),
         }
         llm = provider(**unified_parameters)
-
         self.llm = llm
-        # TODO: migrate this class to use a LCEL `Runnable` instead of
-        # `Chain`, then remove the below ignore comment.
-        self.llm_chain = LLMChain(  # type:ignore[arg-type]
-            llm=llm, prompt=FIX_PROMPT_TEMPLATE, verbose=True
-        )
+        prompt_template = FIX_PROMPT_TEMPLATE
+        self.prompt_template = prompt_template
+
+        runnable = prompt_template | llm  # type:ignore
+        self.llm_chain = runnable
 
     async def process_message(self, message: HumanChatMessage):
         if not (message.selection and message.selection.type == "cell-with-error"):
@@ -96,16 +98,13 @@ class FixChatHandler(BaseChatHandler):
         extra_instructions = message.prompt[4:].strip() or "None."
 
         self.get_llm_chain()
-        with self.pending("Analyzing error", message):
-            assert self.llm_chain
-            # TODO: migrate this class to use a LCEL `Runnable` instead of
-            # `Chain`, then remove the below ignore comment.
-            response = await self.llm_chain.apredict(  # type:ignore[attr-defined]
-                extra_instructions=extra_instructions,
-                stop=["\nHuman:"],
-                cell_content=selection.source,
-                error_name=selection.error.name,
-                error_value=selection.error.value,
-                traceback="\n".join(selection.error.traceback),
-            )
-        self.reply(response, message)
+        assert self.llm_chain
+
+        inputs = {
+            "extra_instructions": extra_instructions,
+            "cell_content": selection.source,
+            "traceback": selection.error.traceback,
+            "error_name": selection.error.name,
+            "error_value": selection.error.value,
+        }
+        await self.stream_reply(inputs, message, pending_msg="Analyzing error")
