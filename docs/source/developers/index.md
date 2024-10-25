@@ -450,8 +450,8 @@ async def process_message(self, message: HumanChatMessage):
 
 The last line of `process_message` above calls `stream_reply` in `base.py`.
 Note that a custom pending message may also be passed.
-The `stream_reply` function leverages the LCEL Runnable. 
-The function takes in the input, human message, and optional 
+The `stream_reply` function leverages the LCEL Runnable.
+The function takes in the input, human message, and optional
 pending message strings and configuration, as shown below:
 
 ```python
