@@ -427,7 +427,19 @@ def create_llm_chain(
         self.llm_chain = runnable
 ```
 
-The content of the prompt template fed into the runnable will vary depending on the type of chat handler. The prompt template is populated in the `process_message` function and as an example, see the `/fix` message handling here, where the dictionary `inputs` is passed to the prompt template in the LLM chain:
+Once your chat handler binds a Runnable to `self.llm_chain` in
+`self.create_llm_chain()`, you can define `process_message()` to invoke
+`self.stream_reply()`, which streams a reply back to the user using
+`self.llm_chain.astream()`. 
+`self.stream_reply()` has two required arguments:
+
+- `input`: An input to your LangChain Runnable. This is usually a dictionary
+whose keys are input variables specified in your prompt template, but may be
+just a string if your Runnable does not use a prompt template.
+
+- `message`: The `HumanChatMessage` being replied to.
+
+An example of `process_message()` can also be sourced from our implementation of `/fix`:
 
 ```python
 async def process_message(self, message: HumanChatMessage):
