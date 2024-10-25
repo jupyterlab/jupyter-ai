@@ -505,11 +505,6 @@ async def stream_reply(
         assert self.llm_chain
         assert isinstance(self.llm_chain, Runnable)
 ```
-The function `stream_reply` in `base.py` first shows a pending message, and
-then processes the streamed response in chunks. It is possible to interrupt the
-stream in which case `stream_interrupted` is set to `True`. Streaming is
-handled by the `astream` method in the `llm_chain`. Streaming concludes
-after all chunks have been streamed.
 
 ## Custom message footer
 
