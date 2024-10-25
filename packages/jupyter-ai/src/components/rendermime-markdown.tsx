@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 
 import { CodeToolbar, CodeToolbarProps } from './code-blocks/code-toolbar';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
+import { AiService } from '../handler';
 
 const MD_MIME_TYPE = 'text/markdown';
 const RENDERMIME_MD_CLASS = 'jp-ai-rendermime-markdown';
@@ -10,6 +11,10 @@ const RENDERMIME_MD_CLASS = 'jp-ai-rendermime-markdown';
 type RendermimeMarkdownProps = {
   markdownStr: string;
   rmRegistry: IRenderMimeRegistry;
+  /**
+   * Reference to the parent message object in the Jupyter AI chat.
+   */
+  parentMessage?: AiService.ChatMessage;
   /**
    * Whether the message is complete. This is generally `true` except in the
    * case where `markdownStr` contains the incomplete contents of a
@@ -87,7 +92,10 @@ function RendermimeMarkdownBase(props: RendermimeMarkdownProps): JSX.Element {
         );
         newCodeToolbarDefns.push([
           codeToolbarRoot,
-          { content: preBlock.textContent || '' }
+          {
+            code: preBlock.textContent || '',
+            parentMessage: props.parentMessage
+          }
         ]);
       });
 
@@ -95,7 +103,12 @@ function RendermimeMarkdownBase(props: RendermimeMarkdownProps): JSX.Element {
     };
 
     renderContent();
-  }, [props.markdownStr, props.complete, props.rmRegistry]);
+  }, [
+    props.markdownStr,
+    props.complete,
+    props.rmRegistry,
+    props.parentMessage
+  ]);
 
   return (
     <div className={RENDERMIME_MD_CLASS}>

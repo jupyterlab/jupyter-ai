@@ -2,6 +2,7 @@ import React, { useCallback, useState } from 'react';
 import { Box, Menu, MenuItem, Typography } from '@mui/material';
 import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown';
 import SendIcon from '@mui/icons-material/Send';
+import StopIcon from '@mui/icons-material/Stop';
 
 import { TooltippedButton } from '../mui-extras/tooltipped-button';
 import { includeSelectionIcon } from '../../icons';
@@ -13,10 +14,16 @@ const FIX_TOOLTIP = '/fix requires an active code cell with an error';
 
 export type SendButtonProps = {
   onSend: (selection?: AiService.Selection) => unknown;
+  onStop: () => unknown;
   sendWithShiftEnter: boolean;
   currSlashCommand: string | null;
   inputExists: boolean;
   activeCellHasError: boolean;
+  /**
+   * Whether the backend is streaming a reply to any message sent by the current
+   * user.
+   */
+  streamingReplyHere: boolean;
 };
 
 export function SendButton(props: SendButtonProps): JSX.Element {
@@ -34,15 +41,27 @@ export function SendButton(props: SendButtonProps): JSX.Element {
     setMenuOpen(false);
   }, []);
 
-  const disabled =
-    props.currSlashCommand === '/fix'
-      ? !props.inputExists || !props.activeCellHasError
-      : !props.inputExists;
+  let action: 'send' | 'stop' | 'fix' = props.inputExists
+    ? 'send'
+    : props.streamingReplyHere
+    ? 'stop'
+    : 'send';
+  if (props.currSlashCommand === '/fix') {
+    action = 'fix';
+  }
+
+  let disabled = false;
+  if (action === 'send' && !props.inputExists) {
+    disabled = true;
+  }
+  if (action === 'fix' && !props.activeCellHasError) {
+    disabled = true;
+  }
 
   const includeSelectionDisabled = !(activeCell.exists || textSelection);
 
   const includeSelectionTooltip =
-    props.currSlashCommand === '/fix'
+    action === 'fix'
       ? FIX_TOOLTIP
       : textSelection
       ? `${textSelection.text.split('\n').length} lines selected`
@@ -55,8 +74,10 @@ export function SendButton(props: SendButtonProps): JSX.Element {
     : 'Send message (ENTER)';
 
   const tooltip =
-    props.currSlashCommand === '/fix' && !props.activeCellHasError
+    action === 'fix' && !props.activeCellHasError
       ? FIX_TOOLTIP
+      : action === 'stop'
+      ? 'Stop streaming'
       : !props.inputExists
       ? 'Message must not be empty'
       : defaultTooltip;
@@ -65,7 +86,7 @@ export function SendButton(props: SendButtonProps): JSX.Element {
     // if the current slash command is `/fix`, `props.onSend()` should always
     // include the code cell with error output, so the `selection` argument does
     // not need to be defined.
-    if (props.currSlashCommand === '/fix') {
+    if (action === 'fix') {
       props.onSend();
       closeMenu();
       return;
@@ -96,7 +117,7 @@ export function SendButton(props: SendButtonProps): JSX.Element {
   return (
     <Box sx={{ display: 'flex', flexWrap: 'nowrap' }}>
       <TooltippedButton
-        onClick={() => props.onSend()}
+        onClick={() => (action === 'stop' ? props.onStop() : props.onSend())}
         disabled={disabled}
         tooltip={tooltip}
         buttonProps={{
@@ -109,7 +130,7 @@ export function SendButton(props: SendButtonProps): JSX.Element {
           borderRadius: '2px 0px 0px 2px'
         }}
       >
-        <SendIcon />
+        {action === 'stop' ? <StopIcon /> : <SendIcon />}
       </TooltippedButton>
       <TooltippedButton
         onClick={e => {
