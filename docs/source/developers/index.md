@@ -394,7 +394,13 @@ to the existing chat handlers.
 
 ## Streaming output from custom slash commands
 
-Jupyter AI supports streaming output in the chat session. When submitting a chat prompt, the response is streamed so that the time to first token seen is minimal, leading to a pleasing user experience. Streaming the response is also visually pleasing. Support for streaming responses in chat is provided by the base chat handler in `base.py` through the `BaseChatHandler` class with functions `_start_stream`, `_send_stream_chunk`, and `stream_reply`.
+Jupyter AI supports streaming output in the chat session. When a response is
+streamed to the user, the user can watch the response being constructed in
+real-time, which offers a visually pleasing user experience. Custom slash
+commands can stream responses in chat by invoking the `stream_reply()` method,
+provided by the `BaseChatHandler` class that custom slash commands inherit from.
+Custom slash commands should always use `self.stream_reply()` to stream
+responses, as it provides support for stopping the response stream from the UI. 
 
 The streaming functionality uses LangChain's Expression Language (LCEL). LCEL is a declarative way to compose [Runnables](https://python.langchain.com/api_reference/core/runnables/langchain_core.runnables.base.Runnable.html) into chains. Any chain constructed this way will automatically have sync, async, batch, and streaming support. The main composition primitives are RunnableSequence and RunnableParallel.
 
