@@ -400,7 +400,7 @@ real-time, which offers a visually pleasing user experience. Custom slash
 commands can stream responses in chat by invoking the `stream_reply()` method,
 provided by the `BaseChatHandler` class that custom slash commands inherit from.
 Custom slash commands should always use `self.stream_reply()` to stream
-responses, as it provides support for stopping the response stream from the UI. 
+responses, as it provides support for stopping the response stream from the UI.
 
 The streaming functionality uses LangChain's Expression Language (LCEL). LCEL is a declarative way to compose [Runnables](https://python.langchain.com/api_reference/core/runnables/langchain_core.runnables.base.Runnable.html) into chains. Any chain constructed this way will automatically have sync, async, batch, and streaming support. The main composition primitives are RunnableSequence and RunnableParallel.
 
