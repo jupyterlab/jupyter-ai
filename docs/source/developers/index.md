@@ -402,9 +402,12 @@ provided by the `BaseChatHandler` class that custom slash commands inherit from.
 Custom slash commands should always use `self.stream_reply()` to stream
 responses, as it provides support for stopping the response stream from the UI.
 
-The streaming functionality uses LangChain's Expression Language (LCEL). LCEL is a declarative way to compose [Runnables](https://python.langchain.com/api_reference/core/runnables/langchain_core.runnables.base.Runnable.html) into chains. Any chain constructed this way will automatically have sync, async, batch, and streaming support. The main composition primitives are RunnableSequence and RunnableParallel.
-
-Creating the LLM chain as a runnable can be seen in the following example from the module `fix.py`, where the appropriate prompt template is piped into the LLM to create a runnable:
+To use `stream_reply()`, your slash command must bind a LangChain
+[`Runnable`](https://python.langchain.com/api_reference/core/runnables/langchain_core.runnables.base.Runnable.html)
+to `self.llm_chain` in the `create_llm_chain()` method. Runnables can be created
+by using LangChain Expression Language (LCEL). See below for an example
+definition of `create_llm_chain()`, sourced from our implementation of `/fix` in
+`fix.py`:
 
 ```python
 def create_llm_chain(
