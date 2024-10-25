@@ -3,7 +3,6 @@ from typing import Dict, Type
 from jupyter_ai.models import CellWithErrorSelection, HumanChatMessage
 from jupyter_ai_magics.providers import BaseProvider
 from langchain.prompts import PromptTemplate
-from langchain_core.runnables import ConfigurableFieldSpec
 from langchain_core.runnables.history import RunnableWithMessageHistory
 
 from .base import BaseChatHandler, SlashCommandRoutingType
@@ -71,7 +70,6 @@ class FixChatHandler(BaseChatHandler):
         self, provider: Type[BaseProvider], provider_params: Dict[str, str]
     ):
         unified_parameters = {
-            "verbose": True,
             **provider_params,
             **(self.get_model_parameters(provider, provider_params)),
         }
@@ -79,6 +77,7 @@ class FixChatHandler(BaseChatHandler):
         self.llm = llm
         prompt_template = FIX_PROMPT_TEMPLATE
         self.prompt_template = prompt_template
+        print("PROMPT TEMPLATE", prompt_template)
 
         runnable = prompt_template | llm  # type:ignore
         self.llm_chain = runnable
