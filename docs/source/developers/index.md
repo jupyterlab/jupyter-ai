@@ -430,7 +430,7 @@ def create_llm_chain(
 Once your chat handler binds a Runnable to `self.llm_chain` in
 `self.create_llm_chain()`, you can define `process_message()` to invoke
 `self.stream_reply()`, which streams a reply back to the user using
-`self.llm_chain.astream()`. 
+`self.llm_chain.astream()`.
 `self.stream_reply()` has two required arguments:
 
 - `input`: An input to your LangChain Runnable. This is usually a dictionary
