@@ -392,7 +392,7 @@ custom = "custom_package:CustomChatHandler"
 Then, install your package so that Jupyter AI adds custom chat handlers
 to the existing chat handlers.
 
-## Streaming output from slash commands
+## Streaming output from custom slash commands
 
 Jupyter AI supports streaming output in the chat session. When submitting a chat prompt, the response is streamed so that the time to first token seen is minimal, leading to a pleasing user experience. Streaming the response is also visually pleasing. Support for streaming responses in chat is provided by the base chat handler in `base.py` through the `BaseChatHandler` class with functions `_start_stream`, `_send_stream_chunk`, and `stream_reply`.
 
