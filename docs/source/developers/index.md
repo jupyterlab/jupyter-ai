@@ -123,8 +123,8 @@ your new provider's `id`:
 
 #### Configuration for custom providers
 
-You can add custom fields into the settings dialogue for your custom model by specifying a list of fields as shown 
-below.  
+You can add custom fields into the settings dialogue for your custom model by specifying a list of fields as shown
+below.
 
 These will be passed into the `__init__` as kwargs, with the key specified by the key in the field object.
 
@@ -132,7 +132,7 @@ The label specified in the field object determines the text shown in the configu
 
 ```python
 from jupyter_ai_magics import BaseProvider
-from jupyter_ai_magics.providers import TextField, MultilineTextField 
+from jupyter_ai_magics.providers import TextField, MultilineTextField
 from langchain_community.llms import FakeListLLM
 
 
@@ -144,12 +144,12 @@ class MyProvider(BaseProvider, FakeListLLM):
         "model_a",
         "model_b"
     ]
-    
+
     fields: ClassVar[List[Field]] = [
         TextField(key="my_llm_parameter", label="The name for my_llm_parameter to show in the UI"),
         MultilineTextField(key="custom_config", label="Custom Json Config", format="json"),
     ]
-    
+
     def __init__(self, **kwargs):
         model = kwargs.get("model_id")
         kwargs["responses"] = (
@@ -164,10 +164,10 @@ class MyProvider(BaseProvider, FakeListLLM):
 #### Api key  for custom providers
 
 The following example shows the `EnvAuthStrategy` for specifying API keys for providers.  These will be taken from the
-environment variable with the name specified in `name` and be provided to the model's `__init__` as a kwarg with the 
+environment variable with the name specified in `name` and be provided to the model's `__init__` as a kwarg with the
 name specified in `keyword_param`.
 
-This will also cause a field to be present in the configuration UI with the `name` of the environment variable as the 
+This will also cause a field to be present in the configuration UI with the `name` of the environment variable as the
 label.
 
 ```python
@@ -184,11 +184,11 @@ class MyProvider(BaseProvider, FakeListLLM):
         "model_a",
         "model_b"
     ]
-    
+
     auth_strategy = EnvAuthStrategy(
         name="MY_API_KEY", keyword_param="my_api_key_param"
     )
-    
+
     def __init__(self, **kwargs):
         model = kwargs.get("model_id")
         kwargs["responses"] = (
