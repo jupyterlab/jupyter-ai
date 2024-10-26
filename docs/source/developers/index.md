@@ -121,6 +121,46 @@ your new provider's `id`:
 [LLM]: https://api.python.langchain.com/en/v0.0.339/llms/langchain.llms.base.LLM.html#langchain.llms.base.LLM
 [BaseChatModel]: https://api.python.langchain.com/en/v0.0.339/chat_models/langchain.chat_models.base.BaseChatModel.html
 
+#### Configuration for custom providers
+
+You can add custom fields into the settings dialogue for your custom model by specifying a list of fields as shown 
+below.  
+
+These will be passed into the `__init__` as kwargs, with the key specified by the key in the field object.
+
+The label specified in the field object determines the text shown in the configuration section of the user interface.
+
+```python
+from jupyter_ai_magics import BaseProvider
+from jupyter_ai_magics.providers import TextField, MultilineTextField 
+from langchain_community.llms import FakeListLLM
+
+
+class MyProvider(BaseProvider, FakeListLLM):
+    id = "my_provider"
+    name = "My Provider"
+    model_id_key = "model"
+    models = [
+        "model_a",
+        "model_b"
+    ]
+    
+    fields: ClassVar[List[Field]] = [
+        TextField(key="my_llm_parameter", label="The name for my_llm_parameter to show in the UI"),
+        MultilineTextField(key="custom_config", label="Custom Json Config", format="json"),
+    ]
+    
+    def __init__(self, **kwargs):
+        model = kwargs.get("model_id")
+        kwargs["responses"] = (
+            ["This is a response from model 'a'"]
+            if model == "model_a" else
+            ["This is a response from model 'b'"]
+        )
+        super().__init__(**kwargs)
+
+```
+
 ### Custom embeddings providers
 
 To provide a custom embeddings model an embeddings providers should be defined implementing the API of `jupyter-ai`'s `BaseEmbeddingsProvider` and of `langchain`'s [`Embeddings`][Embeddings] abstract class.
