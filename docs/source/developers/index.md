@@ -161,6 +161,45 @@ class MyProvider(BaseProvider, FakeListLLM):
 
 ```
 
+#### Api key  for custom providers
+
+The following example shows the `EnvAuthStrategy` for specifying API keys for providers.  These will be taken from the
+environment variable with the name specified in `name` and be provided to the model's `__init__` as a kwarg with the 
+name specified in `keyword_param`.
+
+This will also cause a field to be present in the configuration UI with the `name` of the environment variable as the 
+label.
+
+```python
+from jupyter_ai_magics import BaseProvider
+from jupyter_ai_magics.providers import EnvAuthStrategy
+from langchain_community.llms import FakeListLLM
+
+
+class MyProvider(BaseProvider, FakeListLLM):
+    id = "my_provider"
+    name = "My Provider"
+    model_id_key = "model"
+    models = [
+        "model_a",
+        "model_b"
+    ]
+    
+    auth_strategy = EnvAuthStrategy(
+        name="MY_API_KEY", keyword_param="my_api_key_param"
+    )
+    
+    def __init__(self, **kwargs):
+        model = kwargs.get("model_id")
+        kwargs["responses"] = (
+            ["This is a response from model 'a'"]
+            if model == "model_a" else
+            ["This is a response from model 'b'"]
+        )
+        super().__init__(**kwargs)
+
+```
+
 ### Custom embeddings providers
 
 To provide a custom embeddings model an embeddings providers should be defined implementing the API of `jupyter-ai`'s `BaseEmbeddingsProvider` and of `langchain`'s [`Embeddings`][Embeddings] abstract class.
