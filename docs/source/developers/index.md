@@ -392,6 +392,120 @@ custom = "custom_package:CustomChatHandler"
 Then, install your package so that Jupyter AI adds custom chat handlers
 to the existing chat handlers.
 
+## Streaming output from custom slash commands
+
+Jupyter AI supports streaming output in the chat session. When a response is
+streamed to the user, the user can watch the response being constructed in
+real-time, which offers a visually pleasing user experience. Custom slash
+commands can stream responses in chat by invoking the `stream_reply()` method,
+provided by the `BaseChatHandler` class that custom slash commands inherit from.
+Custom slash commands should always use `self.stream_reply()` to stream
+responses, as it provides support for stopping the response stream from the UI.
+
+To use `stream_reply()`, your slash command must bind a LangChain
+[`Runnable`](https://python.langchain.com/api_reference/core/runnables/langchain_core.runnables.base.Runnable.html)
+to `self.llm_chain` in the `create_llm_chain()` method. Runnables can be created
+by using LangChain Expression Language (LCEL). See below for an example
+definition of `create_llm_chain()`, sourced from our implementation of `/fix` in
+`fix.py`:
+
+```python
+def create_llm_chain(
+        self, provider: Type[BaseProvider], provider_params: Dict[str, str]
+    ):
+        unified_parameters = {
+            "verbose": True,
+            **provider_params,
+            **(self.get_model_parameters(provider, provider_params)),
+        }
+        llm = provider(**unified_parameters)
+        self.llm = llm
+        prompt_template = FIX_PROMPT_TEMPLATE
+        self.prompt_template = prompt_template
+
+        runnable = prompt_template | llm  # type:ignore
+        self.llm_chain = runnable
+```
+
+Once your chat handler binds a Runnable to `self.llm_chain` in
+`self.create_llm_chain()`, you can define `process_message()` to invoke
+`self.stream_reply()`, which streams a reply back to the user using
+`self.llm_chain.astream()`.
+`self.stream_reply()` has two required arguments:
+
+- `input`: An input to your LangChain Runnable. This is usually a dictionary
+whose keys are input variables specified in your prompt template, but may be
+just a string if your Runnable does not use a prompt template.
+
+- `message`: The `HumanChatMessage` being replied to.
+
+An example of `process_message()` can also be sourced from our implementation of `/fix`:
+
+```python
+async def process_message(self, message: HumanChatMessage):
+        if not (message.selection and message.selection.type == "cell-with-error"):
+            self.reply(
+                "`/fix` requires an active code cell with error output. Please click on a cell with error output and retry.",
+                message,
+            )
+            return
+
+        # hint type of selection
+        selection: CellWithErrorSelection = message.selection
+
+        # parse additional instructions specified after `/fix`
+        extra_instructions = message.prompt[4:].strip() or "None."
+
+        self.get_llm_chain()
+        assert self.llm_chain
+
+        inputs = {
+            "extra_instructions": extra_instructions,
+            "cell_content": selection.source,
+            "traceback": selection.error.traceback,
+            "error_name": selection.error.name,
+            "error_value": selection.error.value,
+        }
+        await self.stream_reply(inputs, message, pending_msg="Analyzing error")
+```
+
+The last line of `process_message` above calls `stream_reply` in `base.py`.
+Note that a custom pending message may also be passed.
+The `stream_reply` function leverages the LCEL Runnable.
+The function takes in the input, human message, and optional
+pending message strings and configuration, as shown below:
+
+```python
+async def stream_reply(
+        self,
+        input: Input,
+        human_msg: HumanChatMessage,
+        pending_msg="Generating response",
+        config: Optional[RunnableConfig] = None,
+    ):
+        """
+        Streams a reply to a human message by invoking
+        `self.llm_chain.astream()`. A LangChain `Runnable` instance must be
+        bound to `self.llm_chain` before invoking this method.
+
+        Arguments
+        ---------
+        - `input`: The input to your runnable. The type of `input` depends on
+        the runnable in `self.llm_chain`, but is usually a dictionary whose keys
+        refer to input variables in your prompt template.
+
+        - `human_msg`: The `HumanChatMessage` being replied to.
+
+        - `config` (optional): A `RunnableConfig` object that specifies
+        additional configuration when streaming from the runnable.
+
+        - `pending_msg` (optional): Changes the default pending message from
+        "Generating response".
+        """
+        assert self.llm_chain
+        assert isinstance(self.llm_chain, Runnable)
+```
+
 ## Custom message footer
 
 You can provide a custom message footer that will be rendered under each message
