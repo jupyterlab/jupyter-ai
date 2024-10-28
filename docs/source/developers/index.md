@@ -506,6 +506,42 @@ async def stream_reply(
         assert isinstance(self.llm_chain, Runnable)
 ```
 
+## Streaming output
+
+Jupyter AI supports streaming output in the chat session. When submitting a chat prompt, the response is streamed so that the time to first token seen is minimal, leading to a pleasing user experience. Streaming the response is also visually pleasing. Streaming output is also enabled when the contextual command `@file` is used, where standard chat is enhanced with supplying a file as context using `@file`. Support for streaming responses in standard chat and contextual chat is provided by the base chat handler in `base.py` through the `BaseChatHandler` class with functions `_start_stream`, `_send_stream_chunk`, and `stream_reply`.
+
+The streaming functionality uses LangChain's Expression Language (LCEL). LCEL is a declarative way to compose [Runnables](https://python.langchain.com/api_reference/core/runnables/langchain_core.runnables.base.Runnable.html) into chains. Any chain constructed this way will automatically have sync, async, batch, and streaming support. The main composition primitives are RunnableSequence and RunnableParallel. The `stream_reply` function leverages the LCEL Runnable as shown here:
+
+```python
+async def stream_reply(
+    self,
+    input: Input,
+    human_msg: HumanChatMessage,
+    config: Optional[RunnableConfig] = None,
+):
+    """
+    Streams a reply to a human message by invoking
+    `self.llm_chain.astream()`. A LangChain `Runnable` instance must be
+    bound to `self.llm_chain` before invoking this method.
+
+    Arguments
+    ---------
+    - `input`: The input to your runnable. The type of `input` depends on
+    the runnable in `self.llm_chain`, but is usually a dictionary whose keys
+    refer to input variables in your prompt template.
+
+    - `human_msg`: The `HumanChatMessage` being replied to.
+
+    - `config` (optional): A `RunnableConfig` object that specifies
+    additional configuration when streaming from the runnable.
+    """
+    assert self.llm_chain
+    assert isinstance(self.llm_chain, Runnable)
+```
+
+The rest of the function chunks up the response and streams it one chunk at a time.
+
+
 ## Custom message footer
 
 You can provide a custom message footer that will be rendered under each message
