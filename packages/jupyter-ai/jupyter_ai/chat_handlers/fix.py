@@ -102,7 +102,7 @@ class FixChatHandler(BaseChatHandler):
         inputs = {
             "extra_instructions": extra_instructions,
             "cell_content": selection.source,
-            "traceback": selection.error.traceback,
+            "traceback": "\n".join(selection.error.traceback),
             "error_name": selection.error.name,
             "error_value": selection.error.value,
         }
