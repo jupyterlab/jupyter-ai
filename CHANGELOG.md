@@ -2,6 +2,27 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 2.27.0
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.26.0...b621aa476afc3af9e9b3dd398108b7ed9aaf7bf6))
+
+### Enhancements made
+
+- Added new Anthropic Sonnet3.5 v2 models [#1049](https://github.com/jupyterlab/jupyter-ai/pull/1049) ([@srdas](https://github.com/srdas))
+- Implement streaming for `/fix` [#1048](https://github.com/jupyterlab/jupyter-ai/pull/1048) ([@srdas](https://github.com/srdas))
+
+### Documentation improvements
+
+- Added Developer documentation for streaming responses [#1051](https://github.com/jupyterlab/jupyter-ai/pull/1051) ([@srdas](https://github.com/srdas))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-10-21&to=2024-10-29&type=c))
+
+[@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2024-10-21..2024-10-29&type=Issues) | [@pre-commit-ci](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Apre-commit-ci+updated%3A2024-10-21..2024-10-29&type=Issues) | [@srdas](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2024-10-21..2024-10-29&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 2.26.0
 
 This release notably includes the addition of a "Stop streaming" button, which takes over the "Send" button when a reply is streaming and the chat input is empty. While Jupyternaut is streaming a reply to a user, the user has the option to click the "Stop streaming" button to interrupt Jupyternaut and stop it from streaming further. Thank you @krassowski for contributing this feature! 🎉
@@ -36,8 +57,6 @@ This release notably includes the addition of a "Stop streaming" button, which t
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-10-07&to=2024-10-21&type=c))
 
 [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2024-10-07..2024-10-21&type=Issues) | [@JasonWeill](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AJasonWeill+updated%3A2024-10-07..2024-10-21&type=Issues) | [@jlsajfj](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ajlsajfj+updated%3A2024-10-07..2024-10-21&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2024-10-07..2024-10-21&type=Issues) | [@michaelchia](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Amichaelchia+updated%3A2024-10-07..2024-10-21&type=Issues) | [@pre-commit-ci](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Apre-commit-ci+updated%3A2024-10-07..2024-10-21&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 2.25.0
 
