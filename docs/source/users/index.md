@@ -174,6 +174,7 @@ Jupyter AI supports the following model providers:
 | Hugging Face Hub             | `huggingface_hub`    | `HUGGINGFACEHUB_API_TOKEN` | `huggingface_hub`, `ipywidgets`, `pillow` |
 | MistralAI                    | `mistralai`          | `MISTRAL_API_KEY`          | `langchain-mistralai`                     |
 | NVIDIA                       | `nvidia-chat`        | `NVIDIA_API_KEY`           | `langchain_nvidia_ai_endpoints`           |
+| Ollama                       | `ollama`             | N/A                        | `langchain-ollama`                        |
 | OpenAI                       | `openai`             | `OPENAI_API_KEY`           | `langchain-openai`                        |
 | OpenAI (chat)                | `openai-chat`        | `OPENAI_API_KEY`           | `langchain-openai`                        |
 | SageMaker endpoint           | `sagemaker-endpoint` | N/A                        | `langchain-aws`                           |
