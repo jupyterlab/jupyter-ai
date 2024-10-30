@@ -24,14 +24,20 @@ type RendermimeMarkdownProps = {
 };
 
 /**
- * Takes \( and returns \\(. Escapes LaTeX delimeters by adding extra backslashes where needed for proper rendering by @jupyterlab/rendermime.
+ * Escapes LaTeX delimiters and single dollar signs by adding extra backslashes.
+ * Required for proper rendering of LaTeX markup by `@jupyterlab/rendermime`,
+ * and allows for `$` to be used literally to denote quantities of USD.
+ *
+ * The Jupyter AI system prompt should explicitly request that the LLM not use
+ * `$` as an inline math delimiter. This is the default behavior.
  */
 function escapeLatexDelimiters(text: string) {
   return text
     .replace(/\\\(/g, '\\\\(')
     .replace(/\\\)/g, '\\\\)')
     .replace(/\\\[/g, '\\\\[')
-    .replace(/\\\]/g, '\\\\]');
+    .replace(/\\\]/g, '\\\\]')
+    .replace(/\$/g, '\\\\$');
 }
 
 function RendermimeMarkdownBase(props: RendermimeMarkdownProps): JSX.Element {
