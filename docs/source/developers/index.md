@@ -121,58 +121,16 @@ your new provider's `id`:
 [LLM]: https://api.python.langchain.com/en/v0.0.339/llms/langchain.llms.base.LLM.html#langchain.llms.base.LLM
 [BaseChatModel]: https://api.python.langchain.com/en/v0.0.339/chat_models/langchain.chat_models.base.BaseChatModel.html
 
-#### Configuration for custom providers
+### API keys and fields for custom providers
 
-You can add custom fields into the settings dialogue for your custom model by specifying a list of fields as shown
+You can add handle authentication via API keys, and configuration with 
+custom parameters using an auth strategy and fields as shown in the example 
 below.
 
-These will be passed into the `__init__` as kwargs, with the key specified by the key in the field object.
-
-The label specified in the field object determines the text shown in the configuration section of the user interface.
-
 ```python
+from typing import ClassVar, List
 from jupyter_ai_magics import BaseProvider
-from jupyter_ai_magics.providers import TextField, MultilineTextField
-from langchain_community.llms import FakeListLLM
-
-
-class MyProvider(BaseProvider, FakeListLLM):
-    id = "my_provider"
-    name = "My Provider"
-    model_id_key = "model"
-    models = [
-        "model_a",
-        "model_b"
-    ]
-
-    fields: ClassVar[List[Field]] = [
-        TextField(key="my_llm_parameter", label="The name for my_llm_parameter to show in the UI"),
-        MultilineTextField(key="custom_config", label="Custom Json Config", format="json"),
-    ]
-
-    def __init__(self, **kwargs):
-        model = kwargs.get("model_id")
-        kwargs["responses"] = (
-            ["This is a response from model 'a'"]
-            if model == "model_a" else
-            ["This is a response from model 'b'"]
-        )
-        super().__init__(**kwargs)
-
-```
-
-#### Api key  for custom providers
-
-The following example shows the `EnvAuthStrategy` for specifying API keys for providers.  These will be taken from the
-environment variable with the name specified in `name` and be provided to the model's `__init__` as a kwarg with the
-name specified in `keyword_param`.
-
-This will also cause a field to be present in the configuration UI with the `name` of the environment variable as the
-label.
-
-```python
-from jupyter_ai_magics import BaseProvider
-from jupyter_ai_magics.providers import EnvAuthStrategy
+from jupyter_ai_magics.providers import EnvAuthStrategy, Field, TextField, MultilineTextField
 from langchain_community.llms import FakeListLLM
 
 
@@ -188,6 +146,11 @@ class MyProvider(BaseProvider, FakeListLLM):
     auth_strategy = EnvAuthStrategy(
         name="MY_API_KEY", keyword_param="my_api_key_param"
     )
+    
+    fields: ClassVar[List[Field]] = [
+        TextField(key="my_llm_parameter", label="The name for my_llm_parameter to show in the UI"),
+        MultilineTextField(key="custom_config", label="Custom Json Config", format="json"),
+    ]
 
     def __init__(self, **kwargs):
         model = kwargs.get("model_id")
@@ -197,8 +160,21 @@ class MyProvider(BaseProvider, FakeListLLM):
             ["This is a response from model 'b'"]
         )
         super().__init__(**kwargs)
-
 ```
+
+The `auth_strategy` handles specifying API keys for providers and models.  
+The example shows the `EnvAuthStrategy` which takes the API key from the
+environment variable with the name specified in `name` and be provided to the 
+model's `__init__` as a kwarg with the name specified in `keyword_param`.  
+This will also cause a field to be present in the configuration UI with the  
+`name` of the environment variable as the label.
+
+Further configuration can be handled adding `fields` into the settings 
+dialogue for your custom model by specifying a list of fields as shown in 
+the example.  These will be passed into the `__init__` as kwargs, with the 
+key specified by the key in the field object. The label specified in the field 
+object determines the text shown in the configuration section of the user 
+interface.
 
 ### Custom embeddings providers
 
