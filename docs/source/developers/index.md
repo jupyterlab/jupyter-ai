@@ -123,8 +123,8 @@ your new provider's `id`:
 
 ### API keys and fields for custom providers
 
-You can add handle authentication via API keys, and configuration with 
-custom parameters using an auth strategy and fields as shown in the example 
+You can add handle authentication via API keys, and configuration with
+custom parameters using an auth strategy and fields as shown in the example
 below.
 
 ```python
@@ -146,7 +146,7 @@ class MyProvider(BaseProvider, FakeListLLM):
     auth_strategy = EnvAuthStrategy(
         name="MY_API_KEY", keyword_param="my_api_key_param"
     )
-    
+
     fields: ClassVar[List[Field]] = [
         TextField(key="my_llm_parameter", label="The name for my_llm_parameter to show in the UI"),
         MultilineTextField(key="custom_config", label="Custom Json Config", format="json"),
@@ -162,18 +162,18 @@ class MyProvider(BaseProvider, FakeListLLM):
         super().__init__(**kwargs)
 ```
 
-The `auth_strategy` handles specifying API keys for providers and models.  
+The `auth_strategy` handles specifying API keys for providers and models.
 The example shows the `EnvAuthStrategy` which takes the API key from the
-environment variable with the name specified in `name` and be provided to the 
-model's `__init__` as a kwarg with the name specified in `keyword_param`.  
-This will also cause a field to be present in the configuration UI with the  
+environment variable with the name specified in `name` and be provided to the
+model's `__init__` as a kwarg with the name specified in `keyword_param`.
+This will also cause a field to be present in the configuration UI with the
 `name` of the environment variable as the label.
 
-Further configuration can be handled adding `fields` into the settings 
-dialogue for your custom model by specifying a list of fields as shown in 
-the example.  These will be passed into the `__init__` as kwargs, with the 
-key specified by the key in the field object. The label specified in the field 
-object determines the text shown in the configuration section of the user 
+Further configuration can be handled adding `fields` into the settings
+dialogue for your custom model by specifying a list of fields as shown in
+the example.  These will be passed into the `__init__` as kwargs, with the
+key specified by the key in the field object. The label specified in the field
+object determines the text shown in the configuration section of the user
 interface.
 
 ### Custom embeddings providers
