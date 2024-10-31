@@ -24,8 +24,12 @@ type RendermimeMarkdownProps = {
 };
 
 /**
- * Escapes LaTeX delimiters and single dollar signs by adding extra backslashes.
- * Required for proper rendering of LaTeX markup by `@jupyterlab/rendermime`.
+ * Escapes backslashes in LaTeX delimiters such that they appear in the DOM
+ * after the initial MarkDown render. For example, this function takes '\(` and
+ * returns `\\(`.
+ *
+ * Required for proper rendering of MarkDown + LaTeX markup in the chat by
+ * `ILatexTypesetter`.
  */
 function escapeLatexDelimiters(text: string) {
   return text
