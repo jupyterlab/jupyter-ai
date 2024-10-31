@@ -83,12 +83,13 @@ function escapeDollarSymbols(el: HTMLElement) {
   }
 
   // Replace each `$` symbol with `\$` for each text node, unless there is
-  // another `$` symbol adjacent. Examples:
+  // another `$` symbol adjacent or it is already escaped. Examples:
   // - `$10 - $5` => `\$10 - \$5` (escaped)
   // - `$$ \infty $$` => `$$ \infty $$` (unchanged)
+  // - `\$10` => `\$10` (unchanged, already escaped)
   textNodes.forEach(node => {
     if (node.textContent) {
-      node.textContent = node.textContent.replace(/(?<!\$)\$(?!\$)/g, '\\$');
+      node.textContent = node.textContent.replace(/(?<![$\\])\$(?!\$)/g, '\\$');
     }
   });
 }
