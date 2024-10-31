@@ -10,8 +10,6 @@ class AnthropicProvider(BaseProvider, AnthropicLLM):
         "claude-v1",
         "claude-v1.0",
         "claude-v1.2",
-        "claude-2",
-        "claude-2.0",
         "claude-instant-v1",
         "claude-instant-v1.0",
         "claude-instant-v1.2",
@@ -40,11 +38,10 @@ class ChatAnthropicProvider(
     BaseProvider, ChatAnthropic
 ):  # https://docs.anthropic.com/en/docs/about-claude/models
     id = "anthropic-chat"
-    name = "ChatAnthropic"
+    name = "Anthropic"
     models = [
         "claude-2.0",
         "claude-2.1",
-        "claude-instant-1.2",
         "claude-3-opus-20240229",
         "claude-3-sonnet-20240229",
         "claude-3-haiku-20240307",
