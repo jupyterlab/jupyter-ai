@@ -116,7 +116,7 @@ function InsertAboveButton(props: ToolbarButtonProps) {
       }}
       disabled={!props.activeCellExists}
     >
-      <addAboveIcon.react height="16px" width="16px" />
+      <addAboveIcon.react height="16px" width="16px" paddingRight="8px" />
     </TooltippedIconButton>
   );
 }
@@ -142,7 +142,7 @@ function InsertBelowButton(props: ToolbarButtonProps) {
         }
       }}
     >
-      <addBelowIcon.react height="16px" width="16px" />
+      <addBelowIcon.react height="16px" width="16px" paddingRight="8px" />
     </TooltippedIconButton>
   );
 }
@@ -166,7 +166,7 @@ function ReplaceButton(props: ToolbarButtonProps) {
         }
       }}
     >
-      <replaceCellIcon.react height="16px" width="16px" />
+      <replaceCellIcon.react height="16px" width="16px" paddingRight="8px" />
     </TooltippedIconButton>
   );
 }
