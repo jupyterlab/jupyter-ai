@@ -603,17 +603,19 @@ class AiMagics(Magics):
         else:
             # generate output from model via provider
             if context:
-                inputs = [
-                    (
-                        f"AI: {message.content}"
-                        if message.type == "ai"
-                        else f"{message.type.title()}: {message.content}"
-                    )
-                    for message in context + [HumanMessage(content=prompt)]
-                ]
+                inputs = "\n\n".join(
+                    [
+                        (
+                            f"AI: {message.content}"
+                            if message.type == "ai"
+                            else f"{message.type.title()}: {message.content}"
+                        )
+                        for message in context + [HumanMessage(content=prompt)]
+                    ]
+                )
             else:
-                inputs = [prompt]
-            result = provider.generate(inputs)
+                inputs = prompt
+            result = provider.generate([inputs])
 
         output = result.generations[0][0].text
 
