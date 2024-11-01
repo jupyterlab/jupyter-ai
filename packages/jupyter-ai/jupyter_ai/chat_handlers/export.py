@@ -3,7 +3,7 @@ import os
 from datetime import datetime
 from typing import List
 
-from jupyter_ai.models import AgentChatMessage, HumanChatMessage
+from jupyter_ai.models import AgentChatMessage, AgentStreamMessage, HumanChatMessage
 
 from .base import BaseChatHandler, SlashCommandRoutingType
 
@@ -22,7 +22,7 @@ class ExportChatHandler(BaseChatHandler):
         self.parser.add_argument("path", nargs=argparse.REMAINDER)
 
     def chat_message_to_markdown(self, message):
-        if isinstance(message, AgentChatMessage):
+        if isinstance(message, (AgentChatMessage, AgentStreamMessage)):
             agent = self.config_manager.persona.name
             return f"**{agent}**: {message.body}"
         elif isinstance(message, HumanChatMessage):
