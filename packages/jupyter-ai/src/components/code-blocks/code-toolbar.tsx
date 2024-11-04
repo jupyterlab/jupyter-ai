@@ -44,7 +44,7 @@ export function CodeToolbar(props: CodeToolbarProps): JSX.Element {
         display: 'flex',
         justifyContent: 'flex-end',
         alignItems: 'center',
-        padding: '6px 2px',
+        padding: '2px 2px',
         marginBottom: '1em',
         border: '1px solid var(--jp-cell-editor-border-color)',
         borderTop: 'none'
