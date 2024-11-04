@@ -85,7 +85,7 @@ If you want to install both the `%%ai` magic and the JupyterLab extension, you c
 
     $ pip install jupyter-ai[all]
 
-Then, restart JupyterLab. This will install every dependency, which will give you access to all models currently supported by `jupyter-ai`. 
+Then, restart JupyterLab. This will install every dependency, which will give you access to all models currently supported by `jupyter-ai`.
 
 If you are not using JupyterLab and you only want to install the Jupyter AI `%%ai` magic, you can run:
 
