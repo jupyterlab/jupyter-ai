@@ -87,7 +87,27 @@ To install the JupyterLab extension, you can run:
 pip install jupyter-ai
 ```
 
-You may need to install third-party packages, for example, to use some model providers and some file formats with Jupyter AI. To handle all supported use cases, you can install every dependency, which will give you access to all models currently supported by `jupyter-ai`. To install every dependency, run the following command, and then restart JupyterLab:
+You may need to install third-party packages, for example, to use some model providers and some file formats with Jupyter AI. For example, to use OpenAI models, in addition to your current install also run
+
+```
+pip install langchain-openai
+```
+
+To use models from Anthropic, install: 
+
+```
+pip install langchain-anthropic
+```
+
+After these installs you should see the OpenAI and Anthropic models in the drop down list. If you are using Claude models on AWS Bedrock, you must also install
+
+```
+pip install langchain-aws
+```
+
+Similarly, install `langchain-<provider>` packages for other providers as well, listed [here](#model-providers).
+
+To handle all supported use cases, you can install every dependency, which will give you access to all models currently supported by `jupyter-ai`. To install every dependency, run the following command, and then restart JupyterLab:
 
 ```
 pip install jupyter-ai[all]
@@ -134,6 +154,15 @@ environment first:
 conda activate jupyter-ai
 jupyter lab
 ```
+
+In addition, install third-party `langchain-<provider>` packages, to use some model providers. For example, if you are using OpenAI models:
+
+```
+conda install conda-forge::langchain-openai
+```
+
+The list of providers and related python packages is listed [here](#model-providers).
+
 
 ## Uninstallation
 
