@@ -20,11 +20,11 @@ Issues and pull requests that violate the above principles may be declined. If y
 
 You can develop Jupyter AI on any system that can run a supported Python version up to and including 3.12, including recent Windows, macOS, and Linux versions.
 
-Each Jupyter AI major version works with only one major version of JupyterLab. Jupyter AI 1.x supports JupyterLab 3.x, and Jupyter AI 2.x supports JupyterLab 4.x.
+You should have the newest supported version of JupyterLab installed.
 
-We highly recommend that you install [conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html) to start developing on Jupyter AI, especially if you are developing on macOS on an Apple Silicon-based Mac (M1, M1 Pro, M2, etc.).
+We highly recommend that you install [conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html) to start contributing to Jupyter AI, especially if you are developing on macOS on an Apple Silicon-based Mac (M1, M1 Pro, M2, etc.).
 
-You will need Node.js 18 to use Jupyter AI. Node.js 18.16.0 is known to work.
+You will need [a supported version of node.js](https://github.com/nodejs/release#release-schedule) to use Jupyter AI.
 
 :::{warning}
 :name: node-18-15

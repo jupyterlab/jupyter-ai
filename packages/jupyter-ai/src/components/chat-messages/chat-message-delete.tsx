@@ -15,8 +15,7 @@ type DeleteButtonProps = {
 export function ChatMessageDelete(props: DeleteButtonProps): JSX.Element {
   const request: AiService.ClearRequest = {
     type: 'clear',
-    target: props.message.id,
-    after: false
+    target: props.message.id
   };
   return (
     <TooltippedIconButton

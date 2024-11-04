@@ -174,6 +174,7 @@ Jupyter AI supports the following model providers:
 | Hugging Face Hub             | `huggingface_hub`    | `HUGGINGFACEHUB_API_TOKEN` | `huggingface_hub`, `ipywidgets`, `pillow` |
 | MistralAI                    | `mistralai`          | `MISTRAL_API_KEY`          | `langchain-mistralai`                     |
 | NVIDIA                       | `nvidia-chat`        | `NVIDIA_API_KEY`           | `langchain_nvidia_ai_endpoints`           |
+| Ollama                       | `ollama`             | N/A                        | `langchain-ollama`                        |
 | OpenAI                       | `openai`             | `OPENAI_API_KEY`           | `langchain-openai`                        |
 | OpenAI (chat)                | `openai-chat`        | `OPENAI_API_KEY`           | `langchain-openai`                        |
 | SageMaker endpoint           | `sagemaker-endpoint` | N/A                        | `langchain-aws`                           |
@@ -783,6 +784,34 @@ include calls to nonexistent (hallucinated) APIs.
 %%ai chatgpt -f code
 A function that computes the lowest common multiples of two integers, and
 a function that runs 5 test cases of the lowest common multiple function
+```
+
+### Configuring the amount of history to include in the context
+
+By default, two previous Human/AI message exchanges are included in the context of the new prompt.
+You can change this using the IPython `%config` magic, for example:
+
+```python
+%config AiMagics.max_history = 4
+```
+
+Note that old messages are still kept locally in memory,
+so they will be included in the context of the next prompt after raising the `max_history` value.
+
+You can configure the value for all notebooks
+by specifying `c.AiMagics.max_history` traitlet in `ipython_config.py`, for example:
+
+```python
+c.AiMagics.max_history = 4
+```
+
+### Clearing the chat history
+
+You can run the `%ai reset` line magic command to clear the chat history. After you do this,
+previous magic commands you've run will no longer be added as context in requests.
+
+```
+%ai reset
 ```
 
 ### Interpolating in prompts
