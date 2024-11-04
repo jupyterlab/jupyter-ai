@@ -80,7 +80,7 @@ export function TooltippedIconButton(
           onClick={props.onClick}
           disabled={props.disabled}
           sx={{
-            mr: '8px',
+            ml: '8px',
             lineHeight: 0,
             ...(props.disabled && { opacity: 0.5 }),
             ...props.sx
