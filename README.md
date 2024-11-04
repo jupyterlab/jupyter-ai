@@ -53,17 +53,21 @@ Below is a simplified overview of the installation and usage process.
 See [our official documentation](https://jupyter-ai.readthedocs.io/en/latest/users/index.html)
 for details on installing and using Jupyter AI.
 
-### With pip
+### Quick installation via `pip` (recommended)
 
 If you want to install both the `%%ai` magic and the JupyterLab extension, you can run:
 
-    $ pip install jupyter-ai
+    $ pip install jupyter-ai[all]
+
+Then, restart JupyterLab. This will install every dependency, which will give you access to all models currently supported by `jupyter-ai`. 
 
 If you are not using JupyterLab and you only want to install the Jupyter AI `%%ai` magic, you can run:
 
-    $ pip install jupyter-ai-magics
+    $ pip install jupyter-ai-magics[all]
 
-You may need to install third-party packages, for example, to use some model providers and some file formats with Jupyter AI. For example, to use OpenAI models, in addition to your current install also run
+`jupyter-ai` depends on `jupyter-ai-magics`, so installing `jupyter-ai` automatically installs `jupyter-ai-magics`.
+
+If you do not run install with the `[all]` option, you may need to install third-party packages to use some model providers and some file formats with Jupyter AI. For example, to use OpenAI models, in addition to your current install also run
 
 ```
 pip install langchain-openai
@@ -81,12 +85,18 @@ After these installs you should see the OpenAI and Anthropic models in the drop 
 pip install langchain-aws
 ```
 
-Similarly, install `langchain-<provider>` packages for other providers as well, listed [here](#model-providers).
+Similarly, install `langchain-<provider>` packages for other providers as well. For more information on model providers and which dependencies they require, see [the model provider table](https://jupyter-ai.readthedocs.io/en/latest/users/index.html#model-providers).
 
-To handle all supported use cases, you can install every dependency, which will give you access to all models currently supported by `jupyter-ai`. To install every dependency, run the following command, and then restart JupyterLab:
+### Minimal installation via `pip` (optional)
+
+Most model providers in Jupyter AI require a specific dependency to be installed before they are available for use. These are called _provider dependencies_. Provider dependencies are optional to Jupyter AI, meaning that Jupyter AI can be installed with or without any provider dependencies installed.
+
+If a provider requires a dependency that is not installed, its models are not listed in the user interface which allows you to select a language model. This offers a way for users to control which models are available in your Jupyter AI environment.
+
+For example, to install Jupyter AI with only added support for Anthropic models, run:
 
 ```
-pip install jupyter-ai[all]
+pip install jupyter-ai langchain-anthropic
 ```
 
 ### With conda
@@ -98,11 +108,15 @@ from the `conda-forge` channel, using one of the following two commands:
     $ conda install -c conda-forge jupyter-ai  # or,
     $ conda install conda-forge::jupyter-ai
 
-In addition, install third-party `langchain-<provider>` packages, to use some model providers. For example, if you are using OpenAI models:
+Most model providers in Jupyter AI require a specific dependency to be installed before they are available for use. These provider dependencies are not installed by default when installing `jupyter-ai` from Conda Forge, and should be installed separately as needed.
+
+For example, to install Jupyter AI with support for OpenAI models, run:
 
 ```
-conda install conda-forge::langchain-openai
+conda install conda-forge::jupyter-ai conda-forge::langchain-openai
 ```
+
+For more information on model providers and which dependencies they require, see [the model provider table](https://jupyter-ai.readthedocs.io/en/latest/users/index.html#model-providers).
 
 ## The `%%ai` magic command
 
