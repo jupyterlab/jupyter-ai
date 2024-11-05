@@ -119,14 +119,14 @@ If you are not using JupyterLab and you only want to install the Jupyter AI
 `jupyter-ai` depends on `jupyter-ai-magics`, so installing `jupyter-ai`
 automatically installs `jupyter-ai-magics`.
 
-### Minimal installation via `pip` 
+### Minimal installation via `pip`
 
 Most model providers in Jupyter AI require a specific dependency to be installed
 before they are available for use. These are called _provider dependencies_.
 Provider dependencies are optional to Jupyter AI, meaning that Jupyter AI can be
 installed with or without any provider dependencies installed. If a provider
 requires a dependency that is not installed, its models are not listed in the
-user interface which allows you to select a language model. 
+user interface which allows you to select a language model.
 
 To perform a minimal installation via `pip` without any provider dependencies,
 omit the `[all]` optional dependency group from the package name:
