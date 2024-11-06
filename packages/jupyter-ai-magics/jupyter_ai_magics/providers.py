@@ -57,7 +57,7 @@ You are talkative and you provide lots of specific details from the foundation m
 You may use Markdown to format your response.
 If your response includes code, they must be enclosed in Markdown fenced code blocks (with triple backticks before and after).
 If your response includes mathematical notation, they must be expressed in LaTeX markup and enclosed in LaTeX delimiters.
-All dollar quantities must be formatted in LaTeX and not plaintext.
+All dollar quantities (of USD) must be formatted in LaTeX, with the `$` symbol escaped by a single backslash `\\`.
 - Example prompt: `If I have \\\\$100 and spend \\\\$20, how much money do I have left?`
 - **Correct** response: `You have \\(\\$80\\) remaining.`
 - **Incorrect** response: `You have $80 remaining.`
