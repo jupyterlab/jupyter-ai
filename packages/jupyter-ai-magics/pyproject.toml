@@ -57,7 +57,6 @@ all = [
 
 [project.entry-points."jupyter_ai.model_providers"]
 ai21 = "jupyter_ai_magics:AI21Provider"
-anthropic = "jupyter_ai_magics.partner_providers.anthropic:AnthropicProvider"
 anthropic-chat = "jupyter_ai_magics.partner_providers.anthropic:ChatAnthropicProvider"
 cohere = "jupyter_ai_magics.partner_providers.cohere:CohereProvider"
 gpt4all = "jupyter_ai_magics:GPT4AllProvider"
