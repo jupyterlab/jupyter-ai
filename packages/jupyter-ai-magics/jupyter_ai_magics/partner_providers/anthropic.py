@@ -1,18 +1,21 @@
-from langchain_anthropic import AnthropicLLM, ChatAnthropic
+from langchain_anthropic import ChatAnthropic
 
 from ..providers import BaseProvider, EnvAuthStrategy
 
 
-class AnthropicProvider(BaseProvider, AnthropicLLM):
-    id = "anthropic"
+class ChatAnthropicProvider(
+    BaseProvider, ChatAnthropic
+):  # https://docs.anthropic.com/en/docs/about-claude/models
+    id = "anthropic-chat"
     name = "Anthropic"
     models = [
-        "claude-v1",
-        "claude-v1.0",
-        "claude-v1.2",
-        "claude-instant-v1",
-        "claude-instant-v1.0",
-        "claude-instant-v1.2",
+        "claude-2.0",
+        "claude-2.1",
+        "claude-3-opus-20240229",
+        "claude-3-sonnet-20240229",
+        "claude-3-haiku-20240307",
+        "claude-3-5-haiku-20241022",
+        "claude-3-5-sonnet-20241022",
     ]
     model_id_key = "model"
     pypi_package_deps = ["anthropic"]
@@ -31,27 +34,4 @@ class AnthropicProvider(BaseProvider, AnthropicLLM):
 
         if isinstance(e, anthropic.AuthenticationError):
             return e.status_code == 401 and "Invalid API Key" in str(e)
-        return False
-
-
-class ChatAnthropicProvider(
-    BaseProvider, ChatAnthropic
-):  # https://docs.anthropic.com/en/docs/about-claude/models
-    id = "anthropic-chat"
-    name = "Anthropic"
-    models = [
-        "claude-2.0",
-        "claude-2.1",
-        "claude-3-opus-20240229",
-        "claude-3-sonnet-20240229",
-        "claude-3-haiku-20240307",
-        "claude-3-5-sonnet-20240620",
-        "claude-3-5-sonnet-20241022",
-    ]
-    model_id_key = "model"
-    pypi_package_deps = ["anthropic"]
-    auth_strategy = EnvAuthStrategy(name="ANTHROPIC_API_KEY")
-
-    @property
-    def allows_concurrency(self):
         return False
