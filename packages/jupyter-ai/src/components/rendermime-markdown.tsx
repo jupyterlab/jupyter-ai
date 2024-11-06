@@ -51,11 +51,11 @@ function isTextNode(node: Node | null): node is Text {
  * Escapes all `$` symbols present in an HTML element except those within the
  * following elements: `pre`, `code`, `samp`, `kbd`.
  *
- * This prevents `$` symbols from being used as inline math delimiters, allowing
- * `$` symbols to be used literally to denote quantities of USD. This does not
- * escape literal `$` within elements that display their contents literally,
- * like code elements. This overrides JupyterLab's default rendering of MarkDown
- * w/ LaTeX.
+ * This prevents `$` symbols from being used as inline math delimiters in AI
+ * messages, allowing `$` symbols to be used literally to denote quantities of
+ * USD. This does not escape literal `$` within elements that display their
+ * contents literally, like code elements. This overrides JupyterLab's default
+ * rendering of MarkDown w/ LaTeX for AI messages.
  *
  * The Jupyter AI system prompt should explicitly request that the LLM not use
  * `$` as an inline math delimiter. This is the default behavior.
@@ -82,7 +82,7 @@ function escapeDollarSymbols(el: HTMLElement) {
     }
   }
 
-  // Replace each `$` symbol with `\$` for each text node, unless there is
+  // Replaces each `$` symbol with `\$` for each text node, unless there is
   // another `$` symbol adjacent or it is already escaped. Examples:
   // - `$10 - $5` => `\$10 - \$5` (escaped)
   // - `$$ \infty $$` => `$$ \infty $$` (unchanged)
@@ -131,8 +131,14 @@ function RendermimeMarkdownBase(props: RendermimeMarkdownProps): JSX.Element {
         );
       }
 
-      // step 2: render LaTeX via MathJax, while escaping single dollar symbols.
-      escapeDollarSymbols(renderer.node);
+      // step 2: render LaTeX via MathJax, while escaping single dollar symbols
+      // in agent messages.
+      if (
+        props.parentMessage?.type === 'agent' ||
+        props.parentMessage?.type === 'agent-stream'
+      ) {
+        escapeDollarSymbols(renderer.node);
+      }
       props.rmRegistry.latexTypesetter?.typeset(renderer.node);
 
       // insert the rendering into renderingContainer if not yet inserted
