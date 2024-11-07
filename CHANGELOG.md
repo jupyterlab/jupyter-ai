@@ -2,6 +2,53 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 2.28.0
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.27.0...6eb6a625712b8a77240ddfffe70050ed9ab83576))
+
+### Release summary
+
+This release notably includes the following changes:
+
+- Models from the `Anthropic` and `ChatAnthropic` providers are now merged in the config UI, so all Anthropic models are shown in the same place in the "Language model" dropdown.
+
+- Anthropic Claude v1 LLMs have been removed, as the models are retired and no longer available from the API.
+
+- The chat system prompt has been updated to encourage the LLM to express dollar quantities in LaTeX, i.e. the LLM should prefer returning `\(\$100\)` instead of `$100`. For the latest LLMs, this generally fixes a [rendering issue](https://github.com/jupyterlab/jupyter-ai/issues/1067) when multiple dollar quantities are given literally in the same sentence.
+
+  - Note that the issue may still persist in older LLMs, which do not respect the system prompt as frequently.
+
+- `/export` has been fixed to include streamed replies, which were previously omitted.
+
+- Calling non-chat providers with history has been fixed to behave properly in magics.
+
+### Enhancements made
+
+- Remove retired models and add new `Haiku-3.5` model in Anthropic [#1092](https://github.com/jupyterlab/jupyter-ai/pull/1092) ([@srdas](https://github.com/srdas))
+- Reduced padding in cell around code icons in code toolbar [#1072](https://github.com/jupyterlab/jupyter-ai/pull/1072) ([@srdas](https://github.com/srdas))
+- Merge Anthropic language model providers [#1069](https://github.com/jupyterlab/jupyter-ai/pull/1069) ([@srdas](https://github.com/srdas))
+- Add examples of using Fields and EnvAuthStrategy to developer documentation [#1056](https://github.com/jupyterlab/jupyter-ai/pull/1056) ([@alanmeeson](https://github.com/alanmeeson))
+
+### Bugs fixed
+
+- Continue to allow `$` symbols to delimit inline math in human messages [#1094](https://github.com/jupyterlab/jupyter-ai/pull/1094) ([@dlqqq](https://github.com/dlqqq))
+- Fix `/export` by including streamed agent messages [#1077](https://github.com/jupyterlab/jupyter-ai/pull/1077) ([@mcavdar](https://github.com/mcavdar))
+- Fix magic commands when using non-chat providers w/ history [#1075](https://github.com/jupyterlab/jupyter-ai/pull/1075) ([@alanmeeson](https://github.com/alanmeeson))
+- Allow `$` to literally denote quantities of USD in chat [#1068](https://github.com/jupyterlab/jupyter-ai/pull/1068) ([@dlqqq](https://github.com/dlqqq))
+
+### Documentation improvements
+
+- Improve installation documentation and clarify provider dependencies [#1087](https://github.com/jupyterlab/jupyter-ai/pull/1087) ([@srdas](https://github.com/srdas))
+- Added Ollama to the providers table in user docs [#1064](https://github.com/jupyterlab/jupyter-ai/pull/1064) ([@srdas](https://github.com/srdas))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-10-29&to=2024-11-07&type=c))
+
+[@alanmeeson](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aalanmeeson+updated%3A2024-10-29..2024-11-07&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2024-10-29..2024-11-07&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2024-10-29..2024-11-07&type=Issues) | [@mcavdar](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Amcavdar+updated%3A2024-10-29..2024-11-07&type=Issues) | [@srdas](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2024-10-29..2024-11-07&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 2.27.0
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.26.0...b621aa476afc3af9e9b3dd398108b7ed9aaf7bf6))
@@ -20,8 +67,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-10-21&to=2024-10-29&type=c))
 
 [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2024-10-21..2024-10-29&type=Issues) | [@pre-commit-ci](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Apre-commit-ci+updated%3A2024-10-21..2024-10-29&type=Issues) | [@srdas](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2024-10-21..2024-10-29&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 2.26.0
 
