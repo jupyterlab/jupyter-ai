@@ -29,7 +29,9 @@ dependencies = [
     "importlib_metadata>=5.2.0",
     "jupyter_ai_magics>=2.13.0",
     "dask[distributed]",
-    "faiss-cpu<=1.8.0",          # Not distributed by official repo
+    # faiss-cpu is not distributed by the official repo.
+    # v1.8.0.post0 should be excluded as it lacks macOS x86 wheels.
+    "faiss-cpu>=1.8.0,<2.0.0,!=1.8.0.post0",
     "typing_extensions>=4.5.0",
     "traitlets>=5.0",
     "deepmerge>=2.0,<3",
