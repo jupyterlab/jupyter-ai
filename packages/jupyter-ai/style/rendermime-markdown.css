@@ -2,7 +2,7 @@
  *
  * Selectors must be nested in `.jp-ThemedContainer` to have a higher
  * specificity than selectors in rules provided by JupyterLab.
- * 
+ *
  * See: https://jupyterlab.readthedocs.io/en/latest/extension/extension_migration.html#css-styling
  * See also: https://github.com/jupyterlab/jupyter-ai/issues/1090
  */
