@@ -233,6 +233,9 @@ export function Chat(props: ChatProps): JSX.Element {
             <TelemetryContextProvider telemetryHandler={props.telemetryHandler}>
               <UserContextProvider userManager={props.userManager}>
                 <Box
+                  // Add .jp-ThemedContainer for CSS compatibility in both JL <4.3.0 and >=4.3.0.
+                  // See: https://jupyterlab.readthedocs.io/en/latest/extension/extension_migration.html#css-styling
+                  className="jp-ThemedContainer"
                   // root box should not include padding as it offsets the vertical
                   // scrollbar to the left
                   sx={{
