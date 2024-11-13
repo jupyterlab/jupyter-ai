@@ -93,6 +93,12 @@ class FileContextProvider(BaseCommandContextProvider):
                 f"Permission denied while trying to read '{filepath}' "
                 f"triggered by `{command}`."
             )
+        except UnicodeDecodeError:
+            file_extension = os.path.splitext(filepath)[1]
+            raise ContextProviderException(
+                f"The `{file_extension}` file format is not supported for passing context to the LLM. "
+                f"The `@file` command only supports plaintext files."
+            )
         return FILE_CONTEXT_TEMPLATE.format(
             filepath=filepath,
             content=self._process_file(content, filepath),
