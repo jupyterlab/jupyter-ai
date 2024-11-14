@@ -67,7 +67,10 @@ class FileContextProvider(BaseCommandContextProvider):
         try:
             with open(filepath, "rb") as file:
                 file_header = file.read(4)
-                if file_header == b"\x89PNG" or file_header == b"\x89\x50\x4e\x47\x0d\x0a\x1a\x0a":
+                if (
+                    file_header == b"\x89PNG"
+                    or file_header == b"\x89\x50\x4e\x47\x0d\x0a\x1a\x0a"
+                ):
                     return ".png"
                 elif file_header == b"\xff\xd8\xff\xe0":
                     return ".jpg"
