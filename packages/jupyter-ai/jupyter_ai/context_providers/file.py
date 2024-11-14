@@ -50,7 +50,7 @@ class FileContextProvider(BaseCommandContextProvider):
         if is_dir:
             path += "/"
         return path
-    
+
     import os
 
     def get_file_type(self, filepath):
@@ -67,20 +67,20 @@ class FileContextProvider(BaseCommandContextProvider):
 
         # Check if the file is a binary blob
         try:
-            with open(filepath, 'rb') as file:
+            with open(filepath, "rb") as file:
                 file_header = file.read(4)
-                if file_header == b'\x89PNG':
-                    return '.png'
-                elif file_header == b'\xff\xd8\xff\xe0':
-                    return '.jpg'
-                elif file_header == b'GIF87a' or file_header == b'GIF89a':
-                    return '.gif'
-                elif file_header == b'\x1f\x8b\x08':
-                    return '.gz'
-                elif file_header == b'\x50\x4b\x03\x04':
-                    return '.zip'
-                elif file_header == b'\x25\x50\x44\x46':
-                    return '.pdf'
+                if file_header == b"\x89PNG":
+                    return ".png"
+                elif file_header == b"\xff\xd8\xff\xe0":
+                    return ".jpg"
+                elif file_header == b"GIF87a" or file_header == b"GIF89a":
+                    return ".gif"
+                elif file_header == b"\x1f\x8b\x08":
+                    return ".gz"
+                elif file_header == b"\x50\x4b\x03\x04":
+                    return ".zip"
+                elif file_header == b"\x25\x50\x44\x46":
+                    return ".pdf"
                 else:
                     return file_extension
         except:
