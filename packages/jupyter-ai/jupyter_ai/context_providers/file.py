@@ -67,7 +67,7 @@ class FileContextProvider(BaseCommandContextProvider):
         try:
             with open(filepath, "rb") as file:
                 file_header = file.read(4)
-                if file_header == b"\x89PNG":
+                if file_header == b"\x89PNG" or file_header == b"\x89\x50\x4e\x47\x0d\x0a\x1a\x0a":
                     return ".png"
                 elif file_header == b"\xff\xd8\xff\xe0":
                     return ".jpg"
@@ -77,6 +77,8 @@ class FileContextProvider(BaseCommandContextProvider):
                     return ".gz"
                 elif file_header == b"\x50\x4b\x03\x04":
                     return ".zip"
+                elif file_header == b"\x75\x73\x74\x61\x72":
+                    return ".tar"
                 elif file_header == b"\x25\x50\x44\x46":
                     return ".pdf"
                 else:
@@ -128,10 +130,16 @@ class FileContextProvider(BaseCommandContextProvider):
             )
         except UnicodeDecodeError:
             file_extension = self.get_file_type(filepath)
-            raise ContextProviderException(
-                f"The `{file_extension}` file format is not supported for passing context to the LLM. "
-                f"The `@file` command only supports plaintext files."
-            )
+            if file_extension:
+                raise ContextProviderException(
+                    f"The `{file_extension}` file format is not supported for passing context to the LLM. "
+                    f"The `@file` command only supports plaintext files."
+                )
+            else:
+                raise ContextProviderException(
+                    f"This file format is not supported for passing context to the LLM. "
+                    f"The `@file` command only supports plaintext files."
+                )
         return FILE_CONTEXT_TEMPLATE.format(
             filepath=filepath,
             content=self._process_file(content, filepath),
