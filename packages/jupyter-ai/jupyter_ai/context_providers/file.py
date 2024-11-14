@@ -50,6 +50,41 @@ class FileContextProvider(BaseCommandContextProvider):
         if is_dir:
             path += "/"
         return path
+    
+    import os
+
+    def get_file_type(self, filepath):
+        """
+        Determine the file type of the given file path.
+
+        Args:
+            filepath (str): The file path to analyze.
+
+        Returns:
+            str: The file type as a string, e.g. '.txt', '.png', '.pdf', etc.
+        """
+        file_extension = os.path.splitext(filepath)[1].lower()
+
+        # Check if the file is a binary blob
+        try:
+            with open(filepath, 'rb') as file:
+                file_header = file.read(4)
+                if file_header == b'\x89PNG':
+                    return '.png'
+                elif file_header == b'\xff\xd8\xff\xe0':
+                    return '.jpg'
+                elif file_header == b'GIF87a' or file_header == b'GIF89a':
+                    return '.gif'
+                elif file_header == b'\x1f\x8b\x08':
+                    return '.gz'
+                elif file_header == b'\x50\x4b\x03\x04':
+                    return '.zip'
+                elif file_header == b'\x25\x50\x44\x46':
+                    return '.pdf'
+                else:
+                    return file_extension
+        except:
+            return file_extension
 
     async def _make_context_prompt(
         self, message: HumanChatMessage, commands: List[ContextCommand]
@@ -94,7 +129,7 @@ class FileContextProvider(BaseCommandContextProvider):
                 f"triggered by `{command}`."
             )
         except UnicodeDecodeError:
-            file_extension = os.path.splitext(filepath)[1]
+            file_extension = self.get_file_type(filepath)
             raise ContextProviderException(
                 f"The `{file_extension}` file format is not supported for passing context to the LLM. "
                 f"The `@file` command only supports plaintext files."
