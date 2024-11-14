@@ -50,7 +50,7 @@ class FileContextProvider(BaseCommandContextProvider):
         if is_dir:
             path += "/"
         return path
-    
+
     def get_file_type(self, filepath):
         """
         Determine the file type of the given file path.
