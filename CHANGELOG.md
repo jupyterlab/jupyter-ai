@@ -2,6 +2,24 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 2.28.2
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.28.1...cbfed31bc3ee19c02a12c28a618af99ab10206be))
+
+### Bugs fixed
+
+- Bump LangChain minimum versions [#1109](https://github.com/jupyterlab/jupyter-ai/pull/1109) ([@dlqqq](https://github.com/dlqqq))
+- Catch error on non plaintext files in `@file` and reply gracefully in chat [#1106](https://github.com/jupyterlab/jupyter-ai/pull/1106) ([@srdas](https://github.com/srdas))
+- Fix rendering of code blocks in JupyterLab 4.3.0+ [#1104](https://github.com/jupyterlab/jupyter-ai/pull/1104) ([@dlqqq](https://github.com/dlqqq))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-11-11&to=2024-11-18&type=c))
+
+[@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2024-11-11..2024-11-18&type=Issues) | [@srdas](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2024-11-11..2024-11-18&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 2.28.1
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.28.0...d5d604d64552ed89ba200d56da9d3044138feaf5))
@@ -15,8 +33,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-11-07&to=2024-11-11&type=c))
 
 [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2024-11-07..2024-11-11&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 2.28.0
 
