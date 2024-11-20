@@ -78,6 +78,10 @@ class BedrockChatProvider(BaseProvider, ChatBedrock):
         "meta.llama3-1-8b-instruct-v1:0",
         "meta.llama3-1-70b-instruct-v1:0",
         "meta.llama3-1-405b-instruct-v1:0",
+        "meta.llama3-2-1b-instruct-v1:0",
+        "meta.llama3-2-3b-instruct-v1:0",
+        "meta.llama3-2-11b-instruct-v1:0",
+        "meta.llama3-2-90b-instruct-v1:0",
         "mistral.mistral-7b-instruct-v0:2",
         "mistral.mixtral-8x7b-instruct-v0:1",
         "mistral.mistral-large-2402-v1:0",
@@ -88,12 +92,27 @@ class BedrockChatProvider(BaseProvider, ChatBedrock):
     auth_strategy = AwsAuthStrategy()
     fields = [
         TextField(
+            key="region_area",
+            label="Cross-region inference area (possibly required)",
+            format="text",
+        ),
+        TextField(
             key="credentials_profile_name",
             label="AWS profile (optional)",
             format="text",
         ),
         TextField(key="region_name", label="Region name (optional)", format="text"),
     ]
+    help = (
+        "Specify the Cross Region Inference (CRI) Area Name. \
+        Look this up [here](https://docs.aws.amazon.com/bedrock/latest/userguide/inference-profiles-support.html#inference-profiles-support-system)."
+    )
+
+    def __init__(self, *args, **kwargs):
+        region_area = kwargs.pop("region_area", None) 
+        if region_area:
+            kwargs["model_id"] = region_area + '.' + kwargs["model_id"] 
+        super().__init__(*args, **kwargs)
 
     async def _acall(self, *args, **kwargs) -> Coroutine[Any, Any, str]:
         return await self._call_in_executor(*args, **kwargs)
