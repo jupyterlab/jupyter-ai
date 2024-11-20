@@ -103,15 +103,13 @@ class BedrockChatProvider(BaseProvider, ChatBedrock):
         ),
         TextField(key="region_name", label="Region name (optional)", format="text"),
     ]
-    help = (
-        "Specify the Cross Region Inference (CRI) Area Name. \
+    help = "Specify the Cross Region Inference (CRI) Area Name. \
         Look this up [here](https://docs.aws.amazon.com/bedrock/latest/userguide/inference-profiles-support.html#inference-profiles-support-system)."
-    )
 
     def __init__(self, *args, **kwargs):
-        region_area = kwargs.pop("region_area", None) 
+        region_area = kwargs.pop("region_area", None)
         if region_area:
-            kwargs["model_id"] = region_area + '.' + kwargs["model_id"] 
+            kwargs["model_id"] = region_area + "." + kwargs["model_id"]
         super().__init__(*args, **kwargs)
 
     async def _acall(self, *args, **kwargs) -> Coroutine[Any, Any, str]:
