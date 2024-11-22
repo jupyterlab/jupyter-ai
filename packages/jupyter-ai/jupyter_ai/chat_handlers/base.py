@@ -45,7 +45,7 @@ from langchain_core.runnables.config import merge_configs as merge_runnable_conf
 from langchain_core.runnables.utils import Input
 
 try:
-    from jupyterlab_collaborative_chat.ychat import YChat
+    from jupyterlab_chat.ychat import YChat
 except:
     from typing import Any as YChat
 
@@ -392,7 +392,7 @@ class BaseChatHandler:
         Context manager that sends a pending message to the client, and closes
         it after the block is executed.
 
-        TODO: Simplify it by only modifying the awareness as soon as collaborative chat
+        TODO: Simplify it by only modifying the awareness as soon as jupyterlab chat
         is the only used chat.
         """
         pending_msg = self.start_pending(text, human_msg=human_msg, chat=chat, ellipsis=ellipsis)

@@ -184,9 +184,9 @@ const plugin: JupyterFrontEndPlugin<IJaiCore> = {
 };
 
 /**
- * Add slash commands to collaborative chat.
+ * Add slash commands to jupyterlab chat.
  */
-const collaborative_autocompletion: JupyterFrontEndPlugin<void> = {
+const chat_autocompletion: JupyterFrontEndPlugin<void> = {
   id: '@jupyter-ai/core:autocompletion',
   autoStart: true,
   requires: [IAutocompletionRegistry],
@@ -203,7 +203,7 @@ export default [
   statusItemPlugin,
   completionPlugin,
   menuPlugin,
-  collaborative_autocompletion
+  chat_autocompletion
 ];
 
 export * from './contexts';

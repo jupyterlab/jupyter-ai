@@ -3,7 +3,7 @@ from typing import Optional
 from jupyter_ai.models import HumanChatMessage
 
 try:
-    from jupyterlab_collaborative_chat.ychat import YChat
+    from jupyterlab_chat.ychat import YChat
 except:
     from typing import Any as YChat
 

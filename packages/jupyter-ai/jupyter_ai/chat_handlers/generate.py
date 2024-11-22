@@ -17,7 +17,7 @@ from langchain.schema.output_parser import BaseOutputParser
 from langchain_core.prompts import PromptTemplate
 
 try:
-    from jupyterlab_collaborative_chat.ychat import YChat
+    from jupyterlab_chat.ychat import YChat
 except:
     from typing import Any as YChat
 

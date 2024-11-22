@@ -31,7 +31,7 @@ from langchain.text_splitter import (
 from langchain_community.vectorstores import FAISS
 
 try:
-    from jupyterlab_collaborative_chat.ychat import YChat
+    from jupyterlab_chat.ychat import YChat
 except:
     from typing import Any as YChat
 

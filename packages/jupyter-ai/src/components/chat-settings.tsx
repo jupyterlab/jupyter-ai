@@ -34,7 +34,7 @@ type ChatSettingsProps = {
   rmRegistry: IRenderMimeRegistry;
   completionProvider: IJaiCompletionProvider | null;
   openInlineCompleterSettings: () => void;
-  // The temporary input options,  should be removed when the collaborative chat is
+  // The temporary input options,  should be removed when jupyterlab chat is
   // the only chat.
   inputOptions?: boolean;
 };
@@ -514,7 +514,7 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
         onSuccess={server.refetchApiKeys}
       />
 
-      {/* Input - to remove when the collaborative chat is the only chat */}
+      {/* Input - to remove when jupyterlab chat is the only chat */}
       {(props.inputOptions ?? true) && (
         <>
           <h2 className="jp-ai-ChatSettings-header">Input</h2>

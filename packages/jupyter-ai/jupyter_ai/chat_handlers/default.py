@@ -7,7 +7,7 @@ from langchain_core.runnables import ConfigurableFieldSpec
 from langchain_core.runnables.history import RunnableWithMessageHistory
 
 try:
-    from jupyterlab_collaborative_chat.ychat import YChat
+    from jupyterlab_chat.ychat import YChat
 except:
     from typing import Any as YChat
 

@@ -17,7 +17,7 @@ from jupyter_collaboration.utils import JUPYTER_COLLABORATION_EVENTS_URI
 from jupyter_events import EventLogger
 from jupyter_server.extension.application import ExtensionApp
 from jupyter_server.utils import url_path_join
-from jupyterlab_collaborative_chat.ychat import YChat
+from jupyterlab_chat.ychat import YChat
 from pycrdt import ArrayEvent
 from tornado.web import StaticFileHandler
 from traitlets import Dict, Integer, List, Unicode
