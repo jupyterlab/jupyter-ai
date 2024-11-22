@@ -51,6 +51,44 @@ class FileContextProvider(BaseCommandContextProvider):
             path += "/"
         return path
 
+    def get_file_type(self, filepath):
+        """
+        Determine the file type of the given file path.
+
+        Args:
+            filepath (str): The file path to analyze.
+
+        Returns:
+            str: The file type as a string, e.g. '.txt', '.png', '.pdf', etc.
+        """
+        file_extension = os.path.splitext(filepath)[1].lower()
+
+        # Check if the file is a binary blob
+        try:
+            with open(filepath, "rb") as file:
+                file_header = file.read(4)
+                if (
+                    file_header == b"\x89PNG"
+                    or file_header == b"\x89\x50\x4e\x47\x0d\x0a\x1a\x0a"
+                ):
+                    return ".png"
+                elif file_header == b"\xff\xd8\xff\xe0":
+                    return ".jpg"
+                elif file_header == b"GIF87a" or file_header == b"GIF89a":
+                    return ".gif"
+                elif file_header == b"\x1f\x8b\x08":
+                    return ".gz"
+                elif file_header == b"\x50\x4b\x03\x04":
+                    return ".zip"
+                elif file_header == b"\x75\x73\x74\x61\x72":
+                    return ".tar"
+                elif file_header == b"\x25\x50\x44\x46":
+                    return ".pdf"
+                else:
+                    return file_extension
+        except:
+            return file_extension
+
     async def _make_context_prompt(
         self, message: HumanChatMessage, commands: List[ContextCommand]
     ) -> str:
@@ -93,6 +131,18 @@ class FileContextProvider(BaseCommandContextProvider):
                 f"Permission denied while trying to read '{filepath}' "
                 f"triggered by `{command}`."
             )
+        except UnicodeDecodeError:
+            file_extension = self.get_file_type(filepath)
+            if file_extension:
+                raise ContextProviderException(
+                    f"The `{file_extension}` file format is not supported for passing context to the LLM. "
+                    f"The `@file` command only supports plaintext files."
+                )
+            else:
+                raise ContextProviderException(
+                    f"This file format is not supported for passing context to the LLM. "
+                    f"The `@file` command only supports plaintext files."
+                )
         return FILE_CONTEXT_TEMPLATE.format(
             filepath=filepath,
             content=self._process_file(content, filepath),

@@ -3,7 +3,7 @@ import os
 from datetime import datetime
 from typing import List, Optional
 
-from jupyter_ai.models import AgentChatMessage, HumanChatMessage
+from jupyter_ai.models import AgentChatMessage, AgentStreamMessage, HumanChatMessage
 
 try:
     from jupyterlab_collaborative_chat.ychat import YChat
@@ -27,7 +27,7 @@ class ExportChatHandler(BaseChatHandler):
         self.parser.add_argument("path", nargs=argparse.REMAINDER)
 
     def chat_message_to_markdown(self, message):
-        if isinstance(message, AgentChatMessage):
+        if isinstance(message, (AgentChatMessage, AgentStreamMessage)):
             agent = self.config_manager.persona.name
             return f"**{agent}**: {message.body}"
         elif isinstance(message, HumanChatMessage):

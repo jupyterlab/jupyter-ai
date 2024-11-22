@@ -24,7 +24,12 @@ type RendermimeMarkdownProps = {
 };
 
 /**
- * Takes \( and returns \\(. Escapes LaTeX delimeters by adding extra backslashes where needed for proper rendering by @jupyterlab/rendermime.
+ * Escapes backslashes in LaTeX delimiters such that they appear in the DOM
+ * after the initial MarkDown render. For example, this function takes '\(` and
+ * returns `\\(`.
+ *
+ * Required for proper rendering of MarkDown + LaTeX markup in the chat by
+ * `ILatexTypesetter`.
  */
 function escapeLatexDelimiters(text: string) {
   return text
@@ -57,18 +62,22 @@ function RendermimeMarkdownBase(props: RendermimeMarkdownProps): JSX.Element {
    */
   useEffect(() => {
     const renderContent = async () => {
+      // initialize mime model
       const mdStr = escapeLatexDelimiters(props.markdownStr);
       const model = props.rmRegistry.createModel({
         data: { [MD_MIME_TYPE]: mdStr }
       });
 
+      // step 1: render markdown
       await renderer.renderModel(model);
-      props.rmRegistry.latexTypesetter?.typeset(renderer.node);
       if (!renderer.node) {
         throw new Error(
           'Rendermime was unable to render Markdown content within a chat message. Please report this upstream to Jupyter AI on GitHub.'
         );
       }
+
+      // step 2: render LaTeX via MathJax
+      props.rmRegistry.latexTypesetter?.typeset(renderer.node);
 
       // insert the rendering into renderingContainer if not yet inserted
       if (renderingContainer.current !== null && !renderingInserted.current) {
