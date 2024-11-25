@@ -12,8 +12,8 @@ from jupyter_ai.chat_handlers.learn import Retriever
 from jupyter_ai.models import HumanChatMessage
 from jupyter_ai_magics import BaseProvider, JupyternautPersona
 from jupyter_ai_magics.utils import get_em_providers, get_lm_providers
-from jupyter_collaboration import (
-    __version__ as jupyter_collaboration_version,  # type:ignore[import-untyped]
+from jupyter_collaboration import (    # type:ignore[import-untyped]
+    __version__ as jupyter_collaboration_version,
 )
 from jupyter_collaboration.utils import (  # type:ignore[import-untyped]
     JUPYTER_COLLABORATION_EVENTS_URI,

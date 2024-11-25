@@ -25,5 +25,5 @@ class ClearChatHandler(BaseChatHandler):
             if not handler:
                 continue
 
-            handler.on_clear_request(ClearRequest())
+            handler.on_clear_request(ClearRequest(target=None))
             break
