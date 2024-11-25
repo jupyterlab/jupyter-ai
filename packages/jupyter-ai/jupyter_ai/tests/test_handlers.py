@@ -19,6 +19,7 @@ from jupyter_ai.models import (
     Persona,
 )
 from jupyter_ai_magics import BaseProvider
+from jupyterlab_chat.ychat import YChat
 from langchain_community.llms import FakeListLLM
 from tornado.httputil import HTTPServerRequest
 from tornado.web import Application
@@ -64,6 +65,9 @@ class TestDefaultChatHandler(DefaultChatHandler):
         root_handler = mock.create_autospec(RootChatHandler)
         root_handler.broadcast_message = broadcast_message
 
+        def write_message(self, chat: YChat, body: str, id: Optional[str] = None) -> str:
+            return id or ""
+
         super().__init__(
             log=logging.getLogger(__name__),
             config_manager=config_manager,
@@ -78,6 +82,7 @@ class TestDefaultChatHandler(DefaultChatHandler):
             chat_handlers={},
             context_providers={},
             message_interrupted={},
+            write_message=write_message
         )
 
 
@@ -120,7 +125,7 @@ async def test_default_closes_pending_on_success(human_chat_message):
             "should_raise": False,
         },
     )
-    await handler.process_message(human_chat_message)
+    await handler.process_message(human_chat_message, None)
 
     # >=2 because there are additional stream messages that follow
     assert len(handler.messages) >= 2
@@ -137,7 +142,7 @@ async def test_default_closes_pending_on_error(human_chat_message):
         },
     )
     with pytest.raises(TestException):
-        await handler.process_message(human_chat_message)
+        await handler.process_message(human_chat_message, None)
 
     assert len(handler.messages) == 2
     assert isinstance(handler.messages[0], PendingMessage)
