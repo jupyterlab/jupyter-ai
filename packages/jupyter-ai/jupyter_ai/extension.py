@@ -2,9 +2,9 @@ import os
 import re
 import time
 import types
-from typing import Optional
 import uuid
 from functools import partial
+from typing import Optional
 
 from dask.distributed import Client as DaskClient
 from importlib_metadata import entry_points
@@ -61,10 +61,10 @@ else:
 # The BOT currently has a fixed username, because this username is used has key in chats,
 # it needs to constant. Do we need to change it ?
 BOT = {
-    "username": '5f6a7570-7974-6572-6e61-75742d626f74',
+    "username": "5f6a7570-7974-6572-6e61-75742d626f74",
     "name": "Jupyternaut",
     "display_name": "Jupyternaut",
-    "initials": "J"
+    "initials": "J",
 }
 
 DEFAULT_HELP_MESSAGE_TEMPLATE = """Hi there! I'm {persona_name}, your programming assistant.
@@ -319,7 +319,7 @@ class AiExtension(ExtensionApp):
         command_readable = "Default" if command == "default" else command
         self.log.info(f"{command_readable} chat handler resolved in {latency_ms} ms.")
 
-    def write_message(self, chat: YChat, body: str, id: Optional[str]=None) -> str:
+    def write_message(self, chat: YChat, body: str, id: Optional[str] = None) -> str:
         bot = chat.get_user(BOT["username"])
         if not bot:
             chat.set_user(BOT)

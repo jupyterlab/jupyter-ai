@@ -214,7 +214,9 @@ class LearnChatHandler(BaseChatHandler):
         # delete and relearn index if embedding model was changed
         await self.delete_and_relearn(chat)
 
-        with self.pending(f"Loading and splitting files for {load_path}", message, chat=chat):
+        with self.pending(
+            f"Loading and splitting files for {load_path}", message, chat=chat
+        ):
             try:
                 await self.learn_dir(
                     load_path, args.chunk_size, args.chunk_overlap, args.all_files
@@ -284,7 +286,7 @@ class LearnChatHandler(BaseChatHandler):
             )
         self.metadata.dirs = dirs
 
-    async def delete_and_relearn(self, chat: Optional[YChat]=None):
+    async def delete_and_relearn(self, chat: Optional[YChat] = None):
         """Delete the vector store and relearn all indexed directories if
         necessary. If the embedding model is unchanged, this method does
         nothing."""

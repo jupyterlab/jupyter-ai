@@ -109,4 +109,6 @@ class FixChatHandler(BaseChatHandler):
             "error_name": selection.error.name,
             "error_value": selection.error.value,
         }
-        await self.stream_reply(inputs, message, pending_msg="Analyzing error", chat=chat)
+        await self.stream_reply(
+            inputs, message, pending_msg="Analyzing error", chat=chat
+        )

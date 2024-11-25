@@ -358,7 +358,7 @@ class BaseChatHandler:
 
         if chat is not None:
             chat.awareness.set_local_state_field("isWriting", True)
-        else :
+        else:
             self.broadcast_message(pending_msg)
         return pending_msg
 
@@ -395,7 +395,9 @@ class BaseChatHandler:
         TODO: Simplify it by only modifying the awareness as soon as jupyterlab chat
         is the only used chat.
         """
-        pending_msg = self.start_pending(text, human_msg=human_msg, chat=chat, ellipsis=ellipsis)
+        pending_msg = self.start_pending(
+            text, human_msg=human_msg, chat=chat, ellipsis=ellipsis
+        )
         try:
             yield pending_msg
         finally:
@@ -518,7 +520,9 @@ class BaseChatHandler:
             )
             self.broadcast_message(help_message)
 
-    def _start_stream(self, human_msg: HumanChatMessage, chat: Optional[YChat]) -> str | None:
+    def _start_stream(
+        self, human_msg: HumanChatMessage, chat: Optional[YChat]
+    ) -> str | None:
         """
         Sends an `agent-stream` message to indicate the start of a response
         stream. Returns the ID of the message, denoted as the `stream_id`.
@@ -559,7 +563,10 @@ class BaseChatHandler:
                 metadata = {}
 
             stream_chunk_msg = AgentStreamChunkMessage(
-                id=stream_id, content=content, stream_complete=complete, metadata=metadata
+                id=stream_id,
+                content=content,
+                stream_complete=complete,
+                metadata=metadata,
             )
             self.broadcast_message(stream_chunk_msg)
 
