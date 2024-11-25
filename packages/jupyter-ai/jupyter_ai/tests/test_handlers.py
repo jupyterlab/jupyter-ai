@@ -65,7 +65,9 @@ class TestDefaultChatHandler(DefaultChatHandler):
         root_handler = mock.create_autospec(RootChatHandler)
         root_handler.broadcast_message = broadcast_message
 
-        def write_message(self, chat: YChat, body: str, id: Optional[str] = None) -> str:
+        def write_message(
+            self, chat: YChat, body: str, id: Optional[str] = None
+        ) -> str:
             return id or ""
 
         super().__init__(
@@ -82,7 +84,7 @@ class TestDefaultChatHandler(DefaultChatHandler):
             chat_handlers={},
             context_providers={},
             message_interrupted={},
-            write_message=write_message
+            write_message=write_message,
         )
 
 
