@@ -1,9 +1,9 @@
 import asyncio
 from typing import Dict, Optional, Type
 
-from jupyterlab_chat.ychat import YChat
 from jupyter_ai.models import HumanChatMessage
 from jupyter_ai_magics.providers import BaseProvider
+from jupyterlab_chat.ychat import YChat
 from langchain_core.runnables import ConfigurableFieldSpec
 from langchain_core.runnables.history import RunnableWithMessageHistory
 

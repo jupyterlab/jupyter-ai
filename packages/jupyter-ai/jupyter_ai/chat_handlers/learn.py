@@ -5,7 +5,6 @@ from glob import iglob
 from typing import Any, Coroutine, List, Optional, Tuple
 
 from dask.distributed import Client as DaskClient
-from jupyterlab_chat.ychat import YChat
 from jupyter_ai.document_loaders.directory import (
     EXCLUDE_DIRS,
     arxiv_to_text,
@@ -22,6 +21,7 @@ from jupyter_ai.models import (
 )
 from jupyter_core.paths import jupyter_data_dir
 from jupyter_core.utils import ensure_dir_exists
+from jupyterlab_chat.ychat import YChat
 from langchain.schema import BaseRetriever, Document
 from langchain.text_splitter import (
     LatexTextSplitter,

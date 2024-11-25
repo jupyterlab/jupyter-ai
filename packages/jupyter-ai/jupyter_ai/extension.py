@@ -12,8 +12,12 @@ from jupyter_ai.chat_handlers.learn import Retriever
 from jupyter_ai.models import HumanChatMessage
 from jupyter_ai_magics import BaseProvider, JupyternautPersona
 from jupyter_ai_magics.utils import get_em_providers, get_lm_providers
-from jupyter_collaboration import __version__ as jupyter_collaboration_version  # type:ignore[import-untyped]
-from jupyter_collaboration.utils import JUPYTER_COLLABORATION_EVENTS_URI  # type:ignore[import-untyped]
+from jupyter_collaboration import (
+    __version__ as jupyter_collaboration_version,  # type:ignore[import-untyped]
+)
+from jupyter_collaboration.utils import (  # type:ignore[import-untyped]
+    JUPYTER_COLLABORATION_EVENTS_URI,
+)
 from jupyter_events import EventLogger
 from jupyter_server.extension.application import ExtensionApp
 from jupyter_server.utils import url_path_join
@@ -297,7 +301,7 @@ class AiExtension(ExtensionApp):
                 except Exception as e:
                     self.log.error(e)
                 if self.serverapp is not None:
-                    self.serverapp.io_loop.asyncio_loop.create_task(  #type:ignore[attr-defined]
+                    self.serverapp.io_loop.asyncio_loop.create_task(  # type:ignore[attr-defined]
                         self._route(chat_message, chat)
                     )
 

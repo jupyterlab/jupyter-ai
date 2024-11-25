@@ -3,8 +3,8 @@ import os
 from datetime import datetime
 from typing import List, Optional
 
-from jupyterlab_chat.ychat import YChat
 from jupyter_ai.models import AgentChatMessage, AgentStreamMessage, HumanChatMessage
+from jupyterlab_chat.ychat import YChat
 
 from .base import BaseChatHandler, SlashCommandRoutingType
 

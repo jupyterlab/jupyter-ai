@@ -1,7 +1,7 @@
 from typing import Optional
 
-from jupyterlab_chat.ychat import YChat
 from jupyter_ai.models import HumanChatMessage
+from jupyterlab_chat.ychat import YChat
 
 from .base import BaseChatHandler, SlashCommandRoutingType
 

@@ -1,8 +1,8 @@
 from typing import Dict, Optional, Type
 
-from jupyterlab_chat.ychat import YChat
 from jupyter_ai.models import CellWithErrorSelection, HumanChatMessage
 from jupyter_ai_magics.providers import BaseProvider
+from jupyterlab_chat.ychat import YChat
 from langchain.prompts import PromptTemplate
 
 from .base import BaseChatHandler, SlashCommandRoutingType

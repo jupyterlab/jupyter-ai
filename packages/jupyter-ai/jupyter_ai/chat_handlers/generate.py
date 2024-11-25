@@ -6,10 +6,10 @@ from pathlib import Path
 from typing import Dict, List, Optional, Type
 
 import nbformat
-from jupyterlab_chat.ychat import YChat
 from jupyter_ai.chat_handlers import BaseChatHandler, SlashCommandRoutingType
 from jupyter_ai.models import HumanChatMessage
 from jupyter_ai_magics.providers import BaseProvider
+from jupyterlab_chat.ychat import YChat
 from langchain.chains import LLMChain
 from langchain.llms import BaseLLM
 from langchain.output_parsers import PydanticOutputParser

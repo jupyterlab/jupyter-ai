@@ -22,7 +22,6 @@ from typing import get_args as get_type_args
 from uuid import uuid4
 
 from dask.distributed import Client as DaskClient
-from jupyterlab_chat.ychat import YChat
 from jupyter_ai.callback_handlers import MetadataCallbackHandler
 from jupyter_ai.config_manager import ConfigManager, Logger
 from jupyter_ai.history import WrappedBoundedChatHistory
@@ -38,13 +37,13 @@ from jupyter_ai.models import (
 )
 from jupyter_ai_magics import Persona
 from jupyter_ai_magics.providers import BaseProvider
+from jupyterlab_chat.ychat import YChat
 from langchain.pydantic_v1 import BaseModel
 from langchain_core.messages import AIMessageChunk
 from langchain_core.runnables import Runnable
 from langchain_core.runnables.config import RunnableConfig
 from langchain_core.runnables.config import merge_configs as merge_runnable_configs
 from langchain_core.runnables.utils import Input
-
 
 if TYPE_CHECKING:
     from jupyter_ai.context_providers import BaseCommandContextProvider
@@ -517,9 +516,7 @@ class BaseChatHandler:
             )
             self.broadcast_message(help_message)
 
-    def _start_stream(
-        self, human_msg: HumanChatMessage, chat: Optional[YChat]
-    ) -> str:
+    def _start_stream(self, human_msg: HumanChatMessage, chat: Optional[YChat]) -> str:
         """
         Sends an `agent-stream` message to indicate the start of a response
         stream. Returns the ID of the message, denoted as the `stream_id`.

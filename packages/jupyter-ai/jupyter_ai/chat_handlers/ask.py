@@ -1,9 +1,9 @@
 import argparse
 from typing import Dict, Optional, Type
 
-from jupyterlab_chat.ychat import YChat
 from jupyter_ai.models import HumanChatMessage
 from jupyter_ai_magics.providers import BaseProvider
+from jupyterlab_chat.ychat import YChat
 from langchain.chains import ConversationalRetrievalChain
 from langchain.memory import ConversationBufferWindowMemory
 from langchain_core.prompts import PromptTemplate

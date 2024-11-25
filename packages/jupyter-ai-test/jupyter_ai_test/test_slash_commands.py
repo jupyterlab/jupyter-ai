@@ -1,6 +1,6 @@
-from jupyterlab_chat.ychat import YChat
 from jupyter_ai.chat_handlers.base import BaseChatHandler, SlashCommandRoutingType
 from jupyter_ai.models import HumanChatMessage
+from jupyterlab_chat.ychat import YChat
 
 
 class TestSlashCommand(BaseChatHandler):
