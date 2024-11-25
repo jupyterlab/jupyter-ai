@@ -51,7 +51,7 @@ class BedrockProvider(BaseProvider, BedrockLLM):
 class BedrockChatProvider(BaseProvider, ChatBedrock):
     id = "bedrock-chat"
     name = "Amazon Bedrock Chat"
-    
+
     cri_models = [
         # Anthropic models
         "anthropic.claude-3-haiku-20240307-v1:0",
@@ -119,7 +119,7 @@ class BedrockChatProvider(BaseProvider, ChatBedrock):
         model_id = kwargs.pop("model_id")
         if model_id in self.cri_models:
             model_id = "us." + model_id
-            
+
         super().__init__(*args, **kwargs, model_id=model_id)
 
     async def _acall(self, *args, **kwargs) -> Coroutine[Any, Any, str]:
