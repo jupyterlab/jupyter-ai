@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Type
 
 import nbformat
+from jupyterlab_chat.ychat import YChat
 from jupyter_ai.chat_handlers import BaseChatHandler, SlashCommandRoutingType
 from jupyter_ai.models import HumanChatMessage
 from jupyter_ai_magics.providers import BaseProvider
@@ -15,11 +16,6 @@ from langchain.output_parsers import PydanticOutputParser
 from langchain.pydantic_v1 import BaseModel
 from langchain.schema.output_parser import BaseOutputParser
 from langchain_core.prompts import PromptTemplate
-
-try:
-    from jupyterlab_chat.ychat import YChat
-except:
-    from typing import Any as YChat
 
 
 class OutlineSection(BaseModel):

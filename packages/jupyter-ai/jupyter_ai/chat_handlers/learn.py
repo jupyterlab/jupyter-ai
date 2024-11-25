@@ -5,6 +5,7 @@ from glob import iglob
 from typing import Any, Coroutine, List, Optional, Tuple
 
 from dask.distributed import Client as DaskClient
+from jupyterlab_chat.ychat import YChat
 from jupyter_ai.document_loaders.directory import (
     EXCLUDE_DIRS,
     arxiv_to_text,
@@ -29,11 +30,6 @@ from langchain.text_splitter import (
     RecursiveCharacterTextSplitter,
 )
 from langchain_community.vectorstores import FAISS
-
-try:
-    from jupyterlab_chat.ychat import YChat
-except:
-    from typing import Any as YChat
 
 from .base import BaseChatHandler, SlashCommandRoutingType
 

@@ -12,8 +12,8 @@ from jupyter_ai.chat_handlers.learn import Retriever
 from jupyter_ai.models import HumanChatMessage
 from jupyter_ai_magics import BaseProvider, JupyternautPersona
 from jupyter_ai_magics.utils import get_em_providers, get_lm_providers
-from jupyter_collaboration import __version__ as jupyter_collaboration_version
-from jupyter_collaboration.utils import JUPYTER_COLLABORATION_EVENTS_URI
+from jupyter_collaboration import __version__ as jupyter_collaboration_version  # type:ignore[import-untyped]
+from jupyter_collaboration.utils import JUPYTER_COLLABORATION_EVENTS_URI  # type:ignore[import-untyped]
 from jupyter_events import EventLogger
 from jupyter_server.extension.application import ExtensionApp
 from jupyter_server.utils import url_path_join
@@ -230,7 +230,7 @@ class AiExtension(ExtensionApp):
 
     def initialize(self):
         super().initialize()
-        self.event_logger = self.serverapp.web_app.settings["event_logger"]
+        self.event_logger = self.settings["event_logger"]
         self.event_logger.add_listener(
             schema_id=JUPYTER_COLLABORATION_EVENTS_URI, listener=self.connect_chat
         )
@@ -251,21 +251,25 @@ class AiExtension(ExtensionApp):
             self.log.info(f"Collaborative chat server is listening for {data['room']}")
             chat = await self.get_chat(data["room"])
 
+            if chat is None:
+                return
+
             # Add the bot user to the chat document awareness.
             BOT["avatar_url"] = url_path_join(
                 self.settings.get("base_url", "/"), "api/ai/static/jupyternaut.svg"
             )
-            chat.awareness.set_local_state_field("user", BOT)
+            if chat.awareness is not None:
+                chat.awareness.set_local_state_field("user", BOT)
 
             callback = partial(self.on_change, chat)
             chat.ymessages.observe(callback)
 
-    async def get_chat(self, room_id: str) -> YChat:
+    async def get_chat(self, room_id: str) -> YChat | None:
         if COLLAB_VERSION == 3:
-            collaboration = self.serverapp.web_app.settings["jupyter_server_ydoc"]
+            collaboration = self.settings["jupyter_server_ydoc"]
             document = await collaboration.get_document(room_id=room_id, copy=False)
         else:
-            collaboration = self.serverapp.web_app.settings["jupyter_collaboration"]
+            collaboration = self.settings["jupyter_collaboration"]
             server = collaboration.ywebsocket_server
 
             room = await server.get_room(room_id)
@@ -273,7 +277,7 @@ class AiExtension(ExtensionApp):
         return document
 
     def on_change(self, chat: YChat, events: ArrayEvent) -> None:
-        for change in events.delta:
+        for change in events.delta:  # type:ignore[attr-defined]
             if not "insert" in change.keys():
                 continue
             messages = change["insert"]
@@ -292,9 +296,10 @@ class AiExtension(ExtensionApp):
                     )
                 except Exception as e:
                     self.log.error(e)
-                self.serverapp.io_loop.asyncio_loop.create_task(
-                    self._route(chat_message, chat)
-                )
+                if self.serverapp is not None:
+                    self.serverapp.io_loop.asyncio_loop.create_task(  #type:ignore[attr-defined]
+                        self._route(chat_message, chat)
+                    )
 
     async def _route(self, message: HumanChatMessage, chat: YChat):
         """Method that routes an incoming message to the appropriate handler."""

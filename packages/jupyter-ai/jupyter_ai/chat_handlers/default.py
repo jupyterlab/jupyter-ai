@@ -1,15 +1,11 @@
 import asyncio
 from typing import Dict, Optional, Type
 
+from jupyterlab_chat.ychat import YChat
 from jupyter_ai.models import HumanChatMessage
 from jupyter_ai_magics.providers import BaseProvider
 from langchain_core.runnables import ConfigurableFieldSpec
 from langchain_core.runnables.history import RunnableWithMessageHistory
-
-try:
-    from jupyterlab_chat.ychat import YChat
-except:
-    from typing import Any as YChat
 
 from ..context_providers import ContextProviderException, find_commands
 from .base import BaseChatHandler, SlashCommandRoutingType
@@ -68,7 +64,7 @@ class DefaultChatHandler(BaseChatHandler):
             try:
                 context_prompt = await self.make_context_prompt(message)
             except ContextProviderException as e:
-                self.reply(str(e), message)
+                self.reply(str(e), chat, message)
                 return
             inputs["context"] = context_prompt
             inputs["input"] = self.replace_prompt(inputs["input"])

@@ -1,13 +1,9 @@
 from typing import Dict, Optional, Type
 
+from jupyterlab_chat.ychat import YChat
 from jupyter_ai.models import CellWithErrorSelection, HumanChatMessage
 from jupyter_ai_magics.providers import BaseProvider
 from langchain.prompts import PromptTemplate
-
-try:
-    from jupyterlab_chat.ychat import YChat
-except:
-    from typing import Any as YChat
 
 from .base import BaseChatHandler, SlashCommandRoutingType
 
