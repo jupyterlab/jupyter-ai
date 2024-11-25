@@ -12,9 +12,6 @@ from jupyter_ai.chat_handlers.learn import Retriever
 from jupyter_ai.models import HumanChatMessage
 from jupyter_ai_magics import BaseProvider, JupyternautPersona
 from jupyter_ai_magics.utils import get_em_providers, get_lm_providers
-from jupyter_collaboration import (
-    __version__ as jupyter_collaboration_version,  # type:ignore[import-untyped]
-)
 from jupyter_collaboration.utils import (  # type:ignore[import-untyped]
     JUPYTER_COLLABORATION_EVENTS_URI,
 )
@@ -50,6 +47,11 @@ from .handlers import (
     SlashCommandsInfoHandler,
 )
 from .history import BoundedChatHistory
+
+from jupyter_collaboration import (  # type:ignore[import-untyped]  # isort:skip
+    __version__ as jupyter_collaboration_version,
+)
+
 
 JUPYTERNAUT_AVATAR_ROUTE = JupyternautPersona.avatar_route
 JUPYTERNAUT_AVATAR_PATH = str(
@@ -268,7 +270,7 @@ class AiExtension(ExtensionApp):
             callback = partial(self.on_change, chat)
             chat.ymessages.observe(callback)
 
-    async def get_chat(self, room_id: str) -> YChat | None:
+    async def get_chat(self, room_id: str) -> Optional[YChat]:
         if COLLAB_VERSION == 3:
             collaboration = self.settings["jupyter_server_ydoc"]
             document = await collaboration.get_document(room_id=room_id, copy=False)
