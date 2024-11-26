@@ -36,7 +36,9 @@ def get_lm_providers(
             )
             continue
         except Exception as e:
-            log.warning(f"Unable to load model provider `{provider_ep.name}`", exc_info=e)
+            log.warning(
+                f"Unable to load model provider `{provider_ep.name}`", exc_info=e
+            )
             continue
 
         if not is_provider_allowed(provider.id, restrictions):
