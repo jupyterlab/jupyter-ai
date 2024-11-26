@@ -174,6 +174,28 @@ def configure_to_openai(cm: ConfigManager):
     cm.update_config(req)
     return LM_GID, EM_GID, LM_LID, EM_LID, API_PARAMS
 
+def configure_with_fields(cm: ConfigManager):
+    """
+    Configures the ConfigManager with fields and API keys.
+    Returns the expected result of `cm.lm_provider_params`.
+    """
+    req = UpdateConfigRequest(
+        model_provider_id="openai-chat:gpt-4o",
+        api_keys={
+            "OPENAI_API_KEY": "foobar"
+        },
+        fields={
+            "openai-chat:gpt-4o": {
+                "openai_api_base": "https://example.com",
+            }
+        }
+    )
+    cm.update_config(req)
+    return {
+        "model_id": "gpt-4o",
+        "openai_api_key": "foobar",
+        "openai_api_base": "https://example.com"
+    }
 
 def test_snapshot_default_config(cm: ConfigManager, snapshot):
     config_from_cm: DescribeConfigResponse = cm.get_config()
@@ -402,3 +424,7 @@ def test_handle_bad_provider_ids(cm_with_bad_provider_ids):
     config_desc = cm_with_bad_provider_ids.get_config()
     assert config_desc.model_provider_id is None
     assert config_desc.embeddings_provider_id is None
+
+def test_config_manager_returns_fields(cm):
+    expected_model_args = configure_with_fields(cm)
+    assert cm.lm_provider_params == expected_model_args
