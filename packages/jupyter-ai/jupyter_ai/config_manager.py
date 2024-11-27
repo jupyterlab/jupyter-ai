@@ -3,9 +3,9 @@ import logging
 import os
 import shutil
 import time
+from copy import deepcopy
 from typing import List, Optional, Type, Union
 
-from copy import deepcopy
 from deepmerge import always_merger as Merger
 from jsonschema import Draft202012Validator as Validator
 from jupyter_ai.models import DescribeConfigResponse, GlobalConfig, UpdateConfigRequest
