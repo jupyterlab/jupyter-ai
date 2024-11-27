@@ -436,16 +436,21 @@ class ConfigManager(Configurable):
         )
 
     def _provider_params(self, key, listing):
-        # get generic fields
+        # read config
         config = self._read_config()
-        gid = getattr(config, key)
-        if not gid:
-            return None
 
-        lid = gid.split(":", 1)[1]
+        # get model ID (without provider ID component) from model universal ID
+        # (with provider component).
+        model_uid = getattr(config, key)
+        if not model_uid:
+            return None
+        model_id = model_uid.split(":", 1)[1]
+
+        # get config fields (e.g. base API URL, etc.)
+        fields = config.fields.get(model_uid, {})
 
         # get authn fields
-        _, Provider = get_em_provider(gid, listing)
+        _, Provider = get_em_provider(model_uid, listing)
         authn_fields = {}
         if Provider.auth_strategy and Provider.auth_strategy.type == "env":
             keyword_param = (
@@ -456,7 +461,8 @@ class ConfigManager(Configurable):
             authn_fields[keyword_param] = config.api_keys[key_name]
 
         return {
-            "model_id": lid,
+            "model_id": model_id,
+            **fields,
             **authn_fields,
         }
 
