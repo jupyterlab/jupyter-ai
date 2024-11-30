@@ -1,13 +1,14 @@
+import json
+
 from langchain_core.callbacks import BaseCallbackHandler
 from langchain_core.outputs import LLMResult
-import json
 
 
 def convert_to_serializable(obj):
     """Convert an object to a JSON serializable format"""
-    if hasattr(obj, 'dict') and callable(obj.dict):
+    if hasattr(obj, "dict") and callable(obj.dict):
         return obj.dict()
-    if hasattr(obj, '__dict__'):
+    if hasattr(obj, "__dict__"):
         return obj.__dict__
     return str(obj)
 
@@ -34,7 +35,7 @@ class MetadataCallbackHandler(BaseCallbackHandler):
             return
 
         metadata = response.generations[0][0].generation_info or {}
-        
+
         # Convert any non-serializable objects in metadata
         serializable_metadata = {}
         for key, value in metadata.items():
@@ -43,5 +44,5 @@ class MetadataCallbackHandler(BaseCallbackHandler):
                 serializable_metadata[key] = value
             except (TypeError, ValueError):
                 serializable_metadata[key] = convert_to_serializable(value)
-        
+
         self.jai_metadata = serializable_metadata

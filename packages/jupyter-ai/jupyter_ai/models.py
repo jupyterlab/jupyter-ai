@@ -1,5 +1,5 @@
-from typing import Any, Dict, List, Literal, Optional, Union
 import json
+from typing import Any, Dict, List, Literal, Optional, Union
 
 from jupyter_ai_magics import Persona
 from jupyter_ai_magics.providers import AuthStrategy, Field
@@ -128,7 +128,7 @@ class AgentStreamChunkMessage(BaseModel):
     chunk should override any metadata from previous chunks. See the docstring
     on `BaseAgentMessage.metadata` for information.
     """
-    
+
     @validator("metadata")
     def validate_metadata(cls, v):
         """Ensure metadata values are JSON serializable"""
