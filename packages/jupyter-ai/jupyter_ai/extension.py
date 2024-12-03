@@ -12,9 +12,6 @@ from jupyter_ai.chat_handlers.learn import Retriever
 from jupyter_ai.models import HumanChatMessage
 from jupyter_ai_magics import BaseProvider, JupyternautPersona
 from jupyter_ai_magics.utils import get_em_providers, get_lm_providers
-from jupyter_collaboration.utils import (  # type:ignore[import-untyped]
-    JUPYTER_COLLABORATION_EVENTS_URI,
-)
 from jupyter_events import EventLogger
 from jupyter_server.extension.application import ExtensionApp
 from jupyter_server.utils import url_path_join
@@ -58,11 +55,16 @@ JUPYTERNAUT_AVATAR_PATH = str(
     os.path.join(os.path.dirname(__file__), "static", "jupyternaut.svg")
 )
 
+JCOLLAB_VERSION = int(jupyter_collaboration_version[0])
 
-if int(jupyter_collaboration_version[0]) >= 3:
-    COLLAB_VERSION = 3
+if JCOLLAB_VERSION >= 3:
+    from jupyter_server_ydoc.utils import (  # type:ignore[import-untyped]
+        JUPYTER_COLLABORATION_EVENTS_URI,
+    )
 else:
-    COLLAB_VERSION = 2
+    from jupyter_collaboration.utils import (  # type:ignore[import-untyped]
+        JUPYTER_COLLABORATION_EVENTS_URI,
+    )
 
 # The BOT currently has a fixed username, because this username is used has key in chats,
 # it needs to constant. Do we need to change it ?
@@ -271,7 +273,7 @@ class AiExtension(ExtensionApp):
             chat.ymessages.observe(callback)
 
     async def get_chat(self, room_id: str) -> Optional[YChat]:
-        if COLLAB_VERSION == 3:
+        if JCOLLAB_VERSION >= 3:
             collaboration = self.serverapp.web_app.settings["jupyter_server_ydoc"]
             document = await collaboration.get_document(room_id=room_id, copy=False)
         else:
