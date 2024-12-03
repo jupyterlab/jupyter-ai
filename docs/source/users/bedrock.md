@@ -57,9 +57,17 @@ Once the model is fine-tuned, it will have its own `arn`, as shown below:
 
 As seen above, you may click on `Purchase provisioned throughput` to buy inference units with which to call the custom model's API. Enter the model's `arn` in Jupyter AI's Language model user interface to use the provisioned model.
 
+Amazon Bedrock now permits cross-region inference, where a model hosted in a different region than that of the user may be specified, see the [inference profiles documentation](https://docs.aws.amazon.com/bedrock/latest/userguide/inference-profiles-support.html). Such models have IDs prefixed by a region identifier such as `us.meta.llama3-2-1b-instruct-v1:0`, for example. To use this feature, simply enter the Inference profile ID for the cross-region model instead of the ARN.   
+
+<img src="../_static/bedrock-cross-region-inference.png"
+    width="75%"
+    alt='Screenshot of Bedrock cross-region inference usage.'
+    class="screenshot" />
+
 In summary:
-1. Bedrock Base models: All available models will already be available in the drop down model list. The above interface also allows use of base model IDs or ARNs, though this is unnecessary as they are in the dropdown list.
-2. Bedrock Custom models: If you have fine-tuned a Bedrock base model you may use the ARN for this custom model. Make sure to enter the correct provider information, such as `amazon`, `anthropic`, `cohere`, `meta`, `mistral` (always in lower case).
-3. Provisioned Models: These are models that run on dedicated endpoints. Users can purchase Provisioned Throughput Model Units to get faster throughput. These may be base or custom models. Enter the ARN for these models in the Model ID field.
+1. Bedrock Base models: All available models will already be available in the drop down model list. The above interface also allows use of base model IDs or ARNs, though this is unnecessary as they are in the dropdown list. 
+2. Bedrock Custom models: If you have fine-tuned a Bedrock base model you may use the ARN for this custom model. Make sure to enter the correct provider information, such as `amazon`, `anthropic`, `cohere`, `meta`, `mistral` (always in lower case).  
+3. Provisioned Models: These are models that run on dedicated endpoints. Users can purchase Provisioned Throughput Model Units to get faster throughput. These may be base or custom models. Enter the ARN for these models in the Model ID field. 
+4. Cross-region Inference: Use the Inference profile ID for the cross-region model instead of the ARN.
 
 [(Return to Chat Interface page for Bedrock)](index.md#amazon-bedrock-usage)
