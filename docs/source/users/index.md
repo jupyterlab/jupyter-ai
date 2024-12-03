@@ -349,14 +349,19 @@ You may now select a chosen Bedrock model from the drop-down menu box title `Com
 
 If your provider requires an API key, please enter it in the box that will show for that provider. Make sure to click on `Save Changes` to ensure that the inputs have been saved.
 
-Bedrock also allows custom models to be trained from scratch or fine-tuned from a base model. Jupyter AI enables a custom model to be called in the chat panel using its `arn` (Amazon Resource Name). The interface is shown below:
+Bedrock also allows custom models to be trained from scratch or fine-tuned from a base model. Jupyter AI enables a custom model to be called in the chat panel using its `arn` (Amazon Resource Name, ARN). The interface is shown below:
 
 <img src="../_static/bedrock-chat-custom-model-arn.png"
     width="75%"
     alt='Screenshot of the Jupyter AI chat panel where the custom model is selected using model arn.'
     class="screenshot" />
 
-For detailed workflows, see [Using Amazon Bedrock with Jupter AI](bedrock.md).
+Note that:
+1. Bedrock Base models: All available models will already be available in the drop down model list. The above interface also allows use of base model IDs or ARNs, though this is unnecessary as they are in the dropdown list. 
+2. Bedrock Custom models: If you have fine-tuned a Bedrock base model you may use the ARN for this custom model. Make sure to enter the correct provider information, such as `amazon`, `anthropic`, `cohere`, `meta`, `mistral` (always in lower case).  
+3. Provisioned Models: These are models that run on dedicated endpoints. Users can purchase Provisioned Throughput Model Units to get faster throughput. These may be base or custom models. Enter the ARN for these models in the Model ID field. 
+
+For detailed workflows, including the creation and use of custom models, see [Using Amazon Bedrock with Jupter AI](bedrock.md).
 
 
 ### SageMaker endpoints usage
