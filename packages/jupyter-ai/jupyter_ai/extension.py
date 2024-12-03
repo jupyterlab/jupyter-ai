@@ -293,17 +293,14 @@ class AiExtension(ExtensionApp):
 
                 if message["sender"] == BOT["username"] or message["raw_time"]:
                     continue
-                try:
-                    chat_message = HumanChatMessage(
-                        id=message["id"],
-                        time=time.time(),
-                        body=message["body"],
-                        prompt="",
-                        selection=None,
-                        client=None,
-                    )
-                except Exception as e:
-                    self.log.error(e)
+                chat_message = HumanChatMessage(
+                    id=message["id"],
+                    time=time.time(),
+                    body=message["body"],
+                    prompt="",
+                    selection=None,
+                    client=None,
+                )
                 if self.serverapp is not None:
                     self.serverapp.io_loop.asyncio_loop.create_task(  # type:ignore[attr-defined]
                         self._route(chat_message, chat)
