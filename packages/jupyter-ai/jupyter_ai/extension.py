@@ -236,7 +236,7 @@ class AiExtension(ExtensionApp):
 
     def initialize(self):
         super().initialize()
-        self.event_logger = self.settings["event_logger"]
+        self.event_logger = self.serverapp.web_app.settings["event_logger"]
         self.event_logger.add_listener(
             schema_id=JUPYTER_COLLABORATION_EVENTS_URI, listener=self.connect_chat
         )
@@ -272,10 +272,10 @@ class AiExtension(ExtensionApp):
 
     async def get_chat(self, room_id: str) -> Optional[YChat]:
         if COLLAB_VERSION == 3:
-            collaboration = self.settings["jupyter_server_ydoc"]
+            collaboration = self.serverapp.web_app.settings["jupyter_server_ydoc"]
             document = await collaboration.get_document(room_id=room_id, copy=False)
         else:
-            collaboration = self.settings["jupyter_collaboration"]
+            collaboration = self.serverapp.web_app.settings["jupyter_collaboration"]
             server = collaboration.ywebsocket_server
 
             room = await server.get_room(room_id)
