@@ -1,16 +1,17 @@
-import json
 import inspect
+import json
 
 from langchain_core.callbacks import BaseCallbackHandler
 from langchain_core.outputs import LLMResult
+
 
 def requires_no_arguments(func):
     sig = inspect.signature(func)
     for param in sig.parameters.values():
         if param.default is param.empty and param.kind in (
-            param.POSITIONAL_ONLY, 
-            param.POSITIONAL_OR_KEYWORD, 
-            param.KEYWORD_ONLY
+            param.POSITIONAL_ONLY,
+            param.POSITIONAL_OR_KEYWORD,
+            param.KEYWORD_ONLY,
         ):
             return False
     return True
@@ -50,8 +51,5 @@ class MetadataCallbackHandler(BaseCallbackHandler):
 
         # Convert any non-serializable objects in metadata
         self.jai_metadata = json.loads(
-            json.dumps(
-                metadata,
-                default=convert_to_serializable
-            )
+            json.dumps(metadata, default=convert_to_serializable)
         )
