@@ -376,26 +376,35 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
       {/* Embedding model section */}
       <h2 className="jp-ai-ChatSettings-header">Embedding model</h2>
       {server.emProviders.providers.length > 0 ? (
-        <Select
-          value={emGlobalId}
-          label="Embedding model"
-          onChange={e => {
-            const emGid = e.target.value === 'null' ? null : e.target.value;
-            setEmGlobalId(emGid);
-          }}
-          MenuProps={{ sx: { maxHeight: '50%', minHeight: 400 } }}
-        >
-          <MenuItem value="null">None</MenuItem>
-          {server.emProviders.providers.map(emp =>
-            emp.models
-              .filter(em => em !== '*') // TODO: support registry providers
-              .map(em => (
-                <MenuItem value={`${emp.id}:${em}`}>
-                  {emp.name} :: {em}
-                </MenuItem>
-              ))
+        <Box>
+          <Select
+            value={emGlobalId}
+            label="Embedding model"
+            onChange={e => {
+              const emGid = e.target.value === 'null' ? null : e.target.value;
+              setEmGlobalId(emGid);
+            }}
+            MenuProps={{ sx: { maxHeight: '50%', minHeight: 400 } }}
+          >
+            <MenuItem value="null">None</MenuItem>
+            {server.emProviders.providers.map(emp =>
+              emp.models
+                .filter(em => em !== '*') // TODO: support registry providers
+                .map(em => (
+                  <MenuItem value={`${emp.id}:${em}`}>
+                    {emp.name} :: {em}
+                  </MenuItem>
+                ))
+            )}
+          </Select>
+          {emGlobalId && (
+            <ModelFields
+              fields={emProvider?.fields}
+              values={fields}
+              onChange={setFields}
+            />
           )}
-        </Select>
+        </Box>
       ) : (
         <p>No embedding models available.</p>
       )}
