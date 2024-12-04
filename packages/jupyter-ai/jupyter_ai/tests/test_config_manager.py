@@ -468,6 +468,7 @@ def test_returns_chat_model_fields(cm):
     expected_model_args = configure_with_fields(cm)
     assert cm.lm_provider_params == expected_model_args
 
+
 def test_returns_completion_model_fields(cm):
     expected_model_args = configure_with_fields(cm, completions=True)
     assert cm.completions_lm_provider_params == expected_model_args
