@@ -442,10 +442,10 @@ class ConfigManager(Configurable):
     @property
     def completions_lm_provider_params(self):
         return self._provider_params(
-            "completions_model_provider_id", self._lm_providers
+            "completions_model_provider_id", self._lm_providers, completions=True
         )
 
-    def _provider_params(self, key, listing):
+    def _provider_params(self, key, listing, completions: bool = False):
         # read config
         config = self._read_config()
 
@@ -457,7 +457,10 @@ class ConfigManager(Configurable):
         model_id = model_uid.split(":", 1)[1]
 
         # get config fields (e.g. base API URL, etc.)
-        fields = config.fields.get(model_uid, {})
+        if completions:
+            fields = config.completions_fields.get(model_uid, {})
+        else:
+            fields = config.fields.get(model_uid, {})
 
         # get authn fields
         _, Provider = get_em_provider(model_uid, listing)
