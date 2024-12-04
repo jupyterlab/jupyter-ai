@@ -109,7 +109,9 @@ class OpenAIEmbeddingsProvider(BaseEmbeddingsProvider, OpenAIEmbeddings):
     auth_strategy = EnvAuthStrategy(name="OPENAI_API_KEY")
     registry = True
     fields = [
-        TextField(key="openai_api_base", label="Base API URL (optional)", format="text"),
+        TextField(
+            key="openai_api_base", label="Base API URL (optional)", format="text"
+        ),
     ]
 
 
