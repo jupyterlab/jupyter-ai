@@ -2,7 +2,7 @@
 set -eux
 
 # Install JupyterLab
-# 
+#
 # Excludes v4.3.2 as it pins `httpx` to a very narrow range, causing `pip
 # install` to stall on package resolution.
 #
