@@ -1,5 +1,29 @@
+import inspect
+import json
+
 from langchain_core.callbacks import BaseCallbackHandler
 from langchain_core.outputs import LLMResult
+
+
+def requires_no_arguments(func):
+    sig = inspect.signature(func)
+    for param in sig.parameters.values():
+        if param.default is param.empty and param.kind in (
+            param.POSITIONAL_ONLY,
+            param.POSITIONAL_OR_KEYWORD,
+            param.KEYWORD_ONLY,
+        ):
+            return False
+    return True
+
+
+def convert_to_serializable(obj):
+    """Convert an object to a JSON serializable format"""
+    if hasattr(obj, "dict") and callable(obj.dict) and requires_no_arguments(obj.dict):
+        return obj.dict()
+    if hasattr(obj, "__dict__"):
+        return obj.__dict__
+    return str(obj)
 
 
 class MetadataCallbackHandler(BaseCallbackHandler):
@@ -23,4 +47,9 @@ class MetadataCallbackHandler(BaseCallbackHandler):
         if not (len(response.generations) and len(response.generations[0])):
             return
 
-        self.jai_metadata = response.generations[0][0].generation_info or {}
+        metadata = response.generations[0][0].generation_info or {}
+
+        # Convert any non-serializable objects in metadata
+        self.jai_metadata = json.loads(
+            json.dumps(metadata, default=convert_to_serializable)
+        )
