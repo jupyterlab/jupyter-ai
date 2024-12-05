@@ -334,35 +334,9 @@ The chat backend remembers the last two exchanges in your conversation and passe
 
 ### Amazon Bedrock Usage
 
-Jupyter AI enables use of language models hosted on [Amazon Bedrock](https://aws.amazon.com/bedrock/) on AWS. First, ensure that you have authentication to use AWS using the `boto3` SDK with credentials stored in the `default` profile. Guidance on how to do this can be found in the [`boto3` documentation](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html).
+Jupyter AI enables use of language models hosted on [Amazon Bedrock](https://aws.amazon.com/bedrock/) on AWS. Ensure that you have authentication to use AWS using the `boto3` SDK with credentials stored in the `default` profile. Guidance on how to do this can be found in the [`boto3` documentation](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html).
 
-For more detailed workflows, see [Using Amazon Bedrock with Jupter AI](bedrock.md).
-
-Bedrock supports many language model providers such as AI21 Labs, Amazon, Anthropic, Cohere, Meta, and Mistral AI. To use the base models from any supported provider make sure to enable them in Amazon Bedrock by using the AWS console. You should also select embedding models in Bedrock in addition to language completion models if you intend to use retrieval augmented generation (RAG) on your documents.
-
-You may now select a chosen Bedrock model from the drop-down menu box title `Completion model` in the chat interface. If RAG is going to be used then pick an embedding model that you chose from the Bedrock models as well. An example of these selections is shown below:
-
-<img src="../_static/bedrock-chat-basemodel.png"
-    width="50%"
-    alt='Screenshot of the Jupyter AI chat panel where the base language model and embedding model is selected.'
-    class="screenshot" />
-
-If your provider requires an API key, please enter it in the box that will show for that provider. Make sure to click on `Save Changes` to ensure that the inputs have been saved.
-
-Bedrock also allows custom models to be trained from scratch or fine-tuned from a base model. Jupyter AI enables a custom model to be called in the chat panel using its `arn` (Amazon Resource Name, ARN). The interface is shown below:
-
-<img src="../_static/bedrock-chat-custom-model-arn.png"
-    width="75%"
-    alt='Screenshot of the Jupyter AI chat panel where the custom model is selected using model arn.'
-    class="screenshot" />
-
-Note that:
-1. Bedrock Base models: All available models will already be available in the drop down model list. The above interface also allows use of base model IDs or ARNs, though this is unnecessary as they are in the dropdown list.
-2. Bedrock Custom models: If you have fine-tuned a Bedrock base model you may use the ARN for this custom model. Make sure to enter the correct provider information, such as `amazon`, `anthropic`, `cohere`, `meta`, `mistral` (always in lower case).
-3. Provisioned Models: These are models that run on dedicated endpoints. Users can purchase Provisioned Throughput Model Units to get faster throughput. These may be base or custom models. Enter the ARN for these models in the Model ID field.
-4. Cross-region Inference: Amazon Bedrock now permits cross-region inference, where a model hosted in a different region than that of the user may be specified, see the [inference profiles documentation](https://docs.aws.amazon.com/bedrock/latest/userguide/inference-profiles-support.html). Such models have IDs prefixed by a region identifier such as `us.meta.llama3-2-1b-instruct-v1:0`, for example. To use this feature, simply enter the Inference profile ID for the cross-region model instead of the ARN.
-
-For detailed workflows, including the creation and use of custom models, see [Using Amazon Bedrock with Jupter AI](bedrock.md).
+Proceed to a detailed description of [Using Amazon Bedrock with Jupyter AI](bedrock.md).
 
 
 ### SageMaker endpoints usage
