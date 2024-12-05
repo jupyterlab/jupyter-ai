@@ -1,9 +1,8 @@
 import asyncio
-from typing import Dict, Optional, Type
+from typing import Dict, Type
 
 from jupyter_ai.models import HumanChatMessage
 from jupyter_ai_magics.providers import BaseProvider
-from jupyterlab_chat.ychat import YChat
 from langchain_core.runnables import ConfigurableFieldSpec
 from langchain_core.runnables.history import RunnableWithMessageHistory
 
@@ -54,7 +53,7 @@ class DefaultChatHandler(BaseChatHandler):
             )
         self.llm_chain = runnable
 
-    async def process_message(self, message: HumanChatMessage, chat: Optional[YChat]):
+    async def process_message(self, message: HumanChatMessage):
         self.get_llm_chain()
         assert self.llm_chain
 
@@ -64,12 +63,12 @@ class DefaultChatHandler(BaseChatHandler):
             try:
                 context_prompt = await self.make_context_prompt(message)
             except ContextProviderException as e:
-                self.reply(str(e), chat, message)
+                self.reply(str(e), message)
                 return
             inputs["context"] = context_prompt
             inputs["input"] = self.replace_prompt(inputs["input"])
 
-        await self.stream_reply(inputs, message, chat=chat)
+        await self.stream_reply(inputs, message)
 
     async def make_context_prompt(self, human_msg: HumanChatMessage) -> str:
         return "\n\n".join(

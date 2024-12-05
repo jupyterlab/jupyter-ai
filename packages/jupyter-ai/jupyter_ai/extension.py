@@ -4,8 +4,9 @@ import time
 import types
 import uuid
 from functools import partial
-from typing import Optional
+from typing import Dict, Optional
 
+import traitlets
 from dask.distributed import Client as DaskClient
 from importlib_metadata import entry_points
 from jupyter_ai.chat_handlers.learn import Retriever
@@ -18,10 +19,11 @@ from jupyter_server.utils import url_path_join
 from jupyterlab_chat.ychat import YChat
 from pycrdt import ArrayEvent
 from tornado.web import StaticFileHandler
-from traitlets import Dict, Integer, List, Unicode
+from traitlets import Integer, List, Unicode
 
 from .chat_handlers import (
     AskChatHandler,
+    BaseChatHandler,
     ClearChatHandler,
     DefaultChatHandler,
     ExportChatHandler,
@@ -32,6 +34,7 @@ from .chat_handlers import (
 )
 from .completions.handlers import DefaultInlineCompletionHandler
 from .config_manager import ConfigManager
+from .constants import BOT
 from .context_providers import BaseCommandContextProvider, FileContextProvider
 from .handlers import (
     ApiKeysHandler,
@@ -65,15 +68,6 @@ else:
     from jupyter_collaboration.utils import (  # type:ignore[import-untyped]
         JUPYTER_COLLABORATION_EVENTS_URI,
     )
-
-# The BOT currently has a fixed username, because this username is used has key in chats,
-# it needs to constant. Do we need to change it ?
-BOT = {
-    "username": "5f6a7570-7974-6572-6e61-75742d626f74",
-    "name": "Jupyternaut",
-    "display_name": "Jupyternaut",
-    "initials": "J",
-}
 
 DEFAULT_HELP_MESSAGE_TEMPLATE = """Hi there! I'm {persona_name}, your programming assistant.
 You can ask me a question using the text box below. You can also use these commands:
@@ -153,9 +147,9 @@ class AiExtension(ExtensionApp):
         config=True,
     )
 
-    model_parameters = Dict(
+    model_parameters = traitlets.Dict(
         key_trait=Unicode(),
-        value_trait=Dict(),
+        value_trait=traitlets.Dict(),
         default_value={},
         help="""Key-value pairs for model id and corresponding parameters that
         are passed to the provider class. The values are unpacked and passed to
@@ -193,7 +187,7 @@ class AiExtension(ExtensionApp):
         config=True,
     )
 
-    default_api_keys = Dict(
+    default_api_keys = traitlets.Dict(
         key_trait=Unicode(),
         value_trait=Unicode(),
         default_value=None,
@@ -238,41 +232,72 @@ class AiExtension(ExtensionApp):
 
     def initialize(self):
         super().initialize()
+
+        self.chat_handlers_by_room: Dict[str, Dict[str, BaseChatHandler]] = {}
+        """
+        Nested dictionary that returns the dedicated chat handler instance that
+        should be used, given the room ID and command ID respectively.
+
+        Example: `self.chat_handlers_by_room[<room_id>]` yields the set of chat
+        handlers dedicated to the room identified by `<room_id>`.
+        """
+
+        self.ychats_by_room: Dict[str, YChat] = {}
+        """Cache of YChat instances, indexed by room ID."""
+
         self.event_logger = self.serverapp.web_app.settings["event_logger"]
         self.event_logger.add_listener(
             schema_id=JUPYTER_COLLABORATION_EVENTS_URI, listener=self.connect_chat
         )
 
-        # Keep the message indexes to avoid extra computation looking for a message when
-        # updating it.
-        self.messages_indexes = {}
-
     async def connect_chat(
         self, logger: EventLogger, schema_id: str, data: dict
     ) -> None:
-        if (
+        # ignore events that are not chat room initialization events
+        if not (
             data["room"].startswith("text:chat:")
             and data["action"] == "initialize"
             and data["msg"] == "Room initialized"
         ):
+            return
 
-            self.log.info(f"Collaborative chat server is listening for {data['room']}")
-            chat = await self.get_chat(data["room"])
+        # log room ID
+        room_id = data["room"]
+        self.log.info(f"Connecting to a chat room with room ID: {room_id}.")
 
-            if chat is None:
-                return
+        # get YChat document associated with the room
+        ychat = await self.get_chat(room_id)
+        if ychat is None:
+            return
 
-            # Add the bot user to the chat document awareness.
-            BOT["avatar_url"] = url_path_join(
-                self.settings.get("base_url", "/"), "api/ai/static/jupyternaut.svg"
-            )
-            if chat.awareness is not None:
-                chat.awareness.set_local_state_field("user", BOT)
+        # Add the bot user to the chat document awareness.
+        BOT["avatar_url"] = url_path_join(
+            self.settings.get("base_url", "/"), "api/ai/static/jupyternaut.svg"
+        )
+        if ychat.awareness is not None:
+            ychat.awareness.set_local_state_field("user", BOT)
 
-            callback = partial(self.on_change, chat)
-            chat.ymessages.observe(callback)
+        # initialize chat handlers for new chat
+        self.chat_handlers_by_room[room_id] = self._init_chat_handlers(ychat)
+
+        callback = partial(self.on_change, room_id)
+        ychat.ymessages.observe(callback)
 
     async def get_chat(self, room_id: str) -> Optional[YChat]:
+        """
+        Retrieves the YChat instance associated with a room ID. This method
+        is cached, i.e. successive calls with the same room ID quickly return a
+        cached value.
+
+        TODO: Determine if get_chat() should ever fail under normal usage
+        scenarios. If not, we should just raise an exception if chat is `None`,
+        and indicate the return type as just `YChat` instead of
+        `Optional[YChat]`. This will simplify the code by removing redundant
+        null checks.
+        """
+        if room_id in self.ychats_by_room:
+            return self.ychats_by_room[room_id]
+
         if JCOLLAB_VERSION >= 3:
             collaboration = self.serverapp.web_app.settings["jupyter_server_ydoc"]
             document = await collaboration.get_document(room_id=room_id, copy=False)
@@ -282,9 +307,11 @@ class AiExtension(ExtensionApp):
 
             room = await server.get_room(room_id)
             document = room._document
+
+        self.ychats_by_room[room_id] = document
         return document
 
-    def on_change(self, chat: YChat, events: ArrayEvent) -> None:
+    def on_change(self, room_id: str, events: ArrayEvent) -> None:
         for change in events.delta:  # type:ignore[attr-defined]
             if not "insert" in change.keys():
                 continue
@@ -303,12 +330,15 @@ class AiExtension(ExtensionApp):
                 )
                 if self.serverapp is not None:
                     self.serverapp.io_loop.asyncio_loop.create_task(  # type:ignore[attr-defined]
-                        self._route(chat_message, chat)
+                        self.route_human_message(room_id, chat_message)
                     )
 
-    async def _route(self, message: HumanChatMessage, chat: YChat):
-        """Method that routes an incoming message to the appropriate handler."""
-        chat_handlers = self.settings["jai_chat_handlers"]
+    async def route_human_message(self, room_id: str, message: HumanChatMessage):
+        """
+        Method that routes an incoming `HumanChatMessage` to the appropriate
+        chat handler.
+        """
+        chat_handlers = self.chat_handlers_by_room[room_id]
         default = chat_handlers["default"]
         # Split on any whitespace, either spaces or newlines
         maybe_command = message.body.split(None, 1)[0]
@@ -321,38 +351,13 @@ class AiExtension(ExtensionApp):
 
         start = time.time()
         if is_command:
-            await chat_handlers[command].on_message(message, chat)
+            await chat_handlers[command].on_message(message)
         else:
-            await default.on_message(message, chat)
+            await default.on_message(message)
 
         latency_ms = round((time.time() - start) * 1000)
         command_readable = "Default" if command == "default" else command
         self.log.info(f"{command_readable} chat handler resolved in {latency_ms} ms.")
-
-    def write_message(self, chat: YChat, body: str, id: Optional[str] = None) -> str:
-        bot = chat.get_user(BOT["username"])
-        if not bot:
-            chat.set_user(BOT)
-
-        index = self.messages_indexes[id] if id else None
-        id = id if id else str(uuid.uuid4())
-        new_index = chat.set_message(
-            {
-                "type": "msg",
-                "body": body,
-                "id": id if id else str(uuid.uuid4()),
-                "time": time.time(),
-                "sender": BOT["username"],
-                "raw_time": False,
-            },
-            index,
-            True,
-        )
-
-        if new_index != index:
-            self.messages_indexes[id] = new_index
-
-        return id
 
     def initialize_settings(self):
         start = time.time()
@@ -448,7 +453,7 @@ class AiExtension(ExtensionApp):
         self.settings["jai_message_interrupted"] = {}
 
         # initialize chat handlers
-        self._init_chat_handlers()
+        self.settings["jai_chat_handlers"] = self._init_chat_handlers()
 
         # initialize context providers
         self._init_context_provders()
@@ -499,7 +504,15 @@ class AiExtension(ExtensionApp):
             await dask_client.close()
             self.log.debug("Closed Dask client.")
 
-    def _init_chat_handlers(self):
+    def _init_chat_handlers(
+        self, ychat: Optional[YChat] = None
+    ) -> Dict[str, BaseChatHandler]:
+        """
+        Initializes a set of chat handlers. May accept a YChat instance for
+        collaborative chats.
+
+        TODO: Make `ychat` required once Jupyter Chat migration is complete.
+        """
         eps = entry_points()
         chat_handler_eps = eps.select(group="jupyter_ai.chat_handlers")
         chat_handlers = {}
@@ -515,9 +528,9 @@ class AiExtension(ExtensionApp):
             "preferred_dir": self.serverapp.contents_manager.preferred_dir,
             "help_message_template": self.help_message_template,
             "chat_handlers": chat_handlers,
-            "write_message": self.write_message,
             "context_providers": self.settings["jai_context_providers"],
             "message_interrupted": self.settings["jai_message_interrupted"],
+            "ychat": ychat,
         }
         default_chat_handler = DefaultChatHandler(**chat_handler_kwargs)
         clear_chat_handler = ClearChatHandler(**chat_handler_kwargs)
@@ -590,8 +603,7 @@ class AiExtension(ExtensionApp):
         # Make help always appear as the last command
         chat_handlers["/help"] = HelpChatHandler(**chat_handler_kwargs)
 
-        # bind chat handlers to settings
-        self.settings["jai_chat_handlers"] = chat_handlers
+        return chat_handlers
 
     def _init_context_provders(self):
         eps = entry_points()

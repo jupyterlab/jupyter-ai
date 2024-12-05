@@ -21,7 +21,6 @@ from jupyter_ai.models import (
 )
 from jupyter_core.paths import jupyter_data_dir
 from jupyter_core.utils import ensure_dir_exists
-from jupyterlab_chat.ychat import YChat
 from langchain.schema import BaseRetriever, Document
 from langchain.text_splitter import (
     LatexTextSplitter,
@@ -129,29 +128,26 @@ class LearnChatHandler(BaseChatHandler):
             )
             self.log.error(e)
 
-    async def process_message(self, message: HumanChatMessage, chat: Optional[YChat]):
+    async def process_message(self, message: HumanChatMessage):
         # If no embedding provider has been selected
         em_provider_cls, em_provider_args = self.get_embedding_provider()
         if not em_provider_cls:
             self.reply(
                 "Sorry, please select an embedding provider before using the `/learn` command.",
-                chat,
             )
             return
 
-        args = self.parse_args(message, chat)
+        args = self.parse_args(message)
         if args is None:
             return
 
         if args.delete:
             self.delete()
-            self.reply(
-                f"👍 I have deleted everything I previously learned.", chat, message
-            )
+            self.reply(f"👍 I have deleted everything I previously learned.", message)
             return
 
         if args.list:
-            self.reply(self._build_list_response(), chat)
+            self.reply(self._build_list_response())
             return
 
         if args.remote:
@@ -162,7 +158,6 @@ class LearnChatHandler(BaseChatHandler):
                     args.path = [arxiv_to_text(id, self.output_dir)]
                     self.reply(
                         f"Learning arxiv file with id **{id}**, saved in **{args.path[0]}**.",
-                        chat,
                         message,
                     )
                 except ModuleNotFoundError as e:
@@ -170,7 +165,6 @@ class LearnChatHandler(BaseChatHandler):
                     self.reply(
                         "No `arxiv` package found. "
                         "Install with `pip install arxiv`.",
-                        chat,
                     )
                     return
                 except Exception as e:
@@ -178,7 +172,6 @@ class LearnChatHandler(BaseChatHandler):
                     self.reply(
                         "An error occurred while processing the arXiv file. "
                         f"Please verify that the arxiv id {id} is correct.",
-                        chat,
                     )
                     return
 
@@ -194,7 +187,7 @@ class LearnChatHandler(BaseChatHandler):
                 "- Learn on files in the root directory: `/learn *`\n"
                 "- Learn all python files under the root directory recursively: `/learn **/*.py`"
             )
-            self.reply(f"{self.parser.format_usage()}\n\n {no_path_arg_message}", chat)
+            self.reply(f"{self.parser.format_usage()}\n\n {no_path_arg_message}")
             return
         short_path = args.path[0]
         load_path = os.path.join(self.output_dir, short_path)
@@ -204,15 +197,13 @@ class LearnChatHandler(BaseChatHandler):
                 next(iglob(load_path))
             except StopIteration:
                 response = f"Sorry, that path doesn't exist: {load_path}"
-                self.reply(response, chat, message)
+                self.reply(response, message)
                 return
 
         # delete and relearn index if embedding model was changed
-        await self.delete_and_relearn(chat)
+        await self.delete_and_relearn()
 
-        with self.pending(
-            f"Loading and splitting files for {load_path}", message, chat=chat
-        ):
+        with self.pending(f"Loading and splitting files for {load_path}", message):
             try:
                 await self.learn_dir(
                     load_path, args.chunk_size, args.chunk_overlap, args.all_files
@@ -228,7 +219,7 @@ class LearnChatHandler(BaseChatHandler):
                     You can ask questions about these docs by prefixing your message with **/ask**.""" % (
                     load_path.replace("*", r"\*")
                 )
-        self.reply(response, chat, message)
+        self.reply(response, message)
 
     def _build_list_response(self):
         if not self.metadata.dirs:
@@ -282,7 +273,7 @@ class LearnChatHandler(BaseChatHandler):
             )
         self.metadata.dirs = dirs
 
-    async def delete_and_relearn(self, chat: Optional[YChat] = None):
+    async def delete_and_relearn(self):
         """Delete the vector store and relearn all indexed directories if
         necessary. If the embedding model is unchanged, this method does
         nothing."""
@@ -309,11 +300,11 @@ class LearnChatHandler(BaseChatHandler):
         documents you had previously submitted for learning. Please wait to use
         the **/ask** command until I am done with this task."""
 
-        self.reply(message, chat)
+        self.reply(message)
 
         metadata = self.metadata
         self.delete()
-        await self.relearn(metadata, chat)
+        await self.relearn(metadata)
         self.prev_em_id = curr_em_id
 
     def delete(self):
@@ -327,7 +318,7 @@ class LearnChatHandler(BaseChatHandler):
             if os.path.isfile(path):
                 os.remove(path)
 
-    async def relearn(self, metadata: IndexMetadata, chat: Optional[YChat]):
+    async def relearn(self, metadata: IndexMetadata):
         # Index all dirs in the metadata
         if not metadata.dirs:
             return
@@ -347,7 +338,7 @@ class LearnChatHandler(BaseChatHandler):
         message = f"""🎉 I am done learning docs in these directories:
         {dir_list} I am ready to answer questions about them.
         You can ask me about these documents by starting your message with **/ask**."""
-        self.reply(message, chat)
+        self.reply(message)
 
     def create(
         self,

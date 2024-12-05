@@ -1,8 +1,7 @@
-from typing import Dict, Optional, Type
+from typing import Dict, Type
 
 from jupyter_ai.models import CellWithErrorSelection, HumanChatMessage
 from jupyter_ai_magics.providers import BaseProvider
-from jupyterlab_chat.ychat import YChat
 from langchain.prompts import PromptTemplate
 
 from .base import BaseChatHandler, SlashCommandRoutingType
@@ -80,11 +79,10 @@ class FixChatHandler(BaseChatHandler):
         runnable = prompt_template | llm  # type:ignore
         self.llm_chain = runnable
 
-    async def process_message(self, message: HumanChatMessage, chat: Optional[YChat]):
+    async def process_message(self, message: HumanChatMessage):
         if not (message.selection and message.selection.type == "cell-with-error"):
             self.reply(
                 "`/fix` requires an active code cell with error output. Please click on a cell with error output and retry.",
-                chat,
                 message,
             )
             return
@@ -105,6 +103,4 @@ class FixChatHandler(BaseChatHandler):
             "error_name": selection.error.name,
             "error_value": selection.error.value,
         }
-        await self.stream_reply(
-            inputs, message, pending_msg="Analyzing error", chat=chat
-        )
+        await self.stream_reply(inputs, message, pending_msg="Analyzing error")

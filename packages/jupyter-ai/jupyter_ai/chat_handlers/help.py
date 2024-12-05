@@ -1,7 +1,4 @@
-from typing import Optional
-
 from jupyter_ai.models import HumanChatMessage
-from jupyterlab_chat.ychat import YChat
 
 from .base import BaseChatHandler, SlashCommandRoutingType
 
@@ -18,5 +15,5 @@ class HelpChatHandler(BaseChatHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    async def process_message(self, message: HumanChatMessage, chat: Optional[YChat]):
-        self.send_help_message(chat, message)
+    async def process_message(self, message: HumanChatMessage):
+        self.send_help_message(message)
