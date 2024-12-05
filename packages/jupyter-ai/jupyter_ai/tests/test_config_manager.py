@@ -194,20 +194,35 @@ def configure_to_openai(cm: ConfigManager):
     return LM_GID, EM_GID, LM_LID, EM_LID, API_PARAMS
 
 
-def configure_with_fields(cm: ConfigManager):
+def configure_with_fields(cm: ConfigManager, completions: bool = False):
     """
-    Configures the ConfigManager with fields and API keys.
+    Default behavior: Configures the ConfigManager with fields and API keys.
     Returns the expected result of `cm.lm_provider_params`.
+
+    If `completions` is set to `True`, this configures the ConfigManager with
+    completion model fields, and returns the expected result of
+    `cm.completions_lm_provider_params`.
     """
-    req = UpdateConfigRequest(
-        model_provider_id="openai-chat:gpt-4o",
-        api_keys={"OPENAI_API_KEY": "foobar"},
-        fields={
-            "openai-chat:gpt-4o": {
-                "openai_api_base": "https://example.com",
-            }
-        },
-    )
+    if completions:
+        req = UpdateConfigRequest(
+            completions_model_provider_id="openai-chat:gpt-4o",
+            api_keys={"OPENAI_API_KEY": "foobar"},
+            completions_fields={
+                "openai-chat:gpt-4o": {
+                    "openai_api_base": "https://example.com",
+                }
+            },
+        )
+    else:
+        req = UpdateConfigRequest(
+            model_provider_id="openai-chat:gpt-4o",
+            api_keys={"OPENAI_API_KEY": "foobar"},
+            fields={
+                "openai-chat:gpt-4o": {
+                    "openai_api_base": "https://example.com",
+                }
+            },
+        )
     cm.update_config(req)
     return {
         "model_id": "gpt-4o",
@@ -445,13 +460,18 @@ def test_handle_bad_provider_ids(cm_with_bad_provider_ids):
     assert config_desc.embeddings_provider_id is None
 
 
-def test_config_manager_returns_fields(cm):
+def test_returns_chat_model_fields(cm):
     """
     Asserts that `ConfigManager.lm_provider_params` returns model fields set by
     the user.
     """
     expected_model_args = configure_with_fields(cm)
     assert cm.lm_provider_params == expected_model_args
+
+
+def test_returns_completion_model_fields(cm):
+    expected_model_args = configure_with_fields(cm, completions=True)
+    assert cm.completions_lm_provider_params == expected_model_args
 
 
 def test_config_manager_does_not_write_to_defaults(
