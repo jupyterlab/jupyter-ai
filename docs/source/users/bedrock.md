@@ -29,7 +29,7 @@ You may now select a chosen Bedrock model from the drop-down menu box title `Com
 
 If your provider requires an API key, please enter it in the box that will show for that provider. Make sure to click on `Save Changes` to ensure that the inputs have been saved.
 
-Bedrock also allows custom models to be trained from scratch or fine-tuned from a base model. Jupyter AI enables a custom model to be called in the chat panel using its `arn` (Amazon Resource Name). A fine-tuned model will have your 12-digit customer number in the ARN: 
+Bedrock also allows custom models to be trained from scratch or fine-tuned from a base model. Jupyter AI enables a custom model to be called in the chat panel using its `arn` (Amazon Resource Name). A fine-tuned model will have your 12-digit customer number in the ARN:
 
 <img src="../_static/bedrock-chat-custom-model-arn.png"
     width="75%"
@@ -79,7 +79,7 @@ Amazon Bedrock now permits cross-region inference, where a model hosted in a dif
     alt='Screenshot of Bedrock cross-region inference usage.'
     class="screenshot" />
 
-## Summary 
+## Summary
 
 1. Bedrock Base models: All available models will already be available in the drop down model list. The above interface also allows use of base model IDs or ARNs, though this is unnecessary as they are in the dropdown list.
 2. Bedrock Custom models: If you have fine-tuned a Bedrock base model you may use the ARN for this custom model. Make sure to enter the correct provider information, such as `amazon`, `anthropic`, `cohere`, `meta`, `mistral` (always in lower case).
