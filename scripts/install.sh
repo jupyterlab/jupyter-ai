@@ -1,7 +1,7 @@
 #!/bin/bash
 set -eux
 # install core packages
-pip install jupyterlab~=4.0
+pip install jupyterlab~=4.0, !=4.3.2
 cp playground/config.example.py playground/config.py
 jlpm install
 jlpm dev-install
