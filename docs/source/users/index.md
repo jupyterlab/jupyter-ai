@@ -336,7 +336,7 @@ The chat backend remembers the last two exchanges in your conversation and passe
 
 Jupyter AI enables use of language models hosted on [Amazon Bedrock](https://aws.amazon.com/bedrock/) on AWS. Ensure that you have authentication to use AWS using the `boto3` SDK with credentials stored in the `default` profile. Guidance on how to do this can be found in the [`boto3` documentation](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html).
 
-Proceed to a detailed description of [Using Amazon Bedrock with Jupyter AI](bedrock.md).
+For details on enabling model access in your AWS account, using cross-region inference, or invoking custom/provisioned models, please see our dedicated documentation page on [using Amazon Bedrock in Jupyter AI](bedrock.md).
 
 
 ### SageMaker endpoints usage
