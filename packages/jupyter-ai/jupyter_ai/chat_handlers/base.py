@@ -23,6 +23,7 @@ from uuid import uuid4
 from dask.distributed import Client as DaskClient
 from jupyter_ai.callback_handlers import MetadataCallbackHandler
 from jupyter_ai.config_manager import ConfigManager, Logger
+from jupyter_ai.constants import BOT
 from jupyter_ai.history import WrappedBoundedChatHistory
 from jupyter_ai.models import (
     AgentChatMessage,
@@ -36,6 +37,7 @@ from jupyter_ai.models import (
 )
 from jupyter_ai_magics import Persona
 from jupyter_ai_magics.providers import BaseProvider
+from jupyterlab_chat.ychat import YChat
 from langchain.pydantic_v1 import BaseModel
 from langchain_core.messages import AIMessageChunk
 from langchain_core.runnables import Runnable
@@ -156,6 +158,7 @@ class BaseChatHandler:
         chat_handlers: Dict[str, "BaseChatHandler"],
         context_providers: Dict[str, "BaseCommandContextProvider"],
         message_interrupted: Dict[str, asyncio.Event],
+        ychat: Optional[YChat],
     ):
         self.log = log
         self.config_manager = config_manager
@@ -178,6 +181,14 @@ class BaseChatHandler:
         self.chat_handlers = chat_handlers
         self.context_providers = context_providers
         self.message_interrupted = message_interrupted
+        self.ychat = ychat
+        self.indexes_by_id: Dict[str, str] = {}
+        """
+        Indexes of messages in the YChat document by message ID.
+
+        TODO: Remove this once `jupyterlab-chat` can update messages by ID
+        without an index.
+        """
 
         self.llm: Optional[BaseProvider] = None
         self.llm_params: Optional[dict] = None
@@ -198,7 +209,7 @@ class BaseChatHandler:
             slash_command = "/" + routing_type.slash_id if routing_type.slash_id else ""
             if slash_command in lm_provider_klass.unsupported_slash_commands:
                 self.reply(
-                    "Sorry, the selected language model does not support this slash command."
+                    "Sorry, the selected language model does not support this slash command.",
                 )
                 return
 
@@ -238,7 +249,7 @@ class BaseChatHandler:
         """
         Processes a human message routed to this chat handler. Chat handlers
         (subclasses) must implement this method. Don't forget to call
-        `self.reply(<response>, message)` at the end!
+        `self.reply(<response>, chat, message)` at the end!
 
         The method definition does not need to be wrapped in a try/except block;
         any exceptions raised here are caught by `self.handle_exc()`.
@@ -271,11 +282,41 @@ class BaseChatHandler:
         )
         self.reply(response, message)
 
+    def write_message(self, body: str, id: Optional[str] = None) -> None:
+        """[Jupyter Chat only] Writes a message to the YChat shared document
+        that this chat handler is assigned to."""
+        if not self.ychat:
+            return
+
+        bot = self.ychat.get_user(BOT["username"])
+        if not bot:
+            self.ychat.set_user(BOT)
+
+        index = self.indexes_by_id.get(id, None)
+        id = id if id else str(uuid4())
+        new_index = self.ychat.set_message(
+            {
+                "type": "msg",
+                "body": body,
+                "id": id if id else str(uuid4()),
+                "time": time.time(),
+                "sender": BOT["username"],
+                "raw_time": False,
+            },
+            index=index,
+            append=True,
+        )
+
+        self.indexes_by_id[id] = new_index
+        return id
+
     def broadcast_message(self, message: Message):
         """
         Broadcasts a message to all WebSocket connections. If there are no
         WebSocket connections and the message is a chat message, this method
         directly appends to `self.chat_history`.
+
+        TODO: Remove this after Jupyter Chat migration is complete.
         """
         broadcast = False
         for websocket in self._root_chat_handlers.values():
@@ -291,20 +332,26 @@ class BaseChatHandler:
                 cast(ChatMessage, message)
                 self._chat_history.append(message)
 
-    def reply(self, response: str, human_msg: Optional[HumanChatMessage] = None):
+    def reply(
+        self,
+        response: str,
+        human_msg: Optional[HumanChatMessage] = None,
+    ):
         """
         Sends an agent message, usually in response to a received
         `HumanChatMessage`.
         """
-        agent_msg = AgentChatMessage(
-            id=uuid4().hex,
-            time=time.time(),
-            body=response,
-            reply_to=human_msg.id if human_msg else "",
-            persona=self.persona,
-        )
-
-        self.broadcast_message(agent_msg)
+        if self.ychat is not None:
+            self.write_message(response, None)
+        else:
+            agent_msg = AgentChatMessage(
+                id=uuid4().hex,
+                time=time.time(),
+                body=response,
+                reply_to=human_msg.id if human_msg else "",
+                persona=self.persona,
+            )
+            self.broadcast_message(agent_msg)
 
     @property
     def persona(self):
@@ -333,7 +380,10 @@ class BaseChatHandler:
             ellipsis=ellipsis,
         )
 
-        self.broadcast_message(pending_msg)
+        if self.ychat is not None and self.ychat.awareness is not None:
+            self.ychat.awareness.set_local_state_field("isWriting", True)
+        else:
+            self.broadcast_message(pending_msg)
         return pending_msg
 
     def close_pending(self, pending_msg: PendingMessage):
@@ -347,7 +397,10 @@ class BaseChatHandler:
             id=pending_msg.id,
         )
 
-        self.broadcast_message(close_pending_msg)
+        if self.ychat is not None and self.ychat.awareness is not None:
+            self.ychat.awareness.set_local_state_field("isWriting", False)
+        else:
+            self.broadcast_message(close_pending_msg)
         pending_msg.closed = True
 
     @contextlib.contextmanager
@@ -361,6 +414,9 @@ class BaseChatHandler:
         """
         Context manager that sends a pending message to the client, and closes
         it after the block is executed.
+
+        TODO: Simplify it by only modifying the awareness as soon as jupyterlab chat
+        is the only used chat.
         """
         pending_msg = self.start_pending(text, human_msg=human_msg, ellipsis=ellipsis)
         try:
@@ -470,32 +526,39 @@ class BaseChatHandler:
             slash_commands_list=slash_commands_list,
             context_commands_list=context_commands_list,
         )
-        help_message = AgentChatMessage(
-            id=uuid4().hex,
-            time=time.time(),
-            body=help_message_body,
-            reply_to=human_msg.id if human_msg else "",
-            persona=self.persona,
-        )
 
-        self.broadcast_message(help_message)
+        if self.ychat is not None:
+            self.write_message(help_message_body, None)
+        else:
+            help_message = AgentChatMessage(
+                id=uuid4().hex,
+                time=time.time(),
+                body=help_message_body,
+                reply_to=human_msg.id if human_msg else "",
+                persona=self.persona,
+            )
+            self.broadcast_message(help_message)
 
     def _start_stream(self, human_msg: HumanChatMessage) -> str:
         """
         Sends an `agent-stream` message to indicate the start of a response
         stream. Returns the ID of the message, denoted as the `stream_id`.
         """
-        stream_id = uuid4().hex
-        stream_msg = AgentStreamMessage(
-            id=stream_id,
-            time=time.time(),
-            body="",
-            reply_to=human_msg.id,
-            persona=self.persona,
-            complete=False,
-        )
+        if self.ychat is not None:
+            stream_id = self.write_message("", None)
+        else:
+            stream_id = uuid4().hex
+            stream_msg = AgentStreamMessage(
+                id=stream_id,
+                time=time.time(),
+                body="",
+                reply_to=human_msg.id,
+                persona=self.persona,
+                complete=False,
+            )
 
-        self.broadcast_message(stream_msg)
+            self.broadcast_message(stream_msg)
+
         return stream_id
 
     def _send_stream_chunk(
@@ -509,13 +572,19 @@ class BaseChatHandler:
         Sends an `agent-stream-chunk` message containing content that should be
         appended to an existing `agent-stream` message with ID `stream_id`.
         """
-        if not metadata:
-            metadata = {}
+        if self.ychat is not None:
+            self.write_message(content, stream_id)
+        else:
+            if not metadata:
+                metadata = {}
 
-        stream_chunk_msg = AgentStreamChunkMessage(
-            id=stream_id, content=content, stream_complete=complete, metadata=metadata
-        )
-        self.broadcast_message(stream_chunk_msg)
+            stream_chunk_msg = AgentStreamChunkMessage(
+                id=stream_id,
+                content=content,
+                stream_complete=complete,
+                metadata=metadata,
+            )
+            self.broadcast_message(stream_chunk_msg)
 
     async def stream_reply(
         self,

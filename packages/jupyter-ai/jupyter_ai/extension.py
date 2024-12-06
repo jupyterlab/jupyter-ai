@@ -2,18 +2,28 @@ import os
 import re
 import time
 import types
+import uuid
+from functools import partial
+from typing import Dict, Optional
 
+import traitlets
 from dask.distributed import Client as DaskClient
 from importlib_metadata import entry_points
 from jupyter_ai.chat_handlers.learn import Retriever
+from jupyter_ai.models import HumanChatMessage
 from jupyter_ai_magics import BaseProvider, JupyternautPersona
 from jupyter_ai_magics.utils import get_em_providers, get_lm_providers
+from jupyter_events import EventLogger
 from jupyter_server.extension.application import ExtensionApp
+from jupyter_server.utils import url_path_join
+from jupyterlab_chat.ychat import YChat
+from pycrdt import ArrayEvent
 from tornado.web import StaticFileHandler
-from traitlets import Dict, Integer, List, Unicode
+from traitlets import Integer, List, Unicode
 
 from .chat_handlers import (
     AskChatHandler,
+    BaseChatHandler,
     ClearChatHandler,
     DefaultChatHandler,
     ExportChatHandler,
@@ -24,6 +34,7 @@ from .chat_handlers import (
 )
 from .completions.handlers import DefaultInlineCompletionHandler
 from .config_manager import ConfigManager
+from .constants import BOT
 from .context_providers import BaseCommandContextProvider, FileContextProvider
 from .handlers import (
     ApiKeysHandler,
@@ -37,11 +48,26 @@ from .handlers import (
 )
 from .history import BoundedChatHistory
 
+from jupyter_collaboration import (  # type:ignore[import-untyped]  # isort:skip
+    __version__ as jupyter_collaboration_version,
+)
+
+
 JUPYTERNAUT_AVATAR_ROUTE = JupyternautPersona.avatar_route
 JUPYTERNAUT_AVATAR_PATH = str(
     os.path.join(os.path.dirname(__file__), "static", "jupyternaut.svg")
 )
 
+JCOLLAB_VERSION = int(jupyter_collaboration_version[0])
+
+if JCOLLAB_VERSION >= 3:
+    from jupyter_server_ydoc.utils import (  # type:ignore[import-untyped]
+        JUPYTER_COLLABORATION_EVENTS_URI,
+    )
+else:
+    from jupyter_collaboration.utils import (  # type:ignore[import-untyped]
+        JUPYTER_COLLABORATION_EVENTS_URI,
+    )
 
 DEFAULT_HELP_MESSAGE_TEMPLATE = """Hi there! I'm {persona_name}, your programming assistant.
 You can ask me a question using the text box below. You can also use these commands:
@@ -121,9 +147,9 @@ class AiExtension(ExtensionApp):
         config=True,
     )
 
-    model_parameters = Dict(
+    model_parameters = traitlets.Dict(
         key_trait=Unicode(),
-        value_trait=Dict(),
+        value_trait=traitlets.Dict(),
         default_value={},
         help="""Key-value pairs for model id and corresponding parameters that
         are passed to the provider class. The values are unpacked and passed to
@@ -161,7 +187,7 @@ class AiExtension(ExtensionApp):
         config=True,
     )
 
-    default_api_keys = Dict(
+    default_api_keys = traitlets.Dict(
         key_trait=Unicode(),
         value_trait=Unicode(),
         default_value=None,
@@ -203,6 +229,135 @@ class AiExtension(ExtensionApp):
         allow_none=True,
         config=True,
     )
+
+    def initialize(self):
+        super().initialize()
+
+        self.chat_handlers_by_room: Dict[str, Dict[str, BaseChatHandler]] = {}
+        """
+        Nested dictionary that returns the dedicated chat handler instance that
+        should be used, given the room ID and command ID respectively.
+
+        Example: `self.chat_handlers_by_room[<room_id>]` yields the set of chat
+        handlers dedicated to the room identified by `<room_id>`.
+        """
+
+        self.ychats_by_room: Dict[str, YChat] = {}
+        """Cache of YChat instances, indexed by room ID."""
+
+        self.event_logger = self.serverapp.web_app.settings["event_logger"]
+        self.event_logger.add_listener(
+            schema_id=JUPYTER_COLLABORATION_EVENTS_URI, listener=self.connect_chat
+        )
+
+    async def connect_chat(
+        self, logger: EventLogger, schema_id: str, data: dict
+    ) -> None:
+        # ignore events that are not chat room initialization events
+        if not (
+            data["room"].startswith("text:chat:")
+            and data["action"] == "initialize"
+            and data["msg"] == "Room initialized"
+        ):
+            return
+
+        # log room ID
+        room_id = data["room"]
+        self.log.info(f"Connecting to a chat room with room ID: {room_id}.")
+
+        # get YChat document associated with the room
+        ychat = await self.get_chat(room_id)
+        if ychat is None:
+            return
+
+        # Add the bot user to the chat document awareness.
+        BOT["avatar_url"] = url_path_join(
+            self.settings.get("base_url", "/"), "api/ai/static/jupyternaut.svg"
+        )
+        if ychat.awareness is not None:
+            ychat.awareness.set_local_state_field("user", BOT)
+
+        # initialize chat handlers for new chat
+        self.chat_handlers_by_room[room_id] = self._init_chat_handlers(ychat)
+
+        callback = partial(self.on_change, room_id)
+        ychat.ymessages.observe(callback)
+
+    async def get_chat(self, room_id: str) -> Optional[YChat]:
+        """
+        Retrieves the YChat instance associated with a room ID. This method
+        is cached, i.e. successive calls with the same room ID quickly return a
+        cached value.
+
+        TODO: Determine if get_chat() should ever fail under normal usage
+        scenarios. If not, we should just raise an exception if chat is `None`,
+        and indicate the return type as just `YChat` instead of
+        `Optional[YChat]`. This will simplify the code by removing redundant
+        null checks.
+        """
+        if room_id in self.ychats_by_room:
+            return self.ychats_by_room[room_id]
+
+        if JCOLLAB_VERSION >= 3:
+            collaboration = self.serverapp.web_app.settings["jupyter_server_ydoc"]
+            document = await collaboration.get_document(room_id=room_id, copy=False)
+        else:
+            collaboration = self.serverapp.web_app.settings["jupyter_collaboration"]
+            server = collaboration.ywebsocket_server
+
+            room = await server.get_room(room_id)
+            document = room._document
+
+        self.ychats_by_room[room_id] = document
+        return document
+
+    def on_change(self, room_id: str, events: ArrayEvent) -> None:
+        for change in events.delta:  # type:ignore[attr-defined]
+            if not "insert" in change.keys():
+                continue
+            messages = change["insert"]
+            for message in messages:
+
+                if message["sender"] == BOT["username"] or message["raw_time"]:
+                    continue
+                chat_message = HumanChatMessage(
+                    id=message["id"],
+                    time=time.time(),
+                    body=message["body"],
+                    prompt="",
+                    selection=None,
+                    client=None,
+                )
+                if self.serverapp is not None:
+                    self.serverapp.io_loop.asyncio_loop.create_task(  # type:ignore[attr-defined]
+                        self.route_human_message(room_id, chat_message)
+                    )
+
+    async def route_human_message(self, room_id: str, message: HumanChatMessage):
+        """
+        Method that routes an incoming `HumanChatMessage` to the appropriate
+        chat handler.
+        """
+        chat_handlers = self.chat_handlers_by_room[room_id]
+        default = chat_handlers["default"]
+        # Split on any whitespace, either spaces or newlines
+        maybe_command = message.body.split(None, 1)[0]
+        is_command = (
+            message.body.startswith("/")
+            and maybe_command in chat_handlers.keys()
+            and maybe_command != "default"
+        )
+        command = maybe_command if is_command else "default"
+
+        start = time.time()
+        if is_command:
+            await chat_handlers[command].on_message(message)
+        else:
+            await default.on_message(message)
+
+        latency_ms = round((time.time() - start) * 1000)
+        command_readable = "Default" if command == "default" else command
+        self.log.info(f"{command_readable} chat handler resolved in {latency_ms} ms.")
 
     def initialize_settings(self):
         start = time.time()
@@ -298,7 +453,7 @@ class AiExtension(ExtensionApp):
         self.settings["jai_message_interrupted"] = {}
 
         # initialize chat handlers
-        self._init_chat_handlers()
+        self.settings["jai_chat_handlers"] = self._init_chat_handlers()
 
         # initialize context providers
         self._init_context_provders()
@@ -320,7 +475,7 @@ class AiExtension(ExtensionApp):
         default_chat_handler: DefaultChatHandler = self.settings["jai_chat_handlers"][
             "default"
         ]
-        default_chat_handler.send_help_message()
+        default_chat_handler.send_help_message(None)
 
     async def _get_dask_client(self):
         return DaskClient(processes=False, asynchronous=True)
@@ -349,7 +504,15 @@ class AiExtension(ExtensionApp):
             await dask_client.close()
             self.log.debug("Closed Dask client.")
 
-    def _init_chat_handlers(self):
+    def _init_chat_handlers(
+        self, ychat: Optional[YChat] = None
+    ) -> Dict[str, BaseChatHandler]:
+        """
+        Initializes a set of chat handlers. May accept a YChat instance for
+        collaborative chats.
+
+        TODO: Make `ychat` required once Jupyter Chat migration is complete.
+        """
         eps = entry_points()
         chat_handler_eps = eps.select(group="jupyter_ai.chat_handlers")
         chat_handlers = {}
@@ -367,6 +530,7 @@ class AiExtension(ExtensionApp):
             "chat_handlers": chat_handlers,
             "context_providers": self.settings["jai_context_providers"],
             "message_interrupted": self.settings["jai_message_interrupted"],
+            "ychat": ychat,
         }
         default_chat_handler = DefaultChatHandler(**chat_handler_kwargs)
         clear_chat_handler = ClearChatHandler(**chat_handler_kwargs)
@@ -439,8 +603,7 @@ class AiExtension(ExtensionApp):
         # Make help always appear as the last command
         chat_handlers["/help"] = HelpChatHandler(**chat_handler_kwargs)
 
-        # bind chat handlers to settings
-        self.settings["jai_chat_handlers"] = chat_handlers
+        return chat_handlers
 
     def _init_context_provders(self):
         eps = entry_points()

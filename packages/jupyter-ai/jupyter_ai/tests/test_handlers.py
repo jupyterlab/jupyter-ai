@@ -78,6 +78,7 @@ class TestDefaultChatHandler(DefaultChatHandler):
             chat_handlers={},
             context_providers={},
             message_interrupted={},
+            ychat=None,
         )
 
 
