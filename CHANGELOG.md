@@ -2,6 +2,34 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 2.28.3
+
+This release notably fixes a major bug with updated model fields not being used until after a server restart, and fixes a bug with Ollama in the chat. Thank you for your patience as we continue to improve Jupyter AI! 🤗
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.28.2...37558cd9233c1971b8793138bd334bc648a69125))
+
+### Enhancements made
+
+- Removes outdated OpenAI models and adds new ones [#1127](https://github.com/jupyterlab/jupyter-ai/pull/1127) ([@srdas](https://github.com/srdas))
+
+### Bugs fixed
+
+- Fix install step in CI [#1139](https://github.com/jupyterlab/jupyter-ai/pull/1139) ([@dlqqq](https://github.com/dlqqq))
+- Update completion model fields immediately on save [#1137](https://github.com/jupyterlab/jupyter-ai/pull/1137) ([@dlqqq](https://github.com/dlqqq))
+- Fix JSON serialization error in Ollama models [#1129](https://github.com/jupyterlab/jupyter-ai/pull/1129) ([@JanusChoi](https://github.com/JanusChoi))
+- Update model fields immediately on save [#1125](https://github.com/jupyterlab/jupyter-ai/pull/1125) ([@dlqqq](https://github.com/dlqqq))
+- Downgrade spurious 'error' logs [#1119](https://github.com/jupyterlab/jupyter-ai/pull/1119) ([@ctcjab](https://github.com/ctcjab))
+
+### Maintenance and upkeep improvements
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-11-18&to=2024-12-05&type=c))
+
+[@ctcjab](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Actcjab+updated%3A2024-11-18..2024-12-05&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2024-11-18..2024-12-05&type=Issues) | [@JanusChoi](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AJanusChoi+updated%3A2024-11-18..2024-12-05&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2024-11-18..2024-12-05&type=Issues) | [@pre-commit-ci](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Apre-commit-ci+updated%3A2024-11-18..2024-12-05&type=Issues) | [@srdas](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2024-11-18..2024-12-05&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 2.28.2
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.28.1...cbfed31bc3ee19c02a12c28a618af99ab10206be))
@@ -17,8 +45,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-11-11&to=2024-11-18&type=c))
 
 [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2024-11-11..2024-11-18&type=Issues) | [@srdas](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2024-11-11..2024-11-18&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 2.28.1
 
