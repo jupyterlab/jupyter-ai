@@ -88,6 +88,9 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
   const [apiKeys, setApiKeys] = useState<Record<string, string>>({});
   const [sendWse, setSendWse] = useState<boolean>(false);
   const [fields, setFields] = useState<Record<string, any>>({});
+  const [embeddingModelFields, setEmbeddingModelFields] = useState<
+    Record<string, any>
+  >({});
 
   const [isCompleterEnabled, setIsCompleterEnabled] = useState(
     props.completionProvider && props.completionProvider.isEnabled()
@@ -188,7 +191,15 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
     const currFields: Record<string, any> =
       server.config.fields?.[lmGlobalId] ?? {};
     setFields(currFields);
-  }, [server, lmProvider]);
+
+    if (!emGlobalId) {
+      return;
+    }
+
+    const initEmbeddingModelFields: Record<string, any> =
+      server.config.fields?.[emGlobalId] ?? {};
+    setEmbeddingModelFields(initEmbeddingModelFields);
+  }, [server, lmGlobalId, emGlobalId]);
 
   const handleSave = async () => {
     // compress fields with JSON values
@@ -222,6 +233,9 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
           }),
           ...(clmGlobalId && {
             [clmGlobalId]: fields
+          }),
+          ...(emGlobalId && {
+            [emGlobalId]: embeddingModelFields
           })
         }
       }),
@@ -400,8 +414,8 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
           {emGlobalId && (
             <ModelFields
               fields={emProvider?.fields}
-              values={fields}
-              onChange={setFields}
+              values={embeddingModelFields}
+              onChange={setEmbeddingModelFields}
             />
           )}
         </Box>
