@@ -23,7 +23,6 @@ from traitlets import Integer, List, Unicode
 from .chat_handlers import (
     AskChatHandler,
     BaseChatHandler,
-    ClearChatHandler,
     DefaultChatHandler,
     FixChatHandler,
     GenerateChatHandler,
@@ -531,7 +530,6 @@ class AiExtension(ExtensionApp):
             "ychat": ychat,
         }
         default_chat_handler = DefaultChatHandler(**chat_handler_kwargs)
-        clear_chat_handler = ClearChatHandler(**chat_handler_kwargs)
         generate_chat_handler = GenerateChatHandler(
             **chat_handler_kwargs,
             log_dir=self.error_logs_dir,
@@ -544,7 +542,6 @@ class AiExtension(ExtensionApp):
 
         chat_handlers["default"] = default_chat_handler
         chat_handlers["/ask"] = ask_chat_handler
-        chat_handlers["/clear"] = clear_chat_handler
         chat_handlers["/generate"] = generate_chat_handler
         chat_handlers["/learn"] = learn_chat_handler
         chat_handlers["/fix"] = fix_chat_handler

@@ -5,7 +5,6 @@ import jupyter_ydoc
 
 from .ask import AskChatHandler
 from .base import BaseChatHandler, SlashCommandRoutingType
-from .clear import ClearChatHandler
 from .default import DefaultChatHandler
 from .fix import FixChatHandler
 from .generate import GenerateChatHandler
