@@ -2,7 +2,6 @@ import os
 import re
 import time
 import types
-import uuid
 from functools import partial
 from typing import Dict, Optional
 
@@ -26,7 +25,6 @@ from .chat_handlers import (
     BaseChatHandler,
     ClearChatHandler,
     DefaultChatHandler,
-    ExportChatHandler,
     FixChatHandler,
     GenerateChatHandler,
     HelpChatHandler,
@@ -542,8 +540,6 @@ class AiExtension(ExtensionApp):
         retriever = Retriever(learn_chat_handler=learn_chat_handler)
         ask_chat_handler = AskChatHandler(**chat_handler_kwargs, retriever=retriever)
 
-        export_chat_handler = ExportChatHandler(**chat_handler_kwargs)
-
         fix_chat_handler = FixChatHandler(**chat_handler_kwargs)
 
         chat_handlers["default"] = default_chat_handler
@@ -551,7 +547,6 @@ class AiExtension(ExtensionApp):
         chat_handlers["/clear"] = clear_chat_handler
         chat_handlers["/generate"] = generate_chat_handler
         chat_handlers["/learn"] = learn_chat_handler
-        chat_handlers["/export"] = export_chat_handler
         chat_handlers["/fix"] = fix_chat_handler
 
         slash_command_pattern = r"^[a-zA-Z0-9_]+$"
