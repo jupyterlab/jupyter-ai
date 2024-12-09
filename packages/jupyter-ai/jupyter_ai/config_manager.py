@@ -461,7 +461,7 @@ class ConfigManager(Configurable):
             fields = config.completions_fields.get(model_uid, {})
         else:
             fields = config.fields.get(model_uid, {})
-        
+
         # exclude empty fields
         # TODO: modify the config manager to never save empty fields in the
         # first place.
