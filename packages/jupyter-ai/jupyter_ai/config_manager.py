@@ -461,6 +461,13 @@ class ConfigManager(Configurable):
             fields = config.completions_fields.get(model_uid, {})
         else:
             fields = config.fields.get(model_uid, {})
+        
+        # exclude empty fields
+        # TODO: modify the config manager to never save empty fields in the
+        # first place.
+        for field_key in fields:
+            if isinstance(fields[field_key], str) and not len(fields[field_key]):
+                fields[field_key] = None
 
         # get authn fields
         _, Provider = get_em_provider(model_uid, listing)
