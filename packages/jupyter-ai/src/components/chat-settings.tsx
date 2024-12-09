@@ -88,6 +88,9 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
   const [apiKeys, setApiKeys] = useState<Record<string, string>>({});
   const [sendWse, setSendWse] = useState<boolean>(false);
   const [fields, setFields] = useState<Record<string, any>>({});
+  const [embeddingModelFields, setEmbeddingModelFields] = useState<
+    Record<string, any>
+  >({});
 
   const [isCompleterEnabled, setIsCompleterEnabled] = useState(
     props.completionProvider && props.completionProvider.isEnabled()
@@ -188,7 +191,15 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
     const currFields: Record<string, any> =
       server.config.fields?.[lmGlobalId] ?? {};
     setFields(currFields);
-  }, [server, lmProvider]);
+
+    if (!emGlobalId) {
+      return;
+    }
+
+    const initEmbeddingModelFields: Record<string, any> =
+      server.config.fields?.[emGlobalId] ?? {};
+    setEmbeddingModelFields(initEmbeddingModelFields);
+  }, [server, lmGlobalId, emGlobalId]);
 
   const handleSave = async () => {
     // compress fields with JSON values
@@ -222,6 +233,9 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
           }),
           ...(clmGlobalId && {
             [clmGlobalId]: fields
+          }),
+          ...(emGlobalId && {
+            [emGlobalId]: embeddingModelFields
           })
         }
       }),
@@ -376,26 +390,35 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
       {/* Embedding model section */}
       <h2 className="jp-ai-ChatSettings-header">Embedding model</h2>
       {server.emProviders.providers.length > 0 ? (
-        <Select
-          value={emGlobalId}
-          label="Embedding model"
-          onChange={e => {
-            const emGid = e.target.value === 'null' ? null : e.target.value;
-            setEmGlobalId(emGid);
-          }}
-          MenuProps={{ sx: { maxHeight: '50%', minHeight: 400 } }}
-        >
-          <MenuItem value="null">None</MenuItem>
-          {server.emProviders.providers.map(emp =>
-            emp.models
-              .filter(em => em !== '*') // TODO: support registry providers
-              .map(em => (
-                <MenuItem value={`${emp.id}:${em}`}>
-                  {emp.name} :: {em}
-                </MenuItem>
-              ))
+        <Box>
+          <Select
+            value={emGlobalId}
+            label="Embedding model"
+            onChange={e => {
+              const emGid = e.target.value === 'null' ? null : e.target.value;
+              setEmGlobalId(emGid);
+            }}
+            MenuProps={{ sx: { maxHeight: '50%', minHeight: 400 } }}
+          >
+            <MenuItem value="null">None</MenuItem>
+            {server.emProviders.providers.map(emp =>
+              emp.models
+                .filter(em => em !== '*') // TODO: support registry providers
+                .map(em => (
+                  <MenuItem value={`${emp.id}:${em}`}>
+                    {emp.name} :: {em}
+                  </MenuItem>
+                ))
+            )}
+          </Select>
+          {emGlobalId && (
+            <ModelFields
+              fields={emProvider?.fields}
+              values={embeddingModelFields}
+              onChange={setEmbeddingModelFields}
+            />
           )}
-        </Select>
+        </Box>
       ) : (
         <p>No embedding models available.</p>
       )}
