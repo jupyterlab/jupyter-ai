@@ -24,7 +24,6 @@ from .chat_handlers import (
     AskChatHandler,
     BaseChatHandler,
     DefaultChatHandler,
-    FixChatHandler,
     GenerateChatHandler,
     HelpChatHandler,
     LearnChatHandler,
@@ -538,13 +537,10 @@ class AiExtension(ExtensionApp):
         retriever = Retriever(learn_chat_handler=learn_chat_handler)
         ask_chat_handler = AskChatHandler(**chat_handler_kwargs, retriever=retriever)
 
-        fix_chat_handler = FixChatHandler(**chat_handler_kwargs)
-
         chat_handlers["default"] = default_chat_handler
         chat_handlers["/ask"] = ask_chat_handler
         chat_handlers["/generate"] = generate_chat_handler
         chat_handlers["/learn"] = learn_chat_handler
-        chat_handlers["/fix"] = fix_chat_handler
 
         slash_command_pattern = r"^[a-zA-Z0-9_]+$"
         for chat_handler_ep in chat_handler_eps:
