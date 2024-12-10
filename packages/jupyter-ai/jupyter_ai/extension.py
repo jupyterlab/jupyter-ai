@@ -57,11 +57,11 @@ JUPYTERNAUT_AVATAR_PATH = str(
 JCOLLAB_VERSION = int(jupyter_collaboration_version[0])
 
 if JCOLLAB_VERSION >= 3:
-    from jupyter_server_ydoc.utils import (  # type:ignore[import-untyped]
+    from jupyter_server_ydoc.utils import (  # type:ignore[import-not-found,import-untyped]
         JUPYTER_COLLABORATION_EVENTS_URI,
     )
 else:
-    from jupyter_collaboration.utils import (  # type:ignore[import-untyped]
+    from jupyter_collaboration.utils import (  # type:ignore[import-not-found,import-untyped]
         JUPYTER_COLLABORATION_EVENTS_URI,
     )
 
@@ -294,6 +294,7 @@ class AiExtension(ExtensionApp):
         if room_id in self.ychats_by_room:
             return self.ychats_by_room[room_id]
 
+        assert self.serverapp
         if JCOLLAB_VERSION >= 3:
             collaboration = self.serverapp.web_app.settings["jupyter_server_ydoc"]
             document = await collaboration.get_document(room_id=room_id, copy=False)
@@ -509,9 +510,11 @@ class AiExtension(ExtensionApp):
 
         TODO: Make `ychat` required once Jupyter Chat migration is complete.
         """
+        assert self.serverapp
+
         eps = entry_points()
         chat_handler_eps = eps.select(group="jupyter_ai.chat_handlers")
-        chat_handlers = {}
+        chat_handlers: Dict[str, BaseChatHandler] = {}
         chat_handler_kwargs = {
             "log": self.log,
             "config_manager": self.settings["jai_config_manager"],

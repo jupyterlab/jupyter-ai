@@ -182,7 +182,7 @@ class BaseChatHandler:
         self.context_providers = context_providers
         self.message_interrupted = message_interrupted
         self.ychat = ychat
-        self.indexes_by_id: Dict[str, str] = {}
+        self.indexes_by_id: Dict[str, int] = {}
         """
         Indexes of messages in the YChat document by message ID.
 
@@ -282,17 +282,23 @@ class BaseChatHandler:
         )
         self.reply(response, message)
 
-    def write_message(self, body: str, id: Optional[str] = None) -> None:
-        """[Jupyter Chat only] Writes a message to the YChat shared document
-        that this chat handler is assigned to."""
+    def write_message(self, body: str, id: Optional[str] = None) -> str:
+        """
+        [Jupyter Chat only] Writes a message to the YChat shared document
+        that this chat handler is assigned to.
+
+        Returns the new message ID. This will be identical to the `id` argument
+        if passed.
+        """
+        # TODO: remove this once `ychat` becomes a required attribute.
         if not self.ychat:
-            return
+            return ""
 
         bot = self.ychat.get_user(BOT["username"])
         if not bot:
             self.ychat.set_user(BOT)
 
-        index = self.indexes_by_id.get(id, None)
+        index = self.indexes_by_id.get(id, None) if id else None
         id = id if id else str(uuid4())
         new_index = self.ychat.set_message(
             {
