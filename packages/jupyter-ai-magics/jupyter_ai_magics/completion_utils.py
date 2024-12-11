@@ -40,10 +40,10 @@ def post_process_suggestion(suggestion: str, request: InlineCompletionRequest) -
     for opening in bad_openings:
         # ollama models tend to add spurious whitespace
         if suggestion.lstrip().startswith(opening):
-            suggestion = suggestion.lstrip()[len(opening) :].lstrip()
+            suggestion = suggestion.lstrip()[len(opening) :]
             # check for the prefix inclusion (only if there was a bad opening)
-            if suggestion.startswith(request.prefix):
-                suggestion = suggestion[len(request.prefix) :]
+            if suggestion.lstrip().startswith(request.prefix):
+                suggestion = suggestion.lstrip()[len(request.prefix) :]
             break
 
     # check if the suggestion ends with a closing markdown identifier and remove it
