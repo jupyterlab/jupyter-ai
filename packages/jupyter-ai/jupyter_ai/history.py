@@ -14,8 +14,10 @@ HUMAN_MSG_ID_KEY = "_jupyter_ai_human_msg_id"
 
 class YChatHistory(BaseChatMessageHistory):
     """
-    An implementation of `BaseChatMessageHistory` that yields the last `k`
+    An implementation of `BaseChatMessageHistory` that returns the preceding `k`
     exchanges (`k * 2` messages) from the given YChat model.
+
+    If `k` is set to `None`, then this class returns all preceding messages.
     """
 
     def __init__(self, ychat: YChat, k: Optional[int]):
@@ -23,17 +25,21 @@ class YChatHistory(BaseChatMessageHistory):
         self.k = k
 
     @property
-    def messages(self) -> List[BaseMessage]:
-        """Returns the last `k` messages."""
+    def messages(self) -> List[BaseMessage]:  # type:ignore[override]
+        """
+        Returns the last `2 * k` messages preceding the latest message. If
+        `k` is set to `None`, return all preceding messages.
+        """
         # TODO: consider bounding history based on message size (e.g. total
         # char/token count) instead of message count.
         all_messages = self.ychat.get_messages()
 
         # gather last k * 2 messages and return
-        # we exclude the last message since that is the HumanMessage just
+        # we exclude the last message since that is the HumanChatMessage just
         # submitted by a user.
-        messages = []
-        for message in all_messages[-self.k * 2 - 1 : -1]:
+        messages: List[BaseMessage] = []
+        start_idx = 0 if self.k is None else -2 * self.k - 1
+        for message in all_messages[start_idx:-1]:
             if message["sender"] == BOT["username"]:
                 messages.append(AIMessage(content=message["body"]))
             else:
