@@ -42,7 +42,7 @@ from .handlers import (
     RootChatHandler,
     SlashCommandsInfoHandler,
 )
-from .history import BoundedChatHistory
+from .history import BoundedChatHistory, YChatHistory
 
 from jupyter_collaboration import (  # type:ignore[import-untyped]  # isort:skip
     __version__ as jupyter_collaboration_version,
@@ -418,9 +418,13 @@ class AiExtension(ExtensionApp):
         # list of chat messages to broadcast to new clients
         # this is only used to render the UI, and is not the conversational
         # memory object used by the LM chain.
+        #
+        # TODO: remove this in v3. this list is only used by the REST API to get
+        # history in v2 chat.
         self.settings["chat_history"] = []
 
-        # conversational memory object used by LM chain
+        # TODO: remove this in v3. this is the history implementation that
+        # provides memory to the chat model in v2.
         self.settings["llm_chat_memory"] = BoundedChatHistory(
             k=self.default_max_chat_history
         )
@@ -515,13 +519,19 @@ class AiExtension(ExtensionApp):
         eps = entry_points()
         chat_handler_eps = eps.select(group="jupyter_ai.chat_handlers")
         chat_handlers: Dict[str, BaseChatHandler] = {}
+
+        if ychat:
+            llm_chat_memory = YChatHistory(ychat, k=self.default_max_chat_history)
+        else:
+            llm_chat_memory = self.settings["llm_chat_memory"]
+
         chat_handler_kwargs = {
             "log": self.log,
             "config_manager": self.settings["jai_config_manager"],
             "model_parameters": self.settings["model_parameters"],
             "root_chat_handlers": self.settings["jai_root_chat_handlers"],
             "chat_history": self.settings["chat_history"],
-            "llm_chat_memory": self.settings["llm_chat_memory"],
+            "llm_chat_memory": llm_chat_memory,
             "root_dir": self.serverapp.root_dir,
             "dask_client_future": self.settings["dask_client_future"],
             "preferred_dir": self.serverapp.contents_manager.preferred_dir,

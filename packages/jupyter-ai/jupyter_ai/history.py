@@ -2,14 +2,54 @@ import time
 from typing import List, Optional, Sequence, Set, Union
 
 from langchain_core.chat_history import BaseChatMessageHistory
-from langchain_core.messages import BaseMessage
+from langchain_core.messages import AIMessage, BaseMessage, HumanMessage
 from langchain_core.pydantic_v1 import BaseModel, PrivateAttr
 
+from jupyterlab_chat.ychat import YChat
+
 from .models import HumanChatMessage
+from .constants import BOT
 
 HUMAN_MSG_ID_KEY = "_jupyter_ai_human_msg_id"
 
 
+class YChatHistory(BaseChatMessageHistory):
+    """
+    An implementation of `BaseChatMessageHistory` that yields the last `k`
+    exchanges (`k * 2` messages) from the given YChat model.
+    """
+    def __init__(self, ychat: YChat, k: Optional[int]):
+        self.ychat = ychat
+        self.k = k
+    
+    @property
+    def messages(self) -> List[BaseMessage]:
+        """Returns the last `k` messages."""
+        # TODO: consider bounding history based on message size (e.g. total
+        # char/token count) instead of message count.
+        all_messages = self.ychat.get_messages()
+
+        # gather last k * 2 messages and return
+        # we exclude the last message since that is the HumanMessage just
+        # submitted by a user.
+        messages = []
+        for message in all_messages[-self.k * 2 - 1 : -1]:
+            if message["sender"] == BOT["username"]:
+                messages.append(AIMessage(content=message["body"]))
+            else:
+                messages.append(HumanMessage(content=message["body"]))
+
+        return messages
+    
+    def add_message(self, message: BaseMessage) -> None:
+        # do nothing when other LangChain objects call this method, since
+        # message history is maintained by the `YChat` shared document.
+        return
+    
+    def clear(self):
+        raise NotImplementedError()
+    
+    
 class BoundedChatHistory(BaseChatMessageHistory, BaseModel):
     """
     An in-memory implementation of `BaseChatMessageHistory` that stores up to
