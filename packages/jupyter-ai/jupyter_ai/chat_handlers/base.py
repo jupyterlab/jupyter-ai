@@ -487,6 +487,9 @@ class BaseChatHandler:
         last_human_msg: HumanChatMessage,
         **kwargs,
     ) -> "BaseChatMessageHistory":
+        if self.ychat:
+            return self.llm_chat_memory
+
         return WrappedBoundedChatHistory(
             history=self.llm_chat_memory,
             last_human_msg=last_human_msg,
