@@ -17,6 +17,7 @@ import { useCopy } from '../../hooks/use-copy';
 import { AiService } from '../../handler';
 import { useTelemetry } from '../../contexts/telemetry-context';
 import { TelemetryEvent } from '../../tokens';
+import { useUtilsContext } from '../../contexts/utils-context';
 
 export type CodeToolbarProps = {
   /**
@@ -50,12 +51,29 @@ export function CodeToolbar(props: CodeToolbarProps): JSX.Element {
         borderTop: 'none'
       }}
     >
+      <CopyButton {...sharedToolbarButtonProps} />
+      <ReplaceButton {...sharedToolbarButtonProps} />
       <InsertAboveButton {...sharedToolbarButtonProps} />
       <InsertBelowButton {...sharedToolbarButtonProps} />
-      <ReplaceButton {...sharedToolbarButtonProps} />
-      <CopyButton {...sharedToolbarButtonProps} />
     </Box>
   );
+}
+
+const useCellAction = (callback: () => void, command: string, props: ToolbarButtonProps) => {
+    const { goBackToNotebook } = useUtilsContext();
+    const telemetryHandler = useTelemetry();
+
+    return () => {
+        callback();
+        if (goBackToNotebook) goBackToNotebook();
+
+        try {
+            telemetryHandler.onEvent(buildTelemetryEvent(command, props));
+          } catch (e) {
+            console.error(e);
+            return;
+          }
+    }
 }
 
 type ToolbarButtonProps = {
@@ -96,24 +114,15 @@ function buildTelemetryEvent(
 }
 
 function InsertAboveButton(props: ToolbarButtonProps) {
-  const telemetryHandler = useTelemetry();
   const tooltip = props.activeCellExists
     ? 'Insert above active cell'
     : 'Insert above active cell (no active cell)';
+  const cb = useCellAction(() => props.activeCellManager.insertAbove(props.code), 'insert-above', props);
 
   return (
     <TooltippedIconButton
       tooltip={tooltip}
-      onClick={() => {
-        props.activeCellManager.insertAbove(props.code);
-
-        try {
-          telemetryHandler.onEvent(buildTelemetryEvent('insert-above', props));
-        } catch (e) {
-          console.error(e);
-          return;
-        }
-      }}
+      onClick={cb}
       disabled={!props.activeCellExists}
     >
       <addAboveIcon.react height="16px" width="16px" />
@@ -122,25 +131,16 @@ function InsertAboveButton(props: ToolbarButtonProps) {
 }
 
 function InsertBelowButton(props: ToolbarButtonProps) {
-  const telemetryHandler = useTelemetry();
   const tooltip = props.activeCellExists
     ? 'Insert below active cell'
     : 'Insert below active cell (no active cell)';
+  const cb = useCellAction(() => props.activeCellManager.insertBelow(props.code), 'insert-below', props);
 
   return (
     <TooltippedIconButton
       tooltip={tooltip}
       disabled={!props.activeCellExists}
-      onClick={() => {
-        props.activeCellManager.insertBelow(props.code);
-
-        try {
-          telemetryHandler.onEvent(buildTelemetryEvent('insert-below', props));
-        } catch (e) {
-          console.error(e);
-          return;
-        }
-      }}
+      onClick={cb}
     >
       <addBelowIcon.react height="16px" width="16px" />
     </TooltippedIconButton>
@@ -148,23 +148,14 @@ function InsertBelowButton(props: ToolbarButtonProps) {
 }
 
 function ReplaceButton(props: ToolbarButtonProps) {
-  const telemetryHandler = useTelemetry();
   const { replace, replaceDisabled, replaceLabel } = useReplace();
+  const cb = useCellAction(() => replace(props.code), 'replace', props);
 
   return (
     <TooltippedIconButton
       tooltip={replaceLabel}
       disabled={replaceDisabled}
-      onClick={() => {
-        replace(props.code);
-
-        try {
-          telemetryHandler.onEvent(buildTelemetryEvent('replace', props));
-        } catch (e) {
-          console.error(e);
-          return;
-        }
-      }}
+      onClick={cb}
     >
       <replaceCellIcon.react height="16px" width="16px" />
     </TooltippedIconButton>
@@ -172,23 +163,15 @@ function ReplaceButton(props: ToolbarButtonProps) {
 }
 
 export function CopyButton(props: ToolbarButtonProps): JSX.Element {
-  const telemetryHandler = useTelemetry();
   const { copy, copyLabel } = useCopy();
+
+  const cb = useCellAction(() => copy(props.code), 'copy', props);
 
   return (
     <TooltippedIconButton
       tooltip={copyLabel}
       placement="top"
-      onClick={() => {
-        copy(props.code);
-
-        try {
-          telemetryHandler.onEvent(buildTelemetryEvent('copy', props));
-        } catch (e) {
-          console.error(e);
-          return;
-        }
-      }}
+      onClick={cb}
       aria-label="Copy to clipboard"
     >
       <copyIcon.react height="16px" width="16px" />

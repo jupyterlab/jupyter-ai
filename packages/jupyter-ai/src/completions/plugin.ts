@@ -2,6 +2,7 @@ import {
   JupyterFrontEnd,
   JupyterFrontEndPlugin
 } from '@jupyterlab/application';
+import { INotebookTracker } from '@jupyterlab/notebook';
 import { ICompletionProviderManager } from '@jupyterlab/completer';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
 import {
@@ -54,7 +55,8 @@ export const completionPlugin: JupyterFrontEndPlugin<JaiCompletionToken> = {
   requires: [
     ICompletionProviderManager,
     IEditorLanguageRegistry,
-    ISettingRegistry
+    ISettingRegistry,
+    INotebookTracker
   ],
   optional: [IJaiStatusItem],
   provides: IJaiCompletionProvider,
@@ -63,6 +65,7 @@ export const completionPlugin: JupyterFrontEndPlugin<JaiCompletionToken> = {
     completionManager: ICompletionProviderManager,
     languageRegistry: IEditorLanguageRegistry,
     settingRegistry: ISettingRegistry,
+    notebookTracker: INotebookTracker,
     statusItem: IJaiStatusItem | null
   ): Promise<JaiCompletionToken> => {
     if (typeof completionManager.registerInlineProvider === 'undefined') {
@@ -76,7 +79,8 @@ export const completionPlugin: JupyterFrontEndPlugin<JaiCompletionToken> = {
     const completionHandler = new CompletionWebsocketHandler();
     const provider = new JaiInlineProvider({
       completionHandler,
-      languageRegistry
+      languageRegistry,
+      notebookTracker
     });
 
     await completionHandler.initialize();

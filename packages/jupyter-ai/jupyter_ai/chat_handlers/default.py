@@ -9,7 +9,6 @@ from langchain_core.runnables.history import RunnableWithMessageHistory
 from ..context_providers import ContextProviderException, find_commands
 from .base import BaseChatHandler, SlashCommandRoutingType
 
-
 class DefaultChatHandler(BaseChatHandler):
     id = "default"
     name = "Default"
@@ -29,9 +28,26 @@ class DefaultChatHandler(BaseChatHandler):
         unified_parameters = {
             "verbose": True,
             **provider_params,
-            **(self.get_model_parameters(provider, provider_params)),
+            **(self.get_model_parameters(provider, provider_params))
         }
-        llm = provider(**unified_parameters)
+        config = self.config_manager.get_config()
+
+        if config.chat_prompt:
+            if config.chat_prompt.system:
+                unified_parameters["chat_system_prompt"] = config.chat_prompt.system
+            if config.chat_prompt.default:
+                unified_parameters["chat_default_prompt"] = config.chat_prompt.default
+
+        if config.completion_prompt:
+            if config.completion_prompt.system:
+                unified_parameters["completion_system_prompt"] = config.chat_prompt.system
+            if config.completion_prompt.default:
+                unified_parameters["completion_default_prompt"] = config.chat_prompt.default
+
+
+        llm = provider(
+            **unified_parameters,
+        )
 
         prompt_template = llm.get_chat_prompt_template()
         self.llm = llm
@@ -57,7 +73,19 @@ class DefaultChatHandler(BaseChatHandler):
         self.get_llm_chain()
         assert self.llm_chain
 
-        inputs = {"input": message.body}
+        inputs = dict(
+            input=message.body,
+            selection=message.selection,
+            notebook_code=self.llm.process_notebook_for_context(
+                code_cells=[
+                    cell.content for cell in message.notebook.notebook_code
+                ] if message.notebook else [],
+                active_cell=int(message.notebook.active_cell_id) if message.notebook.active_cell_id else None,
+            ),
+            active_cell_id=f"Cell {message.notebook.active_cell_id}" if message.notebook.active_cell_id else None,
+            variable_context=message.notebook.variable_context or None
+        )
+
         if "context" in self.prompt_template.input_variables:
             # include context from context providers.
             try:
@@ -68,7 +96,12 @@ class DefaultChatHandler(BaseChatHandler):
             inputs["context"] = context_prompt
             inputs["input"] = self.replace_prompt(inputs["input"])
 
-        await self.stream_reply(inputs, message)
+        history = self.llm_chat_memory.messages
+        prompt = self.prompt_template.invoke(dict(inputs, history=history))
+        extra_metadata = dict(
+            prompt=prompt.to_string()
+        )
+        await self.stream_reply(inputs, message, extra_metadata=extra_metadata)
 
     async def make_context_prompt(self, human_msg: HumanChatMessage) -> str:
         return "\n\n".join(

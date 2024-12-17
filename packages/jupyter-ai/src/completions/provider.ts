@@ -6,6 +6,7 @@ import {
   IInlineCompletionItem,
   CompletionHandler
 } from '@jupyterlab/completer';
+import { INotebookTracker } from '@jupyterlab/notebook';
 import { ISettingRegistry } from '@jupyterlab/settingregistry';
 import { Notification, showErrorMessage } from '@jupyterlab/apputils';
 import { JSONValue, PromiseDelegate } from '@lumino/coreutils';
@@ -20,6 +21,7 @@ import { AiCompleterService as AiService } from './types';
 import { DocumentWidget } from '@jupyterlab/docregistry';
 import { jupyternautIcon } from '../icons';
 import { CompletionWebsocketHandler } from './handler';
+import { formatCodeForCell } from '../utils';
 
 type StreamChunk = AiService.InlineCompletionStreamChunk;
 
@@ -50,6 +52,7 @@ export class JaiInlineProvider
     return 'JupyterAI';
   }
 
+
   async fetch(
     request: CompletionHandler.IRequest,
     context: IInlineCompletionContext
@@ -65,6 +68,7 @@ export class JaiInlineProvider
       // from other (e.g. less expensive or faster) providers.
       return { items: [] };
     }
+
     const mime = request.mimeType ?? 'text/plain';
     const language = this.options.languageRegistry.findByMIME(mime);
     if (!language) {
@@ -247,11 +251,21 @@ export class JaiInlineProvider
    * Extract prefix from request, accounting for context window limit.
    */
   private _prefixFromRequest(request: CompletionHandler.IRequest): string {
-    const textBefore = request.text.slice(0, request.offset);
-    const prefix = textBefore.slice(
-      -Math.min(this._settings.maxPrefix, textBefore.length)
+    const notebookTracker = this.options.notebookTracker;
+    const cells = notebookTracker?.currentWidget?.model!.sharedModel.cells;
+    const currentCellIndex = cells?.findIndex(
+        cell => cell.id === notebookTracker?.activeCell?.model.sharedModel.id
+      );
+
+      const previousCells = cells?.slice(0, currentCellIndex);
+      const prevCode = previousCells?.map(cell => formatCodeForCell(cell)).join('\n\n');
+      let prefix = request.text.slice(0, request.offset);
+      if (prevCode && previousCells) {
+        prefix = prevCode + '\n\n# %%\n' + prefix;
+      }
+      return prefix.slice(
+        Math.max(0, prefix.length - this._settings.maxPrefix)
     );
-    return prefix;
   }
 
   /**
@@ -259,11 +273,21 @@ export class JaiInlineProvider
    */
   private _suffixFromRequest(request: CompletionHandler.IRequest): string {
     const textAfter = request.text.slice(request.offset);
-    const prefix = textAfter.slice(
-      0,
-      Math.min(this._settings.maxPrefix, textAfter.length)
-    );
-    return prefix;
+    const notebookTracker = this.options.notebookTracker;
+    const cells = notebookTracker?.currentWidget?.model?.sharedModel.cells;
+
+    const currentCellIndex = cells?.findIndex(
+        cell => cell.id === notebookTracker?.activeCell?.model?.sharedModel.id
+      );
+
+    const nextCells = cells?.slice((currentCellIndex || 0) + 1);
+    const nextCode = nextCells?.map((cell, i) => cell.source).join('\n\n# %%\n');
+
+    if (textAfter && nextCode) {
+        return textAfter + "\n\n# %%\n" + nextCode;
+    }
+
+    return textAfter.slice(0, this._settings.maxSuffix)
   }
 
   private _resolveLanguage(language: IEditorLanguage | null) {
@@ -293,6 +317,7 @@ export namespace JaiInlineProvider {
   export interface IOptions {
     completionHandler: CompletionWebsocketHandler;
     languageRegistry: IEditorLanguageRegistry;
+    notebookTracker: INotebookTracker;
   }
 
   export interface ISettings {

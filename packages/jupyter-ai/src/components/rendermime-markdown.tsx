@@ -21,6 +21,11 @@ type RendermimeMarkdownProps = {
    * `AgentStreamMessage`, in which case this should be set to `false`.
    */
   complete: boolean;
+  /**
+   * Hides the code toolbar. We require it in cases when we
+   * are rendering code blocks in prompts
+   */
+  hideCodeToolbar?: boolean;
 };
 
 /**
@@ -63,7 +68,7 @@ function RendermimeMarkdownBase(props: RendermimeMarkdownProps): JSX.Element {
   useEffect(() => {
     const renderContent = async () => {
       // initialize mime model
-      const mdStr = escapeLatexDelimiters(props.markdownStr);
+        const mdStr = escapeLatexDelimiters(props.markdownStr);
       const model = props.rmRegistry.createModel({
         data: { [MD_MIME_TYPE]: mdStr }
       });
@@ -126,7 +131,7 @@ function RendermimeMarkdownBase(props: RendermimeMarkdownProps): JSX.Element {
         // Render a `CodeToolbar` element underneath each code block.
         // We use ReactDOM.createPortal() so each `CodeToolbar` element is able
         // to use the context in the main React tree.
-        codeToolbarDefns.map(codeToolbarDefn => {
+        !props.hideCodeToolbar && codeToolbarDefns.map(codeToolbarDefn => {
           const [codeToolbarRoot, codeToolbarProps] = codeToolbarDefn;
           return createPortal(
             <CodeToolbar {...codeToolbarProps} />,

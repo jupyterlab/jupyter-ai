@@ -260,6 +260,7 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
                     stream_message.body += chunk.content
                     stream_message.metadata = chunk.metadata
                     stream_message.complete = chunk.stream_complete
+                    stream_message.metadata = chunk.metadata
                     break
         elif isinstance(message, PendingMessage):
             self.pending_messages.append(message)
@@ -293,9 +294,6 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
 
         chat_request = request
         message_body = chat_request.prompt
-        if chat_request.selection:
-            message_body += f"\n\n```\n{chat_request.selection.source}\n```\n"
-
         # message broadcast to chat clients
         chat_message_id = str(uuid.uuid4())
         chat_message = HumanChatMessage(
@@ -305,6 +303,7 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
             prompt=chat_request.prompt,
             selection=chat_request.selection,
             client=self.chat_client,
+            notebook=chat_request.notebook
         )
 
         # broadcast the message to other clients
@@ -556,6 +555,9 @@ class GlobalConfigHandler(BaseAPIHandler):
                 500, "Unexpected error occurred while updating the config."
             ) from e
 
+    @web.authenticated
+    def delete(self):
+        self.config_manager.delete_config()
 
 class ApiKeysHandler(BaseAPIHandler):
     @property
@@ -675,6 +677,11 @@ class AutocompleteOptionsHandler(BaseAPIHandler):
             if id == "default" or not isinstance(
                 chat_handler.routing_type, SlashCommandRoutingType
             ):
+                continue
+
+            # TODO: Drop support for show_help and enable all the slash
+            # commands after robustifying them
+            if not chat_handler.show_help:
                 continue
 
             routing_type = chat_handler.routing_type

@@ -13,6 +13,7 @@ class ExportChatHandler(BaseChatHandler):
     name = "Export chat history"
     help = "Export chat history to a Markdown file"
     routing_type = SlashCommandRoutingType(slash_id="export")
+    show_help: bool = True
 
     uses_llm = False
 

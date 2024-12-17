@@ -5,15 +5,11 @@ import {
   Alert,
   Button,
   IconButton,
-  FormControl,
-  FormControlLabel,
-  FormLabel,
   MenuItem,
-  Radio,
-  RadioGroup,
   TextField,
   Tooltip,
-  CircularProgress
+  CircularProgress,
+  Stack,
 } from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
@@ -22,13 +18,13 @@ import { Select } from './select';
 import { AiService } from '../handler';
 import { ModelFields } from './settings/model-fields';
 import { ServerInfoState, useServerInfo } from './settings/use-server-info';
-import { ExistingApiKeys } from './settings/existing-api-keys';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { minifyUpdate } from './settings/minify';
 import { useStackingAlert } from './mui-extras/stacking-alert';
 import { RendermimeMarkdown } from './rendermime-markdown';
 import { IJaiCompletionProvider } from '../tokens';
 import { getProviderId, getModelLocalId } from '../utils';
+import { ExpandLess, ExpandMore } from '@mui/icons-material';
 
 type ChatSettingsProps = {
   rmRegistry: IRenderMimeRegistry;
@@ -88,6 +84,9 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
   const [apiKeys, setApiKeys] = useState<Record<string, string>>({});
   const [sendWse, setSendWse] = useState<boolean>(false);
   const [fields, setFields] = useState<Record<string, any>>({});
+  const [chatPromptConfig, setChatPromptConfig] = useState<AiService.PromptConfig>();
+  const [clmPromptConfig, setClmPromptConfig] = useState<AiService.PromptConfig>();
+  const [showPrompt, setShowPrompt] = useState(false);
 
   const [isCompleterEnabled, setIsCompleterEnabled] = useState(
     props.completionProvider && props.completionProvider.isEnabled()
@@ -109,6 +108,7 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
 
   // whether the form is currently saving
   const [saving, setSaving] = useState(false);
+  const [reseting, setReseting] = useState(false);
 
   /**
    * Effect: initialize inputs after fetching server info.
@@ -132,6 +132,8 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
     }
     setLmProvider(server.chat.lmProvider);
     setClmProvider(server.completions.lmProvider);
+    setChatPromptConfig(server.config.chat_prompt);
+    setClmPromptConfig(server.config.completion_prompt)
   }, [server]);
 
   /**
@@ -190,6 +192,31 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
     setFields(currFields);
   }, [server, lmProvider]);
 
+  const handleReset = async () => {
+    if (server.state !== ServerInfoState.Ready) {
+      return;
+    }
+
+    setReseting(true);
+    try {
+        await apiKeysAlert.clear();
+        await AiService.deleteConfig();
+      } catch (e) {
+        console.error(e);
+        const msg =
+          e instanceof Error || typeof e === 'string'
+            ? e.toString()
+            : 'An unknown error occurred. Check the console for more details.';
+        alert.show('error', msg);
+        return;
+      } finally {
+        setSaving(false);
+      }
+      await server.refetchAll();
+      alert.show('success', 'Settings reset successfully.');
+      setReseting(false);
+  }
+
   const handleSave = async () => {
     // compress fields with JSON values
     if (server.state !== ServerInfoState.Ready) {
@@ -226,7 +253,9 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
         }
       }),
       completions_model_provider_id: clmGlobalId,
-      send_with_shift_enter: sendWse
+      send_with_shift_enter: sendWse,
+      chat_prompt: chatPromptConfig,
+      completion_prompt: clmPromptConfig
     };
     updateRequest = minifyUpdate(server.config, updateRequest);
     updateRequest.last_read = server.config.last_read;
@@ -480,68 +509,110 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
         <p>No Inline Completion models.</p>
       )}
 
-      {/* API Keys section */}
-      <h2 className="jp-ai-ChatSettings-header">API Keys</h2>
 
-      {Object.entries(apiKeys).length === 0 &&
-      server.config.api_keys.length === 0 ? (
-        <p>No API keys are required by the selected models.</p>
-      ) : null}
+      {/* Prompt Editor */}
+      <Stack alignItems="center" direction="row" gap={3} onClick={() => setShowPrompt(x => !x)} sx={{ cursor: "pointer" }}>
+        <h2 className="jp-ai-ChatSettings-header">
+            Edit Prompts
+        </h2>
+        {showPrompt ? <ExpandLess /> : <ExpandMore />}
+      </Stack>
+      {
+        showPrompt && (
+            <Stack direction="column" gap={4}>
+                <TextField
+                    multiline
+                    maxRows={8}
+                    label="Chat System Prompt"
+                    value={chatPromptConfig?.system}
+                    onChange={evt => setChatPromptConfig(config => ({
+                        default: "",
+                        ...config,
+                        system: evt.target.value
+                    }))}
+                    fullWidth
+                    sx={{
+                        scrollbarWidth: "none"
+                    }}
+                />
+                <TextField
+                    multiline
+                    maxRows={8}
+                    label="Chat Default Prompt"
+                    value={chatPromptConfig?.default}
+                    onChange={evt => setChatPromptConfig(config => ({
+                        system: "",
+                        ...config,
+                        default: evt.target.value
+                    }))}
+                    fullWidth
+                    sx={{
+                        scrollbarWidth: "none"
+                    }}
+                    helperText={
+                        <>
+                        notebook_code (str): The code of the active nodebook in jupytext percent format
+                        <br />
+                        active_cell_id (str): The uuid of the active cell
+                        <br />
+                        selection (dict | None): The current selection of the user
+                        <br />
+                        variable_context (str): Description of variables used in the input using @ decorator
+                        </>
+                    }
+                />
+                {
+                    (
+                        <>
+                            <TextField
+                                multiline
+                                maxRows={8}
+                                label="Completion System Prompt"
+                                value={clmPromptConfig?.system}
+                                onChange={evt => setChatPromptConfig(config => ({
+                                    default: "",
+                                    ...config,
+                                    system: evt.target.value
+                                }))}
+                                fullWidth
+                                sx={{
+                                    scrollbarWidth: "none"
+                                }}
+                            />
+                            <TextField
+                                multiline
+                                maxRows={8}
+                                label="Completion Default Prompt"
+                                value={clmPromptConfig?.default}
+                                onChange={evt => setChatPromptConfig(config => ({
+                                    system: "",
+                                    ...config,
+                                    default: evt.target.value
+                                }))}
+                                fullWidth
+                                sx={{
+                                    scrollbarWidth: "none"
+                                }}
+                                helperText={
+                                    <>
+                                    prefix (str): The code of before the cursor position including previous cells
+                                    <br />
+                                    suffix (str): The code after the cursor position including previous cells
+                                    </>
+                                }
+                            />
+                        </>
+                    )
+                }
+            </Stack>
+        )
+      }
 
-      {/* API key inputs for newly-used providers */}
-      {Object.entries(apiKeys).map(([apiKeyName, apiKeyValue], idx) => (
-        <TextField
-          key={idx}
-          label={apiKeyName}
-          value={apiKeyValue}
-          fullWidth
-          type="password"
-          onChange={e =>
-            setApiKeys(apiKeys => ({
-              ...apiKeys,
-              [apiKeyName]: e.target.value
-            }))
-          }
-        />
-      ))}
-      {/* Pre-existing API keys */}
-      <ExistingApiKeys
-        alert={apiKeysAlert}
-        apiKeys={server.config.api_keys}
-        onSuccess={server.refetchApiKeys}
-      />
 
-      {/* Input */}
-      <h2 className="jp-ai-ChatSettings-header">Input</h2>
-      <FormControl>
-        <FormLabel id="send-radio-buttons-group-label">
-          When writing a message, press <kbd>Enter</kbd> to:
-        </FormLabel>
-        <RadioGroup
-          aria-labelledby="send-radio-buttons-group-label"
-          value={sendWse ? 'newline' : 'send'}
-          name="send-radio-buttons-group"
-          onChange={e => {
-            setSendWse(e.target.value === 'newline');
-          }}
-        >
-          <FormControlLabel
-            value="send"
-            control={<Radio />}
-            label="Send the message"
-          />
-          <FormControlLabel
-            value="newline"
-            control={<Radio />}
-            label={
-              <>
-                Start a new line (use <kbd>Shift</kbd>+<kbd>Enter</kbd> to send)
-              </>
-            }
-          />
-        </RadioGroup>
-      </FormControl>
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+      <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2, justifyContent: 'flex-end' }} marginTop={2}>
+        <Button variant="contained" onClick={handleReset} disabled={reseting} color="secondary">
+          {saving ? 'Resetting...' : 'Reset'}
+        </Button>
         <Button variant="contained" onClick={handleSave} disabled={saving}>
           {saving ? 'Saving...' : 'Save changes'}
         </Button>

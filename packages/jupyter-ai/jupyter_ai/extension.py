@@ -7,11 +7,13 @@ from dask.distributed import Client as DaskClient
 from importlib_metadata import entry_points
 from jupyter_ai.chat_handlers.learn import Retriever
 from jupyter_ai_magics import BaseProvider, JupyternautPersona
+from jupyter_ai_magics.prompts import CHAT_DEFAULT_TEMPLATE, CHAT_SYSTEM_PROMPT, COMPLETION_DEFAULT_TEMPLATE, COMPLETION_SYSTEM_PROMPT
 from jupyter_ai_magics.utils import get_em_providers, get_lm_providers
 from jupyter_server.extension.application import ExtensionApp
 from tornado.web import StaticFileHandler
 from traitlets import Dict, Integer, List, Unicode
 
+from .models import PromptConfig
 from .chat_handlers import (
     AskChatHandler,
     ClearChatHandler,
@@ -47,11 +49,10 @@ DEFAULT_HELP_MESSAGE_TEMPLATE = """Hi there! I'm {persona_name}, your programmin
 You can ask me a question using the text box below. You can also use these commands:
 {slash_commands_list}
 
-You can use the following commands to add context to your questions:
-{context_commands_list}
+You can use @<variable-name> to inject information about any variable from your active notbook
+in your query. E.g. Explain the schema of `@my_dataframe`.
 
-Jupyter AI includes [magic commands](https://jupyter-ai.readthedocs.io/en/latest/users/index.html#the-ai-and-ai-magic-commands) that you can use in your notebooks.
-For more information, see the [documentation](https://jupyter-ai.readthedocs.io).
+{persona_name} knows about your notebook, currently active cell and your current selection.
 """
 
 
@@ -161,6 +162,16 @@ class AiExtension(ExtensionApp):
         config=True,
     )
 
+    default_completion_model = Unicode(
+        default_value=None,
+        allow_none=True,
+        help="""
+        Default completion model to use, as string in the format
+        <provider-id>:<model-id>, defaults to None.
+        """,
+        config=True,
+    )
+
     default_api_keys = Dict(
         key_trait=Unicode(),
         value_trait=Unicode(),
@@ -221,12 +232,20 @@ class AiExtension(ExtensionApp):
 
         self.settings["model_parameters"] = self.model_parameters
         self.log.info(f"Configured model parameters: {self.model_parameters}")
-
         defaults = {
             "model_provider_id": self.default_language_model,
             "embeddings_provider_id": self.default_embeddings_model,
+            "completions_model_provider_id": self.default_completion_model,
             "api_keys": self.default_api_keys,
             "fields": self.model_parameters,
+            "chat_prompt": PromptConfig(
+                system=CHAT_SYSTEM_PROMPT,
+                default=CHAT_DEFAULT_TEMPLATE
+            ),
+            "completion_prompt": PromptConfig(
+                system=COMPLETION_SYSTEM_PROMPT,
+                default=COMPLETION_DEFAULT_TEMPLATE
+            )
         }
 
         # Fetch LM & EM providers
@@ -459,7 +478,9 @@ class AiExtension(ExtensionApp):
             "context_providers": self.settings["jai_context_providers"],
         }
         context_providers_clses = [
-            FileContextProvider,
+            # TODO: Robustify and test this and add it back
+            # Drops file context provider
+            # FileContextProvider,
         ]
         for context_provider_ep in context_providers_eps:
             try:

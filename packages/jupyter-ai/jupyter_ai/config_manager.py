@@ -5,7 +5,6 @@ import shutil
 import time
 from copy import deepcopy
 from typing import List, Optional, Type, Union
-
 from deepmerge import always_merger as Merger
 from jsonschema import Draft202012Validator as Validator
 from jupyter_ai.models import DescribeConfigResponse, GlobalConfig, UpdateConfigRequest
@@ -228,8 +227,11 @@ class ConfigManager(Configurable):
         config_keys = GlobalConfig.__fields__.keys()
         schema_properties = self.validator.schema.get("properties", {})
         default_config = {
-            field: schema_properties.get(field).get("default") for field in config_keys
+            # Making this more defensive to prevent from any errors
+            # due to additions in what we store in config
+            field: schema_properties.get(field, {}).get("default") for field in config_keys
         }
+
         if self._defaults is None:
             return default_config
 
@@ -251,10 +253,16 @@ class ConfigManager(Configurable):
             if last_write <= self._last_read:
                 return self._config
 
+        # Since we store only partial configs now,
+        # we merge the defaults into the partial updates
+        # the user has stored
+        defaults = self._init_defaults()
         with open(self.config_path, encoding="utf-8") as f:
             self._last_read = time.time_ns()
             raw_config = json.loads(f.read())
-            config = GlobalConfig(**raw_config)
+            config_final = defaults.copy()
+            config_final.update(raw_config)
+            config = GlobalConfig(**config_final)
             self._validate_config(config)
             return config
 
@@ -348,8 +356,20 @@ class ConfigManager(Configurable):
         }
 
         self._validate_config(new_config)
+
+        default_config = GlobalConfig(**self._init_defaults()).dict()
+
+        res = {
+            key: value
+            for key, value in new_config.dict().items()
+            # We avoid storing the values that have not changed
+            # This helps the user to get any updates we make to the
+            # config in jupyter ai automatically
+            if default_config.get(key) != value
+        }
+
         with open(self.config_path, "w") as f:
-            json.dump(new_config.dict(), f, indent=self.indentation_depth)
+            json.dump(res, f, indent=self.indentation_depth)
 
     def delete_api_key(self, key_name: str):
         config_dict = self._read_config().dict()
@@ -373,6 +393,16 @@ class ConfigManager(Configurable):
 
         config_dict["api_keys"].pop(key_name, None)
         self._write_config(GlobalConfig(**config_dict))
+
+    def delete_config(self):
+        """
+        Deletes the config stored in user's home
+        This helps the user resetting any changes they have
+        made locally
+        """
+        if os.path.exists(self.config_path):
+            os.remove(self.config_path)
+        self._init_config()
 
     def update_config(self, config_update: UpdateConfigRequest):  # type:ignore
         last_write = os.stat(self.config_path).st_mtime_ns

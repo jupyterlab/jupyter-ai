@@ -1,18 +1,19 @@
 import React, { useState, useEffect } from 'react';
-
-import { Avatar, Box, Typography } from '@mui/material';
+import { Avatar, Box, IconButton, Paper, Typography } from '@mui/material';
 import type { SxProps, Theme } from '@mui/material';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { ServerConnection } from '@jupyterlab/services';
 // TODO: delete jupyternaut from frontend package
-
+import CheckIcon from '@mui/icons-material/Check';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { AiService } from '../handler';
 import { RendermimeMarkdown } from './rendermime-markdown';
 import { useCollaboratorsContext } from '../contexts/collaborators-context';
 import { ChatMessageMenu } from './chat-messages/chat-message-menu';
-import { ChatMessageDelete } from './chat-messages/chat-message-delete';
 import { ChatHandler } from '../chat_handler';
 import { IJaiMessageFooter } from '../tokens';
+import { ChevronRight, ExpandMore } from '@mui/icons-material';
+import { CopyStatus, useCopy } from '../hooks/use-copy';
 
 type ChatMessagesProps = {
   rmRegistry: IRenderMimeRegistry;
@@ -26,6 +27,7 @@ type ChatMessageHeaderProps = {
   chatHandler: ChatHandler;
   timestamp: string;
   sx?: SxProps<Theme>;
+  onFullPromptChange?: () => void;
 };
 
 function sortMessages(
@@ -114,11 +116,6 @@ export function ChatMessageHeader(props: ChatMessageHeaderProps): JSX.Element {
       ? props.message.client.display_name
       : props.message.persona.name;
 
-  const shouldShowMenu =
-    props.message.type === 'agent' ||
-    (props.message.type === 'agent-stream' && props.message.complete);
-  const shouldShowDelete = props.message.type === 'human';
-
   return (
     <Box
       sx={{
@@ -143,7 +140,7 @@ export function ChatMessageHeader(props: ChatMessageHeaderProps): JSX.Element {
         <Typography sx={{ fontWeight: 700, color: 'var(--jp-ui-font-color1)' }}>
           {name}
         </Typography>
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
           <Typography
             sx={{
               fontSize: '0.8em',
@@ -153,23 +150,93 @@ export function ChatMessageHeader(props: ChatMessageHeaderProps): JSX.Element {
           >
             {props.timestamp}
           </Typography>
-          {shouldShowMenu && (
             <ChatMessageMenu
               message={props.message}
-              sx={{ marginLeft: '4px', marginRight: '-8px' }}
-            />
-          )}
-          {shouldShowDelete && (
-            <ChatMessageDelete
-              message={props.message}
               chatHandler={props.chatHandler}
-              sx={{ marginLeft: '4px', marginRight: '-8px' }}
             />
-          )}
         </Box>
       </Box>
     </Box>
   );
+}
+
+interface ChatMessageProps {
+    message: AiService.ChatMessage;
+    timestamp: string;
+    chatHandler: ChatHandler;
+    rmRegistry: IRenderMimeRegistry;
+    messageFooter?: IJaiMessageFooter | null;
+}
+
+const ChatMessage = ({
+    message,
+    timestamp,
+    chatHandler,
+    rmRegistry,
+    messageFooter
+}: ChatMessageProps) => {
+    const [showFullPrompt, setShowFullPrompt] = useState(false);
+    const {
+        copy: copyText,
+        copyStatus
+    } = useCopy();
+
+    const CopyStatusIcon = copyStatus === CopyStatus.Copied ? CheckIcon : ContentCopyIcon;
+
+    return (
+        <Box key={message.id} sx={{ padding: 4 }}>
+            <ChatMessageHeader
+                message={message}
+                timestamp={timestamp}
+                chatHandler={chatHandler}
+                sx={{ marginBottom: 3 }}
+            />
+            {message.type === 'agent-stream' && message.metadata?.prompt && <Box display="flex" flexGrow={1} gap={2} alignItems="flex-start"  marginBottom={1}>
+                <Box marginTop={0.5} sx={{cursor: "pointer"}} onClick={() => setShowFullPrompt(x => !x)}>
+                    {showFullPrompt ? <ExpandMore fontSize="small" /> : <ChevronRight fontSize="small" />}
+                </Box>
+                <Box sx={{cursor: "pointer"}} width="95%">
+                    <Box display="flex" flexDirection="row" gap={1} alignItems="flex-start">
+                        <Typography
+                            sx={{
+                                color: 'var(--jp-ui-font-color2)',
+                            }}
+                            onClick={() => setShowFullPrompt(x => !x)}
+                        >
+                            {showFullPrompt ? "Hide" : "View"} Prompt
+                        </Typography>
+                        <IconButton onClick={() => copyText(message.metadata?.prompt)}>
+                            <CopyStatusIcon fontSize="inherit" />
+                        </IconButton>
+                    </Box>
+                    {
+                        showFullPrompt && (
+                            <Paper sx={{ maxHeight: "300px", overflow: "auto", padding: 2, marginVertical: 1 }}>
+                                <RendermimeMarkdown
+                                    rmRegistry={rmRegistry}
+                                    markdownStr={`\`\`\`${message.metadata?.prompt}`}
+                                    complete={
+                                        message.type === 'agent-stream' ? !!message.complete : true
+                                    }
+                                    hideCodeToolbar
+                                />
+                            </Paper>
+                        )
+                }
+                </Box>
+            </Box>}
+            <RendermimeMarkdown
+                rmRegistry={rmRegistry}
+                markdownStr={message.body}
+                complete={
+                    message.type === 'agent-stream' ? !!message.complete : true
+                }
+            />
+            {messageFooter && (
+                <messageFooter.component message={message} />
+            )}
+        </Box>
+    )
 }
 
 export function ChatMessages(props: ChatMessagesProps): JSX.Element {
@@ -216,25 +283,13 @@ export function ChatMessages(props: ChatMessagesProps): JSX.Element {
     >
       {sortedMessages.map(message => {
         return (
-          <Box key={message.id} sx={{ padding: 4 }}>
-            <ChatMessageHeader
-              message={message}
-              timestamp={timestamps[message.id]}
-              chatHandler={props.chatHandler}
-              sx={{ marginBottom: 3 }}
+            <ChatMessage
+                message={message}
+                timestamp={timestamps[message.id]}
+                rmRegistry={props.rmRegistry}
+                messageFooter={props.messageFooter}
+                chatHandler={props.chatHandler}
             />
-            <RendermimeMarkdown
-              markdownStr={message.body}
-              rmRegistry={props.rmRegistry}
-              parentMessage={message}
-              complete={
-                message.type === 'agent-stream' ? !!message.complete : true
-              }
-            />
-            {props.messageFooter && (
-              <props.messageFooter.component message={message} />
-            )}
-          </Box>
         );
       })}
     </Box>

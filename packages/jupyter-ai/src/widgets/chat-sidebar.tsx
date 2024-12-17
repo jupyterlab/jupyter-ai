@@ -4,7 +4,7 @@ import { ReactWidget } from '@jupyterlab/apputils';
 import type { IThemeManager } from '@jupyterlab/apputils';
 import type { User } from '@jupyterlab/services';
 import type { Awareness } from 'y-protocols/awareness';
-
+import { INotebookTracker } from '@jupyterlab/notebook';
 import { Chat } from '../components/chat';
 import { chatIcon } from '../icons';
 import { SelectionWatcher } from '../selection-watcher';
@@ -29,7 +29,9 @@ export function buildChatSidebar(
   focusInputSignal: ISignal<unknown, void>,
   messageFooter: IJaiMessageFooter | null,
   telemetryHandler: IJaiTelemetryHandler | null,
-  userManager: User.IManager
+  userManager: User.IManager,
+  notebookTracker: INotebookTracker | null,
+  goBackToNotebook: () => void
 ): ReactWidget {
   const ChatWidget = ReactWidget.create(
     <Chat
@@ -45,6 +47,8 @@ export function buildChatSidebar(
       messageFooter={messageFooter}
       telemetryHandler={telemetryHandler}
       userManager={userManager}
+      notebookTracker={notebookTracker}
+      goBackToNotebook={goBackToNotebook}
     />
   );
   ChatWidget.id = 'jupyter-ai::chat';

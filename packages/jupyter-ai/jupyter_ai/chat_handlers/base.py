@@ -16,6 +16,7 @@ from typing import (
     Type,
     Union,
     cast,
+    Any
 )
 from typing import get_args as get_type_args
 from uuid import uuid4
@@ -33,6 +34,8 @@ from jupyter_ai.models import (
     HumanChatMessage,
     Message,
     PendingMessage,
+    AgentStreamChunkMessage,
+    AgentStreamMessage
 )
 from jupyter_ai_magics import Persona
 from jupyter_ai_magics.providers import BaseProvider
@@ -140,6 +143,7 @@ class BaseChatHandler:
     message_interrupted: Dict[str, asyncio.Event]
     """Dictionary mapping an agent message identifier to an asyncio Event
     which indicates if the message generation/streaming was interrupted."""
+    show_help: bool = False
 
     def __init__(
         self,
@@ -455,6 +459,7 @@ class BaseChatHandler:
             [
                 f"* `{command_name}` — {handler.help}"
                 for command_name, handler in slash_commands.items()
+                if handler.show_help
             ]
         )
 
@@ -523,6 +528,7 @@ class BaseChatHandler:
         human_msg: HumanChatMessage,
         pending_msg="Generating response",
         config: Optional[RunnableConfig] = None,
+        extra_metadata: dict={},
     ):
         """
         Streams a reply to a human message by invoking
@@ -604,7 +610,10 @@ class BaseChatHandler:
                 stream_id,
                 stream_tombstone,
                 complete=True,
-                metadata=metadata_handler.jai_metadata,
+                metadata=dict(
+                    metadata_handler.jai_metadata,
+                    **extra_metadata
+                ),
             )
             del self.message_interrupted[stream_id]
 

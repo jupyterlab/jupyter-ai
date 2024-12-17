@@ -74,6 +74,11 @@ export class ActiveCellManager {
     return this._activeCellErrorChanged;
   }
 
+  getActiveCellId() {
+    const sharedModel = this._activeCell?.model.sharedModel;
+    return sharedModel?.id;
+  }
+
   /**
    * Returns an `ActiveCellContent` object that describes the current active
    * cell. If no active cell exists, this method returns `null`.

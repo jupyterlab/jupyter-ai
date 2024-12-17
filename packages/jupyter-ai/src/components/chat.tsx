@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Box } from '@mui/system';
 import { Button, IconButton, Stack } from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -9,7 +9,7 @@ import type { IThemeManager } from '@jupyterlab/apputils';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import type { User } from '@jupyterlab/services';
 import { ISignal } from '@lumino/signaling';
-
+import { INotebookTracker } from '@jupyterlab/notebook';
 import { JlThemeProvider } from './jl-theme-provider';
 import { ChatMessages } from './chat-messages';
 import { PendingMessages } from './pending-messages';
@@ -33,6 +33,8 @@ import { UserContextProvider, useUserContext } from '../contexts/user-context';
 import { ScrollContainer } from './scroll-container';
 import { TooltippedIconButton } from './mui-extras/tooltipped-icon-button';
 import { TelemetryContextProvider } from '../contexts/telemetry-context';
+import { NotebookTrackerContext } from '../contexts/notebook-tracker-context';
+import { UtilsContext } from '../contexts/utils-context';
 
 type ChatBodyProps = {
   chatHandler: ChatHandler;
@@ -207,6 +209,10 @@ export type ChatProps = {
   messageFooter: IJaiMessageFooter | null;
   telemetryHandler: IJaiTelemetryHandler | null;
   userManager: User.IManager;
+  notebookTracker: INotebookTracker | null;
+  // Helps going back to the notebook to the active cell
+  // After some action such as code addition is performed
+  goBackToNotebook: () => void;
 };
 
 enum ChatView {
@@ -217,11 +223,25 @@ enum ChatView {
 export function Chat(props: ChatProps): JSX.Element {
   const [view, setView] = useState<ChatView>(props.chatView || ChatView.Chat);
   const [showWelcomeMessage, setShowWelcomeMessage] = useState<boolean>(false);
+  const ref = useRef<HTMLDivElement>();
 
   const openSettingsView = () => {
     setShowWelcomeMessage(false);
     setView(ChatView.Settings);
   };
+
+  // TODO: Find a better way to do this
+  // This helps in keyboard accessibility where the user can simply press
+  // Escape to go back to the notebook whenever anything is active in the chat
+  // One way could be to add this to all focusable elements such as inputs and
+  // buttons that is less maintainable
+  useEffect(() => {
+    document.addEventListener("keydown", (evt) => {
+        if (evt.key === "Escape" && ref.current && ref.current.contains(document.activeElement)) {
+            props.goBackToNotebook();
+        }
+    })
+  }, []);
 
   return (
     <JlThemeProvider themeManager={props.themeManager}>
@@ -231,76 +251,80 @@ export function Chat(props: ChatProps): JSX.Element {
             activeCellManager={props.activeCellManager}
           >
             <TelemetryContextProvider telemetryHandler={props.telemetryHandler}>
-              <UserContextProvider userManager={props.userManager}>
-                <Box
-                  // Add .jp-ThemedContainer for CSS compatibility in both JL <4.3.0 and >=4.3.0.
-                  // See: https://jupyterlab.readthedocs.io/en/latest/extension/extension_migration.html#css-styling
-                  className="jp-ThemedContainer"
-                  // root box should not include padding as it offsets the vertical
-                  // scrollbar to the left
-                  sx={{
-                    width: '100%',
-                    height: '100%',
-                    boxSizing: 'border-box',
-                    background: 'var(--jp-layout-color0)',
-                    display: 'flex',
-                    flexDirection: 'column'
-                  }}
+            <UserContextProvider userManager={props.userManager}>
+            <NotebookTrackerContext.Provider value={props.notebookTracker}>
+                <UtilsContext.Provider
+                    value={{
+                        goBackToNotebook: props.goBackToNotebook
+                    }}
                 >
-                  {/* top bar */}
-                  <Box
-                    sx={{ display: 'flex', justifyContent: 'space-between' }}
-                  >
-                    {view !== ChatView.Chat ? (
-                      <IconButton onClick={() => setView(ChatView.Chat)}>
-                        <ArrowBackIcon />
-                      </IconButton>
-                    ) : (
-                      <Box />
-                    )}
-                    {view === ChatView.Chat ? (
-                      <Box sx={{ display: 'flex' }}>
-                        {!showWelcomeMessage && (
-                          <TooltippedIconButton
-                            onClick={() =>
-                              props.chatHandler.sendMessage({ type: 'clear' })
-                            }
-                            tooltip="New chat"
-                          >
-                            <AddIcon />
-                          </TooltippedIconButton>
-                        )}
-                        <IconButton onClick={() => openSettingsView()}>
-                          <SettingsIcon />
+                    <Box
+                    ref={ref}
+                    // root box should not include padding as it offsets the vertical
+                    // scrollbar to the left
+                    sx={{
+                        width: '100%',
+                        height: '100%',
+                        boxSizing: 'border-box',
+                        background: 'var(--jp-layout-color0)',
+                        display: 'flex',
+                        flexDirection: 'column'
+                    }}
+                    >
+                    {/* top bar */}
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                        {view !== ChatView.Chat ? (
+                        <IconButton onClick={() => setView(ChatView.Chat)}>
+                            <ArrowBackIcon />
                         </IconButton>
-                      </Box>
-                    ) : (
-                      <Box />
+                        ) : (
+                        <Box />
+                        )}
+                        {view === ChatView.Chat ? (
+                        <Box sx={{ display: 'flex' }}>
+                            {!showWelcomeMessage && (
+                            <TooltippedIconButton
+                                onClick={() =>
+                                    props.chatHandler.sendMessage({ type: 'clear' })
+                                }
+                                tooltip="New chat"
+                            >
+                                <AddIcon />
+                            </TooltippedIconButton>
+                            )}
+                            <IconButton onClick={() => openSettingsView()}>
+                            <SettingsIcon />
+                            </IconButton>
+                        </Box>
+                        ) : (
+                        <Box />
+                        )}
+                    </Box>
+                    {/* body */}
+                    {view === ChatView.Chat && (
+                        <ChatBody
+                        chatHandler={props.chatHandler}
+                        openSettingsView={openSettingsView}
+                        showWelcomeMessage={showWelcomeMessage}
+                        setShowWelcomeMessage={setShowWelcomeMessage}
+                        rmRegistry={props.rmRegistry}
+                        focusInputSignal={props.focusInputSignal}
+                        messageFooter={props.messageFooter}
+                        />
                     )}
-                  </Box>
-                  {/* body */}
-                  {view === ChatView.Chat && (
-                    <ChatBody
-                      chatHandler={props.chatHandler}
-                      openSettingsView={openSettingsView}
-                      showWelcomeMessage={showWelcomeMessage}
-                      setShowWelcomeMessage={setShowWelcomeMessage}
-                      rmRegistry={props.rmRegistry}
-                      focusInputSignal={props.focusInputSignal}
-                      messageFooter={props.messageFooter}
-                    />
-                  )}
-                  {view === ChatView.Settings && (
-                    <ChatSettings
-                      rmRegistry={props.rmRegistry}
-                      completionProvider={props.completionProvider}
-                      openInlineCompleterSettings={
-                        props.openInlineCompleterSettings
-                      }
-                    />
-                  )}
-                </Box>
-              </UserContextProvider>
+                    {view === ChatView.Settings && (
+                        <ChatSettings
+                        rmRegistry={props.rmRegistry}
+                        completionProvider={props.completionProvider}
+                        openInlineCompleterSettings={
+                            props.openInlineCompleterSettings
+                        }
+                        />
+                    )}
+                    </Box>
+                </UtilsContext.Provider>
+            </NotebookTrackerContext.Provider>
+            </UserContextProvider>
             </TelemetryContextProvider>
           </ActiveCellContextProvider>
         </CollaboratorsContextProvider>

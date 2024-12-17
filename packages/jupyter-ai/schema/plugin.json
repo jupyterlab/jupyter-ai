@@ -7,7 +7,7 @@
   "jupyter.lab.shortcuts": [
     {
       "command": "jupyter-ai:focus-chat-input",
-      "keys": ["Accel Shift 1"],
+      "keys": ["Accel Shift K"],
       "selector": "body",
       "preventDefault": false
     }

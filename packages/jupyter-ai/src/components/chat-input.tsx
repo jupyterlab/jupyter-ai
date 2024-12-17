@@ -25,6 +25,9 @@ import { AiService } from '../handler';
 import { SendButton, SendButtonProps } from './chat-input/send-button';
 import { useActiveCellContext } from '../contexts/active-cell-context';
 import { ChatHandler } from '../chat_handler';
+import { useSelectionContext } from '../contexts/selection-context';
+import { useNotebookTrackerContext } from '../contexts/notebook-tracker-context';
+import { formatCodeForCell, getCompletion, processVariables } from '../utils';
 
 type ChatInputProps = {
   chatHandler: ChatHandler;
@@ -58,7 +61,8 @@ const DEFAULT_COMMAND_ICONS: Record<string, JSX.Element> = {
   '/generate': <MenuBook />,
   '/help': <Help />,
   '/learn': <School />,
-  '@file': <FindInPage />,
+  // TODO: Reenable it when we are more confident here
+  //   '@file': <FindInPage />,
   unknown: <MoreHoriz />
 };
 
@@ -86,12 +90,12 @@ function renderAutocompleteOption(
         >
           {option.label}
         </Typography>
-        <Typography
+        {option.description.length > 0 && <Typography
           component="span"
           sx={{ opacity: 0.618, fontSize: 'var(--jp-ui-font-size0)' }}
         >
           {' — ' + option.description}
-        </Typography>
+        </Typography>}
       </Box>
     </li>
   );
@@ -110,6 +114,8 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
   >([]);
   const [currSlashCommand, setCurrSlashCommand] = useState<string | null>(null);
   const activeCell = useActiveCellContext();
+  const [textSelection] = useSelectionContext();
+  const notebookTracker = useNotebookTrackerContext();
 
   /**
    * Effect: fetch the list of available slash commands from the backend on
@@ -212,8 +218,27 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
     }
   }, [open, highlighted]);
 
-  function onSend(selection?: AiService.Selection) {
-    const prompt = input;
+
+  const _getNotebookCells = () => {
+    const cells = notebookTracker?.currentWidget?.model?.sharedModel.cells;
+    const notebookCode: AiService.NotebookCell[] | undefined = cells?.map((cell, index) =>  ({
+        content: formatCodeForCell(cell, index),
+        type: cell.cell_type
+    }));
+
+
+    const activeCellId = activeCell.manager.getActiveCellId()
+    const activeCellIdx = cells?.findIndex(cell => cell.id === activeCellId);
+
+    return {
+        notebookCode,
+        activeCellId: activeCellIdx !== -1 ? activeCellIdx : undefined
+    }
+  }
+
+  async function onSend() {
+    const {varValues, processedInput} = await processVariables(input, notebookTracker);
+    const prompt = processedInput;
     setInput('');
 
     // if the current slash command is `/fix`, we always include a code cell
@@ -231,9 +256,63 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
       return;
     }
 
+    const selection: AiService.Selection | null = textSelection?.text ? {
+        type: "text",
+        source: textSelection.text
+    } : activeCell.manager.getContent(false) ? {
+        type: "cell",
+        source: activeCell.manager.getContent(false)?.source || ""
+    } : null;
+
+    const { notebookCode, activeCellId } = _getNotebookCells();
+    const notebook: AiService.ChatNotebookContent | null = {
+        notebook_code: notebookCode,
+        active_cell_id: activeCellId,
+        variable_context: varValues
+    }
+
     // otherwise, send a ChatRequest with the prompt and selection
-    props.chatHandler.sendMessage({ prompt, selection });
+    props.chatHandler.sendMessage({ prompt, selection, notebook });
   }
+
+  useEffect(() => {
+    const _getcompletionUtil = async (prefix: string) => {
+        const completions = await getCompletion(prefix, notebookTracker);
+
+        setAutocompleteOptions(completions.map(option => ({
+            id: option,
+            // Add an explict space for better user experience
+            // as one generally wants to select and type directly
+            label: `${option} `,
+            description: "",
+            only_start: false
+        })))
+        setOpen(true);
+        return;
+    }
+
+    // This represents a slash command run directly
+    // However, when a /command has a certain prompt associated
+    // with it we do not want to return just yet to still support
+    // @ based autocompletions
+    // For eg. /ask What is @x?
+    if (input.startsWith("/") && !input.includes(" ")) return;
+
+    const splitInput = input.split(" ");
+    if (!splitInput.length) {
+        setOpen(false);
+        return;
+    }
+
+    const prefix = splitInput[splitInput.length - 1];
+    if (prefix[0] !== "@") {
+        setOpen(false);
+        return;
+    }
+
+    _getcompletionUtil(prefix.slice(1));
+  }, [input])
+
 
   const inputExists = !!input.trim();
   function handleKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
@@ -265,15 +344,13 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
   }
 
   // Set the helper text based on whether Shift+Enter is used for sending.
-  const helperText = props.sendWithShiftEnter ? (
+  const helperText = (
     <span>
-      Press <b>Shift</b>+<b>Enter</b> to send message
+        Open with <b>Ctrl</b>+<b>Shift</b>+<b>Space</b>
     </span>
-  ) : (
-    <span>
-      Press <b>Shift</b>+<b>Enter</b> to add a new line
-    </span>
-  );
+  )
+
+  ;
 
   const sendButtonProps: SendButtonProps = {
     onSend,
@@ -295,14 +372,22 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
   ): AiService.AutocompleteOption[] {
     const lastWord = getLastWord(inputValue);
     if (lastWord === '') {
-      return [];
+        return [];
+      }
+
+    // When we trigger @ based autocompletions, we want to filter out
+    // slash commands
+    if (lastWord.startsWith("@")) {
+        return options.filter(option => !option.label.startsWith("/"))
     }
+
     const isStart = lastWord === inputValue;
     return options.filter(
       option =>
         option.label.startsWith(lastWord) && (!option.only_start || isStart)
     );
   }
+
 
   return (
     <Box sx={props.sx}>
@@ -373,7 +458,7 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
             variant="outlined"
             maxRows={20}
             multiline
-            placeholder={`Ask ${props.personaName}`}
+            placeholder={`Ask me anything about your notebook, current selection or any generic python query`}
             onKeyDown={handleKeyDown}
             inputRef={inputRef}
             InputProps={{
@@ -388,9 +473,12 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
               )
             }}
             FormHelperTextProps={{
-              sx: { marginLeft: 'auto', marginRight: 0 }
+                sx: {
+                    marginLeft: "auto",
+                    marginRight: 0
+                }
             }}
-            helperText={input.length > 2 ? helperText : ' '}
+            helperText={helperText}
           />
         )}
       />

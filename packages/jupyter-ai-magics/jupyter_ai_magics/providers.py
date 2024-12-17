@@ -49,66 +49,7 @@ from .models.completion import (
     InlineCompletionStreamChunk,
 )
 from .models.persona import Persona
-
-CHAT_SYSTEM_PROMPT = """
-You are Jupyternaut, a conversational assistant living in JupyterLab to help users.
-You are not a language model, but rather an application built on a foundation model from {provider_name} called {local_model_id}.
-You are talkative and you provide lots of specific details from the foundation model's context.
-You may use Markdown to format your response.
-If your response includes code, they must be enclosed in Markdown fenced code blocks (with triple backticks before and after).
-If your response includes mathematical notation, they must be expressed in LaTeX markup and enclosed in LaTeX delimiters.
-All dollar quantities (of USD) must be formatted in LaTeX, with the `$` symbol escaped by a single backslash `\\`.
-- Example prompt: `If I have \\\\$100 and spend \\\\$20, how much money do I have left?`
-- **Correct** response: `You have \\(\\$80\\) remaining.`
-- **Incorrect** response: `You have $80 remaining.`
-If you do not know the answer to a question, answer truthfully by responding that you do not know.
-The following is a friendly conversation between you and a human.
-""".strip()
-
-CHAT_DEFAULT_TEMPLATE = """
-{% if context %}
-Context:
-{{context}}
-
-{% endif %}
-Current conversation:
-{{history}}
-Human: {{input}}
-AI:"""
-
-HUMAN_MESSAGE_TEMPLATE = """
-{% if context %}
-Context:
-{{context}}
-
-{% endif %}
-{{input}}
-"""
-
-COMPLETION_SYSTEM_PROMPT = """
-You are an application built to provide helpful code completion suggestions.
-You should only produce code. Keep comments to minimum, use the
-programming language comment syntax. Produce clean code.
-The code is written in JupyterLab, a data analysis and code development
-environment which can execute code extended with additional syntax for
-interactive features, such as magics.
-""".strip()
-
-# only add the suffix bit if present to save input tokens/computation time
-COMPLETION_DEFAULT_TEMPLATE = """
-The document is called `{{filename}}` and written in {{language}}.
-{% if suffix %}
-The code after the completion request is:
-
-```
-{{suffix}}
-```
-{% endif %}
-
-Complete the following code:
-
-```
-{{prefix}}"""
+from .prompts import CHAT_DEFAULT_TEMPLATE, CHAT_SYSTEM_PROMPT, COMPLETION_DEFAULT_TEMPLATE, COMPLETION_SYSTEM_PROMPT
 
 
 class EnvAuthStrategy(BaseModel):
@@ -215,7 +156,6 @@ class ProviderMetaclass(ModelMetaclass):
 
     _server_settings = None
 
-
 class BaseProvider(BaseModel, metaclass=ProviderMetaclass):
     #
     # pydantic config
@@ -291,6 +231,11 @@ class BaseProvider(BaseModel, metaclass=ProviderMetaclass):
     Providers are not allowed to mutate this dictionary.
     """
 
+    chat_system_prompt: str = CHAT_SYSTEM_PROMPT
+    chat_default_prompt: str = CHAT_DEFAULT_TEMPLATE
+    completion_system_prompt: str = COMPLETION_SYSTEM_PROMPT
+    completion_default_prompt: str = COMPLETION_DEFAULT_TEMPLATE
+
     @classmethod
     def chat_models(self):
         """Models which are suitable for chat."""
@@ -353,6 +298,9 @@ class BaseProvider(BaseModel, metaclass=ProviderMetaclass):
         }
         super().__init__(*args, **kwargs, **model_kwargs)
 
+    def process_notebook_for_context(self, code_cells: List[str], active_cell: Optional[int]) -> str:
+        return "\n\n".join(code_cells)
+
     async def _call_in_executor(self, *args, **kwargs) -> Coroutine[Any, Any, str]:
         """
         Calls self._call() asynchronously in a separate thread for providers
@@ -409,23 +357,25 @@ class BaseProvider(BaseModel, metaclass=ProviderMetaclass):
             return ChatPromptTemplate.from_messages(
                 [
                     SystemMessagePromptTemplate.from_template(
-                        CHAT_SYSTEM_PROMPT
-                    ).format(provider_name=name, local_model_id=self.model_id),
-                    MessagesPlaceholder(variable_name="history"),
-                    HumanMessagePromptTemplate.from_template(
-                        HUMAN_MESSAGE_TEMPLATE,
-                        template_format="jinja2",
+                        self.chat_system_prompt,
+                        template_format="jinja2"
                     ),
+                    HumanMessagePromptTemplate.from_template(
+                        self.chat_default_prompt,
+                        template_format="jinja2"
+                    ),
+                    MessagesPlaceholder(variable_name="history"),
+                    HumanMessagePromptTemplate.from_template("{input}"),
                 ]
             )
         else:
             return PromptTemplate(
                 input_variables=["history", "input", "context"],
-                template=CHAT_SYSTEM_PROMPT.format(
+                template=self.chat_system_prompt.format(
                     provider_name=name, local_model_id=self.model_id
                 )
                 + "\n\n"
-                + CHAT_DEFAULT_TEMPLATE,
+                + self.chat_default_prompt,
                 template_format="jinja2",
             )
 
@@ -437,18 +387,18 @@ class BaseProvider(BaseModel, metaclass=ProviderMetaclass):
         if self.is_chat_provider:
             return ChatPromptTemplate.from_messages(
                 [
-                    SystemMessagePromptTemplate.from_template(COMPLETION_SYSTEM_PROMPT),
+                    SystemMessagePromptTemplate.from_template(self.completion_system_prompt),
                     HumanMessagePromptTemplate.from_template(
-                        COMPLETION_DEFAULT_TEMPLATE, template_format="jinja2"
+                        self.completion_default_prompt, template_format="jinja2"
                     ),
                 ]
             )
         else:
             return PromptTemplate(
                 input_variables=["prefix", "suffix", "language", "filename"],
-                template=COMPLETION_SYSTEM_PROMPT
+                template=self.completion_default_prompt
                 + "\n\n"
-                + COMPLETION_DEFAULT_TEMPLATE,
+                + self.completion_default_prompt,
                 template_format="jinja2",
             )
 

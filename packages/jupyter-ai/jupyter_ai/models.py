@@ -32,11 +32,20 @@ class CellWithErrorSelection(BaseModel):
 
 Selection = Union[TextSelection, CellSelection, CellWithErrorSelection]
 
+class NotebookCell(BaseModel):
+    content: Optional[str]
+    type: Literal["raw", "markdown", "code"]
+
+class Notebook(BaseModel):
+    notebook_code: Optional[list[NotebookCell]]
+    active_cell_id: Optional[str]
+    variable_context: Optional[str]
 
 # the type of message used to chat with the agent
 class ChatRequest(BaseModel):
     prompt: str
     selection: Optional[Selection]
+    notebook: Optional[Notebook | None]
 
 
 class StopRequest(BaseModel):
@@ -139,6 +148,8 @@ class HumanChatMessage(BaseModel):
     prompt: str
     """The prompt typed into the chat input by the user."""
     selection: Optional[Selection]
+    """The current notebook and its cells"""
+    notebook: Optional[Notebook | None]
     """The selection included with the prompt, if any."""
     client: ChatClient
 
@@ -227,6 +238,10 @@ class IndexMetadata(BaseModel):
     dirs: List[IndexedDir]
 
 
+class PromptConfig(BaseModel):
+    system: Optional[str]
+    default: Optional[str]
+
 class DescribeConfigResponse(BaseModel):
     model_provider_id: Optional[str]
     embeddings_provider_id: Optional[str]
@@ -240,7 +255,8 @@ class DescribeConfigResponse(BaseModel):
     last_read: int
     completions_model_provider_id: Optional[str]
     completions_fields: Dict[str, Dict[str, Any]]
-
+    chat_prompt: Optional[PromptConfig]
+    completion_prompt: Optional[PromptConfig]
 
 def forbid_none(cls, v):
     assert v is not None, "size may not be None"
@@ -258,6 +274,8 @@ class UpdateConfigRequest(BaseModel):
     last_read: Optional[int]
     completions_model_provider_id: Optional[str]
     completions_fields: Optional[Dict[str, Dict[str, Any]]]
+    chat_prompt: Optional[PromptConfig]
+    completion_prompt: Optional[PromptConfig]
 
     _validate_send_wse = validator("send_with_shift_enter", allow_reuse=True)(
         forbid_none
@@ -277,6 +295,8 @@ class GlobalConfig(BaseModel):
     api_keys: Dict[str, str]
     completions_model_provider_id: Optional[str]
     completions_fields: Dict[str, Dict[str, Any]]
+    chat_prompt: Optional[PromptConfig]
+    completion_prompt: Optional[PromptConfig]
 
 
 class ListSlashCommandsEntry(BaseModel):

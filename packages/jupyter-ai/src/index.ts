@@ -3,7 +3,7 @@ import {
   JupyterFrontEndPlugin,
   ILayoutRestorer
 } from '@jupyterlab/application';
-
+import { INotebookTracker } from '@jupyterlab/notebook';
 import {
   IWidgetTracker,
   ReactWidget,
@@ -51,7 +51,8 @@ const plugin: JupyterFrontEndPlugin<IJaiCore> = {
     IThemeManager,
     IJaiCompletionProvider,
     IJaiMessageFooter,
-    IJaiTelemetryHandler
+    IJaiTelemetryHandler,
+    INotebookTracker
   ],
   provides: IJaiCore,
   activate: async (
@@ -62,7 +63,8 @@ const plugin: JupyterFrontEndPlugin<IJaiCore> = {
     themeManager: IThemeManager | null,
     completionProvider: IJaiCompletionProvider | null,
     messageFooter: IJaiMessageFooter | null,
-    telemetryHandler: IJaiTelemetryHandler | null
+    telemetryHandler: IJaiTelemetryHandler | null,
+    notebookTracker: INotebookTracker | null
   ) => {
     /**
      * Initialize selection watcher singleton
@@ -85,6 +87,10 @@ const plugin: JupyterFrontEndPlugin<IJaiCore> = {
       });
     };
 
+    const goBackToNotebook = () => {
+        app.commands.execute('notebook:enter-edit-mode');
+    }
+
     const focusInputSignal = new Signal<unknown, void>({});
 
     let chatWidget: ReactWidget;
@@ -102,7 +108,9 @@ const plugin: JupyterFrontEndPlugin<IJaiCore> = {
         focusInputSignal,
         messageFooter,
         telemetryHandler,
-        app.serviceManager.user
+        app.serviceManager.user,
+        notebookTracker,
+        goBackToNotebook
       );
     } catch (e) {
       chatWidget = buildErrorWidget(themeManager);

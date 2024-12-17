@@ -78,9 +78,21 @@ export namespace AiService {
     | CellSelection
     | CellWithErrorSelection;
 
+  export type NotebookCell = {
+    content?: string;
+    type: string;
+  }
+
+  export type ChatNotebookContent = {
+    notebook_code?: NotebookCell[];
+    active_cell_id?: number;
+    variable_context?: string;
+  }
+
   export type ChatRequest = {
     prompt: string;
-    selection?: Selection;
+    selection?: Selection | null;
+    notebook?: ChatNotebookContent | null;
   };
 
   export type ClearRequest = {
@@ -201,6 +213,11 @@ export namespace AiService {
     pending_messages: PendingMessage[];
   };
 
+  export type PromptConfig = {
+    system: string;
+    default: string;
+  }
+
   export type DescribeConfigResponse = {
     model_provider_id: string | null;
     embeddings_provider_id: string | null;
@@ -209,6 +226,8 @@ export namespace AiService {
     fields: Record<string, Record<string, any>>;
     last_read: number;
     completions_model_provider_id: string | null;
+    chat_prompt: PromptConfig;
+    completion_prompt: PromptConfig
   };
 
   export type UpdateConfigRequest = {
@@ -220,6 +239,8 @@ export namespace AiService {
     last_read?: number;
     completions_model_provider_id?: string | null;
     completions_fields?: Record<string, Record<string, any>>;
+    chat_prompt?: PromptConfig;
+    completion_prompt?: PromptConfig
   };
 
   export async function getConfig(): Promise<DescribeConfigResponse> {
@@ -299,6 +320,12 @@ export namespace AiService {
     return requestAPI<void>('config', {
       method: 'POST',
       body: JSON.stringify(config)
+    });
+  }
+
+  export async function deleteConfig(): Promise<void> {
+    return requestAPI<void>('config', {
+      method: 'DELETE'
     });
   }
 
