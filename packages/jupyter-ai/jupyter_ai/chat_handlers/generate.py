@@ -212,6 +212,15 @@ def create_notebook(outline):
         nb["cells"].append(nbf.new_markdown_cell("## " + section["title"]))
         for code_block in section["code"].split("\n\n"):
             nb["cells"].append(nbf.new_code_cell(code_block))
+
+    # Post process notebook for hanging cells: merge hanging cell with the previous cell
+    nb_cells = list()
+    for cell in nb["cells"]:
+        if (cell["cell_type"] == 'code') and (cell["source"][0] == ' '):
+            nb_cells[-1]["source"] = nb_cells[-1]["source"] + '\n\n' + cell["source"]
+        else:
+            nb_cells.append(cell)
+    nb["cells"] = nb_cells
     return nb
 
 
