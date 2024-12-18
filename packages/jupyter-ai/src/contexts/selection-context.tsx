@@ -20,6 +20,9 @@ type SelectionContextProviderProps = {
   children: React.ReactNode;
 };
 
+/**
+ * NOTE: unused in v3-dev branch.
+ */
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function SelectionContextProvider({
   selectionWatcher,

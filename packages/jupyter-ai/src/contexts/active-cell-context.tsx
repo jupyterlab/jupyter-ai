@@ -274,6 +274,9 @@ type ActiveCellContextProps = {
   children: React.ReactNode;
 };
 
+/**
+ * NOTE: unused in v3-dev branch.
+ */
 export function ActiveCellContextProvider(
   props: ActiveCellContextProps
 ): JSX.Element {

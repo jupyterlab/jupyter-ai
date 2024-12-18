@@ -1,12 +1,10 @@
 import React from 'react';
 import { Token } from '@lumino/coreutils';
 import { ISignal } from '@lumino/signaling';
-import type { IRankedMenu, ReactWidget } from '@jupyterlab/ui-components';
+import type { IRankedMenu } from '@jupyterlab/ui-components';
 
 import { AiService } from './handler';
 import { ChatHandler } from './chat_handler';
-import { ActiveCellManager } from './contexts/active-cell-context';
-import { SelectionWatcher } from './selection-watcher';
 
 export interface IJaiStatusItem {
   addItem(item: IRankedMenu.IItemOptions): void;
@@ -52,10 +50,7 @@ export const IJaiMessageFooter = new Token<IJaiMessageFooter>(
 );
 
 export interface IJaiCore {
-  chatWidget: ReactWidget;
   chatHandler: ChatHandler;
-  activeCellManager: ActiveCellManager;
-  selectionWatcher: SelectionWatcher;
 }
 
 /**
