@@ -482,13 +482,7 @@ class AiMagics(Magics):
             lang_indicator = r"^```[a-zA-Z0-9]*\n"
             output = re.sub(lang_indicator, "", output)
             output = re.sub(r"\n```$", "", output)
-            new_cell_payload = dict(
-                source="set_next_input",
-                text=output,
-                replace=False,
-            )
-            ip = self.shell
-            ip.payload_manager.write_payload(new_cell_payload)
+            self.shell.set_next_input(output, replace=False)
             return HTML(
                 "AI generated code inserted below &#11015;&#65039;", metadata=md
             )
