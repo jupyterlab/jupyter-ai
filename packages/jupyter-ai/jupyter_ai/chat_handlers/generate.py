@@ -230,13 +230,17 @@ def create_notebook(outline):
         follows_code_cell = merged_cells and merged_cells[-1]["cell_type"] == "code"
         is_incomplete = cell["cell_type"] == "code" and cell["source"].startswith(" ")
         if follows_code_cell and is_incomplete:
-            merged_cells[-1]["source"] = merged_cells[-1]["source"] + "\n\n" + cell["source"]
+            merged_cells[-1]["source"] = (
+                merged_cells[-1]["source"] + "\n\n" + cell["source"]
+            )
         else:
             merged_cells.append(cell)
 
     # Fix code cells that should be markdown
     for j in range(len(merged_cells)):
-        if merged_cells[j]["cell_type"]=="code" and is_not_python_code(merged_cells[j]["source"]):
+        if merged_cells[j]["cell_type"] == "code" and is_not_python_code(
+            merged_cells[j]["source"]
+        ):
             merged_cells[j]["cell_type"] = "markdown"
 
     nb["cells"] = merged_cells
