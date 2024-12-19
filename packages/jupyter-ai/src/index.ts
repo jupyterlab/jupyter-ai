@@ -13,11 +13,10 @@ import {
 import { IDocumentWidget } from '@jupyterlab/docregistry';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 
-import { ChatHandler } from './chat_handler';
 import { completionPlugin } from './completions';
 import { autocompletion } from './slash-autocompletion';
 import { statusItemPlugin } from './status';
-import { IJaiCompletionProvider, IJaiCore } from './tokens';
+import { IJaiCompletionProvider } from './tokens';
 import { buildErrorWidget } from './widgets/chat-error';
 import { buildAiSettings } from './widgets/settings-widget';
 
@@ -33,12 +32,11 @@ export namespace CommandIDs {
 /**
  * Initialization data for the jupyter_ai extension.
  */
-const plugin: JupyterFrontEndPlugin<IJaiCore> = {
+const plugin: JupyterFrontEndPlugin<void> = {
   id: '@jupyter-ai/core:plugin',
   autoStart: true,
   requires: [IRenderMimeRegistry],
   optional: [ICommandPalette, IThemeManager, IJaiCompletionProvider],
-  provides: IJaiCore,
   activate: async (
     app: JupyterFrontEnd,
     rmRegistry: IRenderMimeRegistry,
@@ -46,11 +44,6 @@ const plugin: JupyterFrontEndPlugin<IJaiCore> = {
     themeManager: IThemeManager | null,
     completionProvider: IJaiCompletionProvider | null
   ) => {
-    /**
-     * Initialize chat handler, open WS connection
-     */
-    const chatHandler = new ChatHandler();
-
     const openInlineCompleterSettings = () => {
       app.commands.execute('settingeditor:open', {
         query: 'Inline Completer'
@@ -61,7 +54,6 @@ const plugin: JupyterFrontEndPlugin<IJaiCore> = {
     let aiSettings: MainAreaWidget<ReactWidget>;
     let settingsWidget: ReactWidget;
     try {
-      await chatHandler.initialize();
       settingsWidget = buildAiSettings(
         rmRegistry,
         completionProvider,
@@ -94,10 +86,6 @@ const plugin: JupyterFrontEndPlugin<IJaiCore> = {
         command: CommandIDs.openAiSettings
       });
     }
-
-    return {
-      chatHandler
-    };
   }
 };
 

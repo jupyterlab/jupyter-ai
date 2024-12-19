@@ -4,7 +4,6 @@ import { ISignal } from '@lumino/signaling';
 import type { IRankedMenu } from '@jupyterlab/ui-components';
 
 import { AiService } from './handler';
-import { ChatHandler } from './chat_handler';
 
 export interface IJaiStatusItem {
   addItem(item: IRankedMenu.IItemOptions): void;
@@ -47,20 +46,6 @@ export interface IJaiMessageFooter {
 export const IJaiMessageFooter = new Token<IJaiMessageFooter>(
   'jupyter_ai:IJaiMessageFooter',
   'Optional component that is used to render a footer on each Jupyter AI chat message, when provided.'
-);
-
-export interface IJaiCore {
-  chatHandler: ChatHandler;
-}
-
-/**
- * The Jupyter AI core provider token. Frontend plugins that want to extend the
- * Jupyter AI frontend by adding features which send messages or observe the
- * current text selection & active cell should require this plugin.
- */
-export const IJaiCore = new Token<IJaiCore>(
-  'jupyter_ai:core',
-  'The core implementation of the frontend.'
 );
 
 /**
