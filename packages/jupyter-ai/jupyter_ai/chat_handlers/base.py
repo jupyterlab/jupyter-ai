@@ -37,6 +37,8 @@ from jupyter_ai.models import (
 )
 from jupyter_ai_magics import Persona
 from jupyter_ai_magics.providers import BaseProvider
+from jupyterlab_chat.models import Message as YMessage
+from jupyterlab_chat.models import NewMessage, User
 from jupyterlab_chat.ychat import YChat
 from langchain.pydantic_v1 import BaseModel
 from langchain_core.messages import AIMessageChunk
@@ -182,13 +184,6 @@ class BaseChatHandler:
         self.context_providers = context_providers
         self.message_interrupted = message_interrupted
         self.ychat = ychat
-        self.indexes_by_id: Dict[str, int] = {}
-        """
-        Indexes of messages in the YChat document by message ID.
-
-        TODO: Remove this once `jupyterlab-chat` can update messages by ID
-        without an index.
-        """
 
         self.llm: Optional[BaseProvider] = None
         self.llm_params: Optional[dict] = None
@@ -282,13 +277,14 @@ class BaseChatHandler:
         )
         self.reply(response, message)
 
-    def write_message(self, body: str, id: Optional[str] = None) -> str:
+    def write_message(self, body: str, stream_id: Optional[str] = None) -> str:
         """
-        [Jupyter Chat only] Writes a message to the YChat shared document
-        that this chat handler is assigned to.
+        [Jupyter Chat only] Adds a message to the YChat shared document that
+        this chat handler is assigned to. If `stream_id` is passed, then this
+        method appends to the message referenced by `stream_id`.
 
-        Returns the new message ID. This will be identical to the `id` argument
-        if passed.
+        Returns the new message ID. This will be identical to the `stream_id`
+        argument if passed.
         """
         # TODO: remove this once `ychat` becomes a required attribute.
         if not self.ychat:
@@ -296,24 +292,23 @@ class BaseChatHandler:
 
         bot = self.ychat.get_user(BOT["username"])
         if not bot:
-            self.ychat.set_user(BOT)
+            self.ychat.set_user(User(**BOT))
 
-        index = self.indexes_by_id.get(id, None) if id else None
-        id = id if id else str(uuid4())
-        new_index = self.ychat.set_message(
-            {
-                "type": "msg",
-                "body": body,
-                "id": id if id else str(uuid4()),
-                "time": time.time(),
-                "sender": BOT["username"],
-                "raw_time": False,
-            },
-            index=index,
-            append=True,
-        )
+        if stream_id:
+            self.ychat.update_message(
+                YMessage(
+                    body=body,
+                    id=stream_id,
+                    time=time.time(),
+                    sender=BOT["username"],
+                    raw_time=False,
+                ),
+                append=True,
+            )
+            id = stream_id
+        else:
+            id = self.ychat.add_message(NewMessage(body=body, sender=BOT["username"]))
 
-        self.indexes_by_id[id] = new_index
         return id
 
     def broadcast_message(self, message: Message):

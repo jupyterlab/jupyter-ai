@@ -2220,7 +2220,7 @@ __metadata:
     "@babel/preset-env": ^7.0.0
     "@emotion/react": ^11.10.5
     "@emotion/styled": ^11.10.5
-    "@jupyter/chat": ^0.6.0
+    "@jupyter/chat": ^0.7.0
     "@jupyterlab/application": ^4.2.0
     "@jupyterlab/apputils": ^4.2.0
     "@jupyterlab/builder": ^4.2.0
@@ -2284,9 +2284,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@jupyter/chat@npm:^0.6.0":
-  version: 0.6.0
-  resolution: "@jupyter/chat@npm:0.6.0"
+"@jupyter/chat@npm:^0.7.0":
+  version: 0.7.0
+  resolution: "@jupyter/chat@npm:0.7.0"
   dependencies:
     "@emotion/react": ^11.10.5
     "@emotion/styled": ^11.10.5
@@ -2298,6 +2298,7 @@ __metadata:
     "@jupyterlab/rendermime": ^4.2.0
     "@jupyterlab/ui-components": ^4.2.0
     "@lumino/commands": ^2.0.0
+    "@lumino/coreutils": ^2.0.0
     "@lumino/disposable": ^2.0.0
     "@lumino/signaling": ^2.0.0
     "@mui/icons-material": ^5.11.0
@@ -2305,7 +2306,7 @@ __metadata:
     clsx: ^2.1.0
     react: ^18.2.0
     react-dom: ^18.2.0
-  checksum: 1af125488113fbe9089014ae2fd6bf39f5645e6a8387ee513cbae2ed24183ebd6611347e6c6bca05832a6d90fdb001ebce508f7b08e3ae92edd9946b9253dec9
+  checksum: 0317fda48c447cf82b00c55d2e51f1d2942a4b05e1308ab0654538c675592baf2e8dd04e93643ae44801fca4068e91e1b563bcb095b78c7aaa82d04a7f8dd2b5
   languageName: node
   linkType: hard
 
@@ -3331,7 +3332,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@lumino/coreutils@npm:^1.11.0 || ^2.0.0, @lumino/coreutils@npm:^1.11.0 || ^2.1.2, @lumino/coreutils@npm:^2.1.2, @lumino/coreutils@npm:^2.2.0":
+"@lumino/coreutils@npm:^1.11.0 || ^2.0.0, @lumino/coreutils@npm:^1.11.0 || ^2.1.2, @lumino/coreutils@npm:^2.0.0, @lumino/coreutils@npm:^2.1.2, @lumino/coreutils@npm:^2.2.0":
   version: 2.2.0
   resolution: "@lumino/coreutils@npm:2.2.0"
   dependencies:

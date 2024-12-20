@@ -40,10 +40,10 @@ class YChatHistory(BaseChatMessageHistory):
         messages: List[BaseMessage] = []
         start_idx = 0 if self.k is None else -2 * self.k - 1
         for message in all_messages[start_idx:-1]:
-            if message["sender"] == BOT["username"]:
-                messages.append(AIMessage(content=message["body"]))
+            if message.sender == BOT["username"]:
+                messages.append(AIMessage(content=message.body))
             else:
-                messages.append(HumanMessage(content=message["body"]))
+                messages.append(HumanMessage(content=message.body))
 
         return messages
 
