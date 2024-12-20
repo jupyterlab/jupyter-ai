@@ -26,7 +26,7 @@ import { ExistingApiKeys } from './settings/existing-api-keys';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { minifyUpdate } from './settings/minify';
 import { useStackingAlert } from './mui-extras/stacking-alert';
-import { RendermimeMarkdown } from './rendermime-markdown';
+import { RendermimeMarkdown } from './settings/rendermime-markdown';
 import { IJaiCompletionProvider } from '../tokens';
 import { getProviderId, getModelLocalId } from '../utils';
 
@@ -375,7 +375,6 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
             <RendermimeMarkdown
               rmRegistry={props.rmRegistry}
               markdownStr={chatHelpMarkdown}
-              complete
             />
           )}
           {lmGlobalId && (
@@ -491,7 +490,6 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
             <RendermimeMarkdown
               rmRegistry={props.rmRegistry}
               markdownStr={completionHelpMarkdown}
-              complete
             />
           )}
           {clmGlobalId && (
