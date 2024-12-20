@@ -37,7 +37,8 @@ from jupyter_ai.models import (
 )
 from jupyter_ai_magics import Persona
 from jupyter_ai_magics.providers import BaseProvider
-from jupyterlab_chat.models import User, NewMessage, Message as YMessage
+from jupyterlab_chat.models import Message as YMessage
+from jupyterlab_chat.models import NewMessage, User
 from jupyterlab_chat.ychat import YChat
 from langchain.pydantic_v1 import BaseModel
 from langchain_core.messages import AIMessageChunk
@@ -292,15 +293,18 @@ class BaseChatHandler:
         bot = self.ychat.get_user(BOT["username"])
         if not bot:
             self.ychat.set_user(User(**BOT))
-        
+
         if stream_id:
-            self.ychat.update_message(YMessage(
-                body=body,
-                id=stream_id,
-                time=time.time(),
-                sender=BOT["username"],
-                raw_time=False,
-            ), append=True)
+            self.ychat.update_message(
+                YMessage(
+                    body=body,
+                    id=stream_id,
+                    time=time.time(),
+                    sender=BOT["username"],
+                    raw_time=False,
+                ),
+                append=True,
+            )
             id = stream_id
         else:
             id = self.ychat.add_message(NewMessage(body=body, sender=BOT["username"]))
