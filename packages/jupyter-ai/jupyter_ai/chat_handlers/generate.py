@@ -203,9 +203,9 @@ async def afill_outline(outline, llm, verbose=False):
 def is_not_python_code(source: str) -> bool:
     try:
         ast.parse(source)
-        return False
-    except (SyntaxError, ValueError):
+    except:
         return True
+    return False
 
 
 def create_notebook(outline):
@@ -237,11 +237,9 @@ def create_notebook(outline):
             merged_cells.append(cell)
 
     # Fix code cells that should be markdown
-    for j in range(len(merged_cells)):
-        if merged_cells[j]["cell_type"] == "code" and is_not_python_code(
-            merged_cells[j]["source"]
-        ):
-            merged_cells[j]["cell_type"] = "markdown"
+    for cell in merged_cells:
+        if cell["cell_type"] == "code" and is_not_python_code(cell["source"]):
+            cell["cell_type"] = "markdown"
 
     nb["cells"] = merged_cells
     return nb
