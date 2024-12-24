@@ -450,9 +450,7 @@ class AiExtension(ExtensionApp):
             await dask_client.close()
             self.log.debug("Closed Dask client.")
 
-    def _init_chat_handlers(
-        self, ychat: YChat
-    ) -> Dict[str, BaseChatHandler]:
+    def _init_chat_handlers(self, ychat: YChat) -> Dict[str, BaseChatHandler]:
         """
         Initializes a set of chat handlers. May accept a YChat instance for
         collaborative chats.

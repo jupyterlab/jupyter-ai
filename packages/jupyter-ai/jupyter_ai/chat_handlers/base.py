@@ -20,7 +20,7 @@ from jupyter_ai.callback_handlers import MetadataCallbackHandler
 from jupyter_ai.config_manager import ConfigManager, Logger
 from jupyter_ai.constants import BOT
 from jupyter_ai_magics.providers import BaseProvider
-from jupyterlab_chat.models import NewMessage, Message, User
+from jupyterlab_chat.models import Message, NewMessage, User
 from jupyterlab_chat.ychat import YChat
 from langchain.pydantic_v1 import BaseModel
 from langchain_core.messages import AIMessageChunk
@@ -255,7 +255,7 @@ class BaseChatHandler:
         )
         self.reply(response, _human_message)
 
-    def reply(self, body: str, _human_message = None) -> str:
+    def reply(self, body: str, _human_message=None) -> str:
         """
         Adds a message to the YChat shared document that this chat handler is
         assigned to. Returns the new message ID.
@@ -269,7 +269,7 @@ class BaseChatHandler:
 
         id = self.ychat.add_message(NewMessage(body=body, sender=BOT["username"]))
         return id
-    
+
     @property
     def persona(self):
         return self.config_manager.persona
@@ -391,7 +391,7 @@ class BaseChatHandler:
         finally:
             # close the `ReplyStream` on exit.
             reply_stream.close()
-    
+
     async def stream_reply(
         self,
         input: Input,
@@ -450,11 +450,8 @@ class BaseChatHandler:
 
             # if stream was interrupted, add a tombstone
             if stream_interrupted:
-                stream_tombstone = (
-                    "\n\n(AI response stopped by user)"
-                )
+                stream_tombstone = "\n\n(AI response stopped by user)"
                 reply_stream.write(stream_tombstone)
-            
 
 
 class GenerationInterrupted(asyncio.CancelledError):

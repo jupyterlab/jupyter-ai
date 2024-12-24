@@ -20,6 +20,7 @@ from jupyter_ai.models import (
 )
 from jupyter_core.paths import jupyter_data_dir
 from jupyter_core.utils import ensure_dir_exists
+from jupyterlab_chat.models import Message
 from langchain.schema import BaseRetriever, Document
 from langchain.text_splitter import (
     LatexTextSplitter,
@@ -28,7 +29,6 @@ from langchain.text_splitter import (
     RecursiveCharacterTextSplitter,
 )
 from langchain_community.vectorstores import FAISS
-from jupyterlab_chat.models import Message
 
 from .base import BaseChatHandler, SlashCommandRoutingType
 

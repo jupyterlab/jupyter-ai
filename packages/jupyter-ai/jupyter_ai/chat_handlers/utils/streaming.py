@@ -2,12 +2,13 @@ import time
 from typing import Optional
 
 from jupyter_ai.constants import BOT
+from jupyterlab_chat.models import Message, NewMessage, User
 from jupyterlab_chat.ychat import YChat
-from jupyterlab_chat.models import User, NewMessage, Message
 
 
 class ReplyStreamClosed(Exception):
     pass
+
 
 class ReplyStream:
     """
@@ -35,17 +36,17 @@ class ReplyStream:
         self.ychat = ychat
         self._is_open = False
         self._stream_id: Optional[str] = None
-    
+
     def _set_user(self):
         bot = self.ychat.get_user(BOT["username"])
         if not bot:
             self.ychat.set_user(User(**BOT))
-    
+
     def open(self):
         self._set_user()
         self.ychat.awareness.set_local_state_field("isWriting", True)
         self._is_open = True
-    
+
     def write(self, chunk: str) -> str:
         """
         Writes a string chunk to the current reply stream. Returns the ID of the
@@ -55,10 +56,12 @@ class ReplyStream:
             assert self._is_open
         except:
             raise ReplyStreamClosed("Reply stream must be opened first.") from None
-        
+
         if not self._stream_id:
             self._set_user()
-            self._stream_id = self.ychat.add_message(NewMessage(body="", sender=BOT["username"]))
+            self._stream_id = self.ychat.add_message(
+                NewMessage(body="", sender=BOT["username"])
+            )
 
         self._set_user()
         self.ychat.update_message(
@@ -73,7 +76,7 @@ class ReplyStream:
         )
 
         return self._stream_id
-        
+
     def close(self):
         self.ychat.awareness.set_local_state_field("isWriting", False)
         self._is_open = False

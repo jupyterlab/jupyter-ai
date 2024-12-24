@@ -1,11 +1,10 @@
 from typing import List, Optional
 
+from jupyter_ai.constants import BOT
+from jupyterlab_chat.models import Message as JChatMessage
+from jupyterlab_chat.ychat import YChat
 from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_core.messages import AIMessage, BaseMessage, HumanMessage
-
-from jupyter_ai.constants import BOT
-from jupyterlab_chat.ychat import YChat
-from jupyterlab_chat.models import Message as JChatMessage
 
 
 class YChatHistory(BaseChatMessageHistory):
@@ -51,7 +50,7 @@ class YChatHistory(BaseChatMessageHistory):
                 messages.append(AIMessage(content=jchat_message.body))
             else:
                 messages.append(HumanMessage(content=jchat_message.body))
-        
+
         return messages
 
     def add_message(self, message: BaseMessage) -> None:
@@ -61,4 +60,3 @@ class YChatHistory(BaseChatMessageHistory):
 
     def clear(self):
         raise NotImplementedError()
-

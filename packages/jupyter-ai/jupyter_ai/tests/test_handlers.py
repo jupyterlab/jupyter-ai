@@ -1,21 +1,19 @@
 import logging
 import os
 import stat
-from typing import Optional, List
+from typing import List, Optional
 from unittest import mock
 
-from jupyterlab_chat.models import NewMessage
 from jupyter_ai.chat_handlers import DefaultChatHandler, learn
 from jupyter_ai.config_manager import ConfigManager
 from jupyter_ai.extension import DEFAULT_HELP_MESSAGE_TEMPLATE
-from jupyter_ai.models import (
-    Persona,
-)
 from jupyter_ai.history import YChatHistory
+from jupyter_ai.models import Persona
 from jupyter_ai_magics import BaseProvider
-from langchain_community.llms import FakeListLLM
-from langchain_core.messages import BaseMessage, HumanMessage, AIMessage
+from jupyterlab_chat.models import NewMessage
 from jupyterlab_chat.ychat import YChat
+from langchain_community.llms import FakeListLLM
+from langchain_core.messages import AIMessage, BaseMessage, HumanMessage
 from pycrdt import Awareness, Doc
 
 
@@ -50,7 +48,7 @@ class TestDefaultChatHandler(DefaultChatHandler):
         self.ychat = YChat(ydoc=ydoc, awareness=awareness)
         self.ychat_history = YChatHistory(ychat=self.ychat)
 
-        # initialize & configure mock ConfigManager 
+        # initialize & configure mock ConfigManager
         config_manager = mock.create_autospec(ConfigManager)
         config_manager.lm_provider = lm_provider or MockProvider
         config_manager.lm_provider_params = lm_provider_params or {"model_id": "model"}
@@ -78,8 +76,10 @@ class TestDefaultChatHandler(DefaultChatHandler):
         the last message.
         """
 
-        return self.ychat_history._convert_to_langchain_messages(self.ychat.get_messages())
-    
+        return self.ychat_history._convert_to_langchain_messages(
+            self.ychat.get_messages()
+        )
+
     async def send_human_message(self, body: str = "Hello!"):
         """
         Test helper method that sends a human message to this chat handler.
@@ -101,8 +101,10 @@ class TestDefaultChatHandler(DefaultChatHandler):
         """
         return self.ychat.awareness.get_local_state()["isWriting"]
 
+
 class TestException(Exception):
     pass
+
 
 def test_learn_index_permissions(tmp_path):
     test_dir = tmp_path / "test"
@@ -142,4 +144,3 @@ async def test_default_stops_writing_on_error():
     assert isinstance(handler.messages[0], HumanMessage)
     assert isinstance(handler.messages[1], AIMessage)
     assert not handler.is_writing
-

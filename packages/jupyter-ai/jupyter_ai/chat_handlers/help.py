@@ -1,4 +1,5 @@
 from jupyterlab_chat.models import Message
+
 from .base import BaseChatHandler, SlashCommandRoutingType
 
 

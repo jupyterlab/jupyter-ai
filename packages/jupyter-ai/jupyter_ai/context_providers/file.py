@@ -3,9 +3,9 @@ import os
 from typing import List
 
 import nbformat
-from jupyterlab_chat.models import Message
 from jupyter_ai.document_loaders.directory import SUPPORTED_EXTS
 from jupyter_ai.models import ListOptionsEntry
+from jupyterlab_chat.models import Message
 
 from .base import (
     BaseCommandContextProvider,

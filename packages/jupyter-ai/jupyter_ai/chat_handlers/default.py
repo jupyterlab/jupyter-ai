@@ -1,8 +1,8 @@
 import asyncio
 from typing import Dict, Type
 
-from jupyterlab_chat.models import Message
 from jupyter_ai_magics.providers import BaseProvider
+from jupyterlab_chat.models import Message
 from langchain_core.runnables.history import RunnableWithMessageHistory
 
 from ..context_providers import ContextProviderException, find_commands

@@ -9,13 +9,13 @@ from typing import Dict, List, Optional, Type
 import nbformat
 from jupyter_ai.chat_handlers import BaseChatHandler, SlashCommandRoutingType
 from jupyter_ai_magics.providers import BaseProvider
+from jupyterlab_chat.models import Message
 from langchain.chains import LLMChain
 from langchain.llms import BaseLLM
 from langchain.output_parsers import PydanticOutputParser
 from langchain.pydantic_v1 import BaseModel
 from langchain.schema.output_parser import BaseOutputParser
 from langchain_core.prompts import PromptTemplate
-from jupyterlab_chat.models import Message
 
 
 class OutlineSection(BaseModel):

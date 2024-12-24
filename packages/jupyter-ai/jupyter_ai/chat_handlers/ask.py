@@ -2,10 +2,10 @@ import argparse
 from typing import Dict, Type
 
 from jupyter_ai_magics.providers import BaseProvider
+from jupyterlab_chat.models import Message
 from langchain.chains import ConversationalRetrievalChain
 from langchain.memory import ConversationBufferWindowMemory
 from langchain_core.prompts import PromptTemplate
-from jupyterlab_chat.models import Message
 
 from .base import BaseChatHandler, SlashCommandRoutingType
 

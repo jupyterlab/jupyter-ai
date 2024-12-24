@@ -19,12 +19,7 @@ def human_message() -> Message:
         "@file:'test7.py test\"\n"  # do not allow for mixed quotes
         "```\n@file:fail2.py\n```\n"  # do not look within backticks
     )
-    return Message(
-        id="fake-message-uuid",
-        time=0,
-        body=prompt,
-        sender="fake-user-uuid"
-    )
+    return Message(id="fake-message-uuid", time=0, body=prompt, sender="fake-user-uuid")
 
 
 @pytest.fixture
@@ -53,8 +48,7 @@ def test_find_instances(file_context_provider, human_message):
         "@file:'test7.py",
     ]
     commands = [
-        cmd.cmd
-        for cmd in find_commands(file_context_provider, human_message.body)
+        cmd.cmd for cmd in find_commands(file_context_provider, human_message.body)
     ]
     assert commands == expected
 

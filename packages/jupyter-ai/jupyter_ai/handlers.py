@@ -1,6 +1,13 @@
-from typing import TYPE_CHECKING, Dict, List, Optional, cast, Type
+from typing import TYPE_CHECKING, Dict, List, Optional, Type, cast
 
-from jupyter_ai.chat_handlers import SlashCommandRoutingType, AskChatHandler, DefaultChatHandler, LearnChatHandler, GenerateChatHandler, HelpChatHandler
+from jupyter_ai.chat_handlers import (
+    AskChatHandler,
+    DefaultChatHandler,
+    GenerateChatHandler,
+    HelpChatHandler,
+    LearnChatHandler,
+    SlashCommandRoutingType,
+)
 from jupyter_ai.config_manager import ConfigManager, KeyEmptyError, WriteConflictError
 from jupyter_ai.context_providers import BaseCommandContextProvider, ContextCommand
 from jupyter_server.base.handlers import APIHandler as BaseAPIHandler
@@ -32,8 +39,9 @@ CHAT_HANDLER_DICT = {
     "/ask": AskChatHandler,
     "/learn": LearnChatHandler,
     "/generate": GenerateChatHandler,
-    "/help": HelpChatHandler
+    "/help": HelpChatHandler,
 }
+
 
 class ProviderHandler(BaseAPIHandler):
     """
