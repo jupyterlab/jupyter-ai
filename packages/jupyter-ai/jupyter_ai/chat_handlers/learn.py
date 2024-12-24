@@ -15,7 +15,6 @@ from jupyter_ai.document_loaders.splitter import ExtensionSplitter, NotebookSpli
 from jupyter_ai.models import (
     DEFAULT_CHUNK_OVERLAP,
     DEFAULT_CHUNK_SIZE,
-    HumanChatMessage,
     IndexedDir,
     IndexMetadata,
 )
@@ -29,6 +28,7 @@ from langchain.text_splitter import (
     RecursiveCharacterTextSplitter,
 )
 from langchain_community.vectorstores import FAISS
+from jupyterlab_chat.models import Message
 
 from .base import BaseChatHandler, SlashCommandRoutingType
 
@@ -128,7 +128,7 @@ class LearnChatHandler(BaseChatHandler):
             )
             self.log.error(e)
 
-    async def process_message(self, message: HumanChatMessage):
+    async def process_message(self, message: Message):
         # If no embedding provider has been selected
         em_provider_cls, em_provider_args = self.get_embedding_provider()
         if not em_provider_cls:

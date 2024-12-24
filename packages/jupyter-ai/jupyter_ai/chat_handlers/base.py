@@ -19,11 +19,8 @@ from dask.distributed import Client as DaskClient
 from jupyter_ai.callback_handlers import MetadataCallbackHandler
 from jupyter_ai.config_manager import ConfigManager, Logger
 from jupyter_ai.constants import BOT
-from jupyter_ai.models import (
-    HumanChatMessage,
-)
 from jupyter_ai_magics.providers import BaseProvider
-from jupyterlab_chat.models import NewMessage, User
+from jupyterlab_chat.models import NewMessage, Message, User
 from jupyterlab_chat.ychat import YChat
 from langchain.pydantic_v1 import BaseModel
 from langchain_core.messages import AIMessageChunk
@@ -170,7 +167,7 @@ class BaseChatHandler:
         self.llm_params: Optional[dict] = None
         self.llm_chain: Optional[Runnable] = None
 
-    async def on_message(self, message: HumanChatMessage):
+    async def on_message(self, message: Message):
         """
         Method which receives a human message, calls `self.get_llm_chain()`, and
         processes the message via `self.process_message()`, calling
@@ -221,7 +218,7 @@ class BaseChatHandler:
         finally:
             BaseChatHandler._requests_count -= 1
 
-    async def process_message(self, message: HumanChatMessage):
+    async def process_message(self, _human_message: Message):
         """
         Processes a human message routed to this chat handler. Chat handlers
         (subclasses) must implement this method. Don't forget to call
@@ -232,15 +229,15 @@ class BaseChatHandler:
         """
         raise NotImplementedError("Should be implemented by subclasses.")
 
-    async def handle_exc(self, e: Exception, message: HumanChatMessage):
+    async def handle_exc(self, e: Exception, _human_message: Message):
         """
         Handles an exception raised by `self.process_message()`. A default
         implementation is provided, however chat handlers (subclasses) should
         implement this method to provide a more helpful error response.
         """
-        await self._default_handle_exc(e, message)
+        await self._default_handle_exc(e, _human_message)
 
-    async def _default_handle_exc(self, e: Exception, message: HumanChatMessage):
+    async def _default_handle_exc(self, e: Exception, _human_message: Message):
         """
         The default definition of `handle_exc()`. This is the default used when
         the `handle_exc()` excepts.
@@ -250,20 +247,21 @@ class BaseChatHandler:
         if lm_provider and lm_provider.is_api_key_exc(e):
             provider_name = getattr(self.config_manager.lm_provider, "name", "")
             response = f"Oops! There's a problem connecting to {provider_name}. Please update your {provider_name} API key in the chat settings."
-            self.reply(response, message)
+            self.reply(response, _human_message)
             return
         formatted_e = traceback.format_exc()
         response = (
             f"Sorry, an error occurred. Details below:\n\n```\n{formatted_e}\n```"
         )
-        self.reply(response, message)
+        self.reply(response, _human_message)
 
-    def reply(self, body: str, human_message = None) -> str:
+    def reply(self, body: str, _human_message = None) -> str:
         """
         Adds a message to the YChat shared document that this chat handler is
         assigned to. Returns the new message ID.
 
-        TODO: Make this take a single argument.
+        TODO: Either properly store & use reply state in YChat, or remove the
+        `human_message` argument here.
         """
         bot = self.ychat.get_user(BOT["username"])
         if not bot:
@@ -316,7 +314,7 @@ class BaseChatHandler:
     ):
         raise NotImplementedError("Should be implemented by subclasses")
 
-    def parse_args(self, message, silent=False):
+    def parse_args(self, message: Message, silent=False):
         args = message.body.split(" ")
         try:
             args = self.parser.parse_args(args[1:])
@@ -339,7 +337,7 @@ class BaseChatHandler:
         else:
             return self.root_dir
 
-    def send_help_message(self, human_msg: Optional[HumanChatMessage] = None) -> None:
+    def send_help_message(self, _human_message: Optional[Message] = None) -> None:
         """Sends a help message to all connected clients."""
         lm_provider = self.config_manager.lm_provider
         unsupported_slash_commands = (
@@ -394,7 +392,7 @@ class BaseChatHandler:
     async def stream_reply(
         self,
         input: Input,
-        human_msg: HumanChatMessage,
+        _human_message: Optional[Message] = None,
         pending_msg="Generating response",
         config: Optional[RunnableConfig] = None,
     ):
@@ -409,14 +407,16 @@ class BaseChatHandler:
         the runnable in `self.llm_chain`, but is usually a dictionary whose keys
         refer to input variables in your prompt template.
 
-        - `human_msg`: The `HumanChatMessage` being replied to.
+        - `_human_message`: The human message being replied to. Currently
+        unused. TODO: Either re-implement this for v3 or remove it.
+
+         - `_pending_msg` (optional): Changes the default pending message from
+        "Generating response". Not supported at this time. TODO: Re-implement
+        this for v3.
 
         - `config` (optional): A `RunnableConfig` object that specifies
         additional configuration when streaming from the runnable.
 
-         - `pending_msg` (optional): Changes the default pending message from
-        "Generating response". Not supported at this time. TODO: Re-implement
-        this for v3.
         """
         assert self.llm_chain
         assert isinstance(self.llm_chain, Runnable)
@@ -424,7 +424,6 @@ class BaseChatHandler:
         received_first_chunk = False
         metadata_handler = MetadataCallbackHandler()
         base_config: RunnableConfig = {
-            "configurable": {"last_human_msg": human_msg},
             "callbacks": [metadata_handler],
         }
         merged_config: RunnableConfig = merge_runnable_configs(base_config, config)

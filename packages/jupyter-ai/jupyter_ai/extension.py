@@ -3,18 +3,18 @@ import re
 import time
 import types
 from functools import partial
-from typing import Dict, Optional
+from typing import Dict
 
 import traitlets
 from dask.distributed import Client as DaskClient
 from importlib_metadata import entry_points
 from jupyter_ai.chat_handlers.learn import Retriever
-from jupyter_ai.models import HumanChatMessage
 from jupyter_ai_magics import BaseProvider, JupyternautPersona
 from jupyter_ai_magics.utils import get_em_providers, get_lm_providers
 from jupyter_events import EventLogger
 from jupyter_server.extension.application import ExtensionApp
 from jupyter_server.utils import url_path_join
+from jupyterlab_chat.models import Message
 from jupyterlab_chat.ychat import YChat
 from pycrdt import ArrayEvent
 from tornado.web import StaticFileHandler
@@ -300,31 +300,25 @@ class AiExtension(ExtensionApp):
         return document
 
     def on_change(self, room_id: str, events: ArrayEvent) -> None:
+        assert self.serverapp
+
         for change in events.delta:  # type:ignore[attr-defined]
             if not "insert" in change.keys():
                 continue
             messages = change["insert"]
-            for message in messages:
-
-                if message["sender"] == BOT["username"] or message["raw_time"]:
+            for message_dict in messages:
+                message = Message(**message_dict)
+                if message.sender == BOT["username"] or message.raw_time:
                     continue
-                chat_message = HumanChatMessage(
-                    id=message["id"],
-                    time=time.time(),
-                    body=message["body"],
-                    prompt="",
-                    selection=None,
-                    client=None,
-                )
-                if self.serverapp is not None:
-                    self.serverapp.io_loop.asyncio_loop.create_task(  # type:ignore[attr-defined]
-                        self.route_human_message(room_id, chat_message)
-                    )
 
-    async def route_human_message(self, room_id: str, message: HumanChatMessage):
+                self.serverapp.io_loop.asyncio_loop.create_task(  # type:ignore[attr-defined]
+                    self.route_human_message(room_id, message)
+                )
+
+    async def route_human_message(self, room_id: str, message: Message):
         """
-        Method that routes an incoming `HumanChatMessage` to the appropriate
-        chat handler.
+        Method that routes an incoming human message to the appropriate chat
+        handler.
         """
         chat_handlers = self.chat_handlers_by_room[room_id]
         default = chat_handlers["default"]

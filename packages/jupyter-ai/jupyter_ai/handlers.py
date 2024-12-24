@@ -1,44 +1,20 @@
-import getpass
-import json
-import time
-import uuid
-from asyncio import AbstractEventLoop, Event
-from dataclasses import asdict
-from typing import TYPE_CHECKING, Dict, List, Optional, Set, cast
+from typing import TYPE_CHECKING, Dict, List, Optional, cast
 
-import tornado
 from jupyter_ai.chat_handlers import BaseChatHandler, SlashCommandRoutingType
 from jupyter_ai.config_manager import ConfigManager, KeyEmptyError, WriteConflictError
 from jupyter_ai.context_providers import BaseCommandContextProvider, ContextCommand
 from jupyter_server.base.handlers import APIHandler as BaseAPIHandler
-from jupyter_server.base.handlers import JupyterHandler
 from langchain.pydantic_v1 import ValidationError
-from tornado import web, websocket
+from tornado import web
 from tornado.web import HTTPError
 
 from .models import (
-    AgentChatMessage,
-    AgentStreamChunkMessage,
-    AgentStreamMessage,
-    ChatClient,
-    ChatHistory,
-    ChatMessage,
-    ChatRequest,
-    ChatUser,
-    ClearMessage,
-    ClearRequest,
-    ClosePendingMessage,
-    ConnectionMessage,
-    HumanChatMessage,
     ListOptionsEntry,
     ListOptionsResponse,
     ListProvidersEntry,
     ListProvidersResponse,
     ListSlashCommandsEntry,
     ListSlashCommandsResponse,
-    Message,
-    PendingMessage,
-    StopRequest,
     UpdateConfigRequest,
 )
 

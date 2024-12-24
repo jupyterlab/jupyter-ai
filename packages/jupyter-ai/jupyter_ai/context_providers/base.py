@@ -6,7 +6,8 @@ from typing import Awaitable, ClassVar, Dict, List, Optional
 from dask.distributed import Client as DaskClient
 from jupyter_ai.chat_handlers.base import get_preferred_dir
 from jupyter_ai.config_manager import ConfigManager, Logger
-from jupyter_ai.models import HumanChatMessage, ListOptionsEntry
+from jupyter_ai.models import ListOptionsEntry
+from jupyterlab_chat.models import Message
 from langchain.pydantic_v1 import BaseModel
 
 
@@ -40,7 +41,7 @@ class _BaseContextProvider(abc.ABC):
         self.llm = None
 
     @abc.abstractmethod
-    async def make_context_prompt(self, message: HumanChatMessage) -> str:
+    async def make_context_prompt(self, message: Message) -> str:
         """Returns a context prompt for all commands of the context provider
         command.
         """
@@ -139,18 +140,18 @@ class BaseCommandContextProvider(_BaseContextProvider):
             else rf"(?<![^\s.]){self.command_id}(?![^\s.])"
         )
 
-    async def make_context_prompt(self, message: HumanChatMessage) -> str:
+    async def make_context_prompt(self, message: Message) -> str:
         """Returns a context prompt for all commands of the context provider
         command.
         """
-        commands = find_commands(self, message.prompt)
+        commands = find_commands(self, message.body)
         if not commands:
             return ""
         return await self._make_context_prompt(message, commands)
 
     @abc.abstractmethod
     async def _make_context_prompt(
-        self, message: HumanChatMessage, commands: List[ContextCommand]
+        self, message: Message, commands: List[ContextCommand]
     ) -> str:
         """Returns a context prompt for the given commands."""
         pass

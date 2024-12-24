@@ -32,7 +32,7 @@ class YChatHistory(BaseChatMessageHistory):
         all_messages = self.ychat.get_messages()
 
         # gather last k * 2 messages and return
-        # we exclude the last message since that is the HumanChatMessage just
+        # we exclude the last message since that is the human message just
         # submitted by a user.
         messages: List[BaseMessage] = []
         start_idx = 0 if self.k is None else -2 * self.k - 1
