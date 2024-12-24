@@ -71,6 +71,8 @@ class ReplyStream:
             ),
             append=True,
         )
+
+        return self._stream_id
         
     def close(self):
         self.ychat.awareness.set_local_state_field("isWriting", False)

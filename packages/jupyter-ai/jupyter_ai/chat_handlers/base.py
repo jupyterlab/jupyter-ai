@@ -315,15 +315,15 @@ class BaseChatHandler:
         raise NotImplementedError("Should be implemented by subclasses")
 
     def parse_args(self, message: Message, silent=False):
-        args = message.body.split(" ")
+        args = message.body.split(" ")[1:]
         try:
-            args = self.parser.parse_args(args[1:])
+            arg_namespace = self.parser.parse_args(args[1:])
         except (argparse.ArgumentError, SystemExit) as e:
             if not silent:
                 response = f"{self.parser.format_usage()}"
                 self.reply(response, message)
             return None
-        return args
+        return arg_namespace
 
     def get_llm_chat_memory(self) -> "BaseChatMessageHistory":
         return self.llm_chat_memory

@@ -203,7 +203,9 @@ class LearnChatHandler(BaseChatHandler):
         # delete and relearn index if embedding model was changed
         await self.delete_and_relearn()
 
-        with self.pending(f"Loading and splitting files for {load_path}", message):
+        # TODO v3: reinstate pending message
+        # original pending message: "Loading and splitting files for {load_path}"
+        with self.start_reply_stream() as reply_stream:
             try:
                 await self.learn_dir(
                     load_path, args.chunk_size, args.chunk_overlap, args.all_files
@@ -219,7 +221,7 @@ class LearnChatHandler(BaseChatHandler):
                     You can ask questions about these docs by prefixing your message with **/ask**.""" % (
                     load_path.replace("*", r"\*")
                 )
-        self.reply(response, message)
+            reply_stream.write(response)
 
     def _build_list_response(self):
         if not self.metadata.dirs:

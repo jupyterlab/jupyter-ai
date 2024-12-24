@@ -18,7 +18,7 @@ class YChatHistory(BaseChatMessageHistory):
     TODO: Consider just defining `k` as the number of messages and default to 4.
     """
 
-    def __init__(self, ychat: YChat, k: int = 2):
+    def __init__(self, ychat: YChat, k: Optional[int]):
         self.ychat = ychat
         self.k = k
 
