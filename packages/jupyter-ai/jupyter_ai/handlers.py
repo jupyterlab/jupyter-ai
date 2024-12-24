@@ -1,6 +1,6 @@
-from typing import TYPE_CHECKING, Dict, List, Optional, cast
+from typing import TYPE_CHECKING, Dict, List, Optional, cast, Type
 
-from jupyter_ai.chat_handlers import BaseChatHandler, SlashCommandRoutingType
+from jupyter_ai.chat_handlers import SlashCommandRoutingType, AskChatHandler, DefaultChatHandler, LearnChatHandler, GenerateChatHandler, HelpChatHandler
 from jupyter_ai.config_manager import ConfigManager, KeyEmptyError, WriteConflictError
 from jupyter_ai.context_providers import BaseCommandContextProvider, ContextCommand
 from jupyter_server.base.handlers import APIHandler as BaseAPIHandler
@@ -22,8 +22,18 @@ if TYPE_CHECKING:
     from jupyter_ai_magics.embedding_providers import BaseEmbeddingsProvider
     from jupyter_ai_magics.providers import BaseProvider
 
+    from .chat_handlers import BaseChatHandler
     from .context_providers import BaseCommandContextProvider
 
+# TODO v3: unify loading of chat handlers in a single place, then read
+# from that instead of this hard-coded dict.
+CHAT_HANDLER_DICT = {
+    "default": DefaultChatHandler,
+    "/ask": AskChatHandler,
+    "/learn": LearnChatHandler,
+    "/generate": GenerateChatHandler,
+    "/help": HelpChatHandler
+}
 
 class ProviderHandler(BaseAPIHandler):
     """
@@ -193,8 +203,8 @@ class SlashCommandsInfoHandler(BaseAPIHandler):
         return self.settings["jai_config_manager"]
 
     @property
-    def chat_handlers(self) -> Dict[str, "BaseChatHandler"]:
-        return self.settings["jai_chat_handlers"]
+    def chat_handlers(self) -> Dict[str, Type["BaseChatHandler"]]:
+        return CHAT_HANDLER_DICT
 
     @web.authenticated
     def get(self):
@@ -246,8 +256,8 @@ class AutocompleteOptionsHandler(BaseAPIHandler):
         return self.settings["jai_context_providers"]
 
     @property
-    def chat_handlers(self) -> Dict[str, "BaseChatHandler"]:
-        return self.settings["jai_chat_handlers"]
+    def chat_handlers(self) -> Dict[str, Type["BaseChatHandler"]]:
+        return CHAT_HANDLER_DICT
 
     @web.authenticated
     def get(self):
