@@ -36,7 +36,6 @@ from .utils.streaming import ReplyStream
 
 if TYPE_CHECKING:
     from jupyter_ai.context_providers import BaseCommandContextProvider
-    from jupyter_ai.handlers import RootChatHandler
     from langchain_core.chat_history import BaseChatMessageHistory
 
 
@@ -135,7 +134,6 @@ class BaseChatHandler:
         self,
         log: Logger,
         config_manager: ConfigManager,
-        root_chat_handlers: Dict[str, "RootChatHandler"],
         model_parameters: Dict[str, Dict],
         llm_chat_memory: "BaseChatMessageHistory",
         root_dir: str,
@@ -149,7 +147,6 @@ class BaseChatHandler:
     ):
         self.log = log
         self.config_manager = config_manager
-        self._root_chat_handlers = root_chat_handlers
         self.model_parameters = model_parameters
         self.llm_chat_memory = llm_chat_memory
         self.parser = argparse.ArgumentParser(

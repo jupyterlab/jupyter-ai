@@ -35,11 +35,9 @@ from .context_providers import BaseCommandContextProvider, FileContextProvider
 from .handlers import (
     ApiKeysHandler,
     AutocompleteOptionsHandler,
-    ChatHistoryHandler,
     EmbeddingsModelProviderHandler,
     GlobalConfigHandler,
     ModelProviderHandler,
-    RootChatHandler,
     SlashCommandsInfoHandler,
 )
 from .history import YChatHistory
@@ -82,8 +80,6 @@ class AiExtension(ExtensionApp):
     handlers = [  # type:ignore[assignment]
         (r"api/ai/api_keys/(?P<api_key_name>\w+)", ApiKeysHandler),
         (r"api/ai/config/?", GlobalConfigHandler),
-        (r"api/ai/chats/?", RootChatHandler),
-        (r"api/ai/chats/history?", ChatHistoryHandler),
         (r"api/ai/chats/slash_commands?", SlashCommandsInfoHandler),
         (r"api/ai/chats/autocomplete_options?", AutocompleteOptionsHandler),
         (r"api/ai/providers?", ModelProviderHandler),
@@ -406,10 +402,6 @@ class AiExtension(ExtensionApp):
 
         self.log.info(f"Registered {self.name} server extension")
 
-        # Store chat clients in a dictionary
-        self.settings["chat_clients"] = {}
-        self.settings["jai_root_chat_handlers"] = {}
-
         # get reference to event loop
         # `asyncio.get_event_loop()` is deprecated in Python 3.11+, in favor of
         # the more readable `asyncio.get_event_loop_policy().get_event_loop()`.
@@ -484,7 +476,6 @@ class AiExtension(ExtensionApp):
             "log": self.log,
             "config_manager": self.settings["jai_config_manager"],
             "model_parameters": self.settings["model_parameters"],
-            "root_chat_handlers": self.settings["jai_root_chat_handlers"],
             "llm_chat_memory": llm_chat_memory,
             "root_dir": self.serverapp.root_dir,
             "dask_client_future": self.settings["dask_client_future"],
