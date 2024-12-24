@@ -381,13 +381,16 @@ class BaseChatHandler:
 
         Once the context is closed, the `ReplyStream` is closed automatically.
         """
-        # init, open, and yield `ReplyStream` object
+        # initialize and open reply stream
         reply_stream = ReplyStream(ychat=self.ychat)
         reply_stream.open()
-        yield reply_stream
-
-        # close the `ReplyStream` on exit.
-        reply_stream.close()
+        # wrap the yield call in try/finally to ensure streams are closed on
+        # exceptions.
+        try:
+            yield reply_stream
+        finally:
+            # close the `ReplyStream` on exit.
+            reply_stream.close()
     
     async def stream_reply(
         self,
@@ -434,31 +437,9 @@ class BaseChatHandler:
             # implement streaming, as `astream()` defaults to yielding `_call()`
             # when `_stream()` is not implemented on the LLM class.
             chunk_generator = self.llm_chain.astream(input, config=merged_config)
-            stream_id = reply_stream.stream_id
+            # TODO v3: re-implement stream interrupt
             stream_interrupted = False
             async for chunk in chunk_generator:
-                if not received_first_chunk:
-                    received_first_chunk = True
-                    self.message_interrupted[stream_id] = asyncio.Event()
-
-                if self.message_interrupted[stream_id].is_set():
-                    try:
-                        # notify the model provider that streaming was interrupted
-                        # (this is essential to allow the model to stop generating)
-                        #
-                        # note: `mypy` flags this line, claiming that `athrow` is
-                        # not defined on `AsyncIterator`. This is why an ignore
-                        # comment is placed here.
-                        await chunk_generator.athrow(  # type:ignore[attr-defined]
-                            GenerationInterrupted()
-                        )
-                    except GenerationInterrupted:
-                        # do not let the exception bubble up in case if
-                        # the provider did not handle it
-                        pass
-                    stream_interrupted = True
-                    break
-
                 if isinstance(chunk, AIMessageChunk) and isinstance(chunk.content, str):
                     reply_stream.write(chunk.content)
                 elif isinstance(chunk, str):
@@ -474,7 +455,6 @@ class BaseChatHandler:
                 )
                 reply_stream.write(stream_tombstone)
             
-            del self.message_interrupted[stream_id]
 
 
 class GenerationInterrupted(asyncio.CancelledError):

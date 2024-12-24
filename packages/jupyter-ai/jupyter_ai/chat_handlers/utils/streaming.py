@@ -41,23 +41,24 @@ class ReplyStream:
         if not bot:
             self.ychat.set_user(User(**BOT))
     
-    @property
-    def stream_id(self) -> str:
-        return self._stream_id
-
     def open(self):
         self._set_user()
         self.ychat.awareness.set_local_state_field("isWriting", True)
-        self._stream_id = self.ychat.add_message(NewMessage(body="", sender=BOT["username"]))
         self._is_open = True
-        return self._stream_id
     
-    def write(self, chunk: str):
+    def write(self, chunk: str) -> str:
+        """
+        Writes a string chunk to the current reply stream. Returns the ID of the
+        message that this reply stream is writing to.
+        """
         try:
             assert self._is_open
-            assert self._stream_id
         except:
             raise ReplyStreamClosed("Reply stream must be opened first.") from None
+        
+        if not self._stream_id:
+            self._set_user()
+            self._stream_id = self.ychat.add_message(NewMessage(body="", sender=BOT["username"]))
 
         self._set_user()
         self.ychat.update_message(

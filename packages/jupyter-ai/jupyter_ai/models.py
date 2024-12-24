@@ -3,6 +3,9 @@ from typing import Any, Dict, List, Optional
 from jupyter_ai_magics.providers import AuthStrategy, Field
 from langchain.pydantic_v1 import BaseModel, validator
 
+# unused import: exports Persona from this module
+from jupyter_ai_magics.models.persona import Persona
+
 DEFAULT_CHUNK_SIZE = 2000
 DEFAULT_CHUNK_OVERLAP = 100
 

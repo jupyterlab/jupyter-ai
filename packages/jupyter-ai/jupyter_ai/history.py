@@ -5,6 +5,7 @@ from langchain_core.messages import AIMessage, BaseMessage, HumanMessage
 
 from jupyter_ai.constants import BOT
 from jupyterlab_chat.ychat import YChat
+from jupyterlab_chat.models import Message as JChatMessage
 
 
 class YChatHistory(BaseChatMessageHistory):
@@ -17,7 +18,7 @@ class YChatHistory(BaseChatMessageHistory):
     TODO: Consider just defining `k` as the number of messages and default to 4.
     """
 
-    def __init__(self, ychat: YChat, k: Optional[int]):
+    def __init__(self, ychat: YChat, k: int = 2):
         self.ychat = ychat
         self.k = k
 
@@ -34,14 +35,23 @@ class YChatHistory(BaseChatMessageHistory):
         # gather last k * 2 messages and return
         # we exclude the last message since that is the human message just
         # submitted by a user.
-        messages: List[BaseMessage] = []
         start_idx = 0 if self.k is None else -2 * self.k - 1
-        for message in all_messages[start_idx:-1]:
-            if message.sender == BOT["username"]:
-                messages.append(AIMessage(content=message.body))
-            else:
-                messages.append(HumanMessage(content=message.body))
+        recent_messages: List[JChatMessage] = all_messages[start_idx:-1]
 
+        return self._convert_to_langchain_messages(recent_messages)
+
+    def _convert_to_langchain_messages(self, jchat_messages: List[JChatMessage]):
+        """
+        Accepts a list of Jupyter Chat messages, and returns them as a list of
+        LangChain messages.
+        """
+        messages: List[BaseMessage] = []
+        for jchat_message in jchat_messages:
+            if jchat_message.sender == BOT["username"]:
+                messages.append(AIMessage(content=jchat_message.body))
+            else:
+                messages.append(HumanMessage(content=jchat_message.body))
+        
         return messages
 
     def add_message(self, message: BaseMessage) -> None:
