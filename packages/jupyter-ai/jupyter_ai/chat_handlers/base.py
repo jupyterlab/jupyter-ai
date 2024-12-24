@@ -2,42 +2,27 @@ import argparse
 import asyncio
 import contextlib
 import os
-import time
 import traceback
 from typing import (
     TYPE_CHECKING,
-    Any,
     Awaitable,
     ClassVar,
     Dict,
-    List,
     Literal,
     Optional,
     Type,
     Union,
     cast,
 )
-from typing import get_args as get_type_args
-from uuid import uuid4
 
 from dask.distributed import Client as DaskClient
 from jupyter_ai.callback_handlers import MetadataCallbackHandler
 from jupyter_ai.config_manager import ConfigManager, Logger
 from jupyter_ai.constants import BOT
-from jupyter_ai.history import WrappedBoundedChatHistory
 from jupyter_ai.models import (
-    AgentChatMessage,
-    AgentStreamChunkMessage,
-    AgentStreamMessage,
-    ChatMessage,
-    ClosePendingMessage,
     HumanChatMessage,
-    Message,
-    PendingMessage,
 )
-from jupyter_ai_magics import Persona
 from jupyter_ai_magics.providers import BaseProvider
-from jupyterlab_chat.models import Message as YMessage
 from jupyterlab_chat.models import NewMessage, User
 from jupyterlab_chat.ychat import YChat
 from langchain.pydantic_v1 import BaseModel
@@ -47,10 +32,11 @@ from langchain_core.runnables.config import RunnableConfig
 from langchain_core.runnables.config import merge_configs as merge_runnable_configs
 from langchain_core.runnables.utils import Input
 
+from .utils.streaming import ReplyStream
+
 if TYPE_CHECKING:
     from jupyter_ai.context_providers import BaseCommandContextProvider
     from jupyter_ai.handlers import RootChatHandler
-    from jupyter_ai.history import BoundedChatHistory
     from langchain_core.chat_history import BaseChatMessageHistory
 
 
@@ -151,8 +137,7 @@ class BaseChatHandler:
         config_manager: ConfigManager,
         root_chat_handlers: Dict[str, "RootChatHandler"],
         model_parameters: Dict[str, Dict],
-        chat_history: List[ChatMessage],
-        llm_chat_memory: "BoundedChatHistory",
+        llm_chat_memory: "BaseChatMessageHistory",
         root_dir: str,
         preferred_dir: Optional[str],
         dask_client_future: Awaitable[DaskClient],
@@ -160,13 +145,12 @@ class BaseChatHandler:
         chat_handlers: Dict[str, "BaseChatHandler"],
         context_providers: Dict[str, "BaseCommandContextProvider"],
         message_interrupted: Dict[str, asyncio.Event],
-        ychat: Optional[YChat],
+        ychat: YChat,
     ):
         self.log = log
         self.config_manager = config_manager
         self._root_chat_handlers = root_chat_handlers
         self.model_parameters = model_parameters
-        self._chat_history = chat_history
         self.llm_chat_memory = llm_chat_memory
         self.parser = argparse.ArgumentParser(
             add_help=False, description=self.help, formatter_class=MarkdownHelpFormatter
@@ -277,154 +261,23 @@ class BaseChatHandler:
         )
         self.reply(response, message)
 
-    def write_message(self, body: str, stream_id: Optional[str] = None) -> str:
+    def reply(self, body: str, human_message = None) -> str:
         """
-        [Jupyter Chat only] Adds a message to the YChat shared document that
-        this chat handler is assigned to. If `stream_id` is passed, then this
-        method appends to the message referenced by `stream_id`.
+        Adds a message to the YChat shared document that this chat handler is
+        assigned to. Returns the new message ID.
 
-        Returns the new message ID. This will be identical to the `stream_id`
-        argument if passed.
+        TODO: Make this take a single argument.
         """
-        # TODO: remove this once `ychat` becomes a required attribute.
-        if not self.ychat:
-            return ""
-
         bot = self.ychat.get_user(BOT["username"])
         if not bot:
             self.ychat.set_user(User(**BOT))
 
-        if stream_id:
-            self.ychat.update_message(
-                YMessage(
-                    body=body,
-                    id=stream_id,
-                    time=time.time(),
-                    sender=BOT["username"],
-                    raw_time=False,
-                ),
-                append=True,
-            )
-            id = stream_id
-        else:
-            id = self.ychat.add_message(NewMessage(body=body, sender=BOT["username"]))
-
+        id = self.ychat.add_message(NewMessage(body=body, sender=BOT["username"]))
         return id
-
-    def broadcast_message(self, message: Message):
-        """
-        Broadcasts a message to all WebSocket connections. If there are no
-        WebSocket connections and the message is a chat message, this method
-        directly appends to `self.chat_history`.
-
-        TODO: Remove this after Jupyter Chat migration is complete.
-        """
-        broadcast = False
-        for websocket in self._root_chat_handlers.values():
-            if not websocket:
-                continue
-
-            websocket.broadcast_message(message)
-            broadcast = True
-            break
-
-        if not broadcast:
-            if isinstance(message, get_type_args(ChatMessage)):
-                cast(ChatMessage, message)
-                self._chat_history.append(message)
-
-    def reply(
-        self,
-        response: str,
-        human_msg: Optional[HumanChatMessage] = None,
-    ):
-        """
-        Sends an agent message, usually in response to a received
-        `HumanChatMessage`.
-        """
-        if self.ychat is not None:
-            self.write_message(response, None)
-        else:
-            agent_msg = AgentChatMessage(
-                id=uuid4().hex,
-                time=time.time(),
-                body=response,
-                reply_to=human_msg.id if human_msg else "",
-                persona=self.persona,
-            )
-            self.broadcast_message(agent_msg)
-
+    
     @property
     def persona(self):
         return self.config_manager.persona
-
-    def start_pending(
-        self,
-        text: str,
-        human_msg: Optional[HumanChatMessage] = None,
-        *,
-        ellipsis: bool = True,
-    ) -> PendingMessage:
-        """
-        Sends a pending message to the client.
-
-        Returns the pending message ID.
-        """
-        persona = self.config_manager.persona
-
-        pending_msg = PendingMessage(
-            id=uuid4().hex,
-            time=time.time(),
-            body=text,
-            reply_to=human_msg.id if human_msg else "",
-            persona=Persona(name=persona.name, avatar_route=persona.avatar_route),
-            ellipsis=ellipsis,
-        )
-
-        if self.ychat is not None and self.ychat.awareness is not None:
-            self.ychat.awareness.set_local_state_field("isWriting", True)
-        else:
-            self.broadcast_message(pending_msg)
-        return pending_msg
-
-    def close_pending(self, pending_msg: PendingMessage):
-        """
-        Closes a pending message.
-        """
-        if pending_msg.closed:
-            return
-
-        close_pending_msg = ClosePendingMessage(
-            id=pending_msg.id,
-        )
-
-        if self.ychat is not None and self.ychat.awareness is not None:
-            self.ychat.awareness.set_local_state_field("isWriting", False)
-        else:
-            self.broadcast_message(close_pending_msg)
-        pending_msg.closed = True
-
-    @contextlib.contextmanager
-    def pending(
-        self,
-        text: str,
-        human_msg: Optional[HumanChatMessage] = None,
-        *,
-        ellipsis: bool = True,
-    ):
-        """
-        Context manager that sends a pending message to the client, and closes
-        it after the block is executed.
-
-        TODO: Simplify it by only modifying the awareness as soon as jupyterlab chat
-        is the only used chat.
-        """
-        pending_msg = self.start_pending(text, human_msg=human_msg, ellipsis=ellipsis)
-        try:
-            yield pending_msg
-        finally:
-            if not pending_msg.closed:
-                self.close_pending(pending_msg)
 
     def get_llm_chain(self):
         lm_provider = self.config_manager.lm_provider
@@ -477,18 +330,8 @@ class BaseChatHandler:
             return None
         return args
 
-    def get_llm_chat_memory(
-        self,
-        last_human_msg: HumanChatMessage,
-        **kwargs,
-    ) -> "BaseChatMessageHistory":
-        if self.ychat:
-            return self.llm_chat_memory
-
-        return WrappedBoundedChatHistory(
-            history=self.llm_chat_memory,
-            last_human_msg=last_human_msg,
-        )
+    def get_llm_chat_memory(self) -> "BaseChatMessageHistory":
+        return self.llm_chat_memory
 
     @property
     def output_dir(self) -> str:
@@ -531,65 +374,26 @@ class BaseChatHandler:
             context_commands_list=context_commands_list,
         )
 
-        if self.ychat is not None:
-            self.write_message(help_message_body, None)
-        else:
-            help_message = AgentChatMessage(
-                id=uuid4().hex,
-                time=time.time(),
-                body=help_message_body,
-                reply_to=human_msg.id if human_msg else "",
-                persona=self.persona,
-            )
-            self.broadcast_message(help_message)
+        self.reply(help_message_body, None)
 
-    def _start_stream(self, human_msg: HumanChatMessage) -> str:
+    @contextlib.contextmanager
+    def start_reply_stream(self):
         """
-        Sends an `agent-stream` message to indicate the start of a response
-        stream. Returns the ID of the message, denoted as the `stream_id`.
+        Context manager which initializes a `ReplyStream`, opens it, and then
+        yields the `ReplyStream`. Under this context, developers should call
+        `reply_stream.write()` on the yielded reply stream to send new string
+        chunks to the chat.
+
+        Once the context is closed, the `ReplyStream` is closed automatically.
         """
-        if self.ychat is not None:
-            stream_id = self.write_message("", None)
-        else:
-            stream_id = uuid4().hex
-            stream_msg = AgentStreamMessage(
-                id=stream_id,
-                time=time.time(),
-                body="",
-                reply_to=human_msg.id,
-                persona=self.persona,
-                complete=False,
-            )
+        # init, open, and yield `ReplyStream` object
+        reply_stream = ReplyStream(ychat=self.ychat)
+        reply_stream.open()
+        yield reply_stream
 
-            self.broadcast_message(stream_msg)
-
-        return stream_id
-
-    def _send_stream_chunk(
-        self,
-        stream_id: str,
-        content: str,
-        complete: bool = False,
-        metadata: Optional[Dict[str, Any]] = None,
-    ) -> None:
-        """
-        Sends an `agent-stream-chunk` message containing content that should be
-        appended to an existing `agent-stream` message with ID `stream_id`.
-        """
-        if self.ychat is not None:
-            self.write_message(content, stream_id)
-        else:
-            if not metadata:
-                metadata = {}
-
-            stream_chunk_msg = AgentStreamChunkMessage(
-                id=stream_id,
-                content=content,
-                stream_complete=complete,
-                metadata=metadata,
-            )
-            self.broadcast_message(stream_chunk_msg)
-
+        # close the `ReplyStream` on exit.
+        reply_stream.close()
+    
     async def stream_reply(
         self,
         input: Input,
@@ -614,7 +418,8 @@ class BaseChatHandler:
         additional configuration when streaming from the runnable.
 
          - `pending_msg` (optional): Changes the default pending message from
-        "Generating response".
+        "Generating response". Not supported at this time. TODO: Re-implement
+        this for v3.
         """
         assert self.llm_chain
         assert isinstance(self.llm_chain, Runnable)
@@ -628,18 +433,15 @@ class BaseChatHandler:
         merged_config: RunnableConfig = merge_runnable_configs(base_config, config)
 
         # start with a pending message
-        with self.pending(pending_msg, human_msg) as pending_message:
+        with self.start_reply_stream() as reply_stream:
             # stream response in chunks. this works even if a provider does not
             # implement streaming, as `astream()` defaults to yielding `_call()`
             # when `_stream()` is not implemented on the LLM class.
             chunk_generator = self.llm_chain.astream(input, config=merged_config)
+            stream_id = reply_stream.stream_id
             stream_interrupted = False
             async for chunk in chunk_generator:
                 if not received_first_chunk:
-                    # when receiving the first chunk, close the pending message and
-                    # start the stream.
-                    self.close_pending(pending_message)
-                    stream_id = self._start_stream(human_msg=human_msg)
                     received_first_chunk = True
                     self.message_interrupted[stream_id] = asyncio.Event()
 
@@ -662,23 +464,20 @@ class BaseChatHandler:
                     break
 
                 if isinstance(chunk, AIMessageChunk) and isinstance(chunk.content, str):
-                    self._send_stream_chunk(stream_id, chunk.content)
+                    reply_stream.write(chunk.content)
                 elif isinstance(chunk, str):
-                    self._send_stream_chunk(stream_id, chunk)
+                    reply_stream.write(chunk)
                 else:
                     self.log.error(f"Unrecognized type of chunk yielded: {type(chunk)}")
                     break
 
-            # complete stream after all chunks have been streamed
-            stream_tombstone = (
-                "\n\n(AI response stopped by user)" if stream_interrupted else ""
-            )
-            self._send_stream_chunk(
-                stream_id,
-                stream_tombstone,
-                complete=True,
-                metadata=metadata_handler.jai_metadata,
-            )
+            # if stream was interrupted, add a tombstone
+            if stream_interrupted:
+                stream_tombstone = (
+                    "\n\n(AI response stopped by user)"
+                )
+                reply_stream.write(stream_tombstone)
+            
             del self.message_interrupted[stream_id]
 
 

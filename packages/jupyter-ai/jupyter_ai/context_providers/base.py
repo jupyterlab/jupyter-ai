@@ -1,17 +1,13 @@
 import abc
 import os
 import re
-from typing import TYPE_CHECKING, Awaitable, ClassVar, Dict, List, Optional
+from typing import Awaitable, ClassVar, Dict, List, Optional
 
 from dask.distributed import Client as DaskClient
 from jupyter_ai.chat_handlers.base import get_preferred_dir
 from jupyter_ai.config_manager import ConfigManager, Logger
-from jupyter_ai.models import ChatMessage, HumanChatMessage, ListOptionsEntry
+from jupyter_ai.models import HumanChatMessage, ListOptionsEntry
 from langchain.pydantic_v1 import BaseModel
-
-if TYPE_CHECKING:
-    from jupyter_ai.chat_handlers import BaseChatHandler
-    from jupyter_ai.history import BoundedChatHistory
 
 
 class _BaseContextProvider(abc.ABC):
@@ -27,24 +23,18 @@ class _BaseContextProvider(abc.ABC):
         log: Logger,
         config_manager: ConfigManager,
         model_parameters: Dict[str, Dict],
-        chat_history: List[ChatMessage],
-        llm_chat_memory: "BoundedChatHistory",
         root_dir: str,
         preferred_dir: Optional[str],
         dask_client_future: Awaitable[DaskClient],
-        chat_handlers: Dict[str, "BaseChatHandler"],
         context_providers: Dict[str, "BaseCommandContextProvider"],
     ):
         preferred_dir = preferred_dir or ""
         self.log = log
         self.config_manager = config_manager
         self.model_parameters = model_parameters
-        self._chat_history = chat_history
-        self.llm_chat_memory = llm_chat_memory
         self.root_dir = os.path.abspath(os.path.expanduser(root_dir))
         self.preferred_dir = get_preferred_dir(self.root_dir, preferred_dir)
         self.dask_client_future = dask_client_future
-        self.chat_handlers = chat_handlers
         self.context_providers = context_providers
 
         self.llm = None

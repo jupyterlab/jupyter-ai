@@ -42,7 +42,7 @@ from .handlers import (
     RootChatHandler,
     SlashCommandsInfoHandler,
 )
-from .history import BoundedChatHistory, YChatHistory
+from .history import YChatHistory
 
 from jupyter_collaboration import (  # type:ignore[import-untyped]  # isort:skip
     __version__ as jupyter_collaboration_version,
@@ -279,17 +279,11 @@ class AiExtension(ExtensionApp):
         callback = partial(self.on_change, room_id)
         ychat.ymessages.observe(callback)
 
-    async def get_chat(self, room_id: str) -> Optional[YChat]:
+    async def get_chat(self, room_id: str) -> YChat:
         """
         Retrieves the YChat instance associated with a room ID. This method
         is cached, i.e. successive calls with the same room ID quickly return a
         cached value.
-
-        TODO: Determine if get_chat() should ever fail under normal usage
-        scenarios. If not, we should just raise an exception if chat is `None`,
-        and indicate the return type as just `YChat` instead of
-        `Optional[YChat]`. This will simplify the code by removing redundant
-        null checks.
         """
         if room_id in self.ychats_by_room:
             return self.ychats_by_room[room_id]
@@ -305,6 +299,7 @@ class AiExtension(ExtensionApp):
             room = await server.get_room(room_id)
             document = room._document
 
+        assert document
         self.ychats_by_room[room_id] = document
         return document
 
@@ -415,23 +410,6 @@ class AiExtension(ExtensionApp):
         self.settings["chat_clients"] = {}
         self.settings["jai_root_chat_handlers"] = {}
 
-        # list of chat messages to broadcast to new clients
-        # this is only used to render the UI, and is not the conversational
-        # memory object used by the LM chain.
-        #
-        # TODO: remove this in v3. this list is only used by the REST API to get
-        # history in v2 chat.
-        self.settings["chat_history"] = []
-
-        # TODO: remove this in v3. this is the history implementation that
-        # provides memory to the chat model in v2.
-        self.settings["llm_chat_memory"] = BoundedChatHistory(
-            k=self.default_max_chat_history
-        )
-
-        # list of pending messages
-        self.settings["pending_messages"] = []
-
         # get reference to event loop
         # `asyncio.get_event_loop()` is deprecated in Python 3.11+, in favor of
         # the more readable `asyncio.get_event_loop_policy().get_event_loop()`.
@@ -453,30 +431,11 @@ class AiExtension(ExtensionApp):
         # message generation/streaming got interrupted.
         self.settings["jai_message_interrupted"] = {}
 
-        # initialize chat handlers
-        self.settings["jai_chat_handlers"] = self._init_chat_handlers()
-
         # initialize context providers
-        self._init_context_provders()
-
-        # show help message at server start
-        self._show_help_message()
+        self._init_context_providers()
 
         latency_ms = round((time.time() - start) * 1000)
         self.log.info(f"Initialized Jupyter AI server extension in {latency_ms} ms.")
-
-    def _show_help_message(self):
-        """
-        Method that ensures a dynamically-generated help message is included in
-        the chat history shown to users.
-        """
-        # call `send_help_message()` on any instance of `BaseChatHandler`. The
-        # `default` chat handler should always exist, so we reference that
-        # object when calling `send_help_message()`.
-        default_chat_handler: DefaultChatHandler = self.settings["jai_chat_handlers"][
-            "default"
-        ]
-        default_chat_handler.send_help_message(None)
 
     async def _get_dask_client(self):
         return DaskClient(processes=False, asynchronous=True)
@@ -506,7 +465,7 @@ class AiExtension(ExtensionApp):
             self.log.debug("Closed Dask client.")
 
     def _init_chat_handlers(
-        self, ychat: Optional[YChat] = None
+        self, ychat: YChat
     ) -> Dict[str, BaseChatHandler]:
         """
         Initializes a set of chat handlers. May accept a YChat instance for
@@ -519,18 +478,13 @@ class AiExtension(ExtensionApp):
         eps = entry_points()
         chat_handler_eps = eps.select(group="jupyter_ai.chat_handlers")
         chat_handlers: Dict[str, BaseChatHandler] = {}
-
-        if ychat:
-            llm_chat_memory = YChatHistory(ychat, k=self.default_max_chat_history)
-        else:
-            llm_chat_memory = self.settings["llm_chat_memory"]
+        llm_chat_memory = YChatHistory(ychat, k=self.default_max_chat_history)
 
         chat_handler_kwargs = {
             "log": self.log,
             "config_manager": self.settings["jai_config_manager"],
             "model_parameters": self.settings["model_parameters"],
             "root_chat_handlers": self.settings["jai_root_chat_handlers"],
-            "chat_history": self.settings["chat_history"],
             "llm_chat_memory": llm_chat_memory,
             "root_dir": self.serverapp.root_dir,
             "dask_client_future": self.settings["dask_client_future"],
@@ -606,7 +560,7 @@ class AiExtension(ExtensionApp):
 
         return chat_handlers
 
-    def _init_context_provders(self):
+    def _init_context_providers(self):
         eps = entry_points()
         context_providers_eps = eps.select(group="jupyter_ai.context_providers")
         context_providers = self.settings["jai_context_providers"]
@@ -614,12 +568,9 @@ class AiExtension(ExtensionApp):
             "log": self.log,
             "config_manager": self.settings["jai_config_manager"],
             "model_parameters": self.settings["model_parameters"],
-            "chat_history": self.settings["chat_history"],
-            "llm_chat_memory": self.settings["llm_chat_memory"],
             "root_dir": self.serverapp.root_dir,
             "dask_client_future": self.settings["dask_client_future"],
             "preferred_dir": self.serverapp.contents_manager.preferred_dir,
-            "chat_handlers": self.settings["jai_chat_handlers"],
             "context_providers": self.settings["jai_context_providers"],
         }
         context_providers_clses = [
