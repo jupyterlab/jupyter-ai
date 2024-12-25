@@ -8,8 +8,8 @@ from typing import Dict, List, Optional, Type
 
 import nbformat
 from jupyter_ai.chat_handlers import BaseChatHandler, SlashCommandRoutingType
-from jupyter_ai.models import HumanChatMessage
 from jupyter_ai_magics.providers import BaseProvider
+from jupyterlab_chat.models import Message
 from langchain.chains import LLMChain
 from langchain.llms import BaseLLM
 from langchain.output_parsers import PydanticOutputParser
@@ -292,7 +292,7 @@ class GenerateChatHandler(BaseChatHandler):
         nbformat.write(notebook, final_path)
         return final_path
 
-    async def process_message(self, message: HumanChatMessage):
+    async def process_message(self, message: Message):
         self.get_llm_chain()
 
         # first send a verification message to user
@@ -303,7 +303,7 @@ class GenerateChatHandler(BaseChatHandler):
         response = f"""🎉 I have created your notebook and saved it to the location {final_path}. I am still learning how to create notebooks, so please review all code before running it."""
         self.reply(response, message)
 
-    async def handle_exc(self, e: Exception, message: HumanChatMessage):
+    async def handle_exc(self, e: Exception, message: Message):
         timestamp = time.strftime("%Y-%m-%d-%H.%M.%S")
         default_log_dir = Path(self.output_dir) / "jupyter-ai-logs"
         log_dir = self.log_dir or default_log_dir

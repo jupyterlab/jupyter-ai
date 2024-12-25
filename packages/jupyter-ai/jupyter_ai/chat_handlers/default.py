@@ -1,9 +1,8 @@
 import asyncio
 from typing import Dict, Type
 
-from jupyter_ai.models import HumanChatMessage
 from jupyter_ai_magics.providers import BaseProvider
-from langchain_core.runnables import ConfigurableFieldSpec
+from jupyterlab_chat.models import Message
 from langchain_core.runnables.history import RunnableWithMessageHistory
 
 from ..context_providers import ContextProviderException, find_commands
@@ -44,16 +43,10 @@ class DefaultChatHandler(BaseChatHandler):
                 get_session_history=self.get_llm_chat_memory,
                 input_messages_key="input",
                 history_messages_key="history",
-                history_factory_config=[
-                    ConfigurableFieldSpec(
-                        id="last_human_msg",
-                        annotation=HumanChatMessage,
-                    ),
-                ],
             )
         self.llm_chain = runnable
 
-    async def process_message(self, message: HumanChatMessage):
+    async def process_message(self, message: Message):
         self.get_llm_chain()
         assert self.llm_chain
 
@@ -70,13 +63,13 @@ class DefaultChatHandler(BaseChatHandler):
 
         await self.stream_reply(inputs, message)
 
-    async def make_context_prompt(self, human_msg: HumanChatMessage) -> str:
+    async def make_context_prompt(self, human_msg: Message) -> str:
         return "\n\n".join(
             await asyncio.gather(
                 *[
                     provider.make_context_prompt(human_msg)
                     for provider in self.context_providers.values()
-                    if find_commands(provider, human_msg.prompt)
+                    if find_commands(provider, human_msg.body)
                 ]
             )
         )

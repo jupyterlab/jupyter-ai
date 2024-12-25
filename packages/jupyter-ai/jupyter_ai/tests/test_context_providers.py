@@ -4,15 +4,12 @@ from unittest import mock
 import pytest
 from jupyter_ai.config_manager import ConfigManager
 from jupyter_ai.context_providers import FileContextProvider, find_commands
-from jupyter_ai.history import BoundedChatHistory
-from jupyter_ai.models import ChatClient, HumanChatMessage, Persona
+from jupyter_ai.models import Persona
+from jupyterlab_chat.models import Message
 
 
 @pytest.fixture
-def human_chat_message() -> HumanChatMessage:
-    chat_client = ChatClient(
-        id=0, username="test", initials="test", name="test", display_name="test"
-    )
+def human_message() -> Message:
     prompt = (
         "@file:test1.py @file @file:dir/test2.md test test\n"
         "@file:/dir/test3.png\n"
@@ -22,13 +19,7 @@ def human_chat_message() -> HumanChatMessage:
         "@file:'test7.py test\"\n"  # do not allow for mixed quotes
         "```\n@file:fail2.py\n```\n"  # do not look within backticks
     )
-    return HumanChatMessage(
-        id="test",
-        time=0,
-        body=prompt,
-        prompt=prompt,
-        client=chat_client,
-    )
+    return Message(id="fake-message-uuid", time=0, body=prompt, sender="fake-user-uuid")
 
 
 @pytest.fixture
@@ -39,17 +30,14 @@ def file_context_provider() -> FileContextProvider:
         log=logging.getLogger(__name__),
         config_manager=config_manager,
         model_parameters={},
-        chat_history=[],
-        llm_chat_memory=BoundedChatHistory(k=2),
         root_dir="",
         preferred_dir="",
         dask_client_future=None,
-        chat_handlers={},
         context_providers={},
     )
 
 
-def test_find_instances(file_context_provider, human_chat_message):
+def test_find_instances(file_context_provider, human_message):
     expected = [
         "@file:test1.py",
         "@file:dir/test2.md",
@@ -60,13 +48,12 @@ def test_find_instances(file_context_provider, human_chat_message):
         "@file:'test7.py",
     ]
     commands = [
-        cmd.cmd
-        for cmd in find_commands(file_context_provider, human_chat_message.prompt)
+        cmd.cmd for cmd in find_commands(file_context_provider, human_message.body)
     ]
     assert commands == expected
 
 
-def test_replace_prompt(file_context_provider, human_chat_message):
+def test_replace_prompt(file_context_provider, human_message):
     expected = (
         "'test1.py' @file 'dir/test2.md' test test\n"
         "'/dir/test3.png'\n"
@@ -76,5 +63,5 @@ def test_replace_prompt(file_context_provider, human_chat_message):
         "'test7.py' test\"\n"
         "```\n@file:fail2.py\n```\n"  # do not look within backticks
     )
-    prompt = file_context_provider.replace_prompt(human_chat_message.prompt)
+    prompt = file_context_provider.replace_prompt(human_message.body)
     assert prompt == expected
