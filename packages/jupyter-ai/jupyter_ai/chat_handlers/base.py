@@ -317,7 +317,7 @@ class BaseChatHandler:
     def parse_args(self, message: Message, silent=False):
         args = message.body.split(" ")[1:]
         try:
-            arg_namespace = self.parser.parse_args(args[1:])
+            arg_namespace = self.parser.parse_args(args)
         except (argparse.ArgumentError, SystemExit) as e:
             if not silent:
                 response = f"{self.parser.format_usage()}"
