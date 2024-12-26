@@ -1,27 +1,20 @@
 import logging
 import os
 import stat
-from typing import Optional
+from typing import List, Optional
 from unittest import mock
 
-import pytest
 from jupyter_ai.chat_handlers import DefaultChatHandler, learn
 from jupyter_ai.config_manager import ConfigManager
 from jupyter_ai.extension import DEFAULT_HELP_MESSAGE_TEMPLATE
-from jupyter_ai.handlers import RootChatHandler
-from jupyter_ai.history import BoundedChatHistory
-from jupyter_ai.models import (
-    ChatClient,
-    ClosePendingMessage,
-    HumanChatMessage,
-    Message,
-    PendingMessage,
-    Persona,
-)
+from jupyter_ai.history import YChatHistory
+from jupyter_ai.models import Persona
 from jupyter_ai_magics import BaseProvider
+from jupyterlab_chat.models import NewMessage
+from jupyterlab_chat.ychat import YChat
 from langchain_community.llms import FakeListLLM
-from tornado.httputil import HTTPServerRequest
-from tornado.web import Application
+from langchain_core.messages import AIMessage, BaseMessage, HumanMessage
+from pycrdt import Awareness, Doc
 
 
 class MockLearnHandler(learn.LearnChatHandler):
@@ -49,28 +42,22 @@ class MockProvider(BaseProvider, FakeListLLM):
 
 class TestDefaultChatHandler(DefaultChatHandler):
     def __init__(self, lm_provider=None, lm_provider_params=None):
-        self.request = HTTPServerRequest()
-        self.application = Application()
-        self.messages = []
-        self.tasks = []
+        # initialize dummy YDoc, YAwareness, YChat, and YChatHistory objects
+        ydoc = Doc()
+        awareness = Awareness(ydoc=ydoc)
+        self.ychat = YChat(ydoc=ydoc, awareness=awareness)
+        self.ychat_history = YChatHistory(ychat=self.ychat)
+
+        # initialize & configure mock ConfigManager
         config_manager = mock.create_autospec(ConfigManager)
         config_manager.lm_provider = lm_provider or MockProvider
         config_manager.lm_provider_params = lm_provider_params or {"model_id": "model"}
         config_manager.persona = Persona(name="test", avatar_route="test")
 
-        def broadcast_message(message: Message) -> None:
-            self.messages.append(message)
-
-        root_handler = mock.create_autospec(RootChatHandler)
-        root_handler.broadcast_message = broadcast_message
-
         super().__init__(
             log=logging.getLogger(__name__),
             config_manager=config_manager,
-            root_chat_handlers={"root": root_handler},
             model_parameters={},
-            chat_history=[],
-            llm_chat_memory=BoundedChatHistory(k=2),
             root_dir="",
             preferred_dir="",
             dask_client_future=None,
@@ -78,29 +65,45 @@ class TestDefaultChatHandler(DefaultChatHandler):
             chat_handlers={},
             context_providers={},
             message_interrupted={},
+            llm_chat_memory=self.ychat_history,
+            ychat=self.ychat,
         )
+
+    @property
+    def messages(self) -> List[BaseMessage]:
+        """
+        Test helper method for getting the complete message history, including
+        the last message.
+        """
+
+        return self.ychat_history._convert_to_langchain_messages(
+            self.ychat.get_messages()
+        )
+
+    async def send_human_message(self, body: str = "Hello!"):
+        """
+        Test helper method that sends a human message to this chat handler.
+
+        Without the event subscription performed by `AiExtension`, the chat
+        handler is not called automatically, hence we trigger it manually by
+        invoking `on_message()`.
+        """
+
+        id = self.ychat.add_message(NewMessage(body=body, sender="fake-user-uuid"))
+        message = self.ychat.get_message(id)
+        return await self.on_message(message)
+
+    @property
+    def is_writing(self) -> bool:
+        """
+        Returns whether Jupyternaut is indicating that it is still writing in
+        the chat, based on its Yjs awareness.
+        """
+        return self.ychat.awareness.get_local_state()["isWriting"]
 
 
 class TestException(Exception):
     pass
-
-
-@pytest.fixture
-def chat_client():
-    return ChatClient(
-        id=0, username="test", initials="test", name="test", display_name="test"
-    )
-
-
-@pytest.fixture
-def human_chat_message(chat_client):
-    return HumanChatMessage(
-        id="test",
-        time=0,
-        body="test message",
-        prompt="test message",
-        client=chat_client,
-    )
 
 
 def test_learn_index_permissions(tmp_path):
@@ -112,7 +115,7 @@ def test_learn_index_permissions(tmp_path):
         assert stat.filemode(mode) == "drwx------"
 
 
-async def test_default_closes_pending_on_success(human_chat_message):
+async def test_default_stops_writing_on_success():
     handler = TestDefaultChatHandler(
         lm_provider=MockProvider,
         lm_provider_params={
@@ -120,15 +123,14 @@ async def test_default_closes_pending_on_success(human_chat_message):
             "should_raise": False,
         },
     )
-    await handler.process_message(human_chat_message)
+    await handler.send_human_message()
+    assert len(handler.messages) == 2
+    assert isinstance(handler.messages[0], HumanMessage)
+    assert isinstance(handler.messages[1], AIMessage)
+    assert not handler.is_writing
 
-    # >=2 because there are additional stream messages that follow
-    assert len(handler.messages) >= 2
-    assert isinstance(handler.messages[0], PendingMessage)
-    assert isinstance(handler.messages[1], ClosePendingMessage)
 
-
-async def test_default_closes_pending_on_error(human_chat_message):
+async def test_default_stops_writing_on_error():
     handler = TestDefaultChatHandler(
         lm_provider=MockProvider,
         lm_provider_params={
@@ -136,49 +138,9 @@ async def test_default_closes_pending_on_error(human_chat_message):
             "should_raise": True,
         },
     )
-    with pytest.raises(TestException):
-        await handler.process_message(human_chat_message)
-
+    await handler.send_human_message()
+    print(handler.messages)
     assert len(handler.messages) == 2
-    assert isinstance(handler.messages[0], PendingMessage)
-    assert isinstance(handler.messages[1], ClosePendingMessage)
-
-
-async def test_sends_closing_message_at_most_once(human_chat_message):
-    handler = TestDefaultChatHandler(
-        lm_provider=MockProvider,
-        lm_provider_params={
-            "model_id": "model",
-            "should_raise": False,
-        },
-    )
-    message = handler.start_pending("Flushing Pipe Network")
-    assert len(handler.messages) == 1
-    assert isinstance(handler.messages[0], PendingMessage)
-    assert not message.closed
-
-    handler.close_pending(message)
-    assert len(handler.messages) == 2
-    assert isinstance(handler.messages[1], ClosePendingMessage)
-    assert message.closed
-
-    # closing an already closed message does not lead to another broadcast
-    handler.close_pending(message)
-    assert len(handler.messages) == 2
-    assert message.closed
-
-
-# TODO
-# import json
-
-
-# async def test_get_example(jp_fetch):
-#     # When
-#     response = await jp_fetch("jupyter-ai", "get_example")
-
-#     # Then
-#     assert response.code == 200
-#     payload = json.loads(response.body)
-#     assert payload == {
-#         "data": "This is /jupyter-ai/get_example endpoint!"
-#     }
+    assert isinstance(handler.messages[0], HumanMessage)
+    assert isinstance(handler.messages[1], AIMessage)
+    assert not handler.is_writing

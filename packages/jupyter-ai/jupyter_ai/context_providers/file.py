@@ -4,7 +4,8 @@ from typing import List
 
 import nbformat
 from jupyter_ai.document_loaders.directory import SUPPORTED_EXTS
-from jupyter_ai.models import HumanChatMessage, ListOptionsEntry
+from jupyter_ai.models import ListOptionsEntry
+from jupyterlab_chat.models import Message
 
 from .base import (
     BaseCommandContextProvider,
@@ -90,7 +91,7 @@ class FileContextProvider(BaseCommandContextProvider):
             return file_extension
 
     async def _make_context_prompt(
-        self, message: HumanChatMessage, commands: List[ContextCommand]
+        self, message: Message, commands: List[ContextCommand]
     ) -> str:
         context = "\n\n".join(
             [
@@ -159,9 +160,9 @@ class FileContextProvider(BaseCommandContextProvider):
         filepath = command.arg or ""
         return f"'{filepath}'"
 
-    def get_filepaths(self, message: HumanChatMessage) -> List[str]:
+    def get_filepaths(self, message: Message) -> List[str]:
         filepaths = []
-        for command in find_commands(self, message.prompt):
+        for command in find_commands(self, message.body):
             filepath = command.arg or ""
             if not os.path.isabs(filepath):
                 filepath = os.path.join(self.base_dir, filepath)

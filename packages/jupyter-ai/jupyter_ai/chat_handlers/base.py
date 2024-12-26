@@ -2,40 +2,26 @@ import argparse
 import asyncio
 import contextlib
 import os
-import time
 import traceback
 from typing import (
     TYPE_CHECKING,
-    Any,
     Awaitable,
     ClassVar,
     Dict,
-    List,
     Literal,
     Optional,
     Type,
     Union,
     cast,
 )
-from typing import get_args as get_type_args
-from uuid import uuid4
 
 from dask.distributed import Client as DaskClient
 from jupyter_ai.callback_handlers import MetadataCallbackHandler
 from jupyter_ai.config_manager import ConfigManager, Logger
-from jupyter_ai.history import WrappedBoundedChatHistory
-from jupyter_ai.models import (
-    AgentChatMessage,
-    AgentStreamChunkMessage,
-    AgentStreamMessage,
-    ChatMessage,
-    ClosePendingMessage,
-    HumanChatMessage,
-    Message,
-    PendingMessage,
-)
-from jupyter_ai_magics import Persona
+from jupyter_ai.constants import BOT
 from jupyter_ai_magics.providers import BaseProvider
+from jupyterlab_chat.models import Message, NewMessage, User
+from jupyterlab_chat.ychat import YChat
 from langchain.pydantic_v1 import BaseModel
 from langchain_core.messages import AIMessageChunk
 from langchain_core.runnables import Runnable
@@ -43,10 +29,10 @@ from langchain_core.runnables.config import RunnableConfig
 from langchain_core.runnables.config import merge_configs as merge_runnable_configs
 from langchain_core.runnables.utils import Input
 
+from .utils.streaming import ReplyStream
+
 if TYPE_CHECKING:
     from jupyter_ai.context_providers import BaseCommandContextProvider
-    from jupyter_ai.handlers import RootChatHandler
-    from jupyter_ai.history import BoundedChatHistory
     from langchain_core.chat_history import BaseChatMessageHistory
 
 
@@ -145,10 +131,8 @@ class BaseChatHandler:
         self,
         log: Logger,
         config_manager: ConfigManager,
-        root_chat_handlers: Dict[str, "RootChatHandler"],
         model_parameters: Dict[str, Dict],
-        chat_history: List[ChatMessage],
-        llm_chat_memory: "BoundedChatHistory",
+        llm_chat_memory: "BaseChatMessageHistory",
         root_dir: str,
         preferred_dir: Optional[str],
         dask_client_future: Awaitable[DaskClient],
@@ -156,12 +140,11 @@ class BaseChatHandler:
         chat_handlers: Dict[str, "BaseChatHandler"],
         context_providers: Dict[str, "BaseCommandContextProvider"],
         message_interrupted: Dict[str, asyncio.Event],
+        ychat: YChat,
     ):
         self.log = log
         self.config_manager = config_manager
-        self._root_chat_handlers = root_chat_handlers
         self.model_parameters = model_parameters
-        self._chat_history = chat_history
         self.llm_chat_memory = llm_chat_memory
         self.parser = argparse.ArgumentParser(
             add_help=False, description=self.help, formatter_class=MarkdownHelpFormatter
@@ -178,12 +161,13 @@ class BaseChatHandler:
         self.chat_handlers = chat_handlers
         self.context_providers = context_providers
         self.message_interrupted = message_interrupted
+        self.ychat = ychat
 
         self.llm: Optional[BaseProvider] = None
         self.llm_params: Optional[dict] = None
         self.llm_chain: Optional[Runnable] = None
 
-    async def on_message(self, message: HumanChatMessage):
+    async def on_message(self, message: Message):
         """
         Method which receives a human message, calls `self.get_llm_chain()`, and
         processes the message via `self.process_message()`, calling
@@ -198,7 +182,7 @@ class BaseChatHandler:
             slash_command = "/" + routing_type.slash_id if routing_type.slash_id else ""
             if slash_command in lm_provider_klass.unsupported_slash_commands:
                 self.reply(
-                    "Sorry, the selected language model does not support this slash command."
+                    "Sorry, the selected language model does not support this slash command.",
                 )
                 return
 
@@ -234,26 +218,26 @@ class BaseChatHandler:
         finally:
             BaseChatHandler._requests_count -= 1
 
-    async def process_message(self, message: HumanChatMessage):
+    async def process_message(self, _human_message: Message):
         """
         Processes a human message routed to this chat handler. Chat handlers
         (subclasses) must implement this method. Don't forget to call
-        `self.reply(<response>, message)` at the end!
+        `self.reply(<response>, chat, message)` at the end!
 
         The method definition does not need to be wrapped in a try/except block;
         any exceptions raised here are caught by `self.handle_exc()`.
         """
         raise NotImplementedError("Should be implemented by subclasses.")
 
-    async def handle_exc(self, e: Exception, message: HumanChatMessage):
+    async def handle_exc(self, e: Exception, _human_message: Message):
         """
         Handles an exception raised by `self.process_message()`. A default
         implementation is provided, however chat handlers (subclasses) should
         implement this method to provide a more helpful error response.
         """
-        await self._default_handle_exc(e, message)
+        await self._default_handle_exc(e, _human_message)
 
-    async def _default_handle_exc(self, e: Exception, message: HumanChatMessage):
+    async def _default_handle_exc(self, e: Exception, _human_message: Message):
         """
         The default definition of `handle_exc()`. This is the default used when
         the `handle_exc()` excepts.
@@ -263,111 +247,32 @@ class BaseChatHandler:
         if lm_provider and lm_provider.is_api_key_exc(e):
             provider_name = getattr(self.config_manager.lm_provider, "name", "")
             response = f"Oops! There's a problem connecting to {provider_name}. Please update your {provider_name} API key in the chat settings."
-            self.reply(response, message)
+            self.reply(response, _human_message)
             return
         formatted_e = traceback.format_exc()
         response = (
             f"Sorry, an error occurred. Details below:\n\n```\n{formatted_e}\n```"
         )
-        self.reply(response, message)
+        self.reply(response, _human_message)
 
-    def broadcast_message(self, message: Message):
+    def reply(self, body: str, _human_message=None) -> str:
         """
-        Broadcasts a message to all WebSocket connections. If there are no
-        WebSocket connections and the message is a chat message, this method
-        directly appends to `self.chat_history`.
+        Adds a message to the YChat shared document that this chat handler is
+        assigned to. Returns the new message ID.
+
+        TODO: Either properly store & use reply state in YChat, or remove the
+        `human_message` argument here.
         """
-        broadcast = False
-        for websocket in self._root_chat_handlers.values():
-            if not websocket:
-                continue
+        bot = self.ychat.get_user(BOT["username"])
+        if not bot:
+            self.ychat.set_user(User(**BOT))
 
-            websocket.broadcast_message(message)
-            broadcast = True
-            break
-
-        if not broadcast:
-            if isinstance(message, get_type_args(ChatMessage)):
-                cast(ChatMessage, message)
-                self._chat_history.append(message)
-
-    def reply(self, response: str, human_msg: Optional[HumanChatMessage] = None):
-        """
-        Sends an agent message, usually in response to a received
-        `HumanChatMessage`.
-        """
-        agent_msg = AgentChatMessage(
-            id=uuid4().hex,
-            time=time.time(),
-            body=response,
-            reply_to=human_msg.id if human_msg else "",
-            persona=self.persona,
-        )
-
-        self.broadcast_message(agent_msg)
+        id = self.ychat.add_message(NewMessage(body=body, sender=BOT["username"]))
+        return id
 
     @property
     def persona(self):
         return self.config_manager.persona
-
-    def start_pending(
-        self,
-        text: str,
-        human_msg: Optional[HumanChatMessage] = None,
-        *,
-        ellipsis: bool = True,
-    ) -> PendingMessage:
-        """
-        Sends a pending message to the client.
-
-        Returns the pending message ID.
-        """
-        persona = self.config_manager.persona
-
-        pending_msg = PendingMessage(
-            id=uuid4().hex,
-            time=time.time(),
-            body=text,
-            reply_to=human_msg.id if human_msg else "",
-            persona=Persona(name=persona.name, avatar_route=persona.avatar_route),
-            ellipsis=ellipsis,
-        )
-
-        self.broadcast_message(pending_msg)
-        return pending_msg
-
-    def close_pending(self, pending_msg: PendingMessage):
-        """
-        Closes a pending message.
-        """
-        if pending_msg.closed:
-            return
-
-        close_pending_msg = ClosePendingMessage(
-            id=pending_msg.id,
-        )
-
-        self.broadcast_message(close_pending_msg)
-        pending_msg.closed = True
-
-    @contextlib.contextmanager
-    def pending(
-        self,
-        text: str,
-        human_msg: Optional[HumanChatMessage] = None,
-        *,
-        ellipsis: bool = True,
-    ):
-        """
-        Context manager that sends a pending message to the client, and closes
-        it after the block is executed.
-        """
-        pending_msg = self.start_pending(text, human_msg=human_msg, ellipsis=ellipsis)
-        try:
-            yield pending_msg
-        finally:
-            if not pending_msg.closed:
-                self.close_pending(pending_msg)
 
     def get_llm_chain(self):
         lm_provider = self.config_manager.lm_provider
@@ -409,26 +314,19 @@ class BaseChatHandler:
     ):
         raise NotImplementedError("Should be implemented by subclasses")
 
-    def parse_args(self, message, silent=False):
-        args = message.body.split(" ")
+    def parse_args(self, message: Message, silent=False):
+        args = message.body.split(" ")[1:]
         try:
-            args = self.parser.parse_args(args[1:])
+            arg_namespace = self.parser.parse_args(args)
         except (argparse.ArgumentError, SystemExit) as e:
             if not silent:
                 response = f"{self.parser.format_usage()}"
                 self.reply(response, message)
             return None
-        return args
+        return arg_namespace
 
-    def get_llm_chat_memory(
-        self,
-        last_human_msg: HumanChatMessage,
-        **kwargs,
-    ) -> "BaseChatMessageHistory":
-        return WrappedBoundedChatHistory(
-            history=self.llm_chat_memory,
-            last_human_msg=last_human_msg,
-        )
+    def get_llm_chat_memory(self) -> "BaseChatMessageHistory":
+        return self.llm_chat_memory
 
     @property
     def output_dir(self) -> str:
@@ -439,7 +337,7 @@ class BaseChatHandler:
         else:
             return self.root_dir
 
-    def send_help_message(self, human_msg: Optional[HumanChatMessage] = None) -> None:
+    def send_help_message(self, _human_message: Optional[Message] = None) -> None:
         """Sends a help message to all connected clients."""
         lm_provider = self.config_manager.lm_provider
         unsupported_slash_commands = (
@@ -470,57 +368,34 @@ class BaseChatHandler:
             slash_commands_list=slash_commands_list,
             context_commands_list=context_commands_list,
         )
-        help_message = AgentChatMessage(
-            id=uuid4().hex,
-            time=time.time(),
-            body=help_message_body,
-            reply_to=human_msg.id if human_msg else "",
-            persona=self.persona,
-        )
 
-        self.broadcast_message(help_message)
+        self.reply(help_message_body, None)
 
-    def _start_stream(self, human_msg: HumanChatMessage) -> str:
+    @contextlib.contextmanager
+    def start_reply_stream(self):
         """
-        Sends an `agent-stream` message to indicate the start of a response
-        stream. Returns the ID of the message, denoted as the `stream_id`.
-        """
-        stream_id = uuid4().hex
-        stream_msg = AgentStreamMessage(
-            id=stream_id,
-            time=time.time(),
-            body="",
-            reply_to=human_msg.id,
-            persona=self.persona,
-            complete=False,
-        )
+        Context manager which initializes a `ReplyStream`, opens it, and then
+        yields the `ReplyStream`. Under this context, developers should call
+        `reply_stream.write()` on the yielded reply stream to send new string
+        chunks to the chat.
 
-        self.broadcast_message(stream_msg)
-        return stream_id
-
-    def _send_stream_chunk(
-        self,
-        stream_id: str,
-        content: str,
-        complete: bool = False,
-        metadata: Optional[Dict[str, Any]] = None,
-    ) -> None:
+        Once the context is closed, the `ReplyStream` is closed automatically.
         """
-        Sends an `agent-stream-chunk` message containing content that should be
-        appended to an existing `agent-stream` message with ID `stream_id`.
-        """
-        if not metadata:
-            metadata = {}
-
-        stream_chunk_msg = AgentStreamChunkMessage(
-            id=stream_id, content=content, stream_complete=complete, metadata=metadata
-        )
-        self.broadcast_message(stream_chunk_msg)
+        # initialize and open reply stream
+        reply_stream = ReplyStream(ychat=self.ychat)
+        reply_stream.open()
+        # wrap the yield call in try/finally to ensure streams are closed on
+        # exceptions.
+        try:
+            yield reply_stream
+        finally:
+            # close the `ReplyStream` on exit.
+            reply_stream.close()
 
     async def stream_reply(
         self,
         input: Input,
-        human_msg: HumanChatMessage,
+        _human_message: Optional[Message] = None,
         pending_msg="Generating response",
         config: Optional[RunnableConfig] = None,
     ):
@@ -535,7 +410,12 @@ class BaseChatHandler:
         the runnable in `self.llm_chain`, but is usually a dictionary whose keys
         refer to input variables in your prompt template.
 
-        - `human_msg`: The `HumanChatMessage` being replied to.
+        - `_human_message`: The human message being replied to. Currently
+        unused. TODO: Either re-implement this for v3 or remove it.
+
+         - `_pending_msg` (optional): Changes the default pending message from
+        "Generating response". Not supported at this time. TODO: Re-implement
+        this for v3.
 
         - `config` (optional): A `RunnableConfig` object that specifies
         additional configuration when streaming from the runnable.
@@ -549,64 +429,31 @@ class BaseChatHandler:
         received_first_chunk = False
         metadata_handler = MetadataCallbackHandler()
         base_config: RunnableConfig = {
-            "configurable": {"last_human_msg": human_msg},
             "callbacks": [metadata_handler],
         }
         merged_config: RunnableConfig = merge_runnable_configs(base_config, config)
 
         # start with a pending message
-        with self.pending(pending_msg, human_msg) as pending_message:
+        with self.start_reply_stream() as reply_stream:
             # stream response in chunks. this works even if a provider does not
             # implement streaming, as `astream()` defaults to yielding `_call()`
             # when `_stream()` is not implemented on the LLM class.
             chunk_generator = self.llm_chain.astream(input, config=merged_config)
+            # TODO v3: re-implement stream interrupt
             stream_interrupted = False
             async for chunk in chunk_generator:
-                if not received_first_chunk:
-                    # when receiving the first chunk, close the pending message and
-                    # start the stream.
-                    self.close_pending(pending_message)
-                    stream_id = self._start_stream(human_msg=human_msg)
-                    received_first_chunk = True
-                    self.message_interrupted[stream_id] = asyncio.Event()
-
-                if self.message_interrupted[stream_id].is_set():
-                    try:
-                        # notify the model provider that streaming was interrupted
-                        # (this is essential to allow the model to stop generating)
-                        #
-                        # note: `mypy` flags this line, claiming that `athrow` is
-                        # not defined on `AsyncIterator`. This is why an ignore
-                        # comment is placed here.
-                        await chunk_generator.athrow(  # type:ignore[attr-defined]
-                            GenerationInterrupted()
-                        )
-                    except GenerationInterrupted:
-                        # do not let the exception bubble up in case if
-                        # the provider did not handle it
-                        pass
-                    stream_interrupted = True
-                    break
-
                 if isinstance(chunk, AIMessageChunk) and isinstance(chunk.content, str):
-                    self._send_stream_chunk(stream_id, chunk.content)
+                    reply_stream.write(chunk.content)
                 elif isinstance(chunk, str):
-                    self._send_stream_chunk(stream_id, chunk)
+                    reply_stream.write(chunk)
                 else:
                     self.log.error(f"Unrecognized type of chunk yielded: {type(chunk)}")
                     break
 
-            # complete stream after all chunks have been streamed
-            stream_tombstone = (
-                "\n\n(AI response stopped by user)" if stream_interrupted else ""
-            )
-            self._send_stream_chunk(
-                stream_id,
-                stream_tombstone,
-                complete=True,
-                metadata=metadata_handler.jai_metadata,
-            )
-            del self.message_interrupted[stream_id]
+            # if stream was interrupted, add a tombstone
+            if stream_interrupted:
+                stream_tombstone = "\n\n(AI response stopped by user)"
+                reply_stream.write(stream_tombstone)
 
 
 class GenerationInterrupted(asyncio.CancelledError):

@@ -26,7 +26,7 @@ import { ExistingApiKeys } from './settings/existing-api-keys';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { minifyUpdate } from './settings/minify';
 import { useStackingAlert } from './mui-extras/stacking-alert';
-import { RendermimeMarkdown } from './rendermime-markdown';
+import { RendermimeMarkdown } from './settings/rendermime-markdown';
 import { IJaiCompletionProvider } from '../tokens';
 import { getProviderId, getModelLocalId } from '../utils';
 
@@ -34,6 +34,9 @@ type ChatSettingsProps = {
   rmRegistry: IRenderMimeRegistry;
   completionProvider: IJaiCompletionProvider | null;
   openInlineCompleterSettings: () => void;
+  // The temporary input options,  should be removed when jupyterlab chat is
+  // the only chat.
+  inputOptions?: boolean;
 };
 
 /**
@@ -372,7 +375,6 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
             <RendermimeMarkdown
               rmRegistry={props.rmRegistry}
               markdownStr={chatHelpMarkdown}
-              complete
             />
           )}
           {lmGlobalId && (
@@ -488,7 +490,6 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
             <RendermimeMarkdown
               rmRegistry={props.rmRegistry}
               markdownStr={completionHelpMarkdown}
-              complete
             />
           )}
           {clmGlobalId && (
@@ -534,36 +535,42 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
         onSuccess={server.refetchApiKeys}
       />
 
-      {/* Input */}
-      <h2 className="jp-ai-ChatSettings-header">Input</h2>
-      <FormControl>
-        <FormLabel id="send-radio-buttons-group-label">
-          When writing a message, press <kbd>Enter</kbd> to:
-        </FormLabel>
-        <RadioGroup
-          aria-labelledby="send-radio-buttons-group-label"
-          value={sendWse ? 'newline' : 'send'}
-          name="send-radio-buttons-group"
-          onChange={e => {
-            setSendWse(e.target.value === 'newline');
-          }}
-        >
-          <FormControlLabel
-            value="send"
-            control={<Radio />}
-            label="Send the message"
-          />
-          <FormControlLabel
-            value="newline"
-            control={<Radio />}
-            label={
-              <>
-                Start a new line (use <kbd>Shift</kbd>+<kbd>Enter</kbd> to send)
-              </>
-            }
-          />
-        </RadioGroup>
-      </FormControl>
+      {/* Input - to remove when jupyterlab chat is the only chat */}
+      {(props.inputOptions ?? true) && (
+        <>
+          <h2 className="jp-ai-ChatSettings-header">Input</h2>
+          <FormControl>
+            <FormLabel id="send-radio-buttons-group-label">
+              When writing a message, press <kbd>Enter</kbd> to:
+            </FormLabel>
+            <RadioGroup
+              aria-labelledby="send-radio-buttons-group-label"
+              value={sendWse ? 'newline' : 'send'}
+              name="send-radio-buttons-group"
+              onChange={e => {
+                setSendWse(e.target.value === 'newline');
+              }}
+            >
+              <FormControlLabel
+                value="send"
+                control={<Radio />}
+                label="Send the message"
+              />
+              <FormControlLabel
+                value="newline"
+                control={<Radio />}
+                label={
+                  <>
+                    Start a new line (use <kbd>Shift</kbd>+<kbd>Enter</kbd> to
+                    send)
+                  </>
+                }
+              />
+            </RadioGroup>
+          </FormControl>
+        </>
+      )}
+
       <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
         <Button variant="contained" onClick={handleSave} disabled={saving}>
           {saving ? 'Saving...' : 'Save changes'}

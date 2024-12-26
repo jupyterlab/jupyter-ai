@@ -35,6 +35,7 @@ dependencies = [
     "typing_extensions>=4.5.0",
     "traitlets>=5.0",
     "deepmerge>=2.0,<3",
+    "jupyterlab-chat>=0.7.1,<1.0.0",
 ]
 
 dynamic = ["version", "description", "authors", "urls", "keywords"]

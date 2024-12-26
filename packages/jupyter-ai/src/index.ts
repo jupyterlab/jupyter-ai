@@ -1,141 +1,115 @@
+import { IAutocompletionRegistry } from '@jupyter/chat';
 import {
   JupyterFrontEnd,
-  JupyterFrontEndPlugin,
-  ILayoutRestorer
+  JupyterFrontEndPlugin
 } from '@jupyterlab/application';
-
 import {
   IWidgetTracker,
   ReactWidget,
-  IThemeManager
+  IThemeManager,
+  MainAreaWidget,
+  ICommandPalette
 } from '@jupyterlab/apputils';
 import { IDocumentWidget } from '@jupyterlab/docregistry';
-import { IGlobalAwareness } from '@jupyter/collaboration';
-import type { Awareness } from 'y-protocols/awareness';
-import { buildChatSidebar } from './widgets/chat-sidebar';
-import { SelectionWatcher } from './selection-watcher';
-import { ChatHandler } from './chat_handler';
-import { buildErrorWidget } from './widgets/chat-error';
-import { completionPlugin } from './completions';
-import { statusItemPlugin } from './status';
-import {
-  IJaiCompletionProvider,
-  IJaiCore,
-  IJaiMessageFooter,
-  IJaiTelemetryHandler
-} from './tokens';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
-import { ActiveCellManager } from './contexts/active-cell-context';
-import { Signal } from '@lumino/signaling';
-import { menuPlugin } from './plugins/menu-plugin';
+
+import { completionPlugin } from './completions';
+import { autocompletion } from './slash-autocompletion';
+import { statusItemPlugin } from './status';
+import { IJaiCompletionProvider } from './tokens';
+import { buildErrorWidget } from './widgets/chat-error';
+import { buildAiSettings } from './widgets/settings-widget';
 
 export type DocumentTracker = IWidgetTracker<IDocumentWidget>;
 
 export namespace CommandIDs {
   /**
-   * Command to focus the input.
+   * Command to open the AI settings.
    */
-  export const focusChatInput = 'jupyter-ai:focus-chat-input';
+  export const openAiSettings = 'jupyter-ai:open-settings';
 }
 
 /**
  * Initialization data for the jupyter_ai extension.
  */
-const plugin: JupyterFrontEndPlugin<IJaiCore> = {
+const plugin: JupyterFrontEndPlugin<void> = {
   id: '@jupyter-ai/core:plugin',
   autoStart: true,
   requires: [IRenderMimeRegistry],
-  optional: [
-    IGlobalAwareness,
-    ILayoutRestorer,
-    IThemeManager,
-    IJaiCompletionProvider,
-    IJaiMessageFooter,
-    IJaiTelemetryHandler
-  ],
-  provides: IJaiCore,
+  optional: [ICommandPalette, IThemeManager, IJaiCompletionProvider],
   activate: async (
     app: JupyterFrontEnd,
     rmRegistry: IRenderMimeRegistry,
-    globalAwareness: Awareness | null,
-    restorer: ILayoutRestorer | null,
+    palette: ICommandPalette | null,
     themeManager: IThemeManager | null,
-    completionProvider: IJaiCompletionProvider | null,
-    messageFooter: IJaiMessageFooter | null,
-    telemetryHandler: IJaiTelemetryHandler | null
+    completionProvider: IJaiCompletionProvider | null
   ) => {
-    /**
-     * Initialize selection watcher singleton
-     */
-    const selectionWatcher = new SelectionWatcher(app.shell);
-
-    /**
-     * Initialize active cell manager singleton
-     */
-    const activeCellManager = new ActiveCellManager(app.shell);
-
-    /**
-     * Initialize chat handler, open WS connection
-     */
-    const chatHandler = new ChatHandler();
-
     const openInlineCompleterSettings = () => {
       app.commands.execute('settingeditor:open', {
         query: 'Inline Completer'
       });
     };
 
-    const focusInputSignal = new Signal<unknown, void>({});
-
-    let chatWidget: ReactWidget;
+    // Create a AI settings widget.
+    let aiSettings: MainAreaWidget<ReactWidget>;
+    let settingsWidget: ReactWidget;
     try {
-      await chatHandler.initialize();
-      chatWidget = buildChatSidebar(
-        selectionWatcher,
-        chatHandler,
-        globalAwareness,
-        themeManager,
+      settingsWidget = buildAiSettings(
         rmRegistry,
         completionProvider,
-        openInlineCompleterSettings,
-        activeCellManager,
-        focusInputSignal,
-        messageFooter,
-        telemetryHandler,
-        app.serviceManager.user
+        openInlineCompleterSettings
       );
     } catch (e) {
-      chatWidget = buildErrorWidget(themeManager);
+      settingsWidget = buildErrorWidget(themeManager);
     }
 
-    /**
-     * Add Chat widget to right sidebar
-     */
-    app.shell.add(chatWidget, 'left', { rank: 2000 });
-
-    if (restorer) {
-      restorer.add(chatWidget, 'jupyter-ai-chat');
-    }
-
-    // Define jupyter-ai commands
-    app.commands.addCommand(CommandIDs.focusChatInput, {
+    // Add a command to open settings widget in main area.
+    app.commands.addCommand(CommandIDs.openAiSettings, {
       execute: () => {
-        app.shell.activateById(chatWidget.id);
-        focusInputSignal.emit();
+        if (!aiSettings || aiSettings.isDisposed) {
+          aiSettings = new MainAreaWidget({ content: settingsWidget });
+          aiSettings.id = 'jupyter-ai-settings';
+          aiSettings.title.label = 'AI settings';
+          aiSettings.title.closable = true;
+        }
+        if (!aiSettings.isAttached) {
+          app?.shell.add(aiSettings, 'main');
+        }
+        app.shell.activateById(aiSettings.id);
       },
-      label: 'Focus the jupyter-ai chat'
+      label: 'AI settings'
     });
 
-    return {
-      activeCellManager,
-      chatHandler,
-      chatWidget,
-      selectionWatcher
-    };
+    if (palette) {
+      palette.addItem({
+        category: 'jupyter-ai',
+        command: CommandIDs.openAiSettings
+      });
+    }
   }
 };
 
-export default [plugin, statusItemPlugin, completionPlugin, menuPlugin];
+/**
+ * Add slash commands to jupyterlab chat.
+ */
+const chat_autocompletion: JupyterFrontEndPlugin<void> = {
+  id: '@jupyter-ai/core:autocompletion',
+  autoStart: true,
+  requires: [IAutocompletionRegistry],
+  activate: async (
+    app: JupyterFrontEnd,
+    autocompletionRegistry: IAutocompletionRegistry
+  ) => {
+    autocompletionRegistry.add('ai', autocompletion);
+  }
+};
+
+export default [
+  plugin,
+  statusItemPlugin,
+  completionPlugin,
+  chat_autocompletion
+];
 
 export * from './contexts';
 export * from './tokens';

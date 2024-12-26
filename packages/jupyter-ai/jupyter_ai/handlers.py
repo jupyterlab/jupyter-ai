@@ -1,44 +1,27 @@
-import getpass
-import json
-import time
-import uuid
-from asyncio import AbstractEventLoop, Event
-from dataclasses import asdict
-from typing import TYPE_CHECKING, Dict, List, Optional, Set, cast
+from typing import TYPE_CHECKING, Dict, List, Optional, Type, cast
 
-import tornado
-from jupyter_ai.chat_handlers import BaseChatHandler, SlashCommandRoutingType
+from jupyter_ai.chat_handlers import (
+    AskChatHandler,
+    DefaultChatHandler,
+    GenerateChatHandler,
+    HelpChatHandler,
+    LearnChatHandler,
+    SlashCommandRoutingType,
+)
 from jupyter_ai.config_manager import ConfigManager, KeyEmptyError, WriteConflictError
 from jupyter_ai.context_providers import BaseCommandContextProvider, ContextCommand
 from jupyter_server.base.handlers import APIHandler as BaseAPIHandler
-from jupyter_server.base.handlers import JupyterHandler
 from langchain.pydantic_v1 import ValidationError
-from tornado import web, websocket
+from tornado import web
 from tornado.web import HTTPError
 
 from .models import (
-    AgentChatMessage,
-    AgentStreamChunkMessage,
-    AgentStreamMessage,
-    ChatClient,
-    ChatHistory,
-    ChatMessage,
-    ChatRequest,
-    ChatUser,
-    ClearMessage,
-    ClearRequest,
-    ClosePendingMessage,
-    ConnectionMessage,
-    HumanChatMessage,
     ListOptionsEntry,
     ListOptionsResponse,
     ListProvidersEntry,
     ListProvidersResponse,
     ListSlashCommandsEntry,
     ListSlashCommandsResponse,
-    Message,
-    PendingMessage,
-    StopRequest,
     UpdateConfigRequest,
 )
 
@@ -46,368 +29,18 @@ if TYPE_CHECKING:
     from jupyter_ai_magics.embedding_providers import BaseEmbeddingsProvider
     from jupyter_ai_magics.providers import BaseProvider
 
+    from .chat_handlers import BaseChatHandler
     from .context_providers import BaseCommandContextProvider
-    from .history import BoundedChatHistory
 
-
-class ChatHistoryHandler(BaseAPIHandler):
-    """Handler to return message history"""
-
-    @property
-    def chat_history(self) -> List[ChatMessage]:
-        return self.settings["chat_history"]
-
-    @property
-    def pending_messages(self) -> List[PendingMessage]:
-        return self.settings["pending_messages"]
-
-    @tornado.web.authenticated
-    async def get(self):
-        history = ChatHistory(
-            messages=self.chat_history, pending_messages=self.pending_messages
-        )
-        self.finish(history.json())
-
-
-class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
-    """
-    A websocket handler for chat.
-    """
-
-    @property
-    def root_chat_handlers(self) -> Dict[str, "RootChatHandler"]:
-        """Dictionary mapping client IDs to their corresponding RootChatHandler
-        instances."""
-        return self.settings["jai_root_chat_handlers"]
-
-    @property
-    def chat_handlers(self) -> Dict[str, "BaseChatHandler"]:
-        """Dictionary mapping chat commands to their corresponding
-        BaseChatHandler instances."""
-        return self.settings["jai_chat_handlers"]
-
-    @property
-    def chat_clients(self) -> Dict[str, ChatClient]:
-        """Dictionary mapping client IDs to their ChatClient objects that store
-        metadata."""
-        return self.settings["chat_clients"]
-
-    @property
-    def chat_client(self) -> ChatClient:
-        """Returns ChatClient object associated with the current connection."""
-        return self.chat_clients[self.client_id]
-
-    @property
-    def chat_history(self) -> List[ChatMessage]:
-        return self.settings["chat_history"]
-
-    @chat_history.setter
-    def chat_history(self, new_history):
-        self.settings["chat_history"] = new_history
-
-    @property
-    def message_interrupted(self) -> Dict[str, Event]:
-        return self.settings["jai_message_interrupted"]
-
-    @property
-    def llm_chat_memory(self) -> "BoundedChatHistory":
-        return self.settings["llm_chat_memory"]
-
-    @property
-    def loop(self) -> AbstractEventLoop:
-        return self.settings["jai_event_loop"]
-
-    @property
-    def pending_messages(self) -> List[PendingMessage]:
-        return self.settings["pending_messages"]
-
-    @pending_messages.setter
-    def pending_messages(self, new_pending_messages):
-        self.settings["pending_messages"] = new_pending_messages
-
-    def initialize(self):
-        self.log.debug("Initializing websocket connection %s", self.request.path)
-
-    def pre_get(self):
-        """Handles authentication/authorization."""
-        # authenticate the request before opening the websocket
-        user = self.current_user
-        if user is None:
-            self.log.warning("Couldn't authenticate WebSocket connection")
-            raise web.HTTPError(403)
-
-        # authorize the user.
-        if not self.authorizer.is_authorized(self, user, "execute", "events"):
-            raise web.HTTPError(403)
-
-    async def get(self, *args, **kwargs):
-        """Get an event socket."""
-        self.pre_get()
-        res = super().get(*args, **kwargs)
-        await res
-
-    def get_chat_user(self) -> ChatUser:
-        """Retrieves the current user. If `jupyter_collaboration` is not
-        installed, one is synthesized from the server's current shell
-        environment."""
-        # Get a dictionary of all loaded extensions.
-        # (`serverapp` is a property on all `JupyterHandler` subclasses)
-        assert self.serverapp
-        extensions = self.serverapp.extension_manager.extensions
-        collaborative_legacy = (
-            "jupyter_collaboration" in extensions
-            and extensions["jupyter_collaboration"].enabled
-        )
-        collaborative_v3 = (
-            "jupyter_server_ydoc" in extensions
-            and extensions["jupyter_server_ydoc"].enabled
-        )
-        collaborative = collaborative_legacy or collaborative_v3
-
-        if collaborative:
-            names = self.current_user.name.split(" ", maxsplit=2)
-            initials = getattr(self.current_user, "initials", None)
-            if not initials:
-                # compute default initials in case IdentityProvider doesn't
-                # return initials, e.g. JupyterHub (#302)
-                names = self.current_user.name.split(" ", maxsplit=2)
-                initials = "".join(
-                    [(name.capitalize()[0] if len(name) > 0 else "") for name in names]
-                )
-            chat_user_kwargs = {
-                **asdict(self.current_user),
-                "initials": initials,
-            }
-
-            return ChatUser(**chat_user_kwargs)
-
-        login = getpass.getuser()
-        initials = login[0].capitalize()
-        return ChatUser(
-            username=self.current_user.username,
-            initials=initials,
-            name=login,
-            display_name=login,
-            color=None,
-            avatar_url=None,
-        )
-
-    def generate_client_id(self):
-        """Generates a client ID to identify the current WS connection."""
-        return uuid.uuid4().hex
-
-    def open(self):
-        """Handles opening of a WebSocket connection. Client ID can be retrieved
-        from `self.client_id`."""
-
-        current_user = self.get_chat_user().dict()
-        client_id = self.generate_client_id()
-
-        self.root_chat_handlers[client_id] = self
-        self.chat_clients[client_id] = ChatClient(**current_user, id=client_id)
-        self.client_id = client_id
-        self.write_message(
-            ConnectionMessage(
-                client_id=client_id,
-                history=ChatHistory(
-                    messages=self.chat_history, pending_messages=self.pending_messages
-                ),
-            ).dict()
-        )
-
-        self.log.info(f"Client connected. ID: {client_id}")
-        self.log.debug("Clients are : %s", self.root_chat_handlers.keys())
-
-    def broadcast_message(self, message: Message):
-        """Broadcasts message to all connected clients.
-        Appends message to chat history.
-        """
-
-        # do not broadcast agent messages that are replying to cleared human message
-        if (
-            isinstance(message, (AgentChatMessage, AgentStreamMessage))
-            and message.reply_to
-            and message.reply_to
-            not in [m.id for m in self.chat_history if isinstance(m, HumanChatMessage)]
-        ):
-            return
-
-        self.log.debug("Broadcasting message: %s to all clients...", message)
-        client_ids = self.root_chat_handlers.keys()
-
-        for client_id in client_ids:
-            client = self.root_chat_handlers[client_id]
-            if client:
-                client.write_message(message.dict())
-
-        # append all messages of type `ChatMessage` directly to the chat history
-        if isinstance(
-            message, (HumanChatMessage, AgentChatMessage, AgentStreamMessage)
-        ):
-            self.chat_history.append(message)
-        elif isinstance(message, AgentStreamChunkMessage):
-            # for stream chunks, modify the corresponding `AgentStreamMessage`
-            # by appending its content and potentially marking it as complete.
-            chunk: AgentStreamChunkMessage = message
-
-            # iterate backwards from the end of the list
-            for history_message in self.chat_history[::-1]:
-                if (
-                    history_message.type == "agent-stream"
-                    and history_message.id == chunk.id
-                ):
-                    stream_message: AgentStreamMessage = history_message
-                    stream_message.body += chunk.content
-                    stream_message.metadata = chunk.metadata
-                    stream_message.complete = chunk.stream_complete
-                    break
-        elif isinstance(message, PendingMessage):
-            self.pending_messages.append(message)
-        elif isinstance(message, ClosePendingMessage):
-            self.pending_messages = list(
-                filter(lambda m: m.id != message.id, self.pending_messages)
-            )
-
-    async def on_message(self, message):
-        self.log.debug("Message received: %s", message)
-
-        try:
-            message = json.loads(message)
-            if message.get("type") == "clear":
-                request = ClearRequest(**message)
-            elif message.get("type") == "stop":
-                request = StopRequest(**message)
-            else:
-                request = ChatRequest(**message)
-        except ValidationError as e:
-            self.log.error(e)
-            return
-
-        if isinstance(request, ClearRequest):
-            self.on_clear_request(request)
-            return
-
-        if isinstance(request, StopRequest):
-            self.on_stop_request()
-            return
-
-        chat_request = request
-        message_body = chat_request.prompt
-        if chat_request.selection:
-            message_body += f"\n\n```\n{chat_request.selection.source}\n```\n"
-
-        # message broadcast to chat clients
-        chat_message_id = str(uuid.uuid4())
-        chat_message = HumanChatMessage(
-            id=chat_message_id,
-            time=time.time(),
-            body=message_body,
-            prompt=chat_request.prompt,
-            selection=chat_request.selection,
-            client=self.chat_client,
-        )
-
-        # broadcast the message to other clients
-        self.broadcast_message(message=chat_message)
-
-        # do not await this, as it blocks the parent task responsible for
-        # handling messages from a websocket.  instead, process each message
-        # as a distinct concurrent task.
-        self.loop.create_task(self._route(chat_message))
-
-    def on_clear_request(self, request: ClearRequest):
-        target = request.target
-
-        # if no target, clear all messages
-        if not target:
-            self.chat_history.clear()
-            self.pending_messages.clear()
-            self.llm_chat_memory.clear()
-            self.broadcast_message(ClearMessage())
-            self.settings["jai_chat_handlers"]["default"].send_help_message()
-            return
-
-        # otherwise, clear a single message
-        for msg in self.chat_history[::-1]:
-            # interrupt the single message
-            if msg.type == "agent-stream" and getattr(msg, "reply_to", None) == target:
-                try:
-                    self.message_interrupted[msg.id].set()
-                except KeyError:
-                    # do nothing if the message was already interrupted
-                    # or stream got completed (thread-safe way!)
-                    pass
-                break
-
-        self.chat_history[:] = [
-            msg
-            for msg in self.chat_history
-            if msg.id != target and getattr(msg, "reply_to", None) != target
-        ]
-        self.pending_messages[:] = [
-            msg for msg in self.pending_messages if msg.reply_to != target
-        ]
-        self.llm_chat_memory.clear([target])
-        self.broadcast_message(ClearMessage(targets=[target]))
-
-    def on_stop_request(self):
-        # set of message IDs that were submitted by this user, determined by the
-        # username associated with this WebSocket connection.
-        current_user_messages: Set[str] = set()
-        for message in self.chat_history:
-            if (
-                message.type == "human"
-                and message.client.username == self.current_user.username
-            ):
-                current_user_messages.add(message.id)
-
-        # set of `AgentStreamMessage` IDs to stop
-        streams_to_stop: Set[str] = set()
-        for message in self.chat_history:
-            if (
-                message.type == "agent-stream"
-                and message.reply_to in current_user_messages
-            ):
-                streams_to_stop.add(message.id)
-
-        for stream_id in streams_to_stop:
-            try:
-                self.message_interrupted[stream_id].set()
-            except KeyError:
-                # do nothing if the message was already interrupted
-                # or stream got completed (thread-safe way!)
-                pass
-
-    async def _route(self, message):
-        """Method that routes an incoming message to the appropriate handler."""
-        default = self.chat_handlers["default"]
-        # Split on any whitespace, either spaces or newlines
-        maybe_command = message.body.split(None, 1)[0]
-        is_command = (
-            message.body.startswith("/")
-            and maybe_command in self.chat_handlers.keys()
-            and maybe_command != "default"
-        )
-        command = maybe_command if is_command else "default"
-
-        start = time.time()
-        if is_command:
-            await self.chat_handlers[command].on_message(message)
-        else:
-            await default.on_message(message)
-
-        latency_ms = round((time.time() - start) * 1000)
-        command_readable = "Default" if command == "default" else command
-        self.log.info(f"{command_readable} chat handler resolved in {latency_ms} ms.")
-
-    def on_close(self):
-        self.log.debug("Disconnecting client with user %s", self.client_id)
-
-        self.root_chat_handlers.pop(self.client_id, None)
-        self.chat_clients.pop(self.client_id, None)
-
-        self.log.info(f"Client disconnected. ID: {self.client_id}")
-        self.log.debug("Chat clients: %s", self.root_chat_handlers.keys())
+# TODO v3: unify loading of chat handlers in a single place, then read
+# from that instead of this hard-coded dict.
+CHAT_HANDLER_DICT = {
+    "default": DefaultChatHandler,
+    "/ask": AskChatHandler,
+    "/learn": LearnChatHandler,
+    "/generate": GenerateChatHandler,
+    "/help": HelpChatHandler,
+}
 
 
 class ProviderHandler(BaseAPIHandler):
@@ -578,8 +211,8 @@ class SlashCommandsInfoHandler(BaseAPIHandler):
         return self.settings["jai_config_manager"]
 
     @property
-    def chat_handlers(self) -> Dict[str, "BaseChatHandler"]:
-        return self.settings["jai_chat_handlers"]
+    def chat_handlers(self) -> Dict[str, Type["BaseChatHandler"]]:
+        return CHAT_HANDLER_DICT
 
     @web.authenticated
     def get(self):
@@ -631,8 +264,8 @@ class AutocompleteOptionsHandler(BaseAPIHandler):
         return self.settings["jai_context_providers"]
 
     @property
-    def chat_handlers(self) -> Dict[str, "BaseChatHandler"]:
-        return self.settings["jai_chat_handlers"]
+    def chat_handlers(self) -> Dict[str, Type["BaseChatHandler"]]:
+        return CHAT_HANDLER_DICT
 
     @web.authenticated
     def get(self):
