@@ -15,12 +15,12 @@ from jupyter_ai.document_loaders.splitter import ExtensionSplitter, NotebookSpli
 from jupyter_ai.models import (
     DEFAULT_CHUNK_OVERLAP,
     DEFAULT_CHUNK_SIZE,
-    HumanChatMessage,
     IndexedDir,
     IndexMetadata,
 )
 from jupyter_core.paths import jupyter_data_dir
 from jupyter_core.utils import ensure_dir_exists
+from jupyterlab_chat.models import Message
 from langchain.schema import BaseRetriever, Document
 from langchain.text_splitter import (
     LatexTextSplitter,
@@ -128,12 +128,12 @@ class LearnChatHandler(BaseChatHandler):
             )
             self.log.error(e)
 
-    async def process_message(self, message: HumanChatMessage):
+    async def process_message(self, message: Message):
         # If no embedding provider has been selected
         em_provider_cls, em_provider_args = self.get_embedding_provider()
         if not em_provider_cls:
             self.reply(
-                "Sorry, please select an embedding provider before using the `/learn` command."
+                "Sorry, please select an embedding provider before using the `/learn` command.",
             )
             return
 
@@ -163,14 +163,15 @@ class LearnChatHandler(BaseChatHandler):
                 except ModuleNotFoundError as e:
                     self.log.error(e)
                     self.reply(
-                        "No `arxiv` package found. " "Install with `pip install arxiv`."
+                        "No `arxiv` package found. "
+                        "Install with `pip install arxiv`.",
                     )
                     return
                 except Exception as e:
                     self.log.error(e)
                     self.reply(
                         "An error occurred while processing the arXiv file. "
-                        f"Please verify that the arxiv id {id} is correct."
+                        f"Please verify that the arxiv id {id} is correct.",
                     )
                     return
 
@@ -202,7 +203,9 @@ class LearnChatHandler(BaseChatHandler):
         # delete and relearn index if embedding model was changed
         await self.delete_and_relearn()
 
-        with self.pending(f"Loading and splitting files for {load_path}", message):
+        # TODO v3: reinstate pending message
+        # original pending message: "Loading and splitting files for {load_path}"
+        with self.start_reply_stream() as reply_stream:
             try:
                 await self.learn_dir(
                     load_path, args.chunk_size, args.chunk_overlap, args.all_files
@@ -218,7 +221,7 @@ class LearnChatHandler(BaseChatHandler):
                     You can ask questions about these docs by prefixing your message with **/ask**.""" % (
                     load_path.replace("*", r"\*")
                 )
-        self.reply(response, message)
+            reply_stream.write(response)
 
     def _build_list_response(self):
         if not self.metadata.dirs:

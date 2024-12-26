@@ -24,7 +24,7 @@ jobs:
         uses: jupyter-server/jupyter_releaser/.github/actions/check-release@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          version_spec: minor
+          version_spec: "12.34.56"
 
       - name: Upload Distributions
         uses: actions/upload-artifact@v4

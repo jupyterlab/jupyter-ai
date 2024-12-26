@@ -8,7 +8,7 @@ import {
   IEditorLanguageRegistry,
   IEditorLanguage
 } from '@jupyterlab/codemirror';
-import { getEditor } from '../selection-watcher';
+import { getEditor } from '../utils';
 import { IJaiStatusItem, IJaiCompletionProvider } from '../tokens';
 import { displayName, JaiInlineProvider } from './provider';
 import { CompletionWebsocketHandler } from './handler';
