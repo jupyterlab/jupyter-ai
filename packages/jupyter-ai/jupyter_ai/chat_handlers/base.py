@@ -179,7 +179,7 @@ class BaseChatHandler:
 
         # first, ensure a chat model is configured
         if not ChatModelProvider:
-            # TODO: update this message to be more useful once we improve 
+            # TODO: update this message to be more useful once we improve
             # ease-of-access to the Jupyter AI settings.
             self.reply(
                 "To use Jupyter AI, please select a chat model first in the Jupyter AI settings."
