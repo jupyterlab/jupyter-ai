@@ -171,16 +171,26 @@ class BaseChatHandler:
         """
         Method which receives a human message, calls `self.get_llm_chain()`, and
         processes the message via `self.process_message()`, calling
-        `self.handle_exc()` when an exception is raised. This method is called
-        by RootChatHandler when it routes a human message to this chat handler.
+        `self.handle_exc()` when an exception is raised.
+
+        This is the method called directly in response to new chat messages.
         """
-        lm_provider_klass = self.config_manager.lm_provider
+        ChatModelProvider = self.config_manager.lm_provider
+
+        # first, ensure a chat model is configured
+        if not ChatModelProvider:
+            # TODO: update this message to be more useful once we improve 
+            # ease-of-access to the Jupyter AI settings.
+            self.reply(
+                "To use Jupyter AI, please select a chat model first in the Jupyter AI settings."
+            )
+            return
 
         # ensure the current slash command is supported
         if self.routing_type.routing_method == "slash_command":
             routing_type = cast(SlashCommandRoutingType, self.routing_type)
             slash_command = "/" + routing_type.slash_id if routing_type.slash_id else ""
-            if slash_command in lm_provider_klass.unsupported_slash_commands:
+            if slash_command in ChatModelProvider.unsupported_slash_commands:
                 self.reply(
                     "Sorry, the selected language model does not support this slash command.",
                 )
@@ -188,10 +198,10 @@ class BaseChatHandler:
 
         # check whether the configured LLM can support a request at this time.
         if self.uses_llm and BaseChatHandler._requests_count > 0:
-            lm_provider_params = self.config_manager.lm_provider_params
-            lm_provider = lm_provider_klass(**lm_provider_params)
+            chat_model_args = self.config_manager.lm_provider_params
+            chat_model = ChatModelProvider(**chat_model_args)
 
-            if not lm_provider.allows_concurrency:
+            if not chat_model.allows_concurrency:
                 self.reply(
                     "The currently selected language model can process only one request at a time. Please wait for me to reply before sending another question.",
                     message,
