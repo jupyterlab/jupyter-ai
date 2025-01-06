@@ -47,6 +47,8 @@ cd <jupyter-ai-top>
 
 # Installs all the dependencies and sets up the dev environment
 ./scripts/install.sh
+jlpm
+jlpm build
 ```
 
 Start and launch JupyterLab in your default browser:
