@@ -12,9 +12,10 @@ KNOWN_LM_B = "huggingface_hub"
     "restrictions",
     [
         {"allowed_providers": None, "blocked_providers": None},
-        {"allowed_providers": [], "blocked_providers": []},
-        {"allowed_providers": [], "blocked_providers": [KNOWN_LM_B]},
+        {"allowed_providers": None, "blocked_providers": []},
+        {"allowed_providers": None, "blocked_providers": [KNOWN_LM_B]},
         {"allowed_providers": [KNOWN_LM_A], "blocked_providers": []},
+        {"allowed_providers": [KNOWN_LM_A], "blocked_providers": None},
     ],
 )
 def test_get_lm_providers_not_restricted(restrictions):
@@ -25,8 +26,11 @@ def test_get_lm_providers_not_restricted(restrictions):
 @pytest.mark.parametrize(
     "restrictions",
     [
+        {"allowed_providers": [], "blocked_providers": None},
         {"allowed_providers": [], "blocked_providers": [KNOWN_LM_A]},
+        {"allowed_providers": None, "blocked_providers": [KNOWN_LM_A]},
         {"allowed_providers": [KNOWN_LM_B], "blocked_providers": []},
+        {"allowed_providers": [KNOWN_LM_B], "blocked_providers": None},
     ],
 )
 def test_get_lm_providers_restricted(restrictions):
