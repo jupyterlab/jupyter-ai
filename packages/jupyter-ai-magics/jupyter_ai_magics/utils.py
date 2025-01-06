@@ -121,9 +121,9 @@ def get_em_provider(
 def is_provider_allowed(provider_id: str, restrictions: ProviderRestrictions) -> bool:
     allowed = restrictions["allowed_providers"]
     blocked = restrictions["blocked_providers"]
-    if blocked and provider_id in blocked:
+    if blocked is not None and provider_id in blocked:
         return False
-    if allowed and provider_id not in allowed:
+    if allowed is not None and provider_id not in allowed:
         return False
     return True
 
