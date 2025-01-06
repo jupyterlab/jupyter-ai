@@ -46,7 +46,7 @@ This command must be run from the root of the monorepo (`<jupyter-ai-top>`).
 cd <jupyter-ai-top>
 
 # Installs all the dependencies and sets up the dev environment
-./scripts/install.sh 
+./scripts/install.sh
 jlpm
 jlpm build
 ```
