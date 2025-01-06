@@ -325,7 +325,10 @@ class ConfigManager(Configurable):
                     "Model provider included in the provider blocklist."
                 )
 
-            if self._allowed_models is not None and model_id not in self._allowed_models:
+            if (
+                self._allowed_models is not None
+                and model_id not in self._allowed_models
+            ):
                 raise BlockedModelError("Model not included in the model allowlist.")
 
             if self._blocked_models is not None and model_id in self._blocked_models:
