@@ -341,7 +341,7 @@ For details on enabling model access in your AWS account, using cross-region inf
 
 ### OpenRouter Usage
 
-Jupyter AI enables use of language models accessible through [OpenRouter](https://openrouter.ai)'s unified interface. Examples of models that may be accessed via OpenRouter are: [Deepseek](https://openrouter.ai/deepseek/deepseek-chat), [Qwen](https://openrouter.ai/qwen/), [mistral](https://openrouter.ai/mistralai/), etc.
+Jupyter AI enables use of language models accessible through [OpenRouter](https://openrouter.ai)'s unified interface. Examples of models that may be accessed via OpenRouter are: [Deepseek](https://openrouter.ai/deepseek/deepseek-chat), [Qwen](https://openrouter.ai/qwen/), [mistral](https://openrouter.ai/mistralai/), etc. OpenRouter enables usage of any model conforming to the OpenAI API.
 
 For details on enabling model access via the AI Settings and using models via OpenRouter, please see the dedicated documentation page on using [OpenRouter in Jupyter AI](openrouter.md).
 

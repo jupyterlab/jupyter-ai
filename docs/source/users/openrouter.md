@@ -6,21 +6,23 @@ For models that are compatible with the OpenAI library, Jupyter AI provides conf
 
 As an example, we walk through the steps needed to use models from [Deepseek](https://www.deepseek.com) via the OpenRouter provider. If you do not have `langchain-openai` installed, please install it and restart JupyterLab. This is necessary as it provides the SDK for accessing any OpenAI API.
 
-First, open the `AI Settings` page in a new tab as shown:
+First, navigate to the `AI Settings` pane via the AI settings button in `v2` or via the dropdown in `v3` of Jupyter AI, as shown below:
 
 <img src="../_static/ai-settings.png"
     width="75%"
     alt='Screenshot of the dropdown where AI Settings is chosen and it opens tab in Jupyter AI where models are selected.'
     class="screenshot" />
 
-Second, Select the `OpenRouter :: *` model in the Jupyter AI settings. (If you don't see this, please upgrade to at least the latest version of Jupyter AI v2.) The `AI Settings` tab in v3 of Jupyter AI is shown below:
+Second, select the `OpenRouter :: *` model provider in the Jupyter AI settings. If you don't see this, please verify that you have installed `langchain-openai` and that you are using `jupyter_ai>=2.24.0`. Be sure to restart JupyterLab after upgrading or installing either package.
+
+Jupyter AI's settings page with the OpenRouter provider selected is shown below:
 
 <img src="../_static/openrouter-model-setup.png"
     width="75%"
     alt='Screenshot of the tab in Jupyter AI where OpenRouter model access is selected.'
     class="screenshot" />
 
-Type in the local model name and the API base URL corresponding to the model you wish to use. For Deepseek, you should use https://api.deepseek.com as the API base URL, and use `deepseek-chat` as the local model ID.
+Type in the model name and the API base URL corresponding to the model you wish to use. For Deepseek, you should use `https://api.deepseek.com` as the API base URL, and use `deepseek-chat` as the local model ID.
 
 If you are using OpenRouter for the first time it will also require entering the `OPENROUTER_API_KEY`. If you have used OpenRouter before with a different model provider, you will need to update the API key. After doing this, click "Save Changes" at the bottom to save your settings.
 
