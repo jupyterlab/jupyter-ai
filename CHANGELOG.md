@@ -2,6 +2,27 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 2.28.5
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.28.4...90faa6e96d6a8ed8813c5da7d4b1bbd552c43c8d))
+
+### Bugs fixed
+
+- Fix specifying empty list in provider and model allow/denylists [#1185](https://github.com/jupyterlab/jupyter-ai/pull/1185) ([@MaicoTimmerman](https://github.com/MaicoTimmerman))
+
+### Documentation improvements
+
+- Update documentation to add usage of `Openrouter` [#1193](https://github.com/jupyterlab/jupyter-ai/pull/1193) ([@srdas](https://github.com/srdas))
+- Fix dev install steps in contributor docs [#1188](https://github.com/jupyterlab/jupyter-ai/pull/1188) ([@srdas](https://github.com/srdas))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-12-24&to=2025-01-09&type=c))
+
+[@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2024-12-24..2025-01-09&type=Issues) | [@meeseeksmachine](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ameeseeksmachine+updated%3A2024-12-24..2025-01-09&type=Issues) | [@srdas](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2024-12-24..2025-01-09&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 2.28.4
 
 Merry Christmas and happy holidays to all! 🎄
@@ -32,8 +53,6 @@ Note to contributors: This is planned to be the last v2 release from the `main` 
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-12-05&to=2024-12-24&type=c))
 
 [@divyansshhh](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adivyansshhh+updated%3A2024-12-05..2024-12-24&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2024-12-05..2024-12-24&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2024-12-05..2024-12-24&type=Issues) | [@mlucool](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Amlucool+updated%3A2024-12-05..2024-12-24&type=Issues) | [@srdas](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2024-12-05..2024-12-24&type=Issues) | [@Zsailer](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AZsailer+updated%3A2024-12-05..2024-12-24&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 2.28.3
 
