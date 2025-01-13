@@ -6,7 +6,7 @@ from jupyter_ai_magics.providers import (
     Field,
     MultiEnvAuthStrategy,
 )
-from langchain.pydantic_v1 import BaseModel, Extra
+from pydantic import BaseModel, Extra
 from langchain_community.embeddings import (
     GPT4AllEmbeddings,
     HuggingFaceHubEmbeddings,

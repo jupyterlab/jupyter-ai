@@ -2,7 +2,7 @@ from typing import Dict
 
 from jupyter_ai_magics import BaseProvider
 from jupyter_ai_magics.providers import EnvAuthStrategy, TextField
-from langchain_core.pydantic_v1 import root_validator
+from pydantic import model_validator
 from langchain_core.utils import convert_to_secret_str, get_from_dict_or_env
 from langchain_openai import ChatOpenAI
 
@@ -42,7 +42,7 @@ class OpenRouterProvider(BaseProvider, ChatOpenRouter):
             **kwargs,
         )
 
-    @root_validator(pre=False, skip_on_failure=True, allow_reuse=True)
+    @model_validator(mode="after")
     def validate_environment(cls, values: Dict) -> Dict:
         """Validate that api key and python package exists in environment."""
         values["openai_api_key"] = convert_to_secret_str(

@@ -24,7 +24,7 @@ from langchain.prompts import (
     PromptTemplate,
     SystemMessagePromptTemplate,
 )
-from langchain.pydantic_v1 import BaseModel, Extra
+from pydantic import BaseModel, ConfigDict
 from langchain.schema import LLMResult
 from langchain.schema.output_parser import StrOutputParser
 from langchain.schema.runnable import Runnable
@@ -33,13 +33,6 @@ from langchain_community.llms import AI21, GPT4All, HuggingFaceEndpoint, Togethe
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.language_models.llms import BaseLLM
 
-# this is necessary because `langchain.pydantic_v1.main` does not include
-# `ModelMetaclass`, as it is not listed in `__all__` by the `pydantic.main`
-# subpackage.
-try:
-    from pydantic.v1.main import ModelMetaclass
-except:
-    from pydantic.main import ModelMetaclass
 
 from . import completion_utils as completion
 from .models.completion import (
@@ -122,7 +115,7 @@ class EnvAuthStrategy(BaseModel):
     name: str
     """The name of the environment variable, e.g. `'ANTHROPIC_API_KEY'`."""
 
-    keyword_param: Optional[str]
+    keyword_param: Optional[str] = None
     """
     If unset (default), the authentication token is provided as a keyword
     argument with the parameter equal to the environment variable name in
@@ -177,51 +170,10 @@ class IntegerField(BaseModel):
 Field = Union[TextField, MultilineTextField, IntegerField]
 
 
-class ProviderMetaclass(ModelMetaclass):
-    """
-    A metaclass that ensures all class attributes defined inline within the
-    class definition are accessible and included in `Class.__dict__`.
-
-    This is necessary because Pydantic drops any ClassVars that are defined as
-    an instance field by a parent class, even if they are defined inline within
-    the class definition. We encountered this case when `langchain` added a
-    `name` attribute to a parent class shared by all `Provider`s, which caused
-    `Provider.name` to be inaccessible. See #558 for more info.
-    """
-
-    def __new__(mcs, name, bases, namespace, **kwargs):
-        cls = super().__new__(mcs, name, bases, namespace, **kwargs)
-        for key in namespace:
-            # skip private class attributes
-            if key.startswith("_"):
-                continue
-            # skip class attributes already listed in `cls.__dict__`
-            if key in cls.__dict__:
-                continue
-
-            setattr(cls, key, namespace[key])
-
-        return cls
-
-    @property
-    def server_settings(cls):
-        return cls._server_settings
-
-    @server_settings.setter
-    def server_settings(cls, value):
-        if cls._server_settings is not None:
-            raise AttributeError("'server_settings' attribute was already set")
-        cls._server_settings = value
-
-    _server_settings = None
-
-
-class BaseProvider(BaseModel, metaclass=ProviderMetaclass):
-    #
-    # pydantic config
-    #
-    class Config:
-        extra = Extra.allow
+class BaseProvider(BaseModel):
+    # pydantic v2 model config
+    # upstream docs: https://docs.pydantic.dev/latest/api/config/#pydantic.config.ConfigDict.extra
+    model_config = ConfigDict(extra="allow")
 
     #
     # class attrs
@@ -236,15 +188,25 @@ class BaseProvider(BaseModel, metaclass=ProviderMetaclass):
     """List of supported models by their IDs. For registry providers, this will
     be just ["*"]."""
 
-    help: ClassVar[str] = None
+    help: ClassVar[Optional[str]] = None
     """Text to display in lieu of a model list for a registry provider that does
     not provide a list of models."""
 
-    model_id_key: ClassVar[str] = ...
-    """Kwarg expected by the upstream LangChain provider."""
+    model_id_key: ClassVar[Optional[str]] = None
+    """
+    Optional field which specifies the key under which `model_id` is passed to
+    the parent LangChain class.
 
-    model_id_label: ClassVar[str] = ""
-    """Human-readable label of the model ID."""
+    If unset, this defaults to "model_id".
+    """
+
+    model_id_label: ClassVar[Optional[str]] = None
+    """
+    Optional field which sets the label shown in the UI allowing users to
+    select/type a model ID.
+
+    If unset, the label shown in the UI defaults to "Model ID".
+    """
 
     pypi_package_deps: ClassVar[List[str]] = []
     """List of PyPi package dependencies."""
@@ -586,7 +548,6 @@ class GPT4AllProvider(BaseProvider, GPT4All):
 
     id = "gpt4all"
     name = "GPT4All"
-    docs = "https://docs.gpt4all.io/gpt4all_python.html"
     models = [
         "ggml-gpt4all-j-v1.2-jazzy",
         "ggml-gpt4all-j-v1.3-groovy",

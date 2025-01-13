@@ -12,7 +12,7 @@ from jupyter_ai.config_manager import (
 )
 from jupyter_ai.models import DescribeConfigResponse, GlobalConfig, UpdateConfigRequest
 from jupyter_ai_magics.utils import get_em_providers, get_lm_providers
-from langchain.pydantic_v1 import ValidationError
+from pydantic import ValidationError
 
 
 @pytest.fixture

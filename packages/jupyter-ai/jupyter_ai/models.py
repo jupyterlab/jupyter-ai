@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Literal, Optional, Union
 
 from jupyter_ai_magics import Persona
 from jupyter_ai_magics.providers import AuthStrategy, Field
-from langchain.pydantic_v1 import BaseModel, validator
+from pydantic import BaseModel, validator
 
 DEFAULT_CHUNK_SIZE = 2000
 DEFAULT_CHUNK_OVERLAP = 100
@@ -213,14 +213,14 @@ class ListProvidersEntry(BaseModel):
 
     id: str
     name: str
-    model_id_label: Optional[str]
+    model_id_label: Optional[str] = None
     models: List[str]
-    help: Optional[str]
+    help: Optional[str] = None
     auth_strategy: AuthStrategy
     registry: bool
     fields: List[Field]
-    chat_models: Optional[List[str]]
-    completion_models: Optional[List[str]]
+    chat_models: Optional[List[str]] = None
+    completion_models: Optional[List[str]] = None
 
 
 class ListProvidersResponse(BaseModel):

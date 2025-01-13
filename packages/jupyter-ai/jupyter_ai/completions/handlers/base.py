@@ -14,7 +14,7 @@ from jupyter_ai.completions.models import (
     InlineCompletionStreamChunk,
 )
 from jupyter_server.base.handlers import JupyterHandler
-from langchain.pydantic_v1 import ValidationError
+from pydantic import ValidationError
 
 
 class BaseInlineCompletionHandler(

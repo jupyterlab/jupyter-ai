@@ -12,7 +12,7 @@ from jupyter_ai.config_manager import ConfigManager, KeyEmptyError, WriteConflic
 from jupyter_ai.context_providers import BaseCommandContextProvider, ContextCommand
 from jupyter_server.base.handlers import APIHandler as BaseAPIHandler
 from jupyter_server.base.handlers import JupyterHandler
-from langchain.pydantic_v1 import ValidationError
+from pydantic import ValidationError
 from tornado import web, websocket
 from tornado.web import HTTPError
 

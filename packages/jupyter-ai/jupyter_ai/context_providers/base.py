@@ -7,7 +7,7 @@ from dask.distributed import Client as DaskClient
 from jupyter_ai.chat_handlers.base import get_preferred_dir
 from jupyter_ai.config_manager import ConfigManager, Logger
 from jupyter_ai.models import ChatMessage, HumanChatMessage, ListOptionsEntry
-from langchain.pydantic_v1 import BaseModel
+from pydantic import BaseModel
 
 if TYPE_CHECKING:
     from jupyter_ai.chat_handlers import BaseChatHandler

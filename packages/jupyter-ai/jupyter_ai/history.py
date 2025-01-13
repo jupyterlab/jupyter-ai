@@ -3,7 +3,7 @@ from typing import List, Optional, Sequence, Set, Union
 
 from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_core.messages import BaseMessage
-from langchain_core.pydantic_v1 import BaseModel, PrivateAttr
+from pydantic import BaseModel, PrivateAttr
 
 from .models import HumanChatMessage
 
