@@ -138,7 +138,9 @@ class BaseInlineCompletionHandler(
         )
         self.reply(
             InlineCompletionReply(
-                list=InlineCompletionList(items=[{"error":{"message":title},"insertText":""}]),
+                list=InlineCompletionList(
+                    items=[{"error": {"message": title}, "insertText": ""}]
+                ),
                 error=error,
                 reply_to=request.number,
             )
