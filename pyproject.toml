@@ -7,8 +7,8 @@ name = "jupyter_ai_monorepo"
 dynamic = ["version", "description", "authors", "urls", "keywords"]
 requires-python = ">=3.9"
 dependencies = [
-    "jupyter-ai-magics @ {root:uri}/packages/jupyter-ai-magics",
-    "jupyter-ai @ {root:uri}/packages/jupyter-ai"
+  "jupyter-ai-magics @ {root:uri}/packages/jupyter-ai-magics",
+  "jupyter-ai @ {root:uri}/packages/jupyter-ai",
 ]
 
 [project.optional-dependencies]
@@ -26,10 +26,7 @@ source = "nodejs"
 path = "package.json"
 
 [tool.hatch.build]
-packages = [
-    "packages/jupyter-ai-magics",
-    "packages/jupyter-ai"
-]
+packages = ["packages/jupyter-ai-magics", "packages/jupyter-ai"]
 
 [tool.hatch.metadata]
 allow-direct-references = true
@@ -40,23 +37,8 @@ ignore = [".*"]
 [tool.check-wheel-contents]
 ignore = ["W002"]
 
-[tool.importlinter]
-root_packages = ["jupyter_ai", "jupyter_ai_magics"]
-include_external_packages = true
-
-[[tool.importlinter.contracts]]
-key = "pydantic"
-name = "Forbid `pydantic`. (note: Developers should import Pydantic from `langchain.pydantic_v1` instead for compatibility.)"
-type = "forbidden"
-source_modules = ["jupyter_ai", "jupyter_ai_magics"]
-forbidden_modules = ["pydantic"]
-# TODO: get `langchain` to export `ModelMetaclass` to avoid needing this statement
-ignore_imports = ["jupyter_ai_magics.providers -> pydantic"]
-
 [tool.pytest.ini_options]
 addopts = "--ignore packages/jupyter-ai-module-cookiecutter"
 
 [tool.mypy]
-exclude = [
-  "tests"
-]
+exclude = ["tests"]
