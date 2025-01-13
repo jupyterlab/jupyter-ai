@@ -37,7 +37,7 @@ Selection = Union[TextSelection, CellSelection, CellWithErrorSelection]
 # the type of message used to chat with the agent
 class ChatRequest(BaseModel):
     prompt: str
-    selection: Optional[Selection]
+    selection: Optional[Selection] = None
 
 
 class StopRequest(BaseModel):
@@ -54,7 +54,7 @@ class StopRequest(BaseModel):
 
 class ClearRequest(BaseModel):
     type: Literal["clear"] = "clear"
-    target: Optional[str]
+    target: Optional[str] = None
     """
     Message ID of the HumanChatMessage to delete an exchange at.
     If not provided, this requests the backend to clear all messages.
@@ -67,8 +67,8 @@ class ChatUser(BaseModel):
     initials: str
     name: str
     display_name: str
-    color: Optional[str]
-    avatar_url: Optional[str]
+    color: Optional[str] = None
+    avatar_url: Optional[str] = None
 
 
 class ChatClient(ChatUser):
@@ -148,7 +148,7 @@ class HumanChatMessage(BaseModel):
     `prompt` and `selection`."""
     prompt: str
     """The prompt typed into the chat input by the user."""
-    selection: Optional[Selection]
+    selection: Optional[Selection] = None
     """The selection included with the prompt, if any."""
     client: ChatClient
 
@@ -238,8 +238,8 @@ class IndexMetadata(BaseModel):
 
 
 class DescribeConfigResponse(BaseModel):
-    model_provider_id: Optional[str]
-    embeddings_provider_id: Optional[str]
+    model_provider_id: Optional[str] = None
+    embeddings_provider_id: Optional[str] = None
     send_with_shift_enter: bool
     fields: Dict[str, Dict[str, Any]]
     # when sending config over REST API, do not include values of the API keys,
@@ -248,7 +248,7 @@ class DescribeConfigResponse(BaseModel):
     # timestamp indicating when the configuration file was last read. should be
     # passed to the subsequent UpdateConfig request.
     last_read: int
-    completions_model_provider_id: Optional[str]
+    completions_model_provider_id: Optional[str] = None
     completions_fields: Dict[str, Dict[str, Any]]
 
 
@@ -258,16 +258,16 @@ def forbid_none(cls, v):
 
 
 class UpdateConfigRequest(BaseModel):
-    model_provider_id: Optional[str]
-    embeddings_provider_id: Optional[str]
-    send_with_shift_enter: Optional[bool]
-    api_keys: Optional[Dict[str, str]]
-    fields: Optional[Dict[str, Dict[str, Any]]]
+    model_provider_id: Optional[str] = None
+    embeddings_provider_id: Optional[str] = None
+    send_with_shift_enter: Optional[bool] = None
+    api_keys: Optional[Dict[str, str]] = None
+    fields: Optional[Dict[str, Dict[str, Any]]] = None
     # if passed, this will raise an Error if the config was written to after the
     # time specified by `last_read` to prevent write-write conflicts.
-    last_read: Optional[int]
-    completions_model_provider_id: Optional[str]
-    completions_fields: Optional[Dict[str, Dict[str, Any]]]
+    last_read: Optional[int] = None
+    completions_model_provider_id: Optional[str] = None
+    completions_fields: Optional[Dict[str, Dict[str, Any]]] = None
 
     _validate_send_wse = validator("send_with_shift_enter", allow_reuse=True)(
         forbid_none
@@ -280,12 +280,12 @@ class GlobalConfig(BaseModel):
     """Model used to represent the config by ConfigManager. This is exclusive to
     the backend and should never be sent to the client."""
 
-    model_provider_id: Optional[str]
-    embeddings_provider_id: Optional[str]
+    model_provider_id: Optional[str] = None
+    embeddings_provider_id: Optional[str] = None
     send_with_shift_enter: bool
     fields: Dict[str, Dict[str, Any]]
     api_keys: Dict[str, str]
-    completions_model_provider_id: Optional[str]
+    completions_model_provider_id: Optional[str] = None
     completions_fields: Dict[str, Dict[str, Any]]
 
 

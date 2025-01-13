@@ -98,9 +98,9 @@ class ConfigManager(Configurable):
         config=True,
     )
 
-    model_provider_id: Optional[str]
-    embeddings_provider_id: Optional[str]
-    completions_model_provider_id: Optional[str]
+    model_provider_id: Optional[str] = None
+    embeddings_provider_id: Optional[str] = None
+    completions_model_provider_id: Optional[str] = None
 
     def __init__(
         self,

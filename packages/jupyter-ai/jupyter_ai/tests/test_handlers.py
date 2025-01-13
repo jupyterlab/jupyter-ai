@@ -34,7 +34,7 @@ class MockProvider(BaseProvider, FakeListLLM):
     name = "My Provider"
     model_id_key = "model"
     models = ["model"]
-    should_raise: Optional[bool]
+    should_raise: Optional[bool] = None
 
     def __init__(self, **kwargs):
         if "responses" not in kwargs:

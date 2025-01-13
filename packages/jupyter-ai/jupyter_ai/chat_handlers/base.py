@@ -68,7 +68,7 @@ class HandlerRoutingType(BaseModel):
 class SlashCommandRoutingType(HandlerRoutingType):
     routing_method = "slash_command"
 
-    slash_id: Optional[str]
+    slash_id: Optional[str] = None
     """Slash ID for routing a chat command to this handler. Only one handler
     may declare a particular slash ID. Must contain only alphanumerics and
     underscores."""
