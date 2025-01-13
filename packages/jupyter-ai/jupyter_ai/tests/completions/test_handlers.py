@@ -1,6 +1,7 @@
 import json
 from types import SimpleNamespace
 from typing import Union
+import traceback
 
 import pytest
 from jupyter_ai.completions.handlers.default import DefaultInlineCompletionHandler
@@ -8,6 +9,8 @@ from jupyter_ai.completions.models import (
     InlineCompletionReply,
     InlineCompletionRequest,
     InlineCompletionStreamChunk,
+    CompletionError,
+    InlineCompletionList,
 )
 from jupyter_ai_magics import BaseProvider
 from langchain_community.llms import FakeListLLM
@@ -52,7 +55,19 @@ class MockCompletionHandler(DefaultInlineCompletionHandler):
 
     async def handle_exc(self, e: Exception, _request: InlineCompletionRequest):
         # raise all exceptions during testing rather
-        raise e
+        title = e.args[0] if e.args else "Exception"
+        error = CompletionError(
+            type=e.__class__.__name__,
+            title=title,
+            traceback=traceback.format_exc(),
+        )
+        self.reply(
+            InlineCompletionReply(
+                list=InlineCompletionList(items=[{"error":{"message":title},"insertText":""}]),
+                error=error,
+                reply_to=_request.number,
+            )
+        )
 
 
 @fixture
@@ -191,3 +206,19 @@ async def test_handle_stream_request():
     assert third.type == "stream"
     assert third.response.insertText == "test"
     assert third.done is True
+
+async def test_handle_request_with_error(inline_handler):
+    inline_handler = MockCompletionHandler(
+        lm_provider=MockProvider,
+        lm_provider_params={
+            "model_id": "model",
+            "responses": ["test"],
+        },
+    )
+    dummy_request = InlineCompletionRequest(
+        number=1, prefix="", suffix="", mime="", stream=True
+    )
+    await inline_handler.on_message(json.dumps(dict(dummy_request)))
+    await inline_handler.tasks[0]
+    error_message = inline_handler.messages[-1].dict().get('list', {}).get('items', [{}])[0].get('error', {}).get('message', None)
+    assert error_message is not None

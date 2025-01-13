@@ -28,13 +28,15 @@ class InlineCompletionRequest(BaseModel):
     # previous cells and following cells can be used to learn the wider context
     cell_id: Optional[str] = None
 
+class InlineCompletionError(BaseModel):
+    message: str
 
 class InlineCompletionItem(BaseModel):
     """The inline completion suggestion to be displayed on the frontend.
 
     See JupyterLab `InlineCompletionItem` documentation for the details.
     """
-
+    error: Optional[InlineCompletionError]
     insertText: str
     filterText: Optional[str] = None
     isIncomplete: Optional[bool] = None
