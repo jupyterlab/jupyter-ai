@@ -61,7 +61,7 @@ class BaseInlineCompletionHandler(
 
     def reply(self, reply: Union[InlineCompletionReply, InlineCompletionStreamChunk]):
         """Write a reply object to the WebSocket connection."""
-        message = reply.dict()
+        message = reply.model_dump()
         super().write_message(message)
 
     def initialize(self):

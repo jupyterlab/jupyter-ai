@@ -20,7 +20,7 @@ def requires_no_arguments(func):
 def convert_to_serializable(obj):
     """Convert an object to a JSON serializable format"""
     if hasattr(obj, "dict") and callable(obj.dict) and requires_no_arguments(obj.dict):
-        return obj.dict()
+        return obj.model_dump()
     if hasattr(obj, "__dict__"):
         return obj.__dict__
     return str(obj)

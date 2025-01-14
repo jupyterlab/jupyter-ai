@@ -263,7 +263,7 @@ class ConfigManager(Configurable):
         read and before every write to the config file. Guarantees that the
         config file conforms to the JSON Schema, and that the language and
         embedding models have authn credentials if specified."""
-        self.validator.validate(config.dict())
+        self.validator.validate(config.model_dump())
 
         # validate language model config
         if config.model_provider_id:
@@ -352,10 +352,10 @@ class ConfigManager(Configurable):
 
         self._validate_config(new_config)
         with open(self.config_path, "w") as f:
-            json.dump(new_config.dict(), f, indent=self.indentation_depth)
+            json.dump(new_config.model_dump(), f, indent=self.indentation_depth)
 
     def delete_api_key(self, key_name: str):
-        config_dict = self._read_config().dict()
+        config_dict = self._read_config().model_dump()
         required_keys = []
         for provider in [
             self.lm_provider,
@@ -389,15 +389,15 @@ class ConfigManager(Configurable):
                 if not api_key_value:
                     raise KeyEmptyError("API key value cannot be empty.")
 
-        config_dict = self._read_config().dict()
-        Merger.merge(config_dict, config_update.dict(exclude_unset=True))
+        config_dict = self._read_config().model_dump()
+        Merger.merge(config_dict, config_update.model_dump(exclude_unset=True))
         self._write_config(GlobalConfig(**config_dict))
 
     # this cannot be a property, as the parent Configurable already defines the
     # self.config attr.
     def get_config(self):
         config = self._read_config()
-        config_dict = config.dict(exclude_unset=True)
+        config_dict = config.model_dump(exclude_unset=True)
         api_key_names = list(config_dict.pop("api_keys").keys())
         return DescribeConfigResponse(
             **config_dict, api_keys=api_key_names, last_read=self._last_read

@@ -200,7 +200,7 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
         """Handles opening of a WebSocket connection. Client ID can be retrieved
         from `self.client_id`."""
 
-        current_user = self.get_chat_user().dict()
+        current_user = self.get_chat_user().model_dump()
         client_id = self.generate_client_id()
 
         self.root_chat_handlers[client_id] = self
@@ -212,7 +212,7 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
                 history=ChatHistory(
                     messages=self.chat_history, pending_messages=self.pending_messages
                 ),
-            ).dict()
+            ).model_dump()
         )
 
         self.log.info(f"Client connected. ID: {client_id}")
@@ -238,7 +238,7 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
         for client_id in client_ids:
             client = self.root_chat_handlers[client_id]
             if client:
-                client.write_message(message.dict())
+                client.write_message(message.model_dump())
 
         # append all messages of type `ChatMessage` directly to the chat history
         if isinstance(
