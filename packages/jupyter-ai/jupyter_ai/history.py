@@ -27,7 +27,7 @@ class BoundedChatHistory(BaseChatMessageHistory):
         self.k = k
         self.clear_time = clear_time
         self.cleared_msgs = cleared_msgs
-        self._all_messages = []
+        self._all_messages: List[BaseMessage] = []
 
     @property
     def messages(self) -> List[BaseMessage]:  # type:ignore[override]
