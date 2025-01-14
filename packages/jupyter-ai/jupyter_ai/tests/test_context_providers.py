@@ -11,7 +11,7 @@ from jupyter_ai.models import ChatClient, HumanChatMessage, Persona
 @pytest.fixture
 def human_chat_message() -> HumanChatMessage:
     chat_client = ChatClient(
-        id=0, username="test", initials="test", name="test", display_name="test"
+        id="test-client-uuid", username="test", initials="test", name="test", display_name="test"
     )
     prompt = (
         "@file:test1.py @file @file:dir/test2.md test test\n"

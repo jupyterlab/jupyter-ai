@@ -88,7 +88,7 @@ class TestException(Exception):
 @pytest.fixture
 def chat_client():
     return ChatClient(
-        id=0, username="test", initials="test", name="test", display_name="test"
+        id="test-client-uuid", username="test", initials="test", name="test", display_name="test"
     )
 
 
