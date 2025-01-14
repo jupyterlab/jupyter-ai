@@ -66,7 +66,7 @@ class ChatHistoryHandler(BaseAPIHandler):
         history = ChatHistory(
             messages=self.chat_history, pending_messages=self.pending_messages
         )
-        self.finish(history.json())
+        self.finish(history.model_dump_json())
 
 
 class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
@@ -494,7 +494,7 @@ class ModelProviderHandler(ProviderHandler):
 
         # Finally, yield response.
         response = ListProvidersResponse(providers=providers)
-        self.finish(response.json())
+        self.finish(response.model_dump_json())
 
 
 class EmbeddingsModelProviderHandler(ProviderHandler):
@@ -517,7 +517,7 @@ class EmbeddingsModelProviderHandler(ProviderHandler):
         providers = sorted(providers, key=lambda p: p.name)
 
         response = ListProvidersResponse(providers=providers)
-        self.finish(response.json())
+        self.finish(response.model_dump_json())
 
 
 class GlobalConfigHandler(BaseAPIHandler):
@@ -535,7 +535,7 @@ class GlobalConfigHandler(BaseAPIHandler):
         if not config:
             raise HTTPError(500, "No config found.")
 
-        self.finish(config.json())
+        self.finish(config.model_dump_json())
 
     @web.authenticated
     def post(self):
@@ -587,7 +587,7 @@ class SlashCommandsInfoHandler(BaseAPIHandler):
 
         # if no selected LLM, return an empty response
         if not self.config_manager.lm_provider:
-            self.finish(response.json())
+            self.finish(response.model_dump_json())
             return
 
         for id, chat_handler in self.chat_handlers.items():
@@ -616,7 +616,7 @@ class SlashCommandsInfoHandler(BaseAPIHandler):
 
         # sort slash commands by slash id and deliver the response
         response.slash_commands.sort(key=lambda sc: sc.slash_id)
-        self.finish(response.json())
+        self.finish(response.model_dump_json())
 
 
 class AutocompleteOptionsHandler(BaseAPIHandler):
@@ -640,7 +640,7 @@ class AutocompleteOptionsHandler(BaseAPIHandler):
 
         # if no selected LLM, return an empty response
         if not self.config_manager.lm_provider:
-            self.finish(response.json())
+            self.finish(response.model_dump_json())
             return
 
         partial_cmd = self.get_query_argument("partialCommand", None)
@@ -666,7 +666,7 @@ class AutocompleteOptionsHandler(BaseAPIHandler):
             response.options = (
                 self._get_slash_command_options() + self._get_context_provider_options()
             )
-        self.finish(response.json())
+        self.finish(response.model_dump_json())
 
     def _get_slash_command_options(self) -> List[ListOptionsEntry]:
         options = []
