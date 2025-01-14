@@ -24,7 +24,6 @@ from langchain.prompts import (
     PromptTemplate,
     SystemMessagePromptTemplate,
 )
-from pydantic import BaseModel, ConfigDict
 from langchain.schema import LLMResult
 from langchain.schema.output_parser import StrOutputParser
 from langchain.schema.runnable import Runnable
@@ -32,7 +31,7 @@ from langchain_community.chat_models import QianfanChatEndpoint
 from langchain_community.llms import AI21, GPT4All, HuggingFaceEndpoint, Together
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.language_models.llms import BaseLLM
-
+from pydantic import BaseModel, ConfigDict
 
 from . import completion_utils as completion
 from .models.completion import (

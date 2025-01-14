@@ -6,12 +6,12 @@ from jupyter_ai_magics.providers import (
     Field,
     MultiEnvAuthStrategy,
 )
-from pydantic import BaseModel, ConfigDict
 from langchain_community.embeddings import (
     GPT4AllEmbeddings,
     HuggingFaceHubEmbeddings,
     QianfanEmbeddingsEndpoint,
 )
+from pydantic import BaseModel, ConfigDict
 
 
 class BaseEmbeddingsProvider(BaseModel):

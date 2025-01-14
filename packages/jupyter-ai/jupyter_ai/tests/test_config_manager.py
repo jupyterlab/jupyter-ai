@@ -233,7 +233,9 @@ def configure_with_fields(cm: ConfigManager, completions: bool = False):
 
 def test_snapshot_default_config(cm: ConfigManager, snapshot):
     config_from_cm: DescribeConfigResponse = cm.get_config()
-    assert config_from_cm.model_dump() == snapshot(exclude=lambda prop, path: prop == "last_read")
+    assert config_from_cm.model_dump() == snapshot(
+        exclude=lambda prop, path: prop == "last_read"
+    )
 
 
 def test_init_with_existing_config(cm: ConfigManager, common_cm_kwargs):
