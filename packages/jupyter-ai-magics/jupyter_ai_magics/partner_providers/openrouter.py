@@ -2,8 +2,7 @@ from typing import Dict
 
 from jupyter_ai_magics import BaseProvider
 from jupyter_ai_magics.providers import EnvAuthStrategy, TextField
-from pydantic import model_validator
-from langchain_core.utils import convert_to_secret_str, get_from_dict_or_env
+from langchain_core.utils import get_from_dict_or_env
 from langchain_openai import ChatOpenAI
 
 
@@ -31,7 +30,9 @@ class OpenRouterProvider(BaseProvider, ChatOpenRouter):
     ]
 
     def __init__(self, **kwargs):
-        openrouter_api_key = kwargs.pop("openrouter_api_key", None)
+        openrouter_api_key = get_from_dict_or_env(
+            kwargs, key="openrouter_api_key", env_key="OPENROUTER_API_KEY", default=None
+        )
         openrouter_api_base = kwargs.pop(
             "openai_api_base", "https://openrouter.ai/api/v1"
         )
@@ -41,14 +42,6 @@ class OpenRouterProvider(BaseProvider, ChatOpenRouter):
             openai_api_base=openrouter_api_base,
             **kwargs,
         )
-
-    @model_validator(mode="after")
-    def validate_environment(cls, values: Dict) -> Dict:
-        """Validate that api key and python package exists in environment."""
-        values["openai_api_key"] = convert_to_secret_str(
-            get_from_dict_or_env(values, "openai_api_key", "OPENROUTER_API_KEY")
-        )
-        return super().validate_environment(values)
 
     @classmethod
     def is_api_key_exc(cls, e: Exception):
