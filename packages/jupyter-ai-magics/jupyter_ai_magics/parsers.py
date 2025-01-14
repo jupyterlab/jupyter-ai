@@ -2,7 +2,7 @@ import json
 from typing import Literal, Optional, get_args
 
 import click
-from langchain.pydantic_v1 import BaseModel
+from pydantic import BaseModel
 
 FORMAT_CHOICES_TYPE = Literal[
     "code", "html", "image", "json", "markdown", "math", "md", "text"
@@ -46,11 +46,11 @@ class CellArgs(BaseModel):
     type: Literal["root"] = "root"
     model_id: str
     format: FORMAT_CHOICES_TYPE
-    model_parameters: Optional[str]
+    model_parameters: Optional[str] = None
     # The following parameters are required only for SageMaker models
-    region_name: Optional[str]
-    request_schema: Optional[str]
-    response_path: Optional[str]
+    region_name: Optional[str] = None
+    request_schema: Optional[str] = None
+    response_path: Optional[str] = None
 
 
 # Should match CellArgs
@@ -58,11 +58,11 @@ class ErrorArgs(BaseModel):
     type: Literal["error"] = "error"
     model_id: str
     format: FORMAT_CHOICES_TYPE
-    model_parameters: Optional[str]
+    model_parameters: Optional[str] = None
     # The following parameters are required only for SageMaker models
-    region_name: Optional[str]
-    request_schema: Optional[str]
-    response_path: Optional[str]
+    region_name: Optional[str] = None
+    request_schema: Optional[str] = None
+    response_path: Optional[str] = None
 
 
 class HelpArgs(BaseModel):
@@ -75,7 +75,7 @@ class VersionArgs(BaseModel):
 
 class ListArgs(BaseModel):
     type: Literal["list"] = "list"
-    provider_id: Optional[str]
+    provider_id: Optional[str] = None
 
 
 class RegisterArgs(BaseModel):

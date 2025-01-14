@@ -363,7 +363,7 @@ class LearnChatHandler(BaseChatHandler):
 
     def save_metadata(self):
         with open(METADATA_SAVE_PATH, "w") as f:
-            f.write(self.metadata.json())
+            f.write(self.metadata.model_dump_json())
 
     def load_metadata(self):
         if not os.path.exists(METADATA_SAVE_PATH):
