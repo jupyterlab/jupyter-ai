@@ -22,7 +22,6 @@ from jupyter_ai.constants import BOT
 from jupyter_ai_magics.providers import BaseProvider
 from jupyterlab_chat.models import Message, NewMessage, User
 from jupyterlab_chat.ychat import YChat
-from langchain.pydantic_v1 import BaseModel
 from langchain_core.messages import AIMessageChunk
 from langchain_core.runnables import Runnable
 from langchain_core.runnables.config import RunnableConfig
