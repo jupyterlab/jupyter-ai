@@ -6,7 +6,7 @@ from jupyter_ai_magics.providers import (
     Field,
     MultiEnvAuthStrategy,
 )
-from pydantic import BaseModel, Extra
+from pydantic import BaseModel, ConfigDict
 from langchain_community.embeddings import (
     GPT4AllEmbeddings,
     HuggingFaceHubEmbeddings,
@@ -17,8 +17,9 @@ from langchain_community.embeddings import (
 class BaseEmbeddingsProvider(BaseModel):
     """Base class for embedding providers"""
 
-    class Config:
-        extra = Extra.allow
+    # pydantic v2 model config
+    # upstream docs: https://docs.pydantic.dev/latest/api/config/#pydantic.config.ConfigDict.extra
+    model_config = ConfigDict(extra="allow")
 
     id: ClassVar[str] = ...
     """ID for this provider class."""

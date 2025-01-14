@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Literal, Optional, Union
 
 from jupyter_ai_magics import Persona
 from jupyter_ai_magics.providers import AuthStrategy, Field
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, field_validator
 
 DEFAULT_CHUNK_SIZE = 2000
 DEFAULT_CHUNK_OVERLAP = 100
@@ -129,7 +129,8 @@ class AgentStreamChunkMessage(BaseModel):
     on `BaseAgentMessage.metadata` for information.
     """
 
-    @validator("metadata")
+    @field_validator("metadata", mode="before")
+    @classmethod
     def validate_metadata(cls, v):
         """Ensure metadata values are JSON serializable"""
         try:
@@ -252,11 +253,6 @@ class DescribeConfigResponse(BaseModel):
     completions_fields: Dict[str, Dict[str, Any]]
 
 
-def forbid_none(cls, v):
-    assert v is not None, "size may not be None"
-    return v
-
-
 class UpdateConfigRequest(BaseModel):
     model_provider_id: Optional[str] = None
     embeddings_provider_id: Optional[str] = None
@@ -269,11 +265,14 @@ class UpdateConfigRequest(BaseModel):
     completions_model_provider_id: Optional[str] = None
     completions_fields: Optional[Dict[str, Dict[str, Any]]] = None
 
-    _validate_send_wse = validator("send_with_shift_enter", allow_reuse=True)(
-        forbid_none
-    )
-    _validate_api_keys = validator("api_keys", allow_reuse=True)(forbid_none)
-    _validate_fields = validator("fields", allow_reuse=True)(forbid_none)
+    @field_validator("send_with_shift_enter", "api_keys", "fields", mode="before")
+    @classmethod
+    def ensure_not_none_if_passed(cls, field_val: Any) -> Any:
+        """
+        Field validator ensuring that certain fields are never `None` if set.
+        """
+        assert field_val is not None, "size may not be None"
+        return field_val
 
 
 class GlobalConfig(BaseModel):

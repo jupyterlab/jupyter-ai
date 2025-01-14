@@ -225,7 +225,7 @@ class ConfigManager(Configurable):
         self._write_config(GlobalConfig(**default_config))
 
     def _init_defaults(self):
-        config_keys = GlobalConfig.__fields__.keys()
+        config_keys = GlobalConfig.model_fields.keys()
         schema_properties = self.validator.schema.get("properties", {})
         default_config = {
             field: schema_properties.get(field).get("default") for field in config_keys
