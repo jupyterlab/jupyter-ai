@@ -3,9 +3,9 @@ from typing import Dict, Type
 
 from jupyter_ai.models import HumanChatMessage
 from jupyter_ai_magics.providers import BaseProvider
+from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import ConfigurableFieldSpec
 from langchain_core.runnables.history import RunnableWithMessageHistory
-from langchain_core.output_parsers import StrOutputParser
 
 from ..context_providers import ContextProviderException, find_commands
 from .base import BaseChatHandler, SlashCommandRoutingType
