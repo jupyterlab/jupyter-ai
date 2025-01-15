@@ -27,6 +27,7 @@ dependencies = [
     "jupyterlab~=4.0",
     "aiosqlite>=0.18",
     "importlib_metadata>=5.2.0",
+    "pydantic~=2.0",
     "jupyter_ai_magics>=2.13.0",
     "dask[distributed]",
     # faiss-cpu is not distributed by the official repo.

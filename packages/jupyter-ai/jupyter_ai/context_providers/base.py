@@ -8,7 +8,7 @@ from jupyter_ai.chat_handlers.base import get_preferred_dir
 from jupyter_ai.config_manager import ConfigManager, Logger
 from jupyter_ai.models import ListOptionsEntry
 from jupyterlab_chat.models import Message
-from langchain.pydantic_v1 import BaseModel
+from pydantic import BaseModel
 
 
 class _BaseContextProvider(abc.ABC):

@@ -62,7 +62,7 @@ def ai_extension(jp_serverapp):
     # may run in parallel setting it with race condition; because we are not testing
     # the `BaseProvider.server_settings` here, we can just mock the setter
     settings_mock = mock.PropertyMock()
-    with mock.patch.object(BaseProvider.__class__, "server_settings", settings_mock):
+    with mock.patch.object(BaseProvider, "server_settings", settings_mock):
         yield ai
 
 

@@ -442,7 +442,7 @@ class AiMagics(Magics):
 
         prompt = f"Explain the following error:\n\n{last_error}"
         # Set CellArgs based on ErrorArgs
-        values = args.dict()
+        values = args.model_dump()
         values["type"] = "root"
         cell_args = CellArgs(**values)
 
