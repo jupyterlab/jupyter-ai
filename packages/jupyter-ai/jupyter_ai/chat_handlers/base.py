@@ -36,12 +36,12 @@ from jupyter_ai.models import (
 )
 from jupyter_ai_magics import Persona
 from jupyter_ai_magics.providers import BaseProvider
-from langchain.pydantic_v1 import BaseModel
 from langchain_core.messages import AIMessageChunk
 from langchain_core.runnables import Runnable
 from langchain_core.runnables.config import RunnableConfig
 from langchain_core.runnables.config import merge_configs as merge_runnable_configs
 from langchain_core.runnables.utils import Input
+from pydantic import BaseModel
 
 if TYPE_CHECKING:
     from jupyter_ai.context_providers import BaseCommandContextProvider
@@ -68,7 +68,7 @@ class HandlerRoutingType(BaseModel):
 class SlashCommandRoutingType(HandlerRoutingType):
     routing_method = "slash_command"
 
-    slash_id: Optional[str]
+    slash_id: Optional[str] = None
     """Slash ID for routing a chat command to this handler. Only one handler
     may declare a particular slash ID. Must contain only alphanumerics and
     underscores."""

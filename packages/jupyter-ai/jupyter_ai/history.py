@@ -1,16 +1,15 @@
 import time
-from typing import List, Optional, Sequence, Set, Union
+from typing import List, Optional, Sequence, Set
 
 from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_core.messages import BaseMessage
-from langchain_core.pydantic_v1 import BaseModel, PrivateAttr
 
 from .models import HumanChatMessage
 
 HUMAN_MSG_ID_KEY = "_jupyter_ai_human_msg_id"
 
 
-class BoundedChatHistory(BaseChatMessageHistory, BaseModel):
+class BoundedChatHistory(BaseChatMessageHistory):
     """
     An in-memory implementation of `BaseChatMessageHistory` that stores up to
     `k` exchanges between a user and an LLM.
@@ -19,10 +18,16 @@ class BoundedChatHistory(BaseChatMessageHistory, BaseModel):
     messages and 2 AI messages. If `k` is set to `None` all messages are kept.
     """
 
-    k: Union[int, None]
-    clear_time: float = 0.0
-    cleared_msgs: Set[str] = set()
-    _all_messages: List[BaseMessage] = PrivateAttr(default_factory=list)
+    def __init__(
+        self,
+        k: Optional[int] = None,
+        clear_time: float = 0.0,
+        cleared_msgs: Set[str] = set(),
+    ):
+        self.k = k
+        self.clear_time = clear_time
+        self.cleared_msgs = cleared_msgs
+        self._all_messages: List[BaseMessage] = []
 
     @property
     def messages(self) -> List[BaseMessage]:  # type:ignore[override]
@@ -67,7 +72,7 @@ class BoundedChatHistory(BaseChatMessageHistory, BaseModel):
         self.clear()
 
 
-class WrappedBoundedChatHistory(BaseChatMessageHistory, BaseModel):
+class WrappedBoundedChatHistory(BaseChatMessageHistory):
     """
     Wrapper around `BoundedChatHistory` that only appends an `AgentChatMessage`
     if the `HumanChatMessage` it is replying to was not cleared. If a chat
@@ -88,8 +93,16 @@ class WrappedBoundedChatHistory(BaseChatMessageHistory, BaseModel):
     Reference: https://python.langchain.com/v0.1/docs/expression_language/how_to/message_history/
     """
 
-    history: BoundedChatHistory
-    last_human_msg: HumanChatMessage
+    def __init__(
+        self,
+        history: BoundedChatHistory,
+        last_human_msg: HumanChatMessage,
+        *args,
+        **kwargs,
+    ):
+        self.history = history
+        self.last_human_msg = last_human_msg
+        super().__init__(*args, **kwargs)
 
     @property
     def messages(self) -> List[BaseMessage]:  # type:ignore[override]

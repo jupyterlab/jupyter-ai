@@ -12,7 +12,7 @@ from jupyter_ai.config_manager import (
 )
 from jupyter_ai.models import DescribeConfigResponse, GlobalConfig, UpdateConfigRequest
 from jupyter_ai_magics.utils import get_em_providers, get_lm_providers
-from langchain.pydantic_v1 import ValidationError
+from pydantic import ValidationError
 
 
 @pytest.fixture
@@ -233,7 +233,9 @@ def configure_with_fields(cm: ConfigManager, completions: bool = False):
 
 def test_snapshot_default_config(cm: ConfigManager, snapshot):
     config_from_cm: DescribeConfigResponse = cm.get_config()
-    assert config_from_cm == snapshot(exclude=lambda prop, path: prop == "last_read")
+    assert config_from_cm.model_dump() == snapshot(
+        exclude=lambda prop, path: prop == "last_read"
+    )
 
 
 def test_init_with_existing_config(cm: ConfigManager, common_cm_kwargs):

@@ -13,9 +13,9 @@ from jupyter_ai_magics.providers import BaseProvider
 from langchain.chains import LLMChain
 from langchain.llms import BaseLLM
 from langchain.output_parsers import PydanticOutputParser
-from langchain.pydantic_v1 import BaseModel
 from langchain.schema.output_parser import BaseOutputParser
 from langchain_core.prompts import PromptTemplate
+from pydantic import BaseModel
 
 
 class OutlineSection(BaseModel):
@@ -55,7 +55,7 @@ async def generate_outline(description, llm=None, verbose=False):
     chain = NotebookOutlineChain.from_llm(llm=llm, parser=parser, verbose=verbose)
     outline = await chain.apredict(description=description)
     outline = parser.parse(outline)
-    return outline.dict()
+    return outline.model_dump()
 
 
 class CodeImproverChain(LLMChain):
