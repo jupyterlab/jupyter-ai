@@ -3,8 +3,8 @@ from typing import Dict, Type
 
 from jupyter_ai_magics.providers import BaseProvider
 from jupyterlab_chat.models import Message
-from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_core.output_parsers import StrOutputParser
+from langchain_core.runnables.history import RunnableWithMessageHistory
 
 from ..context_providers import ContextProviderException, find_commands
 from .base import BaseChatHandler, SlashCommandRoutingType
