@@ -3,6 +3,7 @@ from typing import Dict, Type
 
 from jupyter_ai.models import HumanChatMessage
 from jupyter_ai_magics.providers import BaseProvider
+from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import ConfigurableFieldSpec
 from langchain_core.runnables.history import RunnableWithMessageHistory
 
@@ -37,7 +38,7 @@ class DefaultChatHandler(BaseChatHandler):
         self.llm = llm
         self.prompt_template = prompt_template
 
-        runnable = prompt_template | llm  # type:ignore
+        runnable = prompt_template | llm | StrOutputParser()  # type:ignore
         if not llm.manages_history:
             runnable = RunnableWithMessageHistory(
                 runnable=runnable,  #  type:ignore[arg-type]

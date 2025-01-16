@@ -492,7 +492,7 @@ def create_llm_chain(
         prompt_template = FIX_PROMPT_TEMPLATE
         self.prompt_template = prompt_template
 
-        runnable = prompt_template | llm  # type:ignore
+        runnable = prompt_template | llm | StrOutputParser()  # type:ignore
         self.llm_chain = runnable
 ```
 
