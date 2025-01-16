@@ -8,14 +8,28 @@ please see our {doc}`contributor's guide </contributors/index>`.
 
 ## Pydantic compatibility
 
-Jupyter AI is fully compatible with Python environments using Pydantic v1
-or Pydantic v2. Jupyter AI imports Pydantic classes from the
-`langchain.pydantic_v1` module. Developers should do the same when they extend
-Jupyter AI classes.
+- `jupyter-ai<2.29.0` requires Pydantic v1 **or** v2, but only supports
+LangChain v0.2, which is now outdated.
 
-For more details about using `langchain.pydantic_v1` in an environment with
-Pydantic v2 installed, see the
-[LangChain documentation on Pydantic compatibility](https://python.langchain.com/docs/guides/pydantic_compatibility).
+    - Internally, `jupyter-ai<2.29.0` uses the Pydantic v1 API through a
+    vendored module provided by LangChain. Therefore, if you are developing
+    extensions for `jupyter-ai<2.29.0`, you should import Pydantic objects (e.g.
+    `BaseModel`) from the `langchain.pydantic_v1` module. In this context, you
+    should *not* use the `pydantic` module (as it may be Pydantic v1 or v2).
+
+- `jupyter-ai>=2.29.0` requires Pydantic v2 (**not** v1), but supports LangChain
+`>=0.3`.
+
+    - Internally, `jupyter-ai>=2.29.0` uses the Pydantic v2 API directly through
+    the `pydantic` module. Therefore, if you are developing extensions for
+    `jupyter-ai>=2.29.0`, you should import Pydantic objects (e.g. `BaseModel`)
+    from the `pydantic` module.
+
+    - For context, LangChain v0.3 requires Pydantic v2. This motivated the
+    upgrade to the Pydantic v2 API.
+
+For more details about Pydantic & LangChain version compatibility, see the
+[LangChain documentation on Pydantic compatibility](https://python.langchain.com/docs/how_to/pydantic_compatibility/).
 
 ## Jupyter AI module cookiecutter
 
