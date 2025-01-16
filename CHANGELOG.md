@@ -2,6 +2,40 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 2.29.0
+
+This release notably upgrades to LangChain v0.3 and Pydantic v2. You can now use the latest LangChain & Pydantic APIs available in the same environment as Jupyter AI! 🎉
+
+Note that just running `pip install -U jupyter-ai` may not upgrade LangChain partner packages like `langchain-aws` or `langchain-openai`, as these are listed as optional dependencies.
+
+Therefore, to upgrade all LangChain packages in your environment along with Jupyter AI, we strongly recommend running this command to upgrade:
+
+```
+pip install -U "jupyter-ai[all]"
+```
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.28.5...a8c52c5cdccc0778b33f7397915bf988b1605ddb))
+
+### Enhancements made
+
+- [2.x] Upgrade to LangChain v0.3 and Pydantic v2 [#1199](https://github.com/jupyterlab/jupyter-ai/pull/1199) ([@dlqqq](https://github.com/dlqqq))
+
+### Bugs fixed
+
+- [2.x] Fix Amazon Nova support (use `StrOutputParser`) [#1203](https://github.com/jupyterlab/jupyter-ai/pull/1203) ([@dlqqq](https://github.com/dlqqq))
+
+### Documentation improvements
+
+- Update developer docs on Pydantic compatibility [#1204](https://github.com/jupyterlab/jupyter-ai/pull/1204) ([@dlqqq](https://github.com/dlqqq))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2025-01-09&to=2025-01-16&type=c))
+
+[@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2025-01-09..2025-01-16&type=Issues) | [@meeseeksmachine](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ameeseeksmachine+updated%3A2025-01-09..2025-01-16&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 2.28.5
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.28.4...90faa6e96d6a8ed8813c5da7d4b1bbd552c43c8d))
@@ -20,8 +54,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-12-24&to=2025-01-09&type=c))
 
 [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2024-12-24..2025-01-09&type=Issues) | [@meeseeksmachine](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ameeseeksmachine+updated%3A2024-12-24..2025-01-09&type=Issues) | [@srdas](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2024-12-24..2025-01-09&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 2.28.4
 
