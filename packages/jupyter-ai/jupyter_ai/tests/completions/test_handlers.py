@@ -6,8 +6,6 @@ from typing import Union
 import pytest
 from jupyter_ai.completions.handlers.default import DefaultInlineCompletionHandler
 from jupyter_ai.completions.models import (
-    CompletionError,
-    InlineCompletionList,
     InlineCompletionReply,
     InlineCompletionRequest,
     InlineCompletionStreamChunk,
@@ -29,10 +27,16 @@ class MockProvider(BaseProvider, FakeListLLM):
         if "responses" not in kwargs:
             kwargs["responses"] = ["Test response"]
         super().__init__(**kwargs)
+    
+    def _acall(self, *args, **kwargs):
+        if self.raise_exc:
+            raise Exception("Test exception")
+        else:
+            return super()._call(*args, **kwargs)
 
 
 class MockCompletionHandler(DefaultInlineCompletionHandler):
-    def __init__(self, lm_provider=None, lm_provider_params=None):
+    def __init__(self, lm_provider=None, lm_provider_params=None, raise_exc=False):
         self.request = HTTPServerRequest()
         self.application = Application()
         self.messages = []
@@ -52,25 +56,6 @@ class MockCompletionHandler(DefaultInlineCompletionHandler):
         self, message: Union[InlineCompletionReply, InlineCompletionStreamChunk]
     ) -> None:
         self.messages.append(message)
-
-    async def handle_exc(self, e: Exception, _request: InlineCompletionRequest):
-        # raise all exceptions during testing rather
-        title = e.args[0] if e.args else "Exception"
-        error = CompletionError(
-            type=e.__class__.__name__,
-            title=title,
-            traceback=traceback.format_exc(),
-        )
-        self.reply(
-            InlineCompletionReply(
-                list=InlineCompletionList(
-                    items=[{"error": {"message": title}, "insertText": ""}]
-                ),
-                error=error,
-                reply_to=_request.number,
-            )
-        )
-
 
 @fixture
 def inline_handler() -> MockCompletionHandler:
@@ -216,19 +201,13 @@ async def test_handle_request_with_error(inline_handler):
         lm_provider_params={
             "model_id": "model",
             "responses": ["test"],
-        },
+            "raise_exc": True
+        }
     )
     dummy_request = InlineCompletionRequest(
         number=1, prefix="", suffix="", mime="", stream=True
     )
     await inline_handler.on_message(json.dumps(dict(dummy_request)))
     await inline_handler.tasks[0]
-    error_message = (
-        inline_handler.messages[-1]
-        .dict()
-        .get("list", {})
-        .get("items", [{}])[0]
-        .get("error", {})
-        .get("message", None)
-    )
-    assert error_message is not None
+    error = inline_handler.messages[-1].dict().get('error', None)
+    assert error is not None

@@ -118,7 +118,6 @@ class BaseInlineCompletionHandler(
         async def handle_request_and_catch():
             try:
                 await handle_request
-                # raise Exception("An error occured!")
             except Exception as e:
                 await self.handle_exc(e, request)
 
@@ -138,9 +137,7 @@ class BaseInlineCompletionHandler(
         )
         self.reply(
             InlineCompletionReply(
-                list=InlineCompletionList(
-                    items=[{"error": {"message": title}, "insertText": ""}]
-                ),
+                list=InlineCompletionList(items=[]),
                 error=error,
                 reply_to=request.number,
             )
