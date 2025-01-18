@@ -26,9 +26,9 @@ class MockProvider(BaseProvider, FakeListLLM):
         if "responses" not in kwargs:
             kwargs["responses"] = ["Test response"]
         super().__init__(**kwargs)
-    
+
     async def _acall(self, *args, **kwargs):
-        if hasattr(self, 'raise_exc') and self.raise_exc:
+        if hasattr(self, "raise_exc") and self.raise_exc:
             raise Exception("Test exception")
         else:
             return super()._call(*args, **kwargs)
