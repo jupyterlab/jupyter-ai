@@ -27,7 +27,7 @@ class MockProvider(BaseProvider, FakeListLLM):
         if "responses" not in kwargs:
             kwargs["responses"] = ["Test response"]
         super().__init__(**kwargs)
-    
+
     def _acall(self, *args, **kwargs):
         if self.raise_exc:
             raise Exception("Test exception")
@@ -56,6 +56,7 @@ class MockCompletionHandler(DefaultInlineCompletionHandler):
         self, message: Union[InlineCompletionReply, InlineCompletionStreamChunk]
     ) -> None:
         self.messages.append(message)
+
 
 @fixture
 def inline_handler() -> MockCompletionHandler:
@@ -201,13 +202,13 @@ async def test_handle_request_with_error(inline_handler):
         lm_provider_params={
             "model_id": "model",
             "responses": ["test"],
-            "raise_exc": True
-        }
+            "raise_exc": True,
+        },
     )
     dummy_request = InlineCompletionRequest(
         number=1, prefix="", suffix="", mime="", stream=True
     )
     await inline_handler.on_message(json.dumps(dict(dummy_request)))
     await inline_handler.tasks[0]
-    error = inline_handler.messages[-1].dict().get('error', None)
+    error = inline_handler.messages[-1].dict().get("error", None)
     assert error is not None
