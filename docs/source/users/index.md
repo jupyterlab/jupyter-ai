@@ -121,7 +121,7 @@ automatically installs `jupyter-ai-magics`.
 
 *Note*: This installation step fails in a `zsh` environment because `zsh` uses square brackets for pattern matching. `zsh` is the default shell for Mac users since Catalina https://support.apple.com/en-ca/102360. The square brackets need to be escaped or the entire package name quoted. Please use the following install command instead:
 
-    $ pip install 'jupyter-ai[all]' 
+    $ pip install 'jupyter-ai[all]'
 
 
 ### Minimal installation via `pip`
