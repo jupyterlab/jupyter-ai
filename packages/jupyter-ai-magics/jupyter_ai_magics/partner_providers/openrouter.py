@@ -38,7 +38,7 @@ class OpenRouterProvider(BaseProvider, ChatOpenRouter):
         )
 
         super().__init__(
-            openai_api_key=openrouter_api_key,
+            openai_api_key=kwargs.pop("openrouter_api_key"),
             openai_api_base=openrouter_api_base,
             **kwargs,
         )
