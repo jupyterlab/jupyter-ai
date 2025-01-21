@@ -106,7 +106,7 @@ section to pick the installation method that works best for you.
 
 If you want to install both the `%%ai` magic and the JupyterLab extension, you can run:
 
-    $ pip install jupyter-ai[all]
+    $ pip install 'jupyter-ai[all]'
 
 Then, restart JupyterLab. This will install every optional dependency, which
 provides access to all models currently supported by `jupyter-ai`.
@@ -114,14 +114,15 @@ provides access to all models currently supported by `jupyter-ai`.
 If you are not using JupyterLab and you only want to install the Jupyter AI
 `%%ai` magic, you can run:
 
-    $ pip install jupyter-ai-magics[all]
+    $ pip install 'jupyter-ai-magics[all]'
 
 `jupyter-ai` depends on `jupyter-ai-magics`, so installing `jupyter-ai`
 automatically installs `jupyter-ai-magics`.
 
-*Note*: This installation step fails in a `zsh` environment because `zsh` uses square brackets for pattern matching. `zsh` is the default shell for Mac users since Catalina https://support.apple.com/en-ca/102360. The square brackets need to be escaped or the entire package name quoted. Please use the following install command instead:
-
-    $ pip install 'jupyter-ai[all]'
+:::{warning}
+:name: quoting-cli-arguments
+If running the above commands result in an error like `zsh: no matches found: jupyter-ai[all]`, this is because the `jupyter-ai[all]` argument must be surrounded by single or double quotes. Some shells reserve square brackets for pattern matching, so arguments containing square brackets must be quoted.
+:::
 
 
 ### Minimal installation via `pip`
