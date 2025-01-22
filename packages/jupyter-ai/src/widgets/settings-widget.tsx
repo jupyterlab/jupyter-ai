@@ -1,23 +1,27 @@
 import React from 'react';
-import { ReactWidget } from '@jupyterlab/apputils';
+import { IThemeManager, ReactWidget } from '@jupyterlab/apputils';
 import { settingsIcon } from '@jupyterlab/ui-components';
+import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 
 import { IJaiCompletionProvider } from '../tokens';
-import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { ChatSettings } from '../components/chat-settings';
+import { JlThemeProvider } from '../components/jl-theme-provider';
 
 export function buildAiSettings(
+  themeManager: IThemeManager | null,
   rmRegistry: IRenderMimeRegistry,
   completionProvider: IJaiCompletionProvider | null,
   openInlineCompleterSettings: () => void
 ): ReactWidget {
   const SettingsWidget = ReactWidget.create(
-    <ChatSettings
-      rmRegistry={rmRegistry}
-      completionProvider={completionProvider}
-      openInlineCompleterSettings={openInlineCompleterSettings}
-      inputOptions={false}
-    />
+    <JlThemeProvider themeManager={themeManager}>
+      <ChatSettings
+        rmRegistry={rmRegistry}
+        completionProvider={completionProvider}
+        openInlineCompleterSettings={openInlineCompleterSettings}
+        inputOptions={false}
+      />
+    </JlThemeProvider>
   );
   SettingsWidget.id = 'jupyter-ai::settings';
   SettingsWidget.title.icon = settingsIcon;
