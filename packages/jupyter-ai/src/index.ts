@@ -55,6 +55,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
     let settingsWidget: ReactWidget;
     try {
       settingsWidget = buildAiSettings(
+        themeManager,
         rmRegistry,
         completionProvider,
         openInlineCompleterSettings
