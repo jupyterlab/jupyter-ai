@@ -35,6 +35,7 @@ export namespace AiCompleterService {
   export type CompletionError = {
     type: string;
     traceback: string;
+    title: string;
   };
 
   export type InlineCompletionReply = {
