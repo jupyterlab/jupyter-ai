@@ -128,12 +128,14 @@ export class JaiInlineProvider
           }
         ]
       });
-      const items = [{
-        error: {message: error.title},
-        insertText: ""
-      }]
-      console.log({items});
-      return { items }
+      const items = [
+        {
+          error: { message: error.title },
+          insertText: ''
+        }
+      ];
+      console.log({ items });
+      return { items };
     }
     return result.list;
   }
