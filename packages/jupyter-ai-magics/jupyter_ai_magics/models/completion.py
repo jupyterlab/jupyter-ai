@@ -14,7 +14,7 @@ class InlineCompletionRequest(BaseModel):
     number: int
     # prefix should include full text of the current cell preceding the cursor
     prefix: str
-    # suffix should include full text of the current cell preceding the cursor
+    # suffix should include full text of the current cell following the cursor
     suffix: str
     # media type for the current language, e.g. `text/x-python`
     mime: str
