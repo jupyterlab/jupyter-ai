@@ -106,7 +106,7 @@ section to pick the installation method that works best for you.
 
 If you want to install both the `%%ai` magic and the JupyterLab extension, you can run:
 
-    $ pip install jupyter-ai[all]
+    $ pip install 'jupyter-ai[all]'
 
 Then, restart JupyterLab. This will install every optional dependency, which
 provides access to all models currently supported by `jupyter-ai`.
@@ -114,10 +114,16 @@ provides access to all models currently supported by `jupyter-ai`.
 If you are not using JupyterLab and you only want to install the Jupyter AI
 `%%ai` magic, you can run:
 
-    $ pip install jupyter-ai-magics[all]
+    $ pip install 'jupyter-ai-magics[all]'
 
 `jupyter-ai` depends on `jupyter-ai-magics`, so installing `jupyter-ai`
 automatically installs `jupyter-ai-magics`.
+
+:::{warning}
+:name: quoting-cli-arguments
+If running the above commands result in an error like `zsh: no matches found: jupyter-ai[all]`, this is because the `jupyter-ai[all]` argument must be surrounded by single or double quotes. Some shells reserve square brackets for pattern matching, so arguments containing square brackets must be quoted.
+:::
+
 
 ### Minimal installation via `pip`
 
@@ -337,6 +343,13 @@ The chat backend remembers the last two exchanges in your conversation and passe
 Jupyter AI enables use of language models hosted on [Amazon Bedrock](https://aws.amazon.com/bedrock/) on AWS. Ensure that you have authentication to use AWS using the `boto3` SDK with credentials stored in the `default` profile. Guidance on how to do this can be found in the [`boto3` documentation](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html).
 
 For details on enabling model access in your AWS account, using cross-region inference, or invoking custom/provisioned models, please see our dedicated documentation page on [using Amazon Bedrock in Jupyter AI](bedrock.md).
+
+
+### OpenRouter Usage
+
+Jupyter AI enables use of language models accessible through [OpenRouter](https://openrouter.ai)'s unified interface. Examples of models that may be accessed via OpenRouter are: [Deepseek](https://openrouter.ai/deepseek/deepseek-chat), [Qwen](https://openrouter.ai/qwen/), [mistral](https://openrouter.ai/mistralai/), etc. OpenRouter enables usage of any model conforming to the OpenAI API.
+
+For details on enabling model access via the AI Settings and using models via OpenRouter, please see the dedicated documentation page on using [OpenRouter in Jupyter AI](openrouter.md).
 
 
 ### SageMaker endpoints usage

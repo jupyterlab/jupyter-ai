@@ -2,6 +2,62 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 3.0.0a0
+
+Hope you all have had a wonderful holiday season! Santa and I present to you the first pre-release of v3, the next major version of Jupyter AI. 🎁
+
+**Rapid summary of what's new**: In v3, all responsibility for managing the chat is now delegated to [Jupyter Chat](https://github.com/jupyterlab/jupyter-chat), a new project built with Jupyter AI components and a custom chat backend. By using Jupyter Chat, Jupyter AI now supports multiple chats, and automatically saves them as files on disk. This migration has already allowed us to greatly simplify our codebase, and will provide a fantastic foundation to build new features for users in v3. ❤️
+
+- Thank you @brichet for leading development on Jupyter Chat!
+- For more details, please see the full PR history of v3-dev using [this link](https://github.com/jupyterlab/jupyter-ai/pulls?q=base%3Av3-dev+).
+
+This pre-release is being published quickly to get feedback from contributors & stakeholders. v3 is still a work-in-progress, and we will absolutely build more features & fix more issues on top of this before the v3.0.0 official release. This is just the first pre-release of many more to come. 💪
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.28.4...899af0a0403d68c8ff1e28acd79a050cf1eed27e))
+
+### Enhancements made
+
+- V3: The Beginning [#1169](https://github.com/jupyterlab/jupyter-ai/pull/1169) ([@dlqqq](https://github.com/dlqqq) & [@brichet](https://github.com/brichet))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-12-24&to=2024-12-26&type=c))
+
+[@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2024-12-24..2024-12-26&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
+## 2.28.4
+
+Merry Christmas and happy holidays to all! 🎄
+
+Note to contributors: This is planned to be the last v2 release from the `main` branch. After the first v3 pre-release, `main` will track Jupyter AI v3, while Jupyter AI v2 will continue to be maintained from the `2.x` branch.
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.28.3...dc66cfcdca15f78eae88ba8dd97636246265cdb6))
+
+### Enhancements made
+
+- Add base API URL field for Ollama and OpenAI embedding models [#1136](https://github.com/jupyterlab/jupyter-ai/pull/1136) ([@srdas](https://github.com/srdas))
+
+### Bugs fixed
+
+- Update `/generate` to not split classes & functions across cells [#1158](https://github.com/jupyterlab/jupyter-ai/pull/1158) ([@srdas](https://github.com/srdas))
+- Fix code output format in IPython [#1155](https://github.com/jupyterlab/jupyter-ai/pull/1155) ([@divyansshhh](https://github.com/divyansshhh))
+
+### Maintenance and upkeep improvements
+
+- Trigger update snapshots based on commenter's role [#1160](https://github.com/jupyterlab/jupyter-ai/pull/1160) ([@dlqqq](https://github.com/dlqqq))
+
+### Documentation improvements
+
+- Improve user messaging and documentation for Cross-Region Inference on Amazon Bedrock [#1134](https://github.com/jupyterlab/jupyter-ai/pull/1134) ([@srdas](https://github.com/srdas))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-12-05&to=2024-12-24&type=c))
+
+[@divyansshhh](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adivyansshhh+updated%3A2024-12-05..2024-12-24&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2024-12-05..2024-12-24&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2024-12-05..2024-12-24&type=Issues) | [@mlucool](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Amlucool+updated%3A2024-12-05..2024-12-24&type=Issues) | [@srdas](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2024-12-05..2024-12-24&type=Issues) | [@Zsailer](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AZsailer+updated%3A2024-12-05..2024-12-24&type=Issues)
+
 ## 2.28.3
 
 This release notably fixes a major bug with updated model fields not being used until after a server restart, and fixes a bug with Ollama in the chat. Thank you for your patience as we continue to improve Jupyter AI! 🤗
@@ -27,8 +83,6 @@ This release notably fixes a major bug with updated model fields not being used 
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-11-18&to=2024-12-05&type=c))
 
 [@ctcjab](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Actcjab+updated%3A2024-11-18..2024-12-05&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2024-11-18..2024-12-05&type=Issues) | [@JanusChoi](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AJanusChoi+updated%3A2024-11-18..2024-12-05&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2024-11-18..2024-12-05&type=Issues) | [@pre-commit-ci](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Apre-commit-ci+updated%3A2024-11-18..2024-12-05&type=Issues) | [@srdas](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2024-11-18..2024-12-05&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 2.28.2
 

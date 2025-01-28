@@ -1,8 +1,8 @@
 import argparse
 from typing import Dict, Type
 
-from jupyter_ai.models import HumanChatMessage
 from jupyter_ai_magics.providers import BaseProvider
+from jupyterlab_chat.models import Message
 from langchain.chains import ConversationalRetrievalChain
 from langchain.memory import ConversationBufferWindowMemory
 from langchain_core.prompts import PromptTemplate
@@ -59,7 +59,7 @@ class AskChatHandler(BaseChatHandler):
             verbose=False,
         )
 
-    async def process_message(self, message: HumanChatMessage):
+    async def process_message(self, message: Message):
         args = self.parse_args(message)
         if args is None:
             return
@@ -70,8 +70,8 @@ class AskChatHandler(BaseChatHandler):
 
         self.get_llm_chain()
 
-        try:
-            with self.pending("Searching learned documents", message):
+        with self.start_reply_stream() as reply_stream:
+            try:
                 assert self.llm_chain
                 # TODO: migrate this class to use a LCEL `Runnable` instead of
                 # `Chain`, then remove the below ignore comment.
@@ -79,12 +79,15 @@ class AskChatHandler(BaseChatHandler):
                     {"question": query}
                 )
                 response = result["answer"]
-            self.reply(response, message)
-        except AssertionError as e:
-            self.log.error(e)
-            response = """Sorry, an error occurred while reading the from the learned documents.
-            If you have changed the embedding provider, try deleting the existing index by running
-            `/learn -d` command and then re-submitting the `learn <directory>` to learn the documents,
-            and then asking the question again.
-            """
-            self.reply(response, message)
+
+                # old pending message: "Searching learned documents..."
+                # TODO: configure this pending message in jupyterlab-chat
+                reply_stream.write(response)
+            except AssertionError as e:
+                self.log.error(e)
+                response = """Sorry, an error occurred while reading the from the learned documents.
+                If you have changed the embedding provider, try deleting the existing index by running
+                `/learn -d` command and then re-submitting the `learn <directory>` to learn the documents,
+                and then asking the question again.
+                """
+                reply_stream.write(response, message)

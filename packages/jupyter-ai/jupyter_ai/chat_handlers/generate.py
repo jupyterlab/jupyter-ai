@@ -1,3 +1,4 @@
+import ast
 import asyncio
 import os
 import time
@@ -7,14 +8,14 @@ from typing import Dict, List, Optional, Type
 
 import nbformat
 from jupyter_ai.chat_handlers import BaseChatHandler, SlashCommandRoutingType
-from jupyter_ai.models import HumanChatMessage
 from jupyter_ai_magics.providers import BaseProvider
+from jupyterlab_chat.models import Message
 from langchain.chains import LLMChain
 from langchain.llms import BaseLLM
 from langchain.output_parsers import PydanticOutputParser
-from langchain.pydantic_v1 import BaseModel
 from langchain.schema.output_parser import BaseOutputParser
 from langchain_core.prompts import PromptTemplate
+from pydantic import BaseModel
 
 
 class OutlineSection(BaseModel):
@@ -54,7 +55,7 @@ async def generate_outline(description, llm=None, verbose=False):
     chain = NotebookOutlineChain.from_llm(llm=llm, parser=parser, verbose=verbose)
     outline = await chain.apredict(description=description)
     outline = parser.parse(outline)
-    return outline.dict()
+    return outline.model_dump()
 
 
 class CodeImproverChain(LLMChain):
@@ -198,6 +199,15 @@ async def afill_outline(outline, llm, verbose=False):
     await asyncio.gather(*all_coros)
 
 
+# Check if the content of the cell is python code or not
+def is_not_python_code(source: str) -> bool:
+    try:
+        ast.parse(source)
+    except:
+        return True
+    return False
+
+
 def create_notebook(outline):
     """Create an nbformat Notebook object for a notebook outline."""
     nbf = nbformat.v4
@@ -212,6 +222,26 @@ def create_notebook(outline):
         nb["cells"].append(nbf.new_markdown_cell("## " + section["title"]))
         for code_block in section["code"].split("\n\n"):
             nb["cells"].append(nbf.new_code_cell(code_block))
+
+    # Post process notebook for hanging code cells: merge hanging cell with the previous cell
+    merged_cells = []
+    for cell in nb["cells"]:
+        # Fix a hanging code cell
+        follows_code_cell = merged_cells and merged_cells[-1]["cell_type"] == "code"
+        is_incomplete = cell["cell_type"] == "code" and cell["source"].startswith(" ")
+        if follows_code_cell and is_incomplete:
+            merged_cells[-1]["source"] = (
+                merged_cells[-1]["source"] + "\n\n" + cell["source"]
+            )
+        else:
+            merged_cells.append(cell)
+
+    # Fix code cells that should be markdown
+    for cell in merged_cells:
+        if cell["cell_type"] == "code" and is_not_python_code(cell["source"]):
+            cell["cell_type"] = "markdown"
+
+    nb["cells"] = merged_cells
     return nb
 
 
@@ -262,7 +292,7 @@ class GenerateChatHandler(BaseChatHandler):
         nbformat.write(notebook, final_path)
         return final_path
 
-    async def process_message(self, message: HumanChatMessage):
+    async def process_message(self, message: Message):
         self.get_llm_chain()
 
         # first send a verification message to user
@@ -273,7 +303,7 @@ class GenerateChatHandler(BaseChatHandler):
         response = f"""🎉 I have created your notebook and saved it to the location {final_path}. I am still learning how to create notebooks, so please review all code before running it."""
         self.reply(response, message)
 
-    async def handle_exc(self, e: Exception, message: HumanChatMessage):
+    async def handle_exc(self, e: Exception, message: Message):
         timestamp = time.strftime("%Y-%m-%d-%H.%M.%S")
         default_log_dir = Path(self.output_dir) / "jupyter-ai-logs"
         log_dir = self.log_dir or default_log_dir

@@ -4,14 +4,27 @@
   "description": "JupyterLab generative artificial intelligence integration.",
   "jupyter.lab.setting-icon": "jupyter-ai::chat",
   "jupyter.lab.setting-icon-label": "Jupyter AI Chat",
-  "jupyter.lab.shortcuts": [
-    {
-      "command": "jupyter-ai:focus-chat-input",
-      "keys": ["Accel Shift 1"],
-      "selector": "body",
-      "preventDefault": false
-    }
-  ],
+  "jupyter.lab.menus": {
+    "main": [
+      {
+        "id": "jp-mainmenu-settings",
+        "items": [
+          {
+            "type": "separator",
+            "rank": 110
+          },
+          {
+            "command": "jupyter-ai:open-settings",
+            "rank": 110
+          },
+          {
+            "type": "separator",
+            "rank": 110
+          }
+        ]
+      }
+    ]
+  },
   "additionalProperties": false,
   "type": "object"
 }
