@@ -21,6 +21,7 @@ class MockProvider(BaseProvider, FakeListLLM):
     name = "My Provider"
     model_id_key = "model"
     models = ["model"]
+    raise_exc: bool = False
 
     def __init__(self, **kwargs):
         if "responses" not in kwargs:
@@ -28,7 +29,7 @@ class MockProvider(BaseProvider, FakeListLLM):
         super().__init__(**kwargs)
 
     async def _acall(self, *args, **kwargs):
-        if hasattr(self, "raise_exc") and self.raise_exc:
+        if self.raise_exc:
             raise Exception("Test exception")
         else:
             return super()._call(*args, **kwargs)
@@ -209,5 +210,5 @@ async def test_handle_request_with_error(inline_handler):
     )
     await inline_handler.on_message(json.dumps(dict(dummy_request)))
     await inline_handler.tasks[0]
-    error = inline_handler.messages[-1].dict().get("error", None)
+    error = inline_handler.messages[-1].model_dump().get("error", None)
     assert error is not None
