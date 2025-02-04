@@ -42,8 +42,16 @@ In a code cell, you can use the %env magic command to set the credentials as fol
 ```python
 # NOTE: Replace 'PROVIDER_API_KEY' with the credential key's name,
 # and replace 'YOUR_API_KEY_HERE' with the key.
+os.environ['PROVIDER_API_KEY'] = YOUR_API_KEY_HERE
+```
+
+:::{warning}
+:name: using-env-key
+You may also set these keys using using the `%env` magic command within JupyterLab, but the keys may be echoed and visible in the output. This is not recommended.
+```
 %env PROVIDER_API_KEY=YOUR_API_KEY_HERE
 ```
+:::
 
 For more specific instructions for each model provider, refer to [the model providers documentation](https://jupyter-ai.readthedocs.io/en/latest/users/index.html#model-providers).
 

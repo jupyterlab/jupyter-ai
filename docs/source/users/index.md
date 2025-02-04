@@ -992,7 +992,20 @@ The location of `ipython_config.py` file is documented in [IPython configuration
 
 You can use magic commands with models hosted using Amazon SageMaker.
 
-First, make sure that you've set your `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` environment variables either before starting JupyterLab or using the `%env` magic command within JupyterLab. For more information about environment variables, see [Environment variables to configure the AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-envvars.html) in AWS's documentation.
+First, make sure that you've set your `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` environment variables either before starting JupyterLab or as follows:
+```
+os.environ['AWS_ACCESS_KEY_ID'] = <your_aws_access_key_id>
+os.environ['AWS_SECRET_ACCESS_KEY'] = <your_aws_secret_access_key>
+```
+For more information about environment variables, see [Environment variables to configure the AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-envvars.html) in AWS's documentation.
+
+:::{warning}
+:name: using-env-key
+You may also set these keys using using the `%env` magic command within JupyterLab, but the keys may be echoed and visible in the output. This is not recommended.
+```
+%env PROVIDER_API_KEY=YOUR_API_KEY_HERE
+```
+:::
 
 Jupyter AI supports language models hosted on SageMaker endpoints that use JSON schemas. Authenticate with AWS via the `boto3` SDK and have the credentials stored in the `default` profile.  Guidance on how to do this can be found in the [`boto3` documentation](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html).
 
