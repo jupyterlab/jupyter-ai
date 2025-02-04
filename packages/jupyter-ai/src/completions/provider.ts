@@ -134,7 +134,6 @@ export class JaiInlineProvider
           insertText: ''
         }
       ];
-      console.log({ items });
       return { items };
     }
     return result.list;
