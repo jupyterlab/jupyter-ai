@@ -1003,7 +1003,8 @@ For more information about environment variables, see [Environment variables to 
 :name: using-env-key
 You may also set these keys using using the `%env` magic command within JupyterLab, but the keys may be echoed and visible in the output. This is not recommended.
 ```
-%env PROVIDER_API_KEY=YOUR_API_KEY_HERE
+%env AWS_ACCESS_KEY_ID = <your_aws_access_key_id>
+%env AWS_SECRET_ACCESS_KEY = <your_aws_secret_access_key>
 ```
 :::
 
