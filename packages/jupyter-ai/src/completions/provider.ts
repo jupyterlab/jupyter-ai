@@ -122,15 +122,19 @@ export class JaiInlineProvider
             label: 'Show Traceback',
             callback: () => {
               showErrorMessage('Inline completion failed on the server side', {
-                message: error.traceback
+                message: `${error.title}\n${error.traceback}`
               });
             }
           }
         ]
       });
-      throw new Error(
-        `Inline completion failed: ${error.type}\n${error.traceback}`
-      );
+      const items = [
+        {
+          error: { message: error.title },
+          insertText: ''
+        }
+      ];
+      return { items };
     }
     return result.list;
   }
