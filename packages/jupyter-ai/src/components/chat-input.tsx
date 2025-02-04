@@ -9,16 +9,14 @@ import {
   InputAdornment,
   Typography
 } from '@mui/material';
-import {
-  Download,
-  FindInPage,
-  Help,
-  MoreHoriz,
-  MenuBook,
-  School,
-  HideSource,
-  AutoFixNormal
-} from '@mui/icons-material';
+import Download from '@mui/icons-material/Download';
+import FindInPage from '@mui/icons-material/FindInPage';
+import Help from '@mui/icons-material/Help';
+import MoreHoriz from '@mui/icons-material/MoreHoriz';
+import MenuBook from '@mui/icons-material/MenuBook';
+import School from '@mui/icons-material/School';
+import HideSource from '@mui/icons-material/HideSource';
+import AutoFixNormal from '@mui/icons-material/AutoFixNormal';
 import { ISignal } from '@lumino/signaling';
 
 import { AiService } from '../handler';

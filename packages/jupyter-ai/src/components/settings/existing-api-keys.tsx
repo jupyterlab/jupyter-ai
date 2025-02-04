@@ -6,14 +6,12 @@ import {
   TextField,
   InputAdornment
 } from '@mui/material';
-import {
-  Edit,
-  DeleteOutline,
-  Cancel,
-  Check,
-  Visibility,
-  VisibilityOff
-} from '@mui/icons-material';
+import Edit from '@mui/icons-material/Edit';
+import DeleteOutline from '@mui/icons-material/DeleteOutline';
+import Cancel from '@mui/icons-material/Cancel';
+import Check from '@mui/icons-material/Check';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { AsyncIconButton } from '../mui-extras/async-icon-button';
 
 import { AiService } from '../../handler';
