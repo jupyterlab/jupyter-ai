@@ -992,7 +992,7 @@ The location of `ipython_config.py` file is documented in [IPython configuration
 
 You can use magic commands with models hosted using Amazon SageMaker.
 
-First, make sure that you've set your `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` environment variables either before starting JupyterLab as follows:
+First, make sure that you've set your `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` environment variables  before starting JupyterLab as follows:
 ```
 os.environ['AWS_ACCESS_KEY_ID'] = <your_aws_access_key_id>
 os.environ['AWS_SECRET_ACCESS_KEY'] = <your_aws_secret_access_key>
