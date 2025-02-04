@@ -441,6 +441,10 @@ models.
 
 To get started, follow the instructions on the [Ollama website](https://ollama.com/) to set up `ollama` and download the models locally. To select a model, enter the model name in the settings panel, for example `deepseek-coder-v2`.
 
+### vLLM usage
+
+`vLLM` is a fast and easy-to-use library for LLM inference and serving. The [vLLM website](https://docs.vllm.ai/en/latest/) explains installation and usage. To use `vLLM` in Jupyter AI, please see the dedicated documentation page on using [vLLM in Jupyter AI](vllm.md). 
+
 ### Asking about something in your notebook
 
 Jupyter AI's chat interface can include a portion of your notebook in your prompt.
