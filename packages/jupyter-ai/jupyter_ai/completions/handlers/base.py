@@ -129,9 +129,10 @@ class BaseInlineCompletionHandler(
         `handle_stream_request()`. This base class provides a default
         implementation, which may be overridden by subclasses.
         """
+        title = e.args[0] if e.args else "Exception"
         error = CompletionError(
             type=e.__class__.__name__,
-            title=e.args[0] if e.args else "Exception",
+            title=title,
             traceback=traceback.format_exc(),
         )
         self.reply(
