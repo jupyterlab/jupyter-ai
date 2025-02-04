@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 
 import { IconButton, Menu, MenuItem, SxProps } from '@mui/material';
-import { MoreVert } from '@mui/icons-material';
+import MoreVert from '@mui/icons-material/MoreVert';
 import {
   addAboveIcon,
   addBelowIcon,
