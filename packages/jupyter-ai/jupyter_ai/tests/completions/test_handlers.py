@@ -21,15 +21,22 @@ class MockProvider(BaseProvider, FakeListLLM):
     name = "My Provider"
     model_id_key = "model"
     models = ["model"]
+    raise_exc: bool = False
 
     def __init__(self, **kwargs):
         if "responses" not in kwargs:
             kwargs["responses"] = ["Test response"]
         super().__init__(**kwargs)
 
+    async def _acall(self, *args, **kwargs):
+        if self.raise_exc:
+            raise Exception("Test exception")
+        else:
+            return super()._call(*args, **kwargs)
+
 
 class MockCompletionHandler(DefaultInlineCompletionHandler):
-    def __init__(self, lm_provider=None, lm_provider_params=None):
+    def __init__(self, lm_provider=None, lm_provider_params=None, raise_exc=False):
         self.request = HTTPServerRequest()
         self.application = Application()
         self.messages = []
@@ -49,10 +56,6 @@ class MockCompletionHandler(DefaultInlineCompletionHandler):
         self, message: Union[InlineCompletionReply, InlineCompletionStreamChunk]
     ) -> None:
         self.messages.append(message)
-
-    async def handle_exc(self, e: Exception, _request: InlineCompletionRequest):
-        # raise all exceptions during testing rather
-        raise e
 
 
 @fixture
@@ -191,3 +194,21 @@ async def test_handle_stream_request():
     assert third.type == "stream"
     assert third.response.insertText == "test"
     assert third.done is True
+
+
+async def test_handle_request_with_error(inline_handler):
+    inline_handler = MockCompletionHandler(
+        lm_provider=MockProvider,
+        lm_provider_params={
+            "model_id": "model",
+            "responses": ["test"],
+            "raise_exc": True,
+        },
+    )
+    dummy_request = InlineCompletionRequest(
+        number=1, prefix="", suffix="", mime="", stream=True
+    )
+    await inline_handler.on_message(json.dumps(dict(dummy_request)))
+    await inline_handler.tasks[0]
+    error = inline_handler.messages[-1].model_dump().get("error", None)
+    assert error is not None
