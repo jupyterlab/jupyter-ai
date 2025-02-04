@@ -999,14 +999,14 @@ os.environ['AWS_SECRET_ACCESS_KEY'] = <your_aws_secret_access_key>
 ```
 For more information about environment variables, see [Environment variables to configure the AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-envvars.html) in AWS's documentation.
 
-You can set the keys interactively and securely using the following code in your notebook: 
+You can set the keys interactively and securely using the following code in your notebook:
 
 ```python
 # NOTE: Enter the AWS access key id and the AWS secret access key when prompted by the code below
 
 import getpass
 
-# Enter your keys 
+# Enter your keys
 access_key = getpass.getpass('Enter your AWS ACCESS KEY ID: ')
 secret_access_key = getpass.getpass('Enter your AWS SECRET ACCESS KEY: ')
 
