@@ -999,9 +999,25 @@ os.environ['AWS_SECRET_ACCESS_KEY'] = <your_aws_secret_access_key>
 ```
 For more information about environment variables, see [Environment variables to configure the AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-envvars.html) in AWS's documentation.
 
-:::{warning}
+You can set the keys interactively and securely using the following code in your notebook: 
+
+```python
+# NOTE: Enter the AWS access key id and the AWS secret access key when prompted by the code below
+
+import getpass
+
+# Enter your keys 
+access_key = getpass.getpass('Enter your AWS ACCESS KEY ID: ')
+secret_access_key = getpass.getpass('Enter your AWS SECRET ACCESS KEY: ')
+
+# Set the environment variable without displaying the full key
+os.environ['AWS_ACCESS_KEY_ID'] = access_key
+os.environ['AWS_SECRET_ACCESS_KEY'] = secret_access_key
+```
+
+:::{note}
 :name: using-env-key
-You may also set these keys using using the `%env` magic command within JupyterLab, but the keys may be echoed and visible in the output. This is not recommended.
+You may also set these keys directly using the `%env` magic command, but the key value may be echoed in the cell output. If you prefer to use `%env`, be sure to not share the notebook with people you don't trust, as this may leak your API keys.
 ```
 %env AWS_ACCESS_KEY_ID = <your_aws_access_key_id>
 %env AWS_SECRET_ACCESS_KEY = <your_aws_secret_access_key>
