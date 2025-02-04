@@ -992,7 +992,38 @@ The location of `ipython_config.py` file is documented in [IPython configuration
 
 You can use magic commands with models hosted using Amazon SageMaker.
 
-First, make sure that you've set your `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` environment variables either before starting JupyterLab or using the `%env` magic command within JupyterLab. For more information about environment variables, see [Environment variables to configure the AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-envvars.html) in AWS's documentation.
+First, make sure that you've set your `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` environment variables  before starting JupyterLab as follows:
+```
+os.environ['AWS_ACCESS_KEY_ID'] = <your_aws_access_key_id>
+os.environ['AWS_SECRET_ACCESS_KEY'] = <your_aws_secret_access_key>
+```
+
+You can also set the keys interactively and securely using the following code in your notebook:
+
+```python
+# NOTE: Enter the AWS access key id and the AWS secret access key when prompted by the code below
+
+import getpass
+
+# Enter your keys
+access_key = getpass.getpass('Enter your AWS ACCESS KEY ID: ')
+secret_access_key = getpass.getpass('Enter your AWS SECRET ACCESS KEY: ')
+
+# Set the environment variable without displaying the full key
+os.environ['AWS_ACCESS_KEY_ID'] = access_key
+os.environ['AWS_SECRET_ACCESS_KEY'] = secret_access_key
+```
+
+:::{note}
+:name: using-env-key
+You may also set these keys directly using the `%env` magic command, but the key value may be echoed in the cell output. If you prefer to use `%env`, be sure to not share the notebook with people you don't trust, as this may leak your API keys.
+```
+%env AWS_ACCESS_KEY_ID = <your_aws_access_key_id>
+%env AWS_SECRET_ACCESS_KEY = <your_aws_secret_access_key>
+```
+:::
+
+For more information about environment variables, see [Environment variables to configure the AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-envvars.html) in AWS's documentation.
 
 Jupyter AI supports language models hosted on SageMaker endpoints that use JSON schemas. Authenticate with AWS via the `boto3` SDK and have the credentials stored in the `default` profile.  Guidance on how to do this can be found in the [`boto3` documentation](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html).
 
