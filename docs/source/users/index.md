@@ -998,7 +998,7 @@ os.environ['AWS_ACCESS_KEY_ID'] = <your_aws_access_key_id>
 os.environ['AWS_SECRET_ACCESS_KEY'] = <your_aws_secret_access_key>
 ```
 
-You can also set the keys interactively and securely using the following code in your notebook: 
+You can also set the keys interactively and securely using the following code in your notebook:
 
 ```python
 # NOTE: Enter the AWS access key id and the AWS secret access key when prompted by the code below
