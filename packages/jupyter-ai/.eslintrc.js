@@ -10,7 +10,7 @@ module.exports = {
     tsconfigRootDir: __dirname,
     project: './tsconfig.json'
   },
-  plugins: ['@typescript-eslint'],
+  plugins: ['@stylistic', '@typescript-eslint'],
   rules: {
     '@typescript-eslint/naming-convention': [
       'error',
@@ -27,13 +27,32 @@ module.exports = {
     '@typescript-eslint/no-explicit-any': 'off',
     '@typescript-eslint/no-namespace': 'off',
     '@typescript-eslint/no-use-before-define': 'off',
-    '@typescript-eslint/quotes': [
+    '@stylistic/quotes': [
       'error',
       'single',
       { avoidEscape: true, allowTemplateLiterals: false }
     ],
     curly: ['error', 'all'],
     eqeqeq: 'error',
+    'no-restricted-imports': [
+      'error',
+      {
+        paths: [
+          {
+            name: '@mui/icons-material',
+
+            message:
+              "Please import icons using path imports, e.g. `import AddIcon from '@mui/icons-material/Add'`"
+          }
+        ],
+        patterns: [
+          {
+            group: ['@mui/*/*/*'],
+            message: '3rd level imports in mui are considered private'
+          }
+        ]
+      }
+    ],
     'prefer-arrow-callback': 'error'
   },
   overrides: [
