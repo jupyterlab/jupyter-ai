@@ -4,7 +4,7 @@
 
 `vLLM` is a fast and easy-to-use library for LLM inference and serving. The [vLLM website](https://docs.vllm.ai/en/latest/) explains installation and usage.
 
-Depending on your hardware set up you will install `vLLM` using these [instructions](https://docs.vllm.ai/en/latest/getting_started/installation/index.html). It is best to install it in a dedicated python environment. 
+Depending on your hardware set up you will install `vLLM` using these [instructions](https://docs.vllm.ai/en/latest/getting_started/installation/index.html). It is best to install it in a dedicated python environment.
 
 Once it is installed you may start serving any model with the command:
 ```python
@@ -24,7 +24,7 @@ Start up Jupyter AI and update the AI Settings as follows (notice that we are us
     alt="Screen shot of AI setting for using vllm."
     class="screenshot"  width="75%"/>
 
-Since vLLM may be addressed using OpenAI's API, you can test if the model is available using the API call as shown: 
+Since vLLM may be addressed using OpenAI's API, you can test if the model is available using the API call as shown:
 
 <img src="../_static/vllm-api.png"
     alt="Screen shot of using vllm programmatically with its API."
