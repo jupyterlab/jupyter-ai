@@ -2,6 +2,38 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 2.29.1
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.29.0...e7ab0cd15acdfce325d540684078331755dad67c))
+
+### Enhancements made
+
+- Show error icon near cursor on inline completion errors [#1197](https://github.com/jupyterlab/jupyter-ai/pull/1197) ([@Darshan808](https://github.com/Darshan808))
+
+### Bugs fixed
+
+- Enforce path imports for MUI icons, upgrade to ESLint v8 [#1225](https://github.com/jupyterlab/jupyter-ai/pull/1225) ([@krassowski](https://github.com/krassowski))
+- Fixes duplicate api key being passed in `openrouter.py` [#1216](https://github.com/jupyterlab/jupyter-ai/pull/1216) ([@srdas](https://github.com/srdas))
+
+### Maintenance and upkeep improvements
+
+- Upgrade to `actions/cache@v4` [#1228](https://github.com/jupyterlab/jupyter-ai/pull/1228) ([@dlqqq](https://github.com/dlqqq))
+- Typo in comment [#1217](https://github.com/jupyterlab/jupyter-ai/pull/1217) ([@Carreau](https://github.com/Carreau))
+
+### Documentation improvements
+
+- Update documentation for setting API keys without revealing them [#1224](https://github.com/jupyterlab/jupyter-ai/pull/1224) ([@srdas](https://github.com/srdas))
+- Typo in comment [#1217](https://github.com/jupyterlab/jupyter-ai/pull/1217) ([@Carreau](https://github.com/Carreau))
+- Docs: Update installation steps to work in bash & zsh [#1211](https://github.com/jupyterlab/jupyter-ai/pull/1211) ([@srdas](https://github.com/srdas))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2025-01-16&to=2025-02-06&type=c))
+
+[@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2025-01-16..2025-02-06&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2025-01-16..2025-02-06&type=Issues) | [@meeseeksmachine](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ameeseeksmachine+updated%3A2025-01-16..2025-02-06&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 2.29.0
 
 This release notably upgrades to LangChain v0.3 and Pydantic v2. You can now use the latest LangChain & Pydantic APIs available in the same environment as Jupyter AI! 🎉
@@ -33,8 +65,6 @@ pip install -U "jupyter-ai[all]"
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2025-01-09&to=2025-01-16&type=c))
 
 [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2025-01-09..2025-01-16&type=Issues) | [@meeseeksmachine](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ameeseeksmachine+updated%3A2025-01-09..2025-01-16&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 2.28.5
 
