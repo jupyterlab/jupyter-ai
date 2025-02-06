@@ -4,6 +4,11 @@
 
 `vLLM` is a fast and easy-to-use library for LLM inference and serving. The [vLLM website](https://docs.vllm.ai/en/latest/) explains installation and usage.
 
+:::{note}
+To use `vLLM` via `OpenRouter` as described below you will need to upgrade to `jupyter-ai >= 2.29.1`.
+:::
+
+
 Depending on your hardware set up you will install `vLLM` using these [instructions](https://docs.vllm.ai/en/latest/getting_started/installation/index.html). It is best to install it in a dedicated python environment.
 
 Once it is installed you may start serving any model with the command:
