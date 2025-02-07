@@ -441,7 +441,7 @@ models.
 
 To get started, follow the instructions on the [Ollama website](https://ollama.com/) to set up `ollama` and download the models locally. To select a model, enter the model name in the settings panel, for example `deepseek-coder-v2`.  You can see all locally available models with  `ollama list`.
 
-Note that for the models to be available to JupyterLab-AI, your Ollama server must be running. You can check that this is the case by calling `ollama serve` at the terminal, and should see something like:
+For the Ollama models to be available to JupyterLab-AI, your Ollama server _must_ be running. You can check that this is the case by calling `ollama serve` at the terminal, and should see something like:
 
 ```
 $ ollama serve
@@ -451,7 +451,9 @@ Error: listen tcp 127.0.0.1:11434: bind: address already in use
 In some platforms (e.g. macOS or Windows), there may also be a graphical user interface or application that lets you start/stop the Ollama server from a menu.
 
 :::{tip}
-If you don't see Ollama listed as a model provider in the configuration box, despite confirming that your Ollama server is active, you may not have installed the []`langchain-ollama` python package](https://pypi.org/project/langchain-ollama/) that is necessary for Jupyter-AI to interface with Ollama, as indicated in the [model providers](#model-providers) section above.
+If you don't see Ollama listed as a model provider in the Jupyter-AI configuration box, despite confirming that your Ollama server is active, you may be missing the  [`langchain-ollama` python package](https://pypi.org/project/langchain-ollama/) that is necessary for Jupyter-AI to interface with Ollama, as indicated in the [model providers](#model-providers) section above. 
+
+You can install it with `pip install langchain-ollama` (as of Feb'2025 it is not available on conda-forge).
 :::
 
 ### vLLM usage
