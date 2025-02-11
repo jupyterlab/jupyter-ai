@@ -24,7 +24,6 @@ classifiers = [
 ]
 dependencies = [
     "jupyter_server>=1.6,<3",
-    "jupyterlab~=4.0",
     "aiosqlite>=0.18",
     "importlib_metadata>=5.2.0",
     "pydantic~=2.0",
