@@ -16,6 +16,8 @@ from jupyter_ai_magics.utils import decompose_model_id, get_lm_providers
 from langchain.chains import LLMChain
 from langchain.schema import HumanMessage
 from langchain_core.messages import AIMessage
+from py_markdown_table.markdown_table import markdown_table
+from py_markdown_table.utils import find_longest_contiguous_strings
 
 from ._version import __version__
 from .parsers import (
@@ -32,8 +34,7 @@ from .parsers import (
     line_magic_parser,
 )
 from .providers import BaseProvider
-from py_markdown_table.markdown_table import markdown_table
-from py_markdown_table.utils import find_longest_contiguous_strings
+
 
 class TextOrMarkdown:
     def __init__(self, text, markdown):
@@ -213,7 +214,7 @@ class AiMagics(Magics):
 
     # Is the required environment variable set?
     def _ai_env_status_for_provider_markdown(self, provider_id):
-        result = { "env_var": "Not applicable", "emoji": "NA"}
+        result = {"env_var": "Not applicable", "emoji": "NA"}
         na_message = "Not applicable. | " + NA_MESSAGE
 
         if (
@@ -231,7 +232,7 @@ class AiMagics(Magics):
             var_name = auth_strategy.name
             env_var_display = f"`{var_name}`"
             env_status_ok = var_name in os.environ
-            result['env_var'] = var_name
+            result["env_var"] = var_name
         elif auth_strategy.type == "multienv":
             # Check multiple environment variables
             var_names = self.providers[provider_id].auth_strategy.names
@@ -240,17 +241,17 @@ class AiMagics(Magics):
             env_status_ok = all(var_name in os.environ for var_name in var_names)
             not_set_title = MULTIENV_NOT_SET
             set_title = MULTIENV_SET
-            result['env_var'] = env_var_display
+            result["env_var"] = env_var_display
         else:  # No environment variables
             return result
 
         output = f"{env_var_display} | "
         if env_status_ok:
             output += f'<abbr title="{set_title}">✅</abbr>'
-            result['emoji'] = '✅'
+            result["emoji"] = "✅"
         else:
             output += f'<abbr title="{not_set_title}">❌</abbr>'
-            result['emoji'] = '❌'
+            result["emoji"] = "❌"
 
         return result
 
@@ -372,12 +373,16 @@ class AiMagics(Magics):
             if single_provider is not None and provider_id != single_provider:
                 continue
             env_var_result = self._ai_env_status_for_provider_markdown(provider_id)
-            results.append({
-                "Provider": provider_id,
-                "Environment variable": env_var_result["env_var"],
-                "Set?": env_var_result["emoji"],
-                "Models": self._ai_inline_list_models_for_provider(provider_id, Provider)
-            })
+            results.append(
+                {
+                    "Provider": provider_id,
+                    "Environment variable": env_var_result["env_var"],
+                    "Set?": env_var_result["emoji"],
+                    "Models": self._ai_inline_list_models_for_provider(
+                        provider_id, Provider
+                    ),
+                }
+            )
 
         # Also list aliases.
         aliasOutput = []
@@ -388,10 +393,7 @@ class AiMagics(Magics):
                 + "|------|--------|\n"
             )
             for key, value in self.custom_model_registry.items():
-                aliasOutput.append({
-                    "Name": key,
-                    "Target": value
-                })
+                aliasOutput.append({"Name": key, "Target": value})
                 output += f"| `{key}` | "
                 if isinstance(value, str):
                     output += f"`{value}`"
@@ -400,19 +402,29 @@ class AiMagics(Magics):
 
                 output += " |\n"
 
-        #markdown = markdown_table(results).get_markdown()
+        # markdown = markdown_table(results).get_markdown()
         longest = find_longest_contiguous_strings(results, True)
         print(longest)
-        markdown = markdown_table(results).set_params(padding_width = 2, 
-                                                 padding_weight = 'centerleft', 
-                                                 quote = False,
-                                                 multiline = {'Provider': 35, 'Environment variable': 24, 'Set?': 8, 'Models': 119}
-                                                 ).get_markdown()
-        #print(markdown)
-        #markdown1 = markdown_table(aliasOutput).get_markdown()
-        #print(markdown1)
-        #print(results)
-        #print(aliasOutput)
+        markdown = (
+            markdown_table(results)
+            .set_params(
+                padding_width=2,
+                padding_weight="centerleft",
+                quote=False,
+                multiline={
+                    "Provider": 35,
+                    "Environment variable": 24,
+                    "Set?": 8,
+                    "Models": 119,
+                },
+            )
+            .get_markdown()
+        )
+        # print(markdown)
+        # markdown1 = markdown_table(aliasOutput).get_markdown()
+        # print(markdown1)
+        # print(results)
+        # print(aliasOutput)
         return markdown
 
     def _ai_list_command_text(self, single_provider=None):
