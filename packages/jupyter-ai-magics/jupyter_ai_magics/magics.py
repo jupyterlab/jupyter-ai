@@ -32,7 +32,8 @@ from .parsers import (
     line_magic_parser,
 )
 from .providers import BaseProvider
-
+from py_markdown_table.markdown_table import markdown_table
+from py_markdown_table.utils import find_longest_contiguous_strings
 
 class TextOrMarkdown:
     def __init__(self, text, markdown):
@@ -195,7 +196,7 @@ class AiMagics(Magics):
         return output
 
     def _ai_inline_list_models_for_provider(self, provider_id, Provider):
-        output = "<ul>"
+        output = ""
 
         if len(Provider.models) == 1 and Provider.models[0] == "*":
             if Provider.help is None:
@@ -204,19 +205,22 @@ class AiMagics(Magics):
                 return Provider.help
 
         for model_id in Provider.models:
-            output += f"<li>`{provider_id}:{model_id}`</li>"
+            name = f"{provider_id}:{model_id}"
+            print(name, len(name))
+            output += f"{provider_id}:{model_id} \n"
 
-        return output + "</ul>"
+        return output
 
     # Is the required environment variable set?
     def _ai_env_status_for_provider_markdown(self, provider_id):
+        result = { "env_var": "Not applicable", "emoji": "NA"}
         na_message = "Not applicable. | " + NA_MESSAGE
 
         if (
             provider_id not in self.providers
             or self.providers[provider_id].auth_strategy == None
         ):
-            return na_message  # No emoji
+            return result  # No emoji
 
         not_set_title = ENV_NOT_SET
         set_title = ENV_SET
@@ -227,6 +231,7 @@ class AiMagics(Magics):
             var_name = auth_strategy.name
             env_var_display = f"`{var_name}`"
             env_status_ok = var_name in os.environ
+            result['env_var'] = var_name
         elif auth_strategy.type == "multienv":
             # Check multiple environment variables
             var_names = self.providers[provider_id].auth_strategy.names
@@ -235,16 +240,19 @@ class AiMagics(Magics):
             env_status_ok = all(var_name in os.environ for var_name in var_names)
             not_set_title = MULTIENV_NOT_SET
             set_title = MULTIENV_SET
+            result['env_var'] = env_var_display
         else:  # No environment variables
-            return na_message
+            return result
 
         output = f"{env_var_display} | "
         if env_status_ok:
             output += f'<abbr title="{set_title}">✅</abbr>'
+            result['emoji'] = '✅'
         else:
             output += f'<abbr title="{not_set_title}">❌</abbr>'
+            result['emoji'] = '❌'
 
-        return output
+        return result
 
     def _ai_env_status_for_provider_text(self, provider_id):
         # only handle providers with "env" or "multienv" auth strategy
@@ -355,22 +363,24 @@ class AiMagics(Magics):
             "| Provider | Environment variable | Set? | Models |\n"
             + "|----------|----------------------|------|--------|\n"
         )
+
+        results = []
         if single_provider is not None and single_provider not in self.providers:
             return f"There is no model provider with ID `{single_provider}`."
 
         for provider_id, Provider in self.providers.items():
             if single_provider is not None and provider_id != single_provider:
                 continue
-
-            output += (
-                f"| `{provider_id}` | "
-                + self._ai_env_status_for_provider_markdown(provider_id)
-                + " | "
-                + self._ai_inline_list_models_for_provider(provider_id, Provider)
-                + " |\n"
-            )
+            env_var_result = self._ai_env_status_for_provider_markdown(provider_id)
+            results.append({
+                "Provider": provider_id,
+                "Environment variable": env_var_result["env_var"],
+                "Set?": env_var_result["emoji"],
+                "Models": self._ai_inline_list_models_for_provider(provider_id, Provider)
+            })
 
         # Also list aliases.
+        aliasOutput = []
         if single_provider is None and len(self.custom_model_registry) > 0:
             output += (
                 "\nAliases and custom commands:\n\n"
@@ -378,6 +388,10 @@ class AiMagics(Magics):
                 + "|------|--------|\n"
             )
             for key, value in self.custom_model_registry.items():
+                aliasOutput.append({
+                    "Name": key,
+                    "Target": value
+                })
                 output += f"| `{key}` | "
                 if isinstance(value, str):
                     output += f"`{value}`"
@@ -386,7 +400,20 @@ class AiMagics(Magics):
 
                 output += " |\n"
 
-        return output
+        #markdown = markdown_table(results).get_markdown()
+        longest = find_longest_contiguous_strings(results, True)
+        print(longest)
+        markdown = markdown_table(results).set_params(padding_width = 2, 
+                                                 padding_weight = 'centerleft', 
+                                                 quote = False,
+                                                 multiline = {'Provider': 35, 'Environment variable': 24, 'Set?': 8, 'Models': 119}
+                                                 ).get_markdown()
+        #print(markdown)
+        #markdown1 = markdown_table(aliasOutput).get_markdown()
+        #print(markdown1)
+        #print(results)
+        #print(aliasOutput)
+        return markdown
 
     def _ai_list_command_text(self, single_provider=None):
         output = ""
