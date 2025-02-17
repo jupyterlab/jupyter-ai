@@ -47,7 +47,7 @@ DeepSeek models may be used via the same interface, if the base API url is provi
     alt='Screenshot of chat using deepseek via the OpenAI provider.'
     class="screenshot" />
 
-For DeepSeek models, enter the DeepSeek API for the OpenAI API key. 
+For DeepSeek models, enter the DeepSeek API for the OpenAI API key.
 
 Models deployed using vLLM may be used in a similar manner:
 
@@ -56,6 +56,6 @@ Models deployed using vLLM may be used in a similar manner:
     alt='Screenshot of chat using vllm via the OpenAI provider.'
     class="screenshot" />
 
-Usage of models using vLLM and their deployment is discussed [here](vllm.md). 
+Usage of models using vLLM and their deployment is discussed [here](vllm.md).
 
 [(Return to the Chat Interface page)](index.md#openrouter-usage)
