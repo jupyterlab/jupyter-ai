@@ -35,23 +35,11 @@ class OpenAIProvider(BaseProvider, OpenAI):
 class ChatOpenAIProvider(BaseProvider, ChatOpenAI):
     id = "openai-chat"
     name = "OpenAI"
-    models = [
-        "gpt-3.5-turbo",
-        "gpt-3.5-turbo-1106",
-        "gpt-4",
-        "gpt-4-turbo",
-        "gpt-4-turbo-preview",
-        "gpt-4-0613",
-        "gpt-4-0125-preview",
-        "gpt-4-1106-preview",
-        "gpt-4o",
-        "gpt-4o-2024-11-20",
-        "gpt-4o-mini",
-        "chatgpt-4o-latest",
-    ]
+    models = ["*"]
     model_id_key = "model_name"
     pypi_package_deps = ["langchain_openai"]
     auth_strategy = EnvAuthStrategy(name="OPENAI_API_KEY")
+    registry = True
 
     fields = [
         TextField(
