@@ -74,7 +74,8 @@ class ChatOpenAIProvider(BaseProvider, ChatOpenAI):
             error_details = e.json_body.get("error", {})
             return error_details.get("code") == "invalid_api_key"
         return False
-    
+
+
 class ChatOpenAICustomProvider(BaseProvider, ChatOpenAI):
     id = "openai-chat-custom"
     name = "OpenAI (general interface)"
@@ -92,9 +93,7 @@ class ChatOpenAICustomProvider(BaseProvider, ChatOpenAI):
         ),
         TextField(key="openai_proxy", label="Proxy (optional)", format="text"),
     ]
-    help = (
-        "Supports non-OpenAI model that use the OpenAI API interface. Replace the OpenAI API key with the API key for the chosen provider."
-    )
+    help = "Supports non-OpenAI model that use the OpenAI API interface. Replace the OpenAI API key with the API key for the chosen provider."
     registry = True
 
 
