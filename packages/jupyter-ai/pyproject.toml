@@ -43,6 +43,13 @@ dynamic = ["version", "description", "authors", "urls", "keywords"]
 [project.entry-points."jupyter_ai.default_tasks"]
 core_default_tasks = "jupyter_ai:tasks"
 
+[project.entry-points."jupyter_ai.chat_handlers"]
+default = "jupyter_ai.chat_handlers.default:DefaultChatHandler"
+ask = "jupyter_ai.chat_handlers.ask:AskChatHandler"
+generate = "jupyter_ai.chat_handlers.generate:GenerateChatHandler"
+learn = "jupyter_ai.chat_handlers.learn:LearnChatHandler"
+help = "jupyter_ai.chat_handlers.help:HelpChatHandler"
+
 [project.optional-dependencies]
 test = [
     "jupyter-server[test]>=1.6,<3",
