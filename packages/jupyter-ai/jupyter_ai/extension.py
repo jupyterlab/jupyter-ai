@@ -14,6 +14,7 @@ from jupyter_events import EventLogger
 from jupyter_server.extension.application import ExtensionApp
 from jupyter_server.utils import url_path_join
 from jupyterlab_chat.models import Message
+import jupyter_ydoc # must be imported before YChat
 from jupyterlab_chat.ychat import YChat
 from pycrdt import ArrayEvent
 from tornado.web import StaticFileHandler
