@@ -18,6 +18,7 @@ from jupyterlab_chat.ychat import YChat
 from pycrdt import ArrayEvent
 from tornado.web import StaticFileHandler
 from traitlets import Integer, List, Unicode
+
 from .chat_handlers.base import BaseChatHandler
 from .completions.handlers import DefaultInlineCompletionHandler
 from .config_manager import ConfigManager
@@ -483,9 +484,13 @@ class AiExtension(ExtensionApp):
 
             if chat_handler.routing_type.routing_method == "slash_command":
                 # Set default slash_id if it's the default chat handler
-                slash_id = "default" if chat_handler.id == "default" else chat_handler.routing_type.slash_id
+                slash_id = (
+                    "default"
+                    if chat_handler.id == "default"
+                    else chat_handler.routing_type.slash_id
+                )
 
-                if  not slash_id:
+                if not slash_id:
                     self.log.error(
                         f"Handler `{chat_handler_ep.name}` has an invalid slash command "
                         + f"`None`; only the default chat handler may use this"
@@ -494,7 +499,9 @@ class AiExtension(ExtensionApp):
 
                 # Validate the slash command name
                 if re.match(slash_command_pattern, slash_id):
-                    command_name = "default" if slash_id == "default" else f"/{slash_id}"
+                    command_name = (
+                        "default" if slash_id == "default" else f"/{slash_id}"
+                    )
                 else:
                     self.log.error(
                         f"Handler `{chat_handler_ep.name}` has an invalid slash command "
@@ -509,37 +516,53 @@ class AiExtension(ExtensionApp):
                 )
 
             # Special handling for native `/ask`
-            if command_name == "/ask" and chat_handler.__module__ == "jupyter_ai.chat_handlers.ask":
+            if (
+                command_name == "/ask"
+                and chat_handler.__module__ == "jupyter_ai.chat_handlers.ask"
+            ):
                 try:
-                    learn_ep = next((ep for ep in chat_handler_eps if ep.name == "learn"), None)
+                    learn_ep = next(
+                        (ep for ep in chat_handler_eps if ep.name == "learn"), None
+                    )
                     if not learn_ep:
-                        self.log.error("No entry point found for 'learn' handler; skipping '/ask' registration.")
+                        self.log.error(
+                            "No entry point found for 'learn' handler; skipping '/ask' registration."
+                        )
                         continue
-                    
+
                     LearnChatHandler = learn_ep.load()
                     learn_handler = LearnChatHandler(**chat_handler_kwargs)
 
                     # Lazy import Retriever
                     from jupyter_ai.chat_handlers.learn import Retriever
+
                     retriever = Retriever(learn_chat_handler=learn_handler)
 
-                    chat_handlers[command_name] = chat_handler(**chat_handler_kwargs, retriever=retriever)
+                    chat_handlers[command_name] = chat_handler(
+                        **chat_handler_kwargs, retriever=retriever
+                    )
                 except Exception as e:
                     self.log.error(f"Failed to load 'learn' handler for '/ask': {e}")
                     continue
-            
+
             # Special handling for `/generate`
-            elif command_name == "/generate" and chat_handler.__module__ == "jupyter_ai.chat_handlers.generate":
-                chat_handlers[command_name] = chat_handler(**chat_handler_kwargs, log_dir=self.error_logs_dir)
-            
+            elif (
+                command_name == "/generate"
+                and chat_handler.__module__ == "jupyter_ai.chat_handlers.generate"
+            ):
+                chat_handlers[command_name] = chat_handler(
+                    **chat_handler_kwargs, log_dir=self.error_logs_dir
+                )
+
             # General case
             else:
                 chat_handlers[command_name] = chat_handler(**chat_handler_kwargs)
-            
-            self.log.info(f"Registered chat handler `{chat_handler.id}` with command `{command_name}`.")
+
+            self.log.info(
+                f"Registered chat handler `{chat_handler.id}` with command `{command_name}`."
+            )
 
         return chat_handlers
-
 
     def _init_context_providers(self):
         eps = entry_points()
