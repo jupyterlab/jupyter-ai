@@ -16,6 +16,7 @@ from jupyter_ai_magics.utils import decompose_model_id, get_lm_providers
 from langchain.chains import LLMChain
 from langchain.schema import HumanMessage
 from langchain_core.messages import AIMessage
+from py_markdown_table.markdown_table import markdown_table
 
 from ._version import __version__
 from .parsers import (
@@ -210,13 +211,13 @@ class AiMagics(Magics):
 
     # Is the required environment variable set?
     def _ai_env_status_for_provider_markdown(self, provider_id):
-        na_message = "Not applicable. | " + NA_MESSAGE
+        na_message = "Not applicable."
 
         if (
             provider_id not in self.providers
             or self.providers[provider_id].auth_strategy == None
         ):
-            return na_message  # No emoji
+            return na_message, NA_MESSAGE
 
         not_set_title = ENV_NOT_SET
         set_title = ENV_SET
@@ -236,15 +237,14 @@ class AiMagics(Magics):
             not_set_title = MULTIENV_NOT_SET
             set_title = MULTIENV_SET
         else:  # No environment variables
-            return na_message
+            return na_message, NA_MESSAGE  # Not applicable, with a "?" emoji
 
-        output = f"{env_var_display} | "
         if env_status_ok:
-            output += f'<abbr title="{set_title}">✅</abbr>'
+            status_emoji = f'<abbr title="{set_title}">✅</abbr>'
         else:
-            output += f'<abbr title="{not_set_title}">❌</abbr>'
+            status_emoji = f'<abbr title="{not_set_title}">❌</abbr>'
 
-        return output
+        return env_var_display, status_emoji
 
     def _ai_env_status_for_provider_text(self, provider_id):
         # only handle providers with "env" or "multienv" auth strategy
@@ -351,10 +351,8 @@ class AiMagics(Magics):
         return TextOrMarkdown(output, output)
 
     def _ai_list_command_markdown(self, single_provider=None):
-        output = (
-            "| Provider | Environment variable | Set? | Models |\n"
-            + "|----------|----------------------|------|--------|\n"
-        )
+        provider_info_list = []
+
         if single_provider is not None and single_provider not in self.providers:
             return f"There is no model provider with ID `{single_provider}`."
 
@@ -362,31 +360,46 @@ class AiMagics(Magics):
             if single_provider is not None and provider_id != single_provider:
                 continue
 
-            output += (
-                f"| `{provider_id}` | "
-                + self._ai_env_status_for_provider_markdown(provider_id)
-                + " | "
-                + self._ai_inline_list_models_for_provider(provider_id, Provider)
-                + " |\n"
+            env_var_display, status_emoji = self._ai_env_status_for_provider_markdown(
+                provider_id
             )
+            provider_data = {
+                "Provider": f"`{provider_id}`",
+                "Environment variable": env_var_display,
+                "Set?": status_emoji,
+                "Models": self._ai_inline_list_models_for_provider(
+                    provider_id, Provider
+                ),
+            }
+            provider_info_list.append(provider_data)
 
-        # Also list aliases.
         if single_provider is None and len(self.custom_model_registry) > 0:
-            output += (
-                "\nAliases and custom commands:\n\n"
-                + "| Name | Target |\n"
-                + "|------|--------|\n"
-            )
+            alias_list = []
             for key, value in self.custom_model_registry.items():
-                output += f"| `{key}` | "
-                if isinstance(value, str):
-                    output += f"`{value}`"
-                else:
-                    output += "*custom chain*"
+                target = f"`{value}`" if isinstance(value, str) else "*custom chain*"
+                alias_list.append({"Name": key, "Target": target})
 
-                output += " |\n"
+        # Generate the markdown table for providers
+        providers_info_markdown_table = (
+            markdown_table(provider_info_list)
+            .set_params(quote=False, row_sep="markdown")
+            .get_markdown()
+        )
 
-        return output
+        # Generate markdown table for aliases
+        alias_markdown_table_header = "\n\n Aliases and custom commands:\n"
+        alias_markdown_table = (
+            markdown_table(alias_list)
+            .set_params(quote=False, row_sep="markdown")
+            .get_markdown()
+        )
+
+        # Return the combined markdown tables
+        return (
+            providers_info_markdown_table
+            + alias_markdown_table_header
+            + alias_markdown_table
+        )
 
     def _ai_list_command_text(self, single_provider=None):
         output = ""
