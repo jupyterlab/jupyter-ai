@@ -15,6 +15,7 @@ from jupyter_events import EventLogger
 from jupyter_server.extension.application import ExtensionApp
 from jupyter_server.utils import url_path_join
 from jupyterlab_chat.models import Message
+from jupyter_ai.chat_handlers.learn import Retriever
 from jupyterlab_chat.ychat import YChat
 from pycrdt import ArrayEvent
 from tornado.web import StaticFileHandler
@@ -453,7 +454,15 @@ class AiExtension(ExtensionApp):
         assert self.serverapp
 
         eps = entry_points()
-        chat_handler_eps = eps.select(group="jupyter_ai.chat_handlers")
+        all_chat_handler_eps = eps.select(group="jupyter_ai.chat_handlers")
+
+        # Override native chat handlers if duplicates are present
+        sorted_eps = sorted(all_chat_handler_eps, key=lambda ep: ep.dist.name != "jupyter_ai")
+        seen = {}
+        for ep in sorted_eps:
+            seen[ep.name] = ep
+        chat_handler_eps = list(seen.values())
+
         chat_handlers: Dict[str, BaseChatHandler] = {}
         llm_chat_memory = YChatHistory(ychat, k=self.default_max_chat_history)
 
@@ -481,6 +490,12 @@ class AiExtension(ExtensionApp):
                     f"Unable to load chat handler class from entry point `{chat_handler_ep.name}`: "
                     + f"Unexpected {err=}, {type(err)=}"
                 )
+                continue
+
+            # Skip disabled entrypoints
+            ep_disabled = getattr(chat_handler, "disabled", False)
+            if ep_disabled:
+                self.log.warn(f"Skipping registration of chat handler `{chat_handler_ep.name}` as it is explicitly disabled.")
                 continue
 
             if chat_handler.routing_type.routing_method == "slash_command":
@@ -533,9 +548,6 @@ class AiExtension(ExtensionApp):
 
                     LearnChatHandler = learn_ep.load()
                     learn_handler = LearnChatHandler(**chat_handler_kwargs)
-
-                    # Lazy import Retriever
-                    from jupyter_ai.chat_handlers.learn import Retriever
 
                     retriever = Retriever(learn_chat_handler=learn_handler)
 
