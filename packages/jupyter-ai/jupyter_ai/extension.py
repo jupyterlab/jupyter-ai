@@ -9,13 +9,13 @@ import jupyter_ydoc  # must be imported before YChat
 import traitlets
 from dask.distributed import Client as DaskClient
 from importlib_metadata import entry_points
+from jupyter_ai.chat_handlers.learn import Retriever
 from jupyter_ai_magics import BaseProvider, JupyternautPersona
 from jupyter_ai_magics.utils import get_em_providers, get_lm_providers
 from jupyter_events import EventLogger
 from jupyter_server.extension.application import ExtensionApp
 from jupyter_server.utils import url_path_join
 from jupyterlab_chat.models import Message
-from jupyter_ai.chat_handlers.learn import Retriever
 from jupyterlab_chat.ychat import YChat
 from pycrdt import ArrayEvent
 from tornado.web import StaticFileHandler
@@ -457,7 +457,9 @@ class AiExtension(ExtensionApp):
         all_chat_handler_eps = eps.select(group="jupyter_ai.chat_handlers")
 
         # Override native chat handlers if duplicates are present
-        sorted_eps = sorted(all_chat_handler_eps, key=lambda ep: ep.dist.name != "jupyter_ai")
+        sorted_eps = sorted(
+            all_chat_handler_eps, key=lambda ep: ep.dist.name != "jupyter_ai"
+        )
         seen = {}
         for ep in sorted_eps:
             seen[ep.name] = ep
@@ -495,7 +497,9 @@ class AiExtension(ExtensionApp):
             # Skip disabled entrypoints
             ep_disabled = getattr(chat_handler, "disabled", False)
             if ep_disabled:
-                self.log.warn(f"Skipping registration of chat handler `{chat_handler_ep.name}` as it is explicitly disabled.")
+                self.log.warn(
+                    f"Skipping registration of chat handler `{chat_handler_ep.name}` as it is explicitly disabled."
+                )
                 continue
 
             if chat_handler.routing_type.routing_method == "slash_command":
