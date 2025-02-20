@@ -235,6 +235,11 @@ export function ChatInput(props: ChatInputProps): JSX.Element {
 
   const inputExists = !!input.trim();
   function handleKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
+    if (['ArrowDown', 'ArrowUp'].includes(event.key) && !open) {
+      event.stopPropagation();
+      return;
+    }
+
     if (event.key !== 'Enter') {
       return;
     }
