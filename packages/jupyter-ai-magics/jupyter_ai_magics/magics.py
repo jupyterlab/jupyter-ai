@@ -105,10 +105,21 @@ ENV_REQUIRES = "Requires environment variable:"
 MULTIENV_REQUIRES = "Requires environment variables:"
 
 
+class RawStr(str):
+    def __format__(self, format_spec):
+        return self
+
 class FormatDict(dict):
     """Subclass of dict to be passed to str#format(). Suppresses KeyError and
     leaves replacement field unchanged if replacement field is not associated
     with a value."""
+
+    def __getitem__(self, key):
+        value = dict.__getitem__(self, key)
+        # Wrap string values so inner curly braces are not processed.
+        if isinstance(value, str):
+            return RawStr(value)
+        return value
 
     def __missing__(self, key):
         return key.join("{}")
