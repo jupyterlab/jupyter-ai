@@ -109,6 +109,7 @@ class RawStr(str):
     def __format__(self, format_spec):
         return self
 
+
 class FormatDict(dict):
     """Subclass of dict to be passed to str#format(). Suppresses KeyError and
     leaves replacement field unchanged if replacement field is not associated
