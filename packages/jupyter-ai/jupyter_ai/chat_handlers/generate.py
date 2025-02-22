@@ -253,9 +253,8 @@ class GenerateChatHandler(BaseChatHandler):
 
     uses_llm = True
 
-    def __init__(self, log_dir: Optional[str], *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.log_dir = Path(log_dir) if log_dir else None
         self.llm: Optional[BaseProvider] = None
 
     def create_llm_chain(

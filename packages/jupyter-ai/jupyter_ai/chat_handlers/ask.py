@@ -33,10 +33,9 @@ class AskChatHandler(BaseChatHandler):
 
     uses_llm = True
 
-    def __init__(self, retriever, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self._retriever = retriever
         self.parser.prog = "/ask"
         self.parser.add_argument("query", nargs=argparse.REMAINDER)
 
@@ -53,7 +52,7 @@ class AskChatHandler(BaseChatHandler):
         )
         self.llm_chain = ConversationalRetrievalChain.from_llm(
             self.llm,
-            self._retriever,
+            self.retriever,
             memory=memory,
             condense_question_prompt=CONDENSE_PROMPT,
             verbose=False,

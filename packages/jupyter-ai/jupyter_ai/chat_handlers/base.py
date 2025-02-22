@@ -13,7 +13,9 @@ from typing import (
     Type,
     Union,
     cast,
+    Any
 )
+from pathlib import Path
 
 from dask.distributed import Client as DaskClient
 from jupyter_ai.callback_handlers import MetadataCallbackHandler
@@ -141,6 +143,8 @@ class BaseChatHandler:
         context_providers: Dict[str, "BaseCommandContextProvider"],
         message_interrupted: Dict[str, asyncio.Event],
         ychat: YChat,
+        log_dir: Optional[str],
+        retriever: Any
     ):
         self.log = log
         self.config_manager = config_manager
@@ -162,6 +166,8 @@ class BaseChatHandler:
         self.context_providers = context_providers
         self.message_interrupted = message_interrupted
         self.ychat = ychat
+        self.log_dir = Path(log_dir) if log_dir else None
+        self.retriever = retriever
 
         self.llm: Optional[BaseProvider] = None
         self.llm_params: Optional[dict] = None

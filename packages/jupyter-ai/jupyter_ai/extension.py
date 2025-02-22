@@ -463,6 +463,7 @@ class AiExtension(ExtensionApp):
         chat_handler_eps = eps.select(group="jupyter_ai.chat_handlers")
         chat_handlers: Dict[str, BaseChatHandler] = {}
         llm_chat_memory = YChatHistory(ychat, k=self.default_max_chat_history)
+        retriever = Retriever()
 
         chat_handler_kwargs = {
             "log": self.log,
@@ -477,15 +478,14 @@ class AiExtension(ExtensionApp):
             "context_providers": self.settings["jai_context_providers"],
             "message_interrupted": self.settings["jai_message_interrupted"],
             "ychat": ychat,
+            "log_dir": self.error_logs_dir,
+            "retriever": retriever
         }
+
         default_chat_handler = DefaultChatHandler(**chat_handler_kwargs)
-        generate_chat_handler = GenerateChatHandler(
-            **chat_handler_kwargs,
-            log_dir=self.error_logs_dir,
-        )
+        generate_chat_handler = GenerateChatHandler(**chat_handler_kwargs)
         learn_chat_handler = LearnChatHandler(**chat_handler_kwargs)
-        retriever = Retriever(learn_chat_handler=learn_chat_handler)
-        ask_chat_handler = AskChatHandler(**chat_handler_kwargs, retriever=retriever)
+        ask_chat_handler = AskChatHandler(**chat_handler_kwargs)
 
         chat_handlers["default"] = default_chat_handler
         chat_handlers["/ask"] = ask_chat_handler
