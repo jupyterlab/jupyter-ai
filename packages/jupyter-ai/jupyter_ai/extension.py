@@ -479,7 +479,7 @@ class AiExtension(ExtensionApp):
             "message_interrupted": self.settings["jai_message_interrupted"],
             "ychat": ychat,
             "log_dir": self.error_logs_dir,
-            "retriever": retriever
+            "retriever": retriever,
         }
 
         default_chat_handler = DefaultChatHandler(**chat_handler_kwargs)

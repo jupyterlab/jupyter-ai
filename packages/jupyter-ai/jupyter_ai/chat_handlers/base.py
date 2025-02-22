@@ -3,8 +3,10 @@ import asyncio
 import contextlib
 import os
 import traceback
+from pathlib import Path
 from typing import (
     TYPE_CHECKING,
+    Any,
     Awaitable,
     ClassVar,
     Dict,
@@ -13,9 +15,7 @@ from typing import (
     Type,
     Union,
     cast,
-    Any
 )
-from pathlib import Path
 
 from dask.distributed import Client as DaskClient
 from jupyter_ai.callback_handlers import MetadataCallbackHandler
@@ -144,7 +144,7 @@ class BaseChatHandler:
         message_interrupted: Dict[str, asyncio.Event],
         ychat: YChat,
         log_dir: Optional[str],
-        retriever: Any
+        retriever: Any,
     ):
         self.log = log
         self.config_manager = config_manager
