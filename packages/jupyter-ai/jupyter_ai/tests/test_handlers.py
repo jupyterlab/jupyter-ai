@@ -67,6 +67,8 @@ class TestDefaultChatHandler(DefaultChatHandler):
             message_interrupted={},
             llm_chat_memory=self.ychat_history,
             ychat=self.ychat,
+            log_dir="",
+            retriever=None,
         )
 
     @property
