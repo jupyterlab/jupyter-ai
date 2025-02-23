@@ -105,21 +105,21 @@ ENV_REQUIRES = "Requires environment variable:"
 MULTIENV_REQUIRES = "Requires environment variables:"
 
 
-
 class PromptStr(str):
     """
     A string subclass that processes its content to support a custom
     placeholder delimiter. Custom placeholders are marked with "@{...}".
-    
+
     When format() or format_map() is called, the instance is first processed:
       - Custom placeholders (e.g. "@{var}") are converted into standard
         placeholders ("{var}") for interpolation.
       - All other literal curly braces are doubled (e.g. "{" becomes "{{")
         so that they are preserved literally.
-    
+
     If any custom placeholder contains additional curly braces (i.e. nested
     braces), a ValueError is raised.
     """
+
     def __init__(self, text):
         self._template = self._process_template(text)
 
@@ -131,33 +131,33 @@ class PromptStr(str):
             a normal placeholder "{...}".
           - All other literal curly braces are doubled so that they remain
             unchanged during formatting.
-          
+
         Assumes that the custom placeholder does not contain nested braces.
         If nested or extra curly braces are found within a custom placeholder,
         a ValueError is raised.
         """
         # Pattern to match custom placeholders: "@{...}" where ... has no braces.
-        pattern = r'@{([^{}]+)}'
+        pattern = r"@{([^{}]+)}"
         tokens = []
-    
+
         def token_replacer(match):
             inner = match.group(1)
             assert ("{" not in inner) and ("}" not in inner)
             tokens.append(inner)
-            return f'<<<{len(tokens)-1}>>>'
-    
+            return f"<<<{len(tokens)-1}>>>"
+
         template_with_tokens = re.sub(pattern, token_replacer, template)
         if "@{" in template_with_tokens:
             raise ValueError("Curly braces are not allowed inside custom placeholders.")
-    
+
         escaped = template_with_tokens.replace("{", "{{").replace("}", "}}")
         for i, token in enumerate(tokens):
-            escaped = escaped.replace(f'<<<{i}>>>', f'{{{token}}}')
+            escaped = escaped.replace(f"<<<{i}>>>", f"{{{token}}}")
         return escaped
-    
+
     def format(self, *args, **kwargs):
         return self._template.format(*args, **kwargs)
-    
+
     def format_map(self, mapping):
         return self._template.format_map(mapping)
 
@@ -630,7 +630,7 @@ class AiMagics(Magics):
 
         # Apply a prompt template.
         prompt = provider.get_prompt_template(args.format).format(prompt=prompt)
-        
+
         context = self.transcript[-2 * self.max_history :] if self.max_history else []
         if provider.is_chat_provider:
             result = provider.generate([[*context, HumanMessage(content=prompt)]])
