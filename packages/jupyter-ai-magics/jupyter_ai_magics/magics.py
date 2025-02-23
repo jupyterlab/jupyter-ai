@@ -105,6 +105,64 @@ ENV_REQUIRES = "Requires environment variable:"
 MULTIENV_REQUIRES = "Requires environment variables:"
 
 
+
+class PromptStr(str):
+    """
+    A string subclass that processes its content to support a custom
+    placeholder delimiter. Custom placeholders are marked with "@{...}".
+    
+    When format() or format_map() is called, the instance is first processed:
+      - Custom placeholders (e.g. "@{var}") are converted into standard
+        placeholders ("{var}") for interpolation.
+      - All other literal curly braces are doubled (e.g. "{" becomes "{{")
+        so that they are preserved literally.
+    """
+
+    def __init__(self, text):
+        super().__init__() 
+        self._template = self._process_template(text)
+
+    @staticmethod
+    def _process_template(template: str) -> str:
+        """
+        Process the input template so that:
+          - Any custom placeholder of the form "@{...}" is converted into
+            a normal placeholder "{...}".
+          - All other literal curly braces are doubled so that they remain
+            unchanged during formatting.
+          
+        Assumes that the custom placeholder does not contain nested braces.
+        """
+        # Pattern to match custom placeholders: "@{...}" where ... has no braces.
+        pattern = r'@{([^{}]+)}'
+        tokens = []
+    
+        def token_replacer(match):
+            inner = match.group(1)
+            # If by any chance the inner content contains braces, fail.
+            if "{" in inner or "}" in inner:
+                raise ValueError("Nested custom placeholders are not allowed")
+            tokens.append(inner)
+            # Replace with a temporary unique token.
+            return f'<<<{len(tokens)-1}>>>'
+    
+        # Replace custom placeholders with temporary tokens.
+        template_with_tokens = re.sub(pattern, token_replacer, template)
+        # Escape all remaining literal braces by doubling them.
+        escaped = template_with_tokens.replace("{", "{{").replace("}", "}}")
+        # Replace our temporary tokens with normal placeholders.
+        for i, token in enumerate(tokens):
+            escaped = escaped.replace(f'<<<{i}>>>', f'{{{token}}}')
+        return escaped
+
+    
+    def format(self, *args, **kwargs):
+        return self._template.format(*args, **kwargs)
+
+    def format_map(self, mapping):
+        return self._template.format_map(mapping)
+
+
 class FormatDict(dict):
     """Subclass of dict to be passed to str#format(). Suppresses KeyError and
     leaves replacement field unchanged if replacement field is not associated
@@ -588,8 +646,8 @@ class AiMagics(Magics):
         prompt = provider.get_prompt_template(args.format).format(prompt=prompt)
 
         # interpolate user namespace into prompt
-        ip = self.shell
-        prompt = prompt.format_map(FormatDict(ip.user_ns))
+        # ip = self.shell
+        # prompt = prompt.format_map(FormatDict(ip.user_ns))
 
         context = self.transcript[-2 * self.max_history :] if self.max_history else []
         if provider.is_chat_provider:
@@ -676,10 +734,10 @@ class AiMagics(Magics):
                 subcommands."""
             )
 
-        prompt = cell.strip()
+        prompt = PromptStr(cell.strip())
 
         # interpolate user namespace into prompt
         ip = self.shell
-        prompt = prompt.format_map(FormatDict(ip.user_ns))
+        prompt = prompt.format_map(ip.user_ns)
 
         return self.run_ai_cell(args, prompt)
