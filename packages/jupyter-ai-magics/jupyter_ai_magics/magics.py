@@ -163,19 +163,6 @@ class PromptStr(str):
         return self._template.format_map(mapping)
 
 
-class FormatDict(dict):
-    """Subclass of dict to be passed to str#format(). Suppresses KeyError and
-    leaves replacement field unchanged if replacement field is not associated
-    with a value."""
-
-    def __missing__(self, key):
-        return key.join("{}")
-
-
-class EnvironmentError(BaseException):
-    pass
-
-
 class CellMagicError(BaseException):
     pass
 
@@ -644,10 +631,6 @@ class AiMagics(Magics):
 
         # Apply a prompt template.
         prompt = provider.get_prompt_template(args.format).format(prompt=prompt)
-
-        # interpolate user namespace into prompt
-        # ip = self.shell
-        # prompt = prompt.format_map(FormatDict(ip.user_ns))
 
         context = self.transcript[-2 * self.max_history :] if self.max_history else []
         if provider.is_chat_provider:
