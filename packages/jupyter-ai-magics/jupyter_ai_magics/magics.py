@@ -116,10 +116,11 @@ class PromptStr(str):
         placeholders ("{var}") for interpolation.
       - All other literal curly braces are doubled (e.g. "{" becomes "{{")
         so that they are preserved literally.
+    
+    If any custom placeholder contains additional curly braces (i.e. nested
+    braces), a ValueError is raised.
     """
-
     def __init__(self, text):
-        super().__init__() 
         self._template = self._process_template(text)
 
     @staticmethod
@@ -132,6 +133,8 @@ class PromptStr(str):
             unchanged during formatting.
           
         Assumes that the custom placeholder does not contain nested braces.
+        If nested or extra curly braces are found within a custom placeholder,
+        a ValueError is raised.
         """
         # Pattern to match custom placeholders: "@{...}" where ... has no braces.
         pattern = r'@{([^{}]+)}'
@@ -139,26 +142,22 @@ class PromptStr(str):
     
         def token_replacer(match):
             inner = match.group(1)
-            # If by any chance the inner content contains braces, fail.
-            if "{" in inner or "}" in inner:
-                raise ValueError("Nested custom placeholders are not allowed")
+            assert ("{" not in inner) and ("}" not in inner)
             tokens.append(inner)
-            # Replace with a temporary unique token.
             return f'<<<{len(tokens)-1}>>>'
     
-        # Replace custom placeholders with temporary tokens.
         template_with_tokens = re.sub(pattern, token_replacer, template)
-        # Escape all remaining literal braces by doubling them.
+        if "@{" in template_with_tokens:
+            raise ValueError("Curly braces are not allowed inside custom placeholders.")
+    
         escaped = template_with_tokens.replace("{", "{{").replace("}", "}}")
-        # Replace our temporary tokens with normal placeholders.
         for i, token in enumerate(tokens):
             escaped = escaped.replace(f'<<<{i}>>>', f'{{{token}}}')
         return escaped
-
     
     def format(self, *args, **kwargs):
         return self._template.format(*args, **kwargs)
-
+    
     def format_map(self, mapping):
         return self._template.format_map(mapping)
 
@@ -631,7 +630,7 @@ class AiMagics(Magics):
 
         # Apply a prompt template.
         prompt = provider.get_prompt_template(args.format).format(prompt=prompt)
-
+        
         context = self.transcript[-2 * self.max_history :] if self.max_history else []
         if provider.is_chat_provider:
             result = provider.generate([[*context, HumanMessage(content=prompt)]])
