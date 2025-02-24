@@ -52,7 +52,7 @@ class AskChatHandler(BaseChatHandler):
         )
         self.llm_chain = ConversationalRetrievalChain.from_llm(
             self.llm,
-            self.retriever,
+            self.chat_handlers["/learn"].retriever,
             memory=memory,
             condense_question_prompt=CONDENSE_PROMPT,
             verbose=False,

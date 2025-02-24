@@ -8,7 +8,6 @@ from typing import Dict
 import traitlets
 from dask.distributed import Client as DaskClient
 from importlib_metadata import entry_points
-from jupyter_ai.chat_handlers.learn import Retriever
 from jupyter_ai_magics import BaseProvider, JupyternautPersona
 from jupyter_ai_magics.utils import get_em_providers, get_lm_providers
 from jupyter_events import EventLogger
@@ -463,7 +462,6 @@ class AiExtension(ExtensionApp):
         chat_handler_eps = eps.select(group="jupyter_ai.chat_handlers")
         chat_handlers: Dict[str, BaseChatHandler] = {}
         llm_chat_memory = YChatHistory(ychat, k=self.default_max_chat_history)
-        retriever = Retriever()
 
         chat_handler_kwargs = {
             "log": self.log,
@@ -479,7 +477,6 @@ class AiExtension(ExtensionApp):
             "message_interrupted": self.settings["jai_message_interrupted"],
             "ychat": ychat,
             "log_dir": self.error_logs_dir,
-            "retriever": retriever,
         }
 
         default_chat_handler = DefaultChatHandler(**chat_handler_kwargs)

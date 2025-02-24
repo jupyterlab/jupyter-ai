@@ -145,7 +145,6 @@ class BaseChatHandler:
         message_interrupted: Dict[str, asyncio.Event],
         ychat: YChat,
         log_dir: Optional[str],
-        retriever: BaseRetriever,
     ):
         self.log = log
         self.config_manager = config_manager
@@ -168,7 +167,6 @@ class BaseChatHandler:
         self.message_interrupted = message_interrupted
         self.ychat = ychat
         self.log_dir = Path(log_dir) if log_dir else None
-        self.retriever = retriever
 
         self.llm: Optional[BaseProvider] = None
         self.llm_params: Optional[dict] = None
