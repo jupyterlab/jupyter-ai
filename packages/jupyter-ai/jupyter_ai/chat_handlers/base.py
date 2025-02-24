@@ -24,6 +24,7 @@ from jupyter_ai.constants import BOT
 from jupyter_ai_magics.providers import BaseProvider
 from jupyterlab_chat.models import Message, NewMessage, User
 from jupyterlab_chat.ychat import YChat
+from langchain.schema import BaseRetriever
 from langchain_core.messages import AIMessageChunk
 from langchain_core.runnables import Runnable
 from langchain_core.runnables.config import RunnableConfig
@@ -144,7 +145,7 @@ class BaseChatHandler:
         message_interrupted: Dict[str, asyncio.Event],
         ychat: YChat,
         log_dir: Optional[str],
-        retriever: Any,
+        retriever: BaseRetriever,
     ):
         self.log = log
         self.config_manager = config_manager
