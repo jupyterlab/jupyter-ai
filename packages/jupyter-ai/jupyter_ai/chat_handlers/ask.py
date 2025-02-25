@@ -8,6 +8,7 @@ from langchain.memory import ConversationBufferWindowMemory
 from langchain_core.prompts import PromptTemplate
 
 from .base import BaseChatHandler, SlashCommandRoutingType
+from .learn import LearnChatHandler
 
 PROMPT_TEMPLATE = """Given the following conversation and a follow up question, rephrase the follow up question to be a standalone question.
 
@@ -50,9 +51,14 @@ class AskChatHandler(BaseChatHandler):
         memory = ConversationBufferWindowMemory(
             memory_key="chat_history", return_messages=True, k=2
         )
+        retriever = None
+        learn_handler = self.chat_handlers.get("/learn")
+        if isinstance(learn_handler, LearnChatHandler):
+            retriever = learn_handler.retriever
+
         self.llm_chain = ConversationalRetrievalChain.from_llm(
             self.llm,
-            self.chat_handlers["/learn"].retriever,
+            retriever,
             memory=memory,
             condense_question_prompt=CONDENSE_PROMPT,
             verbose=False,
