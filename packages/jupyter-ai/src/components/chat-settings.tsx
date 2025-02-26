@@ -66,7 +66,7 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
     string | null
   >(null);
   const [lmLocalId, setLmLocalId] = useState<string>('');
-  const [emLocalId, setEmLocalId] = useState<string>(''); 
+  const [emLocalId, setEmLocalId] = useState<string>('');
   const [clmLocalId, setClmLocalId] = useState<string>('');
 
   const lmGlobalId = useMemo<string | null>(() => {
@@ -412,7 +412,7 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
               // setEmGlobalId(emGid);
               if (emGid === null) {
                 setEmProvider(null);
-                return; 
+                return;
               }
 
               // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
