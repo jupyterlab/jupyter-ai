@@ -3,8 +3,10 @@ import asyncio
 import contextlib
 import os
 import traceback
+from pathlib import Path
 from typing import (
     TYPE_CHECKING,
+    Any,
     Awaitable,
     ClassVar,
     Dict,
@@ -22,6 +24,7 @@ from jupyter_ai.constants import BOT
 from jupyter_ai_magics.providers import BaseProvider
 from jupyterlab_chat.models import Message, NewMessage, User
 from jupyterlab_chat.ychat import YChat
+from langchain.schema import BaseRetriever
 from langchain_core.messages import AIMessageChunk
 from langchain_core.runnables import Runnable
 from langchain_core.runnables.config import RunnableConfig
@@ -141,6 +144,7 @@ class BaseChatHandler:
         context_providers: Dict[str, "BaseCommandContextProvider"],
         message_interrupted: Dict[str, asyncio.Event],
         ychat: YChat,
+        log_dir: Optional[str],
     ):
         self.log = log
         self.config_manager = config_manager
@@ -162,6 +166,7 @@ class BaseChatHandler:
         self.context_providers = context_providers
         self.message_interrupted = message_interrupted
         self.ychat = ychat
+        self.log_dir = Path(log_dir) if log_dir else None
 
         self.llm: Optional[BaseProvider] = None
         self.llm_params: Optional[dict] = None
