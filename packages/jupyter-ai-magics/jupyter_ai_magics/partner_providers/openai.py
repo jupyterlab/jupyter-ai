@@ -124,11 +124,6 @@ class OpenAIEmbeddingsProvider(BaseEmbeddingsProvider, OpenAIEmbeddings):
         "text-embedding-ada-002",
         "text-embedding-3-small",
         "text-embedding-3-large",
-        # "deepseek-r1-distill-llama-8b",
-        # "deepseek-chat",
-        # "microsoft/Phi-3-mini-4k-instruct",
-        # "intfloat/e5-mistral-7b-instruct",
-        # "*",
     ]
     model_id_key = "model"
     pypi_package_deps = ["langchain_openai"]
