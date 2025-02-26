@@ -46,8 +46,6 @@ class LearnChatHandler(BaseChatHandler):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        self.retriever = Retriever(learn_chat_handler=self)
         excluded_dirs = ", ".join(EXCLUDE_DIRS)
         self.parser.prog = "/learn"
         self.parser.add_argument(
