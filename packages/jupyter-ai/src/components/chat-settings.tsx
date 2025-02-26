@@ -53,15 +53,20 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
   // user inputs
   const [lmProvider, setLmProvider] =
     useState<AiService.ListProvidersEntry | null>(null);
+  const [emProvider, setEmProvider] =
+    useState<AiService.ListProvidersEntry | null>(null);
   const [clmProvider, setClmProvider] =
     useState<AiService.ListProvidersEntry | null>(null);
   const [showLmLocalId, setShowLmLocalId] = useState<boolean>(false);
+  const [showEmLocalId, setShowEmLocalId] = useState<boolean>(false);
   const [showClmLocalId, setShowClmLocalId] = useState<boolean>(false);
   const [chatHelpMarkdown, setChatHelpMarkdown] = useState<string | null>(null);
+  const [embeddingHelpMarkdown, setEmbeddingHelpMarkdown] = useState<string | null>(null);
   const [completionHelpMarkdown, setCompletionHelpMarkdown] = useState<
     string | null
   >(null);
   const [lmLocalId, setLmLocalId] = useState<string>('');
+  const [emLocalId, setEmLocalId] = useState<string>(''); 
   const [clmLocalId, setClmLocalId] = useState<string>('');
 
   const lmGlobalId = useMemo<string | null>(() => {
@@ -71,6 +76,15 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
 
     return lmProvider.id + ':' + lmLocalId;
   }, [lmProvider, lmLocalId]);
+
+  const emGlobalId = useMemo<string | null>(() => {
+    if (!emProvider) {
+      return null;
+    }
+
+    return emProvider.id + ':' + emLocalId;
+  }, [emProvider, emLocalId]);
+
   const clmGlobalId = useMemo<string | null>(() => {
     if (!clmProvider) {
       return null;
@@ -79,21 +93,10 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
     return clmProvider.id + ':' + clmLocalId;
   }, [clmProvider, clmLocalId]);
 
-  const [emGlobalId, setEmGlobalId] = useState<string | null>(null);
-  const emProvider = useMemo<AiService.ListProvidersEntry | null>(() => {
-    if (emGlobalId === null || server.state !== ServerInfoState.Ready) {
-      return null;
-    }
-
-    return getProvider(emGlobalId, server.emProviders);
-  }, [emGlobalId, server]);
-
   const [apiKeys, setApiKeys] = useState<Record<string, string>>({});
   const [sendWse, setSendWse] = useState<boolean>(false);
   const [fields, setFields] = useState<Record<string, any>>({});
-  const [embeddingModelFields, setEmbeddingModelFields] = useState<
-    Record<string, any>
-  >({});
+  // const [embeddingModelFields, setEmbeddingModelFields] = useState<Record<string, any>>({});
 
   const [isCompleterEnabled, setIsCompleterEnabled] = useState(
     props.completionProvider && props.completionProvider.isEnabled()
@@ -125,19 +128,24 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
     }
 
     setLmLocalId(server.chat.lmLocalId);
+    setEmLocalId(server.config.embeddings_provider_id ?? '');
     setClmLocalId(server.completions.lmLocalId);
-    setEmGlobalId(server.config.embeddings_provider_id);
     setSendWse(server.config.send_with_shift_enter);
     setChatHelpMarkdown(server.chat.lmProvider?.help ?? null);
+    setEmbeddingHelpMarkdown(server.chat.lmProvider?.help ?? null);
     setCompletionHelpMarkdown(server.completions.lmProvider?.help ?? null);
     if (server.chat.lmProvider?.registry) {
       setShowLmLocalId(true);
+    }
+    if (server.chat.emProvider?.registry) {
+      setShowEmLocalId(true);
     }
     if (server.completions.lmProvider?.registry) {
       setShowClmLocalId(true);
     }
     setLmProvider(server.chat.lmProvider);
     setClmProvider(server.completions.lmProvider);
+    setEmProvider(server.chat.emProvider);
   }, [server]);
 
   /**
@@ -201,7 +209,8 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
 
     const initEmbeddingModelFields: Record<string, any> =
       server.config.fields?.[emGlobalId] ?? {};
-    setEmbeddingModelFields(initEmbeddingModelFields);
+    // setEmbeddingModelFields(initEmbeddingModelFields);
+    setFields(initEmbeddingModelFields);
   }, [server, lmGlobalId, emGlobalId]);
 
   const handleSave = async () => {
@@ -238,7 +247,8 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
             [clmGlobalId]: fields
           }),
           ...(emGlobalId && {
-            [emGlobalId]: embeddingModelFields
+            // [emGlobalId]: embeddingModelFields
+            [emGlobalId]: fields
           })
         }
       }),
@@ -394,30 +404,67 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
       {server.emProviders.providers.length > 0 ? (
         <Box>
           <Select
-            value={emGlobalId}
+            // value={emGlobalId}
+            value={emProvider?.registry ? emProvider.id + ':*' : emGlobalId}
             label="Embedding model"
             onChange={e => {
               const emGid = e.target.value === 'null' ? null : e.target.value;
-              setEmGlobalId(emGid);
+              // setEmGlobalId(emGid);
+              if (emGid === null) {
+                setEmProvider(null);
+                return; 
+              }
+
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              const nextEmProvider = getProvider(emGid, server.emProviders)!;
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              const nextEmLocalId = getModelLocalId(emGid)!;
+
+              setEmProvider(nextEmProvider);
+              setEmbeddingHelpMarkdown(nextEmProvider?.help ?? null);
+              if (nextEmProvider.registry) {
+                setEmLocalId('');
+                setShowEmLocalId(true);
+              } else {
+                setEmLocalId(nextEmLocalId);
+                setShowEmLocalId(false);
+              }
             }}
             MenuProps={{ sx: { maxHeight: '50%', minHeight: 400 } }}
           >
             <MenuItem value="null">None</MenuItem>
             {server.emProviders.providers.map(emp =>
               emp.models
-                .filter(em => em !== '*') // TODO: support registry providers
+                // .filter(em => em !== '*') // TODO: support registry providers
+                // .filter(em => emp.chat_models.includes(em))
                 .map(em => (
                   <MenuItem value={`${emp.id}:${em}`}>
-                    {emp.name} :: {em}
+                  {emp.name} :: {em}
                   </MenuItem>
                 ))
             )}
           </Select>
+          {showEmLocalId && (
+            <TextField
+              label={emProvider?.model_id_label || 'Local model ID'}
+              value={emLocalId}
+              onChange={e => setEmLocalId(e.target.value)}
+              fullWidth
+            />
+          )}
+          {embeddingHelpMarkdown && (
+            <RendermimeMarkdown
+              rmRegistry={props.rmRegistry}
+              markdownStr={embeddingHelpMarkdown}
+            />
+          )}
           {emGlobalId && (
             <ModelFields
               fields={emProvider?.fields}
-              values={embeddingModelFields}
-              onChange={setEmbeddingModelFields}
+              // values={embeddingModelFields}
+              // onChange={setEmbeddingModelFields}
+              values={fields}
+              onChange={setFields}
             />
           )}
         </Box>
