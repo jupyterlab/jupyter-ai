@@ -96,8 +96,6 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
   const [apiKeys, setApiKeys] = useState<Record<string, string>>({});
   const [sendWse, setSendWse] = useState<boolean>(false);
   const [fields, setFields] = useState<Record<string, any>>({});
-  // const [embeddingModelFields, setEmbeddingModelFields] = useState<Record<string, any>>({});
-
   const [isCompleterEnabled, setIsCompleterEnabled] = useState(
     props.completionProvider && props.completionProvider.isEnabled()
   );
@@ -128,7 +126,7 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
     }
 
     setLmLocalId(server.chat.lmLocalId);
-    setEmLocalId(server.config.embeddings_provider_id ?? '');
+    setEmLocalId(server.chat.emLocalId);
     setClmLocalId(server.completions.lmLocalId);
     setSendWse(server.config.send_with_shift_enter);
     setChatHelpMarkdown(server.chat.lmProvider?.help ?? null);
@@ -209,8 +207,7 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
 
     const initEmbeddingModelFields: Record<string, any> =
       server.config.fields?.[emGlobalId] ?? {};
-    // setEmbeddingModelFields(initEmbeddingModelFields);
-    setFields(initEmbeddingModelFields);
+      setFields(initEmbeddingModelFields);
   }, [server, lmGlobalId, emGlobalId]);
 
   const handleSave = async () => {
@@ -247,7 +244,6 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
             [clmGlobalId]: fields
           }),
           ...(emGlobalId && {
-            // [emGlobalId]: embeddingModelFields
             [emGlobalId]: fields
           })
         }
@@ -404,12 +400,10 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
       {server.emProviders.providers.length > 0 ? (
         <Box>
           <Select
-            // value={emGlobalId}
             value={emProvider?.registry ? emProvider.id + ':*' : emGlobalId}
             label="Embedding model"
             onChange={e => {
               const emGid = e.target.value === 'null' ? null : e.target.value;
-              // setEmGlobalId(emGid);
               if (emGid === null) {
                 setEmProvider(null);
                 return;

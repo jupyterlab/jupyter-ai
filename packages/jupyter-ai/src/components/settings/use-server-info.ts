@@ -6,6 +6,7 @@ type ProvidersInfo = {
   lmProvider: AiService.ListProvidersEntry | null;
   emProvider: AiService.ListProvidersEntry | null;
   lmLocalId: string;
+  emLocalId: string;
 };
 
 type ServerInfoProperties = {
@@ -70,6 +71,7 @@ export function useServerInfo(): ServerInfo {
       const emProvider =
         emGid === null ? null : getProvider(emGid, emProviders);
       const lmLocalId = (lmGid && getModelLocalId(lmGid)) ?? '';
+      const emLocalId = (emGid && getModelLocalId(emGid)) ?? '';
 
       const cLmGid = config.completions_model_provider_id;
       const cLmProvider =
@@ -83,11 +85,13 @@ export function useServerInfo(): ServerInfo {
         chat: {
           lmProvider,
           emProvider,
-          lmLocalId
+          lmLocalId,
+          emLocalId,
         },
         completions: {
           lmProvider: cLmProvider,
-          lmLocalId: cLmLocalId
+          lmLocalId: cLmLocalId,
+          emLocalId: emLocalId
         }
       });
 
