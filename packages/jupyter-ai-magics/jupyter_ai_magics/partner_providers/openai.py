@@ -149,6 +149,7 @@ class OpenAIEmbeddingsCustomProvider(BaseEmbeddingsProvider, OpenAIEmbeddings):
         ),
     ]
 
+
 class AzureOpenAIEmbeddingsProvider(BaseEmbeddingsProvider, AzureOpenAIEmbeddings):
     id = "azure"
     name = "Azure OpenAI"
