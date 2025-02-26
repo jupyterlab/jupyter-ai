@@ -9,7 +9,6 @@ import jupyter_ydoc  # must be imported before YChat
 import traitlets
 from dask.distributed import Client as DaskClient
 from importlib_metadata import entry_points
-from jupyter_ai.chat_handlers.learn import Retriever
 from jupyter_ai_magics import BaseProvider, JupyternautPersona
 from jupyter_ai_magics.utils import get_em_providers, get_lm_providers
 from jupyter_events import EventLogger
@@ -481,6 +480,7 @@ class AiExtension(ExtensionApp):
             "context_providers": self.settings.get("jai_context_providers"),
             "message_interrupted": self.settings.get("jai_message_interrupted"),
             "ychat": ychat,
+            "log_dir": self.error_logs_dir,
         }
 
         slash_command_pattern = r"^[a-zA-Z0-9_]+$"
@@ -535,45 +535,8 @@ class AiExtension(ExtensionApp):
                     f"Overriding existing handler `{command_name}` with `{chat_handler.id}`."
                 )
 
-            # Special handling for native `/ask`
-            if (
-                command_name == "/ask"
-                and chat_handler.__module__ == "jupyter_ai.chat_handlers.ask"
-            ):
-                try:
-                    learn_ep = next(
-                        (ep for ep in chat_handler_eps if ep.name == "learn"), None
-                    )
-                    if not learn_ep:
-                        self.log.error(
-                            "No entry point found for 'learn' handler; skipping '/ask' registration."
-                        )
-                        continue
-
-                    LearnChatHandler = learn_ep.load()
-                    learn_handler = LearnChatHandler(**chat_handler_kwargs)
-
-                    retriever = Retriever(learn_chat_handler=learn_handler)
-
-                    chat_handlers[command_name] = chat_handler(
-                        **chat_handler_kwargs, retriever=retriever
-                    )
-                except Exception as e:
-                    self.log.error(f"Failed to load 'learn' handler for '/ask': {e}")
-                    continue
-
-            # Special handling for `/generate`
-            elif (
-                command_name == "/generate"
-                and chat_handler.__module__ == "jupyter_ai.chat_handlers.generate"
-            ):
-                chat_handlers[command_name] = chat_handler(
-                    **chat_handler_kwargs, log_dir=self.error_logs_dir
-                )
-
-            # General case
-            else:
-                chat_handlers[command_name] = chat_handler(**chat_handler_kwargs)
+            # Registering chat handler
+            chat_handlers[command_name] = chat_handler(**chat_handler_kwargs)
 
             self.log.info(
                 f"Registered chat handler `{chat_handler.id}` with command `{command_name}`."
