@@ -5,7 +5,6 @@ import types
 
 from dask.distributed import Client as DaskClient
 from importlib_metadata import entry_points
-from jupyter_ai.chat_handlers.learn import Retriever
 from jupyter_ai_magics import BaseProvider, JupyternautPersona
 from jupyter_ai_magics.utils import get_em_providers, get_lm_providers
 from jupyter_server.extension.application import ExtensionApp
@@ -367,16 +366,14 @@ class AiExtension(ExtensionApp):
             "chat_handlers": chat_handlers,
             "context_providers": self.settings["jai_context_providers"],
             "message_interrupted": self.settings["jai_message_interrupted"],
+            "log_dir": self.error_logs_dir,
         }
+
         default_chat_handler = DefaultChatHandler(**chat_handler_kwargs)
+        generate_chat_handler = GenerateChatHandler(**chat_handler_kwargs)
         clear_chat_handler = ClearChatHandler(**chat_handler_kwargs)
-        generate_chat_handler = GenerateChatHandler(
-            **chat_handler_kwargs,
-            log_dir=self.error_logs_dir,
-        )
         learn_chat_handler = LearnChatHandler(**chat_handler_kwargs)
-        retriever = Retriever(learn_chat_handler=learn_chat_handler)
-        ask_chat_handler = AskChatHandler(**chat_handler_kwargs, retriever=retriever)
+        ask_chat_handler = AskChatHandler(**chat_handler_kwargs)
 
         export_chat_handler = ExportChatHandler(**chat_handler_kwargs)
 
