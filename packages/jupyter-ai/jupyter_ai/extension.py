@@ -373,6 +373,9 @@ class AiExtension(ExtensionApp):
         generate_chat_handler = GenerateChatHandler(**chat_handler_kwargs)
         clear_chat_handler = ClearChatHandler(**chat_handler_kwargs)
         learn_chat_handler = LearnChatHandler(**chat_handler_kwargs)
+        # Store learn_chat_handler before initializing AskChatHandler,
+        # as it is required for initializing the Retriever.
+        chat_handlers["/learn"] = learn_chat_handler
         ask_chat_handler = AskChatHandler(**chat_handler_kwargs)
 
         export_chat_handler = ExportChatHandler(**chat_handler_kwargs)
@@ -383,7 +386,6 @@ class AiExtension(ExtensionApp):
         chat_handlers["/ask"] = ask_chat_handler
         chat_handlers["/clear"] = clear_chat_handler
         chat_handlers["/generate"] = generate_chat_handler
-        chat_handlers["/learn"] = learn_chat_handler
         chat_handlers["/export"] = export_chat_handler
         chat_handlers["/fix"] = fix_chat_handler
 
