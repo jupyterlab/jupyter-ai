@@ -4,6 +4,7 @@ import contextlib
 import os
 import time
 import traceback
+from pathlib import Path
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -156,6 +157,7 @@ class BaseChatHandler:
         chat_handlers: Dict[str, "BaseChatHandler"],
         context_providers: Dict[str, "BaseCommandContextProvider"],
         message_interrupted: Dict[str, asyncio.Event],
+        log_dir: Optional[str],
     ):
         self.log = log
         self.config_manager = config_manager
@@ -178,6 +180,7 @@ class BaseChatHandler:
         self.chat_handlers = chat_handlers
         self.context_providers = context_providers
         self.message_interrupted = message_interrupted
+        self.log_dir = Path(log_dir) if log_dir else None
 
         self.llm: Optional[BaseProvider] = None
         self.llm_params: Optional[dict] = None
