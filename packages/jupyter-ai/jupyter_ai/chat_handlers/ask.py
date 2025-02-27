@@ -49,11 +49,7 @@ class AskChatHandler(BaseChatHandler):
 
         self.parser.prog = "/ask"
         self.parser.add_argument("query", nargs=argparse.REMAINDER)
-        learn_chat_handler = self.chat_handlers.get("/learn")
-        if not isinstance(learn_chat_handler, LearnChatHandler):
-            raise CustomLearnException()
-
-        self._retriever = Retriever(learn_chat_handler=learn_chat_handler)
+        self._retriever = None  # Initialize lazily
 
     def create_llm_chain(
         self, provider: Type[BaseProvider], provider_params: Dict[str, str]
@@ -66,6 +62,13 @@ class AskChatHandler(BaseChatHandler):
         memory = ConversationBufferWindowMemory(
             memory_key="chat_history", return_messages=True, k=2
         )
+
+        if self._retriever is None:
+            learn_chat_handler = self.chat_handlers.get("/learn")
+            if not isinstance(learn_chat_handler, LearnChatHandler):
+                raise CustomLearnException()
+
+            self._retriever = Retriever(learn_chat_handler=learn_chat_handler)
 
         self.llm_chain = ConversationalRetrievalChain.from_llm(
             self.llm,
