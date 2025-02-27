@@ -50,9 +50,6 @@ class AskChatHandler(BaseChatHandler):
         self.parser.prog = "/ask"
         self.parser.add_argument("query", nargs=argparse.REMAINDER)
         learn_chat_handler = self.chat_handlers.get("/learn")
-        if not isinstance(learn_chat_handler, LearnChatHandler):
-            raise CustomLearnException()
-
         self._retriever = Retriever(learn_chat_handler=learn_chat_handler)
 
     def create_llm_chain(
