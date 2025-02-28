@@ -58,4 +58,11 @@ Models deployed using vLLM may be used in a similar manner:
 
 Usage of models using vLLM and their deployment is discussed [here](vllm.md).
 
+For embedding models from OpenAI, you can generically choose them using the AI Settings interface as well:
+
+<img src="../_static/openai-embeddings.png"
+    width="75%"
+    alt='Screenshot of embedding use via the OpenAI provider.'
+    class="screenshot" />
+
 [(Return to the Chat Interface page)](index.md#openrouter-usage)
