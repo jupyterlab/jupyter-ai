@@ -49,11 +49,20 @@ class AskChatHandler(BaseChatHandler):
 
         self.parser.prog = "/ask"
         self.parser.add_argument("query", nargs=argparse.REMAINDER)
-        learn_chat_handler = self.chat_handlers.get("/learn")
-        if not isinstance(learn_chat_handler, LearnChatHandler):
-            raise CustomLearnException()
+        # NOTE: devs should use self.retriever property to access the retriever
+        self._retriever = None  # Will be set when accessed
 
-        self._retriever = Retriever(learn_chat_handler=learn_chat_handler)
+    @property
+    def retriever(self):
+        """Lazy-loads and caches the retriever instance"""
+        if self._retriever is None:
+            learn_chat_handler = self.chat_handlers.get("/learn")
+            if not isinstance(learn_chat_handler, LearnChatHandler):
+                raise CustomLearnException()
+
+            self._retriever = Retriever(learn_chat_handler=learn_chat_handler)
+
+        return self._retriever  # Return cached instance
 
     def create_llm_chain(
         self, provider: Type[BaseProvider], provider_params: Dict[str, str]
@@ -69,7 +78,7 @@ class AskChatHandler(BaseChatHandler):
 
         self.llm_chain = ConversationalRetrievalChain.from_llm(
             self.llm,
-            self._retriever,
+            self.retriever,
             memory=memory,
             condense_question_prompt=CONDENSE_PROMPT,
             verbose=False,
