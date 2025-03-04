@@ -5,7 +5,6 @@ import types
 from functools import partial
 from typing import Dict
 
-import jupyter_ydoc  # must be imported before YChat
 import traitlets
 from dask.distributed import Client as DaskClient
 from importlib_metadata import entry_points
