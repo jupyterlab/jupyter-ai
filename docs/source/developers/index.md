@@ -461,6 +461,15 @@ custom = "custom_package:CustomChatHandler"
 Then, install your package so that Jupyter AI adds custom chat handlers
 to the existing chat handlers.
 
+## Disabling a built-in slash command
+
+You can disable a built-in slash command globally by providing a mostly-empty chat handler with `disabled = True`. For example, to disable the default `ask` chat handler of Jupyter AI, define:
+
+```python
+class AskChatHandler:
+    disabled = True
+```
+
 ## Streaming output from custom slash commands
 
 Jupyter AI supports streaming output in the chat session. When a response is
