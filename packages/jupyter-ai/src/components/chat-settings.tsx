@@ -95,7 +95,9 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
 
   const [apiKeys, setApiKeys] = useState<Record<string, string>>({});
   const [sendWse, setSendWse] = useState<boolean>(false);
-  const [fields, setFields] = useState<Record<string, any>>({});
+  const [lmFields, setLmFields] = useState<Record<string, any>>({});
+  const [emFields, setEmFields] = useState<Record<string, any>>({});
+  const [clmFields, setClmFields] = useState<Record<string, any>>({});
   const [isCompleterEnabled, setIsCompleterEnabled] = useState(
     props.completionProvider && props.completionProvider.isEnabled()
   );
@@ -199,7 +201,7 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
 
     const currFields: Record<string, any> =
       server.config.fields?.[lmGlobalId] ?? {};
-    setFields(currFields);
+    setLmFields(currFields);
 
     if (!emGlobalId) {
       return;
@@ -207,8 +209,17 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
 
     const initEmbeddingModelFields: Record<string, any> =
       server.config.fields?.[emGlobalId] ?? {};
-      setFields(initEmbeddingModelFields);
-  }, [server, lmGlobalId, emGlobalId]);
+    setEmFields(initEmbeddingModelFields);
+
+    if (!clmGlobalId) {
+      return;
+    }
+
+    const initCompleterModelFields: Record<string, any> =
+      server.config.fields?.[clmGlobalId] ?? {};
+    setClmFields(initCompleterModelFields);
+
+  }, [server, lmGlobalId, emGlobalId, clmGlobalId]);
 
   const handleSave = async () => {
     // compress fields with JSON values
@@ -216,8 +227,8 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
       return;
     }
 
-    for (const fieldKey in fields) {
-      const fieldVal = fields[fieldKey];
+    for (const fieldKey in lmFields) {
+      const fieldVal = lmFields[fieldKey];
       if (typeof fieldVal !== 'string' || !fieldVal.trim().startsWith('{')) {
         continue;
       }
@@ -225,7 +236,7 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
       try {
         const parsedFieldVal = JSON.parse(fieldVal);
         const compressedFieldVal = JSON.stringify(parsedFieldVal);
-        fields[fieldKey] = compressedFieldVal;
+        lmFields[fieldKey] = compressedFieldVal;
       } catch (e) {
         continue;
       }
@@ -238,13 +249,13 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
       ...((lmGlobalId || clmGlobalId) && {
         fields: {
           ...(lmGlobalId && {
-            [lmGlobalId]: fields
+            [lmGlobalId]: lmFields
           }),
           ...(clmGlobalId && {
-            [clmGlobalId]: fields
+            [clmGlobalId]: clmFields
           }),
           ...(emGlobalId && {
-            [emGlobalId]: fields
+            [emGlobalId]: emFields
           })
         }
       }),
@@ -386,8 +397,8 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
           {lmGlobalId && (
             <ModelFields
               fields={lmProvider?.fields}
-              values={fields}
-              onChange={setFields}
+              values={lmFields}
+              onChange={setLmFields}
             />
           )}
         </Box>
@@ -455,10 +466,8 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
           {emGlobalId && (
             <ModelFields
               fields={emProvider?.fields}
-              // values={embeddingModelFields}
-              // onChange={setEmbeddingModelFields}
-              values={fields}
-              onChange={setFields}
+              values={emFields}
+              onChange={setEmFields}
             />
           )}
         </Box>
@@ -536,8 +545,8 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
           {clmGlobalId && (
             <ModelFields
               fields={clmProvider?.fields}
-              values={fields}
-              onChange={setFields}
+              values={clmFields}
+              onChange={setClmFields}
             />
           )}
         </Box>

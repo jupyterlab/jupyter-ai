@@ -158,7 +158,6 @@ class AzureOpenAIEmbeddingsProvider(BaseEmbeddingsProvider, AzureOpenAIEmbedding
     auth_strategy = EnvAuthStrategy(
         name="AZURE_OPENAI_API_KEY", keyword_param="openai_api_key"
     )
-    registry = True
     fields = [
         TextField(key="azure_endpoint", label="Base API URL (optional)", format="text"),
     ]
