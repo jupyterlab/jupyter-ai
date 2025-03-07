@@ -30,7 +30,6 @@ class OllamaEmbeddingsProvider(BaseEmbeddingsProvider, OllamaEmbeddings):
         "all-minilm",
         "snowflake-arctic-embed",
     ]
-    registry = True
     fields = [
         TextField(key="base_url", label="Base API URL (optional)", format="text"),
     ]
