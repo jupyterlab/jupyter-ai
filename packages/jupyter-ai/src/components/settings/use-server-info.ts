@@ -86,7 +86,7 @@ export function useServerInfo(): ServerInfo {
           lmProvider,
           emProvider,
           lmLocalId,
-          emLocalId,
+          emLocalId
         },
         completions: {
           lmProvider: cLmProvider,

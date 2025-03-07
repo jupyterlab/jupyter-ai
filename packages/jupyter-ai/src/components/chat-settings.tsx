@@ -61,7 +61,9 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
   const [showEmLocalId, setShowEmLocalId] = useState<boolean>(false);
   const [showClmLocalId, setShowClmLocalId] = useState<boolean>(false);
   const [chatHelpMarkdown, setChatHelpMarkdown] = useState<string | null>(null);
-  const [embeddingHelpMarkdown, setEmbeddingHelpMarkdown] = useState<string | null>(null);
+  const [embeddingHelpMarkdown, setEmbeddingHelpMarkdown] = useState<
+    string | null
+  >(null);
   const [completionHelpMarkdown, setCompletionHelpMarkdown] = useState<
     string | null
   >(null);
@@ -218,7 +220,6 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
     const initCompleterModelFields: Record<string, any> =
       server.config.fields?.[clmGlobalId] ?? {};
     setClmFields(initCompleterModelFields);
-
   }, [server, lmGlobalId, emGlobalId, clmGlobalId]);
 
   const handleSave = async () => {
@@ -444,7 +445,7 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
                 // .filter(em => emp.chat_models.includes(em))
                 .map(em => (
                   <MenuItem value={`${emp.id}:${em}`}>
-                  {emp.name} :: {em}
+                    {emp.name} :: {em}
                   </MenuItem>
                 ))
             )}
