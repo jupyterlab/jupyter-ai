@@ -19,14 +19,7 @@ from pycrdt import ArrayEvent
 from tornado.web import StaticFileHandler
 from traitlets import Integer, List, Unicode
 
-from .chat_handlers import (
-    AskChatHandler,
-    BaseChatHandler,
-    DefaultChatHandler,
-    GenerateChatHandler,
-    HelpChatHandler,
-    LearnChatHandler,
-)
+from .chat_handlers.base import BaseChatHandler
 from .completions.handlers import DefaultInlineCompletionHandler
 from .config_manager import ConfigManager
 from .constants import BOT
@@ -459,35 +452,35 @@ class AiExtension(ExtensionApp):
         assert self.serverapp
 
         eps = entry_points()
-        chat_handler_eps = eps.select(group="jupyter_ai.chat_handlers")
+        all_chat_handler_eps = eps.select(group="jupyter_ai.chat_handlers")
+
+        # Override native chat handlers if duplicates are present
+        sorted_eps = sorted(
+            all_chat_handler_eps, key=lambda ep: ep.dist.name != "jupyter_ai"
+        )
+        seen = {}
+        for ep in sorted_eps:
+            seen[ep.name] = ep
+        chat_handler_eps = list(seen.values())
+
         chat_handlers: Dict[str, BaseChatHandler] = {}
         llm_chat_memory = YChatHistory(ychat, k=self.default_max_chat_history)
 
         chat_handler_kwargs = {
             "log": self.log,
-            "config_manager": self.settings["jai_config_manager"],
-            "model_parameters": self.settings["model_parameters"],
+            "config_manager": self.settings.get("jai_config_manager"),
+            "model_parameters": self.settings.get("model_parameters"),
             "llm_chat_memory": llm_chat_memory,
             "root_dir": self.serverapp.root_dir,
-            "dask_client_future": self.settings["dask_client_future"],
+            "dask_client_future": self.settings.get("dask_client_future"),
             "preferred_dir": self.serverapp.contents_manager.preferred_dir,
             "help_message_template": self.help_message_template,
             "chat_handlers": chat_handlers,
-            "context_providers": self.settings["jai_context_providers"],
-            "message_interrupted": self.settings["jai_message_interrupted"],
+            "context_providers": self.settings.get("jai_context_providers"),
+            "message_interrupted": self.settings.get("jai_message_interrupted"),
             "ychat": ychat,
             "log_dir": self.error_logs_dir,
         }
-
-        default_chat_handler = DefaultChatHandler(**chat_handler_kwargs)
-        generate_chat_handler = GenerateChatHandler(**chat_handler_kwargs)
-        learn_chat_handler = LearnChatHandler(**chat_handler_kwargs)
-        ask_chat_handler = AskChatHandler(**chat_handler_kwargs)
-
-        chat_handlers["default"] = default_chat_handler
-        chat_handlers["/ask"] = ask_chat_handler
-        chat_handlers["/generate"] = generate_chat_handler
-        chat_handlers["/learn"] = learn_chat_handler
 
         slash_command_pattern = r"^[a-zA-Z0-9_]+$"
         for chat_handler_ep in chat_handler_eps:
@@ -500,21 +493,34 @@ class AiExtension(ExtensionApp):
                 )
                 continue
 
-            if chat_handler.routing_type.routing_method == "slash_command":
-                # Each slash ID must be used only once.
-                # Slash IDs may contain only alphanumerics and underscores.
-                slash_id = chat_handler.routing_type.slash_id
+            # Skip disabled entrypoints
+            ep_disabled = getattr(chat_handler, "disabled", False)
+            if ep_disabled:
+                self.log.warn(
+                    f"Skipping registration of chat handler `{chat_handler_ep.name}` as it is explicitly disabled."
+                )
+                continue
 
-                if slash_id is None:
+            if chat_handler.routing_type.routing_method == "slash_command":
+                # Set default slash_id if it's the default chat handler
+                slash_id = (
+                    "default"
+                    if chat_handler.id == "default"
+                    else chat_handler.routing_type.slash_id
+                )
+
+                if not slash_id:
                     self.log.error(
                         f"Handler `{chat_handler_ep.name}` has an invalid slash command "
                         + f"`None`; only the default chat handler may use this"
                     )
                     continue
 
-                # Validate slash ID (/^[A-Za-z0-9_]+$/)
+                # Validate the slash command name
                 if re.match(slash_command_pattern, slash_id):
-                    command_name = f"/{slash_id}"
+                    command_name = (
+                        "default" if slash_id == "default" else f"/{slash_id}"
+                    )
                 else:
                     self.log.error(
                         f"Handler `{chat_handler_ep.name}` has an invalid slash command "
@@ -524,19 +530,16 @@ class AiExtension(ExtensionApp):
                     continue
 
             if command_name in chat_handlers:
-                self.log.error(
-                    f"Unable to register chat handler `{chat_handler.id}` because command `{command_name}` already has a handler"
+                self.log.warn(
+                    f"Overriding existing handler `{command_name}` with `{chat_handler.id}`."
                 )
-                continue
 
-            # The entry point is a class; we need to instantiate the class to send messages to it
+            # Registering chat handler
             chat_handlers[command_name] = chat_handler(**chat_handler_kwargs)
+
             self.log.info(
                 f"Registered chat handler `{chat_handler.id}` with command `{command_name}`."
             )
-
-        # Make help always appear as the last command
-        chat_handlers["/help"] = HelpChatHandler(**chat_handler_kwargs)
 
         return chat_handlers
 
