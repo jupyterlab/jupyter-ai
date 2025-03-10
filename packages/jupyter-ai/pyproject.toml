@@ -27,7 +27,8 @@ dependencies = [
     "jupyter_server>=2.4,<3",
     "aiosqlite>=0.18",
     "importlib_metadata>=5.2.0",
-    "pydantic~=2.0",
+    # pydantic>=2.7.4 is required by langchain v0.3
+    "pydantic>=2.7.4,<3",
     "jupyter_ai_magics>=2.13.0",
     "dask[distributed]",
     # faiss-cpu is not distributed by the official repo.
