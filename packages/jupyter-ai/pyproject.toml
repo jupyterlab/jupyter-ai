@@ -33,7 +33,6 @@ dependencies = [
     # v1.8.0.post0 should be excluded as it lacks macOS x86 wheels.
     "faiss-cpu>=1.8.0,<2.0.0,!=1.8.0.post0",
     "traitlets>=5.6,
-    "typing_extensions>=4.5.0",
     "traitlets>=5.0",
     "deepmerge>=2.0,<3",
     "jupyterlab-chat>=0.7.1,<1.0.0",
