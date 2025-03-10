@@ -52,7 +52,7 @@ help = "jupyter_ai.chat_handlers.help:HelpChatHandler"
 
 [project.optional-dependencies]
 test = [
-    "jupyter-server[test]>=1.6,<3",
+    "jupyter_server[test]>=2.4,<3", # v2.4 is the version floor required by jupyterlab~=4.0
     "coverage",
     "pytest",
     "pytest-asyncio",
