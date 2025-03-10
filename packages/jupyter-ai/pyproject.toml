@@ -23,7 +23,8 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
 ]
 dependencies = [
-    "jupyter_server>=2.4,<3",    # v2.4 is the version floor required by jupyterlab~=4.0
+    # jupyter_server>=2.4 is required in JL4
+    "jupyter_server>=2.4,<3",
     "aiosqlite>=0.18",
     "importlib_metadata>=5.2.0",
     "pydantic~=2.0",
@@ -33,7 +34,8 @@ dependencies = [
     # v1.8.0.post0 should be excluded as it lacks macOS x86 wheels.
     "faiss-cpu>=1.8.0,<2.0.0,!=1.8.0.post0",
     "typing_extensions>=4.5.0",
-    "traitlets>=5.0",
+    # traitlets>=5.6 is required in JL4
+    "traitlets>=5.6",
     "deepmerge>=2.0,<3",
     "jupyterlab-chat>=0.7.1,<1.0.0",
 ]
@@ -52,7 +54,8 @@ help = "jupyter_ai.chat_handlers.help:HelpChatHandler"
 
 [project.optional-dependencies]
 test = [
-    "jupyter_server[test]>=2.4,<3", # v2.4 is the version floor required by jupyterlab~=4.0
+    # jupyter_server>=2.4 is required in JL4
+    "jupyter_server[test]>=2.4,<3",
     "coverage",
     "pytest",
     "pytest-asyncio",
