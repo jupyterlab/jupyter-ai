@@ -1,7 +1,7 @@
 import logging
+from importlib.metadata import entry_points
 from typing import Dict, List, Literal, Optional, Tuple, Type, Union
 
-from importlib.metadata import entry_points
 from jupyter_ai_magics.aliases import MODEL_ID_ALIASES
 from jupyter_ai_magics.embedding_providers import BaseEmbeddingsProvider
 from jupyter_ai_magics.providers import BaseProvider

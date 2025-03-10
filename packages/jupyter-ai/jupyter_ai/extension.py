@@ -3,11 +3,11 @@ import re
 import time
 import types
 from functools import partial
+from importlib.metadata import entry_points
 from typing import Dict
 
 import traitlets
 from dask.distributed import Client as DaskClient
-from importlib.metadata import entry_points
 from jupyter_ai_magics import BaseProvider, JupyternautPersona
 from jupyter_ai_magics.utils import get_em_providers, get_lm_providers
 from jupyter_events import EventLogger
