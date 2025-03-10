@@ -461,6 +461,38 @@ custom = "custom_package:CustomChatHandler"
 Then, install your package so that Jupyter AI adds custom chat handlers
 to the existing chat handlers.
 
+## Overriding or disabling a built-in slash command
+
+You can define a custom implementation of a built-in slash command by following the steps above on building a custom slash command. This will involve creating and installing a new package. Then, to override a chat handler with this custom implementation, provide an entry point with a name matching the ID of the chat handler to override.
+
+For example, to override `/ask` with a  `CustomAskChatHandler` class, add the following to `pyproject.toml` and re-install the new package:
+
+```python
+[project.entry-points."jupyter_ai.chat_handlers"]
+ask = "<module-path>:CustomAskChatHandler"
+```
+
+You can also disable a built-in slash command by providing a mostly-empty chat handler with `disabled = True`. For example, to disable the default `ask` chat handler of Jupyter AI, define a new `DisabledAskChatHandler`:
+
+```python
+class DisabledAskChatHandler:
+    id = 'ask'
+    disabled = True
+```
+
+Then, provide this as an entry point in your custom package:
+```python
+[project.entry-points."jupyter_ai.chat_handlers"]
+ask = "<module-path>:DisabledAskChatHandler"
+```
+
+Finally, re-install your custom package. After starting JupyterLab, the `/ask` command should now be disabled.
+
+:::{warning}
+:name: entry-point-name
+To override or disable a built-in slash command via an entry point, the name of the entry point (left of the `=` symbol) must match the chat handler ID exactly.
+:::
+
 ## Streaming output from custom slash commands
 
 Jupyter AI supports streaming output in the chat session. When a response is
