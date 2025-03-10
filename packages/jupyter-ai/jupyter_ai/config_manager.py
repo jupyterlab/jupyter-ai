@@ -228,7 +228,10 @@ class ConfigManager(Configurable):
                 setattr(config, em_key, None)
         for clm_key in clm_provider_keys:
             clm_id = getattr(config, clm_key)
-            if clm_id is not None and not get_lm_provider(clm_id, self._lm_providers)[1]:
+            if (
+                clm_id is not None
+                and not get_lm_provider(clm_id, self._lm_providers)[1]
+            ):
                 self.log.warning(
                     f"No completion model is associated with '{clm_id}'. Setting to None."
                 )
@@ -243,7 +246,8 @@ class ConfigManager(Configurable):
         config_keys = GlobalConfig.model_fields.keys()
         schema_properties = self.validator.schema.get("properties", {})
         default_config = {
-            field: schema_properties.get(field, {}).get("default") for field in config_keys
+            field: schema_properties.get(field, {}).get("default")
+            for field in config_keys
         }
         if self._defaults is None:
             return default_config
@@ -257,8 +261,12 @@ class ConfigManager(Configurable):
                 if config_key == "fields":
                     # Ensure fields dictionaries are initialized
                     default_config["fields"] = default_value
-                    default_config["embeddings_fields"] = default_config.get("embeddings_fields", {})
-                    default_config["completions_fields"] = default_config.get("completions_fields", {})
+                    default_config["embeddings_fields"] = default_config.get(
+                        "embeddings_fields", {}
+                    )
+                    default_config["completions_fields"] = default_config.get(
+                        "completions_fields", {}
+                    )
                 elif config_key == "embeddings_fields":
                     default_config["embeddings_fields"] = default_value
                 elif config_key == "completions_fields":
@@ -331,7 +339,11 @@ class ConfigManager(Configurable):
             _validate_provider_authn(config, completions_provider)
 
             # verify completions fields exist for this model if needed
-            if completions_provider.fields and config.completions_model_provider_id not in config.completions_fields:
+            if (
+                completions_provider.fields
+                and config.completions_model_provider_id
+                not in config.completions_fields
+            ):
                 config.completions_fields[config.completions_model_provider_id] = {}
 
         # validate embedding model config
@@ -353,7 +365,10 @@ class ConfigManager(Configurable):
             _validate_provider_authn(config, em_provider)
 
             # verify embedding fields exist for this model if needed
-            if em_provider.fields and config.embeddings_provider_id not in config.embeddings_fields:
+            if (
+                em_provider.fields
+                and config.embeddings_provider_id not in config.embeddings_fields
+            ):
                 config.embeddings_fields[config.embeddings_provider_id] = {}
 
     def _validate_model(self, model_id: str, raise_exc=True):
@@ -529,12 +544,16 @@ class ConfigManager(Configurable):
         # TODO: modify the config manager to never save empty fields in the
         # first place.
         fields = {
-            k: None if isinstance(v, str) and not len(v) else v 
+            k: None if isinstance(v, str) and not len(v) else v
             for k, v in fields.items()
         }
 
         # get authn fields
-        _, Provider = get_em_provider(model_uid, listing) if key == "embeddings_provider_id" else get_lm_provider(model_uid, listing)
+        _, Provider = (
+            get_em_provider(model_uid, listing)
+            if key == "embeddings_provider_id"
+            else get_lm_provider(model_uid, listing)
+        )
         authn_fields = {}
         if Provider.auth_strategy and Provider.auth_strategy.type == "env":
             keyword_param = (
