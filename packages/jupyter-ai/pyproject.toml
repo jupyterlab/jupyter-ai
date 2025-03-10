@@ -23,15 +23,16 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
 ]
 dependencies = [
-    "jupyter-server>=2.4,<3",
+    "jupyter_server>=2.4,<3",
     "aiosqlite>=0.18",
     "importlib_metadata>=5.2.0",
-    "pydantic~=2.0",
+    "pydantic>=2.7.4,<3",
     "jupyter_ai_magics>=2.13.0",
     "dask[distributed]",
     # faiss-cpu is not distributed by the official repo.
     # v1.8.0.post0 should be excluded as it lacks macOS x86 wheels.
     "faiss-cpu>=1.8.0,<2.0.0,!=1.8.0.post0",
+    "traitlets>=5.6,
     "typing_extensions>=4.5.0",
     "traitlets>=5.0",
     "deepmerge>=2.0,<3",
@@ -45,7 +46,7 @@ core_default_tasks = "jupyter_ai:tasks"
 
 [project.optional-dependencies]
 test = [
-    "jupyter-server[test]>=1.6,<3",
+    "jupyter-server[test]>=2.4,<3",
     "coverage",
     "pytest",
     "pytest-asyncio",
