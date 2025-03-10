@@ -6,13 +6,12 @@ build-backend = "hatchling.build"
 name = "jupyter_ai_magics"
 readme = "README.md"
 license = { file = "LICENSE" }
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 classifiers = [
     "Framework :: Jupyter",
     "License :: OSI Approved :: BSD License",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
@@ -23,7 +22,6 @@ dynamic = ["version", "description", "authors", "urls", "keywords"]
 
 dependencies = [
     "ipython",
-    "importlib_metadata>=5.2.0",
     "langchain>=0.3.0,<0.4.0",
     "langchain_community>=0.3.0,<0.4.0",
     # pydantic>=2.7.4 is required by langchain >=0.3.0
