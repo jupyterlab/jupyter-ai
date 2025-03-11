@@ -23,7 +23,8 @@ classifiers = [
 ]
 dependencies = [
     # jupyter_server>=2.4 is required in JL4
-    "jupyter_server>=2.4,<3",
+    # jupyter_server>=2.11.1 is required by jupyter_server_ydoc>=3
+    "jupyter_server>=2.11.1,<3",
     # pydantic>=2.7.4 is required by langchain >=v0.3.0
     # pydantic>=2.9.0 is required by ollama >=0.4.0
     "pydantic>=2.9.0,<3",
@@ -53,7 +54,8 @@ help = "jupyter_ai.chat_handlers.help:HelpChatHandler"
 [project.optional-dependencies]
 test = [
     # jupyter_server>=2.4 is required in JL4
-    "jupyter_server[test]>=2.4,<3",
+    # jupyter_server>=2.11.1 is required by jupyter_server_ydoc>=3
+    "jupyter_server[test]>=2.11.1,<3",
     "coverage",
     "pytest",
     "pytest-asyncio",
