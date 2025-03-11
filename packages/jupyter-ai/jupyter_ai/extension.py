@@ -427,6 +427,9 @@ class AiExtension(ExtensionApp):
             self.log.info(
                 f"Registered chat handler `{chat_handler.id}` with command `{command_name}`."
             )
+            
+            # bind chat handlers to settings
+            self.settings["jai_chat_handlers"] = chat_handlers
 
         return chat_handlers
 
