@@ -22,7 +22,7 @@ Documentation is available on [ReadTheDocs](https://jupyter-ai.readthedocs.io/en
 
 You will need to have installed the following software to use Jupyter AI:
 
-- Python 3.8 - 3.12
+- Python 3.9 - 3.12
 - JupyterLab 4 or Notebook 7
 
 In addition, you will need access to at least one model provider.
