@@ -356,6 +356,8 @@ class AiExtension(ExtensionApp):
             "log": self.log,
             "config_manager": self.settings.get("jai_config_manager"),
             "model_parameters": self.settings.get("model_parameters"),
+            "root_chat_handlers": self.settings["jai_root_chat_handlers"],
+            "chat_history": self.settings["chat_history"],
             "llm_chat_memory": self.settings["llm_chat_memory"],
             "root_dir": self.serverapp.root_dir,
             "dask_client_future": self.settings.get("dask_client_future"),
