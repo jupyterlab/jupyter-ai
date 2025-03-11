@@ -44,9 +44,12 @@ core_default_tasks = "jupyter_ai:tasks"
 
 [project.entry-points."jupyter_ai.chat_handlers"]
 default = "jupyter_ai.chat_handlers.default:DefaultChatHandler"
-ask = "jupyter_ai.chat_handlers.ask:AskChatHandler"
-generate = "jupyter_ai.chat_handlers.generate:GenerateChatHandler"
 learn = "jupyter_ai.chat_handlers.learn:LearnChatHandler"
+ask = "jupyter_ai.chat_handlers.ask:AskChatHandler"
+clear = "jupyter_ai.chat_handlers.clear:ClearChatHandler"
+generate = "jupyter_ai.chat_handlers.generate:GenerateChatHandler"
+export = "jupyter_ai.chat_handlers.export:ExportChatHandler"
+fix = "jupyter_ai.chat_handlers.fix:FixChatHandler"
 help = "jupyter_ai.chat_handlers.help:HelpChatHandler"
 
 [project.optional-dependencies]
