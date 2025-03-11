@@ -3,7 +3,7 @@ import re
 import time
 import types
 from functools import partial
-from importlib.metadata import entry_points
+from importlib_metadata import entry_points
 from typing import Dict
 
 import traitlets

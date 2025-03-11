@@ -1,5 +1,5 @@
 import logging
-from importlib.metadata import entry_points
+from importlib_metadata import entry_points
 from typing import Dict, List, Literal, Optional, Tuple, Type, Union
 
 from jupyter_ai_magics.aliases import MODEL_ID_ALIASES

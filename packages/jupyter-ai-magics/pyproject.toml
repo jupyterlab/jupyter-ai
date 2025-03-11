@@ -22,6 +22,7 @@ dynamic = ["version", "description", "authors", "urls", "keywords"]
 
 dependencies = [
     "ipython",
+    "importlib_metadata>=5.2.0",
     "langchain>=0.3.0,<0.4.0",
     "langchain_community>=0.3.0,<0.4.0",
     # pydantic>=2.7.4 is required by langchain >=0.3.0
