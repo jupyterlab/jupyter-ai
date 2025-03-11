@@ -25,7 +25,10 @@ dependencies = [
     "importlib_metadata>=5.2.0",
     "langchain>=0.3.0,<0.4.0",
     "langchain_community>=0.3.0,<0.4.0",
+    # pydantic>=2.7.4 is required by langchain >=0.3.0
+    # pydantic>=2.9.0 is required by ollama >=0.4.0
     "pydantic>=2.9.0,<3",
+    # click>=8.1 is required by dask>=2023.11.0
     "click>=8.1.0,<9",
     "jsonpath-ng>=1.5.3,<2",
 ]
@@ -63,7 +66,6 @@ huggingface_hub = "jupyter_ai_magics:HfHubProvider"
 ollama = "jupyter_ai_magics.partner_providers.ollama:OllamaProvider"
 openai = "jupyter_ai_magics.partner_providers.openai:OpenAIProvider"
 openai-chat = "jupyter_ai_magics.partner_providers.openai:ChatOpenAIProvider"
-openai-chat-custom = "jupyter_ai_magics.partner_providers.openai:ChatOpenAICustomProvider"
 azure-chat-openai = "jupyter_ai_magics.partner_providers.openai:AzureChatOpenAIProvider"
 sagemaker-endpoint = "jupyter_ai_magics.partner_providers.aws:SmEndpointProvider"
 amazon-bedrock = "jupyter_ai_magics.partner_providers.aws:BedrockProvider"
@@ -85,7 +87,6 @@ gpt4all = "jupyter_ai_magics:GPT4AllEmbeddingsProvider"
 huggingface_hub = "jupyter_ai_magics:HfHubEmbeddingsProvider"
 ollama = "jupyter_ai_magics.partner_providers.ollama:OllamaEmbeddingsProvider"
 openai = "jupyter_ai_magics.partner_providers.openai:OpenAIEmbeddingsProvider"
-openai-custom = "jupyter_ai_magics.partner_providers.openai:OpenAIEmbeddingsCustomProvider"
 qianfan = "jupyter_ai_magics:QianfanEmbeddingsEndpointProvider"
 
 [tool.hatch.version]
