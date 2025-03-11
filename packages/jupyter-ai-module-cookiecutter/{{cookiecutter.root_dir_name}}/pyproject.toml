@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 name = "{{ cookiecutter.python_name }}"
 readme = "README.md"
 license = { file = "LICENSE" }
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 classifiers = [
     "Framework :: Jupyter",
     "Framework :: Jupyter :: JupyterLab",
