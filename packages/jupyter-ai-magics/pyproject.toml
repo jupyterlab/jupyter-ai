@@ -27,7 +27,8 @@ dependencies = [
     # pydantic>=2.7.4 is required by langchain >=0.3.0
     # pydantic>=2.9.0 is required by ollama >=0.4.0
     "pydantic>=2.9.0,<3",
-    "click~=8.0",
+    # click>=8.1 is required by dask>=2023.11.0
+    "click>=8.1.0,<9",
     "jsonpath-ng>=1.5.3,<2",
 ]
 
