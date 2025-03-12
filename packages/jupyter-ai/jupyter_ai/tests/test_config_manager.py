@@ -231,27 +231,11 @@ def configure_with_fields(cm: ConfigManager, completions: bool = False):
     }
 
 
-@pytest.fixture
-def snapshot():
-    return {
-        "api_keys": [],
-        "completions_fields": {},
-        "completions_model_provider_id": None,
-        "embeddings_fields": {},
-        "embeddings_provider_id": None,
-        "fields": {},
-        "model_provider_id": None,
-        "send_with_shift_enter": False,
-    }
-
-
 def test_snapshot_default_config(cm: ConfigManager, snapshot):
     config_from_cm: DescribeConfigResponse = cm.get_config()
-    config_dict = config_from_cm.model_dump()
-    # Remove last_read field and sort the remaining fields
-    config_dict.pop("last_read", None)
-    config_dict = dict(sorted(config_dict.items()))
-    assert config_dict == snapshot
+    assert config_from_cm.model_dump() == snapshot(
+        exclude=lambda prop, path: prop == "last_read"
+    )
 
 
 def test_init_with_existing_config(cm: ConfigManager, common_cm_kwargs):
