@@ -25,7 +25,7 @@ type ChatMessageMenuProps = {
 
 export function ChatMessageMenu(props: ChatMessageMenuProps): JSX.Element {
   const menuButtonRef = useRef<HTMLButtonElement | null>(null);
-  const { copy, copyLabel } = useCopy({
+  const { copy, copyLabel, isCopyDisabled } = useCopy({
     labelOverrides: { [CopyStatus.None]: 'Copy response' }
   });
   const { replace, replaceLabel } = useReplace();
@@ -64,7 +64,11 @@ export function ChatMessageMenu(props: ChatMessageMenuProps): JSX.Element {
         onClose={() => setMenuOpen(false)}
         anchorEl={anchorEl}
       >
-        <MenuItem onClick={() => copy(props.message.body)} sx={menuItemSx}>
+        <MenuItem
+          disabled={isCopyDisabled}
+          onClick={() => copy(props.message.body)}
+          sx={menuItemSx}
+        >
           <copyIcon.react />
           {copyLabel}
         </MenuItem>

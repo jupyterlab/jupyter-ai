@@ -173,10 +173,11 @@ function ReplaceButton(props: ToolbarButtonProps) {
 
 export function CopyButton(props: ToolbarButtonProps): JSX.Element {
   const telemetryHandler = useTelemetry();
-  const { copy, copyLabel } = useCopy();
+  const { copy, copyLabel, isCopyDisabled } = useCopy();
 
   return (
     <TooltippedIconButton
+      disabled={isCopyDisabled}
       tooltip={copyLabel}
       placement="top"
       onClick={() => {
