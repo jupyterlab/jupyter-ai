@@ -2,6 +2,43 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 2.30.0
+
+This release notably allow developers to override or disable Jupyter AI's chat handlers and slash commands via the entry points API. See the [new section](https://jupyter-ai.readthedocs.io/en/latest/developers/index.html#overriding-or-disabling-a-built-in-slash-command) in the developer documentation for more info.
+
+Special thanks to @Darshan808 and @krassowski for their contributions to this release!
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.29.1...c504883941dee582f195a03a9a62e1f6232e7f0d))
+
+### Enhancements made
+
+- Make Native Chat Handlers Overridable via Entry Points [#1249](https://github.com/jupyterlab/jupyter-ai/pull/1249) ([@Darshan808](https://github.com/Darshan808))
+- Allow chat handlers to be initialized in any order [#1268](https://github.com/jupyterlab/jupyter-ai/pull/1268) ([@Darshan808](https://github.com/Darshan808))
+- Refactor Chat Handlers to Simplify Initialization [#1257](https://github.com/jupyterlab/jupyter-ai/pull/1257) ([@Darshan808](https://github.com/Darshan808))
+
+### Bugs fixed
+
+- Correct minimum versions in dependency version ranges [#1272](https://github.com/jupyterlab/jupyter-ai/pull/1272) ([@dlqqq](https://github.com/dlqqq))
+- Fix: Enable up and down arrow keys in chat input [#1254](https://github.com/jupyterlab/jupyter-ai/pull/1254) ([@keerthi-swarna](https://github.com/keerthi-swarna))
+
+### Maintenance and upkeep improvements
+
+- Correct minimum versions in dependency version ranges [#1272](https://github.com/jupyterlab/jupyter-ai/pull/1272) ([@dlqqq](https://github.com/dlqqq))
+- Remove the dependency on `jupyterlab` [#1234](https://github.com/jupyterlab/jupyter-ai/pull/1234) ([@jtpio](https://github.com/jtpio))
+
+### Documentation improvements
+
+- Add information about ollama - document it as an available provider and provide clearer troubleshooting help. [#1235](https://github.com/jupyterlab/jupyter-ai/pull/1235) ([@fperez](https://github.com/fperez))
+- Add documentation for vLLM usage [#1232](https://github.com/jupyterlab/jupyter-ai/pull/1232) ([@srdas](https://github.com/srdas))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2025-02-06&to=2025-03-14&type=c))
+
+[@Darshan808](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3ADarshan808+updated%3A2025-02-06..2025-03-14&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2025-02-06..2025-03-14&type=Issues) | [@gogakoreli](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Agogakoreli+updated%3A2025-02-06..2025-03-14&type=Issues) | [@keerthi-swarna](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akeerthi-swarna+updated%3A2025-02-06..2025-03-14&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2025-02-06..2025-03-14&type=Issues) | [@meeseeksmachine](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ameeseeksmachine+updated%3A2025-02-06..2025-03-14&type=Issues) | [@paulrutter](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Apaulrutter+updated%3A2025-02-06..2025-03-14&type=Issues) | [@srdas](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2025-02-06..2025-03-14&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 2.29.1
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.29.0...e7ab0cd15acdfce325d540684078331755dad67c))
@@ -31,8 +68,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2025-01-16&to=2025-02-06&type=c))
 
 [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2025-01-16..2025-02-06&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2025-01-16..2025-02-06&type=Issues) | [@meeseeksmachine](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ameeseeksmachine+updated%3A2025-01-16..2025-02-06&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 2.29.0
 
