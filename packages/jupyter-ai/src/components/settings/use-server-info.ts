@@ -73,10 +73,10 @@ export function useServerInfo(): ServerInfo {
       const lmLocalId = (lmGid && getModelLocalId(lmGid)) ?? '';
       const emLocalId = (emGid && getModelLocalId(emGid)) ?? '';
 
-      const cLmGid = config.completions_model_provider_id;
-      const cLmProvider =
-        cLmGid === null ? null : getProvider(cLmGid, lmProviders);
-      const cLmLocalId = (cLmGid && getModelLocalId(cLmGid)) ?? '';
+      const clmGid = config.completions_model_provider_id;
+      const clmProvider =
+        clmGid === null ? null : getProvider(clmGid, lmProviders);
+      const clmLocalId = (clmGid && getModelLocalId(clmGid)) ?? '';
 
       setServerInfoProps({
         config,
@@ -89,8 +89,8 @@ export function useServerInfo(): ServerInfo {
           emLocalId
         },
         completions: {
-          lmProvider: cLmProvider,
-          lmLocalId: cLmLocalId
+          lmProvider: clmProvider,
+          lmLocalId: clmLocalId
         }
       });
 
