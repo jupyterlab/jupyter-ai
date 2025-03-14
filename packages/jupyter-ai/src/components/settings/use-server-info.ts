@@ -14,7 +14,7 @@ type ServerInfoProperties = {
   emProviders: AiService.ListProvidersResponse;
   config: AiService.DescribeConfigResponse;
   chat: ProvidersInfo;
-  completions: Omit<ProvidersInfo, 'emProvider'>;
+  completions: Omit<ProvidersInfo, 'emProvider' | 'emLocalId'>;
 };
 
 type ServerInfoMethods = {
@@ -91,7 +91,6 @@ export function useServerInfo(): ServerInfo {
         completions: {
           lmProvider: cLmProvider,
           lmLocalId: cLmLocalId,
-          emLocalId: emLocalId
         }
       });
 

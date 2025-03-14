@@ -258,21 +258,7 @@ class ConfigManager(Configurable):
             # `self.settings` dictionary and may be mutated otherwise.
             default_value = deepcopy(self._defaults.get(config_key))
             if default_value is not None:
-                if config_key == "fields":
-                    # Ensure fields dictionaries are initialized
-                    default_config["fields"] = default_value
-                    default_config["embeddings_fields"] = default_config.get(
-                        "embeddings_fields", {}
-                    )
-                    default_config["completions_fields"] = default_config.get(
-                        "completions_fields", {}
-                    )
-                elif config_key == "embeddings_fields":
-                    default_config["embeddings_fields"] = default_value
-                elif config_key == "completions_fields":
-                    default_config["completions_fields"] = default_value
-                else:
-                    default_config[config_key] = default_value
+                default_config[config_key] = default_value
         return default_config
 
     def _read_config(self) -> GlobalConfig:
