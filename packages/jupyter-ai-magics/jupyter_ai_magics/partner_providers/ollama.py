@@ -24,7 +24,8 @@ class OllamaEmbeddingsProvider(BaseEmbeddingsProvider, OllamaEmbeddings):
     name = "Ollama"
     # source: https://ollama.com/library
     model_id_key = "model"
-    models = ["*",
+    models = [
+        "*",
         # "nomic-embed-text",
         # "mxbai-embed-large",
         # "all-minilm",
