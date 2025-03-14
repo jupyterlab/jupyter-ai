@@ -249,7 +249,8 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
       api_keys: apiKeys,
       fields: lmGlobalId ? { [lmGlobalId]: lmFields } : {},
       completions_fields: clmGlobalId ? { [clmGlobalId]: clmFields } : {},
-      embeddings_fields: emGlobalId ? { [emGlobalId]: emFields } : {},      completions_model_provider_id: clmGlobalId,
+      embeddings_fields: emGlobalId ? { [emGlobalId]: emFields } : {},
+      completions_model_provider_id: clmGlobalId,
       send_with_shift_enter: sendWse
     };
     updateRequest = minifyUpdate(server.config, updateRequest);
