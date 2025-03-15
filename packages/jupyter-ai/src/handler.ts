@@ -70,6 +70,7 @@ export namespace AiService {
     last_read?: number;
     completions_model_provider_id?: string | null;
     completions_fields?: Record<string, Record<string, any>>;
+    embeddings_fields?: Record<string, Record<string, any>>;
   };
 
   export async function getConfig(): Promise<DescribeConfigResponse> {

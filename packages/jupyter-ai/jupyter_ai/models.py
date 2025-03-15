@@ -53,19 +53,21 @@ class DescribeConfigResponse(BaseModel):
     last_read: int
     completions_model_provider_id: Optional[str] = None
     completions_fields: Dict[str, Dict[str, Any]]
+    embeddings_fields: Dict[str, Dict[str, Any]]
 
 
 class UpdateConfigRequest(BaseModel):
     model_provider_id: Optional[str] = None
     embeddings_provider_id: Optional[str] = None
+    completions_model_provider_id: Optional[str] = None
     send_with_shift_enter: Optional[bool] = None
     api_keys: Optional[Dict[str, str]] = None
-    fields: Optional[Dict[str, Dict[str, Any]]] = None
     # if passed, this will raise an Error if the config was written to after the
     # time specified by `last_read` to prevent write-write conflicts.
     last_read: Optional[int] = None
-    completions_model_provider_id: Optional[str] = None
+    fields: Optional[Dict[str, Dict[str, Any]]] = None
     completions_fields: Optional[Dict[str, Dict[str, Any]]] = None
+    embeddings_fields: Optional[Dict[str, Dict[str, Any]]] = None
 
     @field_validator("send_with_shift_enter", "api_keys", "fields", mode="before")
     @classmethod
@@ -88,6 +90,7 @@ class GlobalConfig(BaseModel):
     api_keys: Dict[str, str]
     completions_model_provider_id: Optional[str] = None
     completions_fields: Dict[str, Dict[str, Any]]
+    embeddings_fields: Dict[str, Dict[str, Any]]
 
 
 class ListSlashCommandsEntry(BaseModel):

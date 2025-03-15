@@ -76,6 +76,27 @@ class ChatOpenAIProvider(BaseProvider, ChatOpenAI):
         return False
 
 
+class ChatOpenAICustomProvider(BaseProvider, ChatOpenAI):
+    id = "openai-chat-custom"
+    name = "OpenAI (general interface)"
+    models = ["*"]
+    model_id_key = "model_name"
+    model_id_label = "Model ID"
+    pypi_package_deps = ["langchain_openai"]
+    auth_strategy = EnvAuthStrategy(name="OPENAI_API_KEY")
+    fields = [
+        TextField(
+            key="openai_api_base", label="Base API URL (optional)", format="text"
+        ),
+        TextField(
+            key="openai_organization", label="Organization (optional)", format="text"
+        ),
+        TextField(key="openai_proxy", label="Proxy (optional)", format="text"),
+    ]
+    help = "Supports non-OpenAI model that use the OpenAI API interface. Replace the OpenAI API key with the API key for the chosen provider."
+    registry = True
+
+
 class AzureChatOpenAIProvider(BaseProvider, AzureChatOpenAI):
     id = "azure-chat-openai"
     name = "Azure OpenAI"
@@ -107,6 +128,15 @@ class OpenAIEmbeddingsProvider(BaseEmbeddingsProvider, OpenAIEmbeddings):
     model_id_key = "model"
     pypi_package_deps = ["langchain_openai"]
     auth_strategy = EnvAuthStrategy(name="OPENAI_API_KEY")
+
+
+class OpenAIEmbeddingsCustomProvider(BaseEmbeddingsProvider, OpenAIEmbeddings):
+    id = "openai-custom"
+    name = "OpenAI (general interface)"
+    models = ["*"]
+    model_id_key = "model"
+    pypi_package_deps = ["langchain_openai"]
+    auth_strategy = EnvAuthStrategy(name="OPENAI_API_KEY")
     registry = True
     fields = [
         TextField(
@@ -128,7 +158,6 @@ class AzureOpenAIEmbeddingsProvider(BaseEmbeddingsProvider, AzureOpenAIEmbedding
     auth_strategy = EnvAuthStrategy(
         name="AZURE_OPENAI_API_KEY", keyword_param="openai_api_key"
     )
-    registry = True
     fields = [
         TextField(key="azure_endpoint", label="Base API URL (optional)", format="text"),
     ]

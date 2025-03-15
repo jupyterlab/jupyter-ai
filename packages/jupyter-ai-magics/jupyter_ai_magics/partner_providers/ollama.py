@@ -25,10 +25,11 @@ class OllamaEmbeddingsProvider(BaseEmbeddingsProvider, OllamaEmbeddings):
     # source: https://ollama.com/library
     model_id_key = "model"
     models = [
-        "nomic-embed-text",
-        "mxbai-embed-large",
-        "all-minilm",
-        "snowflake-arctic-embed",
+        "*",
+        # "nomic-embed-text",
+        # "mxbai-embed-large",
+        # "all-minilm",
+        # "snowflake-arctic-embed",
     ]
     registry = True
     fields = [

@@ -6,6 +6,8 @@
     'completions_fields': dict({
     }),
     'completions_model_provider_id': None,
+    'embeddings_fields': dict({
+    }),
     'embeddings_provider_id': None,
     'fields': dict({
     }),
