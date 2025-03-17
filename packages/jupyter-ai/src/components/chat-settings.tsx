@@ -243,6 +243,36 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
       }
     }
 
+    for (const fieldKey in emFields) {
+      const fieldVal = emFields[fieldKey];
+      if (typeof fieldVal !== 'string' || !fieldVal.trim().startsWith('{')) {
+        continue;
+      }
+
+      try {
+        const parsedFieldVal = JSON.parse(fieldVal);
+        const compressedFieldVal = JSON.stringify(parsedFieldVal);
+        emFields[fieldKey] = compressedFieldVal;
+      } catch (e) {
+        continue;
+      }
+    }
+
+    for (const fieldKey in clmFields) {
+      const fieldVal = clmFields[fieldKey];
+      if (typeof fieldVal !== 'string' || !fieldVal.trim().startsWith('{')) {
+        continue;
+      }
+
+      try {
+        const parsedFieldVal = JSON.parse(fieldVal);
+        const compressedFieldVal = JSON.stringify(parsedFieldVal);
+        clmFields[fieldKey] = compressedFieldVal;
+      } catch (e) {
+        continue;
+      }
+    }
+
     let updateRequest: AiService.UpdateConfigRequest = {
       model_provider_id: lmGlobalId,
       embeddings_provider_id: emGlobalId,
@@ -432,7 +462,7 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
             {server.emProviders.providers.map(emp =>
               emp.models
                 // .filter(em => em !== '*') // TODO: support registry providers
-                // .filter(em => emp.chat_models.includes(em))
+                // .filter(em => emp.embedding_models.includes(em))
                 .map(em => (
                   <MenuItem value={`${emp.id}:${em}`}>
                     {emp.name} :: {em}

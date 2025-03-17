@@ -262,6 +262,11 @@ class BaseProvider(BaseModel):
         """Models which are suitable for completions."""
         return self.models
 
+    @classmethod
+    def embedding_models(self):
+        """Models which are suitable for embeddings."""
+        return self.models
+
     #
     # instance attrs
     #
