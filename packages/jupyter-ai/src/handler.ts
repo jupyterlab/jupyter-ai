@@ -57,6 +57,8 @@ export namespace AiService {
     api_keys: string[];
     send_with_shift_enter: boolean;
     fields: Record<string, Record<string, any>>;
+    embeddings_fields: Record<string, Record<string, any>>;
+    completions_fields: Record<string, Record<string, any>>;
     last_read: number;
     completions_model_provider_id: string | null;
   };
@@ -129,7 +131,7 @@ export namespace AiService {
     registry: boolean;
     completion_models: string[];
     chat_models: string[];
-    embedding_models: string[];
+    // embedding_models: string[];
     fields: Field[];
   };
 

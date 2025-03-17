@@ -87,9 +87,9 @@ class ProviderHandler(BaseAPIHandler):
             provider.chat_models = list(
                 filter(filter_predicate, provider.chat_models or [])
             )
-            provider.embedding_models = list(
-                filter(filter_predicate, provider.embedding_models or [])
-            )
+            # provider.embedding_models = list(
+            #     filter(filter_predicate, provider.embedding_models or [])
+            # )
             provider.completion_models = list(
                 filter(filter_predicate, provider.completion_models or [])
             )
@@ -115,7 +115,7 @@ class ModelProviderHandler(ProviderHandler):
                     name=provider.name,
                     models=provider.models,
                     chat_models=provider.chat_models(),
-                    embedding_models=provider.embedding_models(),
+                    # embedding_models=provider.embedding_models(),
                     completion_models=provider.completion_models(),
                     help=provider.help,
                     auth_strategy=provider.auth_strategy,

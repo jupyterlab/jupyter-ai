@@ -210,7 +210,7 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
     }
 
     const initEmbeddingModelFields: Record<string, any> =
-      server.config.fields?.[emGlobalId] ?? {};
+      server.config.embeddings_fields?.[emGlobalId] ?? {};
     setEmFields(initEmbeddingModelFields);
 
     if (!clmGlobalId) {
@@ -218,7 +218,7 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
     }
 
     const initCompleterModelFields: Record<string, any> =
-      server.config.fields?.[clmGlobalId] ?? {};
+      server.config.completions_fields?.[clmGlobalId] ?? {};
     setClmFields(initCompleterModelFields);
   }, [server, lmGlobalId, emGlobalId, clmGlobalId]);
 
