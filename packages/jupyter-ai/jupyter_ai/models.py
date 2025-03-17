@@ -23,7 +23,6 @@ class ListProvidersEntry(BaseModel):
     registry: bool
     fields: List[Field]
     chat_models: Optional[List[str]] = None
-    # embedding_models: Optional[List[str]] = None
     completion_models: Optional[List[str]] = None
 
 

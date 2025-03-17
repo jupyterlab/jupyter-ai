@@ -131,7 +131,6 @@ export namespace AiService {
     registry: boolean;
     completion_models: string[];
     chat_models: string[];
-    // embedding_models: string[];
     fields: Field[];
   };
 
