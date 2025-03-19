@@ -33,11 +33,12 @@ from pathlib import Path
 import click
 import tomlkit
 from jupyter_releaser.util import get_version, run
-from pkg_resources import parse_version
 from packaging.version import Version
+from pkg_resources import parse_version
 
 MONOREPO_ROOT = Path(__file__).parent.parent.resolve()
 LERNA_CMD = "jlpm run lerna version --no-push --force-publish --no-git-tag-version -y"
+
 
 @click.command()
 @click.option("--ignore-dirty", default=False, is_flag=True)
@@ -47,7 +48,9 @@ def bump_version(ignore_dirty: bool, skip_if_dirty: bool, spec: str):
     is_dirty = len(run("git status --porcelain").strip()) > 0
     if is_dirty and not ignore_dirty:
         if skip_if_dirty:
-            print("Skipping this call as the repo is in a dirty state with untracked files.")
+            print(
+                "Skipping this call as the repo is in a dirty state with untracked files."
+            )
             return
         raise Exception("Must be in a clean git state with no untracked files")
 
@@ -83,9 +86,11 @@ def bump_version(ignore_dirty: bool, skip_if_dirty: bool, spec: str):
     for i, dep in enumerate(jai_deps):
         if str(dep).startswith("jupyter_ai_magics"):
             next_major_version = f"{next_version.major + 1}.0.0"
-            jai_deps[i] = f"jupyter_ai_magics>={str(next_version)},<{next_major_version}"
+            jai_deps[i] = (
+                f"jupyter_ai_magics>={str(next_version)},<{next_major_version}"
+            )
             break
-    
+
     # write updated pyproject.toml file
     jai_pyproject_path.write_text(tomlkit.dumps(jai_pyproject))
 
