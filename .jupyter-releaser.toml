@@ -2,15 +2,13 @@
 before-build-npm = [
     "python -m pip install jupyterlab~=4.0",
     "jlpm",
-    "jlpm build:prod"
+    "jlpm build:prod",
 ]
-before-build-python = [
-    "jlpm clean:all"
-]
+before-build-python = ["jlpm clean:all"]
 
 [options]
-version-cmd = "../../scripts/bump-version.sh"
+version-cmd = "python ../../scripts/bump-version.py"
 python_packages = [
     "packages/jupyter-ai:jupyter-ai",
-    "packages/jupyter-ai-magics:jupyter-ai-magics"
+    "packages/jupyter-ai-magics:jupyter-ai-magics",
 ]
