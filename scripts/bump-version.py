@@ -6,7 +6,7 @@ The "bump version" script used by Jupyter Releaser to increment the version of
 Jupyter AI on manual release workflow runs. This script:
 
 - Accepts a *specified version* `spec_version` as the first positional argument.
-`spec_version` may be "minor" or a PEP-440 version string.
+`spec_version` must be either a PEP-440 version string or "minor" literally.
 
     - Normal release version examples: "0.1.0", "1.2.3", "3.0.0"
 

@@ -5,6 +5,7 @@ before-build-npm = [
     "jlpm build:prod",
 ]
 before-build-python = ["jlpm clean:all"]
+before-bump-version = ["python -m pip install tomlkit"]
 
 [options]
 version-cmd = "python ../../scripts/bump-version.py"
