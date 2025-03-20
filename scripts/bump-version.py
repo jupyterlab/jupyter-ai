@@ -37,7 +37,7 @@ from packaging.version import Version
 from pkg_resources import parse_version
 
 MONOREPO_ROOT = Path(__file__).parent.parent.resolve()
-LERNA_CMD = "jlpm run lerna version --no-push --force-publish --no-git-tag-version -y"
+LERNA_CMD = "npx -p lerna@6.4.1 -y lerna version --no-push --force-publish --no-git-tag-version -y"
 
 
 @click.command()
