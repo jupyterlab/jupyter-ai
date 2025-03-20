@@ -346,11 +346,13 @@ Jupyter AI enables use of language models hosted on [Amazon Bedrock](https://aws
 For details on enabling model access in your AWS account, using cross-region inference, or invoking custom/provisioned models, please see our dedicated documentation page on [using Amazon Bedrock in Jupyter AI](bedrock.md).
 
 
-### OpenRouter Usage
+### OpenRouter and OpenAI Interface Usage
 
 Jupyter AI enables use of language models accessible through [OpenRouter](https://openrouter.ai)'s unified interface. Examples of models that may be accessed via OpenRouter are: [Deepseek](https://openrouter.ai/deepseek/deepseek-chat), [Qwen](https://openrouter.ai/qwen/), [mistral](https://openrouter.ai/mistralai/), etc. OpenRouter enables usage of any model conforming to the OpenAI API.
 
-For details on enabling model access via the AI Settings and using models via OpenRouter, please see the dedicated documentation page on using [OpenRouter in Jupyter AI](openrouter.md).
+Likewise, for many models, you may directly choose the OpenAI provider in Jupyter AI instead of OpenRouter in the same way.
+
+For details on enabling model access via the AI Settings and using models via OpenRouter or OpenAI, please see the dedicated documentation page on using [OpenRouter and OpenAI providers in Jupyter AI](openrouter.md).
 
 
 ### SageMaker endpoints usage
