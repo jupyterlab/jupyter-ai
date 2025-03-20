@@ -2,6 +2,42 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 2.31.0
+
+This release notably:
+
+1. Allows any Ollama embedding model (now requires user input of the model ID),
+1. Adds a custom OpenAI provider for using any model served on an OpenAI API,
+1. Allows embedding model fields to be specified, and
+1. Fixes the Jupyter AI settings, which previously used a single dictionary for chat, embedding, and completion model fields. These fields are now stored separately in the Jupyter AI settings file.
+
+Running `pip install -U jupyter_ai` will now also update `jupyter_ai_magics` automatically. This wasn't true before, but thankfully this is fixed now.
+
+Special thanks to @srdas for his contributions to this release!
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.30.0...6de25c39276f1077f590d5bd6c26e92097011eac))
+
+### Enhancements made
+
+- Allow embedding model fields, fix coupled model fields, add custom OpenAI provider [#1264](https://github.com/jupyterlab/jupyter-ai/pull/1264) ([@srdas](https://github.com/srdas))
+
+### Bugs fixed
+
+- Ensure magics package version is consistent in future releases [#1280](https://github.com/jupyterlab/jupyter-ai/pull/1280) ([@dlqqq](https://github.com/dlqqq))
+- Allow embedding model fields, fix coupled model fields, add custom OpenAI provider [#1264](https://github.com/jupyterlab/jupyter-ai/pull/1264) ([@srdas](https://github.com/srdas))
+
+### Maintenance and upkeep improvements
+
+- Ensure magics package version is consistent in future releases [#1280](https://github.com/jupyterlab/jupyter-ai/pull/1280) ([@dlqqq](https://github.com/dlqqq))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2025-03-14&to=2025-03-20&type=c))
+
+[@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2025-03-14..2025-03-20&type=Issues) | [@meeseeksmachine](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ameeseeksmachine+updated%3A2025-03-14..2025-03-20&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 2.30.0
 
 This release notably allow developers to override or disable Jupyter AI's chat handlers and slash commands via the entry points API. See the [new section](https://jupyter-ai.readthedocs.io/en/latest/developers/index.html#overriding-or-disabling-a-built-in-slash-command) in the developer documentation for more info.
@@ -36,8 +72,6 @@ Special thanks to @Darshan808 and @krassowski for their contributions to this re
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2025-02-06&to=2025-03-14&type=c))
 
 [@Darshan808](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3ADarshan808+updated%3A2025-02-06..2025-03-14&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2025-02-06..2025-03-14&type=Issues) | [@gogakoreli](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Agogakoreli+updated%3A2025-02-06..2025-03-14&type=Issues) | [@keerthi-swarna](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akeerthi-swarna+updated%3A2025-02-06..2025-03-14&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2025-02-06..2025-03-14&type=Issues) | [@meeseeksmachine](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ameeseeksmachine+updated%3A2025-02-06..2025-03-14&type=Issues) | [@paulrutter](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Apaulrutter+updated%3A2025-02-06..2025-03-14&type=Issues) | [@srdas](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2025-02-06..2025-03-14&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 2.29.1
 
