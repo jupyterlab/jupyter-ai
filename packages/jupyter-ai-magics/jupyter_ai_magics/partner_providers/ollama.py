@@ -24,12 +24,7 @@ class OllamaEmbeddingsProvider(BaseEmbeddingsProvider, OllamaEmbeddings):
     name = "Ollama"
     # source: https://ollama.com/library
     model_id_key = "model"
-    models = [
-        "nomic-embed-text",
-        "mxbai-embed-large",
-        "all-minilm",
-        "snowflake-arctic-embed",
-    ]
+    models = ["*"]
     registry = True
     fields = [
         TextField(key="base_url", label="Base API URL (optional)", format="text"),

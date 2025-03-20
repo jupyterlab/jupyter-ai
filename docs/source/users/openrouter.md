@@ -1,4 +1,4 @@
-# Using OpenRouter in Jupyter AI
+# Using OpenRouter or OpenAI Interfaces in Jupyter AI
 
 [(Return to the Chat Interface page)](index.md#openrouter-usage)
 
@@ -31,6 +31,38 @@ You should now be able to use Deepseek! An example of usage is shown next:
 <img src="../_static/openrouter-chat.png"
     width="75%"
     alt='Screenshot of chat using Deepseek via the OpenRouter provider.'
+    class="screenshot" />
+
+In a similar manner, models may also be invoked directly using the OpenAI provider interface in Jupyter AI. First, you can choose the OpenAI provider and then enter in the model ID, as shown on the OpenAI [models page](https://platform.openai.com/docs/models). An example is shown below:
+
+<img src="../_static/openai-chat-openai.png"
+    width="75%"
+    alt='Screenshot of chat using gpt-4o via the OpenAI provider.'
+    class="screenshot" />
+
+DeepSeek models may be used via the same interface, if the base API url is provided:
+
+<img src="../_static/openai-chat-deepseek.png"
+    width="75%"
+    alt='Screenshot of chat using deepseek via the OpenAI provider.'
+    class="screenshot" />
+
+For DeepSeek models, enter the DeepSeek API for the OpenAI API key.
+
+Models deployed using vLLM may be used in a similar manner:
+
+<img src="../_static/openai-chat-vllm.png"
+    width="75%"
+    alt='Screenshot of chat using vllm via the OpenAI provider.'
+    class="screenshot" />
+
+Usage of models using vLLM and their deployment is discussed [here](vllm.md).
+
+For embedding models from OpenAI, you can generically choose them using the AI Settings interface as well:
+
+<img src="../_static/openai-embeddings.png"
+    width="75%"
+    alt='Screenshot of embedding use via the OpenAI provider.'
     class="screenshot" />
 
 [(Return to the Chat Interface page)](index.md#openrouter-usage)
