@@ -460,12 +460,11 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
           >
             <MenuItem value="null">None</MenuItem>
             {server.emProviders.providers.map(emp =>
-              emp.models
-                .map(em => (
-                  <MenuItem value={`${emp.id}:${em}`}>
-                    {emp.name} :: {em}
-                  </MenuItem>
-                ))
+              emp.models.map(em => (
+                <MenuItem value={`${emp.id}:${em}`}>
+                  {emp.name} :: {em}
+                </MenuItem>
+              ))
             )}
           </Select>
           {showEmLocalId && (
