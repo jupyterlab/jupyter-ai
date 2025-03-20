@@ -134,7 +134,7 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
     setClmLocalId(server.completions.lmLocalId);
     setSendWse(server.config.send_with_shift_enter);
     setChatHelpMarkdown(server.chat.lmProvider?.help ?? null);
-    setEmbeddingHelpMarkdown(server.chat.lmProvider?.help ?? null);
+    setEmbeddingHelpMarkdown(server.chat.emProvider?.help ?? null);
     setCompletionHelpMarkdown(server.completions.lmProvider?.help ?? null);
     if (server.chat.lmProvider?.registry) {
       setShowLmLocalId(true);
@@ -461,8 +461,6 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
             <MenuItem value="null">None</MenuItem>
             {server.emProviders.providers.map(emp =>
               emp.models
-                // .filter(em => em !== '*') // TODO: support registry providers
-                // .filter(em => emp.embedding_models.includes(em))
                 .map(em => (
                   <MenuItem value={`${emp.id}:${em}`}>
                     {emp.name} :: {em}
