@@ -477,6 +477,7 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
             <RendermimeMarkdown
               rmRegistry={props.rmRegistry}
               markdownStr={embeddingHelpMarkdown}
+              complete
             />
           )}
           {emGlobalId && (
