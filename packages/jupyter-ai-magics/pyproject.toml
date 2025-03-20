@@ -34,7 +34,13 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pre-commit>=3.3.3,<4"]
+dev = [
+    # used to run our linters and formatters locally
+    "pre-commit>=3.3.3,<4",
+    # used to test release scripts
+    "jupyter_releaser",
+    "tomlkit",
+]
 
 test = ["coverage", "pytest", "pytest-asyncio", "pytest-cov"]
 
