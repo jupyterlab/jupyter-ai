@@ -24,7 +24,8 @@ package.
 match the specified version. In other words, this script ensures
 `jupyter-ai==x.y.z` always depends on `jupyter-ai-magics==x.y.z` exactly.
 
-- Only runs once when `--skip-if-dirty` is passed, as a temporary workaround for
+- If `--skip-if-dirty` is passed, successive calls do nothing. This is a
+temporary workaround for
 https://github.com/jupyter-server/jupyter_releaser/issues/567.
 """
 

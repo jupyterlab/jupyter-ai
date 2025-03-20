@@ -8,7 +8,7 @@ before-build-python = ["jlpm clean:all"]
 before-bump-version = ["python -m pip install tomlkit"]
 
 [options]
-version-cmd = "python ../../scripts/bump-version.py"
+version-cmd = "python ../../scripts/bump-version.py --skip-if-dirty"
 python_packages = [
     "packages/jupyter-ai:jupyter-ai",
     "packages/jupyter-ai-magics:jupyter-ai-magics",
