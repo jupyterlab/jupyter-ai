@@ -207,6 +207,8 @@ export namespace AiService {
     api_keys: string[];
     send_with_shift_enter: boolean;
     fields: Record<string, Record<string, any>>;
+    embeddings_fields: Record<string, Record<string, any>>;
+    completions_fields: Record<string, Record<string, any>>;
     last_read: number;
     completions_model_provider_id: string | null;
   };
@@ -220,6 +222,7 @@ export namespace AiService {
     last_read?: number;
     completions_model_provider_id?: string | null;
     completions_fields?: Record<string, Record<string, any>>;
+    embeddings_fields?: Record<string, Record<string, any>>;
   };
 
   export async function getConfig(): Promise<DescribeConfigResponse> {

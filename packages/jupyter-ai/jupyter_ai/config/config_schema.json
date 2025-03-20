@@ -44,6 +44,17 @@
       },
       "additionalProperties": false
     },
+    "embeddings_fields": {
+      "$comment": "Dictionary of model-specific fields, mapping LM GIDs to sub-dictionaries of field key-value pairs for embeddings.",
+      "type": "object",
+      "default": {},
+      "patternProperties": {
+        "^.*$": {
+          "anyOf": [{ "type": "object" }]
+        }
+      },
+      "additionalProperties": false
+    },
     "completions_fields": {
       "$comment": "Dictionary of model-specific fields, mapping LM GIDs to sub-dictionaries of field key-value pairs for completions.",
       "type": "object",
