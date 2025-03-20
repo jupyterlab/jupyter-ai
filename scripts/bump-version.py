@@ -80,7 +80,6 @@ def bump_version(ignore_dirty: bool, skip_if_dirty: bool, spec: str):
     run(lerna_cmd)
 
     # bump the version of `jupyter-ai-magics` required by `jupyter-ai`
-    # Formatting based on https://stackoverflow.com/questions/70721025/tomlkit-nicely-formatted-array-with-inline-tables
     jai_pyproject_path = MONOREPO_ROOT / "packages" / "jupyter-ai" / "pyproject.toml"
     jai_pyproject = tomlkit.parse(jai_pyproject_path.read_text())
     jai_deps = jai_pyproject.get("project").get("dependencies")
