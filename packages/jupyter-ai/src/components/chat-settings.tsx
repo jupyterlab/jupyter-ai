@@ -50,15 +50,22 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
   // user inputs
   const [lmProvider, setLmProvider] =
     useState<AiService.ListProvidersEntry | null>(null);
+  const [emProvider, setEmProvider] =
+    useState<AiService.ListProvidersEntry | null>(null);
   const [clmProvider, setClmProvider] =
     useState<AiService.ListProvidersEntry | null>(null);
   const [showLmLocalId, setShowLmLocalId] = useState<boolean>(false);
+  const [showEmLocalId, setShowEmLocalId] = useState<boolean>(false);
   const [showClmLocalId, setShowClmLocalId] = useState<boolean>(false);
   const [chatHelpMarkdown, setChatHelpMarkdown] = useState<string | null>(null);
+  const [embeddingHelpMarkdown, setEmbeddingHelpMarkdown] = useState<
+    string | null
+  >(null);
   const [completionHelpMarkdown, setCompletionHelpMarkdown] = useState<
     string | null
   >(null);
   const [lmLocalId, setLmLocalId] = useState<string>('');
+  const [emLocalId, setEmLocalId] = useState<string>('');
   const [clmLocalId, setClmLocalId] = useState<string>('');
 
   const lmGlobalId = useMemo<string | null>(() => {
@@ -68,6 +75,15 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
 
     return lmProvider.id + ':' + lmLocalId;
   }, [lmProvider, lmLocalId]);
+
+  const emGlobalId = useMemo<string | null>(() => {
+    if (!emProvider) {
+      return null;
+    }
+
+    return emProvider.id + ':' + emLocalId;
+  }, [emProvider, emLocalId]);
+
   const clmGlobalId = useMemo<string | null>(() => {
     if (!clmProvider) {
       return null;
@@ -76,22 +92,11 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
     return clmProvider.id + ':' + clmLocalId;
   }, [clmProvider, clmLocalId]);
 
-  const [emGlobalId, setEmGlobalId] = useState<string | null>(null);
-  const emProvider = useMemo<AiService.ListProvidersEntry | null>(() => {
-    if (emGlobalId === null || server.state !== ServerInfoState.Ready) {
-      return null;
-    }
-
-    return getProvider(emGlobalId, server.emProviders);
-  }, [emGlobalId, server]);
-
   const [apiKeys, setApiKeys] = useState<Record<string, string>>({});
   const [sendWse, setSendWse] = useState<boolean>(false);
-  const [fields, setFields] = useState<Record<string, any>>({});
-  const [embeddingModelFields, setEmbeddingModelFields] = useState<
-    Record<string, any>
-  >({});
-
+  const [lmFields, setLmFields] = useState<Record<string, any>>({});
+  const [emFields, setEmFields] = useState<Record<string, any>>({});
+  const [clmFields, setClmFields] = useState<Record<string, any>>({});
   const [isCompleterEnabled, setIsCompleterEnabled] = useState(
     props.completionProvider && props.completionProvider.isEnabled()
   );
@@ -122,19 +127,24 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
     }
 
     setLmLocalId(server.chat.lmLocalId);
+    setEmLocalId(server.chat.emLocalId);
     setClmLocalId(server.completions.lmLocalId);
-    setEmGlobalId(server.config.embeddings_provider_id);
     setSendWse(server.config.send_with_shift_enter);
     setChatHelpMarkdown(server.chat.lmProvider?.help ?? null);
+    setEmbeddingHelpMarkdown(server.chat.emProvider?.help ?? null);
     setCompletionHelpMarkdown(server.completions.lmProvider?.help ?? null);
     if (server.chat.lmProvider?.registry) {
       setShowLmLocalId(true);
+    }
+    if (server.chat.emProvider?.registry) {
+      setShowEmLocalId(true);
     }
     if (server.completions.lmProvider?.registry) {
       setShowClmLocalId(true);
     }
     setLmProvider(server.chat.lmProvider);
     setClmProvider(server.completions.lmProvider);
+    setEmProvider(server.chat.emProvider);
   }, [server]);
 
   /**
@@ -190,16 +200,24 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
 
     const currFields: Record<string, any> =
       server.config.fields?.[lmGlobalId] ?? {};
-    setFields(currFields);
+    setLmFields(currFields);
 
     if (!emGlobalId) {
       return;
     }
 
     const initEmbeddingModelFields: Record<string, any> =
-      server.config.fields?.[emGlobalId] ?? {};
-    setEmbeddingModelFields(initEmbeddingModelFields);
-  }, [server, lmGlobalId, emGlobalId]);
+      server.config.embeddings_fields?.[emGlobalId] ?? {};
+    setEmFields(initEmbeddingModelFields);
+
+    if (!clmGlobalId) {
+      return;
+    }
+
+    const initCompleterModelFields: Record<string, any> =
+      server.config.completions_fields?.[clmGlobalId] ?? {};
+    setClmFields(initCompleterModelFields);
+  }, [server, lmGlobalId, emGlobalId, clmGlobalId]);
 
   const handleSave = async () => {
     // compress fields with JSON values
@@ -207,8 +225,8 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
       return;
     }
 
-    for (const fieldKey in fields) {
-      const fieldVal = fields[fieldKey];
+    for (const fieldKey in lmFields) {
+      const fieldVal = lmFields[fieldKey];
       if (typeof fieldVal !== 'string' || !fieldVal.trim().startsWith('{')) {
         continue;
       }
@@ -216,7 +234,37 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
       try {
         const parsedFieldVal = JSON.parse(fieldVal);
         const compressedFieldVal = JSON.stringify(parsedFieldVal);
-        fields[fieldKey] = compressedFieldVal;
+        lmFields[fieldKey] = compressedFieldVal;
+      } catch (e) {
+        continue;
+      }
+    }
+
+    for (const fieldKey in emFields) {
+      const fieldVal = emFields[fieldKey];
+      if (typeof fieldVal !== 'string' || !fieldVal.trim().startsWith('{')) {
+        continue;
+      }
+
+      try {
+        const parsedFieldVal = JSON.parse(fieldVal);
+        const compressedFieldVal = JSON.stringify(parsedFieldVal);
+        emFields[fieldKey] = compressedFieldVal;
+      } catch (e) {
+        continue;
+      }
+    }
+
+    for (const fieldKey in clmFields) {
+      const fieldVal = clmFields[fieldKey];
+      if (typeof fieldVal !== 'string' || !fieldVal.trim().startsWith('{')) {
+        continue;
+      }
+
+      try {
+        const parsedFieldVal = JSON.parse(fieldVal);
+        const compressedFieldVal = JSON.stringify(parsedFieldVal);
+        clmFields[fieldKey] = compressedFieldVal;
       } catch (e) {
         continue;
       }
@@ -226,19 +274,9 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
       model_provider_id: lmGlobalId,
       embeddings_provider_id: emGlobalId,
       api_keys: apiKeys,
-      ...((lmGlobalId || clmGlobalId) && {
-        fields: {
-          ...(lmGlobalId && {
-            [lmGlobalId]: fields
-          }),
-          ...(clmGlobalId && {
-            [clmGlobalId]: fields
-          }),
-          ...(emGlobalId && {
-            [emGlobalId]: embeddingModelFields
-          })
-        }
-      }),
+      fields: lmGlobalId ? { [lmGlobalId]: lmFields } : {},
+      completions_fields: clmGlobalId ? { [clmGlobalId]: clmFields } : {},
+      embeddings_fields: emGlobalId ? { [emGlobalId]: emFields } : {},
       completions_model_provider_id: clmGlobalId,
       send_with_shift_enter: sendWse
     };
@@ -378,8 +416,8 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
           {lmGlobalId && (
             <ModelFields
               fields={lmProvider?.fields}
-              values={fields}
-              onChange={setFields}
+              values={lmFields}
+              onChange={setLmFields}
             />
           )}
         </Box>
@@ -392,30 +430,61 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
       {server.emProviders.providers.length > 0 ? (
         <Box>
           <Select
-            value={emGlobalId}
+            value={emProvider?.registry ? emProvider.id + ':*' : emGlobalId}
             label="Embedding model"
             onChange={e => {
               const emGid = e.target.value === 'null' ? null : e.target.value;
-              setEmGlobalId(emGid);
+              if (emGid === null) {
+                setEmProvider(null);
+                return;
+              }
+
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              const nextEmProvider = getProvider(emGid, server.emProviders)!;
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              const nextEmLocalId = getModelLocalId(emGid)!;
+
+              setEmProvider(nextEmProvider);
+              setEmbeddingHelpMarkdown(nextEmProvider?.help ?? null);
+              if (nextEmProvider.registry) {
+                setEmLocalId('');
+                setShowEmLocalId(true);
+              } else {
+                setEmLocalId(nextEmLocalId);
+                setShowEmLocalId(false);
+              }
             }}
             MenuProps={{ sx: { maxHeight: '50%', minHeight: 400 } }}
           >
             <MenuItem value="null">None</MenuItem>
             {server.emProviders.providers.map(emp =>
-              emp.models
-                .filter(em => em !== '*') // TODO: support registry providers
-                .map(em => (
-                  <MenuItem value={`${emp.id}:${em}`}>
-                    {emp.name} :: {em}
-                  </MenuItem>
-                ))
+              emp.models.map(em => (
+                <MenuItem value={`${emp.id}:${em}`}>
+                  {emp.name} :: {em}
+                </MenuItem>
+              ))
             )}
           </Select>
+          {showEmLocalId && (
+            <TextField
+              label={emProvider?.model_id_label || 'Local model ID'}
+              value={emLocalId}
+              onChange={e => setEmLocalId(e.target.value)}
+              fullWidth
+            />
+          )}
+          {embeddingHelpMarkdown && (
+            <RendermimeMarkdown
+              rmRegistry={props.rmRegistry}
+              markdownStr={embeddingHelpMarkdown}
+              complete
+            />
+          )}
           {emGlobalId && (
             <ModelFields
               fields={emProvider?.fields}
-              values={embeddingModelFields}
-              onChange={setEmbeddingModelFields}
+              values={emFields}
+              onChange={setEmFields}
             />
           )}
         </Box>
@@ -494,8 +563,8 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
           {clmGlobalId && (
             <ModelFields
               fields={clmProvider?.fields}
-              values={fields}
-              onChange={setFields}
+              values={clmFields}
+              onChange={setClmFields}
             />
           )}
         </Box>
