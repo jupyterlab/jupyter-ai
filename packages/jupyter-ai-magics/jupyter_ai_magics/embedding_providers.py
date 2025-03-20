@@ -1,4 +1,4 @@
-from typing import ClassVar, List, Optional
+from typing import ClassVar, List
 
 from jupyter_ai_magics.providers import (
     AuthStrategy,
@@ -30,10 +30,6 @@ class BaseEmbeddingsProvider(BaseModel):
     models: ClassVar[List[str]] = ...
     """List of supported models by their IDs. For registry providers, this will
     be just ["*"]."""
-
-    help: ClassVar[Optional[str]] = None
-    """Text to display in lieu of a model list for a registry provider that does
-    not provide a list of models."""
 
     model_id_key: ClassVar[str] = ...
     """Kwarg expected by the upstream LangChain provider."""
