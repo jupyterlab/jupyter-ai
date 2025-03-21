@@ -61,7 +61,7 @@
   "dependencies": {
     "@emotion/react": "^11.10.5",
     "@emotion/styled": "^11.10.5",
-    "@jupyter/chat": "^0.7.1",
+    "@jupyter/chat": "^0.8.1",
     "@jupyterlab/application": "^4.2.0",
     "@jupyterlab/apputils": "^4.2.0",
     "@jupyterlab/codeeditor": "^4.2.0",
