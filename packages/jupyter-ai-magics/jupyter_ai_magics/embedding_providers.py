@@ -74,6 +74,10 @@ class HfHubEmbeddingsProvider(BaseEmbeddingsProvider, HuggingFaceHubEmbeddings):
     name = "Hugging Face Hub"
     models = ["*"]
     model_id_key = "repo_id"
+    help = (
+        "See [https://huggingface.co/docs/chat-ui/en/configuration/embeddings](https://huggingface.co/docs/chat-ui/en/configuration/embeddings) for reference. "
+        "Pass an embedding model's name; for example, `sentence-transformers/all-MiniLM-L6-v2`."
+    )
     # ipywidgets needed to suppress tqdm warning
     # https://stackoverflow.com/questions/67998191
     # tqdm is a dependency of huggingface_hub
