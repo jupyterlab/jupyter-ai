@@ -12,6 +12,7 @@ import {
 import { IDocumentWidget } from '@jupyterlab/docregistry';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 
+import { chatCommandPlugins } from './chat-commands';
 import { completionPlugin } from './completions';
 import { statusItemPlugin } from './status';
 import { IJaiCompletionProvider } from './tokens';
@@ -88,7 +89,12 @@ const plugin: JupyterFrontEndPlugin<void> = {
   }
 };
 
-export default [plugin, statusItemPlugin, completionPlugin];
+export default [
+  plugin,
+  statusItemPlugin,
+  completionPlugin,
+  ...chatCommandPlugins
+];
 
 export * from './contexts';
 export * from './tokens';
