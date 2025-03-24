@@ -118,13 +118,24 @@ async function getPathCompletions(
     return [];
   }
 
-  for (const child of parentDir.content) {
-    // skip if the child of the parent directory doesn't start with the user's
-    // specified basename. note that the search is case-insensitive.
-    if (!child.name.toLowerCase().startsWith(basename.toLowerCase())) {
-      continue;
-    }
+  const children = parentDir.content
+    // filter the children of the parent directory to only include file names that
+    // start with the specified base name (case-insensitive).
+    .filter((a: Contents.IModel) => {
+      return a.name.toLowerCase().startsWith(basename.toLowerCase());
+    })
+    // sort the list, showing directories first while ensuring entries are shown
+    // in alphabetic (lexicographically ascending) order.
+    .sort((a: Contents.IModel, b: Contents.IModel) => {
+      const aPrimaryKey = a.type === 'directory' ? -1 : 1;
+      const bPrimaryKey = b.type === 'directory' ? -1 : 1;
+      const primaryKey = aPrimaryKey - bPrimaryKey;
+      const secondaryKey = a.name < b.name ? -1 : 1;
 
+      return primaryKey || secondaryKey;
+    });
+
+  for (const child of children) {
     // get icon
     const { icon } = docRegistry.getFileTypeForModel(child);
 
