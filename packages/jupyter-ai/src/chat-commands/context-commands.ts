@@ -15,6 +15,7 @@ import {
 
 const CONTEXT_COMMANDS_PROVIDER_ID =
   '@jupyter-ai/core:context-commands-provider';
+
 /**
  * A command provider that provides completions for context commands like `@file`.
  */
