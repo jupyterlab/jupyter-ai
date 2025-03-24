@@ -124,7 +124,9 @@ class LearnChatHandler(BaseChatHandler):
                     allow_dangerous_deserialization=True,
                 )
             else:
-                self.log.info("No existing vector index found. You may create one using `/learn`.")
+                self.log.info(
+                    "No existing vector index found. You may create one using `/learn`."
+                )
             self.load_metadata()
         except Exception as e:
             self.log.error(
