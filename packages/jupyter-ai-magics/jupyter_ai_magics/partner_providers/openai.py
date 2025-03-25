@@ -93,7 +93,7 @@ class ChatOpenAICustomProvider(BaseProvider, ChatOpenAI):
         ),
         TextField(key="openai_proxy", label="Proxy (optional)", format="text"),
     ]
-    help = "Supports non-OpenAI model that use the OpenAI API interface. Replace the OpenAI API key with the API key for the chosen provider."
+    help = "Supports non-OpenAI models that use the OpenAI API interface. Replace the OpenAI API key with the API key for the chosen provider."
     registry = True
 
 
@@ -143,6 +143,7 @@ class OpenAIEmbeddingsCustomProvider(BaseEmbeddingsProvider, OpenAIEmbeddings):
             key="openai_api_base", label="Base API URL (optional)", format="text"
         ),
     ]
+    help = "Supports non-OpenAI embedding models that use the OpenAI API interface. Replace the OpenAI API key with the API key for the chosen provider."
 
 
 class AzureOpenAIEmbeddingsProvider(BaseEmbeddingsProvider, AzureOpenAIEmbeddings):
