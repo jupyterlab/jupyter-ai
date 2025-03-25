@@ -24,6 +24,10 @@ class OllamaEmbeddingsProvider(BaseEmbeddingsProvider, OllamaEmbeddings):
     name = "Ollama"
     # source: https://ollama.com/library
     model_id_key = "model"
+    help = (
+        "See [https://ollama.com/search?c=embedding](https://ollama.com/search?c=embedding) for a list of models. "
+        "Pass an embedding model's name; for example, `mxbai-embed-large`."
+    )
     models = ["*"]
     registry = True
     fields = [
