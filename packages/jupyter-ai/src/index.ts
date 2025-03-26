@@ -1,4 +1,3 @@
-import { IAutocompletionRegistry } from '@jupyter/chat';
 import {
   JupyterFrontEnd,
   JupyterFrontEndPlugin
@@ -13,8 +12,8 @@ import {
 import { IDocumentWidget } from '@jupyterlab/docregistry';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 
+import { chatCommandPlugins } from './chat-commands';
 import { completionPlugin } from './completions';
-import { autocompletion } from './slash-autocompletion';
 import { statusItemPlugin } from './status';
 import { IJaiCompletionProvider } from './tokens';
 import { buildErrorWidget } from './widgets/chat-error';
@@ -90,26 +89,11 @@ const plugin: JupyterFrontEndPlugin<void> = {
   }
 };
 
-/**
- * Add slash commands to jupyterlab chat.
- */
-const chat_autocompletion: JupyterFrontEndPlugin<void> = {
-  id: '@jupyter-ai/core:autocompletion',
-  autoStart: true,
-  requires: [IAutocompletionRegistry],
-  activate: async (
-    app: JupyterFrontEnd,
-    autocompletionRegistry: IAutocompletionRegistry
-  ) => {
-    autocompletionRegistry.add('ai', autocompletion);
-  }
-};
-
 export default [
   plugin,
   statusItemPlugin,
   completionPlugin,
-  chat_autocompletion
+  ...chatCommandPlugins
 ];
 
 export * from './contexts';
