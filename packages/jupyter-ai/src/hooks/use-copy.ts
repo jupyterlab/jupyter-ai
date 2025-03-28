@@ -3,7 +3,8 @@ import { useState, useRef, useCallback } from 'react';
 export enum CopyStatus {
   None,
   Copying,
-  Copied
+  Copied,
+  Disabled
 }
 
 export type UseCopyProps = {
@@ -30,6 +31,14 @@ export type UseCopyReturn = {
    */
   copyLabel: string;
   /**
+   * Boolean flag that indicates whether the copy functionality is disabled or not.
+   * This helps to disable the copy action button. The value is based on the presence
+   * of `navigator.clipboard`. If `navigator.clipboard` is unavailable, the copy
+   * functionality is considered disabled, and the `copyStatus` will be set to
+   * either `CopyStatus.None` or `CopyStatus.Disabled`.
+   */
+  isCopyDisabled: boolean;
+  /**
    * Function that takes a string and copies it to the clipboard.
    */
   copy: (value: string) => unknown;
@@ -38,7 +47,8 @@ export type UseCopyReturn = {
 const DEFAULT_LABELS_BY_COPY_STATUS: Record<CopyStatus, string> = {
   [CopyStatus.None]: 'Copy to clipboard',
   [CopyStatus.Copying]: 'Copying…',
-  [CopyStatus.Copied]: 'Copied!'
+  [CopyStatus.Copied]: 'Copied!',
+  [CopyStatus.Disabled]: 'Copy to clipboard disabled in insecure context'
 };
 
 /**
@@ -46,7 +56,10 @@ const DEFAULT_LABELS_BY_COPY_STATUS: Record<CopyStatus, string> = {
  * related UI state. Should be used by any button that intends to copy text.
  */
 export function useCopy(props?: UseCopyProps): UseCopyReturn {
-  const [copyStatus, setCopyStatus] = useState<CopyStatus>(CopyStatus.None);
+  const isCopyDisabled = navigator.clipboard === undefined;
+  const [copyStatus, setCopyStatus] = useState<CopyStatus>(
+    isCopyDisabled ? CopyStatus.Disabled : CopyStatus.None
+  );
   const timeoutId = useRef<number | null>(null);
 
   const copy = useCallback(
@@ -84,6 +97,7 @@ export function useCopy(props?: UseCopyProps): UseCopyReturn {
   return {
     copyStatus,
     copyLabel,
+    isCopyDisabled,
     copy
   };
 }
