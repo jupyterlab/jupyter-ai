@@ -352,7 +352,11 @@ class AiExtension(ExtensionApp):
 
         # Collect embeddings model parameters and fields
         if self.default_embeddings_model:
-            self.em_parameters = {self.default_embeddings_model: self.model_parameters[self.default_embeddings_model]}
+            self.em_parameters = {
+                self.default_embeddings_model: self.model_parameters[
+                    self.default_embeddings_model
+                ]
+            }
         else:
             self.em_parameters = {}
 
