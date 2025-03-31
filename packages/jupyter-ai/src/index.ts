@@ -1,3 +1,4 @@
+import { INotebookShell } from '@jupyter-notebook/application';
 import {
   JupyterFrontEnd,
   JupyterFrontEndPlugin
@@ -11,6 +12,7 @@ import {
 } from '@jupyterlab/apputils';
 import { IDocumentWidget } from '@jupyterlab/docregistry';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
+import { SingletonLayout, Widget } from '@lumino/widgets';
 
 import { chatCommandPlugins } from './chat-commands';
 import { completionPlugin } from './completions';
@@ -35,13 +37,19 @@ const plugin: JupyterFrontEndPlugin<void> = {
   id: '@jupyter-ai/core:plugin',
   autoStart: true,
   requires: [IRenderMimeRegistry],
-  optional: [ICommandPalette, IThemeManager, IJaiCompletionProvider],
+  optional: [
+    ICommandPalette,
+    IThemeManager,
+    IJaiCompletionProvider,
+    INotebookShell
+  ],
   activate: async (
     app: JupyterFrontEnd,
     rmRegistry: IRenderMimeRegistry,
     palette: ICommandPalette | null,
     themeManager: IThemeManager | null,
-    completionProvider: IJaiCompletionProvider | null
+    completionProvider: IJaiCompletionProvider | null,
+    notebookShell: INotebookShell | null
   ) => {
     const openInlineCompleterSettings = () => {
       app.commands.execute('settingeditor:open', {
@@ -50,7 +58,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
     };
 
     // Create a AI settings widget.
-    let aiSettings: MainAreaWidget<ReactWidget>;
+    let aiSettings: Widget;
     let settingsWidget: ReactWidget;
     try {
       settingsWidget = buildAiSettings(
@@ -67,13 +75,20 @@ const plugin: JupyterFrontEndPlugin<void> = {
     app.commands.addCommand(CommandIDs.openAiSettings, {
       execute: () => {
         if (!aiSettings || aiSettings.isDisposed) {
-          aiSettings = new MainAreaWidget({ content: settingsWidget });
+          if (notebookShell) {
+            aiSettings = new Widget();
+            const layout = new SingletonLayout();
+            aiSettings.layout = layout;
+            layout.widget = settingsWidget;
+          } else {
+            aiSettings = new MainAreaWidget({ content: settingsWidget });
+          }
           aiSettings.id = 'jupyter-ai-settings';
           aiSettings.title.label = 'AI settings';
           aiSettings.title.closable = true;
         }
         if (!aiSettings.isAttached) {
-          app?.shell.add(aiSettings, 'main');
+          app?.shell.add(aiSettings, notebookShell ? 'left' : 'main');
         }
         app.shell.activateById(aiSettings.id);
       },
