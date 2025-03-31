@@ -347,15 +347,21 @@ class AiExtension(ExtensionApp):
         self.log.info(f"Configured provider blocklist: {self.blocked_providers}")
         self.log.info(f"Configured model allowlist: {self.allowed_models}")
         self.log.info(f"Configured model blocklist: {self.blocked_models}")
-
         self.settings["model_parameters"] = self.model_parameters
         self.log.info(f"Configured model parameters: {self.model_parameters}")
+
+        # Collect embeddings model parameters and fields
+        if self.default_embeddings_model:
+            self.em_parameters = {self.default_embeddings_model: self.model_parameters[self.default_embeddings_model]}
+        else:
+            self.em_parameters = {}
 
         defaults = {
             "model_provider_id": self.default_language_model,
             "embeddings_provider_id": self.default_embeddings_model,
             "api_keys": self.default_api_keys,
             "fields": self.model_parameters,
+            "embeddings_fields": self.em_parameters,
         }
 
         # Fetch LM & EM providers
