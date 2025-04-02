@@ -1087,6 +1087,11 @@ Specify default embedding model
 jupyter lab --AiExtension.default_embeddings_model=bedrock:amazon.titan-embed-text-v1
 ```
 
+Specify default completions model
+```bash
+jupyter lab --AiExtension.default_completions_model=bedrock-chat:anthropic.claude-v2
+```
+
 Specify default API keys
 ```bash
 jupyter lab --AiExtension.default_api_keys={'OPENAI_API_KEY': 'sk-abcd'}

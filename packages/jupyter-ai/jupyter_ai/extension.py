@@ -171,6 +171,16 @@ class AiExtension(ExtensionApp):
         config=True,
     )
 
+    default_completions_model = Unicode(
+        default_value=None,
+        allow_none=True,
+        help="""
+        Default embeddings model to use, as string in the format
+        <provider-id>:<model-id>, defaults to None.
+        """,
+        config=True,
+    )
+
     default_api_keys = traitlets.Dict(
         key_trait=Unicode(),
         value_trait=Unicode(),
@@ -353,6 +363,7 @@ class AiExtension(ExtensionApp):
         defaults = {
             "model_provider_id": self.default_language_model,
             "embeddings_provider_id": self.default_embeddings_model,
+            "completions_model_provider_id": self.default_completions_model,
             "api_keys": self.default_api_keys,
             "fields": self.model_parameters,
             "embeddings_fields": self.model_parameters,
