@@ -175,7 +175,7 @@ class AiExtension(ExtensionApp):
         default_value=None,
         allow_none=True,
         help="""
-        Default embeddings model to use, as string in the format
+        Default completions model to use, as string in the format
         <provider-id>:<model-id>, defaults to None.
         """,
         config=True,
