@@ -3,7 +3,6 @@ import re
 import time
 import types
 
-import traitlets
 from dask.distributed import Client as DaskClient
 from importlib_metadata import entry_points
 from jupyter_ai_magics import BaseProvider, JupyternautPersona
@@ -162,7 +161,7 @@ class AiExtension(ExtensionApp):
         config=True,
     )
 
-    default_api_keys = traitlets.Dict(
+    default_api_keys = Dict(
         key_trait=Unicode(),
         value_trait=Unicode(),
         default_value=None,
