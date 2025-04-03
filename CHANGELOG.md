@@ -2,6 +2,27 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 2.31.1
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.31.0...0c6f2721e59504fff5e97833bd98bad593f97c43))
+
+### Enhancements made
+
+- Added help text fields for embedding providers in the AI Setting page [#1288](https://github.com/jupyterlab/jupyter-ai/pull/1288) ([@srdas](https://github.com/srdas))
+
+### Bugs fixed
+
+- Migrate old config schemas, fix v2.31.0 regression [#1294](https://github.com/jupyterlab/jupyter-ai/pull/1294) ([@dlqqq](https://github.com/dlqqq))
+- Remove error log emitted when FAISS file is absent [#1287](https://github.com/jupyterlab/jupyter-ai/pull/1287) ([@srdas](https://github.com/srdas))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2025-03-20&to=2025-03-26&type=c))
+
+[@meeseeksmachine](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ameeseeksmachine+updated%3A2025-03-20..2025-03-26&type=Issues) | [@srdas](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2025-03-20..2025-03-26&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 2.31.0
 
 This release notably:
@@ -35,8 +56,6 @@ Special thanks to @srdas for his contributions to this release!
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2025-03-14&to=2025-03-20&type=c))
 
 [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2025-03-14..2025-03-20&type=Issues) | [@meeseeksmachine](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ameeseeksmachine+updated%3A2025-03-14..2025-03-20&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 2.30.0
 
