@@ -2,8 +2,8 @@ import os
 import re
 import time
 import types
-import traitlets
 
+import traitlets
 from dask.distributed import Client as DaskClient
 from importlib_metadata import entry_points
 from jupyter_ai_magics import BaseProvider, JupyternautPersona
