@@ -31,14 +31,6 @@ export type UseCopyReturn = {
    */
   copyLabel: string;
   /**
-   * Boolean flag that indicates whether the copy functionality is disabled or not.
-   * This helps to disable the copy action button. The value is based on the presence
-   * of `navigator.clipboard`. If `navigator.clipboard` is unavailable, the copy
-   * functionality is considered disabled, and the `copyStatus` will be set to
-   * either `CopyStatus.None` or `CopyStatus.Disabled`.
-   */
-  isCopyDisabled: boolean;
-  /**
    * Function that takes a string and copies it to the clipboard.
    */
   copy: (value: string) => unknown;
@@ -48,7 +40,7 @@ const DEFAULT_LABELS_BY_COPY_STATUS: Record<CopyStatus, string> = {
   [CopyStatus.None]: 'Copy to clipboard',
   [CopyStatus.Copying]: 'Copying…',
   [CopyStatus.Copied]: 'Copied!',
-  [CopyStatus.Disabled]: 'Copy to clipboard disabled in insecure context'
+  [CopyStatus.Disabled]: 'The clipboard is disabled by your browser because you are accessing this page outside of a secure context. To enable the clipboard, you must access this page through a HTTPS connection.'
 };
 
 /**
@@ -56,16 +48,16 @@ const DEFAULT_LABELS_BY_COPY_STATUS: Record<CopyStatus, string> = {
  * related UI state. Should be used by any button that intends to copy text.
  */
 export function useCopy(props?: UseCopyProps): UseCopyReturn {
-  const isCopyDisabled = navigator.clipboard === undefined;
+  const clipboardDisabled = navigator.clipboard === undefined;
   const [copyStatus, setCopyStatus] = useState<CopyStatus>(
-    isCopyDisabled ? CopyStatus.Disabled : CopyStatus.None
+    clipboardDisabled ? CopyStatus.Disabled : CopyStatus.None
   );
   const timeoutId = useRef<number | null>(null);
 
   const copy = useCallback(
     async (value: string) => {
-      // ignore if we are already copying
-      if (copyStatus === CopyStatus.Copying) {
+      // ignore if we are already copying or if clipboard is disabled
+      if (copyStatus === CopyStatus.Copying || copyStatus === CopyStatus.Disabled) {
         return;
       }
 
@@ -97,7 +89,6 @@ export function useCopy(props?: UseCopyProps): UseCopyReturn {
   return {
     copyStatus,
     copyLabel,
-    isCopyDisabled,
     copy
   };
 }

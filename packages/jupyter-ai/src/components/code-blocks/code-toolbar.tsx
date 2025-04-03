@@ -13,7 +13,7 @@ import {
 } from '../../contexts/active-cell-context';
 import { TooltippedIconButton } from '../mui-extras/tooltipped-icon-button';
 import { useReplace } from '../../hooks/use-replace';
-import { useCopy } from '../../hooks/use-copy';
+import { useCopy, CopyStatus } from '../../hooks/use-copy';
 import { AiService } from '../../handler';
 import { useTelemetry } from '../../contexts/telemetry-context';
 import { TelemetryEvent } from '../../tokens';
@@ -173,11 +173,11 @@ function ReplaceButton(props: ToolbarButtonProps) {
 
 export function CopyButton(props: ToolbarButtonProps): JSX.Element {
   const telemetryHandler = useTelemetry();
-  const { copy, copyLabel, isCopyDisabled } = useCopy();
+  const { copy, copyLabel, copyStatus } = useCopy();
 
   return (
     <TooltippedIconButton
-      disabled={isCopyDisabled}
+      disabled={copyStatus === CopyStatus.Disabled}
       tooltip={copyLabel}
       placement="top"
       onClick={() => {
