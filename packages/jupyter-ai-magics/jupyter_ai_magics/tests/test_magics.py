@@ -192,7 +192,7 @@ def test_display_output_json_format(ai_magics):
     json_data = bundle.get("application/json") or bundle.get("text/json")
     if isinstance(json_data, str):
         json_data = json.loads(json_data)
-    assert json_data == data 
+    assert json_data == data
 =======
     def test_display_output_json_format(ai_magics):
         data = {"key": "value", "number": 42}
