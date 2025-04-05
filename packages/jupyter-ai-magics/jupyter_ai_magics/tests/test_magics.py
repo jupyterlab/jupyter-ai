@@ -1,18 +1,16 @@
+import json
 import os
+import re
 from unittest.mock import Mock, patch
 
 import pytest
 from IPython import InteractiveShell
 from IPython.core.display import Markdown
-from jupyter_ai_magics.magics import AiMagics
+from IPython.display import HTML, JSON, Markdown
+from jupyter_ai_magics.magics import DISPLAYS_BY_FORMAT, AiMagics
 from langchain_core.messages import AIMessage, HumanMessage
 from pytest import fixture
 from traitlets.config.loader import Config
-import re
-import json
-from unittest.mock import Mock
-from IPython.display import HTML, Markdown, JSON
-from jupyter_ai_magics.magics import AiMagics, DISPLAYS_BY_FORMAT
 
 
 @fixture
@@ -126,8 +124,14 @@ def test_reset(ip):
     ai_magics.transcript = [AI1, H1, AI2, H2, AI3]
     result = ip.run_line_magic("ai", "reset")
     assert ai_magics.transcript == []
+<<<<<<< HEAD
 class DummyShell:
     def __init__(self):
+=======
+
+    class DummyShell:
+        def __init__(self):
+>>>>>>> bb2ab6dd2cc51ee7537e6dc666c8e419580ab51b
             self.set_next_input = Mock()
             self.user_ns = {}
             self.execution_count = 1
@@ -140,14 +144,31 @@ def dummy_shell():
 def ai_magics(dummy_shell):
     return AiMagics(shell=dummy_shell)
 
+<<<<<<< HEAD
 def test_display_output_code_format(ai_magics, dummy_shell):
     original_output = "   ```python\n" + "def add(a, b):\n    return a+b" + "\n```"
     md = {"test_meta": "value"}
     result = ai_magics.display_output(original_output, "code", md)
+=======
+    def test_display_output_code_format(ai_magics, dummy_shell):
+        original_output = "   ```python\n" + "def add(a, b):\n    return a+b" + "\n```"
+        md = {"test_meta": "value"}
+        result = ai_magics.display_output(original_output, "code", md)
+
+        expected_output = "def add(a, b):\n    return a+b"
+        dummy_shell.set_next_input.assert_called_once_with(
+            expected_output, replace=False
+        )
+
+        assert isinstance(result, HTML)
+        assert result.metadata == md
+        assert "AI generated code inserted below" in result.data
+>>>>>>> bb2ab6dd2cc51ee7537e6dc666c8e419580ab51b
 
     expected_output = "def add(a, b):\n    return a+b"
     dummy_shell.set_next_input.assert_called_once_with(expected_output, replace=False)
 
+<<<<<<< HEAD
     assert isinstance(result, HTML)
     assert result.metadata == md
     assert "AI generated code inserted below" in result.data
@@ -172,3 +193,16 @@ def test_display_output_json_format(ai_magics):
     if isinstance(json_data, str):
         json_data = json.loads(json_data)
     assert json_data == data 
+=======
+    def test_display_output_json_format(ai_magics):
+        data = {"key": "value", "number": 42}
+        json_string = json.dumps(data)
+        md = {"jupyter_ai": {"dummy": "json"}}
+        result = ai_magics.display_output(json_string, "json", md)
+        assert isinstance(result, JSON)
+        bundle = result._repr_mimebundle_()
+        json_data = bundle.get("application/json") or bundle.get("text/json")
+        if isinstance(json_data, str):
+            json_data = json.loads(json_data)
+        assert json_data == data
+>>>>>>> bb2ab6dd2cc51ee7537e6dc666c8e419580ab51b
