@@ -83,6 +83,7 @@ together-ai = "jupyter_ai_magics:TogetherAIProvider"
 gemini = "jupyter_ai_magics.partner_providers.gemini:GeminiProvider"
 mistralai = "jupyter_ai_magics.partner_providers.mistralai:MistralAIProvider"
 openrouter = "jupyter_ai_magics.partner_providers.openrouter:OpenRouterProvider"
+github-copilot = "jupyter_ai_magics.partner_providers.copilot:GitHubCopilotProvider"
 
 [project.entry-points."jupyter_ai.embeddings_model_providers"]
 azure = "jupyter_ai_magics.partner_providers.openai:AzureOpenAIEmbeddingsProvider"
