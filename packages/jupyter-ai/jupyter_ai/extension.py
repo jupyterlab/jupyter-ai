@@ -33,6 +33,7 @@ from .handlers import (
     SlashCommandsInfoHandler,
 )
 from .history import YChatHistory
+from .personas import PersonaManager, BasePersona
 
 from jupyter_collaboration import (  # type:ignore[import-untyped]  # isort:skip
     __version__ as jupyter_collaboration_version,
@@ -236,6 +237,11 @@ class AiExtension(ExtensionApp):
         handlers dedicated to the room identified by `<room_id>`.
         """
 
+        self.persona_managers_by_room: Dict[str, PersonaManager] = {}
+        """
+        Dictionary of persona managers per room, keyed by room ID.
+        """
+
         self.ychats_by_room: Dict[str, YChat] = {}
         """Cache of YChat instances, indexed by room ID."""
 
@@ -273,6 +279,8 @@ class AiExtension(ExtensionApp):
 
         # initialize chat handlers for new chat
         self.chat_handlers_by_room[room_id] = self._init_chat_handlers(ychat)
+
+        self.persona_managers_by_room[room_id] = self._init_persona_manager(ychat)
 
         callback = partial(self.on_change, room_id)
         ychat.ymessages.observe(callback)
@@ -453,6 +461,19 @@ class AiExtension(ExtensionApp):
             self.log.info("Closing Dask client.")
             await dask_client.close()
             self.log.debug("Closed Dask client.")
+
+    def _init_persona_manager(self, ychat: YChat) -> PersonaManager:
+        config_manager = self.settings["jai_config_manager"]
+        assert config_manager and isinstance(config_manager, ConfigManager)
+
+        try:
+            persona_manager = PersonaManager(ychat=ychat, config_manager=config_manager, log=self.log)
+        except Exception as e:
+            # TODO: how to stop the extension when this fails
+            # also why do uncaught exceptions produce an empty error log in Jupyter Server?
+            self.log.exception(e)
+
+        return persona_manager
 
     def _init_chat_handlers(self, ychat: YChat) -> Dict[str, BaseChatHandler]:
         """
