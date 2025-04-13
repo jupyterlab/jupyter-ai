@@ -14,6 +14,10 @@ class JupyternautPersona(BasePersona):
         return PersonaDefaults(
             name="Jupyternaut",
             avatar_path="/api/ai/static/jupyternaut.svg",
+            description="The standard agent provided by JupyterLab. Currently has no tools.",
             system_prompt="..."
         )
     
+    async def process_message(self):
+        self.log.info("HI IM JUPYTERNAUT AND IDK WHAT TO DO")
+        return

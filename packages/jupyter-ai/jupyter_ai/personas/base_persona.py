@@ -1,9 +1,17 @@
 from pydantic import BaseModel
-from typing import Optional, Set
+from dataclasses import asdict
+from typing import Any, Dict, Optional, Set, TYPE_CHECKING
 from abc import ABC, abstractmethod
 from jupyter_ai.config_manager import ConfigManager
 from jupyterlab_chat.ychat import YChat
-from jupyterlab_chat.models import User
+from jupyterlab_chat.models import User, Message
+from .persona_awareness import PersonaAwareness
+from logging import Logger
+
+# prevents a circular import
+# `PersonaManager` types have to be surrounded in single quotes
+if TYPE_CHECKING:
+    from .persona_manager import PersonaManager
 
 class PersonaDefaults(BaseModel):
     """
@@ -16,6 +24,7 @@ class PersonaDefaults(BaseModel):
     # required fields
     ################################################
     name: str # e.g. "Jupyternaut"
+    description: str # e.g. "..."
     avatar_path: str # e.g. /avatars/jupyternaut.svg
     system_prompt: str # e.g. "You are a language model named..."
 
@@ -32,14 +41,26 @@ class BasePersona(ABC):
     Abstract base class that defines a persona when implemented.
     """
 
+    ychat: YChat
+    manager: 'PersonaManager'
+    config: ConfigManager
+    log: Logger
+    awareness: PersonaAwareness
+
     ################################################
     # constructor
     ################################################
-    def __init__(self, *args, config_manager: ConfigManager, ychat: YChat, **kwargs):
+    def __init__(self, *, ychat: YChat, manager: 'PersonaManager', config: ConfigManager, log: Logger):
         self.ychat = ychat
-        self.config = config_manager
-        super().__init__(*args, **kwargs)
-
+        self.manager = manager
+        self.config = config
+        self.log = log
+        self.awareness = PersonaAwareness(
+            ychat=self.ychat,
+            log=self.log,
+            user=self.as_user()
+        )
+        
     ################################################
     # abstract methods, required by subclasses.
     ################################################
@@ -63,6 +84,16 @@ class BasePersona(ABC):
         settings of this persona.
         """
         pass
+
+    @abstractmethod
+    async def process_message(self, message: Message) -> None:
+        """
+        Processes a new message. Access history and write/stream messages via
+        `self.ychat`.
+        """
+        # support streaming
+        # handle multiple processed messages concurrently (if model service allows it)
+        pass
     
     ################################################
     # base class methods, available to subclasses.
@@ -79,7 +110,7 @@ class BasePersona(ABC):
     def system_prompt(self) -> str:
         return self.defaults.system_prompt
     
-    def as_chat_user(self) -> User:
+    def as_user(self) -> User:
         return User(
             username=self.id,
             name=self.name,
@@ -87,5 +118,6 @@ class BasePersona(ABC):
             avatar_url=self.avatar_path,
         )
     
-    
-    
+    def as_user_dict(self) -> Dict[str, Any]:
+        user = self.as_user()
+        return asdict(user)

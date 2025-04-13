@@ -5,6 +5,7 @@ from ..config_manager import ConfigManager
 from typing import ClassVar, List, Optional, Set, Type
 from logging import Logger
 from importlib_metadata import entry_points
+from .base_persona import BasePersona
 
 class PersonaManager:
     """
@@ -81,7 +82,12 @@ class PersonaManager:
         
         personas: List[BasePersona] = []
         for Persona in persona_classes:
-            persona = Persona(ychat=self.ychat, config_manager=self.config_manager)
+            persona = Persona(
+                ychat=self.ychat,
+                manager=self,
+                config=self.config_manager,
+                log=self.log,
+            )
             personas.append(persona)
 
         return personas
