@@ -1,4 +1,5 @@
 from jupyter_ai.personas.base_persona import BasePersona, PersonaDefaults
+from jupyterlab_chat.models import Message
 
 class DebugPersona(BasePersona):
     """
@@ -17,6 +18,6 @@ class DebugPersona(BasePersona):
             system_prompt="..."
         )
     
-    async def process_message(self):
+    async def process_message(self, message: Message):
         self.log.info("HI IM DEBUGPERSONA AND IDK WHAT TO DO")
         return

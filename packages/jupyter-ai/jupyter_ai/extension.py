@@ -1,9 +1,10 @@
+from asyncio import get_event_loop_policy
 import os
 import re
 import time
 import types
 from functools import partial
-from typing import Dict
+from typing import Dict, TYPE_CHECKING
 
 import traitlets
 from dask.distributed import Client as DaskClient
@@ -33,7 +34,10 @@ from .handlers import (
     SlashCommandsInfoHandler,
 )
 from .history import YChatHistory
-from .personas import PersonaManager, BasePersona
+from .personas import PersonaManager
+
+if TYPE_CHECKING:
+    from asyncio import AbstractEventLoop
 
 from jupyter_collaboration import (  # type:ignore[import-untyped]  # isort:skip
     __version__ as jupyter_collaboration_version,
@@ -250,6 +254,14 @@ class AiExtension(ExtensionApp):
             schema_id=JUPYTER_COLLABORATION_EVENTS_URI, listener=self.connect_chat
         )
 
+    @property
+    def event_loop(self) -> 'AbstractEventLoop':
+        """
+        Returns a reference to the asyncio event loop.
+        """
+        return get_event_loop_policy().get_event_loop()
+
+
     async def connect_chat(
         self, logger: EventLogger, schema_id: str, data: dict
     ) -> None:
@@ -315,15 +327,19 @@ class AiExtension(ExtensionApp):
         for change in events.delta:  # type:ignore[attr-defined]
             if not "insert" in change.keys():
                 continue
-            messages = change["insert"]
-            for message_dict in messages:
-                message = Message(**message_dict)
-                if message.sender == BOT["username"] or message.raw_time:
+            new_messages = [Message(**m) for m in change['insert']]
+            for new_message in new_messages:
+                if new_message.sender == BOT["username"] or new_message.raw_time:
                     continue
 
-                self.serverapp.io_loop.asyncio_loop.create_task(  # type:ignore[attr-defined]
-                    self.route_human_message(room_id, message)
+                self.event_loop.create_task(
+                    self.route_human_message(room_id, new_message)
                 )
+
+                persona_manager = self.persona_managers_by_room.get(room_id, None)
+                if not persona_manager:
+                    continue
+                persona_manager.route_message(new_message)
 
     async def route_human_message(self, room_id: str, message: Message):
         """
@@ -408,18 +424,13 @@ class AiExtension(ExtensionApp):
 
         self.log.info(f"Registered {self.name} server extension")
 
-        # get reference to event loop
-        # `asyncio.get_event_loop()` is deprecated in Python 3.11+, in favor of
-        # the more readable `asyncio.get_event_loop_policy().get_event_loop()`.
-        # it's easier to just reference the loop directly.
-        loop = self.serverapp.io_loop.asyncio_loop
-        self.settings["jai_event_loop"] = loop
+        self.settings["jai_event_loop"] = self.event_loop
 
         # We cannot instantiate the Dask client directly here because it
         # requires the event loop to be running on init. So instead we schedule
         # this as a task that is run as soon as the loop starts, and pass
         # consumers a Future that resolves to the Dask client when awaited.
-        self.settings["dask_client_future"] = loop.create_task(self._get_dask_client())
+        self.settings["dask_client_future"] = self.event_loop.create_task(self._get_dask_client())
 
         # Create empty context providers dict to be filled later.
         # This is created early to use as kwargs for chat handlers.
@@ -462,25 +473,9 @@ class AiExtension(ExtensionApp):
             await dask_client.close()
             self.log.debug("Closed Dask client.")
 
-    def _init_persona_manager(self, ychat: YChat) -> PersonaManager:
-        config_manager = self.settings["jai_config_manager"]
-        assert config_manager and isinstance(config_manager, ConfigManager)
-
-        try:
-            persona_manager = PersonaManager(ychat=ychat, config_manager=config_manager, log=self.log)
-        except Exception as e:
-            # TODO: how to stop the extension when this fails
-            # also why do uncaught exceptions produce an empty error log in Jupyter Server?
-            self.log.exception(e)
-
-        return persona_manager
-
     def _init_chat_handlers(self, ychat: YChat) -> Dict[str, BaseChatHandler]:
         """
-        Initializes a set of chat handlers. May accept a YChat instance for
-        collaborative chats.
-
-        TODO: Make `ychat` required once Jupyter Chat migration is complete.
+        Initializes a set of chat handlers for a given `YChat` instance.
         """
         assert self.serverapp
 
@@ -627,3 +622,21 @@ class AiExtension(ExtensionApp):
                 **context_providers_kwargs
             )
             self.log.info(f"Registered context provider `{context_provider.id}`.")
+
+    def _init_persona_manager(self, ychat: YChat) -> PersonaManager:
+        config_manager = self.settings["jai_config_manager"]
+        assert config_manager and isinstance(config_manager, ConfigManager)
+
+        try:
+            persona_manager = PersonaManager(
+                ychat=ychat,
+                config_manager=config_manager,
+                event_loop=self.event_loop,
+                log=self.log,
+            )
+        except Exception as e:
+            # TODO: how to stop the extension when this fails
+            # also why do uncaught exceptions produce an empty error log in Jupyter Server?
+            self.log.exception(e)
+
+        return persona_manager

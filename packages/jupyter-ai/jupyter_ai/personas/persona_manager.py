@@ -2,10 +2,13 @@ from jupyterlab_chat.ychat import YChat
 from jupyterlab_chat.models import Message
 from .base_persona import BasePersona
 from ..config_manager import ConfigManager
-from typing import ClassVar, List, Optional, Set, Type
+from typing import ClassVar, Optional, TYPE_CHECKING
 from logging import Logger
 from importlib_metadata import entry_points
 from .base_persona import BasePersona
+
+if TYPE_CHECKING:
+    from asyncio import AbstractEventLoop
 
 class PersonaManager:
     """
@@ -14,27 +17,29 @@ class PersonaManager:
 
     # instance attrs
     ychat: YChat
+    config_manager: ConfigManager
+    event_loop: 'AbstractEventLoop'
     log: Logger
-    _personas: List[BasePersona]
-    _persona_ids: Set[str]
+    _personas: dict[str, BasePersona]
 
     # class attrs
-    _persona_classes: ClassVar[Optional[List[Type[BasePersona]]]] = None
+    _persona_classes: ClassVar[Optional[list[type[BasePersona]]]] = None
 
-    def __init__(self, ychat: YChat, config_manager: ConfigManager, log: Logger):
-        self.log = log
+    def __init__(self, ychat: YChat, config_manager: ConfigManager, event_loop: 'AbstractEventLoop', log: Logger):
         self.ychat = ychat
         self.config_manager = config_manager
+        self.event_loop = event_loop
+        self.log = log
 
         self.log.info("Initializing PersonaManager...")
         if not isinstance(PersonaManager._persona_classes, list):
             self._init_persona_classes()
+            assert isinstance(PersonaManager._persona_classes, list)
         
         if len(PersonaManager._persona_classes) == 0:
             self.log.warning("PersonaManager has no available personas. Please contact your server administrator.")
 
         self._personas = self._init_personas()
-        self._persona_ids = set([persona.id for persona in self._personas])
         self.log.info("Finished initializing PersonaManager.")
     
     def _init_persona_classes(self) -> None:
@@ -51,7 +56,7 @@ class PersonaManager:
 
         persona_eps = entry_points().select(group="jupyter_ai.personas")
         self.log.info(f"Found {len(persona_eps)} persona entry points. Loading entry points...")
-        persona_classes: List[Type[BasePersona]] = []
+        persona_classes: list[type[BasePersona]] = []
 
         for persona_ep in persona_eps:
             try:
@@ -69,7 +74,7 @@ class PersonaManager:
         PersonaManager._persona_classes = persona_classes
         self.log.info("Finished loading persona entry points.")
         
-    def _init_personas(self) -> List[BasePersona]:
+    def _init_personas(self) -> dict[str, BasePersona]:
         """
         Initializes the list of persona instances for the YChat instance passed
         to the constructor.
@@ -80,7 +85,7 @@ class PersonaManager:
         persona_classes = PersonaManager._persona_classes
         assert isinstance(persona_classes, list)
         
-        personas: List[BasePersona] = []
+        personas: dict[str, BasePersona] = {}
         for Persona in persona_classes:
             persona = Persona(
                 ychat=self.ychat,
@@ -88,33 +93,40 @@ class PersonaManager:
                 config=self.config_manager,
                 log=self.log,
             )
-            personas.append(persona)
+            personas[persona.id] = persona
 
         return personas
     
     @property
-    def personas(self) -> List[BasePersona]:
+    def personas(self) -> dict[str, BasePersona]:
         return self._personas
 
-    @property
-    def persona_ids(self) -> Set[str]:
-        return self._persona_ids
+    def get_mentioned_personas(self, new_message: Message) -> list[BasePersona]:
+        mentioned_ids = set(new_message.mentions)
+        persona_list: list[BasePersona] = []
 
-    async def route_message(self, message: Message):
+        for mentioned_id in mentioned_ids:
+            if mentioned_id in self.personas:
+                persona_list.append(self.personas[mentioned_id])
+        
+        return persona_list
+
+    def route_message(self, new_message: Message):
         """
         Method that routes an incoming message to the correct persona by calling
         its `process_message()` method.
 
-        - If the chat contains only one persona & one user, then this method
-        routes all new messages to that persona.
+        - (TODO) If the chat contains only one persona & one user, then this
+        method routes all new messages to that persona.
 
         - Otherwise, this method only routes new messages to personas that are
         `@`-mentioned in the message.
         """
-        # TODO. Just routing everything to everybody now.
+        self.log.info("Received new message:")
+        self.log.info(new_message)
 
-        if message.sender in self.persona_ids:
-            return
-        
-        for persona in self.personas:
-            pass
+        mentioned_personas = self.get_mentioned_personas(new_message)
+        for persona in mentioned_personas:
+            self.event_loop.create_task(
+                persona.process_message(new_message)
+            )

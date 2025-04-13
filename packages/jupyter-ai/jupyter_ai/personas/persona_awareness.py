@@ -11,13 +11,6 @@ from contextlib import contextmanager
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
-TEST_USER = User(
-    username="jupyter-ai:superjupyter",
-    name="SuperJupyter",
-    display_name="SuperJupyter",
-    avatar_url="/api/ai/static/jupyternaut.svg",
-)
-
 class PersonaAwareness:
     """
     Custom helper class that accepts a `YChat` instance and returns a

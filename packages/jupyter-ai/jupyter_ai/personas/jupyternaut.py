@@ -1,4 +1,5 @@
 from .base_persona import BasePersona, PersonaDefaults
+from jupyterlab_chat.models import Message
 
 class JupyternautPersona(BasePersona):
     """
@@ -17,6 +18,6 @@ class JupyternautPersona(BasePersona):
             system_prompt="..."
         )
     
-    async def process_message(self):
+    async def process_message(self, message: Message):
         self.log.info("HI IM JUPYTERNAUT AND IDK WHAT TO DO")
         return
