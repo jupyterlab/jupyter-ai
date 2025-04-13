@@ -9,10 +9,6 @@ class DebugPersona(BasePersona):
         super().__init__(*args, **kwargs)
 
     @property
-    def id(self):
-        return "jupyter-ai-test:debug"
-    
-    @property
     def defaults(self):
         return PersonaDefaults(
             name="DebugPersona",

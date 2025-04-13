@@ -9,10 +9,6 @@ class JupyternautPersona(BasePersona):
         super().__init__(*args, **kwargs)
 
     @property
-    def id(self):
-        return "jupyter-ai:jupyternaut"
-    
-    @property
     def defaults(self):
         return PersonaDefaults(
             name="Jupyternaut",
