@@ -1,6 +1,6 @@
-from .base_persona import BasePersona, PersonaDefaults
+from jupyter_ai.personas.base_persona import BasePersona, PersonaDefaults
 
-class JupyternautPersona(BasePersona):
+class DebugPersona(BasePersona):
     """
     The Jupyternaut persona, the main persona provided by Jupyter AI.
     """
@@ -10,17 +10,17 @@ class JupyternautPersona(BasePersona):
 
     @property
     def id(self):
-        return "jupyter-ai:jupyternaut"
+        return "jupyter-ai-test:debug"
     
     @property
     def defaults(self):
         return PersonaDefaults(
-            name="Jupyternaut",
+            name="DebugPersona",
             avatar_path="/api/ai/static/jupyternaut.svg",
-            description="The standard agent provided by JupyterLab. Currently has no tools.",
+            description="A mock persona used for debugging in local dev environments.",
             system_prompt="..."
         )
     
     async def process_message(self):
-        self.log.info("HI IM JUPYTERNAUT AND IDK WHAT TO DO")
+        self.log.info("HI IM DEBUGPERSONA AND IDK WHAT TO DO")
         return
