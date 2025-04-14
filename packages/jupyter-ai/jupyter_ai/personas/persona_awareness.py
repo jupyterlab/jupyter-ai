@@ -31,16 +31,16 @@ class PersonaAwareness:
     client ID (for now).
     """
 
-    ychat: YChat
     awareness: Awareness
+    log: Logger
     user: Optional[User]
 
     _original_client_id: int
     _custom_client_id: int
 
     def __init__(self, *, ychat: YChat, log: Logger, user: Optional[User]):
-        self.ychat = ychat
         self.awareness = ychat.awareness
+        self.log = log
         self.user = user
         self._original_client_id = self.awareness.client_id
         self._custom_client_id = random.getrandbits(32)
