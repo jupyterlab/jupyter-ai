@@ -184,13 +184,9 @@ class ConfigManager(Configurable):
         # growing into `["string", "null", "string", "null"]` on restart.
         # This fixes issue #1320.
         merger = Merger(
-            [
-                (list, ["append_unique"]),
-                (dict, ["merge"]),
-                (set, ["union"])
-            ],
+            [(list, ["append_unique"]), (dict, ["merge"]), (set, ["union"])],
             ["override"],
-            ["override"]
+            ["override"],
         )
 
         # merge existing_schema into default_schema

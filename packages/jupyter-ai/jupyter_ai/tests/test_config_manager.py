@@ -1,8 +1,8 @@
 import json
 import logging
 import os
-from unittest.mock import mock_open, patch
 from pathlib import Path
+from unittest.mock import mock_open, patch
 
 import pytest
 from jupyter_ai.config_manager import (
@@ -549,6 +549,7 @@ def test_config_manager_updates_schema(jp_data_dir, common_cm_kwargs):
         assert "embeddings_fields" in new_schema["properties"]
         assert "completions_fields" in new_schema["properties"]
 
+
 def test_config_manager_handles_empty_touched_file(common_cm_kwargs):
     """
     Asserts that ConfigManager does not fail at runtime if `config.json` is a
@@ -558,6 +559,6 @@ def test_config_manager_handles_empty_touched_file(common_cm_kwargs):
     Asserts that the second issue reported in #1291 does not occur again in the
     future.
     """
-    config_path = common_cm_kwargs['config_path']
+    config_path = common_cm_kwargs["config_path"]
     Path(config_path).touch()
     ConfigManager(**common_cm_kwargs)
