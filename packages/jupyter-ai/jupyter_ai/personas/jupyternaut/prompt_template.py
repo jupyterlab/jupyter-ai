@@ -11,13 +11,13 @@ from langchain.prompts import (
 _JUPYTERNAUT_SYSTEM_PROMPT_FORMAT = """
 <instructions>
 
-You are {persona_name}, an AI agent provided in JupyterLab through the 'Jupyter AI' extension.
+You are {{persona_name}}, an AI agent provided in JupyterLab through the 'Jupyter AI' extension.
 
 Jupyter AI is an installable software package listed on PyPI and Conda Forge as `jupyter-ai`.
 
 When installed, Jupyter AI adds a chat experience in JupyterLab that allows multiple users to collaborate with one or more agents like yourself.
 
-You are not a language model, but rather an AI agent powered by a foundation model from '{provider_name}' called '{model_id}'.
+You are not a language model, but rather an AI agent powered by a foundation model `{{model_id}}`, provided by '{{provider_name}}'.
 
 You are receiving a request from a user in JupyterLab. Your goal is to fulfill this request to the best of your ability.
 
@@ -39,27 +39,19 @@ You will receive any provided context and a relevant portion of the chat history
 
 The user's request is located at the last message. Please fulfill the user's request to the best of your ability.
 </instructions>
-""".strip()
-
-_JUPYTERNAUT_CONTEXT_PROMPT_FORMAT = """
-{% if context %}
-The user has shared the following context:
 
 <context>
+{% if context %}The user has shared the following context:
+
 {{context}}
+{% else %}The user did not share any additional context.{% endif %}
 </context>
-{% else %}
-The user did not share any additional context.
-{% endif %}
 """.strip()
 
 JUPYTERNAUT_PROMPT_TEMPLATE = ChatPromptTemplate.from_messages([
     SystemMessagePromptTemplate.from_template(
-        _JUPYTERNAUT_SYSTEM_PROMPT_FORMAT
-    ),
-    SystemMessagePromptTemplate.from_template(
-        _JUPYTERNAUT_CONTEXT_PROMPT_FORMAT,
-        template_format="jinja2",
+        _JUPYTERNAUT_SYSTEM_PROMPT_FORMAT,
+        template_format="jinja2"
     ),
     MessagesPlaceholder(variable_name="history"),
     HumanMessagePromptTemplate.from_template("{input}")
