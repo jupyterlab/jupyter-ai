@@ -122,9 +122,6 @@ class PersonaManager:
         - Otherwise, this method only routes new messages to personas that are
         `@`-mentioned in the message.
         """
-        self.log.info("Received new message:")
-        self.log.info(new_message)
-
         mentioned_personas = self.get_mentioned_personas(new_message)
         for persona in mentioned_personas:
             self.event_loop.create_task(

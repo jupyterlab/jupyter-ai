@@ -62,6 +62,8 @@ class BasePersona(ABC):
             log=self.log,
             user=self.as_user()
         )
+
+        self.ychat.set_user(self.as_user())
         
     ################################################
     # abstract methods, required by subclasses.
@@ -140,9 +142,9 @@ class BasePersona(ABC):
         - Automatically manages its awareness state to show writing status.
         """
         stream_id: Optional[str] = None
-        self.awareness.set_local_state_field('isWriting', True)
 
         try:
+            self.awareness.set_local_state_field('isWriting', True)
             async for chunk in reply_stream:
                 if not stream_id:
                     stream_id = self.ychat.add_message(

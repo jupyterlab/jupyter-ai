@@ -19,9 +19,8 @@ class PersonaAwareness:
     `pycrdt.Awareness`.
 
     - This class optionally accepts a `User` object in the constructor. When
-    passed, this class will automatically register this user in the YChat and
-    awareness dictionaries, via `ychat.set_user()` and
-    `awareness.set_local_state()` respectively.
+    passed, this class will automatically register this user in the awareness
+    dictionary.
 
     - This class works by manually setting `ydoc.awareness.client_id` before &
     after each method call. This class provides a `self.as_custom_client()`
@@ -74,7 +73,6 @@ class PersonaAwareness:
             return
 
         with self.as_custom_client():
-            self.ychat.set_user(self.user)
             self.awareness.set_local_state_field('user', asdict(self.user))
     
     def get_local_state(self) -> dict[str, Any]:

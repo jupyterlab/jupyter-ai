@@ -13,7 +13,6 @@ from jupyter_ai_magics import BaseProvider, JupyternautPersona
 from jupyter_ai_magics.utils import get_em_providers, get_lm_providers
 from jupyter_events import EventLogger
 from jupyter_server.extension.application import ExtensionApp
-from jupyter_server.utils import url_path_join
 from jupyterlab_chat.models import Message
 from jupyterlab_chat.ychat import YChat
 from pycrdt import ArrayEvent
@@ -23,7 +22,6 @@ from traitlets import Integer, List, Unicode
 from .chat_handlers.base import BaseChatHandler
 from .completions.handlers import DefaultInlineCompletionHandler
 from .config_manager import ConfigManager
-from .constants import BOT
 from .context_providers import BaseCommandContextProvider, FileContextProvider
 from .handlers import (
     ApiKeysHandler,
@@ -282,16 +280,10 @@ class AiExtension(ExtensionApp):
         if ychat is None:
             return
 
-        # Add the bot user to the chat document awareness.
-        BOT["avatar_url"] = url_path_join(
-            self.settings.get("base_url", "/"), "api/ai/static/jupyternaut.svg"
-        )
-        if ychat.awareness is not None:
-            ychat.awareness.set_local_state_field("user", BOT)
-
         # initialize chat handlers for new chat
         self.chat_handlers_by_room[room_id] = self._init_chat_handlers(ychat)
 
+        # initialize persona
         self.persona_managers_by_room[room_id] = self._init_persona_manager(ychat)
 
         callback = partial(self.on_change, room_id)
@@ -322,23 +314,20 @@ class AiExtension(ExtensionApp):
         return document
 
     def on_change(self, room_id: str, events: ArrayEvent) -> None:
+        persona_manager = self.persona_managers_by_room.get(room_id, None)
         assert self.serverapp
+        assert persona_manager
 
         for change in events.delta:  # type:ignore[attr-defined]
             if not "insert" in change.keys():
                 continue
-            new_messages = [Message(**m) for m in change['insert']]
+
+            # the "if not m['raw_time']" clause is necessary because every new
+            # message triggers 2 events, one with `raw_time` set to `True` and
+            # another with `raw_time` set to `False` milliseconds later.
+            # we should explore fixing this quirk in Jupyter Chat.
+            new_messages = [Message(**m) for m in change['insert'] if not m.get('raw_time', False)]
             for new_message in new_messages:
-                if new_message.sender == BOT["username"] or new_message.raw_time:
-                    continue
-
-                self.event_loop.create_task(
-                    self.route_human_message(room_id, new_message)
-                )
-
-                persona_manager = self.persona_managers_by_room.get(room_id, None)
-                if not persona_manager:
-                    continue
                 persona_manager.route_message(new_message)
 
     async def route_human_message(self, room_id: str, message: Message):
