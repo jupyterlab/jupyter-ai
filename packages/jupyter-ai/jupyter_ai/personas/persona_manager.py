@@ -6,12 +6,14 @@ from typing import ClassVar, Optional, TYPE_CHECKING
 from logging import Logger
 from importlib_metadata import entry_points
 from .base_persona import BasePersona
+from time import time_ns
 
 if TYPE_CHECKING:
     from asyncio import AbstractEventLoop
 
 # EPG := entry point group
 EPG_NAME = "jupyter_ai.personas"
+
 class PersonaManager:
     """
     Class that manages all personas for a single chat.
@@ -54,6 +56,7 @@ class PersonaManager:
         persona_eps = entry_points().select(group=EPG_NAME)
         self.log.info(f"Found {len(persona_eps)} entry points under '{EPG_NAME}'.")
         self.log.info("PENDING: Loading AI persona classes from entry points...")
+        start_time_ns = time_ns()
         persona_classes: list[type[BasePersona]] = []
 
         for persona_ep in persona_eps:
@@ -71,7 +74,8 @@ class PersonaManager:
                 continue
         
         if len(persona_classes) > 0:
-            self.log.info(f"SUCCESS: Loaded {len(persona_classes)} AI persona classes from entry points.")
+            elapsed_time_ms = (time_ns() - start_time_ns) // 1000
+            self.log.info(f"SUCCESS: Loaded {len(persona_classes)} AI persona classes from entry points. Time elapsed: {elapsed_time_ms}ms.")
         else:
             self.log.error(
                 "ERROR: Jupyter AI has no AI personas available. "
@@ -86,10 +90,11 @@ class PersonaManager:
         """
         if hasattr(self, '_personas') or len(PersonaManager._persona_classes) == 0:
             return
-
-        self.log.info(f"PENDING: Initializing AI personas for chat room '{self.ychat.get_id()}'...")
         persona_classes = PersonaManager._persona_classes
         assert isinstance(persona_classes, list)
+
+        self.log.info(f"PENDING: Initializing AI personas for chat room '{self.ychat.get_id()}'...")
+        start_time_ns = time_ns()
         
         personas: dict[str, BasePersona] = {}
         for Persona in persona_classes:
@@ -110,7 +115,8 @@ class PersonaManager:
                 self.log.info(f"  - Initialized persona '{persona.name}' (ID: '{persona.id}').")
                 personas[persona.id] = persona
 
-        self.log.info(f"SUCCESS: Initialized {len(personas)} AI personas for chat room '{self.ychat.get_id()}'.")
+        elapsed_time_ms = (time_ns() - start_time_ns) // 1000
+        self.log.info(f"SUCCESS: Initialized {len(personas)} AI personas for chat room '{self.ychat.get_id()}'. Time elapsed: {elapsed_time_ms}ms.")
         return personas
     
     @property
