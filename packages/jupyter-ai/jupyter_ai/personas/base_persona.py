@@ -2,16 +2,18 @@ from pydantic import BaseModel
 from dataclasses import asdict
 from typing import Any, Dict, Optional, Set, TYPE_CHECKING
 from abc import ABC, abstractmethod
+from time import time
+from logging import Logger
 from jupyter_ai.config_manager import ConfigManager
 from jupyterlab_chat.ychat import YChat
-from jupyterlab_chat.models import User, Message
+from jupyterlab_chat.models import User, Message, NewMessage
 from .persona_awareness import PersonaAwareness
-from logging import Logger
 
 # prevents a circular import
 # `PersonaManager` types have to be surrounded in single quotes
 if TYPE_CHECKING:
     from .persona_manager import PersonaManager
+    from collections.abc import AsyncIterator
 
 class PersonaDefaults(BaseModel):
     """
@@ -126,3 +128,41 @@ class BasePersona(ABC):
     def as_user_dict(self) -> Dict[str, Any]:
         user = self.as_user()
         return asdict(user)
+    
+    async def forward_reply_stream(self, reply_stream: 'AsyncIterator'):
+        """
+        Forwards an async iterator, dubbed the 'reply stream', to a new message
+        by this persona in the YChat.
+
+        - Creates a new message upon receiving the first chunk from the reply
+        stream, then continuously updates it until the stream is closed.
+
+        - Automatically manages its awareness state to show writing status.
+        """
+        stream_id: Optional[str] = None
+        self.awareness.set_local_state_field('isWriting', True)
+
+        try:
+            async for chunk in reply_stream:
+                if not stream_id:
+                    stream_id = self.ychat.add_message(
+                        NewMessage(body="", sender=self.id)
+                    )
+                
+                assert stream_id
+                self.ychat.update_message(
+                    Message(
+                        id=stream_id,
+                        body=chunk,
+                        time=time(),
+                        sender=self.id,
+                        raw_time=False,
+                    ),
+                    append=True,
+                )
+        except Exception as e:
+            self.log.error(f"Persona '{self.name}' encountered an exception printed below when attempting to stream output.")
+            self.log.exception(e)
+        finally:
+            self.awareness.set_local_state_field('isWriting', False)
+            
