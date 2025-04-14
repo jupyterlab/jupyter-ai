@@ -10,6 +10,8 @@ from .base_persona import BasePersona
 if TYPE_CHECKING:
     from asyncio import AbstractEventLoop
 
+# EPG := entry point group
+EPG_NAME = "jupyter_ai.personas"
 class PersonaManager:
     """
     Class that manages all personas for a single chat.
@@ -31,16 +33,11 @@ class PersonaManager:
         self.event_loop = event_loop
         self.log = log
 
-        self.log.info("Initializing PersonaManager...")
         if not isinstance(PersonaManager._persona_classes, list):
             self._init_persona_classes()
             assert isinstance(PersonaManager._persona_classes, list)
-        
-        if len(PersonaManager._persona_classes) == 0:
-            self.log.warning("PersonaManager has no available personas. Please contact your server administrator.")
 
         self._personas = self._init_personas()
-        self.log.info("Finished initializing PersonaManager.")
     
     def _init_persona_classes(self) -> None:
         """
@@ -54,8 +51,9 @@ class PersonaManager:
         if PersonaManager._persona_classes:
             return
 
-        persona_eps = entry_points().select(group="jupyter_ai.personas")
-        self.log.info(f"Found {len(persona_eps)} persona entry points. Loading entry points...")
+        persona_eps = entry_points().select(group=EPG_NAME)
+        self.log.info(f"Found {len(persona_eps)} entry points under '{EPG_NAME}'.")
+        self.log.info("PENDING: Loading AI persona classes from entry points...")
         persona_classes: list[type[BasePersona]] = []
 
         for persona_ep in persona_eps:
@@ -63,25 +61,33 @@ class PersonaManager:
                 persona_class = persona_ep.load()
                 assert issubclass(persona_class, BasePersona)
                 persona_classes.append(persona_class)
-                self.log.info(f"Loaded persona class from entry point `{persona_ep.name}`.")
+                class_module, class_name = persona_ep.value.split(":")
+                self.log.info(f"  - Loaded AI persona class '{class_name}' from '{class_module}' using entry point '{persona_ep.name}'.")
             except Exception as e:
                 self.log.error(
-                    f"Unable to load persona from entry point `{persona_ep.name}` due to an exception printed below."
+                    f"  - Unable to load AI persona from entry point `{persona_ep.name}` due to an exception printed below."
                 )
                 self.log.exception(e)
                 continue
         
+        if len(persona_classes) > 0:
+            self.log.info(f"SUCCESS: Loaded {len(persona_classes)} AI persona classes from entry points.")
+        else:
+            self.log.error(
+                "ERROR: Jupyter AI has no AI personas available. "
+                + "Please verify your server configuration and open a new issue on our GitHub repo if this warning persists."
+            )
         PersonaManager._persona_classes = persona_classes
-        self.log.info("Finished loading persona entry points.")
         
     def _init_personas(self) -> dict[str, BasePersona]:
         """
         Initializes the list of persona instances for the YChat instance passed
         to the constructor.
         """
-        if hasattr(self, '_personas'):
+        if hasattr(self, '_personas') or len(PersonaManager._persona_classes) == 0:
             return
 
+        self.log.info(f"PENDING: Initializing AI personas for chat room '{self.ychat.get_id()}'...")
         persona_classes = PersonaManager._persona_classes
         assert isinstance(persona_classes, list)
         
@@ -93,8 +99,18 @@ class PersonaManager:
                 config=self.config_manager,
                 log=self.log,
             )
-            personas[persona.id] = persona
+            if persona.id in personas:
+                class_name = persona.__class__.__name__
+                self.log.warning(
+                    f"  - WARNING: Skipping persona '{persona.name}' from '{persona.__module__}' because another persona has an identical ID '{persona.id}'. "
+                    + f"Personas must all have unique IDs. Please rename the persona class from '{class_name}' to something unique to dismiss this warning."
+                )
+                continue
+            else:
+                self.log.info(f"  - Initialized persona '{persona.name}' (ID: '{persona.id}').")
+                personas[persona.id] = persona
 
+        self.log.info(f"SUCCESS: Initialized {len(personas)} AI personas for chat room '{self.ychat.get_id()}'.")
         return personas
     
     @property
@@ -123,6 +139,11 @@ class PersonaManager:
         `@`-mentioned in the message.
         """
         mentioned_personas = self.get_mentioned_personas(new_message)
+        if not len(mentioned_personas):
+            return
+
+        mentioned_persona_names = [persona.name for persona in mentioned_personas]
+        self.log.info(f"Received new user message mentioning the following personas: {mentioned_persona_names}.")
         for persona in mentioned_personas:
             self.event_loop.create_task(
                 persona.process_message(new_message)
