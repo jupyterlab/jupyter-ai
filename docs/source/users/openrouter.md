@@ -24,6 +24,13 @@ Jupyter AI's settings page with the OpenRouter provider selected is shown below:
 
 Type in the model name and the API base URL corresponding to the model you wish to use. For Deepseek, you should use `https://api.deepseek.com` as the API base URL, and use `deepseek-chat` as the local model ID.
 
+If you have an OpenRouter account and wish to use their API and URL, it is also possible using the OpenRouter provider in Jupyter AI, as shown here:
+
+<img src="../_static/openrouter-model-setup-2.png"
+    width="75%"
+    alt='Screenshot of the tab in Jupyter AI where OpenRouter model access is selected with its own API and URL.'
+    class="screenshot" />
+
 If you are using OpenRouter for the first time it will also require entering the `OPENROUTER_API_KEY`. If you have used OpenRouter before with a different model provider, you will need to update the API key. After doing this, click "Save Changes" at the bottom to save your settings.
 
 You should now be able to use Deepseek! An example of usage is shown next:
