@@ -194,7 +194,7 @@ class ConfigManager(Configurable):
 
     def _init_config(self):
         default_config = self._init_defaults()
-        if os.path.exists(self.config_path):
+        if os.path.exists(self.config_path) and os.stat(self.config_path).st_size != 0:
             self._process_existing_config(default_config)
         else:
             self._create_default_config(default_config)
