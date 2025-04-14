@@ -3,6 +3,7 @@ import asyncio
 import os
 import time
 import traceback
+import re
 from pathlib import Path
 from typing import Dict, List, Optional, Type
 
@@ -165,6 +166,12 @@ async def generate_title(outline, llm=None, verbose: bool = False):
     title = await title_chain.apredict(content=outline)
     title = title.strip()
     title = title.strip("'\"")
+    if len(title) > 50: # in case the title is too long because it returns chain of thought
+        pattern = r'"(.+?)"'  # Match any text between quotes to get suggested title
+        title = re.findall(pattern, title)[-1]  # Get the last match
+        title = title.replace("'", "").replace('"', '') # remove quotes in title
+    if title is None: 
+        title = "Generated_Notebook" # in case there is no title
     outline["title"] = title
 
 
