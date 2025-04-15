@@ -1,18 +1,20 @@
-from jupyterlab_chat.ychat import YChat
-from jupyterlab_chat.models import Message
-from .base_persona import BasePersona
-from ..config_manager import ConfigManager
-from typing import ClassVar, Optional, TYPE_CHECKING
 from logging import Logger
-from importlib_metadata import entry_points
-from .base_persona import BasePersona
 from time import time_ns
+from typing import TYPE_CHECKING, ClassVar, Optional
+
+from importlib_metadata import entry_points
+from jupyterlab_chat.models import Message
+from jupyterlab_chat.ychat import YChat
+
+from ..config_manager import ConfigManager
+from .base_persona import BasePersona
 
 if TYPE_CHECKING:
     from asyncio import AbstractEventLoop
 
 # EPG := entry point group
 EPG_NAME = "jupyter_ai.personas"
+
 
 class PersonaManager:
     """
@@ -22,14 +24,20 @@ class PersonaManager:
     # instance attrs
     ychat: YChat
     config_manager: ConfigManager
-    event_loop: 'AbstractEventLoop'
+    event_loop: "AbstractEventLoop"
     log: Logger
     _personas: dict[str, BasePersona]
 
     # class attrs
     _persona_classes: ClassVar[Optional[list[type[BasePersona]]]] = None
 
-    def __init__(self, ychat: YChat, config_manager: ConfigManager, event_loop: 'AbstractEventLoop', log: Logger):
+    def __init__(
+        self,
+        ychat: YChat,
+        config_manager: ConfigManager,
+        event_loop: "AbstractEventLoop",
+        log: Logger,
+    ):
         self.ychat = ychat
         self.config_manager = config_manager
         self.event_loop = event_loop
@@ -40,7 +48,7 @@ class PersonaManager:
             assert isinstance(PersonaManager._persona_classes, list)
 
         self._personas = self._init_personas()
-    
+
     def _init_persona_classes(self) -> None:
         """
         Initializes the list of persona *classes* by retrieving the
@@ -65,37 +73,43 @@ class PersonaManager:
                 assert issubclass(persona_class, BasePersona)
                 persona_classes.append(persona_class)
                 class_module, class_name = persona_ep.value.split(":")
-                self.log.info(f"  - Loaded AI persona class '{class_name}' from '{class_module}' using entry point '{persona_ep.name}'.")
+                self.log.info(
+                    f"  - Loaded AI persona class '{class_name}' from '{class_module}' using entry point '{persona_ep.name}'."
+                )
             except Exception as e:
                 self.log.error(
                     f"  - Unable to load AI persona from entry point `{persona_ep.name}` due to an exception printed below."
                 )
                 self.log.exception(e)
                 continue
-        
+
         if len(persona_classes) > 0:
             elapsed_time_ms = (time_ns() - start_time_ns) // 1000
-            self.log.info(f"SUCCESS: Loaded {len(persona_classes)} AI persona classes from entry points. Time elapsed: {elapsed_time_ms}ms.")
+            self.log.info(
+                f"SUCCESS: Loaded {len(persona_classes)} AI persona classes from entry points. Time elapsed: {elapsed_time_ms}ms."
+            )
         else:
             self.log.error(
                 "ERROR: Jupyter AI has no AI personas available. "
                 + "Please verify your server configuration and open a new issue on our GitHub repo if this warning persists."
             )
         PersonaManager._persona_classes = persona_classes
-        
+
     def _init_personas(self) -> dict[str, BasePersona]:
         """
         Initializes the list of persona instances for the YChat instance passed
         to the constructor.
         """
-        if hasattr(self, '_personas') or len(PersonaManager._persona_classes) == 0:
+        if hasattr(self, "_personas") or len(PersonaManager._persona_classes) == 0:
             return
         persona_classes = PersonaManager._persona_classes
         assert isinstance(persona_classes, list)
 
-        self.log.info(f"PENDING: Initializing AI personas for chat room '{self.ychat.get_id()}'...")
+        self.log.info(
+            f"PENDING: Initializing AI personas for chat room '{self.ychat.get_id()}'..."
+        )
         start_time_ns = time_ns()
-        
+
         personas: dict[str, BasePersona] = {}
         for Persona in persona_classes:
             persona = Persona(
@@ -112,13 +126,17 @@ class PersonaManager:
                 )
                 continue
             else:
-                self.log.info(f"  - Initialized persona '{persona.name}' (ID: '{persona.id}').")
+                self.log.info(
+                    f"  - Initialized persona '{persona.name}' (ID: '{persona.id}')."
+                )
                 personas[persona.id] = persona
 
         elapsed_time_ms = (time_ns() - start_time_ns) // 1000
-        self.log.info(f"SUCCESS: Initialized {len(personas)} AI personas for chat room '{self.ychat.get_id()}'. Time elapsed: {elapsed_time_ms}ms.")
+        self.log.info(
+            f"SUCCESS: Initialized {len(personas)} AI personas for chat room '{self.ychat.get_id()}'. Time elapsed: {elapsed_time_ms}ms."
+        )
         return personas
-    
+
     @property
     def personas(self) -> dict[str, BasePersona]:
         return self._personas
@@ -130,7 +148,7 @@ class PersonaManager:
         for mentioned_id in mentioned_ids:
             if mentioned_id in self.personas:
                 persona_list.append(self.personas[mentioned_id])
-        
+
         return persona_list
 
     def route_message(self, new_message: Message):
@@ -149,8 +167,8 @@ class PersonaManager:
             return
 
         mentioned_persona_names = [persona.name for persona in mentioned_personas]
-        self.log.info(f"Received new user message mentioning the following personas: {mentioned_persona_names}.")
+        self.log.info(
+            f"Received new user message mentioning the following personas: {mentioned_persona_names}."
+        )
         for persona in mentioned_personas:
-            self.event_loop.create_task(
-                persona.process_message(new_message)
-            )
+            self.event_loop.create_task(persona.process_message(new_message))

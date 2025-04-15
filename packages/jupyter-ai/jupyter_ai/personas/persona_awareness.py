@@ -1,15 +1,16 @@
-from jupyterlab_chat.ychat import YChat
-from jupyterlab_chat.models import User
-from pycrdt import Awareness
 import random
+from contextlib import contextmanager
 from dataclasses import asdict
 from logging import Logger
-from typing import Any, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Optional
 
-from contextlib import contextmanager
+from jupyterlab_chat.models import User
+from jupyterlab_chat.ychat import YChat
+from pycrdt import Awareness
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
+
 
 class PersonaAwareness:
     """
@@ -25,7 +26,7 @@ class PersonaAwareness:
     - This class works by manually setting `ydoc.awareness.client_id` before &
     after each method call. This class provides a `self.as_custom_client()`
     context manager that automatically does this upon enter & exit.
-    
+
     - This class is required to provide awareness states for >1 persona, because
     `pycrdt` doesn't provide a way to set the awareness state for more than one
     client ID (for now).
@@ -50,9 +51,9 @@ class PersonaAwareness:
 
         if self.user:
             self._register_user()
-    
+
     @contextmanager
-    def as_custom_client(self) -> 'Iterator[None]':
+    def as_custom_client(self) -> "Iterator[None]":
         """
         Context manager that automatically:
 
@@ -73,13 +74,12 @@ class PersonaAwareness:
             return
 
         with self.as_custom_client():
-            self.awareness.set_local_state_field('user', asdict(self.user))
-    
+            self.awareness.set_local_state_field("user", asdict(self.user))
+
     def get_local_state(self) -> dict[str, Any]:
         with self.as_custom_client():
             return self.awareness.get_local_state()
-        
+
     def set_local_state_field(self, field: str, value: Any) -> None:
         with self.as_custom_client():
             return self.awareness.set_local_state_field(field, value)
-    

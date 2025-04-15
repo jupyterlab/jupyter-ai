@@ -1,6 +1,7 @@
 from jupyter_ai.personas.base_persona import BasePersona, PersonaDefaults
 from jupyterlab_chat.models import Message
 
+
 class DebugPersona(BasePersona):
     """
     The Jupyternaut persona, the main persona provided by Jupyter AI.
@@ -15,9 +16,9 @@ class DebugPersona(BasePersona):
             name="DebugPersona",
             avatar_path="/api/ai/static/jupyternaut.svg",
             description="A mock persona used for debugging in local dev environments.",
-            system_prompt="..."
+            system_prompt="...",
         )
-    
+
     async def process_message(self, message: Message):
         self.log.info("HI IM DEBUGPERSONA AND IDK WHAT TO DO")
         return

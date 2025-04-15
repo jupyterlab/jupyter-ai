@@ -1,10 +1,10 @@
-from asyncio import get_event_loop_policy
 import os
 import re
 import time
 import types
+from asyncio import get_event_loop_policy
 from functools import partial
-from typing import Dict, TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict
 
 import traitlets
 from dask.distributed import Client as DaskClient
@@ -253,12 +253,11 @@ class AiExtension(ExtensionApp):
         )
 
     @property
-    def event_loop(self) -> 'AbstractEventLoop':
+    def event_loop(self) -> "AbstractEventLoop":
         """
         Returns a reference to the asyncio event loop.
         """
         return get_event_loop_policy().get_event_loop()
-
 
     async def connect_chat(
         self, logger: EventLogger, schema_id: str, data: dict
@@ -326,7 +325,9 @@ class AiExtension(ExtensionApp):
             # message triggers 2 events, one with `raw_time` set to `True` and
             # another with `raw_time` set to `False` milliseconds later.
             # we should explore fixing this quirk in Jupyter Chat.
-            new_messages = [Message(**m) for m in change['insert'] if not m.get('raw_time', False)]
+            new_messages = [
+                Message(**m) for m in change["insert"] if not m.get("raw_time", False)
+            ]
             for new_message in new_messages:
                 persona_manager.route_message(new_message)
 
@@ -419,7 +420,9 @@ class AiExtension(ExtensionApp):
         # requires the event loop to be running on init. So instead we schedule
         # this as a task that is run as soon as the loop starts, and pass
         # consumers a Future that resolves to the Dask client when awaited.
-        self.settings["dask_client_future"] = self.event_loop.create_task(self._get_dask_client())
+        self.settings["dask_client_future"] = self.event_loop.create_task(
+            self._get_dask_client()
+        )
 
         # Create empty context providers dict to be filled later.
         # This is created early to use as kwargs for chat handlers.

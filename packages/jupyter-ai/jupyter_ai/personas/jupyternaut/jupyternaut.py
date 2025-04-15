@@ -1,12 +1,13 @@
 from typing import Any
 
+from jupyterlab_chat.models import Message
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables.history import RunnableWithMessageHistory
 
+from ...history import YChatHistory
 from ..base_persona import BasePersona, PersonaDefaults
 from .prompt_template import JUPYTERNAUT_PROMPT_TEMPLATE, JupyternautVariables
-from ...history import YChatHistory
-from jupyterlab_chat.models import Message
+
 
 class JupyternautPersona(BasePersona):
     """
@@ -22,19 +23,19 @@ class JupyternautPersona(BasePersona):
             name="Jupyternaut",
             avatar_path="/api/ai/static/jupyternaut.svg",
             description="The standard agent provided by JupyterLab. Currently has no tools.",
-            system_prompt="..."
+            system_prompt="...",
         )
-    
+
     async def process_message(self, message: Message):
         provider_name = self.config.lm_provider.name
-        model_id = self.config.lm_provider_params['model_id']
+        model_id = self.config.lm_provider_params["model_id"]
 
         runnable = self.build_runnable()
         variables = JupyternautVariables(
             input=message.body,
             model_id=model_id,
             provider_name=provider_name,
-            persona_name=self.name
+            persona_name=self.name,
         )
         variables_dict = variables.model_dump()
         reply_stream = runnable.astream(variables_dict)

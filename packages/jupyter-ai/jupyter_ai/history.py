@@ -45,7 +45,7 @@ class YChatHistory(BaseChatMessageHistory):
         """
         messages: List[BaseMessage] = []
         for jchat_message in jchat_messages:
-            if jchat_message.sender.startswith('jupyter-ai-personas::'):
+            if jchat_message.sender.startswith("jupyter-ai-personas::"):
                 messages.append(AIMessage(content=jchat_message.body))
             else:
                 messages.append(HumanMessage(content=jchat_message.body))

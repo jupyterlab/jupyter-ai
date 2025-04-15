@@ -1,12 +1,12 @@
 from typing import Optional
 
-from pydantic import BaseModel
 from langchain.prompts import (
     ChatPromptTemplate,
     HumanMessagePromptTemplate,
     MessagesPlaceholder,
     SystemMessagePromptTemplate,
 )
+from pydantic import BaseModel
 
 _JUPYTERNAUT_SYSTEM_PROMPT_FORMAT = """
 <instructions>
@@ -48,23 +48,26 @@ The user's request is located at the last message. Please fulfill the user's req
 </context>
 """.strip()
 
-JUPYTERNAUT_PROMPT_TEMPLATE = ChatPromptTemplate.from_messages([
-    SystemMessagePromptTemplate.from_template(
-        _JUPYTERNAUT_SYSTEM_PROMPT_FORMAT,
-        template_format="jinja2"
-    ),
-    MessagesPlaceholder(variable_name="history"),
-    HumanMessagePromptTemplate.from_template("{input}")
-])
+JUPYTERNAUT_PROMPT_TEMPLATE = ChatPromptTemplate.from_messages(
+    [
+        SystemMessagePromptTemplate.from_template(
+            _JUPYTERNAUT_SYSTEM_PROMPT_FORMAT, template_format="jinja2"
+        ),
+        MessagesPlaceholder(variable_name="history"),
+        HumanMessagePromptTemplate.from_template("{input}"),
+    ]
+)
+
 
 class JupyternautVariables(BaseModel):
     """
     Variables expected by `JUPYTERNAUT_PROMPT_TEMPLATE`, defined as a Pydantic
-    data model for developer convenience. 
+    data model for developer convenience.
 
     Call the `.model_dump()` method on an instance to convert it to a Python
     dictionary.
     """
+
     input: str
     persona_name: str
     provider_name: str
