@@ -205,6 +205,10 @@ class ConfigManager(Configurable):
 
     def _init_config(self):
         default_config = self._init_defaults()
+        # if the config file exists, read from it and use our defaults to fill
+        # out any missing fields. otherwise, create a new config file from our
+        # defaults.
+        # the `st_size` check treats empty 0-byte config files as non-existent.
         if os.path.exists(self.config_path) and os.stat(self.config_path).st_size != 0:
             self._process_existing_config(default_config)
         else:
