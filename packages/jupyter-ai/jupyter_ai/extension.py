@@ -325,6 +325,8 @@ class AiExtension(ExtensionApp):
             # message triggers 2 events, one with `raw_time` set to `True` and
             # another with `raw_time` set to `False` milliseconds later.
             # we should explore fixing this quirk in Jupyter Chat.
+            #
+            # Ref: https://github.com/jupyterlab/jupyter-chat/issues/212
             new_messages = [
                 Message(**m) for m in change["insert"] if not m.get("raw_time", False)
             ]
