@@ -282,7 +282,8 @@ class AiExtension(ExtensionApp):
         if not persona_manager:
             self.log.error(
                 "Jupyter AI was unable to initialize its AI personas. They are not available for use in chat until this error is resolved. "
-                + "Please verify your configuration and open a new issue on GitHub if this error persists.")
+                + "Please verify your configuration and open a new issue on GitHub if this error persists."
+            )
             return
 
         callback = partial(self.on_change, room_id, persona_manager)
@@ -312,7 +313,9 @@ class AiExtension(ExtensionApp):
         self.ychats_by_room[room_id] = document
         return document
 
-    def on_change(self, room_id: str, persona_manager: PersonaManager, events: ArrayEvent) -> None:
+    def on_change(
+        self, room_id: str, persona_manager: PersonaManager, events: ArrayEvent
+    ) -> None:
         assert self.serverapp
 
         for change in events.delta:  # type:ignore[attr-defined]
@@ -620,7 +623,7 @@ class AiExtension(ExtensionApp):
         Initializes a `PersonaManager` instance scoped to a `YChat`.
 
         This method should not raise an exception. Upon encountering an
-        exception, this method will catch it, log it, and return `None`. 
+        exception, this method will catch it, log it, and return `None`.
         """
         persona_manager: Optional[PersonaManager]
 
@@ -637,8 +640,9 @@ class AiExtension(ExtensionApp):
         except Exception as e:
             # TODO: how to stop the extension when this fails
             # also why do uncaught exceptions produce an empty error log in Jupyter Server?
-            self.log.error(f"Unable to initialize PersonaManager in YChat with ID '{self.ychat.get_id()}' due to an exception printed below.")
+            self.log.error(
+                f"Unable to initialize PersonaManager in YChat with ID '{self.ychat.get_id()}' due to an exception printed below."
+            )
             self.log.exception(e)
         finally:
             return persona_manager
-
