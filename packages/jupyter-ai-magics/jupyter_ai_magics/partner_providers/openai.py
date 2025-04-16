@@ -54,7 +54,6 @@ class ChatOpenAIProvider(BaseProvider, ChatOpenAI):
         "o1",
         "o3-mini",
         "o4-mini",
-
     ]
     model_id_key = "model_name"
     pypi_package_deps = ["langchain_openai"]
