@@ -174,7 +174,9 @@ async def generate_title(outline, llm=None, verbose: bool = False):
             title_matches = re.findall(pattern, title)  # Get all matches, if available
             if title_matches:  # use the last match
                 title = (
-                    title_matches[-1][:MAX_TITLE_LENGTH].replace("'", "").replace('"', "")
+                    title_matches[-1][:MAX_TITLE_LENGTH]
+                    .replace("'", "")
+                    .replace('"', "")
                 )  # remove quotes in title
             else:
                 title = outline["sections"][0]["content"][
