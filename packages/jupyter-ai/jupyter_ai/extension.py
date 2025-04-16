@@ -4,7 +4,7 @@ import time
 import types
 from asyncio import get_event_loop_policy
 from functools import partial
-from typing import TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING, Dict, Optional
 
 import traitlets
 from dask.distributed import Client as DaskClient
@@ -239,11 +239,6 @@ class AiExtension(ExtensionApp):
         handlers dedicated to the room identified by `<room_id>`.
         """
 
-        self.persona_managers_by_room: Dict[str, PersonaManager] = {}
-        """
-        Dictionary of persona managers per room, keyed by room ID.
-        """
-
         self.ychats_by_room: Dict[str, YChat] = {}
         """Cache of YChat instances, indexed by room ID."""
 
@@ -282,10 +277,15 @@ class AiExtension(ExtensionApp):
         # initialize chat handlers for new chat
         self.chat_handlers_by_room[room_id] = self._init_chat_handlers(ychat)
 
-        # initialize persona
-        self.persona_managers_by_room[room_id] = self._init_persona_manager(ychat)
+        # initialize persona manager
+        persona_manager = self._init_persona_manager(ychat)
+        if not persona_manager:
+            self.log.error(
+                "Jupyter AI was unable to initialize its AI personas. They are not available for use in chat until this error is resolved. "
+                + "Please verify your configuration and open a new issue on GitHub if this error persists.")
+            return
 
-        callback = partial(self.on_change, room_id)
+        callback = partial(self.on_change, room_id, persona_manager)
         ychat.ymessages.observe(callback)
 
     async def get_chat(self, room_id: str) -> YChat:
@@ -312,10 +312,8 @@ class AiExtension(ExtensionApp):
         self.ychats_by_room[room_id] = document
         return document
 
-    def on_change(self, room_id: str, events: ArrayEvent) -> None:
-        persona_manager = self.persona_managers_by_room.get(room_id, None)
+    def on_change(self, room_id: str, persona_manager: PersonaManager, events: ArrayEvent) -> None:
         assert self.serverapp
-        assert persona_manager
 
         for change in events.delta:  # type:ignore[attr-defined]
             if not "insert" in change.keys():
@@ -617,11 +615,19 @@ class AiExtension(ExtensionApp):
             )
             self.log.info(f"Registered context provider `{context_provider.id}`.")
 
-    def _init_persona_manager(self, ychat: YChat) -> PersonaManager:
-        config_manager = self.settings["jai_config_manager"]
-        assert config_manager and isinstance(config_manager, ConfigManager)
+    def _init_persona_manager(self, ychat: YChat) -> Optional[PersonaManager]:
+        """
+        Initializes a `PersonaManager` instance scoped to a `YChat`.
+
+        This method should not raise an exception. Upon encountering an
+        exception, this method will catch it, log it, and return `None`. 
+        """
+        persona_manager: Optional[PersonaManager]
 
         try:
+            config_manager = self.settings.get("jai_config_manager", None)
+            assert config_manager and isinstance(config_manager, ConfigManager)
+
             persona_manager = PersonaManager(
                 ychat=ychat,
                 config_manager=config_manager,
@@ -631,6 +637,8 @@ class AiExtension(ExtensionApp):
         except Exception as e:
             # TODO: how to stop the extension when this fails
             # also why do uncaught exceptions produce an empty error log in Jupyter Server?
+            self.log.error(f"Unable to initialize PersonaManager in YChat with ID '{self.ychat.get_id()}' due to an exception printed below.")
             self.log.exception(e)
+        finally:
+            return persona_manager
 
-        return persona_manager
