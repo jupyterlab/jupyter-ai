@@ -162,24 +162,23 @@ async def generate_code(section, description, llm=None, verbose=False) -> None:
 
 async def generate_title(outline, llm=None, verbose: bool = False):
     """Generate a title of a notebook outline using an LLM."""
+    MAX_TITLE_LENGTH = 50
     title_chain = NotebookTitleChain.from_llm(llm=llm, verbose=verbose)
     title = await title_chain.apredict(content=outline)
-    max_title_length = 50
     if title is not None:
-        title = title.strip()
-        title = title.strip("'\"")
+        title = title.strip().strip("'\"")
         if (
-            len(title) > max_title_length
+            len(title) > MAX_TITLE_LENGTH
         ):  # in case the title is too long because it returns chain of thought
             pattern = r'"(.+?)"'  # Match any text between quotes to get suggested title
-            title = re.findall(pattern, title)  # Get all matches, if available
-            if title:  # use the last match
+            title_matches = re.findall(pattern, title)  # Get all matches, if available
+            if title_matches:  # use the last match
                 title = (
-                    title[-1][:max_title_length].replace("'", "").replace('"', "")
+                    title_matches[-1][:MAX_TITLE_LENGTH].replace("'", "").replace('"', "")
                 )  # remove quotes in title
             else:
                 title = outline["sections"][0]["content"][
-                    :max_title_length
+                    :MAX_TITLE_LENGTH
                 ]  # use the first section content as title
     if title is None or len(title) == 0:
         title = "Generated_Notebook"  # in case there is no title
