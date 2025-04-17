@@ -28,7 +28,7 @@ class PersonaAwareness:
     context manager that automatically does this upon enter & exit.
 
     - This class is required to provide awareness states for >1 persona, because
-    `pycrdt` doesn't provide a way to set the awareness state for more than one
+    `pycrdt.Awareness` doesn't provide a way to set the awareness state for >1
     client ID (for now).
     """
 
