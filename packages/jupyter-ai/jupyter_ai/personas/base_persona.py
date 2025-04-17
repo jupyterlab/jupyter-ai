@@ -12,10 +12,9 @@ from pydantic import BaseModel
 from .persona_awareness import PersonaAwareness
 
 # prevents a circular import
-# `PersonaManager` types have to be surrounded in single quotes
+# types imported under this block have to be surrounded in single quotes on use
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
-
     from .persona_manager import PersonaManager
 
 
@@ -49,10 +48,38 @@ class BasePersona(ABC):
     """
 
     ychat: YChat
+    """
+    Reference to the `YChat` that this persona instance is scoped to.
+    Automatically set by `BasePersona`.
+    """
+
     manager: "PersonaManager"
+    """
+    Reference to the `PersonaManager` for this `YChat`, which manages this
+    instance. Automatically set by `BasePersona`.
+    """
+
     config: ConfigManager
+    """
+    Reference to the `ConfigManager` singleton, which is used to read & write from
+    the Jupyter AI settings. Automatically set by `BasePersona`.
+    """
+
     log: Logger
+    """
+    The logger for this instance. Automatically set by `BasePersona`.
+    """
+
     awareness: PersonaAwareness
+    """
+    A custom wrapper around `self.ychat.awareness: pycrdt.Awareness`. The
+    default `Awareness` API does not support setting local state fields on
+    multiple AI personas, so any awareness method calls should be done through
+    this attribute (`self.awareness`) instead of `self.ychat.awareness`. See the
+    documentation in `PersonaAwareness` for more information.
+
+    Automatically set by `BasePersona`.
+    """
 
     ################################################
     # constructor
@@ -82,19 +109,24 @@ class BasePersona(ABC):
     @abstractmethod
     def defaults(self) -> PersonaDefaults:
         """
-        Must return a PersonaDefaults object that represents the default
+        Returns a `PersonaDefaults` data model that represents the default
         settings of this persona.
+
+        This is an abstract method that must be implemented by subclasses.
         """
         pass
 
     @abstractmethod
     async def process_message(self, message: Message) -> None:
         """
-        Processes a new message. Access history and write/stream messages via
-        `self.ychat`.
+        Processes a new message. This method exclusively defines how new
+        messages are handled by a persona, and should be considered the "main
+        entry point" to this persona. Reading chat history and streaming a reply
+        can be done through method calls to `self.ychat`. See
+        `JupyternautPersona` for a reference implementation on how to do so.
+
+        This is an abstract method that must be implemented by subclasses.
         """
-        # support streaming
-        # handle multiple processed messages concurrently (if model service allows it)
         pass
 
     ################################################
@@ -103,23 +135,15 @@ class BasePersona(ABC):
     @property
     def id(self) -> str:
         """
-        Return a unique ID for this persona, which sets its username in the
-        `User` object shared with other collaborative extensions.
+        Returns a static & unique ID for this persona. This sets the `username`
+        field in the data model returned by `self.as_user()`.
+        
+        The ID is guaranteed to follow the format
+        `jupyter-ai-personas::<package-name>::<persona-class-name>`. The prefix
+        allows consumers to easily distinguish AI personas from human users.
 
-        - This ID is guaranteed to be identical throughout this object's
-        lifecycle.
-
-        - The ID is guaranteed to follow the format
-        `jupyter-ai-personas::<package-name>::<persona-class-name>`.
-            - The 'jupyter-ai-personas' prefix allows consumers to easily
-            distinguish AI personas from human users.
-
-            - For example, 'Jupyternaut' always has the ID
-            `jupyter-ai-personas::jupyter-ai::JupyternautPersona`.
-
-        - The ID must be unique, so if a package provides multiple personas,
-        their class names must be unique. Renaming the persona class changes the
-        ID of that persona, so you should also avoid renaming it if possible.
+        If a package provides multiple personas, their class names must be
+        different to ensure that their IDs are unique.
         """
         package_name = self.__module__.split(".")[0]
         class_name = self.__class__.__name__
@@ -127,17 +151,50 @@ class BasePersona(ABC):
 
     @property
     def name(self) -> str:
+        """
+        Returns the name shown on messages from this persona in the chat. This
+        sets the `name` and `display_name` fields in the data model returned by
+        `self.as_user()`. Provided by `BasePersona`.
+
+        NOTE/TODO: This currently just returns the value set in `self.defaults`.
+        This is set here because we may require this field to be configurable
+        for all personas in the future.
+        """
         return self.defaults.name
 
     @property
     def avatar_path(self) -> str:
+        """
+        Returns the URL route that serves the avatar shown on messages from this
+        persona in the chat. This sets the `avatar_url` field in the data model
+        returned by `self.as_user()`. Provided by `BasePersona`.
+        
+        NOTE/TODO: This currently just returns the value set in `self.defaults`.
+        This is set here because we may require this field to be configurable
+        for all personas in the future.
+        """
         return self.defaults.avatar_path
 
     @property
     def system_prompt(self) -> str:
+        """
+        Returns the system prompt used by this persona. Provided by `BasePersona`.
+
+        NOTE/TODO: This currently just returns the value set in `self.defaults`.
+        This is set here because we may require this field to be configurable
+        for all personas in the future.
+        """
         return self.defaults.system_prompt
 
     def as_user(self) -> User:
+        """
+        Returns the `jupyterlab_chat.models:User` model that represents this
+        persona in the chat. This model also includes all attributes from
+        `jupyter_server.auth:JupyterUser`, the user model returned by the
+        `IdentityProvider` in Jupyter Server.
+
+        This method is provided by `BasePersona`.
+        """
         return User(
             username=self.id,
             name=self.name,
@@ -146,6 +203,10 @@ class BasePersona(ABC):
         )
 
     def as_user_dict(self) -> Dict[str, Any]:
+        """
+        Returns `self.as_user()` as a Python dictionary. This method is provided
+        by `BasePersona`.
+        """
         user = self.as_user()
         return asdict(user)
 
