@@ -30,6 +30,7 @@
     "clean:all": "lerna run clean:all",
     "dev": "jupyter lab --config playground/config.py",
     "dev-install": "lerna run dev-install --stream",
+    "dev-reinstall": "jlpm dev-uninstall && jlpm dev-install",
     "dev-uninstall": "lerna run dev-uninstall --stream",
     "install-from-src": "lerna run install-from-src --stream",
     "lint": "jlpm && lerna run prettier && lerna run eslint",
