@@ -15,6 +15,7 @@ from .persona_awareness import PersonaAwareness
 # types imported under this block have to be surrounded in single quotes on use
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
+
     from .persona_manager import PersonaManager
 
 
@@ -137,7 +138,7 @@ class BasePersona(ABC):
         """
         Returns a static & unique ID for this persona. This sets the `username`
         field in the data model returned by `self.as_user()`.
-        
+
         The ID is guaranteed to follow the format
         `jupyter-ai-personas::<package-name>::<persona-class-name>`. The prefix
         allows consumers to easily distinguish AI personas from human users.
@@ -168,7 +169,7 @@ class BasePersona(ABC):
         Returns the URL route that serves the avatar shown on messages from this
         persona in the chat. This sets the `avatar_url` field in the data model
         returned by `self.as_user()`. Provided by `BasePersona`.
-        
+
         NOTE/TODO: This currently just returns the value set in `self.defaults`.
         This is set here because we may require this field to be configurable
         for all personas in the future.
