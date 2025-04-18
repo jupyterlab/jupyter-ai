@@ -119,5 +119,5 @@ def test_reset(ip):
     ip.extension_manager.load_extension("jupyter_ai_magics")
     ai_magics = ip.magics_manager.registry["AiMagics"]
     ai_magics.transcript = [AI1, H1, AI2, H2, AI3]
-    result = ip.run_line_magic("ai", "reset")
+    ip.run_line_magic("ai", "reset")
     assert ai_magics.transcript == []

@@ -1,7 +1,7 @@
 import logging
 import os
 import stat
-from typing import List, Optional
+from typing import Optional
 from unittest import mock
 
 from jupyter_ai.chat_handlers import DefaultChatHandler, learn
@@ -71,7 +71,7 @@ class TestDefaultChatHandler(DefaultChatHandler):
         )
 
     @property
-    def messages(self) -> List[BaseMessage]:
+    def messages(self) -> list[BaseMessage]:
         """
         Test helper method for getting the complete message history, including
         the last message.
