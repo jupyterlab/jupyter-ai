@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Dict, List, Optional, Type, cast
+from typing import TYPE_CHECKING, Optional, cast
 
 from jupyter_ai.chat_handlers import (
     AskChatHandler,
@@ -50,22 +50,22 @@ class ProviderHandler(BaseAPIHandler):
     """
 
     @property
-    def lm_providers(self) -> Dict[str, "BaseProvider"]:
+    def lm_providers(self) -> dict[str, "BaseProvider"]:
         return self.settings["lm_providers"]
 
     @property
-    def em_providers(self) -> Dict[str, "BaseEmbeddingsProvider"]:
+    def em_providers(self) -> dict[str, "BaseEmbeddingsProvider"]:
         return self.settings["em_providers"]
 
     @property
-    def allowed_models(self) -> Optional[List[str]]:
+    def allowed_models(self) -> Optional[list[str]]:
         return self.settings["allowed_models"]
 
     @property
-    def blocked_models(self) -> Optional[List[str]]:
+    def blocked_models(self) -> Optional[list[str]]:
         return self.settings["blocked_models"]
 
-    def _filter_blocked_models(self, providers: List[ListProvidersEntry]):
+    def _filter_blocked_models(self, providers: list[ListProvidersEntry]):
         """
         Satisfy the model-level allow/blocklist by filtering models accordingly.
         The provider-level allow/blocklist is already handled in
@@ -79,7 +79,7 @@ class ProviderHandler(BaseAPIHandler):
             if self.blocked_models:
                 return model_id not in self.blocked_models
             else:
-                return model_id in cast(List, self.allowed_models)
+                return model_id in cast(list, self.allowed_models)
 
         # filter out every model w/ model ID according to allow/blocklist
         for provider in providers:
@@ -212,7 +212,7 @@ class SlashCommandsInfoHandler(BaseAPIHandler):
         return self.settings["jai_config_manager"]
 
     @property
-    def chat_handlers(self) -> Dict[str, Type["BaseChatHandler"]]:
+    def chat_handlers(self) -> dict[str, type["BaseChatHandler"]]:
         return CHAT_HANDLER_DICT
 
     @web.authenticated
@@ -261,11 +261,11 @@ class AutocompleteOptionsHandler(BaseAPIHandler):
         return self.settings["jai_config_manager"]
 
     @property
-    def context_providers(self) -> Dict[str, "BaseCommandContextProvider"]:
+    def context_providers(self) -> dict[str, "BaseCommandContextProvider"]:
         return self.settings["jai_context_providers"]
 
     @property
-    def chat_handlers(self) -> Dict[str, Type["BaseChatHandler"]]:
+    def chat_handlers(self) -> dict[str, type["BaseChatHandler"]]:
         return CHAT_HANDLER_DICT
 
     @web.authenticated
@@ -302,7 +302,7 @@ class AutocompleteOptionsHandler(BaseAPIHandler):
             )
         self.finish(response.model_dump_json())
 
-    def _get_slash_command_options(self) -> List[ListOptionsEntry]:
+    def _get_slash_command_options(self) -> list[ListOptionsEntry]:
         options = []
         for id, chat_handler in self.chat_handlers.items():
             # filter out any chat handler that is not a slash command
@@ -332,7 +332,7 @@ class AutocompleteOptionsHandler(BaseAPIHandler):
         options.sort(key=lambda opt: opt.id)
         return options
 
-    def _get_context_provider_options(self) -> List[ListOptionsEntry]:
+    def _get_context_provider_options(self) -> list[ListOptionsEntry]:
         options = [
             self._make_autocomplete_option(
                 id=context_provider.command_id,
