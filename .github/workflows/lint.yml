@@ -17,3 +17,10 @@ jobs:
         run: jlpm
       - name: Lint TypeScript source
         run: jlpm lerna run lint:check
+  pre-commit:
+    name: Run pre-commit on all files
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-python@v3
+    - uses: pre-commit/action@v3.0.1
