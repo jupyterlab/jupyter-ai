@@ -318,6 +318,8 @@ class ConfigManager(Configurable):
         with open(self.config_path, encoding="utf-8") as f:
             self._last_read = time.time_ns()
             raw_config = json.loads(f.read())
+            if "embeddings_fields" not in raw_config:
+                raw_config["embeddings_fields"] = {}
             config = GlobalConfig(**raw_config)
             self._validate_config(config)
             return config
