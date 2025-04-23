@@ -217,6 +217,8 @@ class ConfigManager(Configurable):
     def _process_existing_config(self, default_config):
         with open(self.config_path, encoding="utf-8") as f:
             existing_config = json.loads(f.read())
+            if "embeddings_fields" not in existing_config:
+                existing_config["embeddings_fields"] = {}
             merged_config = always_merger.merge(
                 default_config,
                 {k: v for k, v in existing_config.items() if v is not None},
@@ -320,6 +322,8 @@ class ConfigManager(Configurable):
         with open(self.config_path, encoding="utf-8") as f:
             self._last_read = time.time_ns()
             raw_config = json.loads(f.read())
+            if "embeddings_fields" not in raw_config:
+                raw_config["embeddings_fields"] = {}
             config = GlobalConfig(**raw_config)
             self._validate_config(config)
             return config
