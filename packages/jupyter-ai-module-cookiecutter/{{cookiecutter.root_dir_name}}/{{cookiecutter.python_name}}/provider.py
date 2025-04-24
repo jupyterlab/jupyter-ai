@@ -1,4 +1,4 @@
-from typing import ClassVar, List
+from typing import ClassVar
 
 from jupyter_ai import AuthStrategy, BaseProvider, Field
 
@@ -41,7 +41,7 @@ class TestProvider(BaseProvider, TestLLM):
     name: ClassVar[str] = "Test Provider"
     """User-facing name of this provider."""
 
-    models: ClassVar[List[str]] = ["test-model-1"]
+    models: ClassVar[list[str]] = ["test-model-1"]
     """List of supported models by their IDs. For registry providers, this will
     be just ["*"]."""
 
@@ -55,7 +55,7 @@ class TestProvider(BaseProvider, TestLLM):
     model_id_label: ClassVar[str] = "Model ID"
     """Human-readable label of the model ID."""
 
-    pypi_package_deps: ClassVar[List[str]] = []
+    pypi_package_deps: ClassVar[list[str]] = []
     """List of PyPi package dependencies."""
 
     auth_strategy: ClassVar[AuthStrategy] = None
@@ -65,6 +65,6 @@ class TestProvider(BaseProvider, TestLLM):
     registry: ClassVar[bool] = False
     """Whether this provider is a registry provider."""
 
-    fields: ClassVar[List[Field]] = []
+    fields: ClassVar[list[Field]] = []
     """User inputs expected by this provider when initializing it. Each `Field` `f`
     should be passed in the constructor as a keyword argument, keyed by `f.key`."""

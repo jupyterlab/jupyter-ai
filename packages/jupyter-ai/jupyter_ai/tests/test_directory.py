@@ -1,7 +1,6 @@
 import os
 import shutil
 from pathlib import Path
-from typing import Tuple
 
 import pytest
 from jupyter_ai.document_loaders.directory import collect_filepaths

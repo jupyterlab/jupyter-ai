@@ -1,7 +1,8 @@
 import abc
 import os
 import re
-from typing import Awaitable, ClassVar, Dict, List, Optional
+from collections.abc import Awaitable
+from typing import ClassVar, Optional
 
 from dask.distributed import Client as DaskClient
 from jupyter_ai.chat_handlers.base import get_preferred_dir
@@ -23,11 +24,11 @@ class _BaseContextProvider(abc.ABC):
         *,
         log: Logger,
         config_manager: ConfigManager,
-        model_parameters: Dict[str, Dict],
+        model_parameters: dict[str, dict],
         root_dir: str,
         preferred_dir: Optional[str],
         dask_client_future: Awaitable[DaskClient],
-        context_providers: Dict[str, "BaseCommandContextProvider"],
+        context_providers: dict[str, "BaseCommandContextProvider"],
     ):
         preferred_dir = preferred_dir or ""
         self.log = log
@@ -45,7 +46,6 @@ class _BaseContextProvider(abc.ABC):
         """Returns a context prompt for all commands of the context provider
         command.
         """
-        pass
 
     def replace_prompt(self, prompt: str) -> str:
         """Modifies the prompt before sending it to the LLM."""
@@ -151,10 +151,9 @@ class BaseCommandContextProvider(_BaseContextProvider):
 
     @abc.abstractmethod
     async def _make_context_prompt(
-        self, message: Message, commands: List[ContextCommand]
+        self, message: Message, commands: list[ContextCommand]
     ) -> str:
         """Returns a context prompt for the given commands."""
-        pass
 
     def replace_prompt(self, prompt: str) -> str:
         """Cleans up commands from the prompt before sending it to the LLM"""
@@ -166,7 +165,7 @@ class BaseCommandContextProvider(_BaseContextProvider):
 
         return re.sub(self.pattern, replace, prompt)
 
-    def get_arg_options(self, arg_prefix: str) -> List[ListOptionsEntry]:
+    def get_arg_options(self, arg_prefix: str) -> list[ListOptionsEntry]:
         """Returns a list of autocomplete options for arguments to the command
         based on the prefix.
         Only triggered if ':' is present after the command id (e.g. '@file:').
@@ -200,7 +199,7 @@ class BaseCommandContextProvider(_BaseContextProvider):
 
 def find_commands(
     context_provider: BaseCommandContextProvider, text: str
-) -> List[ContextCommand]:
+) -> list[ContextCommand]:
     # finds commands of the context provider in the text
     matches = list(re.finditer(context_provider.pattern, text))
     if context_provider.only_start:

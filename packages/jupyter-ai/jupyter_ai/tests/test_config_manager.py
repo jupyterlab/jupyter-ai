@@ -2,7 +2,6 @@ import json
 import logging
 import os
 from pathlib import Path
-from unittest.mock import mock_open, patch
 
 import pytest
 from jupyter_ai.config_manager import (
@@ -74,9 +73,6 @@ def common_cm_kwargs(config_path, schema_path):
 @pytest.fixture
 def cm_kargs_with_defaults(config_path, schema_path, common_cm_kwargs):
     """Kwargs that are commonly used when initializing the CM."""
-    log = logging.getLogger()
-    lm_providers = get_lm_providers()
-    em_providers = get_em_providers()
     return {
         **common_cm_kwargs,
         "defaults": {
@@ -308,9 +304,6 @@ def test_init_with_default_values(
 
     del cm_with_defaults
 
-    log = logging.getLogger()
-    lm_providers = get_lm_providers()
-    em_providers = get_em_providers()
     kwargs = {
         **common_cm_kwargs,
         "defaults": {"model_provider_id": "bedrock-chat:anthropic.claude-v2"},
@@ -540,7 +533,7 @@ def test_config_manager_updates_schema(jp_data_dir, common_cm_kwargs):
 
     cm_kwargs = {**common_cm_kwargs, "schema_path": schema_path}
 
-    cm = ConfigManager(**cm_kwargs)
+    ConfigManager(**cm_kwargs)
     with open(schema_path) as f:
         new_schema = json.loads(f.read())
         assert "custom_field" in new_schema["properties"]
