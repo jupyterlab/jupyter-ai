@@ -2,6 +2,22 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 2.31.4
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.31.3...179a7c7b404df873207811aa31fef15e14cbeeb9))
+
+### Bugs fixed
+
+- Handle missing field in config.json on version upgrade [#1330](https://github.com/jupyterlab/jupyter-ai/pull/1330) ([@srdas](https://github.com/srdas))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2025-04-15&to=2025-04-24&type=c))
+
+[@meeseeksmachine](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ameeseeksmachine+updated%3A2025-04-15..2025-04-24&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 2.31.3
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.31.2...42ff451442ddbca940457d00b9981c7d5f5dc904))
@@ -19,8 +35,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2025-04-03&to=2025-04-15&type=c))
 
 [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2025-04-03..2025-04-15&type=Issues) | [@ellisonbg](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aellisonbg+updated%3A2025-04-03..2025-04-15&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2025-04-03..2025-04-15&type=Issues) | [@meeseeksmachine](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ameeseeksmachine+updated%3A2025-04-03..2025-04-15&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 2.31.2
 

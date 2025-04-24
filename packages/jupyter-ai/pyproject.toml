@@ -28,7 +28,7 @@ dependencies = [
     # pydantic <2.10.0 raises a "protected namespaces" error in JAI
     # - See: https://docs.pydantic.dev/latest/api/config/#pydantic.config.ConfigDict.protected_namespaces
     "pydantic>=2.10.0,<3",
-    "jupyter_ai_magics>=2.31.3,<3.0.0",
+    "jupyter_ai_magics>=2.31.4,<3.0.0",
     "dask[distributed]",
     # faiss-cpu is not distributed by the official repo.
     # v1.8.0.post0 should be excluded as it lacks macOS x86 wheels.
