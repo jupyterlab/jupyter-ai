@@ -5,4 +5,5 @@ BOT = {
     "name": "Jupyternaut",
     "display_name": "Jupyternaut",
     "initials": "J",
+    "bot": True
 }
