@@ -25,6 +25,6 @@ class LocalIdentityProvider(IdentityProvider):
             username=username,
             name=username,
             initials=create_initials(username),
-            color="#039BE5",
+            color=None,
         )
         return user
