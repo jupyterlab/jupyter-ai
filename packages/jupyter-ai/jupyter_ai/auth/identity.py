@@ -4,7 +4,7 @@ from jupyter_server.auth.identity import IdentityProvider, User
 
 
 def create_initials(username):
-    """Creates initials combining first 2 constants"""
+    """Creates initials combining first 2 consonants"""
 
     username = username.lower()
 
