@@ -18,13 +18,21 @@ def create_initials(username):
 
 
 class LocalIdentityProvider(IdentityProvider):
+    """IdentityProvider that determines username from system user."""
 
     def get_user(self, handler):
-        username = getpass.getuser()
-        user = User(
-            username=username,
-            name=username,
-            initials=create_initials(username),
-            color=None,
-        )
+        try:
+            username = getpass.getuser()
+            user = User(
+                username=username,
+                name=username,
+                initials=create_initials(username),
+                color=None,
+            )
+        except OSError:
+            self.log.warning(
+                "Could not determine username from system. "
+                "Falling back to anonymous user."
+            )
+            return super().get_user(handler)
         return user
