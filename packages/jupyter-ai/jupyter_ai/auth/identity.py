@@ -1,3 +1,4 @@
+import asyncio
 import getpass
 
 from jupyter_server.auth.identity import IdentityProvider, User
@@ -29,10 +30,7 @@ class LocalIdentityProvider(IdentityProvider):
                 initials=create_initials(username),
                 color=None,
             )
+
+            return user
         except OSError:
-            self.log.warning(
-                "Could not determine username from system. "
-                "Falling back to anonymous user."
-            )
-            return super().get_user(handler)
-        return user
+            self.log.exception("Could not determine username from system.")

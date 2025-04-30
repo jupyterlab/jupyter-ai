@@ -33,16 +33,6 @@ def test_get_user_successful(getuser, log, handler):
     assert user.color is None
 
 
-@patch("getpass.getuser")
-def test_get_user_oserror(getuser, log, handler):
-
-    getuser.side_effect = OSError("Cannot get username")
-    provider = LocalIdentityProvider(log=log)
-    user = provider.get_user(handler)
-
-    assert user is not None
-
-
 @pytest.mark.parametrize(
     "username,expected_initials",
     [
