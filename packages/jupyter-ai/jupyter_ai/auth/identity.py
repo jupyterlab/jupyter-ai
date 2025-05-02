@@ -30,7 +30,10 @@ class LocalIdentityProvider(IdentityProvider):
                 initials=create_initials(username),
                 color=None,
             )
-
             return user
-        except OSError:
-            self.log.exception("Could not determine username from system.")
+        except OSError as e:
+            self.log.debug(
+                "Could not determine username from system. Falling back to anonymous"
+                f"user."
+            )
+            return self._get_user(handler)
