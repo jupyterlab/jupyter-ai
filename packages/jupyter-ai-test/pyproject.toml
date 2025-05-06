@@ -35,6 +35,9 @@ test-provider-ask-learn-unsupported = "jupyter_ai_test.test_providers:TestProvid
 [project.entry-points."jupyter_ai.chat_handlers"]
 test-slash-command = "jupyter_ai_test.test_slash_commands:TestSlashCommand"
 
+[project.entry-points."jupyter_ai.personas"]
+debug-persona = "jupyter_ai_test.debug_persona:DebugPersona"
+
 [tool.hatch.build.hooks.version]
 path = "jupyter_ai_test/_version.py"
 
