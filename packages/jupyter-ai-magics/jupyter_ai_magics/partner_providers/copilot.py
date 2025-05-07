@@ -143,7 +143,7 @@ class GitHubCopilotProvider(BaseProvider):
     ):
         super().__init__(**kwargs)
         self._llm = GitHubCopilotLLM(lsp_bin_path=self.lsp_bin_path)
-        
+
     @classmethod
     def chat_models(self):
         """
