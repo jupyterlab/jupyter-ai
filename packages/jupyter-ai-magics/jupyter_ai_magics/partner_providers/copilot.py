@@ -124,7 +124,7 @@ class GitHubCopilotLLM:
 class GitHubCopilotProvider(BaseProvider):
     id = "github-copilot"
     name = "GitHub Copilot"
-    models = ["*"]
+    models = ["default"]
     model_id_key = "model"
     pypi_package_deps = ["pylspclient"]
     help = (
@@ -143,6 +143,22 @@ class GitHubCopilotProvider(BaseProvider):
     ):
         super().__init__(**kwargs)
         self._llm = GitHubCopilotLLM(lsp_bin_path=self.lsp_bin_path)
+        
+    @classmethod
+    def chat_models(self):
+        """
+        Empty list because Copilot LSP does not support the chat feature
+        https://github.com/github/copilot-language-server-release/issues/1
+        """
+        return []
+
+    @classmethod
+    def completion_models(self):
+        """
+        Only `default` (GPT-4o as of May 2025) because Copilot LSP does not support different model selection
+        https://docs.github.com/en/copilot/using-github-copilot/ai-models/changing-the-ai-model-for-copilot-code-completion
+        """
+        return ["default"]
 
     async def generate_inline_completions(self, request: InlineCompletionRequest):
         self._llm.ensure_lsp_server_initialized()
