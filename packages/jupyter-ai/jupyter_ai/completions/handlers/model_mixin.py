@@ -1,5 +1,5 @@
 from logging import Logger
-from typing import Any, Dict, Optional, Type
+from typing import Any, Optional
 
 from jupyter_ai.config_manager import ConfigManager
 from jupyter_ai_magics.providers import BaseProvider
@@ -17,7 +17,7 @@ class CompletionsModelMixin:
         return self.settings["jai_config_manager"]
 
     @property
-    def model_parameters(self) -> Dict[str, Dict[str, Any]]:
+    def model_parameters(self) -> dict[str, dict[str, Any]]:
         return self.settings["model_parameters"]
 
     def __init__(self, *args, **kwargs) -> None:
@@ -60,14 +60,14 @@ class CompletionsModelMixin:
         return self._llm
 
     def get_model_parameters(
-        self, provider: Type[BaseProvider], provider_params: Dict[str, str]
+        self, provider: type[BaseProvider], provider_params: dict[str, str]
     ):
         return self.model_parameters.get(
             f"{provider.id}:{provider_params['model_id']}", {}
         )
 
     def create_llm(
-        self, provider: Type[BaseProvider], provider_params: Dict[str, str]
+        self, provider: type[BaseProvider], provider_params: dict[str, str]
     ) -> BaseProvider:
         unified_parameters = {
             **provider_params,

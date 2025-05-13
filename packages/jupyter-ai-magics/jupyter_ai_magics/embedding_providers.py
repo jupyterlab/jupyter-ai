@@ -1,4 +1,4 @@
-from typing import ClassVar, List, Optional
+from typing import ClassVar, Optional
 
 from jupyter_ai_magics.providers import (
     AuthStrategy,
@@ -27,7 +27,7 @@ class BaseEmbeddingsProvider(BaseModel):
     name: ClassVar[str] = ...
     """User-facing name of this provider."""
 
-    models: ClassVar[List[str]] = ...
+    models: ClassVar[list[str]] = ...
     """List of supported models by their IDs. For registry providers, this will
     be just ["*"]."""
 
@@ -38,7 +38,7 @@ class BaseEmbeddingsProvider(BaseModel):
     model_id_key: ClassVar[str] = ...
     """Kwarg expected by the upstream LangChain provider."""
 
-    pypi_package_deps: ClassVar[List[str]] = []
+    pypi_package_deps: ClassVar[list[str]] = []
     """List of PyPi package dependencies."""
 
     auth_strategy: ClassVar[AuthStrategy] = None
@@ -50,7 +50,7 @@ class BaseEmbeddingsProvider(BaseModel):
     registry: ClassVar[bool] = False
     """Whether this provider is a registry provider."""
 
-    fields: ClassVar[List[Field]] = []
+    fields: ClassVar[list[Field]] = []
     """Fields expected by this provider in its constructor. Each `Field` `f`
     should be passed as a keyword argument, keyed by `f.key`."""
 
