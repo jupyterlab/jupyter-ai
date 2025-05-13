@@ -1,7 +1,7 @@
 from langchain_ollama import ChatOllama, OllamaEmbeddings
 
+from ..base_provider import BaseProvider, TextField
 from ..embedding_providers import BaseEmbeddingsProvider
-from ..providers import BaseProvider, TextField
 
 
 class OllamaProvider(BaseProvider, ChatOllama):

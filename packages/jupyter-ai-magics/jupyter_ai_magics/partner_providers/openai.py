@@ -6,8 +6,8 @@ from langchain_openai import (
     OpenAIEmbeddings,
 )
 
+from ..base_provider import BaseProvider, EnvAuthStrategy, TextField
 from ..embedding_providers import BaseEmbeddingsProvider
-from ..providers import BaseProvider, EnvAuthStrategy, TextField
 
 
 class OpenAIProvider(BaseProvider, OpenAI):
