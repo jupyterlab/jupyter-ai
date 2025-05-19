@@ -1,5 +1,5 @@
-from typing import Any
 from collections.abc import Awaitable
+from typing import Any
 
 from jupyterlab_chat.models import Message
 from langchain_core.output_parsers import StrOutputParser
