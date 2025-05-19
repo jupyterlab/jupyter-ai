@@ -143,9 +143,17 @@ class PersonaManager:
 
     @property
     def personas(self) -> dict[str, BasePersona]:
+        """
+        Returns a dictionary of all available persona instances, keyed by
+        persona ID.
+        """
         return self._personas
 
     def get_mentioned_personas(self, new_message: Message) -> list[BasePersona]:
+        """
+        Returns a list of all personas `@`-mentioned in a chat message, given a
+        reference to the chat message.
+        """
         mentioned_ids = set(new_message.mentions)
         persona_list: list[BasePersona] = []
 
