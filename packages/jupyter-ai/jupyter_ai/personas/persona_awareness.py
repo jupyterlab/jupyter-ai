@@ -82,4 +82,4 @@ class PersonaAwareness:
 
     def set_local_state_field(self, field: str, value: Any) -> None:
         with self.as_custom_client():
-            return self.awareness.set_local_state_field(field, value)
+            self.awareness.set_local_state_field(field, value)
