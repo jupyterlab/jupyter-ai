@@ -81,10 +81,9 @@ class PersonaManager:
                 # On exception, log an error and continue.
                 # This does not stop the surrounding `for` loop. If a persona
                 # fails to load, it should not halt other personas from loading.
-                self.log.error(
+                self.log.exception(
                     f"  - Unable to load AI persona from entry point `{persona_ep.name}` due to an exception printed below."
                 )
-                self.log.exception(e)
                 continue
 
         if len(persona_classes) > 0:
@@ -116,12 +115,21 @@ class PersonaManager:
 
         personas: dict[str, BasePersona] = {}
         for Persona in persona_classes:
-            persona = Persona(
-                ychat=self.ychat,
-                manager=self,
-                config=self.config_manager,
-                log=self.log,
-            )
+            try:
+                persona = Persona(
+                    ychat=self.ychat,
+                    manager=self,
+                    config=self.config_manager,
+                    log=self.log,
+                )
+            except Exception as e:
+                self.log.exception(
+                    f"The persona provided by `{Persona.__module__}` "
+                    "raised an exception while initializing, "
+                    "printed below."
+                )
+                continue
+
             if persona.id in personas:
                 class_name = persona.__class__.__name__
                 self.log.warning(
@@ -129,13 +137,13 @@ class PersonaManager:
                     + f"Personas must all have unique IDs. Please rename the persona class from '{class_name}' to something unique to dismiss this warning."
                 )
                 continue
-            else:
-                self.log.info(
-                    f"  - Initialized persona '{persona.name}' (ID: '{persona.id}')."
-                )
-                personas[persona.id] = persona
 
-        elapsed_time_ms = (time_ns() - start_time_ns) // 1000
+            self.log.info(
+                f"  - Initialized persona '{persona.name}' (ID: '{persona.id}')."
+            )
+            personas[persona.id] = persona
+
+        elapsed_time_ms = (time_ns() - start_time_ns) // 1_000_000
         self.log.info(
             f"SUCCESS: Initialized {len(personas)} AI personas for chat room '{self.ychat.get_id()}'. Time elapsed: {elapsed_time_ms}ms."
         )
