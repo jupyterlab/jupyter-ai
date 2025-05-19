@@ -84,7 +84,7 @@ class PersonaAwareness:
         with self.as_custom_client():
             self.awareness.set_local_state_field("user", asdict(self.user))
 
-    def get_local_state(self) -> dict[str, Any] | None:
+    def get_local_state(self) -> Optional[dict[str, Any]]:
         with self.as_custom_client():
             return self.awareness.get_local_state()
 
