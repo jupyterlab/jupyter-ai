@@ -1,4 +1,3 @@
-from collections.abc import Awaitable
 from typing import Any
 
 from jupyterlab_chat.models import Message
@@ -27,7 +26,7 @@ class JupyternautPersona(BasePersona):
             system_prompt="...",
         )
 
-    async def process_message(self, message: Message) -> Awaitable[None]:
+    async def process_message(self, message: Message) -> None:
         provider_name = self.config.lm_provider.name
         model_id = self.config.lm_provider_params["model_id"]
 

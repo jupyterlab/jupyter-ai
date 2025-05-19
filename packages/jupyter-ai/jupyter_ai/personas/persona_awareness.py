@@ -40,9 +40,17 @@ class PersonaAwareness:
     _custom_client_id: int
 
     def __init__(self, *, ychat: YChat, log: Logger, user: Optional[User]):
-        self.awareness = ychat.awareness
+        # Bind instance attributes
         self.log = log
         self.user = user
+
+        # Bind awareness object if available, initialize it otherwise
+        if ychat.awareness:
+            self.awareness = ychat.awareness
+        else:
+            self.awareness = Awareness(ydoc=ychat._ydoc)
+
+        # Initialize a custom client ID & save the original client ID
         self._original_client_id = self.awareness.client_id
         self._custom_client_id = random.getrandbits(32)
 
@@ -76,7 +84,7 @@ class PersonaAwareness:
         with self.as_custom_client():
             self.awareness.set_local_state_field("user", asdict(self.user))
 
-    def get_local_state(self) -> dict[str, Any]:
+    def get_local_state(self) -> dict[str, Any] | None:
         with self.as_custom_client():
             return self.awareness.get_local_state()
 

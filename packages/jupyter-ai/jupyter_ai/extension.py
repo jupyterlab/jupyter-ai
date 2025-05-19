@@ -641,7 +641,7 @@ class AiExtension(ExtensionApp):
             # TODO: how to stop the extension when this fails
             # also why do uncaught exceptions produce an empty error log in Jupyter Server?
             self.log.error(
-                f"Unable to initialize PersonaManager in YChat with ID '{self.ychat.get_id()}' due to an exception printed below."
+                f"Unable to initialize PersonaManager in YChat with ID '{ychat.get_id()}' due to an exception printed below."
             )
             self.log.exception(e)
         finally:

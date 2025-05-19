@@ -212,9 +212,7 @@ class BasePersona(ABC):
         user = self.as_user()
         return asdict(user)
 
-    async def forward_reply_stream(
-        self, reply_stream: "AsyncIterator"
-    ) -> Awaitable[None]:
+    async def forward_reply_stream(self, reply_stream: "AsyncIterator") -> None:
         """
         Forwards an async iterator, dubbed the 'reply stream', to a new message
         by this persona in the YChat.

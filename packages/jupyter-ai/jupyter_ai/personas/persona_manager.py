@@ -103,10 +103,14 @@ class PersonaManager:
         Initializes the list of persona instances for the YChat instance passed
         to the constructor.
         """
-        if hasattr(self, "_personas") or len(PersonaManager._persona_classes) == 0:
-            return
+        # Ensure that persona classes were initialized first
         persona_classes = PersonaManager._persona_classes
         assert isinstance(persona_classes, list)
+
+        # If no persona classes are available, log a warning and return
+        if len(persona_classes) == 0:
+            self.log.warning("No AI personas are available.")
+            return {}
 
         self.log.info(
             f"PENDING: Initializing AI personas for chat room '{self.ychat.get_id()}'..."
@@ -162,7 +166,7 @@ class PersonaManager:
         Returns a list of all personas `@`-mentioned in a chat message, given a
         reference to the chat message.
         """
-        mentioned_ids = set(new_message.mentions)
+        mentioned_ids = set(new_message.mentions or [])
         persona_list: list[BasePersona] = []
 
         for mentioned_id in mentioned_ids:
