@@ -69,6 +69,7 @@ class PersonaManager:
 
         for persona_ep in persona_eps:
             try:
+                # Load a persona class from each entry point
                 persona_class = persona_ep.load()
                 assert issubclass(persona_class, BasePersona)
                 persona_classes.append(persona_class)
@@ -77,6 +78,9 @@ class PersonaManager:
                     f"  - Loaded AI persona class '{class_name}' from '{class_module}' using entry point '{persona_ep.name}'."
                 )
             except Exception as e:
+                # On exception, log an error and continue.
+                # This does not stop the surrounding `for` loop. If a persona
+                # fails to load, it should not halt other personas from loading.
                 self.log.error(
                     f"  - Unable to load AI persona from entry point `{persona_ep.name}` due to an exception printed below."
                 )
