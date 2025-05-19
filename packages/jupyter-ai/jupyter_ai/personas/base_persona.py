@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from collections.abc import Awaitable
 from dataclasses import asdict
 from logging import Logger
 from time import time
@@ -15,7 +16,6 @@ from .persona_awareness import PersonaAwareness
 # types imported under this block have to be surrounded in single quotes on use
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
-
     from .persona_manager import PersonaManager
 
 
@@ -211,7 +211,7 @@ class BasePersona(ABC):
         user = self.as_user()
         return asdict(user)
 
-    async def forward_reply_stream(self, reply_stream: "AsyncIterator"):
+    async def forward_reply_stream(self, reply_stream: "AsyncIterator") -> Awaitable[None]:
         """
         Forwards an async iterator, dubbed the 'reply stream', to a new message
         by this persona in the YChat.

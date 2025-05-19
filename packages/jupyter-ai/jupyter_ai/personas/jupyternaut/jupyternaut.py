@@ -1,4 +1,5 @@
 from typing import Any
+from collections.abc import Awaitable
 
 from jupyterlab_chat.models import Message
 from langchain_core.output_parsers import StrOutputParser
@@ -26,7 +27,7 @@ class JupyternautPersona(BasePersona):
             system_prompt="...",
         )
 
-    async def process_message(self, message: Message):
+    async def process_message(self, message: Message) -> Awaitable[None]:
         provider_name = self.config.lm_provider.name
         model_id = self.config.lm_provider_params["model_id"]
 
