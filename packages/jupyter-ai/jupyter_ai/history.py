@@ -1,5 +1,6 @@
 from typing import List, Optional
 
+from jupyter_ai.constants import BOT
 from jupyterlab_chat.models import Message as JChatMessage
 from jupyterlab_chat.ychat import YChat
 from langchain_core.chat_history import BaseChatMessageHistory
@@ -45,7 +46,7 @@ class YChatHistory(BaseChatMessageHistory):
         """
         messages: List[BaseMessage] = []
         for jchat_message in jchat_messages:
-            if jchat_message.sender.startswith("jupyter-ai-personas::"):
+            if jchat_message.sender == BOT["username"]:
                 messages.append(AIMessage(content=jchat_message.body))
             else:
                 messages.append(HumanMessage(content=jchat_message.body))
