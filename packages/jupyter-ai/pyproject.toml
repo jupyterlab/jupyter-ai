@@ -37,10 +37,20 @@ dependencies = [
     # traitlets>=5.6 is required in JL4
     "traitlets>=5.6",
     "deepmerge>=2.0,<3",
-    "jupyterlab-chat>=0.10.0,<0.11.0",
+    "jupyterlab-chat>=0.8.1,<0.9.0",
 ]
 
 dynamic = ["version", "description", "authors", "urls", "keywords"]
+
+[project.entry-points."jupyter_ai.default_tasks"]
+core_default_tasks = "jupyter_ai:tasks"
+
+[project.entry-points."jupyter_ai.chat_handlers"]
+default = "jupyter_ai.chat_handlers.default:DefaultChatHandler"
+ask = "jupyter_ai.chat_handlers.ask:AskChatHandler"
+generate = "jupyter_ai.chat_handlers.generate:GenerateChatHandler"
+learn = "jupyter_ai.chat_handlers.learn:LearnChatHandler"
+help = "jupyter_ai.chat_handlers.help:HelpChatHandler"
 
 [project.optional-dependencies]
 test = [
@@ -99,18 +109,3 @@ build_cmd = "install:extension"
 npm = ["jlpm"]
 source_dir = "src"
 build_dir = "jupyter_ai/labextension"
-
-###############################################################################
-# Entry points provided by Jupyter AI.
-# See: https://packaging.python.org/en/latest/specifications/entry-points/
-
-[project.entry-points."jupyter_ai.chat_handlers"]
-default = "jupyter_ai.chat_handlers.default:DefaultChatHandler"
-ask = "jupyter_ai.chat_handlers.ask:AskChatHandler"
-generate = "jupyter_ai.chat_handlers.generate:GenerateChatHandler"
-learn = "jupyter_ai.chat_handlers.learn:LearnChatHandler"
-help = "jupyter_ai.chat_handlers.help:HelpChatHandler"
-
-[project.entry-points."jupyter_ai.personas"]
-jupyternaut = "jupyter_ai.personas.jupyternaut:JupyternautPersona"
-###############################################################################

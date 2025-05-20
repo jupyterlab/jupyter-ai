@@ -2,9 +2,8 @@ import os
 import re
 import time
 import types
-from asyncio import get_event_loop_policy
 from functools import partial
-from typing import TYPE_CHECKING, Dict, Optional
+from typing import Dict
 
 import traitlets
 from dask.distributed import Client as DaskClient
@@ -13,6 +12,7 @@ from jupyter_ai_magics import BaseProvider, JupyternautPersona
 from jupyter_ai_magics.utils import get_em_providers, get_lm_providers
 from jupyter_events import EventLogger
 from jupyter_server.extension.application import ExtensionApp
+from jupyter_server.utils import url_path_join
 from jupyterlab_chat.models import Message
 from jupyterlab_chat.ychat import YChat
 from pycrdt import ArrayEvent
@@ -22,6 +22,7 @@ from traitlets import Integer, List, Unicode
 from .chat_handlers.base import BaseChatHandler
 from .completions.handlers import DefaultInlineCompletionHandler
 from .config_manager import ConfigManager
+from .constants import BOT
 from .context_providers import BaseCommandContextProvider, FileContextProvider
 from .handlers import (
     ApiKeysHandler,
@@ -32,10 +33,6 @@ from .handlers import (
     SlashCommandsInfoHandler,
 )
 from .history import YChatHistory
-from .personas import PersonaManager
-
-if TYPE_CHECKING:
-    from asyncio import AbstractEventLoop
 
 from jupyter_collaboration import (  # type:ignore[import-untyped]  # isort:skip
     __version__ as jupyter_collaboration_version,
@@ -247,13 +244,6 @@ class AiExtension(ExtensionApp):
             schema_id=JUPYTER_COLLABORATION_EVENTS_URI, listener=self.connect_chat
         )
 
-    @property
-    def event_loop(self) -> "AbstractEventLoop":
-        """
-        Returns a reference to the asyncio event loop.
-        """
-        return get_event_loop_policy().get_event_loop()
-
     async def connect_chat(
         self, logger: EventLogger, schema_id: str, data: dict
     ) -> None:
@@ -274,19 +264,17 @@ class AiExtension(ExtensionApp):
         if ychat is None:
             return
 
+        # Add the bot user to the chat document awareness.
+        BOT["avatar_url"] = url_path_join(
+            self.settings.get("base_url", "/"), "api/ai/static/jupyternaut.svg"
+        )
+        if ychat.awareness is not None:
+            ychat.awareness.set_local_state_field("user", BOT)
+
         # initialize chat handlers for new chat
         self.chat_handlers_by_room[room_id] = self._init_chat_handlers(ychat)
 
-        # initialize persona manager
-        persona_manager = self._init_persona_manager(ychat)
-        if not persona_manager:
-            self.log.error(
-                "Jupyter AI was unable to initialize its AI personas. They are not available for use in chat until this error is resolved. "
-                + "Please verify your configuration and open a new issue on GitHub if this error persists."
-            )
-            return
-
-        callback = partial(self.on_change, room_id, persona_manager)
+        callback = partial(self.on_change, room_id)
         ychat.ymessages.observe(callback)
 
     async def get_chat(self, room_id: str) -> YChat:
@@ -313,26 +301,21 @@ class AiExtension(ExtensionApp):
         self.ychats_by_room[room_id] = document
         return document
 
-    def on_change(
-        self, room_id: str, persona_manager: PersonaManager, events: ArrayEvent
-    ) -> None:
+    def on_change(self, room_id: str, events: ArrayEvent) -> None:
         assert self.serverapp
 
         for change in events.delta:  # type:ignore[attr-defined]
             if not "insert" in change.keys():
                 continue
+            messages = change["insert"]
+            for message_dict in messages:
+                message = Message(**message_dict)
+                if message.sender == BOT["username"] or message.raw_time:
+                    continue
 
-            # the "if not m['raw_time']" clause is necessary because every new
-            # message triggers 2 events, one with `raw_time` set to `True` and
-            # another with `raw_time` set to `False` milliseconds later.
-            # we should explore fixing this quirk in Jupyter Chat.
-            #
-            # Ref: https://github.com/jupyterlab/jupyter-chat/issues/212
-            new_messages = [
-                Message(**m) for m in change["insert"] if not m.get("raw_time", False)
-            ]
-            for new_message in new_messages:
-                persona_manager.route_message(new_message)
+                self.serverapp.io_loop.asyncio_loop.create_task(  # type:ignore[attr-defined]
+                    self.route_human_message(room_id, message)
+                )
 
     async def route_human_message(self, room_id: str, message: Message):
         """
@@ -417,15 +400,18 @@ class AiExtension(ExtensionApp):
 
         self.log.info(f"Registered {self.name} server extension")
 
-        self.settings["jai_event_loop"] = self.event_loop
+        # get reference to event loop
+        # `asyncio.get_event_loop()` is deprecated in Python 3.11+, in favor of
+        # the more readable `asyncio.get_event_loop_policy().get_event_loop()`.
+        # it's easier to just reference the loop directly.
+        loop = self.serverapp.io_loop.asyncio_loop
+        self.settings["jai_event_loop"] = loop
 
         # We cannot instantiate the Dask client directly here because it
         # requires the event loop to be running on init. So instead we schedule
         # this as a task that is run as soon as the loop starts, and pass
         # consumers a Future that resolves to the Dask client when awaited.
-        self.settings["dask_client_future"] = self.event_loop.create_task(
-            self._get_dask_client()
-        )
+        self.settings["dask_client_future"] = loop.create_task(self._get_dask_client())
 
         # Create empty context providers dict to be filled later.
         # This is created early to use as kwargs for chat handlers.
@@ -470,7 +456,10 @@ class AiExtension(ExtensionApp):
 
     def _init_chat_handlers(self, ychat: YChat) -> Dict[str, BaseChatHandler]:
         """
-        Initializes a set of chat handlers for a given `YChat` instance.
+        Initializes a set of chat handlers. May accept a YChat instance for
+        collaborative chats.
+
+        TODO: Make `ychat` required once Jupyter Chat migration is complete.
         """
         assert self.serverapp
 
@@ -617,32 +606,3 @@ class AiExtension(ExtensionApp):
                 **context_providers_kwargs
             )
             self.log.info(f"Registered context provider `{context_provider.id}`.")
-
-    def _init_persona_manager(self, ychat: YChat) -> Optional[PersonaManager]:
-        """
-        Initializes a `PersonaManager` instance scoped to a `YChat`.
-
-        This method should not raise an exception. Upon encountering an
-        exception, this method will catch it, log it, and return `None`.
-        """
-        persona_manager: Optional[PersonaManager]
-
-        try:
-            config_manager = self.settings.get("jai_config_manager", None)
-            assert config_manager and isinstance(config_manager, ConfigManager)
-
-            persona_manager = PersonaManager(
-                ychat=ychat,
-                config_manager=config_manager,
-                event_loop=self.event_loop,
-                log=self.log,
-            )
-        except Exception as e:
-            # TODO: how to stop the extension when this fails
-            # also why do uncaught exceptions produce an empty error log in Jupyter Server?
-            self.log.error(
-                f"Unable to initialize PersonaManager in YChat with ID '{ychat.get_id()}' due to an exception printed below."
-            )
-            self.log.exception(e)
-        finally:
-            return persona_manager
