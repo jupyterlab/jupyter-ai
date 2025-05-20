@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from collections.abc import Awaitable
 from dataclasses import asdict
 from logging import Logger
 from time import time
@@ -39,7 +38,7 @@ class PersonaDefaults(BaseModel):
     ################################################
     # optional fields
     ################################################
-    slash_commands: Set[str] = set("*")  # change this to enable/disable slash commands
+    slash_commands: set[str] = set("*")  # change this to enable/disable slash commands
     model_uid: Optional[str] = None  # e.g. "ollama:deepseek-coder-v2"
     # ^^^ set this to automatically default to a model after a fresh start, no config file
 
@@ -116,7 +115,6 @@ class BasePersona(ABC):
 
         This is an abstract method that must be implemented by subclasses.
         """
-        pass
 
     @abstractmethod
     async def process_message(self, message: Message) -> None:
@@ -129,7 +127,6 @@ class BasePersona(ABC):
 
         This is an abstract method that must be implemented by subclasses.
         """
-        pass
 
     ################################################
     # base class methods, available to subclasses.
@@ -204,7 +201,7 @@ class BasePersona(ABC):
             avatar_url=self.avatar_path,
         )
 
-    def as_user_dict(self) -> Dict[str, Any]:
+    def as_user_dict(self) -> dict[str, Any]:
         """
         Returns `self.as_user()` as a Python dictionary. This method is provided
         by `BasePersona`.

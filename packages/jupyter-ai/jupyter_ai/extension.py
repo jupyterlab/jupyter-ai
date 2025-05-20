@@ -4,7 +4,7 @@ import time
 import types
 from asyncio import get_event_loop_policy
 from functools import partial
-from typing import TYPE_CHECKING, Dict, Optional
+from typing import TYPE_CHECKING, Optional
 
 import traitlets
 from dask.distributed import Client as DaskClient
