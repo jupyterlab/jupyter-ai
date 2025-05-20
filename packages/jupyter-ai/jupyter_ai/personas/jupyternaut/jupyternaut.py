@@ -39,7 +39,7 @@ class JupyternautPersona(BasePersona):
         )
         variables_dict = variables.model_dump()
         reply_stream = runnable.astream(variables_dict)
-        await self.forward_reply_stream(reply_stream)
+        await self.stream_message(reply_stream)
 
     def build_runnable(self) -> Any:
         # TODO: support model parameters. maybe we just add it to lm_provider_params in both 2.x and 3.x
