@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from dataclasses import asdict
 from logging import Logger
 from time import time
-from typing import TYPE_CHECKING, Any, Dict, Optional, Set
+from typing import TYPE_CHECKING, Any, Optional
 
 from jupyter_ai.config_manager import ConfigManager
 from jupyterlab_chat.models import Message, NewMessage, User
