@@ -1,6 +1,7 @@
 import copy
 import json
-from typing import Any, Coroutine, Dict
+from collections.abc import Coroutine
+from typing import Any
 
 from jsonpath_ng import parse
 from langchain_aws import BedrockEmbeddings, BedrockLLM, ChatBedrock, SagemakerEndpoint
@@ -155,7 +156,7 @@ class JsonContentHandler(LLMContentHandler):
         self.response_path = response_path
         self.response_parser = parse(response_path)
 
-    def replace_values(self, old_val, new_val, d: Dict[str, Any]):
+    def replace_values(self, old_val, new_val, d: dict[str, Any]):
         """Replaces values of a dictionary recursively."""
         for key, val in d.items():
             if val == old_val:
@@ -165,7 +166,7 @@ class JsonContentHandler(LLMContentHandler):
 
         return d
 
-    def transform_input(self, prompt: str, model_kwargs: Dict) -> bytes:
+    def transform_input(self, prompt: str, model_kwargs: dict) -> bytes:
         request_obj = copy.deepcopy(self.request_schema)
         self.replace_values("<prompt>", prompt, request_obj)
         request = json.dumps(request_obj).encode("utf-8")

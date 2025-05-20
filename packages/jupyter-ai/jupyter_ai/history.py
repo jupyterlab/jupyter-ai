@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Optional
 
 from jupyterlab_chat.models import Message as JChatMessage
 from jupyterlab_chat.ychat import YChat
@@ -21,7 +21,7 @@ class YChatHistory(BaseChatMessageHistory):
         self.k = k
 
     @property
-    def messages(self) -> List[BaseMessage]:  # type:ignore[override]
+    def messages(self) -> list[BaseMessage]:  # type:ignore[override]
         """
         Returns the last `2 * k` messages preceding the latest message. If
         `k` is set to `None`, return all preceding messages.
@@ -34,16 +34,16 @@ class YChatHistory(BaseChatMessageHistory):
         # we exclude the last message since that is the human message just
         # submitted by a user.
         start_idx = 0 if self.k is None else -2 * self.k - 1
-        recent_messages: List[JChatMessage] = all_messages[start_idx:-1]
+        recent_messages: list[JChatMessage] = all_messages[start_idx:-1]
 
         return self._convert_to_langchain_messages(recent_messages)
 
-    def _convert_to_langchain_messages(self, jchat_messages: List[JChatMessage]):
+    def _convert_to_langchain_messages(self, jchat_messages: list[JChatMessage]):
         """
         Accepts a list of Jupyter Chat messages, and returns them as a list of
         LangChain messages.
         """
-        messages: List[BaseMessage] = []
+        messages: list[BaseMessage] = []
         for jchat_message in jchat_messages:
             if jchat_message.sender.startswith("jupyter-ai-personas::"):
                 messages.append(AIMessage(content=jchat_message.body))

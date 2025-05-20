@@ -230,7 +230,7 @@ class AiExtension(ExtensionApp):
     def initialize(self):
         super().initialize()
 
-        self.chat_handlers_by_room: Dict[str, Dict[str, BaseChatHandler]] = {}
+        self.chat_handlers_by_room: dict[str, dict[str, BaseChatHandler]] = {}
         """
         Nested dictionary that returns the dedicated chat handler instance that
         should be used, given the room ID and command ID respectively.
@@ -239,7 +239,7 @@ class AiExtension(ExtensionApp):
         handlers dedicated to the room identified by `<room_id>`.
         """
 
-        self.ychats_by_room: Dict[str, YChat] = {}
+        self.ychats_by_room: dict[str, YChat] = {}
         """Cache of YChat instances, indexed by room ID."""
 
         self.event_logger = self.serverapp.web_app.settings["event_logger"]
@@ -468,7 +468,7 @@ class AiExtension(ExtensionApp):
             await dask_client.close()
             self.log.debug("Closed Dask client.")
 
-    def _init_chat_handlers(self, ychat: YChat) -> Dict[str, BaseChatHandler]:
+    def _init_chat_handlers(self, ychat: YChat) -> dict[str, BaseChatHandler]:
         """
         Initializes a set of chat handlers for a given `YChat` instance.
         """
@@ -486,7 +486,7 @@ class AiExtension(ExtensionApp):
             seen[ep.name] = ep
         chat_handler_eps = list(seen.values())
 
-        chat_handlers: Dict[str, BaseChatHandler] = {}
+        chat_handlers: dict[str, BaseChatHandler] = {}
         llm_chat_memory = YChatHistory(ychat, k=self.default_max_chat_history)
 
         chat_handler_kwargs = {

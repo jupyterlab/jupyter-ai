@@ -1,6 +1,5 @@
 import glob
 import os
-from typing import List
 
 import nbformat
 from jupyter_ai.document_loaders.directory import SUPPORTED_EXTS
@@ -28,7 +27,7 @@ class FileContextProvider(BaseCommandContextProvider):
     requires_arg = True
     header = "Following are contents of files referenced:"
 
-    def get_arg_options(self, arg_prefix: str) -> List[ListOptionsEntry]:
+    def get_arg_options(self, arg_prefix: str) -> list[ListOptionsEntry]:
         is_abs = not os.path.isabs(arg_prefix)
         path_prefix = arg_prefix if is_abs else os.path.join(self.base_dir, arg_prefix)
         path_prefix = path_prefix
@@ -91,7 +90,7 @@ class FileContextProvider(BaseCommandContextProvider):
             return file_extension
 
     async def _make_context_prompt(
-        self, message: Message, commands: List[ContextCommand]
+        self, message: Message, commands: list[ContextCommand]
     ) -> str:
         context = "\n\n".join(
             [
@@ -160,7 +159,7 @@ class FileContextProvider(BaseCommandContextProvider):
         filepath = command.arg or ""
         return f"'{filepath}'"
 
-    def get_filepaths(self, message: Message) -> List[str]:
+    def get_filepaths(self, message: Message) -> list[str]:
         filepaths = []
         for command in find_commands(self, message.body):
             filepath = command.arg or ""

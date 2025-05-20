@@ -1,5 +1,3 @@
-import traceback
-
 from IPython.core.magic import register_line_magic
 from IPython.core.ultratb import ListTB
 

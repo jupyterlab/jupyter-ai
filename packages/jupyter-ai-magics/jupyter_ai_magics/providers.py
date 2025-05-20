@@ -3,15 +3,12 @@ import base64
 import functools
 import io
 import json
+from collections.abc import AsyncIterator, Coroutine
 from concurrent.futures import ThreadPoolExecutor
 from types import MappingProxyType
 from typing import (
     Any,
-    AsyncIterator,
     ClassVar,
-    Coroutine,
-    Dict,
-    List,
     Literal,
     Optional,
     Union,
@@ -127,7 +124,7 @@ class MultiEnvAuthStrategy(BaseModel):
     """Require multiple auth tokens via multiple environment variables."""
 
     type: Literal["multienv"] = "multienv"
-    names: List[str]
+    names: list[str]
 
 
 class AwsAuthStrategy(BaseModel):
@@ -183,7 +180,7 @@ class BaseProvider(BaseModel):
     name: ClassVar[str] = ...
     """User-facing name of this provider."""
 
-    models: ClassVar[List[str]] = ...
+    models: ClassVar[list[str]] = ...
     """List of supported models by their IDs. For registry providers, this will
     be just ["*"]."""
 
@@ -207,7 +204,7 @@ class BaseProvider(BaseModel):
     If unset, the label shown in the UI defaults to "Model ID".
     """
 
-    pypi_package_deps: ClassVar[List[str]] = []
+    pypi_package_deps: ClassVar[list[str]] = []
     """List of PyPi package dependencies."""
 
     auth_strategy: ClassVar[AuthStrategy] = None
@@ -217,7 +214,7 @@ class BaseProvider(BaseModel):
     registry: ClassVar[bool] = False
     """Whether this provider is a registry provider."""
 
-    fields: ClassVar[List[Field]] = []
+    fields: ClassVar[list[Field]] = []
     """User inputs expected by this provider when initializing it. Each `Field` `f`
     should be passed in the constructor as a keyword argument, keyed by `f.key`."""
 
@@ -266,7 +263,7 @@ class BaseProvider(BaseModel):
     # instance attrs
     #
     model_id: str
-    prompt_templates: Dict[str, PromptTemplate]
+    prompt_templates: dict[str, PromptTemplate]
     """Prompt templates for each output type. Can be overridden with
     `update_prompt_template`. The function `prompt_template`, in the base class,
     refers to this."""
@@ -599,7 +596,7 @@ class HfHubProvider(BaseProvider, HuggingFaceEndpoint):
 
     # Handle text and image outputs
     def _call(
-        self, prompt: str, stop: Optional[List[str]] = None, **kwargs: Any
+        self, prompt: str, stop: Optional[list[str]] = None, **kwargs: Any
     ) -> str:
         """Call out to Hugging Face Hub's inference endpoint.
 
