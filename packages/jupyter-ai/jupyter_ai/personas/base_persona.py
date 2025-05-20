@@ -250,3 +250,13 @@ class BasePersona(ABC):
             self.log.exception(e)
         finally:
             self.awareness.set_local_state_field("isWriting", False)
+    
+
+    def send_message(self, body: str) -> None:
+        """
+        Sends a new message to the chat from this persona.
+        """
+        self.ychat.add_message(NewMessage(
+            body=body,
+            sender=self.id
+        ))

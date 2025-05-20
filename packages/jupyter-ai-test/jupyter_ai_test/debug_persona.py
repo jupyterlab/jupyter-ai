@@ -1,5 +1,5 @@
 from jupyter_ai.personas.base_persona import BasePersona, PersonaDefaults
-from jupyterlab_chat.models import Message
+from jupyterlab_chat.models import Message, NewMessage
 
 
 class DebugPersona(BasePersona):
@@ -20,5 +20,8 @@ class DebugPersona(BasePersona):
         )
 
     async def process_message(self, message: Message):
-        self.log.info("HI IM DEBUGPERSONA AND IDK WHAT TO DO")
+        self.ychat.add_message(NewMessage(
+            body="Hello!",
+            sender=self.id
+        ))
         return
