@@ -1,4 +1,4 @@
-from jupyter_ai_magics.providers import BaseProvider, EnvAuthStrategy
+from jupyter_ai_magics.base_provider import BaseProvider, EnvAuthStrategy
 from langchain_nvidia_ai_endpoints import ChatNVIDIA
 
 
