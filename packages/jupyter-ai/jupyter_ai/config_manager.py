@@ -3,7 +3,7 @@ import logging
 import os
 import time
 from copy import deepcopy
-from typing import List, Optional, Type, Union
+from typing import Optional, Union
 
 from deepmerge import Merger, always_merger
 from jsonschema import Draft202012Validator as Validator

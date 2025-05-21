@@ -1,4 +1,4 @@
-from typing import ClassVar, List, Optional
+from typing import ClassVar, Optional
 
 from jupyter_ai_magics.providers import (
     AuthStrategy,

@@ -1,5 +1,5 @@
 import copy
-from typing import List, Optional
+from typing import Optional
 
 from langchain.schema import Document
 from langchain.text_splitter import (

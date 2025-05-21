@@ -1,6 +1,5 @@
 import glob
 import os
-from typing import List
 
 import nbformat
 from jupyter_ai.document_loaders.directory import SUPPORTED_EXTS

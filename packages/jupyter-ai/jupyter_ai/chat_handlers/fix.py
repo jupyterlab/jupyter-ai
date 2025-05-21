@@ -1,5 +1,3 @@
-from typing import Dict, Type
-
 from jupyter_ai.models import CellWithErrorSelection, HumanChatMessage
 from jupyter_ai_magics.providers import BaseProvider
 from langchain.prompts import PromptTemplate

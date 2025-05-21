@@ -1,6 +1,5 @@
 # Currently unused as it is duplicating the functionality of the /ask command.
 # TODO: Rename "learned" to something better.
-from typing import List
 
 from jupyter_ai.chat_handlers.learn import Retriever
 from jupyter_ai.models import HumanChatMessage

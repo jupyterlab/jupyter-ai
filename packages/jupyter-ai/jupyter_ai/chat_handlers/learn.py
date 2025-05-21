@@ -1,9 +1,9 @@
 import argparse
 import json
 import os
-from glob import iglob
-from typing import Any, List, Optional, Tuple
 from collections.abc import Coroutine
+from glob import iglob
+from typing import Any, Optional
 
 from dask.distributed import Client as DaskClient
 from jupyter_ai.document_loaders.directory import (

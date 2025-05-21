@@ -5,7 +5,6 @@ import tarfile
 from datetime import datetime
 from glob import iglob
 from pathlib import Path
-from typing import List
 
 import dask
 from langchain.schema import Document

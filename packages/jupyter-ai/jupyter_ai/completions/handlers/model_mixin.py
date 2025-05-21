@@ -1,5 +1,5 @@
 from logging import Logger
-from typing import Any, Dict, Optional, Type
+from typing import Any, Optional
 
 from jupyter_ai.config_manager import ConfigManager
 from jupyter_ai_magics.providers import BaseProvider

@@ -4,7 +4,7 @@ import os
 import time
 import traceback
 from pathlib import Path
-from typing import Dict, List, Optional, Type
+from typing import Optional
 
 import nbformat
 from jupyter_ai.chat_handlers import BaseChatHandler, SlashCommandRoutingType

@@ -1,8 +1,8 @@
 import abc
 import os
 import re
-from typing import TYPE_CHECKING, ClassVar, Dict, List, Optional
 from collections.abc import Awaitable
+from typing import TYPE_CHECKING, ClassVar, Optional
 
 from dask.distributed import Client as DaskClient
 from jupyter_ai.chat_handlers.base import get_preferred_dir

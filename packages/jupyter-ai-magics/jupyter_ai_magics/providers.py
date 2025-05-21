@@ -3,18 +3,16 @@ import base64
 import functools
 import io
 import json
+from collections.abc import AsyncIterator, Coroutine
 from concurrent.futures import ThreadPoolExecutor
 from types import MappingProxyType
 from typing import (
     Any,
     ClassVar,
-    Dict,
-    List,
     Literal,
     Optional,
     Union,
 )
-from collections.abc import AsyncIterator, Coroutine
 
 from langchain.prompts import (
     ChatPromptTemplate,

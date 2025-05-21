@@ -1,5 +1,3 @@
-from typing import Dict
-
 from jupyter_ai_magics import BaseProvider
 from jupyter_ai_magics.providers import EnvAuthStrategy, TextField
 from langchain_core.utils import get_from_dict_or_env

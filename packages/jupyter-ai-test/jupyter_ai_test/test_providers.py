@@ -1,4 +1,4 @@
-from typing import ClassVar, List
+from typing import ClassVar
 
 from jupyter_ai import AuthStrategy, BaseProvider, Field
 

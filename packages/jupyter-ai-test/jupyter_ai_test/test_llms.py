@@ -1,6 +1,6 @@
 import time
-from typing import Any, List, Optional
 from collections.abc import Iterator
+from typing import Any, Optional
 
 from langchain_core.callbacks.manager import CallbackManagerForLLMRun
 from langchain_core.language_models.llms import LLM
