@@ -5,7 +5,6 @@ import tarfile
 from datetime import datetime
 from glob import iglob
 from pathlib import Path
-from typing import List
 
 import dask
 from langchain.schema import Document
@@ -104,7 +103,7 @@ SUPPORTED_EXTS = {
 }
 
 
-def split_document(document, splitter: TextSplitter) -> List[Document]:
+def split_document(document, splitter: TextSplitter) -> list[Document]:
     return splitter.split_documents([document])
 
 

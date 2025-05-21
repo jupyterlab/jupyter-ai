@@ -77,7 +77,7 @@ class PersonaManager:
                 self.log.info(
                     f"  - Loaded AI persona class '{class_name}' from '{class_module}' using entry point '{persona_ep.name}'."
                 )
-            except Exception as e:
+            except Exception:
                 # On exception, log an error and continue.
                 # This does not stop the surrounding `for` loop. If a persona
                 # fails to load, it should not halt other personas from loading.
@@ -126,7 +126,7 @@ class PersonaManager:
                     config=self.config_manager,
                     log=self.log,
                 )
-            except Exception as e:
+            except Exception:
                 self.log.exception(
                     f"The persona provided by `{Persona.__module__}` "
                     "raised an exception while initializing, "
