@@ -27,7 +27,7 @@ class FileContextProvider(BaseCommandContextProvider):
     requires_arg = True
     header = "Following are contents of files referenced:"
 
-    def get_arg_options(self, arg_prefix: str) -> List[ListOptionsEntry]:
+    def get_arg_options(self, arg_prefix: str) -> list[ListOptionsEntry]:
         is_abs = not os.path.isabs(arg_prefix)
         path_prefix = arg_prefix if is_abs else os.path.join(self.base_dir, arg_prefix)
         path_prefix = path_prefix
@@ -90,7 +90,7 @@ class FileContextProvider(BaseCommandContextProvider):
             return file_extension
 
     async def _make_context_prompt(
-        self, message: HumanChatMessage, commands: List[ContextCommand]
+        self, message: HumanChatMessage, commands: list[ContextCommand]
     ) -> str:
         context = "\n\n".join(
             [
@@ -159,7 +159,7 @@ class FileContextProvider(BaseCommandContextProvider):
         filepath = command.arg or ""
         return f"'{filepath}'"
 
-    def get_filepaths(self, message: HumanChatMessage) -> List[str]:
+    def get_filepaths(self, message: HumanChatMessage) -> list[str]:
         filepaths = []
         for command in find_commands(self, message.prompt):
             filepath = command.arg or ""

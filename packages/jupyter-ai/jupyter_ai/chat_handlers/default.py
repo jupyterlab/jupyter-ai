@@ -25,7 +25,7 @@ class DefaultChatHandler(BaseChatHandler):
         self.prompt_template = None
 
     def create_llm_chain(
-        self, provider: Type[BaseProvider], provider_params: Dict[str, str]
+        self, provider: type[BaseProvider], provider_params: dict[str, str]
     ):
         unified_parameters = {
             "verbose": True,

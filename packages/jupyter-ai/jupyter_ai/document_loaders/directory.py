@@ -104,7 +104,7 @@ SUPPORTED_EXTS = {
 }
 
 
-def split_document(document, splitter: TextSplitter) -> List[Document]:
+def split_document(document, splitter: TextSplitter) -> list[Document]:
     return splitter.split_documents([document])
 
 

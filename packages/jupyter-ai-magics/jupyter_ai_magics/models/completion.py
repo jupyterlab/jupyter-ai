@@ -50,7 +50,7 @@ class CompletionError(BaseModel):
 class InlineCompletionList(BaseModel):
     """Reflection of JupyterLab's `IInlineCompletionList`."""
 
-    items: List[InlineCompletionItem]
+    items: list[InlineCompletionItem]
 
 
 class InlineCompletionReply(BaseModel):

@@ -8,7 +8,7 @@ from langchain_openai import ChatOpenAI
 
 class ChatOpenRouter(ChatOpenAI):
     @property
-    def lc_secrets(self) -> Dict[str, str]:
+    def lc_secrets(self) -> dict[str, str]:
         return {"openai_api_key": "OPENROUTER_API_KEY"}
 
 

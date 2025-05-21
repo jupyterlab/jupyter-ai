@@ -1,7 +1,6 @@
 import argparse
 import os
 from datetime import datetime
-from typing import List
 
 from jupyter_ai.models import AgentChatMessage, AgentStreamMessage, HumanChatMessage
 

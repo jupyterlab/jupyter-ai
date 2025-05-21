@@ -12,7 +12,7 @@ DEFAULT_CHUNK_OVERLAP = 100
 class CellError(BaseModel):
     name: str
     value: str
-    traceback: List[str]
+    traceback: list[str]
 
 
 class TextSelection(BaseModel):
@@ -95,7 +95,7 @@ class BaseAgentMessage(BaseModel):
     this defaults to a description of `JupyternautPersona`.
     """
 
-    metadata: Dict[str, Any] = {}
+    metadata: dict[str, Any] = {}
     """
     Message metadata set by a provider after fully processing an input. The
     contents of this dictionary are provider-dependent, and can be any
@@ -122,7 +122,7 @@ class AgentStreamChunkMessage(BaseModel):
     """The string to append to the `AgentStreamMessage` referenced by `id`."""
     stream_complete: bool
     """Indicates whether this chunk completes the stream referenced by `id`."""
-    metadata: Dict[str, Any] = {}
+    metadata: dict[str, Any] = {}
     """
     The metadata of the stream referenced by `id`. Metadata from the latest
     chunk should override any metadata from previous chunks. See the docstring
@@ -156,7 +156,7 @@ class HumanChatMessage(BaseModel):
 
 class ClearMessage(BaseModel):
     type: Literal["clear"] = "clear"
-    targets: Optional[List[str]] = None
+    targets: Optional[list[str]] = None
     """
     Message IDs of the HumanChatMessage to delete an exchange at.
     If not provided, this instructs the frontend to clear all messages.
@@ -188,8 +188,8 @@ ChatMessage = Union[
 class ChatHistory(BaseModel):
     """History of chat messages"""
 
-    messages: List[ChatMessage]
-    pending_messages: List[PendingMessage]
+    messages: list[ChatMessage]
+    pending_messages: list[PendingMessage]
 
 
 class ConnectionMessage(BaseModel):
@@ -215,17 +215,17 @@ class ListProvidersEntry(BaseModel):
     id: str
     name: str
     model_id_label: Optional[str] = None
-    models: List[str]
+    models: list[str]
     help: Optional[str] = None
     auth_strategy: AuthStrategy
     registry: bool
-    fields: List[Field]
-    chat_models: Optional[List[str]] = None
-    completion_models: Optional[List[str]] = None
+    fields: list[Field]
+    chat_models: Optional[list[str]] = None
+    completion_models: Optional[list[str]] = None
 
 
 class ListProvidersResponse(BaseModel):
-    providers: List[ListProvidersEntry]
+    providers: list[ListProvidersEntry]
 
 
 class IndexedDir(BaseModel):
@@ -235,23 +235,23 @@ class IndexedDir(BaseModel):
 
 
 class IndexMetadata(BaseModel):
-    dirs: List[IndexedDir]
+    dirs: list[IndexedDir]
 
 
 class DescribeConfigResponse(BaseModel):
     model_provider_id: Optional[str] = None
     embeddings_provider_id: Optional[str] = None
     send_with_shift_enter: bool
-    fields: Dict[str, Dict[str, Any]]
+    fields: dict[str, dict[str, Any]]
     # when sending config over REST API, do not include values of the API keys,
     # just the names.
-    api_keys: List[str]
+    api_keys: list[str]
     # timestamp indicating when the configuration file was last read. should be
     # passed to the subsequent UpdateConfig request.
     last_read: int
     completions_model_provider_id: Optional[str] = None
-    completions_fields: Dict[str, Dict[str, Any]]
-    embeddings_fields: Dict[str, Dict[str, Any]]
+    completions_fields: dict[str, dict[str, Any]]
+    embeddings_fields: dict[str, dict[str, Any]]
 
 
 class UpdateConfigRequest(BaseModel):
@@ -259,13 +259,13 @@ class UpdateConfigRequest(BaseModel):
     embeddings_provider_id: Optional[str] = None
     completions_model_provider_id: Optional[str] = None
     send_with_shift_enter: Optional[bool] = None
-    api_keys: Optional[Dict[str, str]] = None
+    api_keys: Optional[dict[str, str]] = None
     # if passed, this will raise an Error if the config was written to after the
     # time specified by `last_read` to prevent write-write conflicts.
     last_read: Optional[int] = None
-    fields: Optional[Dict[str, Dict[str, Any]]] = None
-    completions_fields: Optional[Dict[str, Dict[str, Any]]] = None
-    embeddings_fields: Optional[Dict[str, Dict[str, Any]]] = None
+    fields: Optional[dict[str, dict[str, Any]]] = None
+    completions_fields: Optional[dict[str, dict[str, Any]]] = None
+    embeddings_fields: Optional[dict[str, dict[str, Any]]] = None
 
     @field_validator("send_with_shift_enter", "api_keys", "fields", mode="before")
     @classmethod
@@ -284,11 +284,11 @@ class GlobalConfig(BaseModel):
     model_provider_id: Optional[str] = None
     embeddings_provider_id: Optional[str] = None
     send_with_shift_enter: bool
-    fields: Dict[str, Dict[str, Any]]
-    api_keys: Dict[str, str]
+    fields: dict[str, dict[str, Any]]
+    api_keys: dict[str, str]
     completions_model_provider_id: Optional[str] = None
-    completions_fields: Dict[str, Dict[str, Any]]
-    embeddings_fields: Dict[str, Dict[str, Any]]
+    completions_fields: dict[str, dict[str, Any]]
+    embeddings_fields: dict[str, dict[str, Any]]
 
 
 class ListSlashCommandsEntry(BaseModel):
@@ -297,7 +297,7 @@ class ListSlashCommandsEntry(BaseModel):
 
 
 class ListSlashCommandsResponse(BaseModel):
-    slash_commands: List[ListSlashCommandsEntry] = []
+    slash_commands: list[ListSlashCommandsEntry] = []
 
 
 class ListOptionsEntry(BaseModel):
@@ -315,4 +315,4 @@ class ListOptionsEntry(BaseModel):
 
 
 class ListOptionsResponse(BaseModel):
-    options: List[ListOptionsEntry] = []
+    options: list[ListOptionsEntry] = []

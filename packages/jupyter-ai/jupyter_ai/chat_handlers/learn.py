@@ -2,7 +2,8 @@ import argparse
 import json
 import os
 from glob import iglob
-from typing import Any, Coroutine, List, Optional, Tuple
+from typing import Any, List, Optional, Tuple
+from collections.abc import Coroutine
 
 from dask.distributed import Client as DaskClient
 from jupyter_ai.document_loaders.directory import (
@@ -347,8 +348,8 @@ class LearnChatHandler(BaseChatHandler):
 
     def create(
         self,
-        embedding_records: List[Tuple[str, List[float]]],
-        metadatas: Optional[List[dict]] = None,
+        embedding_records: list[tuple[str, list[float]]],
+        metadatas: Optional[list[dict]] = None,
     ):
         embeddings = self.get_embedding_model()
         if not embeddings:
@@ -378,7 +379,7 @@ class LearnChatHandler(BaseChatHandler):
 
     async def aget_relevant_documents(
         self, query: str
-    ) -> Coroutine[Any, Any, List[Document]]:
+    ) -> Coroutine[Any, Any, list[Document]]:
         if not self.index:
             return []  # type:ignore[return-value]
 
@@ -402,11 +403,11 @@ class Retriever(BaseRetriever):
 
     def _get_relevant_documents(  # type:ignore[override]
         self, query: str
-    ) -> List[Document]:
+    ) -> list[Document]:
         raise NotImplementedError()
 
     async def _aget_relevant_documents(  # type:ignore[override]
         self, query: str
-    ) -> Coroutine[Any, Any, List[Document]]:
+    ) -> Coroutine[Any, Any, list[Document]]:
         docs = await self.learn_chat_handler.aget_relevant_documents(query)
         return docs

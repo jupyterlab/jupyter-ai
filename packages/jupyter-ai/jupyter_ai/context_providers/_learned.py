@@ -27,7 +27,7 @@ class LearnedContextProvider(BaseCommandContextProvider):
         self.retriever = Retriever(learn_chat_handler=self.chat_handlers["/learn"])
 
     async def _make_context_prompt(
-        self, message: HumanChatMessage, commands: List[ContextCommand]
+        self, message: HumanChatMessage, commands: list[ContextCommand]
     ) -> str:
         if not self.retriever:
             return ""
@@ -45,7 +45,7 @@ class LearnedContextProvider(BaseCommandContextProvider):
         )
         return self.header + "\n" + context
 
-    def _get_repeated_files(self, message: HumanChatMessage) -> List[str]:
+    def _get_repeated_files(self, message: HumanChatMessage) -> list[str]:
         # don't include files that are already provided by the file context provider
         file_context_provider = self.context_providers.get("file")
         if isinstance(file_context_provider, FileContextProvider):
