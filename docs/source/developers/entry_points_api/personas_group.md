@@ -75,6 +75,36 @@ The two main methods are:
 yields string chunks, and streams the response to the chat. The output of the
 `astream()` method on LangChain models can be passed to this method directly.
 
+### Using Jupyternaut's configured chat model
+
+The personas feature gives developers total freedom in how their persona
+responds to new messages. Personas do not need to use the same chat model as
+Jupyternaut, and can use any library of their choice, provided it is installed
+in the same environment.
+
+However, if your persona wants to use the same configured LangChain model used
+by Jupyternaut, you can access that through the `self.config: ConfigManager`
+attribute available to subclasses.
+
+Add & call this method on a persona to access the LangChain runnable used by
+Jupyternaut:
+
+```py
+def build_runnable(self) -> Any:
+    llm = self.config.lm_provider(**self.config.lm_provider_params)
+    runnable = JUPYTERNAUT_PROMPT_TEMPLATE | llm | StrOutputParser()
+
+    runnable = RunnableWithMessageHistory(
+        runnable=runnable,  #  type:ignore[arg-type]
+        get_session_history=lambda: YChatHistory(ychat=self.ychat, k=2),
+        input_messages_key="input",
+        history_messages_key="history",
+    )
+
+    return runnable
+```
+
+See `jupyter_ai.personas.jupyternaut` for a complete reference.
 
 ### Defining AI persona defaults
 
