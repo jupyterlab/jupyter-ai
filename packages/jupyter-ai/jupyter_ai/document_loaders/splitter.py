@@ -1,5 +1,5 @@
 import copy
-from typing import List, Optional
+from typing import Optional
 
 from langchain.schema import Document
 from langchain.text_splitter import (
@@ -22,8 +22,8 @@ class ExtensionSplitter(TextSplitter):
         return splitter.split_text(text)
 
     def create_documents(
-        self, texts: List[str], metadatas: Optional[List[dict]] = None
-    ) -> List[Document]:
+        self, texts: list[str], metadatas: Optional[list[dict]] = None
+    ) -> list[Document]:
         _metadatas = metadatas or [{}] * len(texts)
         documents = []
         for i, text in enumerate(texts):

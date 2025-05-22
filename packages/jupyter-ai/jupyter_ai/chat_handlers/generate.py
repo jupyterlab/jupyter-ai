@@ -4,7 +4,7 @@ import os
 import time
 import traceback
 from pathlib import Path
-from typing import Dict, List, Optional, Type
+from typing import Optional
 
 import nbformat
 from jupyter_ai.chat_handlers import BaseChatHandler, SlashCommandRoutingType
@@ -25,7 +25,7 @@ class OutlineSection(BaseModel):
 
 class Outline(BaseModel):
     description: Optional[str] = None
-    sections: List[OutlineSection]
+    sections: list[OutlineSection]
 
 
 class NotebookOutlineChain(LLMChain):
@@ -258,7 +258,7 @@ class GenerateChatHandler(BaseChatHandler):
         self.llm: Optional[BaseProvider] = None
 
     def create_llm_chain(
-        self, provider: Type[BaseProvider], provider_params: Dict[str, str]
+        self, provider: type[BaseProvider], provider_params: dict[str, str]
     ):
         unified_parameters = {
             **provider_params,

@@ -1,5 +1,6 @@
 import time
-from typing import List, Optional, Sequence, Set
+from collections.abc import Sequence
+from typing import Optional
 
 from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_core.messages import BaseMessage
@@ -22,20 +23,20 @@ class BoundedChatHistory(BaseChatMessageHistory):
         self,
         k: Optional[int] = None,
         clear_time: float = 0.0,
-        cleared_msgs: Set[str] = set(),
+        cleared_msgs: set[str] = set(),
     ):
         self.k = k
         self.clear_time = clear_time
         self.cleared_msgs = cleared_msgs
-        self._all_messages: List[BaseMessage] = []
+        self._all_messages: list[BaseMessage] = []
 
     @property
-    def messages(self) -> List[BaseMessage]:  # type:ignore[override]
+    def messages(self) -> list[BaseMessage]:  # type:ignore[override]
         if self.k is None:
             return self._all_messages
         return self._all_messages[-self.k * 2 :]
 
-    async def aget_messages(self) -> List[BaseMessage]:
+    async def aget_messages(self) -> list[BaseMessage]:
         return self.messages
 
     def add_message(self, message: BaseMessage) -> None:
@@ -52,7 +53,7 @@ class BoundedChatHistory(BaseChatMessageHistory):
         """Add messages to the store"""
         self.add_messages(messages)
 
-    def clear(self, human_msg_ids: Optional[List[str]] = None) -> None:
+    def clear(self, human_msg_ids: Optional[list[str]] = None) -> None:
         """Clears conversation exchanges. If `human_msg_id` is provided, only
         clears the respective human message and its reply. Otherwise, clears
         all messages."""
@@ -105,7 +106,7 @@ class WrappedBoundedChatHistory(BaseChatMessageHistory):
         super().__init__(*args, **kwargs)
 
     @property
-    def messages(self) -> List[BaseMessage]:  # type:ignore[override]
+    def messages(self) -> list[BaseMessage]:  # type:ignore[override]
         return self.history.messages
 
     def add_message(self, message: BaseMessage) -> None:

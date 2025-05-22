@@ -3,7 +3,7 @@ import logging
 import os
 import time
 from copy import deepcopy
-from typing import List, Optional, Type, Union
+from typing import Optional, Union
 
 from deepmerge import Merger, always_merger
 from jsonschema import Draft202012Validator as Validator
@@ -60,7 +60,7 @@ class BlockedModelError(Exception):
     pass
 
 
-def _validate_provider_authn(config: GlobalConfig, provider: Type[AnyProvider]):
+def _validate_provider_authn(config: GlobalConfig, provider: type[AnyProvider]):
     # TODO: handle non-env auth strategies
     if not provider.auth_strategy or provider.auth_strategy.type != "env":
         return
@@ -107,10 +107,10 @@ class ConfigManager(Configurable):
         lm_providers: LmProvidersDict,
         em_providers: EmProvidersDict,
         defaults: dict,
-        allowed_providers: Optional[List[str]] = None,
-        blocked_providers: Optional[List[str]] = None,
-        allowed_models: Optional[List[str]] = None,
-        blocked_models: Optional[List[str]] = None,
+        allowed_providers: Optional[list[str]] = None,
+        blocked_providers: Optional[list[str]] = None,
+        allowed_models: Optional[list[str]] = None,
+        blocked_models: Optional[list[str]] = None,
         *args,
         **kwargs,
     ):

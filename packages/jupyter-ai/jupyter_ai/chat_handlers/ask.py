@@ -1,5 +1,4 @@
 import argparse
-from typing import Dict, Type
 
 from jupyter_ai.models import HumanChatMessage
 from jupyter_ai_magics.providers import BaseProvider
@@ -65,7 +64,7 @@ class AskChatHandler(BaseChatHandler):
         return self._retriever  # Return cached instance
 
     def create_llm_chain(
-        self, provider: Type[BaseProvider], provider_params: Dict[str, str]
+        self, provider: type[BaseProvider], provider_params: dict[str, str]
     ):
         unified_parameters = {
             **provider_params,

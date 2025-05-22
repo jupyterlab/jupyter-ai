@@ -4,17 +4,14 @@ import contextlib
 import os
 import time
 import traceback
+from collections.abc import Awaitable
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
     Any,
-    Awaitable,
     ClassVar,
-    Dict,
-    List,
     Literal,
     Optional,
-    Type,
     Union,
     cast,
 )
@@ -129,16 +126,16 @@ class BaseChatHandler:
     """Format string template that is used to build the help message. Specified
     from traitlets configuration."""
 
-    chat_handlers: Dict[str, "BaseChatHandler"]
+    chat_handlers: dict[str, "BaseChatHandler"]
     """Dictionary of chat handlers. Allows one chat handler to reference other
     chat handlers, which is necessary for some use-cases like printing the help
     message."""
 
-    context_providers: Dict[str, "BaseCommandContextProvider"]
+    context_providers: dict[str, "BaseCommandContextProvider"]
     """Dictionary of context providers. Allows chat handlers to reference
     context providers, which can be used to provide context to the LLM."""
 
-    message_interrupted: Dict[str, asyncio.Event]
+    message_interrupted: dict[str, asyncio.Event]
     """Dictionary mapping an agent message identifier to an asyncio Event
     which indicates if the message generation/streaming was interrupted."""
 
@@ -146,17 +143,17 @@ class BaseChatHandler:
         self,
         log: Logger,
         config_manager: ConfigManager,
-        root_chat_handlers: Dict[str, "RootChatHandler"],
-        model_parameters: Dict[str, Dict],
-        chat_history: List[ChatMessage],
+        root_chat_handlers: dict[str, "RootChatHandler"],
+        model_parameters: dict[str, dict],
+        chat_history: list[ChatMessage],
         llm_chat_memory: "BoundedChatHistory",
         root_dir: str,
         preferred_dir: Optional[str],
         dask_client_future: Awaitable[DaskClient],
         help_message_template: str,
-        chat_handlers: Dict[str, "BaseChatHandler"],
-        context_providers: Dict[str, "BaseCommandContextProvider"],
-        message_interrupted: Dict[str, asyncio.Event],
+        chat_handlers: dict[str, "BaseChatHandler"],
+        context_providers: dict[str, "BaseCommandContextProvider"],
+        message_interrupted: dict[str, asyncio.Event],
         log_dir: Optional[str],
     ):
         self.log = log
@@ -401,14 +398,14 @@ class BaseChatHandler:
         return self.llm_chain
 
     def get_model_parameters(
-        self, provider: Type[BaseProvider], provider_params: Dict[str, str]
+        self, provider: type[BaseProvider], provider_params: dict[str, str]
     ):
         return self.model_parameters.get(
             f"{provider.id}:{provider_params['model_id']}", {}
         )
 
     def create_llm_chain(
-        self, provider: Type[BaseProvider], provider_params: Dict[str, str]
+        self, provider: type[BaseProvider], provider_params: dict[str, str]
     ):
         raise NotImplementedError("Should be implemented by subclasses")
 
@@ -506,7 +503,7 @@ class BaseChatHandler:
         stream_id: str,
         content: str,
         complete: bool = False,
-        metadata: Optional[Dict[str, Any]] = None,
+        metadata: Optional[dict[str, Any]] = None,
     ) -> None:
         """
         Sends an `agent-stream-chunk` message containing content that should be

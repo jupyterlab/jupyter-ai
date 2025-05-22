@@ -1,4 +1,3 @@
-import asyncio
 import getpass
 
 from jupyter_server.auth.identity import IdentityProvider, User
@@ -31,7 +30,7 @@ class LocalIdentityProvider(IdentityProvider):
                 color=None,
             )
             return user
-        except OSError as e:
+        except OSError:
             self.log.debug(
                 "Could not determine username from system. Falling back to anonymous"
                 f"user."

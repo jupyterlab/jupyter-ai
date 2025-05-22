@@ -4,7 +4,7 @@ import time
 import uuid
 from asyncio import AbstractEventLoop, Event
 from dataclasses import asdict
-from typing import TYPE_CHECKING, Dict, List, Optional, Set, cast
+from typing import TYPE_CHECKING, Optional, cast
 
 import tornado
 from jupyter_ai.chat_handlers import BaseChatHandler, SlashCommandRoutingType
@@ -54,11 +54,11 @@ class ChatHistoryHandler(BaseAPIHandler):
     """Handler to return message history"""
 
     @property
-    def chat_history(self) -> List[ChatMessage]:
+    def chat_history(self) -> list[ChatMessage]:
         return self.settings["chat_history"]
 
     @property
-    def pending_messages(self) -> List[PendingMessage]:
+    def pending_messages(self) -> list[PendingMessage]:
         return self.settings["pending_messages"]
 
     @tornado.web.authenticated
@@ -75,19 +75,19 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
     """
 
     @property
-    def root_chat_handlers(self) -> Dict[str, "RootChatHandler"]:
+    def root_chat_handlers(self) -> dict[str, "RootChatHandler"]:
         """Dictionary mapping client IDs to their corresponding RootChatHandler
         instances."""
         return self.settings["jai_root_chat_handlers"]
 
     @property
-    def chat_handlers(self) -> Dict[str, "BaseChatHandler"]:
+    def chat_handlers(self) -> dict[str, "BaseChatHandler"]:
         """Dictionary mapping chat commands to their corresponding
         BaseChatHandler instances."""
         return self.settings["jai_chat_handlers"]
 
     @property
-    def chat_clients(self) -> Dict[str, ChatClient]:
+    def chat_clients(self) -> dict[str, ChatClient]:
         """Dictionary mapping client IDs to their ChatClient objects that store
         metadata."""
         return self.settings["chat_clients"]
@@ -98,7 +98,7 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
         return self.chat_clients[self.client_id]
 
     @property
-    def chat_history(self) -> List[ChatMessage]:
+    def chat_history(self) -> list[ChatMessage]:
         return self.settings["chat_history"]
 
     @chat_history.setter
@@ -106,7 +106,7 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
         self.settings["chat_history"] = new_history
 
     @property
-    def message_interrupted(self) -> Dict[str, Event]:
+    def message_interrupted(self) -> dict[str, Event]:
         return self.settings["jai_message_interrupted"]
 
     @property
@@ -118,7 +118,7 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
         return self.settings["jai_event_loop"]
 
     @property
-    def pending_messages(self) -> List[PendingMessage]:
+    def pending_messages(self) -> list[PendingMessage]:
         return self.settings["pending_messages"]
 
     @pending_messages.setter
@@ -353,7 +353,7 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
     def on_stop_request(self):
         # set of message IDs that were submitted by this user, determined by the
         # username associated with this WebSocket connection.
-        current_user_messages: Set[str] = set()
+        current_user_messages: set[str] = set()
         for message in self.chat_history:
             if (
                 message.type == "human"
@@ -362,7 +362,7 @@ class RootChatHandler(JupyterHandler, websocket.WebSocketHandler):
                 current_user_messages.add(message.id)
 
         # set of `AgentStreamMessage` IDs to stop
-        streams_to_stop: Set[str] = set()
+        streams_to_stop: set[str] = set()
         for message in self.chat_history:
             if (
                 message.type == "agent-stream"
@@ -417,22 +417,22 @@ class ProviderHandler(BaseAPIHandler):
     """
 
     @property
-    def lm_providers(self) -> Dict[str, "BaseProvider"]:
+    def lm_providers(self) -> dict[str, "BaseProvider"]:
         return self.settings["lm_providers"]
 
     @property
-    def em_providers(self) -> Dict[str, "BaseEmbeddingsProvider"]:
+    def em_providers(self) -> dict[str, "BaseEmbeddingsProvider"]:
         return self.settings["em_providers"]
 
     @property
-    def allowed_models(self) -> Optional[List[str]]:
+    def allowed_models(self) -> Optional[list[str]]:
         return self.settings["allowed_models"]
 
     @property
-    def blocked_models(self) -> Optional[List[str]]:
+    def blocked_models(self) -> Optional[list[str]]:
         return self.settings["blocked_models"]
 
-    def _filter_blocked_models(self, providers: List[ListProvidersEntry]):
+    def _filter_blocked_models(self, providers: list[ListProvidersEntry]):
         """
         Satisfy the model-level allow/blocklist by filtering models accordingly.
         The provider-level allow/blocklist is already handled in
@@ -446,7 +446,7 @@ class ProviderHandler(BaseAPIHandler):
             if self.blocked_models:
                 return model_id not in self.blocked_models
             else:
-                return model_id in cast(List, self.allowed_models)
+                return model_id in cast(list, self.allowed_models)
 
         # filter out every model w/ model ID according to allow/blocklist
         for provider in providers:
@@ -579,7 +579,7 @@ class SlashCommandsInfoHandler(BaseAPIHandler):
         return self.settings["jai_config_manager"]
 
     @property
-    def chat_handlers(self) -> Dict[str, "BaseChatHandler"]:
+    def chat_handlers(self) -> dict[str, "BaseChatHandler"]:
         return self.settings["jai_chat_handlers"]
 
     @web.authenticated
@@ -628,11 +628,11 @@ class AutocompleteOptionsHandler(BaseAPIHandler):
         return self.settings["jai_config_manager"]
 
     @property
-    def context_providers(self) -> Dict[str, "BaseCommandContextProvider"]:
+    def context_providers(self) -> dict[str, "BaseCommandContextProvider"]:
         return self.settings["jai_context_providers"]
 
     @property
-    def chat_handlers(self) -> Dict[str, "BaseChatHandler"]:
+    def chat_handlers(self) -> dict[str, "BaseChatHandler"]:
         return self.settings["jai_chat_handlers"]
 
     @web.authenticated
@@ -669,7 +669,7 @@ class AutocompleteOptionsHandler(BaseAPIHandler):
             )
         self.finish(response.model_dump_json())
 
-    def _get_slash_command_options(self) -> List[ListOptionsEntry]:
+    def _get_slash_command_options(self) -> list[ListOptionsEntry]:
         options = []
         for id, chat_handler in self.chat_handlers.items():
             # filter out any chat handler that is not a slash command
@@ -699,7 +699,7 @@ class AutocompleteOptionsHandler(BaseAPIHandler):
         options.sort(key=lambda opt: opt.id)
         return options
 
-    def _get_context_provider_options(self) -> List[ListOptionsEntry]:
+    def _get_context_provider_options(self) -> list[ListOptionsEntry]:
         options = [
             self._make_autocomplete_option(
                 id=context_provider.command_id,

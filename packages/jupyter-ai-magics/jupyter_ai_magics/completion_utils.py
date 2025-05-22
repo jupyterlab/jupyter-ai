@@ -1,5 +1,3 @@
-from typing import Dict
-
 from .models.completion import InlineCompletionRequest
 
 
@@ -9,7 +7,7 @@ def token_from_request(request: InlineCompletionRequest, suggestion: int):
     return f"t{request.number}s{suggestion}"
 
 
-def template_inputs_from_request(request: InlineCompletionRequest) -> Dict:
+def template_inputs_from_request(request: InlineCompletionRequest) -> dict:
     suffix = request.suffix.strip()
     filename = request.path.split("/")[-1] if request.path else "untitled"
 
