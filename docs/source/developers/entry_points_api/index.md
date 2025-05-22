@@ -17,7 +17,9 @@ The entry points API currently includes the following entry point groups:
 
 - `'jupyter_ai.model_providers'`: allows developers to add model providers.
 
-Each entry point group used by Jupyter AI is documented in a sub-section below,
+- `'jupyter_ai.embeddings_model_providers'`: allows developers to add embedding model providers.
+
+Each entry point group used by Jupyter AI is documented in a section below,
 which describes the type of object expected and how to define a custom
 implementation.
 
