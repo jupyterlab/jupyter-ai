@@ -160,7 +160,7 @@ package & restart JupyterLab for the changes to take effect.
 :::
 
 
-[entry_points]: https://setuptools.pypa.io/en/latest/userguide/entry_point.html 
+[entry_points]: https://setuptools.pypa.io/en/latest/userguide/entry_point.html
 [langchain_llms]: https://api.python.langchain.com/en/v0.0.339/api_reference.html#module-langchain.llms
 [custom_llm]: https://python.langchain.com/docs/modules/model_io/models/llms/custom_llm
 [LLM]: https://api.python.langchain.com/en/v0.0.339/llms/langchain.llms.base.LLM.html#langchain.llms.base.LLM
