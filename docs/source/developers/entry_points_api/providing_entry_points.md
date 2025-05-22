@@ -36,4 +36,3 @@ installing your custom package to see the new changes.
 After adding/removing an entry point, you will also need to re-install the
 package & restart JupyterLab for the changes to take effect.
 :::
-
