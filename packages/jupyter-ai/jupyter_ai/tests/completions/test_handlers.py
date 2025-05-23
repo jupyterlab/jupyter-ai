@@ -1,8 +1,10 @@
 import json
 from types import SimpleNamespace
 from typing import Union
+from unittest.mock import AsyncMock, patch
 
 import pytest
+from jupyter_ai.chat_handlers.generate import generate_title
 from jupyter_ai.completions.handlers.default import DefaultInlineCompletionHandler
 from jupyter_ai.completions.models import (
     InlineCompletionReply,
@@ -212,3 +214,102 @@ async def test_handle_request_with_error(inline_handler):
     await inline_handler.tasks[0]
     error = inline_handler.messages[-1].model_dump().get("error", None)
     assert error is not None
+
+
+# Test cases for generate_title function
+@pytest.mark.asyncio
+async def test_generate_title_valid_title():
+    outline = {
+        "sections": [{"title": "Create a New File", "content": "Generated Notebook"}]
+    }
+    mock_llm = AsyncMock()
+    mock_llm.apredict.return_value = "Valid Title"
+
+    with patch(
+        "jupyter_ai.chat_handlers.generate.NotebookTitleChain.from_llm",
+        return_value=mock_llm,
+    ):
+        await generate_title(outline, llm=mock_llm, verbose=False)
+        assert outline["title"] == "Valid Title"
+
+
+@pytest.mark.asyncio
+async def test_generate_title_long_title():
+    outline = {
+        "sections": [{"title": "Create a New File", "content": "Generated Notebook"}]
+    }
+    mock_llm = AsyncMock()
+    max_title_length = 50
+
+    mock_llm.apredict.return_value = '"This is a very long title to "Generate Notebook" that exceeds fifty characters"'
+    with patch(
+        "jupyter_ai.chat_handlers.generate.NotebookTitleChain.from_llm",
+        return_value=mock_llm,
+    ):
+        await generate_title(outline, llm=mock_llm, verbose=False)
+        assert outline["title"] == "Generate Notebook"[:max_title_length]
+
+
+@pytest.mark.asyncio
+async def test_generate_title_long_title_nosubstring():
+    outline = {
+        "sections": [{"title": "Create a New File", "content": "Generated Notebook"}]
+    }
+    mock_llm = AsyncMock()
+    max_title_length = 50
+
+    mock_llm.apredict.return_value = (
+        '"This is a very long title to Generate Notebook that exceeds fifty characters"'
+    )
+    with patch(
+        "jupyter_ai.chat_handlers.generate.NotebookTitleChain.from_llm",
+        return_value=mock_llm,
+    ):
+        await generate_title(outline, llm=mock_llm, verbose=False)
+        assert outline["title"] == "Generated Notebook"
+
+
+@pytest.mark.asyncio
+async def test_generate_title_with_quotes():
+    outline = {
+        "sections": [{"title": "Create a New File", "content": "Generated Notebook"}]
+    }
+    mock_llm = AsyncMock()
+    mock_llm.apredict.return_value = "'\"Quoted Title\"'"
+
+    with patch(
+        "jupyter_ai.chat_handlers.generate.NotebookTitleChain.from_llm",
+        return_value=mock_llm,
+    ):
+        await generate_title(outline, llm=mock_llm, verbose=False)
+        assert outline["title"] == "Quoted Title"
+
+
+@pytest.mark.asyncio
+async def test_generate_title_none_returned():
+    outline = {
+        "sections": [{"title": "Create a New File", "content": "Generated Notebook"}]
+    }
+    mock_llm = AsyncMock()
+    mock_llm.apredict.return_value = None
+
+    with patch(
+        "jupyter_ai.chat_handlers.generate.NotebookTitleChain.from_llm",
+        return_value=mock_llm,
+    ):
+        await generate_title(outline, llm=mock_llm, verbose=False)
+        assert outline["title"] == "Generated_Notebook"
+
+
+@pytest.mark.asyncio
+async def test_generate_title_none_returned_no_content():
+    outline = {"sections": [{"title": "Create a New File", "content": ""}]}
+    mock_llm = AsyncMock()
+    mock_llm.apredict.return_value = ""
+
+    with patch(
+        "jupyter_ai.chat_handlers.generate.NotebookTitleChain.from_llm",
+        return_value=mock_llm,
+    ):
+        await generate_title(outline, llm=mock_llm, verbose=False)
+        assert outline["title"] == "Generated_Notebook"
