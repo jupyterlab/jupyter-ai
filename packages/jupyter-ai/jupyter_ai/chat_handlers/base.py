@@ -452,19 +452,41 @@ class BaseChatHandler:
             chunk_generator = self.llm_chain.astream(input, config=merged_config)
             # TODO v3: re-implement stream interrupt
             stream_interrupted = False
+            stream_id = None
             async for chunk in chunk_generator:
+                if stream_id and stream_id in self.message_interrupted.keys() and self.message_interrupted[stream_id].is_set():
+                    try:
+                        # notify the model provider that streaming was interrupted
+                        # (this is essential to allow the model to stop generating)
+                        await chunk_generator.athrow(  # type:ignore[attr-defined]
+                            GenerationInterrupted()
+                        )
+                    except GenerationInterrupted:
+                        # do not let the exception bubble up in case if
+                        # the provider did not handle it
+                        pass
+                    stream_interrupted = True
+                    break
+
                 if isinstance(chunk, AIMessageChunk) and isinstance(chunk.content, str):
-                    reply_stream.write(chunk.content)
+                    stream_id = reply_stream.write(chunk.content)
                 elif isinstance(chunk, str):
-                    reply_stream.write(chunk)
+                    stream_id = reply_stream.write(chunk)
                 else:
                     self.log.error(f"Unrecognized type of chunk yielded: {type(chunk)}")
                     break
+
+                if not received_first_chunk:
+                    # when receiving the first chunk, start the stream.
+                    received_first_chunk = True
+                    self.message_interrupted[stream_id] = asyncio.Event()
 
             # if stream was interrupted, add a tombstone
             if stream_interrupted:
                 stream_tombstone = "\n\n(AI response stopped by user)"
                 reply_stream.write(stream_tombstone)
+            if stream_id and stream_id in self.message_interrupted.keys():
+                del self.message_interrupted[stream_id]
 
 
 class GenerationInterrupted(asyncio.CancelledError):

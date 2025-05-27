@@ -28,6 +28,7 @@ from .handlers import (
     AutocompleteOptionsHandler,
     EmbeddingsModelProviderHandler,
     GlobalConfigHandler,
+    InterruptStreamingHandler,
     ModelProviderHandler,
     SlashCommandsInfoHandler,
 )
@@ -77,6 +78,7 @@ class AiExtension(ExtensionApp):
         (r"api/ai/config/?", GlobalConfigHandler),
         (r"api/ai/chats/slash_commands?", SlashCommandsInfoHandler),
         (r"api/ai/chats/autocomplete_options?", AutocompleteOptionsHandler),
+        (r"api/ai/chats/stop_streaming?", InterruptStreamingHandler),
         (r"api/ai/providers?", ModelProviderHandler),
         (r"api/ai/providers/embeddings?", EmbeddingsModelProviderHandler),
         (r"api/ai/completion/inline/?", DefaultInlineCompletionHandler),
@@ -636,6 +638,7 @@ class AiExtension(ExtensionApp):
                 config_manager=config_manager,
                 event_loop=self.event_loop,
                 log=self.log,
+                message_interrupted=self.settings.get("jai_message_interrupted"),
             )
         except Exception as e:
             # TODO: how to stop the extension when this fails
