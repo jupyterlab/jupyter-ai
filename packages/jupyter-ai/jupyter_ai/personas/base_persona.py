@@ -1,5 +1,5 @@
-from abc import ABC, abstractmethod
 import asyncio
+from abc import ABC, abstractmethod
 from dataclasses import asdict
 from logging import Logger
 from time import time
@@ -232,7 +232,11 @@ class BasePersona(ABC):
         try:
             self.awareness.set_local_state_field("isWriting", True)
             async for chunk in reply_stream:
-                if stream_id and stream_id in self.message_interrupted.keys() and self.message_interrupted[stream_id].is_set():
+                if (
+                    stream_id
+                    and stream_id in self.message_interrupted.keys()
+                    and self.message_interrupted[stream_id].is_set()
+                ):
                     try:
                         # notify the model provider that streaming was interrupted
                         # (this is essential to allow the model to stop generating)
