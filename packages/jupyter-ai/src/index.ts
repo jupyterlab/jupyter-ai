@@ -1,4 +1,5 @@
 import { INotebookShell } from '@jupyter-notebook/application';
+import { IMessageFooterRegistry } from '@jupyter/chat';
 import {
   JupyterFrontEnd,
   JupyterFrontEndPlugin
@@ -16,6 +17,7 @@ import { SingletonLayout, Widget } from '@lumino/widgets';
 
 import { chatCommandPlugins } from './chat-commands';
 import { completionPlugin } from './completions';
+import { StopButton } from './components/message-footer/stop-button';
 import { statusItemPlugin } from './status';
 import { IJaiCompletionProvider } from './tokens';
 import { buildErrorWidget } from './widgets/chat-error';
@@ -104,10 +106,23 @@ const plugin: JupyterFrontEndPlugin<void> = {
   }
 };
 
+const stopStreaming: JupyterFrontEndPlugin<void> = {
+  id: '@jupyter-ai/core:stop-streaming',
+  autoStart: true,
+  requires: [IMessageFooterRegistry],
+  activate: (app: JupyterFrontEnd, registry: IMessageFooterRegistry) => {
+    registry.addSection({
+      component: StopButton,
+      position: 'center'
+    });
+  }
+};
+
 export default [
   plugin,
   statusItemPlugin,
   completionPlugin,
+  stopStreaming,
   ...chatCommandPlugins
 ];
 
