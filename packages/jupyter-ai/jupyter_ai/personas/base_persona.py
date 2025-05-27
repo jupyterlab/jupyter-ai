@@ -206,6 +206,7 @@ class BasePersona(ABC):
             name=self.name,
             display_name=self.name,
             avatar_url=self.avatar_path,
+            bot=True,
         )
 
     def as_user_dict(self) -> dict[str, Any]:
