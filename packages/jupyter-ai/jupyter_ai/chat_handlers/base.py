@@ -454,7 +454,11 @@ class BaseChatHandler:
             stream_interrupted = False
             stream_id = None
             async for chunk in chunk_generator:
-                if stream_id and stream_id in self.message_interrupted.keys() and self.message_interrupted[stream_id].is_set():
+                if (
+                    stream_id
+                    and stream_id in self.message_interrupted.keys()
+                    and self.message_interrupted[stream_id].is_set()
+                ):
                     try:
                         # notify the model provider that streaming was interrupted
                         # (this is essential to allow the model to stop generating)
@@ -478,7 +482,6 @@ class BaseChatHandler:
 
                 if not received_first_chunk:
                     # when receiving the first chunk, start the stream.
-                    received_first_chunk = True
                     self.message_interrupted[stream_id] = asyncio.Event()
 
             # if stream was interrupted, add a tombstone
