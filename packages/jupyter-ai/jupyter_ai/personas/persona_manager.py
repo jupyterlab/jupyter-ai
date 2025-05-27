@@ -1,3 +1,4 @@
+import asyncio
 from logging import Logger
 from time import time_ns
 from typing import TYPE_CHECKING, ClassVar, Optional
@@ -37,11 +38,13 @@ class PersonaManager:
         config_manager: ConfigManager,
         event_loop: "AbstractEventLoop",
         log: Logger,
+        message_interrupted: dict[str, asyncio.Event],
     ):
         self.ychat = ychat
         self.config_manager = config_manager
         self.event_loop = event_loop
         self.log = log
+        self.message_interrupted = message_interrupted
 
         if not isinstance(PersonaManager._persona_classes, list):
             self._init_persona_classes()
@@ -125,6 +128,7 @@ class PersonaManager:
                     manager=self,
                     config=self.config_manager,
                     log=self.log,
+                    message_interrupted=self.message_interrupted,
                 )
             except Exception:
                 self.log.exception(

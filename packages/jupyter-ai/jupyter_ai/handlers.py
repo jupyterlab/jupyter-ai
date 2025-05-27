@@ -204,6 +204,17 @@ class ApiKeysHandler(BaseAPIHandler):
             raise HTTPError(500, str(e))
 
 
+class InterruptStreamingHandler(BaseAPIHandler):
+    """Interrupt a current message streaming"""
+
+    @web.authenticated
+    def post(self):
+        message_id = self.get_json_body().get("message_id")
+        message_interrupted = self.settings.get("jai_message_interrupted")
+        if message_id and message_id in message_interrupted.keys():
+            message_interrupted[message_id].set()
+
+
 class SlashCommandsInfoHandler(BaseAPIHandler):
     """List slash commands that are currently available to the user."""
 
