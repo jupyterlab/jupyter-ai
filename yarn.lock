@@ -2237,7 +2237,7 @@ __metadata:
     "@emotion/react": ^11.10.5
     "@emotion/styled": ^11.10.5
     "@jupyter-notebook/application": ^7.2.0
-    "@jupyter/chat": ^0.10.0
+    "@jupyter/chat": ^0.11.0
     "@jupyterlab/application": ^4.2.0
     "@jupyterlab/apputils": ^4.2.0
     "@jupyterlab/builder": ^4.2.0
@@ -2322,9 +2322,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@jupyter/chat@npm:^0.10.0":
-  version: 0.10.0
-  resolution: "@jupyter/chat@npm:0.10.0"
+"@jupyter/chat@npm:^0.11.0":
+  version: 0.11.0
+  resolution: "@jupyter/chat@npm:0.11.0"
   dependencies:
     "@emotion/react": ^11.10.5
     "@emotion/styled": ^11.10.5
@@ -2346,7 +2346,7 @@ __metadata:
     clsx: ^2.1.0
     react: ^18.2.0
     react-dom: ^18.2.0
-  checksum: c9b0bc1c39b966a94415f6b95c86bda1a1bedefc654cec051ca6ebd30fc218a31cc1a62628bf2c5b529284cdafd5ce3fe9e15bb9bfdaa21960d47acdc2b66ebd
+  checksum: e7b5c47c94b6afa3ce6926c4f9ed1a913cfb95d7187015d058550b69cf26bdbd42240b8f550646f9ddfeed34c35ac81c7a664c1873152fa4ddd2a5f36ed5eb51
   languageName: node
   linkType: hard
 
