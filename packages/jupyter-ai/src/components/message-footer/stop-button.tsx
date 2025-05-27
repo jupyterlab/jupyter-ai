@@ -26,7 +26,10 @@ export function StopButton(props: MessageFooterSectionProps): JSX.Element {
     };
 
     // Listen only the messages that are from a bot.
-    if (message.sender.username !== model.user?.username && message.sender.bot) {
+    if (
+      message.sender.username !== model.user?.username &&
+      message.sender.bot
+    ) {
       model.writersChanged?.connect(writerChanged);
 
       // Check if the message is currently being edited.
