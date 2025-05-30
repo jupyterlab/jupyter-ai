@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from ._import_utils import import_attr
+from ._import_utils import import_attr as _import_attr
 from ._version import __version__
 
 if TYPE_CHECKING:
@@ -55,7 +55,7 @@ else:
 
     def __getattr__(attr_name: str) -> object:
         module_name = _dynamic_imports_map.get(attr_name)
-        result = import_attr(attr_name, module_name, __spec__.parent)
+        result = _import_attr(attr_name, module_name, __spec__.parent)
         globals()[attr_name] = result
         return result
 
