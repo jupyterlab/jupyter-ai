@@ -1,7 +1,7 @@
 from langchain_cohere import ChatCohere, CohereEmbeddings
 
+from ..base_provider import BaseProvider, EnvAuthStrategy
 from ..embedding_providers import BaseEmbeddingsProvider
-from ..providers import BaseProvider, EnvAuthStrategy
 
 
 class CohereProvider(BaseProvider, ChatCohere):

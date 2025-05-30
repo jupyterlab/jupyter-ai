@@ -18,6 +18,7 @@ from langchain.schema import HumanMessage
 from langchain_core.messages import AIMessage
 
 from ._version import __version__
+from .base_provider import BaseProvider
 from .parsers import (
     CellArgs,
     DeleteArgs,
@@ -31,7 +32,6 @@ from .parsers import (
     cell_magic_parser,
     line_magic_parser,
 )
-from .providers import BaseProvider
 
 
 class TextOrMarkdown:
