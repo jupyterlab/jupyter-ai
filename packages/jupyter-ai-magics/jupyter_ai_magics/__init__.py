@@ -1,5 +1,4 @@
-from langchain_core._import_utils import import_attr
-
+from ._import_utils import import_attr
 from ._version import __version__
 
 _dynamic_imports = {
