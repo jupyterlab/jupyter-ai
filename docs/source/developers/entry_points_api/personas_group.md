@@ -8,9 +8,9 @@
 This entry point group allows packages to add custom AI personas to the chat.
 AI personas are analogous to "bots" in other chat applications. Every available
 persona will be available in every chat by default. If a chat has any other
-users besides the current user & a single AI persona, then AI personas will only
-respond when `@`-mentioned. Jupyternaut provides a single AI persona by default:
-`Jupyternaut`.
+users besides the current user and a single AI persona, then AI personas will
+only respond when `@`-mentioned. Jupyternaut provides a single AI persona by
+default: `Jupyternaut`.
 
 For example, if your Jupyter AI instance has `Jupyternaut` and `MyCustomPersona`
 as 2 AI personas, then each persona will only respond when `@`-mentioned.
@@ -36,7 +36,7 @@ The two abstract methods required are the `defaults` property and the
 `process_message()` method.
 
 - `defaults` defines the default settings of the persona. This is mainly used to
-control the name & avatar shown in the Jupyter AI chat.
+control the name and avatar shown in the Jupyter AI chat.
 
 - `process_message()` defines how your persona responds to new messages.
 
@@ -86,7 +86,7 @@ However, if your persona wants to use the same configured LangChain model used
 by Jupyternaut, you can access that through the `self.config: ConfigManager`
 attribute available to subclasses.
 
-Add & call this method on a persona to access the LangChain runnable used by
+Add and call this method on a persona to access the LangChain runnable used by
 Jupyternaut:
 
 ```py
