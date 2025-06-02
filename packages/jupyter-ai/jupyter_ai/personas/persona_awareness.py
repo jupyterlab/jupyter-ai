@@ -41,7 +41,7 @@ class PersonaAwareness:
 
     _original_client_id: int
     _custom_client_id: int
-    _heartbeat: Task | None = None
+    _heartbeat: Optional[Task] = None
 
     def __init__(self, *, ychat: YChat, log: Logger, user: Optional[User]):
         # Bind instance attributes
