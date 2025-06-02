@@ -119,8 +119,9 @@ class PersonaAwareness:
         Restore the local state if it is not set, and register the user if available.
         """
         if self._heartbeat:
+            username = self.user.username if self.user else "unknown user"
             self.log.warning(
-                f"Awareness heartbeat is already running for {self._custom_client_id} ({self.user.username})."
+                f"Awareness heartbeat is already running for {self._custom_client_id} ({username})."
             )
             return
 
