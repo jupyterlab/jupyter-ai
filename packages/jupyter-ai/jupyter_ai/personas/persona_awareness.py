@@ -1,5 +1,5 @@
-from asyncio import Task, TaskGroup, create_task
 import random
+from asyncio import Task, create_task
 from contextlib import contextmanager
 from dataclasses import asdict
 from logging import Logger
@@ -103,7 +103,8 @@ class PersonaAwareness:
             local_state = self.get_local_state()
             if (
                 local_state is not None
-                and self.outdated_timeout / 2 <= now - self.awareness.meta[self._custom_client_id]["lastUpdated"]
+                and self.outdated_timeout / 2
+                <= now - self.awareness.meta[self._custom_client_id]["lastUpdated"]
             ):
                 # renew local clock
                 with self.as_custom_client():
