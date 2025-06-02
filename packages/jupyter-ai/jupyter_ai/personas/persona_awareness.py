@@ -41,7 +41,7 @@ class PersonaAwareness:
 
     _original_client_id: int
     _custom_client_id: int
-    _heartbeat: Task | None
+    _heartbeat: Task | None = None
 
     def __init__(self, *, ychat: YChat, log: Logger, user: Optional[User]):
         # Bind instance attributes
@@ -64,7 +64,12 @@ class PersonaAwareness:
         if self.user:
             self._register_user()
 
-        self._heartbeat = create_task(self._start())
+        # Start the awareness heartbeat task
+        self._on_awareness_changed("change", None)
+
+        # Observe awareness changes to keep the heartbeat or not, whether there are
+        # users (not bot) in the awareness state or not.
+        self.awareness.observe(self._on_awareness_changed)
 
     @contextmanager
     def as_custom_client(self) -> "Iterator[None]":
@@ -90,8 +95,41 @@ class PersonaAwareness:
         """
         return self.awareness._outdated_timeout
 
+    def _register_user(self):
+        if not self.user:
+            return
+
+        with self.as_custom_client():
+            self.awareness.set_local_state_field("user", asdict(self.user))
+
+    def get_local_state(self) -> Optional[dict[str, Any]]:
+        with self.as_custom_client():
+            return self.awareness.get_local_state()
+
+    def set_local_state_field(self, field: str, value: Any) -> None:
+        with self.as_custom_client():
+            self.awareness.set_local_state_field(field, value)
+
     def _get_time(self) -> int:
         return int(time() * 1000)
+
+    def start(self) -> None:
+        """
+        Starts the awareness heartbeat task if it is not already running.
+        Restore the local state if it is not set, and register the user if available.
+        """
+        if self._heartbeat:
+            self.log.warning("Awareness heartbeat is already running.")
+            return
+
+        if self.get_local_state() is None:
+            with self.as_custom_client():
+                self.awareness.set_local_state({})
+
+            if self.user:
+                self._register_user()
+
+        self._heartbeat = create_task(self._start())
 
     async def _start(self) -> None:
         """
@@ -110,17 +148,33 @@ class PersonaAwareness:
                 with self.as_custom_client():
                     self.awareness.set_local_state(local_state)
 
-    def _register_user(self):
-        if not self.user:
+    def stop(self) -> None:
+        """
+        Stops the awareness heartbeat task if it is running.
+        """
+        if self._heartbeat:
+            self._heartbeat.cancel()
+            self._heartbeat = None
+
+    def _on_awareness_changed(self, topic, changes) -> None:
+        """
+        Callback method called when the awareness state changes.
+        Check if there are still users in the awareness state, and if not,
+        stop updating the personna awareness state.
+        """
+        if not topic == "change":
             return
 
-        with self.as_custom_client():
-            self.awareness.set_local_state_field("user", asdict(self.user))
+        states = self.awareness.states
+        should_be_started = False
+        for state in states.values():
+            if "user" in state and (
+                not "bot" in state["user"] or not state["user"]["bot"]
+            ):
+                should_be_started = True
+                break
 
-    def get_local_state(self) -> Optional[dict[str, Any]]:
-        with self.as_custom_client():
-            return self.awareness.get_local_state()
-
-    def set_local_state_field(self, field: str, value: Any) -> None:
-        with self.as_custom_client():
-            self.awareness.set_local_state_field(field, value)
+        if should_be_started and not self._heartbeat:
+            self.start()
+        elif not should_be_started and self._heartbeat:
+            self.stop()
