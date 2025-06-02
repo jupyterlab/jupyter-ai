@@ -27,7 +27,7 @@ This group expects a **persona class**, a subclass of
 `jupyter_ai.personas:BasePersona`. Instructions on defining one are given in the
 next section.
 
-## How-to: define a custom AI persona
+## How-to: Define a custom AI persona
 
 Defining a custom AI persona is simple. One needs to define a new class that
 inherits from `BasePersona` and implements its two abstract methods.

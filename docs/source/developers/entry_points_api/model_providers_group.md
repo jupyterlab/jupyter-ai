@@ -16,7 +16,7 @@ This is a v2 extension point that may be removed in v3. In v3, we may explore
 updating the model API to make it easier for developers to add custom models.
 :::
 
-## How-to: define a custom model provider
+## How-to: Define a custom model provider
 
 You can define new providers using the LangChain framework API. Custom providers
 inherit from both `jupyter-ai`'s `BaseProvider` and `langchain`'s [`LLM`][LLM].
@@ -136,7 +136,7 @@ key specified by the key in the field object. The label specified in the field
 object determines the text shown in the configuration section of the user
 interface.
 
-## How-to: define custom code completions
+## How-to: Define custom code completions
 
 Any model provider derived from `BaseProvider` can be used as a completion provider.
 However, some providers may benefit from customizing handling of completion requests.

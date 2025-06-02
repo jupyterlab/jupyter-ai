@@ -18,7 +18,7 @@ This is a v2 extension point that may be removed in v3. In v3, we may explore
 updating the model API to make it easier for developers to add custom models.
 :::
 
-## How-to: define a custom embedding model provider
+## How-to: Define a custom embedding model provider
 
 ```python
 from jupyter_ai_magics import BaseEmbeddingsProvider
