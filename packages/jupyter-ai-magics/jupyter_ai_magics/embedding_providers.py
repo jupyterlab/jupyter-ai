@@ -1,6 +1,6 @@
 from typing import ClassVar, Optional
 
-from jupyter_ai_magics.providers import (
+from jupyter_ai_magics.base_provider import (
     AuthStrategy,
     EnvAuthStrategy,
     Field,

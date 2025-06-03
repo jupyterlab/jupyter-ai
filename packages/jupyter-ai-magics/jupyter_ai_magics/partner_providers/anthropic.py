@@ -1,6 +1,6 @@
 from langchain_anthropic import ChatAnthropic
 
-from ..providers import BaseProvider, EnvAuthStrategy
+from ..base_provider import BaseProvider, EnvAuthStrategy
 
 
 class ChatAnthropicProvider(
