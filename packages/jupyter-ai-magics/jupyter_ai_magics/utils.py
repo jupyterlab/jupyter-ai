@@ -3,8 +3,8 @@ from typing import Literal, Optional, Union
 
 from importlib_metadata import entry_points
 from jupyter_ai_magics.aliases import MODEL_ID_ALIASES
+from jupyter_ai_magics.base_provider import BaseProvider
 from jupyter_ai_magics.embedding_providers import BaseEmbeddingsProvider
-from jupyter_ai_magics.providers import BaseProvider
 
 Logger = Union[logging.Logger, logging.LoggerAdapter]
 LmProvidersDict = dict[str, BaseProvider]

@@ -8,8 +8,8 @@ from langchain_aws import BedrockEmbeddings, BedrockLLM, ChatBedrock, SagemakerE
 from langchain_aws.llms.sagemaker_endpoint import LLMContentHandler
 from langchain_core.outputs import LLMResult
 
+from ..base_provider import AwsAuthStrategy, BaseProvider, MultilineTextField, TextField
 from ..embedding_providers import BaseEmbeddingsProvider
-from ..providers import AwsAuthStrategy, BaseProvider, MultilineTextField, TextField
 
 
 # See model ID list here: https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids.html
