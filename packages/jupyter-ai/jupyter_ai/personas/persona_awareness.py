@@ -1,9 +1,8 @@
+import asyncio
 import random
-from asyncio import Task, create_task
 from contextlib import contextmanager
 from dataclasses import asdict
 from logging import Logger
-from time import time
 from typing import TYPE_CHECKING, Any, Optional
 
 from anyio import create_task_group, sleep
@@ -41,7 +40,7 @@ class PersonaAwareness:
 
     _original_client_id: int
     _custom_client_id: int
-    _heartbeat: Optional[Task] = None
+    _heartbeat_task: asyncio.Task
 
     def __init__(self, *, ychat: YChat, log: Logger, user: Optional[User]):
         # Bind instance attributes
@@ -59,13 +58,13 @@ class PersonaAwareness:
         self._custom_client_id = random.getrandbits(32)
 
         with self.as_custom_client():
-            self.awareness.set_local_state({})
+            self.set_local_state({})
 
         if self.user:
             self._register_user()
 
         # Start the awareness heartbeat task
-        self._on_awareness_changed("change", None)
+        self._heartbeat_task = asyncio.create_task(self._start_heartbeat())
 
         # Observe awareness changes to keep the heartbeat or not, whether there are
         # users (not bot) in the awareness state or not.
@@ -92,6 +91,10 @@ class PersonaAwareness:
     def outdated_timeout(self) -> int:
         """
         Returns the outdated timeout of the document awareness, in milliseconds.
+        The timeout value should be 30000 milliseconds (30 seconds), according to the
+        default value in `y-protocols.awareness` and `pycrdt.Awareness`.
+        - https://github.com/yjs/y-protocols/blob/2d8cd5c06b3925fbf9b5215dc341f8096a0a8d5c/awareness.js#L13
+        - https://github.com/y-crdt/pycrdt/blob/e269a3e63ad7986a3349e2d2bc7bd5f0dfca9c79/python/pycrdt/_awareness.py#L23
         """
         return self.awareness._outdated_timeout
 
@@ -103,61 +106,46 @@ class PersonaAwareness:
             self.awareness.set_local_state_field("user", asdict(self.user))
 
     def get_local_state(self) -> Optional[dict[str, Any]]:
+        """
+        Returns the local state of the awareness instance.
+        """
         with self.as_custom_client():
             return self.awareness.get_local_state()
 
+    def set_local_state(self, state: dict[str, Any]) -> None:
+        """
+        Sets the local state of the awareness instance to the provided state.
+        This method is used to update the local state of the awareness instance
+        with a new state dictionary.
+        """
+        with self.as_custom_client():
+            self.awareness.set_local_state(state)
+
     def set_local_state_field(self, field: str, value: Any) -> None:
+        """
+        Sets a specific field in the local state of the awareness instance.
+        """
         with self.as_custom_client():
             self.awareness.set_local_state_field(field, value)
 
-    def _get_time(self) -> int:
-        return int(time() * 1000)
-
-    def start(self) -> None:
+    async def _start_heartbeat(self):
         """
-        Starts the awareness heartbeat task if it is not already running.
-        Restore the local state if it is not set, and register the user if available.
-        """
-        if self._heartbeat:
-            username = self.user.username if self.user else "unknown user"
-            self.log.warning(
-                f"Awareness heartbeat is already running for {self._custom_client_id} ({username})."
-            )
-            return
-
-        if self.get_local_state() is None:
-            with self.as_custom_client():
-                self.awareness.set_local_state({})
-
-            if self.user:
-                self._register_user()
-
-        self._heartbeat = create_task(self._start())
-
-    async def _start(self) -> None:
-        """
-        Starts the awareness heartbeat task, which periodically renews the state.
+        Background task that updates this instance's local state every
+        `0.8 * self.outdated_timeout` milliseconds. `pycrdt` and `yjs`
+        automatically disconnect clients if they do not make updates in
+        a long time (default: 30000 ms). This task keeps personas alive
+        after 30 seconds of no usage in each chat session.
         """
         while True:
-            await sleep(self.outdated_timeout / 1000 / 10)
-            now = self._get_time()
-            local_state = self.get_local_state()
-            if (
-                local_state is not None
-                and self.outdated_timeout / 2
-                <= now - self.awareness.meta[self._custom_client_id]["lastUpdated"]
-            ):
-                # renew local clock
-                with self.as_custom_client():
-                    self.awareness.set_local_state(local_state)
+            await asyncio.sleep(0.8 * self.outdated_timeout / 1000)
+            local_state = self.get_local_state() or {}
+            self.set_local_state(local_state)
 
     def stop(self) -> None:
         """
         Stops the awareness heartbeat task if it is running.
         """
-        if self._heartbeat:
-            self._heartbeat.cancel()
-            self._heartbeat = None
+        self._heartbeat_task.cancel()
 
     def _on_awareness_changed(self, topic, changes) -> None:
         """
@@ -177,7 +165,7 @@ class PersonaAwareness:
                 should_be_started = True
                 break
 
-        if should_be_started and not self._heartbeat:
-            self.start()
-        elif not should_be_started and self._heartbeat:
+        if should_be_started and self._heartbeat_task.cancelled():
+            self._heartbeat_task = asyncio.create_task(self._start_heartbeat())
+        elif not should_be_started and not self._heartbeat_task.cancelled():
             self.stop()
