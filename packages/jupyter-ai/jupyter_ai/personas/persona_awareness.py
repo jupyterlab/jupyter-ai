@@ -5,7 +5,6 @@ from dataclasses import asdict
 from logging import Logger
 from typing import TYPE_CHECKING, Any, Optional
 
-from anyio import create_task_group, sleep
 from jupyterlab_chat.models import User
 from jupyterlab_chat.ychat import YChat
 from pycrdt import Awareness
