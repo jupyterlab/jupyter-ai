@@ -12,7 +12,7 @@ def test_uses_lazy_imports():
 
 
 def test_all_includes_all_dynamic_imports():
-    dynamic_imports = set(jupyter_ai_magics._dynamic_imports_map.keys())
+    dynamic_imports = set(jupyter_ai_magics._modules_by_export.keys())
     assert dynamic_imports - set(jupyter_ai_magics.__all__) == set()
 
 
@@ -21,7 +21,7 @@ def test_dir_returns_all():
 
 
 def test_all_type_checked():
-    dynamic_imports = set(jupyter_ai_magics._dynamic_imports_map.keys())
+    dynamic_imports = set(jupyter_ai_magics._modules_by_export.keys())
     tree = ast.parse(inspect.getsource(jupyter_ai_magics))
     imports_in_type_checking = {
         alias.asname if alias.asname else alias.name

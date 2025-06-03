@@ -23,7 +23,7 @@ if TYPE_CHECKING:
         TogetherAIProvider,
     )
 else:
-    _dynamic_imports = {
+    _exports_by_module = {
         # expose embedding model providers on the package root
         "embedding_providers": [
             "BaseEmbeddingsProvider",
@@ -47,16 +47,16 @@ else:
         ],
     }
 
-    _dynamic_imports_map = {
+    _modules_by_export = {
         import_name: module
-        for module, imports in _dynamic_imports.items()
+        for module, imports in _exports_by_module.items()
         for import_name in imports
     }
 
-    def __getattr__(attr_name: str) -> object:
-        module_name = _dynamic_imports_map.get(attr_name)
-        result = _import_attr(attr_name, module_name, __spec__.parent)
-        globals()[attr_name] = result
+    def __getattr__(export_name: str) -> object:
+        module_name = _modules_by_export.get(export_name)
+        result = _import_attr(export_name, module_name, __spec__.parent)
+        globals()[export_name] = result
         return result
 
 
