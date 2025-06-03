@@ -103,7 +103,7 @@ export class JaiInlineProvider
       this._streamPromises.clear();
     }
     const result = await this.options.completionHandler.sendMessage({
-      path: context.session?.path,
+      path,
       mime,
       prefix: this._prefixFromRequest(request),
       suffix: this._suffixFromRequest(request),
