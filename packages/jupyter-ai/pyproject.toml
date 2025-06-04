@@ -37,7 +37,7 @@ dependencies = [
     # traitlets>=5.6 is required in JL4
     "traitlets>=5.6",
     "deepmerge>=2.0,<3",
-    "jupyterlab-chat>=0.11.0,<0.12.0",
+    "jupyterlab-chat>=0.12.0,<0.13.0",
 ]
 
 dynamic = ["version", "description", "authors", "urls", "keywords"]
