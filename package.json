@@ -1,6 +1,6 @@
 {
   "name": "@jupyter-ai/monorepo",
-  "version": "2.31.4",
+  "version": "2.31.5",
   "description": "A generative AI extension for JupyterLab",
   "private": true,
   "keywords": [

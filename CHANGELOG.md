@@ -2,6 +2,31 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 2.31.5
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.31.4...d563c38061a0263876cb0d74fd2571072ac15f45))
+
+### Enhancements made
+
+- Separate `BaseProvider` for faster import [#1338](https://github.com/jupyterlab/jupyter-ai/pull/1338) ([@krassowski](https://github.com/krassowski))
+
+### Bugs fixed
+
+- Fix the path missing in inline completion request when there is no kernel [#1361](https://github.com/jupyterlab/jupyter-ai/pull/1361) ([@krassowski](https://github.com/krassowski))
+- Added a local identity provider. [#1333](https://github.com/jupyterlab/jupyter-ai/pull/1333) ([@3coins](https://github.com/3coins))
+
+### Maintenance and upkeep improvements
+
+- Add `pyupgrade --py39-plus` and `autoflake` to `pre-commit` config [#1329](https://github.com/jupyterlab/jupyter-ai/pull/1329) ([@rominf](https://github.com/rominf))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2025-04-24&to=2025-06-04&type=c))
+
+[@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2025-04-24..2025-06-04&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2025-04-24..2025-06-04&type=Issues) | [@meeseeksmachine](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ameeseeksmachine+updated%3A2025-04-24..2025-06-04&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 2.31.4
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.31.3...179a7c7b404df873207811aa31fef15e14cbeeb9))
@@ -15,8 +40,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2025-04-15&to=2025-04-24&type=c))
 
 [@meeseeksmachine](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ameeseeksmachine+updated%3A2025-04-15..2025-04-24&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 2.31.3
 
