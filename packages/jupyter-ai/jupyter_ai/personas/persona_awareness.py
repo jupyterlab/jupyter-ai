@@ -22,7 +22,7 @@ class PersonaAwareness:
 
     - This class optionally accepts a `User` object in the constructor. When
     passed, this class will automatically register this user in the awareness
-    dictionary.
+    dictionary on init.
 
     - This class works by manually setting `ydoc.awareness.client_id` before &
     after each method call. This class provides a `self.as_custom_client()`
@@ -56,18 +56,13 @@ class PersonaAwareness:
         self._original_client_id = self.awareness.client_id
         self._custom_client_id = random.getrandbits(32)
 
-        with self.as_custom_client():
-            self.set_local_state({})
-
+        # Initialize local awareness state using the custom client ID
+        self.set_local_state({})
         if self.user:
             self._register_user()
 
         # Start the awareness heartbeat task
         self._heartbeat_task = asyncio.create_task(self._start_heartbeat())
-
-        # Observe awareness changes to keep the heartbeat or not, whether there are
-        # users (not bot) in the awareness state or not.
-        self.awareness.observe(self._on_awareness_changed)
 
     @contextmanager
     def as_custom_client(self) -> "Iterator[None]":
@@ -145,26 +140,3 @@ class PersonaAwareness:
         Stops the awareness heartbeat task if it is running.
         """
         self._heartbeat_task.cancel()
-
-    def _on_awareness_changed(self, topic, changes) -> None:
-        """
-        Callback method called when the awareness state changes.
-        Check if there are still users in the awareness state, and if not,
-        stop updating the personna awareness state.
-        """
-        if not topic == "change":
-            return
-
-        states = self.awareness.states
-        should_be_started = False
-        for state in states.values():
-            if "user" in state and (
-                not "bot" in state["user"] or not state["user"]["bot"]
-            ):
-                should_be_started = True
-                break
-
-        if should_be_started and self._heartbeat_task.cancelled():
-            self._heartbeat_task = asyncio.create_task(self._start_heartbeat())
-        elif not should_be_started and not self._heartbeat_task.cancelled():
-            self.stop()
