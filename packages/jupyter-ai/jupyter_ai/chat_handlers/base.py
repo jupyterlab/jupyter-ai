@@ -275,11 +275,11 @@ class BaseChatHandler:
         TODO: Either properly store & use reply state in YChat, or remove the
         `human_message` argument here.
         """
-        bot = self.ychat.get_user(BOT["username"])
+        bot = self.ychat.get_user(BOT.username)
         if not bot:
-            self.ychat.set_user(User(**BOT))
+            self.ychat.set_user(BOT)
 
-        id = self.ychat.add_message(NewMessage(body=body, sender=BOT["username"]))
+        id = self.ychat.add_message(NewMessage(body=body, sender=BOT.username))
         return id
 
     @property

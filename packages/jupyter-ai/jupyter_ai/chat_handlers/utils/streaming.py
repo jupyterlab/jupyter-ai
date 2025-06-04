@@ -38,9 +38,9 @@ class ReplyStream:
         self._stream_id: Optional[str] = None
 
     def _set_user(self):
-        bot = self.ychat.get_user(BOT["username"])
+        bot = self.ychat.get_user(BOT.username)
         if not bot:
-            self.ychat.set_user(User(**BOT))
+            self.ychat.set_user(BOT)
 
     def open(self):
         self._set_user()
@@ -60,7 +60,7 @@ class ReplyStream:
         if not self._stream_id:
             self._set_user()
             self._stream_id = self.ychat.add_message(
-                NewMessage(body="", sender=BOT["username"])
+                NewMessage(body="", sender=BOT.username)
             )
 
         self._set_user()
@@ -69,7 +69,7 @@ class ReplyStream:
                 id=self._stream_id,
                 body=chunk,
                 time=time.time(),
-                sender=BOT["username"],
+                sender=BOT.username,
                 raw_time=False,
             ),
             append=True,
