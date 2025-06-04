@@ -2,6 +2,107 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 3.0.0a1
+
+Hey folks! This v3 release notably introduces **AI personas** that replace chat handlers, fixes various usability issues encountered in v3.0.0a0, and upgrades to LangChain v0.3 & Pydantic v2. 🎉
+
+### AI personas
+
+AI personas re-define how new messages are handled in Jupyter AI, and supersede the previous convention of "chat handlers" used in v2. AI personas are like "chatbots" available in every chat instance and can use any model/framework of their choice.
+
+- Each chat can have any number of AI personas.
+- **You have to `@`-mention a persona to get it to reply.** The available personas will be listed after typing `@`, which shows a menu listing the available personas.
+- Currently, Jupyter AI only has a single AI persona by default: Jupyternaut.
+- Each message may mention any number of AI personas, so you can send the same question to multiple personas.
+- Personas can have a custom name & avatar.
+- Custom AI personas can be added to your Jupyter AI instance by writing & installing a new package that provides custom AI personas as entry points.
+- We plan to add more AI personas by default and/or provide library packages that add AI personas.
+- More information will be available in the v3 user documentation once it is ready.
+
+There's also a new v3 documentation page! Currently, only the developer documentation has been updated. Please read through the v3 developer docs if you are interested in writing your own AI personas. 🤗
+
+- Link to new v3 developer docs: https://jupyter-ai.readthedocs.io/en/v3/developers/index.html
+
+### Planned future work
+
+- Jupyternaut in v3 is similar to Jupyternaut in v2, but currently lacks slash commands. We are planning to replace slash commands with agentic tools called by the chat model directly.
+
+  - In other words, Jupyternaut will infer your intent based on your prompt and automatically learn/generate/fix files by v3.0.0.
+  - We will develop this once we begin work on providing APIs for agentic tool use and integrating MCP support after v3.0.0b0 (beta development phase).
+
+- See the roadmap issue & GitHub milestones for more details on our future work: https://github.com/jupyterlab/jupyter-ai/issues/1052
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@3.0.0-alpha.0...eeeaecec66f1e8556f5064d61829f116724aee3c))
+
+### Enhancements made
+
+- Introduce AI persona framework [#1341](https://github.com/jupyterlab/jupyter-ai/pull/1341) ([@dlqqq](https://github.com/dlqqq))
+- Separate `BaseProvider` for faster import [#1338](https://github.com/jupyterlab/jupyter-ai/pull/1338) ([@krassowski](https://github.com/krassowski))
+- Added new `gpt-4.1` models [#1325](https://github.com/jupyterlab/jupyter-ai/pull/1325) ([@srdas](https://github.com/srdas))
+- Introduce AI persona framework [#1324](https://github.com/jupyterlab/jupyter-ai/pull/1324) ([@dlqqq](https://github.com/dlqqq))
+- [v3] Upgrade to jupyterlab-chat v0.8, restore context command completions [#1290](https://github.com/jupyterlab/jupyter-ai/pull/1290) ([@dlqqq](https://github.com/dlqqq))
+- Added help text fields for embedding providers in the AI Setting page [#1288](https://github.com/jupyterlab/jupyter-ai/pull/1288) ([@srdas](https://github.com/srdas))
+- Allow chat handlers to be initialized in any order [#1268](https://github.com/jupyterlab/jupyter-ai/pull/1268) ([@Darshan808](https://github.com/Darshan808))
+- Allow embedding model fields, fix coupled model fields, add custom OpenAI provider [#1264](https://github.com/jupyterlab/jupyter-ai/pull/1264) ([@srdas](https://github.com/srdas))
+- Refactor Chat Handlers to Simplify Initialization [#1257](https://github.com/jupyterlab/jupyter-ai/pull/1257) ([@Darshan808](https://github.com/Darshan808))
+- Make Native Chat Handlers Overridable via Entry Points [#1249](https://github.com/jupyterlab/jupyter-ai/pull/1249) ([@Darshan808](https://github.com/Darshan808))
+- Upgrade to LangChain v0.3 and Pydantic v2 [#1201](https://github.com/jupyterlab/jupyter-ai/pull/1201) ([@dlqqq](https://github.com/dlqqq))
+- Show error icon near cursor on inline completion errors [#1197](https://github.com/jupyterlab/jupyter-ai/pull/1197) ([@Darshan808](https://github.com/Darshan808))
+
+### Bugs fixed
+
+- Fix the path missing in inline completion request when there is no kernel [#1361](https://github.com/jupyterlab/jupyter-ai/pull/1361) ([@krassowski](https://github.com/krassowski))
+- Periodically update the persona awareness to keep it alive [#1358](https://github.com/jupyterlab/jupyter-ai/pull/1358) ([@brichet](https://github.com/brichet))
+- Added a local identity provider. [#1333](https://github.com/jupyterlab/jupyter-ai/pull/1333) ([@3coins](https://github.com/3coins))
+- Handle missing field in config.json on version upgrade [#1330](https://github.com/jupyterlab/jupyter-ai/pull/1330) ([@srdas](https://github.com/srdas))
+- [3.x] Expand edge case handling in ConfigManager [#1322](https://github.com/jupyterlab/jupyter-ai/pull/1322) ([@dlqqq](https://github.com/dlqqq))
+- Open the AI settings in a side panel in Notebook application [#1309](https://github.com/jupyterlab/jupyter-ai/pull/1309) ([@brichet](https://github.com/brichet))
+- Add `default_completions_model` trait [#1303](https://github.com/jupyterlab/jupyter-ai/pull/1303) ([@srdas](https://github.com/srdas))
+- Pass `model_parameters` trait to embedding & completion models [#1298](https://github.com/jupyterlab/jupyter-ai/pull/1298) ([@srdas](https://github.com/srdas))
+- Migrate old config schemas, fix v2.31.0 regression [#1294](https://github.com/jupyterlab/jupyter-ai/pull/1294) ([@dlqqq](https://github.com/dlqqq))
+- Remove error log emitted when FAISS file is absent [#1287](https://github.com/jupyterlab/jupyter-ai/pull/1287) ([@srdas](https://github.com/srdas))
+- Ensure magics package version is consistent in future releases [#1280](https://github.com/jupyterlab/jupyter-ai/pull/1280) ([@dlqqq](https://github.com/dlqqq))
+- Correct minimum versions in dependency version ranges [#1272](https://github.com/jupyterlab/jupyter-ai/pull/1272) ([@dlqqq](https://github.com/dlqqq))
+- Allow embedding model fields, fix coupled model fields, add custom OpenAI provider [#1264](https://github.com/jupyterlab/jupyter-ai/pull/1264) ([@srdas](https://github.com/srdas))
+- Enforce path imports for MUI icons, upgrade to ESLint v8 [#1225](https://github.com/jupyterlab/jupyter-ai/pull/1225) ([@krassowski](https://github.com/krassowski))
+- Fixes duplicate api key being passed in `openrouter.py` [#1216](https://github.com/jupyterlab/jupyter-ai/pull/1216) ([@srdas](https://github.com/srdas))
+- Fix MUI theme in Jupyter AI Settings [#1210](https://github.com/jupyterlab/jupyter-ai/pull/1210) ([@MUFFANUJ](https://github.com/MUFFANUJ))
+- Fix Amazon Nova support (use `StrOutputParser`) [#1202](https://github.com/jupyterlab/jupyter-ai/pull/1202) ([@dlqqq](https://github.com/dlqqq))
+- Remove remaining shortcut to focus the chat input [#1186](https://github.com/jupyterlab/jupyter-ai/pull/1186) ([@brichet](https://github.com/brichet))
+- Fix specifying empty list in provider and model allow/denylists [#1185](https://github.com/jupyterlab/jupyter-ai/pull/1185) ([@MaicoTimmerman](https://github.com/MaicoTimmerman))
+- Reply gracefully when chat model is not selected [#1183](https://github.com/jupyterlab/jupyter-ai/pull/1183) ([@dlqqq](https://github.com/dlqqq))
+
+### Maintenance and upkeep improvements
+
+- Revert "Introduce AI persona framework (#1324)" [#1340](https://github.com/jupyterlab/jupyter-ai/pull/1340) ([@dlqqq](https://github.com/dlqqq))
+- Add `pyupgrade --py39-plus` and `autoflake` to `pre-commit` config [#1329](https://github.com/jupyterlab/jupyter-ai/pull/1329) ([@rominf](https://github.com/rominf))
+- Ensure magics package version is consistent in future releases [#1280](https://github.com/jupyterlab/jupyter-ai/pull/1280) ([@dlqqq](https://github.com/dlqqq))
+- Correct minimum versions in dependency version ranges [#1272](https://github.com/jupyterlab/jupyter-ai/pull/1272) ([@dlqqq](https://github.com/dlqqq))
+- Remove the dependency on `jupyterlab` [#1234](https://github.com/jupyterlab/jupyter-ai/pull/1234) ([@jtpio](https://github.com/jtpio))
+- Upgrade to `actions/cache@v4` [#1228](https://github.com/jupyterlab/jupyter-ai/pull/1228) ([@dlqqq](https://github.com/dlqqq))
+- Typo in comment [#1217](https://github.com/jupyterlab/jupyter-ai/pull/1217) ([@Carreau](https://github.com/Carreau))
+
+### Documentation improvements
+
+- Overhaul v3 developer documentation [#1344](https://github.com/jupyterlab/jupyter-ai/pull/1344) ([@dlqqq](https://github.com/dlqqq))
+- Update documentation to show usage with OpenRouter API and URL [#1318](https://github.com/jupyterlab/jupyter-ai/pull/1318) ([@srdas](https://github.com/srdas))
+- Add information about ollama - document it as an available provider and provide clearer troubleshooting help. [#1235](https://github.com/jupyterlab/jupyter-ai/pull/1235) ([@fperez](https://github.com/fperez))
+- Add documentation for vLLM usage [#1232](https://github.com/jupyterlab/jupyter-ai/pull/1232) ([@srdas](https://github.com/srdas))
+- Update documentation for setting API keys without revealing them [#1224](https://github.com/jupyterlab/jupyter-ai/pull/1224) ([@srdas](https://github.com/srdas))
+- Typo in comment [#1217](https://github.com/jupyterlab/jupyter-ai/pull/1217) ([@Carreau](https://github.com/Carreau))
+- Docs: Update installation steps to work in bash & zsh [#1211](https://github.com/jupyterlab/jupyter-ai/pull/1211) ([@srdas](https://github.com/srdas))
+- Update developer docs on Pydantic compatibility [#1204](https://github.com/jupyterlab/jupyter-ai/pull/1204) ([@dlqqq](https://github.com/dlqqq))
+- Update documentation to add usage of `Openrouter` [#1193](https://github.com/jupyterlab/jupyter-ai/pull/1193) ([@srdas](https://github.com/srdas))
+- Fix dev install steps in contributor docs [#1188](https://github.com/jupyterlab/jupyter-ai/pull/1188) ([@srdas](https://github.com/srdas))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-12-26&to=2025-06-04&type=c))
+
+[@3coins](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3A3coins+updated%3A2024-12-26..2025-06-04&type=Issues) | [@brichet](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Abrichet+updated%3A2024-12-26..2025-06-04&type=Issues) | [@Carreau](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3ACarreau+updated%3A2024-12-26..2025-06-04&type=Issues) | [@Darshan808](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3ADarshan808+updated%3A2024-12-26..2025-06-04&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2024-12-26..2025-06-04&type=Issues) | [@ellisonbg](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aellisonbg+updated%3A2024-12-26..2025-06-04&type=Issues) | [@fperez](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Afperez+updated%3A2024-12-26..2025-06-04&type=Issues) | [@gogakoreli](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Agogakoreli+updated%3A2024-12-26..2025-06-04&type=Issues) | [@Jiya873](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AJiya873+updated%3A2024-12-26..2025-06-04&type=Issues) | [@jtpio](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ajtpio+updated%3A2024-12-26..2025-06-04&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2024-12-26..2025-06-04&type=Issues) | [@lumberbot-app](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Alumberbot-app+updated%3A2024-12-26..2025-06-04&type=Issues) | [@MaicoTimmerman](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AMaicoTimmerman+updated%3A2024-12-26..2025-06-04&type=Issues) | [@MUFFANUJ](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AMUFFANUJ+updated%3A2024-12-26..2025-06-04&type=Issues) | [@paulrutter](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Apaulrutter+updated%3A2024-12-26..2025-06-04&type=Issues) | [@pre-commit-ci](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Apre-commit-ci+updated%3A2024-12-26..2025-06-04&type=Issues) | [@rominf](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Arominf+updated%3A2024-12-26..2025-06-04&type=Issues) | [@srdas](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2024-12-26..2025-06-04&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 3.0.0a0
 
 Hope you all have had a wonderful holiday season! Santa and I present to you the first pre-release of v3, the next major version of Jupyter AI. 🎁
@@ -24,8 +125,6 @@ This pre-release is being published quickly to get feedback from contributors & 
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-12-24&to=2024-12-26&type=c))
 
 [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2024-12-24..2024-12-26&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 2.28.4
 
