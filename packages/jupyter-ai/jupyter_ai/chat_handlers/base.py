@@ -453,6 +453,7 @@ class BaseChatHandler:
             # TODO v3: re-implement stream interrupt
             stream_interrupted = False
             stream_id = None
+            received_first_chunk = False
             async for chunk in chunk_generator:
                 if (
                     stream_id
@@ -482,6 +483,7 @@ class BaseChatHandler:
 
                 if not received_first_chunk:
                     # when receiving the first chunk, start the stream.
+                    received_first_chunk = True
                     self.message_interrupted[stream_id] = asyncio.Event()
 
             # if stream was interrupted, add a tombstone

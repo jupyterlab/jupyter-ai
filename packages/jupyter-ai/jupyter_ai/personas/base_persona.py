@@ -275,21 +275,22 @@ class BasePersona(ABC):
             self.log.exception(e)
         finally:
             self.awareness.set_local_state_field("isWriting", False)
-            # if stream was interrupted, add a tombstone
-            if stream_interrupted:
-                stream_tombstone = "\n\n(AI response stopped by user)"
-                self.ychat.update_message(
-                    Message(
-                        id=stream_id,
-                        body=stream_tombstone,
-                        time=time(),
-                        sender=self.id,
-                        raw_time=False,
-                    ),
-                    append=True,
-                )
-            if stream_id and stream_id in self.message_interrupted.keys():
-                del self.message_interrupted[stream_id]
+            if stream_id:
+                # if stream was interrupted, add a tombstone
+                if stream_interrupted:
+                    stream_tombstone = "\n\n(AI response stopped by user)"
+                    self.ychat.update_message(
+                        Message(
+                            id=stream_id,
+                            body=stream_tombstone,
+                            time=time(),
+                            sender=self.id,
+                            raw_time=False,
+                        ),
+                        append=True,
+                    )
+                if stream_id in self.message_interrupted.keys():
+                    del self.message_interrupted[stream_id]
 
     def send_message(self, body: str) -> None:
         """

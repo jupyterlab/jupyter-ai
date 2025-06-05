@@ -633,12 +633,15 @@ class AiExtension(ExtensionApp):
             config_manager = self.settings.get("jai_config_manager", None)
             assert config_manager and isinstance(config_manager, ConfigManager)
 
+            message_interrupted = self.settings.get("jai_message_interrupted", None)
+            assert message_interrupted and isinstance(message_interrupted, dict)
+
             persona_manager = PersonaManager(
                 ychat=ychat,
                 config_manager=config_manager,
                 event_loop=self.event_loop,
                 log=self.log,
-                message_interrupted=self.settings.get("jai_message_interrupted"),
+                message_interrupted=message_interrupted,
             )
         except Exception as e:
             # TODO: how to stop the extension when this fails
