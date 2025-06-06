@@ -52,18 +52,6 @@ else:
         JUPYTER_COLLABORATION_EVENTS_URI,
     )
 
-DEFAULT_HELP_MESSAGE_TEMPLATE = """Hi there! I'm {persona_name}, your programming assistant.
-You can ask me a question using the text box below. You can also use these commands:
-{slash_commands_list}
-
-You can use the following commands to add context to your questions:
-{context_commands_list}
-
-Jupyter AI includes [magic commands](https://jupyter-ai.readthedocs.io/en/latest/users/index.html#the-ai-and-ai-magic-commands) that you can use in your notebooks.
-For more information, see the [documentation](https://jupyter-ai.readthedocs.io).
-"""
-
-
 class AiExtension(ExtensionApp):
     name = "jupyter_ai"
     handlers = [  # type:ignore[assignment]
@@ -185,23 +173,6 @@ class AiExtension(ExtensionApp):
         help="""
         Default API keys for model providers, as a dictionary,
         in the format `<key-name>:<key-value>`. Defaults to None.
-        """,
-        config=True,
-    )
-
-    help_message_template = Unicode(
-        default_value=DEFAULT_HELP_MESSAGE_TEMPLATE,
-        help="""
-        A format string accepted by `str.format()`, which is used to generate a
-        dynamic help message. The format string should contain exactly two
-        named replacement fields: `persona_name` and `slash_commands_list`.
-
-        - `persona_name`: String containing the name of the persona, which is
-        defined by the configured language model. Usually defaults to
-        'Jupyternaut'.
-
-        - `slash_commands_list`: A string containing a bulleted list of the
-        slash commands available to the configured language model.
         """,
         config=True,
     )
