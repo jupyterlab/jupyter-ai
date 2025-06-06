@@ -28,7 +28,6 @@ dependencies = [
     # pydantic <2.10.0 raises a "protected namespaces" error in JAI
     # - See: https://docs.pydantic.dev/latest/api/config/#pydantic.config.ConfigDict.protected_namespaces
     "pydantic>=2.10.0,<3",
-    # click>=8.1 is required by dask>=2023.11.0
     "click>=8.1.0,<9",
     "jsonpath-ng>=1.5.3,<2",
 ]
