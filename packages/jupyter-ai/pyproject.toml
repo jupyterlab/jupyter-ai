@@ -104,13 +104,6 @@ build_dir = "jupyter_ai/labextension"
 # Entry points provided by Jupyter AI.
 # See: https://packaging.python.org/en/latest/specifications/entry-points/
 
-[project.entry-points."jupyter_ai.chat_handlers"]
-default = "jupyter_ai.chat_handlers.default:DefaultChatHandler"
-ask = "jupyter_ai.chat_handlers.ask:AskChatHandler"
-generate = "jupyter_ai.chat_handlers.generate:GenerateChatHandler"
-learn = "jupyter_ai.chat_handlers.learn:LearnChatHandler"
-help = "jupyter_ai.chat_handlers.help:HelpChatHandler"
-
 [project.entry-points."jupyter_ai.personas"]
 jupyternaut = "jupyter_ai.personas.jupyternaut:JupyternautPersona"
 ###############################################################################
