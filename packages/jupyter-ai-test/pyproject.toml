@@ -32,9 +32,6 @@ test-provider = "jupyter_ai_test.test_providers:TestProvider"
 test-provider-with-streaming = "jupyter_ai_test.test_providers:TestProviderWithStreaming"
 test-provider-ask-learn-unsupported = "jupyter_ai_test.test_providers:TestProviderAskLearnUnsupported"
 
-[project.entry-points."jupyter_ai.chat_handlers"]
-test-slash-command = "jupyter_ai_test.test_slash_commands:TestSlashCommand"
-
 [project.entry-points."jupyter_ai.personas"]
 debug-persona = "jupyter_ai_test.debug_persona:DebugPersona"
 

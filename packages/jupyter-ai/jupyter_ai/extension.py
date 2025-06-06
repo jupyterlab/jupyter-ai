@@ -8,7 +8,6 @@ from typing import TYPE_CHECKING, Optional
 
 import traitlets
 from dask.distributed import Client as DaskClient
-from importlib_metadata import entry_points
 from jupyter_ai_magics import BaseProvider, JupyternautPersona
 from jupyter_ai_magics.utils import get_em_providers, get_lm_providers
 from jupyter_events import EventLogger
@@ -19,20 +18,15 @@ from pycrdt import ArrayEvent
 from tornado.web import StaticFileHandler
 from traitlets import Integer, List, Unicode
 
-from .chat_handlers.base import BaseChatHandler
 from .completions.handlers import DefaultInlineCompletionHandler
 from .config_manager import ConfigManager
-from .context_providers import BaseCommandContextProvider, FileContextProvider
 from .handlers import (
     ApiKeysHandler,
-    AutocompleteOptionsHandler,
     EmbeddingsModelProviderHandler,
     GlobalConfigHandler,
     InterruptStreamingHandler,
     ModelProviderHandler,
-    SlashCommandsInfoHandler,
 )
-from .history import YChatHistory
 from .personas import PersonaManager
 
 if TYPE_CHECKING:
@@ -76,8 +70,6 @@ class AiExtension(ExtensionApp):
     handlers = [  # type:ignore[assignment]
         (r"api/ai/api_keys/(?P<api_key_name>\w+)", ApiKeysHandler),
         (r"api/ai/config/?", GlobalConfigHandler),
-        (r"api/ai/chats/slash_commands?", SlashCommandsInfoHandler),
-        (r"api/ai/chats/autocomplete_options?", AutocompleteOptionsHandler),
         (r"api/ai/chats/stop_streaming?", InterruptStreamingHandler),
         (r"api/ai/providers?", ModelProviderHandler),
         (r"api/ai/providers/embeddings?", EmbeddingsModelProviderHandler),
@@ -232,15 +224,6 @@ class AiExtension(ExtensionApp):
     def initialize(self):
         super().initialize()
 
-        self.chat_handlers_by_room: dict[str, dict[str, BaseChatHandler]] = {}
-        """
-        Nested dictionary that returns the dedicated chat handler instance that
-        should be used, given the room ID and command ID respectively.
-
-        Example: `self.chat_handlers_by_room[<room_id>]` yields the set of chat
-        handlers dedicated to the room identified by `<room_id>`.
-        """
-
         self.ychats_by_room: dict[str, YChat] = {}
         """Cache of YChat instances, indexed by room ID."""
 
@@ -275,9 +258,6 @@ class AiExtension(ExtensionApp):
         ychat = await self.get_chat(room_id)
         if ychat is None:
             return
-
-        # initialize chat handlers for new chat
-        self.chat_handlers_by_room[room_id] = self._init_chat_handlers(ychat)
 
         # initialize persona manager
         persona_manager = self._init_persona_manager(ychat)
@@ -335,32 +315,6 @@ class AiExtension(ExtensionApp):
             ]
             for new_message in new_messages:
                 persona_manager.route_message(new_message)
-
-    async def route_human_message(self, room_id: str, message: Message):
-        """
-        Method that routes an incoming human message to the appropriate chat
-        handler.
-        """
-        chat_handlers = self.chat_handlers_by_room[room_id]
-        default = chat_handlers["default"]
-        # Split on any whitespace, either spaces or newlines
-        maybe_command = message.body.split(None, 1)[0]
-        is_command = (
-            message.body.startswith("/")
-            and maybe_command in chat_handlers.keys()
-            and maybe_command != "default"
-        )
-        command = maybe_command if is_command else "default"
-
-        start = time.time()
-        if is_command:
-            await chat_handlers[command].on_message(message)
-        else:
-            await default.on_message(message)
-
-        latency_ms = round((time.time() - start) * 1000)
-        command_readable = "Default" if command == "default" else command
-        self.log.info(f"{command_readable} chat handler resolved in {latency_ms} ms.")
 
     def initialize_settings(self):
         start = time.time()
@@ -429,16 +383,9 @@ class AiExtension(ExtensionApp):
             self._get_dask_client()
         )
 
-        # Create empty context providers dict to be filled later.
-        # This is created early to use as kwargs for chat handlers.
-        self.settings["jai_context_providers"] = {}
-
         # Create empty dictionary for events communicating that
         # message generation/streaming got interrupted.
         self.settings["jai_message_interrupted"] = {}
-
-        # initialize context providers
-        self._init_context_providers()
 
         latency_ms = round((time.time() - start) * 1000)
         self.log.info(f"Initialized Jupyter AI server extension in {latency_ms} ms.")
@@ -469,156 +416,6 @@ class AiExtension(ExtensionApp):
             self.log.info("Closing Dask client.")
             await dask_client.close()
             self.log.debug("Closed Dask client.")
-
-    def _init_chat_handlers(self, ychat: YChat) -> dict[str, BaseChatHandler]:
-        """
-        Initializes a set of chat handlers for a given `YChat` instance.
-        """
-        assert self.serverapp
-
-        eps = entry_points()
-        all_chat_handler_eps = eps.select(group="jupyter_ai.chat_handlers")
-
-        # Override native chat handlers if duplicates are present
-        sorted_eps = sorted(
-            all_chat_handler_eps, key=lambda ep: ep.dist.name != "jupyter_ai"
-        )
-        seen = {}
-        for ep in sorted_eps:
-            seen[ep.name] = ep
-        chat_handler_eps = list(seen.values())
-
-        chat_handlers: dict[str, BaseChatHandler] = {}
-        llm_chat_memory = YChatHistory(ychat, k=self.default_max_chat_history)
-
-        chat_handler_kwargs = {
-            "log": self.log,
-            "config_manager": self.settings.get("jai_config_manager"),
-            "model_parameters": self.settings.get("model_parameters"),
-            "llm_chat_memory": llm_chat_memory,
-            "root_dir": self.serverapp.root_dir,
-            "dask_client_future": self.settings.get("dask_client_future"),
-            "preferred_dir": self.serverapp.contents_manager.preferred_dir,
-            "help_message_template": self.help_message_template,
-            "chat_handlers": chat_handlers,
-            "context_providers": self.settings.get("jai_context_providers"),
-            "message_interrupted": self.settings.get("jai_message_interrupted"),
-            "ychat": ychat,
-            "log_dir": self.error_logs_dir,
-        }
-
-        slash_command_pattern = r"^[a-zA-Z0-9_]+$"
-        for chat_handler_ep in chat_handler_eps:
-            try:
-                chat_handler = chat_handler_ep.load()
-            except Exception as err:
-                self.log.error(
-                    f"Unable to load chat handler class from entry point `{chat_handler_ep.name}`: "
-                    + f"Unexpected {err=}, {type(err)=}"
-                )
-                continue
-
-            # Skip disabled entrypoints
-            ep_disabled = getattr(chat_handler, "disabled", False)
-            if ep_disabled:
-                self.log.warn(
-                    f"Skipping registration of chat handler `{chat_handler_ep.name}` as it is explicitly disabled."
-                )
-                continue
-
-            if chat_handler.routing_type.routing_method == "slash_command":
-                # Set default slash_id if it's the default chat handler
-                slash_id = (
-                    "default"
-                    if chat_handler.id == "default"
-                    else chat_handler.routing_type.slash_id
-                )
-
-                if not slash_id:
-                    self.log.error(
-                        f"Handler `{chat_handler_ep.name}` has an invalid slash command "
-                        + f"`None`; only the default chat handler may use this"
-                    )
-                    continue
-
-                # Validate the slash command name
-                if re.match(slash_command_pattern, slash_id):
-                    command_name = (
-                        "default" if slash_id == "default" else f"/{slash_id}"
-                    )
-                else:
-                    self.log.error(
-                        f"Handler `{chat_handler_ep.name}` has an invalid slash command "
-                        + f"`{slash_id}`; must contain only letters, numbers, "
-                        + "and underscores"
-                    )
-                    continue
-
-            if command_name in chat_handlers:
-                self.log.warn(
-                    f"Overriding existing handler `{command_name}` with `{chat_handler.id}`."
-                )
-
-            # Registering chat handler
-            chat_handlers[command_name] = chat_handler(**chat_handler_kwargs)
-
-            self.log.info(
-                f"Registered chat handler `{chat_handler.id}` with command `{command_name}`."
-            )
-
-        return chat_handlers
-
-    def _init_context_providers(self):
-        eps = entry_points()
-        context_providers_eps = eps.select(group="jupyter_ai.context_providers")
-        context_providers = self.settings["jai_context_providers"]
-        context_providers_kwargs = {
-            "log": self.log,
-            "config_manager": self.settings["jai_config_manager"],
-            "model_parameters": self.settings["model_parameters"],
-            "root_dir": self.serverapp.root_dir,
-            "dask_client_future": self.settings["dask_client_future"],
-            "preferred_dir": self.serverapp.contents_manager.preferred_dir,
-            "context_providers": self.settings["jai_context_providers"],
-        }
-        context_providers_clses = [
-            FileContextProvider,
-        ]
-        for context_provider_ep in context_providers_eps:
-            try:
-                context_provider = context_provider_ep.load()
-            except Exception as err:
-                self.log.error(
-                    f"Unable to load context provider class from entry point `{context_provider_ep.name}`: "
-                    + f"Unexpected {err=}, {type(err)=}"
-                )
-                continue
-            context_providers_clses.append(context_provider)
-
-        for context_provider in context_providers_clses:
-            if not issubclass(context_provider, BaseCommandContextProvider):
-                self.log.error(
-                    f"Unable to register context provider `{context_provider.id}` because it does not inherit from `BaseCommandContextProvider`"
-                )
-                continue
-
-            if context_provider.id in context_providers:
-                self.log.error(
-                    f"Unable to register context provider `{context_provider.id}` because it already exists"
-                )
-                continue
-
-            if not re.match(r"^[a-zA-Z0-9_]+$", context_provider.id):
-                self.log.error(
-                    f"Context provider `{context_provider.id}` is an invalid ID; "
-                    + f"must contain only letters, numbers, and underscores"
-                )
-                continue
-
-            context_providers[context_provider.id] = context_provider(
-                **context_providers_kwargs
-            )
-            self.log.info(f"Registered context provider `{context_provider.id}`.")
 
     def _init_persona_manager(self, ychat: YChat) -> Optional[PersonaManager]:
         """

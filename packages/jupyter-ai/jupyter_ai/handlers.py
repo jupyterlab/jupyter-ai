@@ -1,46 +1,20 @@
 from typing import TYPE_CHECKING, Optional, cast
 
-from jupyter_ai.chat_handlers import (
-    AskChatHandler,
-    DefaultChatHandler,
-    GenerateChatHandler,
-    HelpChatHandler,
-    LearnChatHandler,
-    SlashCommandRoutingType,
-)
 from jupyter_ai.config_manager import ConfigManager, KeyEmptyError, WriteConflictError
-from jupyter_ai.context_providers import BaseCommandContextProvider, ContextCommand
 from jupyter_server.base.handlers import APIHandler as BaseAPIHandler
 from pydantic import ValidationError
 from tornado import web
 from tornado.web import HTTPError
 
 from .models import (
-    ListOptionsEntry,
-    ListOptionsResponse,
     ListProvidersEntry,
     ListProvidersResponse,
-    ListSlashCommandsEntry,
-    ListSlashCommandsResponse,
     UpdateConfigRequest,
 )
 
 if TYPE_CHECKING:
     from jupyter_ai_magics.embedding_providers import BaseEmbeddingsProvider
     from jupyter_ai_magics.providers import BaseProvider
-
-    from .chat_handlers import BaseChatHandler
-    from .context_providers import BaseCommandContextProvider
-
-# TODO v3: unify loading of chat handlers in a single place, then read
-# from that instead of this hard-coded dict.
-CHAT_HANDLER_DICT = {
-    "default": DefaultChatHandler,
-    "/ask": AskChatHandler,
-    "/learn": LearnChatHandler,
-    "/generate": GenerateChatHandler,
-    "/help": HelpChatHandler,
-}
 
 
 class ProviderHandler(BaseAPIHandler):
@@ -203,7 +177,6 @@ class ApiKeysHandler(BaseAPIHandler):
         except Exception as e:
             raise HTTPError(500, str(e))
 
-
 class InterruptStreamingHandler(BaseAPIHandler):
     """Interrupt a current message streaming"""
 
@@ -213,158 +186,3 @@ class InterruptStreamingHandler(BaseAPIHandler):
         message_interrupted = self.settings.get("jai_message_interrupted")
         if message_id and message_id in message_interrupted.keys():
             message_interrupted[message_id].set()
-
-
-class SlashCommandsInfoHandler(BaseAPIHandler):
-    """List slash commands that are currently available to the user."""
-
-    @property
-    def config_manager(self) -> ConfigManager:  # type:ignore[override]
-        return self.settings["jai_config_manager"]
-
-    @property
-    def chat_handlers(self) -> dict[str, type["BaseChatHandler"]]:
-        return CHAT_HANDLER_DICT
-
-    @web.authenticated
-    def get(self):
-        response = ListSlashCommandsResponse()
-
-        # if no selected LLM, return an empty response
-        if not self.config_manager.lm_provider:
-            self.finish(response.model_dump_json())
-            return
-
-        for id, chat_handler in self.chat_handlers.items():
-            # filter out any chat handler that is not a slash command
-            if (
-                id == "default"
-                or chat_handler.routing_type.routing_method != "slash_command"
-            ):
-                continue
-
-            # hint the type of this attribute
-            routing_type: SlashCommandRoutingType = chat_handler.routing_type
-
-            # filter out any chat handler that is unsupported by the current LLM
-            if (
-                "/" + routing_type.slash_id
-                in self.config_manager.lm_provider.unsupported_slash_commands
-            ):
-                continue
-
-            response.slash_commands.append(
-                ListSlashCommandsEntry(
-                    slash_id=routing_type.slash_id, description=chat_handler.help
-                )
-            )
-
-        # sort slash commands by slash id and deliver the response
-        response.slash_commands.sort(key=lambda sc: sc.slash_id)
-        self.finish(response.model_dump_json())
-
-
-class AutocompleteOptionsHandler(BaseAPIHandler):
-    """List context that are currently available to the user."""
-
-    @property
-    def config_manager(self) -> ConfigManager:  # type:ignore[override]
-        return self.settings["jai_config_manager"]
-
-    @property
-    def context_providers(self) -> dict[str, "BaseCommandContextProvider"]:
-        return self.settings["jai_context_providers"]
-
-    @property
-    def chat_handlers(self) -> dict[str, type["BaseChatHandler"]]:
-        return CHAT_HANDLER_DICT
-
-    @web.authenticated
-    def get(self):
-        response = ListOptionsResponse()
-
-        # if no selected LLM, return an empty response
-        if not self.config_manager.lm_provider:
-            self.finish(response.model_dump_json())
-            return
-
-        partial_cmd = self.get_query_argument("partialCommand", None)
-        if partial_cmd:
-            # if providing options for partial command argument
-            cmd = ContextCommand(cmd=partial_cmd)
-            context_provider = next(
-                (
-                    cp
-                    for cp in self.context_providers.values()
-                    if isinstance(cp, BaseCommandContextProvider)
-                    and cp.command_id == cmd.id
-                ),
-                None,
-            )
-            if (
-                cmd.arg is not None
-                and context_provider
-                and isinstance(context_provider, BaseCommandContextProvider)
-            ):
-                response.options = context_provider.get_arg_options(cmd.arg)
-        else:
-            response.options = (
-                self._get_slash_command_options() + self._get_context_provider_options()
-            )
-        self.finish(response.model_dump_json())
-
-    def _get_slash_command_options(self) -> list[ListOptionsEntry]:
-        options = []
-        for id, chat_handler in self.chat_handlers.items():
-            # filter out any chat handler that is not a slash command
-            if id == "default" or not isinstance(
-                chat_handler.routing_type, SlashCommandRoutingType
-            ):
-                continue
-
-            routing_type = chat_handler.routing_type
-
-            # filter out any chat handler that is unsupported by the current LLM
-            if (
-                not routing_type.slash_id
-                or "/" + routing_type.slash_id
-                in self.config_manager.lm_provider.unsupported_slash_commands
-            ):
-                continue
-
-            options.append(
-                self._make_autocomplete_option(
-                    id="/" + routing_type.slash_id,
-                    description=chat_handler.help,
-                    only_start=True,
-                    requires_arg=False,
-                )
-            )
-        options.sort(key=lambda opt: opt.id)
-        return options
-
-    def _get_context_provider_options(self) -> list[ListOptionsEntry]:
-        options = [
-            self._make_autocomplete_option(
-                id=context_provider.command_id,
-                description=context_provider.help,
-                only_start=context_provider.only_start,
-                requires_arg=context_provider.requires_arg,
-            )
-            for context_provider in self.context_providers.values()
-            if isinstance(context_provider, BaseCommandContextProvider)
-        ]
-        options.sort(key=lambda opt: opt.id)
-        return options
-
-    def _make_autocomplete_option(
-        self,
-        id: str,
-        description: str,
-        only_start: bool,
-        requires_arg: bool,
-    ):
-        label = id + (":" if requires_arg else " ")
-        return ListOptionsEntry(
-            id=id, description=description, label=label, only_start=only_start
-        )
