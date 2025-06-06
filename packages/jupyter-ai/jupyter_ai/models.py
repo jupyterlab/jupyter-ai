@@ -91,4 +91,3 @@ class GlobalConfig(BaseModel):
     completions_model_provider_id: Optional[str] = None
     completions_fields: dict[str, dict[str, Any]]
     embeddings_fields: dict[str, dict[str, Any]]
-

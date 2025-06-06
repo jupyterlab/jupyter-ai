@@ -177,6 +177,7 @@ class ApiKeysHandler(BaseAPIHandler):
         except Exception as e:
             raise HTTPError(500, str(e))
 
+
 class InterruptStreamingHandler(BaseAPIHandler):
     """Interrupt a current message streaming"""
 
