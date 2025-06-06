@@ -1,5 +1,4 @@
 import os
-import re
 import time
 import types
 from asyncio import get_event_loop_policy
@@ -51,6 +50,7 @@ else:
     from jupyter_collaboration.utils import (  # type:ignore[import-not-found,import-untyped]
         JUPYTER_COLLABORATION_EVENTS_URI,
     )
+
 
 class AiExtension(ExtensionApp):
     name = "jupyter_ai"
@@ -371,7 +371,6 @@ class AiExtension(ExtensionApp):
         stopping.
         """
         # TODO: explore if cleanup is necessary
-        pass
 
     def _init_persona_manager(self, ychat: YChat) -> Optional[PersonaManager]:
         """
