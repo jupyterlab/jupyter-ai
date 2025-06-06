@@ -627,14 +627,16 @@ class AiExtension(ExtensionApp):
         This method should not raise an exception. Upon encountering an
         exception, this method will catch it, log it, and return `None`.
         """
-        persona_manager: Optional[PersonaManager]
+        persona_manager: Optional[PersonaManager] = None
 
         try:
             config_manager = self.settings.get("jai_config_manager", None)
             assert config_manager and isinstance(config_manager, ConfigManager)
 
             message_interrupted = self.settings.get("jai_message_interrupted", None)
-            assert message_interrupted and isinstance(message_interrupted, dict)
+            assert message_interrupted is not None and isinstance(
+                message_interrupted, dict
+            )
 
             persona_manager = PersonaManager(
                 ychat=ychat,
