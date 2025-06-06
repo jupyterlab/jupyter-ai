@@ -4,6 +4,5 @@
     https://jupyterlab.readthedocs.io/en/stable/developer/css.html
 */
 
-@import './expandable-text-field.css';
 @import './chat-settings.css';
 @import './rendermime-markdown.css';
