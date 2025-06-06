@@ -7,7 +7,6 @@ from functools import partial
 from typing import TYPE_CHECKING, Optional
 
 import traitlets
-from dask.distributed import Client as DaskClient
 from jupyter_ai_magics import BaseProvider, JupyternautPersona
 from jupyter_ai_magics.utils import get_em_providers, get_lm_providers
 from jupyter_events import EventLogger
@@ -375,23 +374,12 @@ class AiExtension(ExtensionApp):
 
         self.settings["jai_event_loop"] = self.event_loop
 
-        # We cannot instantiate the Dask client directly here because it
-        # requires the event loop to be running on init. So instead we schedule
-        # this as a task that is run as soon as the loop starts, and pass
-        # consumers a Future that resolves to the Dask client when awaited.
-        self.settings["dask_client_future"] = self.event_loop.create_task(
-            self._get_dask_client()
-        )
-
         # Create empty dictionary for events communicating that
         # message generation/streaming got interrupted.
         self.settings["jai_message_interrupted"] = {}
 
         latency_ms = round((time.time() - start) * 1000)
         self.log.info(f"Initialized Jupyter AI server extension in {latency_ms} ms.")
-
-    async def _get_dask_client(self):
-        return DaskClient(processes=False, asynchronous=True)
 
     async def stop_extension(self):
         """
@@ -411,11 +399,8 @@ class AiExtension(ExtensionApp):
         Private method that defines the cleanup code to run when the server is
         stopping.
         """
-        if "dask_client_future" in self.settings:
-            dask_client: DaskClient = await self.settings["dask_client_future"]
-            self.log.info("Closing Dask client.")
-            await dask_client.close()
-            self.log.debug("Closed Dask client.")
+        # TODO: explore if cleanup is necessary
+        pass
 
     def _init_persona_manager(self, ychat: YChat) -> Optional[PersonaManager]:
         """
