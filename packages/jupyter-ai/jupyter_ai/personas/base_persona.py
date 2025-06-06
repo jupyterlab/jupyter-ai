@@ -1,3 +1,4 @@
+import asyncio
 from abc import ABC, abstractmethod
 from dataclasses import asdict
 from logging import Logger
@@ -82,6 +83,10 @@ class BasePersona(ABC):
     Automatically set by `BasePersona`.
     """
 
+    message_interrupted: dict[str, asyncio.Event]
+    """Dictionary mapping an agent message identifier to an asyncio Event
+    which indicates if the message generation/streaming was interrupted."""
+
     ################################################
     # constructor
     ################################################
@@ -92,11 +97,13 @@ class BasePersona(ABC):
         manager: "PersonaManager",
         config: ConfigManager,
         log: Logger,
+        message_interrupted: dict[str, asyncio.Event],
     ):
         self.ychat = ychat
         self.manager = manager
         self.config = config
         self.log = log
+        self.message_interrupted = message_interrupted
         self.awareness = PersonaAwareness(
             ychat=self.ychat, log=self.log, user=self.as_user()
         )
@@ -221,14 +228,34 @@ class BasePersona(ABC):
         - Automatically manages its awareness state to show writing status.
         """
         stream_id: Optional[str] = None
-
+        stream_interrupted = False
         try:
             self.awareness.set_local_state_field("isWriting", True)
             async for chunk in reply_stream:
+                if (
+                    stream_id
+                    and stream_id in self.message_interrupted.keys()
+                    and self.message_interrupted[stream_id].is_set()
+                ):
+                    try:
+                        # notify the model provider that streaming was interrupted
+                        # (this is essential to allow the model to stop generating)
+                        await reply_stream.athrow(  # type:ignore[attr-defined]
+                            GenerationInterrupted()
+                        )
+                    except GenerationInterrupted:
+                        # do not let the exception bubble up in case if
+                        # the provider did not handle it
+                        pass
+                    stream_interrupted = True
+                    break
+
                 if not stream_id:
                     stream_id = self.ychat.add_message(
                         NewMessage(body="", sender=self.id)
                     )
+                    self.message_interrupted[stream_id] = asyncio.Event()
+                    self.awareness.set_local_state_field("isWriting", stream_id)
 
                 assert stream_id
                 self.ychat.update_message(
@@ -248,9 +275,29 @@ class BasePersona(ABC):
             self.log.exception(e)
         finally:
             self.awareness.set_local_state_field("isWriting", False)
+            if stream_id:
+                # if stream was interrupted, add a tombstone
+                if stream_interrupted:
+                    stream_tombstone = "\n\n(AI response stopped by user)"
+                    self.ychat.update_message(
+                        Message(
+                            id=stream_id,
+                            body=stream_tombstone,
+                            time=time(),
+                            sender=self.id,
+                            raw_time=False,
+                        ),
+                        append=True,
+                    )
+                if stream_id in self.message_interrupted.keys():
+                    del self.message_interrupted[stream_id]
 
     def send_message(self, body: str) -> None:
         """
         Sends a new message to the chat from this persona.
         """
         self.ychat.add_message(NewMessage(body=body, sender=self.id))
+
+
+class GenerationInterrupted(asyncio.CancelledError):
+    """Exception raised when streaming is cancelled by the user"""
