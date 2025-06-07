@@ -459,22 +459,22 @@ If you don't see Ollama listed as a model provider in the Jupyter-AI configurati
 You can install it with `pip install langchain-ollama` (as of Feb'2025 it is not available on conda-forge).
 :::
 
-If you have Ollama installed on a remote server or run locally on a different port than the default (port 11434), you should ensure that the new URL is available in the environment. For example, you first start the Ollama server from the command line (one way is shown here with a different port number):
-```
-OLLAMA_HOST=127.0.0.1:11000 ollama serve
-```
+    If you have Ollama installed on a remote server or run locally on a different port than the default (port 11434), you should ensure that the new URL is available in the environment. For example, you first start the Ollama server from the command line (one way is shown here with a different port number):
+    ```
+    OLLAMA_HOST=127.0.0.1:11000 ollama serve
+    ```
 
-Second, in your notebook, add the following lines of code:
-```
-%load_ext jupyter_ai_magics
-os.environ["OLLAMA_HOST"] = "http://localhost:11000"
-```
+    Second, in your notebook, add the following lines of code:
+    ```
+    %load_ext jupyter_ai_magics
+    os.environ["OLLAMA_HOST"] = "http://localhost:11000"
+    ```
 
-Then, run the prompt in your code block with the `%%ai` magic and model in the first line:
-```
-%%ai ollama:llama3.2
-What is a transformer?
-```
+    Then, run the prompt in your code block with the `%%ai` magic and model in the first line:
+    ```
+    %%ai ollama:llama3.2
+    What is a transformer?
+    ```
 
 ### vLLM usage
 
