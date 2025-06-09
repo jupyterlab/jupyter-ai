@@ -470,15 +470,18 @@ To configure this in the chat, set the "Base API URL" field in the AI settings p
 
 
 To configure this in the magic commands, you should set the `OLLAMA_HOST` environment variable to the your Ollama server's custom IP address and port number (assuming you chose 11000) in a new code cell:
-    ```
-    %load_ext jupyter_ai_magics
-    os.environ["OLLAMA_HOST"] = "http://localhost:11000"
-    ```
+
+```
+%load_ext jupyter_ai_magics
+os.environ["OLLAMA_HOST"] = "http://localhost:11000"
+```
+
 After running that cell, the AI magic command can then be used like so:
-    ```
-    %%ai ollama:llama3.2
-    What is a transformer?
-    ```
+
+```
+%%ai ollama:llama3.2
+What is a transformer?
+```
 
 ### vLLM usage
 
