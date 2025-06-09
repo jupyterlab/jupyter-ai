@@ -459,6 +459,30 @@ If you don't see Ollama listed as a model provider in the Jupyter-AI configurati
 You can install it with `pip install langchain-ollama` (as of Feb'2025 it is not available on conda-forge).
 :::
 
+By default, Ollama is served on `127.0.0.1:11434` (locally on port `11434`), so Jupyter AI expects this by default. If you wish to use a remote Ollama server with a different IP address or a local Ollama server on a different port number, you have to configure this in advance.
+
+To configure this in the chat, set the "Base API URL" field in the AI settings page to your Ollama server's custom IP address and port number:
+
+<img src="../_static/ollama-settings.png"
+    width="100%"
+    alt='Screenshot of the settings panel with Ollama on non-default port.'
+    class="screenshot" />
+
+
+To configure this in the magic commands, you should set the `OLLAMA_HOST` environment variable to the your Ollama server's custom IP address and port number (assuming you chose 11000) in a new code cell:
+
+```
+%load_ext jupyter_ai_magics
+os.environ["OLLAMA_HOST"] = "http://localhost:11000"
+```
+
+After running that cell, the AI magic command can then be used like so:
+
+```
+%%ai ollama:llama3.2
+What is a transformer?
+```
+
 ### vLLM usage
 
 `vLLM` is a fast and easy-to-use library for LLM inference and serving. The [vLLM website](https://docs.vllm.ai/en/latest/) explains installation and usage. To use `vLLM` in Jupyter AI, please see the dedicated documentation page on using [vLLM in Jupyter AI](vllm.md).
