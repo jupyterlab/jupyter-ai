@@ -461,7 +461,7 @@ You can install it with `pip install langchain-ollama` (as of Feb'2025 it is not
 
 By default, Ollama is served on `127.0.0.1:11434` (locally on port `11434`), so Jupyter AI expects this by default. If you wish to use a remote Ollama server with a different IP address or a local Ollama server on a different port number, you have to configure this in advance.
 
-To configure this in the chat, set the "Base API URL" field in the AI settings page to your Ollama server's custom IP address and port number: 
+To configure this in the chat, set the "Base API URL" field in the AI settings page to your Ollama server's custom IP address and port number:
 
 <img src="../_static/ollama-settings.png"
     width="100%"
