@@ -459,18 +459,22 @@ If you don't see Ollama listed as a model provider in the Jupyter-AI configurati
 You can install it with `pip install langchain-ollama` (as of Feb'2025 it is not available on conda-forge).
 :::
 
-    If you have Ollama installed on a remote server or run locally on a different port than the default (port 11434), you should ensure that the new URL is available in the environment. For example, you first start the Ollama server from the command line (one way is shown here with a different port number):
-    ```
-    OLLAMA_HOST=127.0.0.1:11000 ollama serve
-    ```
+By default, Ollama is served on `127.0.0.1:11434` (locally on port `11434`), so Jupyter AI expects this by default. If you wish to use a remote Ollama server with a different IP address or a local Ollama server on a different port number, you have to configure this in advance.
 
-    Second, in your notebook, add the following lines of code:
+To configure this in the chat, set the "Base API URL" field in the AI settings page to your Ollama server's custom IP address and port number: 
+
+<img src="../_static/ollama-settings.png"
+    width="100%"
+    alt='Screenshot of the settings panel with Ollama on non-default port.'
+    class="screenshot" />
+
+
+To configure this in the magic commands, you should set the `OLLAMA_HOST` environment variable to the your Ollama server's custom IP address and port number (assuming you chose 11000) in a new code cell:
     ```
     %load_ext jupyter_ai_magics
     os.environ["OLLAMA_HOST"] = "http://localhost:11000"
     ```
-
-    Then, run the prompt in your code block with the `%%ai` magic and model in the first line:
+After running that cell, the AI magic command can then be used like so:
     ```
     %%ai ollama:llama3.2
     What is a transformer?
