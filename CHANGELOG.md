@@ -2,6 +2,35 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 3.0.0b0
+
+This is the first beta release of Jupyter AI v3! We've completed a majority of the new APIs & integrations that we plan to use in v3.0.0. It's now time for us to build features, fix bugs, (greatly) improve the UI, and make Jupyternaut a powerful default AI agent. We plan to move very quickly in the next couple of weeks to make v3.0.0 available to users as soon as we can. If everything works out, we will release v3.0.0 by the end of June. 💪
+
+This release notably implements the "stop streaming" button that existed in Jupyter AI v2 & enhances the performance by removing thousands of lines of old v2 code. Besides the slash command capabilities (which will be implemented as agent tools in beta), Jupyter AI v3 now has feature parity with Jupyter AI v2. 🎉
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@3.0.0-alpha.1...1f646261bdd2fad6d91e2d4d37a27c7cbf5df639))
+
+### Enhancements made
+
+- Implement stop streaming button in v3 [#1351](https://github.com/jupyterlab/jupyter-ai/pull/1351) ([@brichet](https://github.com/brichet))
+
+### Maintenance and upkeep improvements
+
+- Raise `jupyterlab-chat` version ceiling [#1373](https://github.com/jupyterlab/jupyter-ai/pull/1373) ([@dlqqq](https://github.com/dlqqq))
+- Remove unused code from v3 `main` branch [#1369](https://github.com/jupyterlab/jupyter-ai/pull/1369) ([@dlqqq](https://github.com/dlqqq))
+
+### Documentation improvements
+
+- Updated documentation for using Ollama with cell magics on non-default port [#1370](https://github.com/jupyterlab/jupyter-ai/pull/1370) ([@srdas](https://github.com/srdas))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2025-06-04&to=2025-06-10&type=c))
+
+[@brichet](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Abrichet+updated%3A2025-06-04..2025-06-10&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2025-06-04..2025-06-10&type=Issues) | [@srdas](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2025-06-04..2025-06-10&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 3.0.0a1
 
 Hey folks! This v3 release notably introduces **AI personas** that replace chat handlers, fixes various usability issues encountered in v3.0.0a0, and upgrades to LangChain v0.3 & Pydantic v2. 🎉
@@ -100,8 +129,6 @@ There's also a new v3 documentation page! Currently, only the developer document
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2024-12-26&to=2025-06-04&type=c))
 
 [@3coins](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3A3coins+updated%3A2024-12-26..2025-06-04&type=Issues) | [@brichet](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Abrichet+updated%3A2024-12-26..2025-06-04&type=Issues) | [@Carreau](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3ACarreau+updated%3A2024-12-26..2025-06-04&type=Issues) | [@Darshan808](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3ADarshan808+updated%3A2024-12-26..2025-06-04&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2024-12-26..2025-06-04&type=Issues) | [@ellisonbg](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aellisonbg+updated%3A2024-12-26..2025-06-04&type=Issues) | [@fperez](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Afperez+updated%3A2024-12-26..2025-06-04&type=Issues) | [@gogakoreli](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Agogakoreli+updated%3A2024-12-26..2025-06-04&type=Issues) | [@Jiya873](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AJiya873+updated%3A2024-12-26..2025-06-04&type=Issues) | [@jtpio](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ajtpio+updated%3A2024-12-26..2025-06-04&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2024-12-26..2025-06-04&type=Issues) | [@lumberbot-app](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Alumberbot-app+updated%3A2024-12-26..2025-06-04&type=Issues) | [@MaicoTimmerman](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AMaicoTimmerman+updated%3A2024-12-26..2025-06-04&type=Issues) | [@MUFFANUJ](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AMUFFANUJ+updated%3A2024-12-26..2025-06-04&type=Issues) | [@paulrutter](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Apaulrutter+updated%3A2024-12-26..2025-06-04&type=Issues) | [@pre-commit-ci](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Apre-commit-ci+updated%3A2024-12-26..2025-06-04&type=Issues) | [@rominf](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Arominf+updated%3A2024-12-26..2025-06-04&type=Issues) | [@srdas](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2024-12-26..2025-06-04&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 3.0.0a0
 

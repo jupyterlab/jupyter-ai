@@ -29,7 +29,7 @@ dependencies = [
     # pydantic <2.10.0 raises a "protected namespaces" error in JAI
     # - See: https://docs.pydantic.dev/latest/api/config/#pydantic.config.ConfigDict.protected_namespaces
     "pydantic>=2.10.0,<3",
-    "jupyter_ai_magics>=3.0.0a1,<4.0.0",
+    "jupyter_ai_magics>=3.0.0b0,<4.0.0",
     # traitlets>=5.6 is required in JL4
     "traitlets>=5.6",
     "deepmerge>=2.0,<3",
