@@ -6,6 +6,8 @@ from functools import partial
 from typing import TYPE_CHECKING, Optional
 
 import traitlets
+from traitlets.config import Config
+
 from jupyter_ai_magics import BaseProvider, JupyternautPersona
 from jupyter_ai_magics.utils import get_em_providers, get_lm_providers
 from jupyter_events import EventLogger
@@ -434,3 +436,10 @@ class AiExtension(ExtensionApp):
             self.log.exception(e)
         finally:
             return persona_manager
+
+    def _link_jupyter_server_extension(self, server_app):
+        """Setup custom config needed by this extension."""
+        c = Config()
+        c.ContentsManager.allow_hidden = True
+        server_app.update_config(c)
+        super()._link_jupyter_server_extension(server_app)
