@@ -19,8 +19,8 @@ def test_find_dotjupyter_dir_found():
 
         # Test finding .jupyter from level3
         result = find_dotjupyter_dir(str(nested_dir))
-        assert result == str(dotjupyter_dir)
-        assert os.path.isdir(result)
+        assert Path(result).resolve() == dotjupyter_dir.resolve()
+        assert Path(result).is_dir()
 
 
 def test_find_dotjupyter_dir_not_found():
@@ -45,5 +45,5 @@ def test_find_dotjupyter_dir_current_level():
 
         # Test finding .jupyter from the same directory
         result = find_dotjupyter_dir(str(test_dir))
-        assert result == str(dotjupyter_dir)
+        assert Path(result).resolve() == dotjupyter_dir.resolve()
         assert os.path.isdir(result)
