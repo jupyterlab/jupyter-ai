@@ -1,7 +1,7 @@
 from pathlib import Path
+from typing import Optional
 
-
-def find_dotjupyter_dir(cwd: str) -> str:
+def find_dotjupyter_dir(cwd: str) -> Optional[str]:
     """
     Find the nearest .jupyter directory by traversing up from the given path.
 
