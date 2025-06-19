@@ -17,7 +17,9 @@ from .persona_awareness import PersonaAwareness
 # types imported under this block have to be surrounded in single quotes on use
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
+
     from .persona_manager import PersonaManager
+
 
 class PersonaDefaults(BaseModel):
     """
@@ -49,7 +51,6 @@ class ABCLoggingConfigurableMeta(ABCMeta, type(LoggingConfigurable)):  # type: i
     `LoggingConfigurable`. This pattern is also followed by `BaseFileIdManager`
     from `jupyter_server_fileid`.
     """
-    pass
 
 
 class BasePersona(ABC, LoggingConfigurable, metaclass=ABCLoggingConfigurableMeta):
@@ -316,11 +317,11 @@ class BasePersona(ABC, LoggingConfigurable, metaclass=ABCLoggingConfigurableMeta
         Returns the latest path of the chat file assigned to this persona. This
         path is relative to the root directory set by `ContentsManager.root_dir`
         by default.
-        
+
         To get an absolute path, call this method with `absolute=True`.
         """
         return self.parent.get_chat_path(absolute=absolute)
-    
+
     def get_chat_dir(self) -> str:
         """
         Returns the absolute path to the parent directory of the chat file

@@ -10,12 +10,12 @@ from jupyter_ai_magics import BaseProvider, JupyternautPersona
 from jupyter_ai_magics.utils import get_em_providers, get_lm_providers
 from jupyter_events import EventLogger
 from jupyter_server.extension.application import ExtensionApp
+from jupyter_server_fileid.manager import BaseFileIdManager
 from jupyterlab_chat.models import Message
 from jupyterlab_chat.ychat import YChat
-from jupyter_server_fileid.manager import BaseFileIdManager
 from pycrdt import ArrayEvent
 from tornado.web import StaticFileHandler
-from traitlets import Integer, List, Unicode, Type
+from traitlets import Integer, List, Type, Unicode
 
 from .completions.handlers import DefaultInlineCompletionHandler
 from .config_manager import ConfigManager
@@ -76,7 +76,7 @@ class AiExtension(ExtensionApp):
         klass=PersonaManager,
         default_value=PersonaManager,
         config=True,
-        help="The `PersonaManager` class."
+        help="The `PersonaManager` class.",
     )
 
     allowed_providers = List(
@@ -380,7 +380,9 @@ class AiExtension(ExtensionApp):
         """
         # TODO: explore if cleanup is necessary
 
-    def _init_persona_manager(self, room_id: str, ychat: YChat) -> Optional[PersonaManager]:
+    def _init_persona_manager(
+        self, room_id: str, ychat: YChat
+    ) -> Optional[PersonaManager]:
         """
         Initializes a `PersonaManager` instance scoped to a `YChat`.
 
@@ -398,11 +400,13 @@ class AiExtension(ExtensionApp):
                 message_interrupted, dict
             )
 
-            fileid_manager = self.serverapp.web_app.settings.get("file_id_manager", None)
+            fileid_manager = self.serverapp.web_app.settings.get(
+                "file_id_manager", None
+            )
             assert isinstance(fileid_manager, BaseFileIdManager)
 
             contents_manager = self.serverapp.contents_manager
-            root_dir = getattr(contents_manager, 'root_dir')
+            root_dir = getattr(contents_manager, "root_dir", None)
             assert isinstance(root_dir, str)
 
             PersonaManagerClass = self.persona_manager_class

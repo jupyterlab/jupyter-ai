@@ -1,9 +1,10 @@
 from __future__ import annotations
+
 import asyncio
+import os
 from logging import Logger
 from time import time_ns
-from typing import TYPE_CHECKING, ClassVar, Optional
-import os
+from typing import TYPE_CHECKING, ClassVar
 
 from importlib_metadata import entry_points
 from jupyterlab_chat.models import Message
@@ -15,6 +16,7 @@ from .base_persona import BasePersona
 
 if TYPE_CHECKING:
     from asyncio import AbstractEventLoop
+
     from jupyter_server_fileid.manager import BaseFileIdManager
 
 # EPG := entry point group
@@ -44,7 +46,7 @@ class PersonaManager(LoggingConfigurable):
     file_id: str
 
     # class attrs
-    _persona_classes: ClassVar[Optional[list[type[BasePersona]]]] = None
+    _persona_classes: ClassVar[list[type[BasePersona]] | None] = None
 
     def __init__(
         self,
@@ -82,6 +84,7 @@ class PersonaManager(LoggingConfigurable):
             assert isinstance(PersonaManager._persona_classes, list)
 
         self._personas = self._init_personas()
+        self.log.error(self.get_chat_dir())
 
     def _init_persona_classes(self) -> None:
         """
@@ -230,26 +233,24 @@ class PersonaManager(LoggingConfigurable):
         )
         for persona in mentioned_personas:
             self.event_loop.create_task(persona.process_message(new_message))
-        
+
     def get_chat_path(self, absolute: bool = False) -> str:
         """
         Returns the latest path of the chat file assigned to this
         `PersonaManager`. This path is relative to the root directory set by
         `ContentsManager.root_dir` by default.
-        
+
         To get an absolute path, call this method with `absolute=True`.
         """
         relpath = self.fileid_manager.get_path(self.file_id)
         if not relpath:
-            raise Exception(
-                f"Unable to locate chat with file ID: '{self.file_id}'."
-            )
+            raise Exception(f"Unable to locate chat with file ID: '{self.file_id}'.")
         if not absolute:
             return relpath
-        
+
         abspath = os.path.join(self.root_dir, relpath)
         return abspath
-    
+
     def get_chat_dir(self) -> str:
         """
         Returns the absolute path to the parent directory of the chat file
@@ -257,4 +258,3 @@ class PersonaManager(LoggingConfigurable):
         """
         abspath = self.get_chat_path(absolute=True)
         return os.path.dirname(abspath)
-
