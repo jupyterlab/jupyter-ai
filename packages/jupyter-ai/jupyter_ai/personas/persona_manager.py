@@ -17,7 +17,7 @@ from .base_persona import BasePersona
 if TYPE_CHECKING:
     from asyncio import AbstractEventLoop
 
-    from jupyter_server_fileid.manager import BaseFileIdManager
+    from jupyter_server_fileid.manager import BaseFileIdManager # type: ignore[import-untyped]
 
 # EPG := entry point group
 EPG_NAME = "jupyter_ai.personas"
@@ -35,7 +35,7 @@ class PersonaManager(LoggingConfigurable):
     root_dir: str
     event_loop: AbstractEventLoop
 
-    log: Logger
+    log: Logger # type: ignore
     """
     The `logging.Logger` instance used by this class. This is automatically set
     by the `LoggingConfigurable` parent class; this declaration only hints the

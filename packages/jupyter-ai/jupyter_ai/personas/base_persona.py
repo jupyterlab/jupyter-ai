@@ -10,6 +10,7 @@ from jupyterlab_chat.models import Message, NewMessage, User
 from jupyterlab_chat.ychat import YChat
 from pydantic import BaseModel
 from traitlets.config import LoggingConfigurable
+from traitlets import MetaHasTraits
 
 from .persona_awareness import PersonaAwareness
 
@@ -45,7 +46,7 @@ class PersonaDefaults(BaseModel):
     # ^^^ set this to automatically default to a model after a fresh start, no config file
 
 
-class ABCLoggingConfigurableMeta(ABCMeta, type(LoggingConfigurable)):  # type: ignore
+class ABCLoggingConfigurableMeta(ABCMeta, MetaHasTraits):
     """
     Metaclass required for `BasePersona` to inherit from both `ABC` and
     `LoggingConfigurable`. This pattern is also followed by `BaseFileIdManager`
@@ -64,7 +65,7 @@ class BasePersona(ABC, LoggingConfigurable, metaclass=ABCLoggingConfigurableMeta
     Automatically set by `BasePersona`.
     """
 
-    parent: "PersonaManager"
+    parent: "PersonaManager" # type: ignore
     """
     Reference to the `PersonaManager` for this `YChat`, which manages this
     instance. Automatically set by the `LoggingConfigurable` parent class.
@@ -76,7 +77,7 @@ class BasePersona(ABC, LoggingConfigurable, metaclass=ABCLoggingConfigurableMeta
     the Jupyter AI settings. Automatically set by `BasePersona`.
     """
 
-    log: Logger
+    log: Logger # type: ignore
     """
     The `logging.Logger` instance used by this class. Automatically set by the
     `LoggingConfigurable` parent class.

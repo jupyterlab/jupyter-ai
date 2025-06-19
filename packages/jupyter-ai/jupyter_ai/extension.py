@@ -10,7 +10,7 @@ from jupyter_ai_magics import BaseProvider, JupyternautPersona
 from jupyter_ai_magics.utils import get_em_providers, get_lm_providers
 from jupyter_events import EventLogger
 from jupyter_server.extension.application import ExtensionApp
-from jupyter_server_fileid.manager import BaseFileIdManager
+from jupyter_server_fileid.manager import BaseFileIdManager # type: ignore[import-untyped]
 from jupyterlab_chat.models import Message
 from jupyterlab_chat.ychat import YChat
 from pycrdt import ArrayEvent
@@ -400,6 +400,9 @@ class AiExtension(ExtensionApp):
                 message_interrupted, dict
             )
 
+            assert self.serverapp
+            assert self.serverapp.web_app
+            assert self.serverapp.web_app.settings
             fileid_manager = self.serverapp.web_app.settings.get(
                 "file_id_manager", None
             )
