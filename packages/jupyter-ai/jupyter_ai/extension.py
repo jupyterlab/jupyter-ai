@@ -12,6 +12,7 @@ from jupyter_events import EventLogger
 from jupyter_server.extension.application import ExtensionApp
 from jupyterlab_chat.models import Message
 from jupyterlab_chat.ychat import YChat
+from jupyter_server_fileid.manager import BaseFileIdManager
 from pycrdt import ArrayEvent
 from tornado.web import StaticFileHandler
 from traitlets import Integer, List, Unicode
@@ -230,7 +231,7 @@ class AiExtension(ExtensionApp):
             return
 
         # initialize persona manager
-        persona_manager = self._init_persona_manager(ychat)
+        persona_manager = self._init_persona_manager(room_id, ychat)
         if not persona_manager:
             self.log.error(
                 "Jupyter AI was unable to initialize its AI personas. They are not available for use in chat until this error is resolved. "
@@ -372,7 +373,7 @@ class AiExtension(ExtensionApp):
         """
         # TODO: explore if cleanup is necessary
 
-    def _init_persona_manager(self, ychat: YChat) -> Optional[PersonaManager]:
+    def _init_persona_manager(self, room_id: str, ychat: YChat) -> Optional[PersonaManager]:
         """
         Initializes a `PersonaManager` instance scoped to a `YChat`.
 
@@ -390,9 +391,19 @@ class AiExtension(ExtensionApp):
                 message_interrupted, dict
             )
 
+            fileid_manager = self.settings.get("file_id_manager", None)
+            assert isinstance(fileid_manager, BaseFileIdManager)
+
+            contents_manager = self.serverapp.contents_manager
+            root_dir = getattr(contents_manager, 'root_dir')
+            assert isinstance(root_dir, str)
+
             persona_manager = PersonaManager(
+                room_id=room_id,
                 ychat=ychat,
                 config_manager=config_manager,
+                fileid_manager=fileid_manager,
+                root_dir=root_dir,
                 event_loop=self.event_loop,
                 log=self.log,
                 message_interrupted=message_interrupted,

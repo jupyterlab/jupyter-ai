@@ -1,7 +1,9 @@
+from __future__ import annotations
 import asyncio
 from logging import Logger
 from time import time_ns
 from typing import TYPE_CHECKING, ClassVar, Optional
+import os
 
 from importlib_metadata import entry_points
 from jupyterlab_chat.models import Message
@@ -12,6 +14,7 @@ from .base_persona import BasePersona
 
 if TYPE_CHECKING:
     from asyncio import AbstractEventLoop
+    from jupyter_server_fileid.manager import BaseFileIdManager
 
 # EPG := entry point group
 EPG_NAME = "jupyter_ai.personas"
@@ -25,27 +28,46 @@ class PersonaManager:
     # instance attrs
     ychat: YChat
     config_manager: ConfigManager
-    event_loop: "AbstractEventLoop"
+    fileid_manager: BaseFileIdManager
+    root_dir: str
+    event_loop: AbstractEventLoop
     log: Logger
+
     _personas: dict[str, BasePersona]
+    file_id: str
 
     # class attrs
     _persona_classes: ClassVar[Optional[list[type[BasePersona]]]] = None
 
     def __init__(
         self,
+        *,
+        room_id: str,
         ychat: YChat,
         config_manager: ConfigManager,
-        event_loop: "AbstractEventLoop",
+        fileid_manager: BaseFileIdManager,
+        root_dir: str,
+        event_loop: AbstractEventLoop,
         log: Logger,
         message_interrupted: dict[str, asyncio.Event],
     ):
+        # Bind instance attributes
+        self.room_id = room_id
         self.ychat = ychat
         self.config_manager = config_manager
+        self.fileid_manager = fileid_manager
+        self.root_dir = root_dir
         self.event_loop = event_loop
         self.log = log
         self.message_interrupted = message_interrupted
 
+        # Store file ID
+        self.file_id = room_id.split(":")[2]
+
+        # Load persona classes from entry points.
+        # This is stored in a class attribute (global to all instances) because
+        # the entry points are immutable after the server starts, so they only
+        # need to be loaded once.
         if not isinstance(PersonaManager._persona_classes, list):
             self._init_persona_classes()
             assert isinstance(PersonaManager._persona_classes, list)
@@ -124,9 +146,11 @@ class PersonaManager:
         for Persona in persona_classes:
             try:
                 persona = Persona(
+                    room_id=self.room_id,
                     ychat=self.ychat,
                     manager=self,
                     config=self.config_manager,
+                    fileid_manager=self.fileid_manager,
                     log=self.log,
                     message_interrupted=self.message_interrupted,
                 )
@@ -200,3 +224,31 @@ class PersonaManager:
         )
         for persona in mentioned_personas:
             self.event_loop.create_task(persona.process_message(new_message))
+        
+    def get_chat_path(self, absolute: bool = False) -> str:
+        """
+        Returns the latest path of the chat file assigned to this
+        `PersonaManager`. This path is relative to the root directory set by
+        `ContentsManager.root_dir` by default.
+        
+        To get an absolute path, call this method with `absolute=True`.
+        """
+        relpath = self.fileid_manager.get_path(self.file_id)
+        if not relpath:
+            raise Exception(
+                f"Unable to locate chat with file ID: '{self.file_id}'."
+            )
+        if not absolute:
+            return relpath
+        
+        abspath = os.path.join(self.root_dir, relpath)
+        return abspath
+    
+    def get_chat_dir(self) -> str:
+        """
+        Returns the absolute path to the parent directory of the chat file
+        assigned to this `PersonaManager`.
+        """
+        abspath = self.get_chat_path(absolute=True)
+        return os.path.dirname(abspath)
+
