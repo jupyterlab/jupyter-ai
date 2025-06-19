@@ -311,6 +311,23 @@ class BasePersona(ABC, LoggingConfigurable, metaclass=ABCLoggingConfigurableMeta
         """
         self.ychat.add_message(NewMessage(body=body, sender=self.id))
 
+    def get_chat_path(self, absolute: bool = False) -> str:
+        """
+        Returns the latest path of the chat file assigned to this persona. This
+        path is relative to the root directory set by `ContentsManager.root_dir`
+        by default.
+        
+        To get an absolute path, call this method with `absolute=True`.
+        """
+        return self.parent.get_chat_path(absolute=absolute)
+    
+    def get_chat_dir(self) -> str:
+        """
+        Returns the absolute path to the parent directory of the chat file
+        assigned to this persona.
+        """
+        return self.parent.get_chat_dir()
+
 
 class GenerationInterrupted(asyncio.CancelledError):
     """Exception raised when streaming is cancelled by the user"""
