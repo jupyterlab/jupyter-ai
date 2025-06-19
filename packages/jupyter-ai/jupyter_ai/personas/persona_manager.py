@@ -8,6 +8,7 @@ import os
 from importlib_metadata import entry_points
 from jupyterlab_chat.models import Message
 from jupyterlab_chat.ychat import YChat
+from traitlets.config import LoggingConfigurable
 
 from ..config_manager import ConfigManager
 from .base_persona import BasePersona
@@ -20,7 +21,7 @@ if TYPE_CHECKING:
 EPG_NAME = "jupyter_ai.personas"
 
 
-class PersonaManager:
+class PersonaManager(LoggingConfigurable):
     """
     Class that manages all personas for a single chat.
     """
@@ -31,7 +32,13 @@ class PersonaManager:
     fileid_manager: BaseFileIdManager
     root_dir: str
     event_loop: AbstractEventLoop
+
     log: Logger
+    """
+    The `logging.Logger` instance used by this class. This is automatically set
+    by the `LoggingConfigurable` parent class; this declaration only hints the
+    type for type checkers.
+    """
 
     _personas: dict[str, BasePersona]
     file_id: str
@@ -41,16 +48,19 @@ class PersonaManager:
 
     def __init__(
         self,
-        *,
+        *args,
         room_id: str,
         ychat: YChat,
         config_manager: ConfigManager,
         fileid_manager: BaseFileIdManager,
         root_dir: str,
         event_loop: AbstractEventLoop,
-        log: Logger,
         message_interrupted: dict[str, asyncio.Event],
+        **kwargs,
     ):
+        # Forward other arguments to parent class
+        super().__init__(*args, **kwargs)
+
         # Bind instance attributes
         self.room_id = room_id
         self.ychat = ychat
@@ -58,7 +68,6 @@ class PersonaManager:
         self.fileid_manager = fileid_manager
         self.root_dir = root_dir
         self.event_loop = event_loop
-        self.log = log
         self.message_interrupted = message_interrupted
 
         # Store file ID
@@ -146,11 +155,9 @@ class PersonaManager:
         for Persona in persona_classes:
             try:
                 persona = Persona(
-                    room_id=self.room_id,
                     ychat=self.ychat,
                     manager=self,
                     config=self.config_manager,
-                    fileid_manager=self.fileid_manager,
                     log=self.log,
                     message_interrupted=self.message_interrupted,
                 )
