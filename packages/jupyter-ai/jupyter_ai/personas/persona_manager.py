@@ -155,10 +155,9 @@ class PersonaManager(LoggingConfigurable):
         for Persona in persona_classes:
             try:
                 persona = Persona(
+                    parent=self,
                     ychat=self.ychat,
-                    manager=self,
-                    config=self.config_manager,
-                    log=self.log,
+                    config_manager=self.config_manager,
                     message_interrupted=self.message_interrupted,
                 )
             except Exception:

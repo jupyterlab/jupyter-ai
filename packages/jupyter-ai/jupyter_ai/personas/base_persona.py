@@ -1,5 +1,5 @@
 import asyncio
-from abc import ABC, abstractmethod
+from abc import ABC, ABCMeta, abstractmethod
 from dataclasses import asdict
 from logging import Logger
 from time import time
@@ -9,6 +9,7 @@ from jupyter_ai.config_manager import ConfigManager
 from jupyterlab_chat.models import Message, NewMessage, User
 from jupyterlab_chat.ychat import YChat
 from pydantic import BaseModel
+from traitlets.config import LoggingConfigurable
 
 from .persona_awareness import PersonaAwareness
 
@@ -16,9 +17,7 @@ from .persona_awareness import PersonaAwareness
 # types imported under this block have to be surrounded in single quotes on use
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
-
     from .persona_manager import PersonaManager
-
 
 class PersonaDefaults(BaseModel):
     """
@@ -44,7 +43,16 @@ class PersonaDefaults(BaseModel):
     # ^^^ set this to automatically default to a model after a fresh start, no config file
 
 
-class BasePersona(ABC):
+class ABCLoggingConfigurableMeta(ABCMeta, type(LoggingConfigurable)):  # type: ignore
+    """
+    Metaclass required for `BasePersona` to inherit from both `ABC` and
+    `LoggingConfigurable`. This pattern is also followed by `BaseFileIdManager`
+    from `jupyter_server_fileid`.
+    """
+    pass
+
+
+class BasePersona(ABC, LoggingConfigurable, metaclass=ABCLoggingConfigurableMeta):
     """
     Abstract base class that defines a persona when implemented.
     """
@@ -55,13 +63,13 @@ class BasePersona(ABC):
     Automatically set by `BasePersona`.
     """
 
-    manager: "PersonaManager"
+    parent: "PersonaManager"
     """
     Reference to the `PersonaManager` for this `YChat`, which manages this
-    instance. Automatically set by `BasePersona`.
+    instance. Automatically set by the `LoggingConfigurable` parent class.
     """
 
-    config: ConfigManager
+    config_manager: ConfigManager
     """
     Reference to the `ConfigManager` singleton, which is used to read & write from
     the Jupyter AI settings. Automatically set by `BasePersona`.
@@ -69,7 +77,8 @@ class BasePersona(ABC):
 
     log: Logger
     """
-    The logger for this instance. Automatically set by `BasePersona`.
+    The `logging.Logger` instance used by this class. Automatically set by the
+    `LoggingConfigurable` parent class.
     """
 
     awareness: PersonaAwareness
@@ -92,22 +101,26 @@ class BasePersona(ABC):
     ################################################
     def __init__(
         self,
-        *,
+        *args,
         ychat: YChat,
-        manager: "PersonaManager",
-        config: ConfigManager,
-        log: Logger,
+        config_manager: ConfigManager,
         message_interrupted: dict[str, asyncio.Event],
+        **kwargs,
     ):
+        # Forward other arguments to parent class
+        super().__init__(*args, **kwargs)
+
+        # Bind arguments to instance attributes
         self.ychat = ychat
-        self.manager = manager
-        self.config = config
-        self.log = log
+        self.config_manager = config_manager
         self.message_interrupted = message_interrupted
+
+        # Initialize custom awareness object for this persona
         self.awareness = PersonaAwareness(
             ychat=self.ychat, log=self.log, user=self.as_user()
         )
 
+        # Register this persona as a user in the chat
         self.ychat.set_user(self.as_user())
 
     ################################################
