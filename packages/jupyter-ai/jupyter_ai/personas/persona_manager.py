@@ -17,8 +17,8 @@ from .base_persona import BasePersona
 if TYPE_CHECKING:
     from asyncio import AbstractEventLoop
 
-    from jupyter_server_fileid.manager import (
-        BaseFileIdManager,  # type: ignore[import-untyped]
+    from jupyter_server_fileid.manager import (  # type: ignore[import-untyped]
+        BaseFileIdManager,
     )
 
 # EPG := entry point group
