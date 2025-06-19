@@ -6,8 +6,6 @@ from functools import partial
 from typing import TYPE_CHECKING, Optional
 
 import traitlets
-from traitlets.config import Config
-
 from jupyter_ai_magics import BaseProvider, JupyternautPersona
 from jupyter_ai_magics.utils import get_em_providers, get_lm_providers
 from jupyter_events import EventLogger
@@ -20,6 +18,7 @@ from jupyterlab_chat.ychat import YChat
 from pycrdt import ArrayEvent
 from tornado.web import StaticFileHandler
 from traitlets import Integer, List, Type, Unicode
+from traitlets.config import Config
 
 from .completions.handlers import DefaultInlineCompletionHandler
 from .config_manager import ConfigManager
