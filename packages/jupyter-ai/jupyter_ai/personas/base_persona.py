@@ -9,8 +9,8 @@ from jupyter_ai.config_manager import ConfigManager
 from jupyterlab_chat.models import Message, NewMessage, User
 from jupyterlab_chat.ychat import YChat
 from pydantic import BaseModel
-from traitlets.config import LoggingConfigurable
 from traitlets import MetaHasTraits
+from traitlets.config import LoggingConfigurable
 
 from .persona_awareness import PersonaAwareness
 
@@ -65,7 +65,7 @@ class BasePersona(ABC, LoggingConfigurable, metaclass=ABCLoggingConfigurableMeta
     Automatically set by `BasePersona`.
     """
 
-    parent: "PersonaManager" # type: ignore
+    parent: "PersonaManager"  # type: ignore
     """
     Reference to the `PersonaManager` for this `YChat`, which manages this
     instance. Automatically set by the `LoggingConfigurable` parent class.
@@ -77,7 +77,7 @@ class BasePersona(ABC, LoggingConfigurable, metaclass=ABCLoggingConfigurableMeta
     the Jupyter AI settings. Automatically set by `BasePersona`.
     """
 
-    log: Logger # type: ignore
+    log: Logger  # type: ignore
     """
     The `logging.Logger` instance used by this class. Automatically set by the
     `LoggingConfigurable` parent class.
