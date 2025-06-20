@@ -236,18 +236,18 @@ class PersonaManager(LoggingConfigurable):
         for persona in mentioned_personas:
             self.event_loop.create_task(persona.process_message(new_message))
 
-    def get_chat_path(self, absolute: bool = False) -> str:
+    def get_chat_path(self, relative: bool = False) -> str:
         """
-        Returns the latest path of the chat file assigned to this
-        `PersonaManager`. This path is relative to the root directory set by
-        `ContentsManager.root_dir` by default.
+        Returns the absolute path of the chat file assigned to this
+        `PersonaManager`.
 
-        To get an absolute path, call this method with `absolute=True`.
+        To get a path relative to the `ContentsManager` root directory, call
+        this method with `relative=True`.
         """
         relpath = self.fileid_manager.get_path(self.file_id)
         if not relpath:
             raise Exception(f"Unable to locate chat with file ID: '{self.file_id}'.")
-        if not absolute:
+        if relative:
             return relpath
 
         abspath = os.path.join(self.root_dir, relpath)
@@ -255,7 +255,7 @@ class PersonaManager(LoggingConfigurable):
 
     def get_chat_dir(self) -> str:
         """
-        Returns the absolute path to the parent directory of the chat file
+        Returns the absolute path of the parent directory of the chat file
         assigned to this `PersonaManager`.
         """
         abspath = self.get_chat_path(absolute=True)
