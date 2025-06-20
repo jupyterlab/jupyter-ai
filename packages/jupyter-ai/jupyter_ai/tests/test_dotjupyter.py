@@ -47,3 +47,37 @@ def test_find_dotjupyter_dir_current_level():
         result = find_dotjupyter_dir(str(test_dir))
         assert Path(result).resolve() == dotjupyter_dir.resolve()
         assert os.path.isdir(result)
+
+
+def test_find_dotjupyter_dir_with_root_dir():
+    # Create a temporary directory structure with .jupyter at multiple levels
+    with tempfile.TemporaryDirectory() as temp_dir:
+        # Create nested directories
+        level1 = Path(temp_dir) / "level1"
+        level2 = level1 / "level2"
+        level3 = level2 / "level3"
+        level3.mkdir(parents=True)
+
+        # Create .jupyter directories at both level1 and level2
+        dotjupyter_level1 = level1 / ".jupyter"
+        dotjupyter_level1.mkdir()
+        
+        dotjupyter_level2 = level2 / ".jupyter"
+        dotjupyter_level2.mkdir()
+
+        # Test finding .jupyter from level3 with root_dir set to level2
+        # Should find the .jupyter at level2, not level1
+        result = find_dotjupyter_dir(str(level3), root_dir=str(level2))
+        assert Path(result).resolve() == dotjupyter_level2.resolve()
+        assert Path(result).is_dir()
+
+        # Test finding .jupyter from level3 with root_dir set to level1
+        # Should find the .jupyter at level1
+        result = find_dotjupyter_dir(str(level3), root_dir=str(level1))
+        assert Path(result).resolve() == dotjupyter_level2.resolve()
+        assert Path(result).is_dir()
+
+        # Test finding .jupyter from level3 with root_dir set to level3
+        # Should return None as no .jupyter exists at or above level3 within the root_dir
+        result = find_dotjupyter_dir(str(level3), root_dir=str(level3))
+        assert result is None
