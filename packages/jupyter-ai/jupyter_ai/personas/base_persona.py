@@ -13,6 +13,7 @@ from traitlets import MetaHasTraits
 from traitlets.config import LoggingConfigurable
 
 from .persona_awareness import PersonaAwareness
+from ..mcp.mcp_config_loader import MCPConfigLoader
 
 # prevents a circular import
 # types imported under this block have to be surrounded in single quotes on use
@@ -124,6 +125,7 @@ class BasePersona(ABC, LoggingConfigurable, metaclass=ABCLoggingConfigurableMeta
 
         # Register this persona as a user in the chat
         self.ychat.set_user(self.as_user())
+        self._mcp_config_loader = MCPConfigLoader()
 
     ################################################
     # abstract methods, required by subclasses.
@@ -231,6 +233,12 @@ class BasePersona(ABC, LoggingConfigurable, metaclass=ABCLoggingConfigurableMeta
         """
         user = self.as_user()
         return asdict(user)
+
+    def get_mcp_config(self) -> dict[str, Any]:
+        """
+        Returns the MCP config for the current chat.
+        """
+        return self._mcp_config_loader.get_config(self.get_dotjupyter_dir())
 
     async def stream_message(self, reply_stream: "AsyncIterator") -> None:
         """
