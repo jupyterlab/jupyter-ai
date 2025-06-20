@@ -14,7 +14,7 @@ def find_dotjupyter_dir(cwd: str, root_dir: Optional[str] = None) -> Optional[st
         str: The absolute path to the .jupyter directory if found, None otherwise
     """
     current_path = Path(cwd).resolve()
-    
+
     # Determine the stopping point
     if root_dir is not None:
         stop_path = Path(root_dir).resolve()
@@ -29,11 +29,11 @@ def find_dotjupyter_dir(cwd: str, root_dir: Optional[str] = None) -> Optional[st
         except PermissionError:
             # Stop searching if we don't have permission to access this directory
             break
-        
+
         # Stop if we've reached the specified root directory
         if root_dir is not None and current_path == stop_path:
             break
-            
+
         current_path = current_path.parent
 
     return None

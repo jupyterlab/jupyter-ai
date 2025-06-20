@@ -61,7 +61,7 @@ def test_find_dotjupyter_dir_with_root_dir():
         # Create .jupyter directories at both level1 and level2
         dotjupyter_level1 = level1 / ".jupyter"
         dotjupyter_level1.mkdir()
-        
+
         dotjupyter_level2 = level2 / ".jupyter"
         dotjupyter_level2.mkdir()
 
