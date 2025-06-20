@@ -232,6 +232,12 @@ class BasePersona(ABC, LoggingConfigurable, metaclass=ABCLoggingConfigurableMeta
         user = self.as_user()
         return asdict(user)
 
+    def get_dotjupyter_dir(self) -> Optional[str]:
+        """
+        Returns the path to the .jupyter directory for the current chat.
+        """
+        return self.parent.get_dotjupyter_dir()
+
     async def stream_message(self, reply_stream: "AsyncIterator") -> None:
         """
         Takes an async iterator, dubbed the 'reply stream', and streams it to a
