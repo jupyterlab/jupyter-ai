@@ -10,11 +10,14 @@ from jupyter_ai_magics import BaseProvider, JupyternautPersona
 from jupyter_ai_magics.utils import get_em_providers, get_lm_providers
 from jupyter_events import EventLogger
 from jupyter_server.extension.application import ExtensionApp
+from jupyter_server_fileid.manager import (  # type: ignore[import-untyped]
+    BaseFileIdManager,
+)
 from jupyterlab_chat.models import Message
 from jupyterlab_chat.ychat import YChat
 from pycrdt import ArrayEvent
 from tornado.web import StaticFileHandler
-from traitlets import Integer, List, Unicode
+from traitlets import Integer, List, Type, Unicode
 
 from .completions.handlers import DefaultInlineCompletionHandler
 from .config_manager import ConfigManager
@@ -70,6 +73,13 @@ class AiExtension(ExtensionApp):
             {"path": JUPYTERNAUT_AVATAR_PATH},
         ),
     ]
+
+    persona_manager_class = Type(
+        klass=PersonaManager,
+        default_value=PersonaManager,
+        config=True,
+        help="The `PersonaManager` class.",
+    )
 
     allowed_providers = List(
         Unicode(),
@@ -230,7 +240,7 @@ class AiExtension(ExtensionApp):
             return
 
         # initialize persona manager
-        persona_manager = self._init_persona_manager(ychat)
+        persona_manager = self._init_persona_manager(room_id, ychat)
         if not persona_manager:
             self.log.error(
                 "Jupyter AI was unable to initialize its AI personas. They are not available for use in chat until this error is resolved. "
@@ -372,7 +382,9 @@ class AiExtension(ExtensionApp):
         """
         # TODO: explore if cleanup is necessary
 
-    def _init_persona_manager(self, ychat: YChat) -> Optional[PersonaManager]:
+    def _init_persona_manager(
+        self, room_id: str, ychat: YChat
+    ) -> Optional[PersonaManager]:
         """
         Initializes a `PersonaManager` instance scoped to a `YChat`.
 
@@ -390,11 +402,27 @@ class AiExtension(ExtensionApp):
                 message_interrupted, dict
             )
 
-            persona_manager = PersonaManager(
+            assert self.serverapp
+            assert self.serverapp.web_app
+            assert self.serverapp.web_app.settings
+            fileid_manager = self.serverapp.web_app.settings.get(
+                "file_id_manager", None
+            )
+            assert isinstance(fileid_manager, BaseFileIdManager)
+
+            contents_manager = self.serverapp.contents_manager
+            root_dir = getattr(contents_manager, "root_dir", None)
+            assert isinstance(root_dir, str)
+
+            PersonaManagerClass = self.persona_manager_class
+            persona_manager = PersonaManagerClass(
+                parent=self,
+                room_id=room_id,
                 ychat=ychat,
                 config_manager=config_manager,
+                fileid_manager=fileid_manager,
+                root_dir=root_dir,
                 event_loop=self.event_loop,
-                log=self.log,
                 message_interrupted=message_interrupted,
             )
         except Exception as e:

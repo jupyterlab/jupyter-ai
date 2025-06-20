@@ -1,5 +1,5 @@
 import asyncio
-from abc import ABC, abstractmethod
+from abc import ABC, ABCMeta, abstractmethod
 from dataclasses import asdict
 from logging import Logger
 from time import time
@@ -9,6 +9,8 @@ from jupyter_ai.config_manager import ConfigManager
 from jupyterlab_chat.models import Message, NewMessage, User
 from jupyterlab_chat.ychat import YChat
 from pydantic import BaseModel
+from traitlets import MetaHasTraits
+from traitlets.config import LoggingConfigurable
 
 from .persona_awareness import PersonaAwareness
 
@@ -44,7 +46,15 @@ class PersonaDefaults(BaseModel):
     # ^^^ set this to automatically default to a model after a fresh start, no config file
 
 
-class BasePersona(ABC):
+class ABCLoggingConfigurableMeta(ABCMeta, MetaHasTraits):
+    """
+    Metaclass required for `BasePersona` to inherit from both `ABC` and
+    `LoggingConfigurable`. This pattern is also followed by `BaseFileIdManager`
+    from `jupyter_server_fileid`.
+    """
+
+
+class BasePersona(ABC, LoggingConfigurable, metaclass=ABCLoggingConfigurableMeta):
     """
     Abstract base class that defines a persona when implemented.
     """
@@ -55,21 +65,22 @@ class BasePersona(ABC):
     Automatically set by `BasePersona`.
     """
 
-    manager: "PersonaManager"
+    parent: "PersonaManager"  # type: ignore
     """
     Reference to the `PersonaManager` for this `YChat`, which manages this
-    instance. Automatically set by `BasePersona`.
+    instance. Automatically set by the `LoggingConfigurable` parent class.
     """
 
-    config: ConfigManager
+    config_manager: ConfigManager
     """
     Reference to the `ConfigManager` singleton, which is used to read & write from
     the Jupyter AI settings. Automatically set by `BasePersona`.
     """
 
-    log: Logger
+    log: Logger  # type: ignore
     """
-    The logger for this instance. Automatically set by `BasePersona`.
+    The `logging.Logger` instance used by this class. Automatically set by the
+    `LoggingConfigurable` parent class.
     """
 
     awareness: PersonaAwareness
@@ -92,22 +103,26 @@ class BasePersona(ABC):
     ################################################
     def __init__(
         self,
-        *,
+        *args,
         ychat: YChat,
-        manager: "PersonaManager",
-        config: ConfigManager,
-        log: Logger,
+        config_manager: ConfigManager,
         message_interrupted: dict[str, asyncio.Event],
+        **kwargs,
     ):
+        # Forward other arguments to parent class
+        super().__init__(*args, **kwargs)
+
+        # Bind arguments to instance attributes
         self.ychat = ychat
-        self.manager = manager
-        self.config = config
-        self.log = log
+        self.config_manager = config_manager
         self.message_interrupted = message_interrupted
+
+        # Initialize custom awareness object for this persona
         self.awareness = PersonaAwareness(
             ychat=self.ychat, log=self.log, user=self.as_user()
         )
 
+        # Register this persona as a user in the chat
         self.ychat.set_user(self.as_user())
 
     ################################################
@@ -297,6 +312,22 @@ class BasePersona(ABC):
         Sends a new message to the chat from this persona.
         """
         self.ychat.add_message(NewMessage(body=body, sender=self.id))
+
+    def get_chat_path(self, relative: bool = False) -> str:
+        """
+        Returns the absolute path of the chat file assigned to this persona.
+
+        To get a path relative to the `ContentsManager` root directory, call
+        this method with `relative=True`.
+        """
+        return self.parent.get_chat_path(relative=relative)
+
+    def get_chat_dir(self) -> str:
+        """
+        Returns the absolute path to the parent directory of the chat file
+        assigned to this persona.
+        """
+        return self.parent.get_chat_dir()
 
 
 class GenerationInterrupted(asyncio.CancelledError):

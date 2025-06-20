@@ -1,3 +1,11 @@
+# NOTE: This is the outdated `Persona` model used by Jupyter AI v2.
+# This is deprecated and will be removed by Jupyter AI v3.
+# The latest definition of a persona is located in
+# `jupyter_ai/personas/base_persona.py`.
+#
+# TODO: Delete this file once v3 model API changes are complete. The current model
+# API still depends on this, so that work must be done first.
+
 from pydantic import BaseModel
 
 

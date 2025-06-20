@@ -27,8 +27,8 @@ class JupyternautPersona(BasePersona):
         )
 
     async def process_message(self, message: Message) -> None:
-        provider_name = self.config.lm_provider.name
-        model_id = self.config.lm_provider_params["model_id"]
+        provider_name = self.config_manager.lm_provider.name
+        model_id = self.config_manager.lm_provider_params["model_id"]
 
         runnable = self.build_runnable()
         variables = JupyternautVariables(
@@ -43,7 +43,7 @@ class JupyternautPersona(BasePersona):
 
     def build_runnable(self) -> Any:
         # TODO: support model parameters. maybe we just add it to lm_provider_params in both 2.x and 3.x
-        llm = self.config.lm_provider(**self.config.lm_provider_params)
+        llm = self.config_manager.lm_provider(**self.config_manager.lm_provider_params)
         runnable = JUPYTERNAUT_PROMPT_TEMPLATE | llm | StrOutputParser()
 
         runnable = RunnableWithMessageHistory(
