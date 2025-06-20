@@ -13,6 +13,7 @@ from jupyter_server.extension.application import ExtensionApp
 from jupyter_server_fileid.manager import (  # type: ignore[import-untyped]
     BaseFileIdManager,
 )
+from jupyter_server.serverapp import ServerApp
 from jupyterlab_chat.models import Message
 from jupyterlab_chat.ychat import YChat
 from pycrdt import ArrayEvent
@@ -436,7 +437,7 @@ class AiExtension(ExtensionApp):
         finally:
             return persona_manager
 
-    def _link_jupyter_server_extension(self, server_app):
+    def _link_jupyter_server_extension(self, server_app: ServerApp):
         """Setup custom config needed by this extension."""
         c = Config()
         c.ContentsManager.allow_hidden = True
