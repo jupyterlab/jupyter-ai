@@ -23,8 +23,12 @@ def find_dotjupyter_dir(cwd: str, root_dir: Optional[str] = None) -> Optional[st
 
     while current_path != current_path.parent:  # Stop at root directory
         dotjupyter = current_path / ".jupyter"
-        if dotjupyter.is_dir():
-            return str(dotjupyter)
+        try:
+            if dotjupyter.is_dir():
+                return str(dotjupyter)
+        except PermissionError:
+            # Stop searching if we don't have permission to access this directory
+            break
         
         # Stop if we've reached the specified root directory
         if root_dir is not None and current_path == stop_path:
