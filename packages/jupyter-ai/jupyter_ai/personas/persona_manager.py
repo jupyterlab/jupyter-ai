@@ -13,6 +13,7 @@ from traitlets.config import LoggingConfigurable
 
 from ..config_manager import ConfigManager
 from .base_persona import BasePersona
+from .dotjupyter import find_dotjupyter_dir
 
 if TYPE_CHECKING:
     from asyncio import AbstractEventLoop
@@ -199,6 +200,12 @@ class PersonaManager(LoggingConfigurable):
         persona ID.
         """
         return self._personas
+
+    def get_dotjupyter_dir(self) -> Optional[str]:
+        """
+        Returns the path to the .jupyter directory for the current chat.
+        """
+        return find_dotjupyter_dir(self.get_chat_dir(), root_dir=self.root_dir)
 
     def get_mentioned_personas(self, new_message: Message) -> list[BasePersona]:
         """
