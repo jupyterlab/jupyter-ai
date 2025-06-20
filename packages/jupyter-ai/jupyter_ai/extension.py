@@ -10,10 +10,10 @@ from jupyter_ai_magics import BaseProvider, JupyternautPersona
 from jupyter_ai_magics.utils import get_em_providers, get_lm_providers
 from jupyter_events import EventLogger
 from jupyter_server.extension.application import ExtensionApp
+from jupyter_server.serverapp import ServerApp
 from jupyter_server_fileid.manager import (  # type: ignore[import-untyped]
     BaseFileIdManager,
 )
-from jupyter_server.serverapp import ServerApp
 from jupyterlab_chat.models import Message
 from jupyterlab_chat.ychat import YChat
 from pycrdt import ArrayEvent
