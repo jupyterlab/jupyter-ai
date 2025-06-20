@@ -313,15 +313,14 @@ class BasePersona(ABC, LoggingConfigurable, metaclass=ABCLoggingConfigurableMeta
         """
         self.ychat.add_message(NewMessage(body=body, sender=self.id))
 
-    def get_chat_path(self, absolute: bool = False) -> str:
+    def get_chat_path(self, relative: bool = False) -> str:
         """
-        Returns the latest path of the chat file assigned to this persona. This
-        path is relative to the root directory set by `ContentsManager.root_dir`
-        by default.
+        Returns the absolute path of the chat file assigned to this persona.
 
-        To get an absolute path, call this method with `absolute=True`.
+        To get a path relative to the `ContentsManager` root directory, call
+        this method with `relative=True`.
         """
-        return self.parent.get_chat_path(absolute=absolute)
+        return self.parent.get_chat_path(relative=relative)
 
     def get_chat_dir(self) -> str:
         """
