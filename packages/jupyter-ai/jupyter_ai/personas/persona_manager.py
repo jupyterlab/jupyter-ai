@@ -335,14 +335,15 @@ class LocalPersonaLoader(LoggingConfigurable):
             self.log.info(f"Root directory does not exist: {self.root_dir}")
             return persona_classes
         
-        # Find all .py files in the root directory
-        py_files = glob(os.path.join(self.root_dir, "*.py"))
+        # Find all .py files in the root directory that contain "persona" in the name
+        all_py_files = glob(os.path.join(self.root_dir, "*.py"))
+        py_files = [f for f in all_py_files if "persona" in Path(f).stem.lower()]
         
         if not py_files:
-            self.log.info(f"No Python files found in directory: {self.root_dir}")
+            self.log.info(f"No Python files with 'persona' in the name found in directory: {self.root_dir}")
             return persona_classes
         
-        self.log.info(f"Found {len(py_files)} Python files in {self.root_dir}")
+        self.log.info(f"Found {len(py_files)} Python files with 'persona' in the name in {self.root_dir}")
         self.log.info("PENDING: Loading persona classes from local Python files...")
         start_time_ns = time_ns()
         
