@@ -1,8 +1,12 @@
 from __future__ import annotations
 
 import asyncio
+import importlib.util
+import inspect
 import os
+from glob import glob
 from logging import Logger
+from pathlib import Path
 from time import time_ns
 from typing import TYPE_CHECKING, Any, ClassVar
 
@@ -140,6 +144,10 @@ class PersonaManager(LoggingConfigurable):
                 "ERROR: Jupyter AI has no AI personas available. "
                 + "Please verify your server configuration and open a new issue on our GitHub repo if this warning persists."
             )
+
+        # TODO: check whether in the end we need a full class for this, or if we can just use a simple function that returns a list of persona classes from the local filesystem.
+        persona_classes.extend(LocalPersonaLoader(self.root_dir).load_persona_classes())
+
         PersonaManager._persona_classes = persona_classes
 
     def _init_personas(self) -> dict[str, BasePersona]:
@@ -287,3 +295,107 @@ class PersonaManager(LoggingConfigurable):
             return {}
         else:
             return self._mcp_config_loader.get_config(jdir)
+
+
+class LocalPersonaLoader(LoggingConfigurable):
+    """
+    Load _persona class declarations_ from the local filesystem.
+
+    Those class declarations are then used to instantiate personas by the `PersonaManager`.
+
+    TODO: wire to local .jupyter directory system, for now just use the current
+    directory.
+    """
+
+    def __init__(
+        self,
+        *args,
+        root_dir: str | None = None,
+        **kwargs,
+    ):
+        # Forward other arguments to parent class
+        super().__init__(*args, **kwargs)
+        
+        # Set default root directory to current working directory if not provided
+        self.root_dir = root_dir or os.getcwd()
+        
+        self.log.info(f"LocalPersonaLoader initialized with root directory: {self.root_dir}")
+
+    def load_persona_classes(self) -> list[type[BasePersona]]:
+        """
+        Loads persona classes from Python files in the local filesystem.
+        
+        Scans the root_dir for .py files, dynamically imports them, and extracts
+        any class declarations that are subclasses of BasePersona.
+        """
+        persona_classes: list[type[BasePersona]] = []
+        
+        # Check if root directory exists
+        if not os.path.exists(self.root_dir):
+            self.log.info(f"Root directory does not exist: {self.root_dir}")
+            return persona_classes
+        
+        # Find all .py files in the root directory
+        py_files = glob(os.path.join(self.root_dir, "*.py"))
+        
+        if not py_files:
+            self.log.info(f"No Python files found in directory: {self.root_dir}")
+            return persona_classes
+        
+        self.log.info(f"Found {len(py_files)} Python files in {self.root_dir}")
+        self.log.info("PENDING: Loading persona classes from local Python files...")
+        start_time_ns = time_ns()
+        
+        for py_file in py_files:
+            try:
+                # Get module name from file path
+                module_name = Path(py_file).stem
+                
+                # Skip if module name starts with underscore (private modules)
+                if module_name.startswith('_'):
+                    continue
+                
+                # Create module spec and load the module
+                spec = importlib.util.spec_from_file_location(module_name, py_file)
+                if spec is None or spec.loader is None:
+                    self.log.warning(f"  - Unable to create module spec for {py_file}")
+                    continue
+                
+                module = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(module)
+                
+                # Find all classes in the module that are BasePersona subclasses
+                module_persona_classes = []
+                for name, obj in inspect.getmembers(module, inspect.isclass):
+                    # Check if it's a subclass of BasePersona but not BasePersona itself
+                    if (issubclass(obj, BasePersona) and 
+                        obj is not BasePersona and 
+                        obj.__module__ == module_name):
+                        module_persona_classes.append(obj)
+                
+                if module_persona_classes:
+                    persona_classes.extend(module_persona_classes)
+                    class_names = [cls.__name__ for cls in module_persona_classes]
+                    self.log.info(
+                        f"  - Loaded {len(module_persona_classes)} persona class(es) from '{py_file}': {class_names}"
+                    )
+                else:
+                    self.log.debug(f"  - No persona classes found in '{py_file}'")
+                    
+            except Exception:
+                # On exception, log an error and continue
+                # This mirrors the error handling pattern from entry point loading
+                self.log.exception(
+                    f"  - Unable to load persona classes from '{py_file}' due to an exception printed below."
+                )
+                continue
+        
+        if len(persona_classes) > 0:
+            elapsed_time_ms = (time_ns() - start_time_ns) // 1_000_000
+            self.log.info(
+                f"SUCCESS: Loaded {len(persona_classes)} persona classes from local filesystem. Time elapsed: {elapsed_time_ms}ms."
+            )
+        else:
+            self.log.info("No persona classes found in local filesystem.")
+        
+        return persona_classes
