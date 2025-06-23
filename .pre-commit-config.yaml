@@ -28,20 +28,20 @@ repos:
       - id: black
 
   - repo: https://github.com/PyCQA/isort
-    rev: 6.0.0
+    rev: 6.0.1
     hooks:
       - id: isort
         args: ["--profile", "black"]
         files: \.py$
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.19.1
+    rev: v3.20.0
     hooks:
       - id: pyupgrade
         args: [--py39-plus]
 
   - repo: https://github.com/pycqa/flake8
-    rev: 7.1.1
+    rev: 7.3.0
     hooks:
       - id: flake8
         additional_dependencies:
@@ -53,7 +53,7 @@ repos:
         stages: [manual]
 
   - repo: https://github.com/sirosen/check-jsonschema
-    rev: 0.31.1
+    rev: 0.33.1
     hooks:
       - id: check-jsonschema
         name: "Check GitHub Workflows"
