@@ -52,7 +52,7 @@ class Tool(BaseModel):
         delete: Whether the tool can delete data.
 
     Example:
-        >>> def greet(name: str):
+        >>> async def greet(name: str):
         ...     '''Say hello to someone.'''
         ...     return f"Hello, {name}!"
         >>> tool = Tool(callable=greet, read=True)
