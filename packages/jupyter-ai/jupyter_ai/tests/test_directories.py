@@ -196,9 +196,9 @@ def test_find_workspace_dir_jupyter_at_root():
     # Test when .jupyter directory's parent is the root_dir
     with tempfile.TemporaryDirectory() as temp_dir:
         root_dir = Path(temp_dir)
-        jupyter_dir = root_dir / ".jupyter" 
+        jupyter_dir = root_dir / ".jupyter"
         jupyter_dir.mkdir()
-        
+
         project_dir = root_dir / "project"
         chat_dir = project_dir / "notebooks"
         chat_dir.mkdir(parents=True)
@@ -218,7 +218,7 @@ def test_find_workspace_dir_jupyter_at_root_no_git():
         root_dir = Path(temp_dir)
         jupyter_dir = root_dir / ".jupyter"
         jupyter_dir.mkdir()
-        
+
         project_dir = root_dir / "project"
         chat_dir = project_dir / "notebooks"
         chat_dir.mkdir(parents=True)
@@ -255,7 +255,7 @@ def test_find_dot_dir_invalid_dir():
     with tempfile.TemporaryDirectory() as temp_dir:
         test_file = Path(temp_dir) / "test.txt"
         test_file.write_text("test")
-        
+
         with pytest.raises(ValueError, match="is not a directory"):
             find_dot_dir(str(test_file), ".git")
 
@@ -269,6 +269,6 @@ def test_find_workspace_dir_invalid_dir():
     with tempfile.TemporaryDirectory() as temp_dir:
         test_file = Path(temp_dir) / "test.txt"
         test_file.write_text("test")
-        
+
         with pytest.raises(ValueError, match="is not a directory"):
             find_workspace_dir(str(test_file))

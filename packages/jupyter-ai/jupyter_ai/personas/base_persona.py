@@ -341,5 +341,6 @@ class BasePersona(ABC, LoggingConfigurable, metaclass=ABCLoggingConfigurableMeta
         """
         return self.parent.get_workspace_dir()
 
+
 class GenerationInterrupted(asyncio.CancelledError):
     """Exception raised when streaming is cancelled by the user"""

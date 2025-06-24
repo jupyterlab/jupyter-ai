@@ -2,7 +2,9 @@ from pathlib import Path
 from typing import Optional
 
 
-def find_dot_dir(dir: str, dot_dir: str, root_dir: Optional[str] = None) -> Optional[str]:
+def find_dot_dir(
+    dir: str, dot_dir: str, root_dir: Optional[str] = None
+) -> Optional[str]:
     """
     Find the nearest dot directory by traversing up from the given directory.
 
@@ -14,12 +16,12 @@ def find_dot_dir(dir: str, dot_dir: str, root_dir: Optional[str] = None) -> Opti
 
     Returns:
         str: The absolute path to the dot directory if found, None otherwise
-    
+
     Raises:
         ValueError: If dir is not a directory
     """
     current_path = Path(dir).resolve()
-    
+
     # Validate that the starting path is a directory
     if not current_path.is_dir():
         raise ValueError(f"'{dir}' is not a directory")
@@ -51,7 +53,7 @@ def find_dot_dir(dir: str, dot_dir: str, root_dir: Optional[str] = None) -> Opti
 def find_workspace_dir(dir: str, root_dir: Optional[str] = None) -> str:
     """
     Find the workspace directory using the following algorithm:
-    
+
     1. First finds the nearest .jupyter directory
     2. If the .jupyter directory has a parent that is the root_dir,
        go to step 3, otherwise return the .jupyter directory
@@ -64,7 +66,7 @@ def find_workspace_dir(dir: str, root_dir: Optional[str] = None) -> str:
 
     Returns:
         str: The absolute path to the workspace directory
-    
+
     Raises:
         ValueError: If dir is not a directory
     """
@@ -72,10 +74,10 @@ def find_workspace_dir(dir: str, root_dir: Optional[str] = None) -> str:
     dir_path = Path(dir).resolve()
     if not dir_path.is_dir():
         raise ValueError(f"'{dir}' is not a directory")
-    
+
     # Step 1: Find nearest .jupyter directory
     jupyter_dir = find_dot_dir(dir, ".jupyter", root_dir)
-    
+
     if jupyter_dir is not None:
         jupyter_path = Path(jupyter_dir)
         done = True
@@ -91,6 +93,6 @@ def find_workspace_dir(dir: str, root_dir: Optional[str] = None) -> str:
     git_dir = find_dot_dir(dir, ".git", root_dir)
     if git_dir is not None:
         return str(Path(git_dir).parent)
-    
+
     # Step 4: Return chat file directory
     return str(dir_path)
