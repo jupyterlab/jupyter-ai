@@ -315,65 +315,73 @@ class LocalPersonaLoader(LoggingConfigurable):
     ):
         # Forward other arguments to parent class
         super().__init__(*args, **kwargs)
-        
+
         # Set default root directory to current working directory if not provided
         self.root_dir = root_dir or os.getcwd()
-        
-        self.log.info(f"LocalPersonaLoader initialized with root directory: {self.root_dir}")
+
+        self.log.info(
+            f"LocalPersonaLoader initialized with root directory: {self.root_dir}"
+        )
 
     def load_persona_classes(self) -> list[type[BasePersona]]:
         """
         Loads persona classes from Python files in the local filesystem.
-        
+
         Scans the root_dir for .py files, dynamically imports them, and extracts
         any class declarations that are subclasses of BasePersona.
         """
         persona_classes: list[type[BasePersona]] = []
-        
+
         # Check if root directory exists
         if not os.path.exists(self.root_dir):
             self.log.info(f"Root directory does not exist: {self.root_dir}")
             return persona_classes
-        
+
         # Find all .py files in the root directory that contain "persona" in the name
         all_py_files = glob(os.path.join(self.root_dir, "*.py"))
         py_files = [f for f in all_py_files if "persona" in Path(f).stem.lower()]
-        
+
         if not py_files:
-            self.log.info(f"No Python files with 'persona' in the name found in directory: {self.root_dir}")
+            self.log.info(
+                f"No Python files with 'persona' in the name found in directory: {self.root_dir}"
+            )
             return persona_classes
-        
-        self.log.info(f"Found {len(py_files)} Python files with 'persona' in the name in {self.root_dir}")
+
+        self.log.info(
+            f"Found {len(py_files)} Python files with 'persona' in the name in {self.root_dir}"
+        )
         self.log.info("PENDING: Loading persona classes from local Python files...")
         start_time_ns = time_ns()
-        
+
         for py_file in py_files:
             try:
                 # Get module name from file path
                 module_name = Path(py_file).stem
-                
+
                 # Skip if module name starts with underscore (private modules)
-                if module_name.startswith('_'):
+                if module_name.startswith("_"):
                     continue
-                
+
                 # Create module spec and load the module
                 spec = importlib.util.spec_from_file_location(module_name, py_file)
                 if spec is None or spec.loader is None:
                     self.log.warning(f"  - Unable to create module spec for {py_file}")
                     continue
-                
+
                 module = importlib.util.module_from_spec(spec)
                 spec.loader.exec_module(module)
-                
+
                 # Find all classes in the module that are BasePersona subclasses
                 module_persona_classes = []
                 for name, obj in inspect.getmembers(module, inspect.isclass):
                     # Check if it's a subclass of BasePersona but not BasePersona itself
-                    if (issubclass(obj, BasePersona) and 
-                        obj is not BasePersona and 
-                        obj.__module__ == module_name):
+                    if (
+                        issubclass(obj, BasePersona)
+                        and obj is not BasePersona
+                        and obj.__module__ == module_name
+                    ):
                         module_persona_classes.append(obj)
-                
+
                 if module_persona_classes:
                     persona_classes.extend(module_persona_classes)
                     class_names = [cls.__name__ for cls in module_persona_classes]
@@ -382,7 +390,7 @@ class LocalPersonaLoader(LoggingConfigurable):
                     )
                 else:
                     self.log.debug(f"  - No persona classes found in '{py_file}'")
-                    
+
             except Exception:
                 # On exception, log an error and continue
                 # This mirrors the error handling pattern from entry point loading
@@ -390,7 +398,7 @@ class LocalPersonaLoader(LoggingConfigurable):
                     f"  - Unable to load persona classes from '{py_file}' due to an exception printed below."
                 )
                 continue
-        
+
         if len(persona_classes) > 0:
             elapsed_time_ms = (time_ns() - start_time_ns) // 1_000_000
             self.log.info(
@@ -398,5 +406,5 @@ class LocalPersonaLoader(LoggingConfigurable):
             )
         else:
             self.log.info("No persona classes found in local filesystem.")
-        
+
         return persona_classes
