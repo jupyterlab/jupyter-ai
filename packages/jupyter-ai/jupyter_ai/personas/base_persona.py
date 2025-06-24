@@ -12,8 +12,8 @@ from pydantic import BaseModel
 from traitlets import MetaHasTraits
 from traitlets.config import LoggingConfigurable
 
-from .persona_awareness import PersonaAwareness
 from ..mcp.mcp_config_loader import MCPConfigLoader
+from .persona_awareness import PersonaAwareness
 
 # prevents a circular import
 # types imported under this block have to be surrounded in single quotes on use
