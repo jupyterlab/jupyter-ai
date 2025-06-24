@@ -1,5 +1,5 @@
 """Tools package for Jupyter AI."""
 
-from .models import Tool, ToolSet, Toolkit
+from .models import Tool, Toolkit
 
-__all__ = ["Tool", "ToolSet", "Toolkit"]
+__all__ = ["Tool", "Toolkit"]

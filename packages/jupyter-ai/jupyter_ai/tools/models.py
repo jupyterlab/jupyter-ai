@@ -1,3 +1,4 @@
+import inspect
 import re
 from typing import Callable, Optional
 
@@ -85,35 +86,36 @@ class Tool(BaseModel):
 
         return self
 
+    @property
+    def is_async(self):
+        """
+        Returns whether this tool's `callable` is an async function.
+        """
+        return inspect.iscoroutinefunction(self.callable)
+
     def __eq__(self, other):
         if not isinstance(other, Tool):
             return False
-        return self.name == other.name
+        return (
+            self.name == other.name
+            and self.description == other.description
+            and self.read == other.read
+            and self.write == other.write
+            and self.delete == other.delete
+            and self.execute == other.execute
+        )
 
     def __hash__(self):
-        return hash(self.name)
-
-
-class ToolSet(set):
-    """A collection of tools that enforces unique tool names.
-
-    Ensures that tools with duplicate names cannot be added to the same collection.
-
-    Example:
-        >>> toolset = ToolSet()
-        >>> tool1 = Tool(callable=lambda: None, name="test")
-        >>> tool2 = Tool(callable=lambda: None, name="test")  # Same name
-        >>> toolset.add(tool1)
-        >>> toolset.add(tool2)  # Raises ValueError
-        Traceback (most recent call last):
-        ...
-        ValueError: Tool with name 'test' already exists in the set
-    """
-
-    def add(self, item):
-        if item in self:
-            raise ValueError(f"Tool with name '{item.name}' already exists in the set")
-        super().add(item)
+        return hash(
+            (
+                self.name,
+                self.description,
+                self.read,
+                self.write,
+                self.delete,
+                self.execute,
+            )
+        )
 
 
 class Toolkit(BaseModel):
@@ -150,7 +152,7 @@ class Toolkit(BaseModel):
 
     name: str
     description: Optional[str] = None
-    tools: ToolSet = Field(default_factory=ToolSet)
+    tools: set = Field(default_factory=set)
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     def add_tool(self, tool: Tool):
@@ -158,9 +160,6 @@ class Toolkit(BaseModel):
 
         Args:
             tool: The tool to add to the toolkit.
-
-        Raises:
-            ValueError: If a tool with the same name already exists in the toolkit.
         """
         self.tools.add(tool)
 
@@ -170,7 +169,7 @@ class Toolkit(BaseModel):
         write: bool = False,
         execute: bool = False,
         delete: bool = False,
-    ) -> ToolSet:
+    ) -> set[Tool]:
         """Find tools in this toolkit based on capability filters.
 
         Returns tools that match all of the specified capability criteria.
@@ -183,7 +182,7 @@ class Toolkit(BaseModel):
             delete: Whether the tool can delete data.
 
         Returns:
-            A ToolSet containing tools that match the specified capability criteria.
+            A set containing tools that match the specified capability criteria.
 
         Example:
             >>> toolkit = Toolkit(name="TestToolkit")
@@ -206,27 +205,17 @@ class Toolkit(BaseModel):
             >>> len(write_and_execute_tools)
             1
         """
-        toolset = ToolSet()
-
-        any_param_true = read or write or execute or delete
+        toolset = set()
 
         for tool in self.tools:
-            if not any_param_true:
-                toolset.add(tool)
-                continue
+            invalid = (
+                (read and not tool.read)
+                or (write and not tool.write)
+                or (execute and not tool.execute)
+                or (delete and not tool.delete)
+            )
 
-            matches_all = True
-
-            if read and not tool.read:
-                matches_all = False
-            if write and not tool.write:
-                matches_all = False
-            if execute and not tool.execute:
-                matches_all = False
-            if delete and not tool.delete:
-                matches_all = False
-
-            if matches_all:
+            if not invalid:
                 toolset.add(tool)
 
         return toolset

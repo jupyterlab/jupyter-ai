@@ -1,7 +1,6 @@
-"""Tests for tools models."""
+"""Tests for toolkit"""
 
-import pytest
-from jupyter_ai.tools import Tool, ToolSet, Toolkit
+from jupyter_ai.tools import Tool, Toolkit
 
 
 def sample_function():
@@ -59,7 +58,7 @@ class TestTool:
     def test_equality(self):
         """Test tool equality based on name."""
         tool1 = Tool(callable=sample_function, name="test")
-        tool2 = Tool(callable=another_function, name="test")
+        tool2 = Tool(callable=sample_function, name="test")
         tool3 = Tool(callable=sample_function, name="different")
         
         assert tool1 == tool2  # Same name
@@ -69,38 +68,9 @@ class TestTool:
     def test_hash(self):
         """Test tool hashing based on name."""
         tool1 = Tool(callable=sample_function, name="test")
-        tool2 = Tool(callable=another_function, name="test")
+        tool2 = Tool(callable=sample_function, name="test")
         
         assert hash(tool1) == hash(tool2)  # Same name, same hash
-
-
-class TestToolSet:
-    """Test the ToolSet class."""
-    
-    def test_creation(self):
-        """Test creating an empty toolset."""
-        toolset = ToolSet()
-        assert len(toolset) == 0
-    
-    def test_add_tool(self):
-        """Test adding a tool to toolset."""
-        toolset = ToolSet()
-        tool = Tool(callable=sample_function)
-        
-        toolset.add(tool)
-        assert len(toolset) == 1
-        assert tool in toolset
-    
-    def test_duplicate_tool_error(self):
-        """Test that adding duplicate tools raises an error."""
-        toolset = ToolSet()
-        tool1 = Tool(callable=sample_function, name="test")
-        tool2 = Tool(callable=another_function, name="test")  # Same name
-        
-        toolset.add(tool1)
-        
-        with pytest.raises(ValueError, match="Tool with name 'test' already exists"):
-            toolset.add(tool2)
 
 
 class TestToolkit:
