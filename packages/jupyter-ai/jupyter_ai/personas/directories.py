@@ -26,13 +26,10 @@ def find_dot_dir(
     if not current_path.is_dir():
         raise ValueError(f"'{dir}' is not a directory")
 
-    # Determine the stopping point
-    if root_dir is not None:
-        stop_path = Path(root_dir).resolve()
-    else:
-        stop_path = current_path.parent  # Will be set to filesystem root in the loop
+    # Convert root_dir to resolved path if provided
+    root_path = Path(root_dir).resolve() if root_dir is not None else None
 
-    while current_path != current_path.parent:  # Stop at root directory
+    while current_path != current_path.parent:  # Stop at filesystem root
         target_dir = current_path / dot_dir
         try:
             if target_dir.is_dir():
@@ -42,7 +39,7 @@ def find_dot_dir(
             break
 
         # Stop if we've reached the specified root directory
-        if root_dir is not None and current_path == stop_path:
+        if root_path is not None and current_path == root_path:
             break
 
         current_path = current_path.parent
