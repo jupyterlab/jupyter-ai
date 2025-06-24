@@ -193,10 +193,12 @@ class Toolkit(BaseModel):
 
         for tool in self.tools:
             # Tool should match all non-None filter criteria
-            if (read is None or read == tool.read) and \
-               (write is None or write == tool.write) and \
-               (execute is None or execute == tool.execute) and \
-               (delete is None or delete == tool.delete):
+            if (
+                (read is None or read == tool.read)
+                and (write is None or write == tool.write)
+                and (execute is None or execute == tool.execute)
+                and (delete is None or delete == tool.delete)
+            ):
                 toolset.add(tool)
 
         return toolset
