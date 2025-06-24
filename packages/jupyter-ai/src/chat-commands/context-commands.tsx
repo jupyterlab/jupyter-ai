@@ -151,8 +151,14 @@ async function getPathCompletions(
   docRegistry: DocumentRegistry,
   searchPath: string
 ): Promise<ChatCommand[]> {
+  // get parent directory & the partial basename to be completed
   const [parentPath, basename] = getParentAndBase(searchPath);
-  const parentDir = await contentsManager.get(parentPath);
+
+  // query the parent directory through the CM, un-escaping spaces beforehand
+  const parentDir = await contentsManager.get(
+    parentPath.replaceAll('\\ ', ' ')
+  );
+
   const commands: ChatCommand[] = [];
 
   if (!Array.isArray(parentDir.content)) {
@@ -181,9 +187,9 @@ async function getPathCompletions(
     // get icon
     const { icon } = docRegistry.getFileTypeForModel(child);
 
-    // calculate completion string, escaping ' ' characters
+    // calculate completion string, escaping any unescaped spaces
     let completion = '@file:' + parentPath + child.name;
-    completion = completion.replaceAll(' ', '\\ ');
+    completion = completion.replaceAll(/(?<!\\) /g, '\\ ');
 
     // add command completion to the list
     let newCommand: ChatCommand;
