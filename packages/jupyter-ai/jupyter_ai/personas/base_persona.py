@@ -329,6 +329,18 @@ class BasePersona(ABC, LoggingConfigurable, metaclass=ABCLoggingConfigurableMeta
         """
         return self.parent.get_chat_dir()
 
+    def get_dotjupyter_dir(self) -> Optional[str]:
+        """
+        Returns the path to the .jupyter directory for the current chat.
+        """
+        return self.parent.get_dotjupyter_dir()
+
+    def get_workspace_dir(self) -> str:
+        """
+        Returns the path to the workspace directory for the current chat.
+        """
+        return self.parent.get_workspace_dir()
+
 
 class GenerationInterrupted(asyncio.CancelledError):
     """Exception raised when streaming is cancelled by the user"""

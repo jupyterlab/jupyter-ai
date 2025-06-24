@@ -10,6 +10,7 @@ from jupyter_ai_magics import BaseProvider, JupyternautPersona
 from jupyter_ai_magics.utils import get_em_providers, get_lm_providers
 from jupyter_events import EventLogger
 from jupyter_server.extension.application import ExtensionApp
+from jupyter_server.serverapp import ServerApp
 from jupyter_server_fileid.manager import (  # type: ignore[import-untyped]
     BaseFileIdManager,
 )
@@ -18,6 +19,7 @@ from jupyterlab_chat.ychat import YChat
 from pycrdt import ArrayEvent
 from tornado.web import StaticFileHandler
 from traitlets import Integer, List, Type, Unicode
+from traitlets.config import Config
 
 from .completions.handlers import DefaultInlineCompletionHandler
 from .config_manager import ConfigManager
@@ -434,3 +436,10 @@ class AiExtension(ExtensionApp):
             self.log.exception(e)
         finally:
             return persona_manager
+
+    def _link_jupyter_server_extension(self, server_app: ServerApp):
+        """Setup custom config needed by this extension."""
+        c = Config()
+        c.ContentsManager.allow_hidden = True
+        server_app.update_config(c)
+        super()._link_jupyter_server_extension(server_app)

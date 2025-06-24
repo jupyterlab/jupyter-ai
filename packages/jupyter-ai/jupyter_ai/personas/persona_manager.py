@@ -13,6 +13,7 @@ from traitlets.config import LoggingConfigurable
 
 from ..config_manager import ConfigManager
 from .base_persona import BasePersona
+from .directories import find_dot_dir, find_workspace_dir
 
 if TYPE_CHECKING:
     from asyncio import AbstractEventLoop
@@ -258,5 +259,17 @@ class PersonaManager(LoggingConfigurable):
         Returns the absolute path of the parent directory of the chat file
         assigned to this `PersonaManager`.
         """
-        abspath = self.get_chat_path(absolute=True)
+        abspath = self.get_chat_path()
         return os.path.dirname(abspath)
+
+    def get_dotjupyter_dir(self) -> str | None:
+        """
+        Returns the path to the .jupyter directory for the current chat.
+        """
+        return find_dot_dir(self.get_chat_dir(), ".jupyter", root_dir=self.root_dir)
+
+    def get_workspace_dir(self) -> str:
+        """
+        Returns the path to the workspace directory for the current chat.
+        """
+        return find_workspace_dir(self.get_chat_dir(), root_dir=self.root_dir)
