@@ -1,4 +1,3 @@
-import inspect
 import re
 from typing import Callable, Optional
 
@@ -99,16 +98,7 @@ class Tool(BaseModel):
         )
 
     def __hash__(self):
-        return hash(
-            (
-                self.name,
-                self.description,
-                self.read,
-                self.write,
-                self.delete,
-                self.execute,
-            )
-        )
+        return hash(id(self.callable))
 
 
 class Toolkit(BaseModel):
@@ -158,21 +148,22 @@ class Toolkit(BaseModel):
 
     def get_tools(
         self,
-        read: bool = False,
-        write: bool = False,
-        execute: bool = False,
-        delete: bool = False,
+        read: Optional[bool] = None,
+        write: Optional[bool] = None,
+        execute: Optional[bool] = None,
+        delete: Optional[bool] = None,
     ) -> set[Tool]:
         """Find tools in this toolkit based on capability filters.
 
         Returns tools that match all of the specified capability criteria.
-        If no capability filters are specified, returns all tools in the toolkit.
+        If a capability filter is None, it won't be considered in filtering.
+        If all capability filters are None, returns all tools in the toolkit.
 
         Args:
-            read: Whether the tool can read data.
-            write: Whether the tool can write data.
-            execute: Whether the tool can execute operations.
-            delete: Whether the tool can delete data.
+            read: Whether the tool can read data. None means don't filter on this capability.
+            write: Whether the tool can write data. None means don't filter on this capability.
+            execute: Whether the tool can execute operations. None means don't filter on this capability.
+            delete: Whether the tool can delete data. None means don't filter on this capability.
 
         Returns:
             A set containing tools that match the specified capability criteria.
@@ -184,31 +175,28 @@ class Toolkit(BaseModel):
             >>> write_execute_tool = Tool(callable=lambda: None, name="writer_executor", write=True, execute=True)
             >>> toolkit.add_tool(read_tool)
             >>> toolkit.add_tool(write_tool)
-            >>> toolkit.add_tool(writer_executor)
-            >>> read_tools = toolkit.find_tools(read=True)
+            >>> toolkit.add_tool(write_execute_tool)
+            >>> read_tools = toolkit.get_tools(read=True)
             >>> len(read_tools)
             1
-            >>> all_tools = toolkit.find_tools()
+            >>> all_tools = toolkit.get_tools()
             >>> len(all_tools)
             3
-            >>> write_tools = toolkit.find_tools(write=True)
+            >>> write_tools = toolkit.get_tools(write=True)
             >>> len(write_tools)
             2
-            >>> write_and_execute_tools = toolkit.find_tools(write=True, execute=True)
+            >>> write_and_execute_tools = toolkit.get_tools(write=True, execute=True)
             >>> len(write_and_execute_tools)
             1
         """
         toolset = set()
 
         for tool in self.tools:
-            invalid = (
-                (read and not tool.read)
-                or (write and not tool.write)
-                or (execute and not tool.execute)
-                or (delete and not tool.delete)
-            )
-
-            if not invalid:
+            # Tool should match all non-None filter criteria
+            if (read is None or read == tool.read) and \
+               (write is None or write == tool.write) and \
+               (execute is None or execute == tool.execute) and \
+               (delete is None or delete == tool.delete):
                 toolset.add(tool)
 
         return toolset

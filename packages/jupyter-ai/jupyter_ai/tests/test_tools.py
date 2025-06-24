@@ -94,6 +94,7 @@ class TestToolkit:
         assert tool in toolkit.tools
     
     def test_find_tools(self):
+        """Test finding tools with various capability filters."""
         # Create a toolkit
         toolkit = Toolkit(name="test_toolkit")
 
@@ -117,7 +118,7 @@ class TestToolkit:
         toolkit.add_tool(write_execute_tool)
         toolkit.add_tool(all_perms_tool)
 
-        # Test 1: Default parameters (all False) - should return all tools
+        # Test 1: Default parameters (all None) - should return all tools
         default_tools = toolkit.get_tools()
         assert len(default_tools) == 7, "All tools should be returned with default parameters"
         assert read_only_tool in default_tools
@@ -226,3 +227,10 @@ class TestToolkit:
         assert read_execute_tool not in all_perm_tools
         assert write_execute_tool not in all_perm_tools
         assert delete_tool not in all_perm_tools
+
+        write_not_execute_tools = toolkit.get_tools(write=True, execute=False)
+        assert len(write_not_execute_tools) == 1
+        assert write_tool in write_not_execute_tools
+        assert execute_tool not in write_not_execute_tools
+        assert read_execute_tool not in write_not_execute_tools
+        assert all_perms_tool not in write_not_execute_tools
