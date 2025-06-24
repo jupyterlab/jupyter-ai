@@ -13,7 +13,7 @@ from traitlets.config import LoggingConfigurable
 
 from ..config_manager import ConfigManager
 from .base_persona import BasePersona
-from .dotjupyter import find_dotjupyter_dir
+from .directories import find_dot_dir, find_workspace_dir
 
 if TYPE_CHECKING:
     from asyncio import AbstractEventLoop
@@ -201,12 +201,6 @@ class PersonaManager(LoggingConfigurable):
         """
         return self._personas
 
-    def get_dotjupyter_dir(self) -> Optional[str]:
-        """
-        Returns the path to the .jupyter directory for the current chat.
-        """
-        return find_dotjupyter_dir(self.get_chat_dir(), root_dir=self.root_dir)
-
     def get_mentioned_personas(self, new_message: Message) -> list[BasePersona]:
         """
         Returns a list of all personas `@`-mentioned in a chat message, given a
@@ -267,3 +261,15 @@ class PersonaManager(LoggingConfigurable):
         """
         abspath = self.get_chat_path(absolute=True)
         return os.path.dirname(abspath)
+
+    def get_dotjupyter_dir(self) -> Optional[str]:
+        """
+        Returns the path to the .jupyter directory for the current chat.
+        """
+        return find_dot_dir(self.get_chat_dir(), ".jupyter", root_dir=self.root_dir)
+
+    def get_workspace_dir(self) -> str:
+        """
+        Returns the path to the workspace directory for the current chat.
+        """
+        return find_workspace_dir(self.get_chat_dir(), root_dir=self.root_dir)
