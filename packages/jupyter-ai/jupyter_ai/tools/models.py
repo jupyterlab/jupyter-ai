@@ -1,5 +1,5 @@
 import re
-from typing import Callable
+from typing import Callable, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -65,8 +65,8 @@ class Tool(BaseModel):
     """
 
     callable: Callable = Field(exclude=True)
-    name: str | None = None
-    description: str | None = None
+    name: Optional[str] = None
+    description: Optional[str] = None
     read: bool = False
     write: bool = False
     execute: bool = False
@@ -149,7 +149,7 @@ class Toolkit(BaseModel):
     """
 
     name: str
-    description: str | None = None
+    description: Optional[str] = None
     tools: ToolSet = Field(default_factory=ToolSet)
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
