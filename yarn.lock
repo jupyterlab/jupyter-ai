@@ -2237,7 +2237,7 @@ __metadata:
     "@emotion/react": ^11.10.5
     "@emotion/styled": ^11.10.5
     "@jupyter-notebook/application": ^7.2.0
-    "@jupyter/chat": ^0.12.0
+    "@jupyter/chat": ^0.14.0
     "@jupyterlab/application": ^4.2.0
     "@jupyterlab/apputils": ^4.2.0
     "@jupyterlab/builder": ^4.2.0
@@ -2322,15 +2322,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@jupyter/chat@npm:^0.12.0":
-  version: 0.12.0
-  resolution: "@jupyter/chat@npm:0.12.0"
+"@jupyter/chat@npm:^0.14.0":
+  version: 0.14.0
+  resolution: "@jupyter/chat@npm:0.14.0"
   dependencies:
     "@emotion/react": ^11.10.5
     "@emotion/styled": ^11.10.5
     "@jupyter/react-components": ^0.15.2
     "@jupyterlab/application": ^4.2.0
     "@jupyterlab/apputils": ^4.3.0
+    "@jupyterlab/codeeditor": ^4.2.0
+    "@jupyterlab/codemirror": ^4.2.0
     "@jupyterlab/docmanager": ^4.2.0
     "@jupyterlab/filebrowser": ^4.2.0
     "@jupyterlab/fileeditor": ^4.2.0
@@ -2347,7 +2349,7 @@ __metadata:
     clsx: ^2.1.0
     react: ^18.2.0
     react-dom: ^18.2.0
-  checksum: 4c36487123a5a176f2a865b7686b1f7d56930c3991d338be3a47286d7ebce5aac216ecd25e4f548e09e2592506a20e5756e489ed1a63ef93dec425b04295f9a9
+  checksum: a3a4e4156cac707a70f7e9d77ef0bedf4000fcd052a7dd3d6a13f210e160d0ebfc5b03837ba12efe134aa1cde1e76755e01a48887e9fc4e3db94a80bdc760d22
   languageName: node
   linkType: hard
 
