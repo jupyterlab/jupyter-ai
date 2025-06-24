@@ -51,4 +51,3 @@
     "required": ["mcpServers"],
     "additionalProperties": false
   }
-
