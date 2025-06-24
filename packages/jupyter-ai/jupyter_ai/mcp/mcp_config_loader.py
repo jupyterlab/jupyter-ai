@@ -17,15 +17,15 @@ class MCPConfigLoader:
 
         # Cache for storing configurations and their modification times
         # Key: config_path (str), Value: (config_dict, last_modified_time)
-        self._cache: dict[str, tuple[dict[str, Any], float]] = {}
-
-    def get_config(self, config_path: str) -> dict[str, Any]:
+        self._cache: Dict[str, Tuple[Dict[str, Any], float]] = {}
+    
+    def get_config(self, jupyter_dir: str) -> Dict[str, Any]:
         """
-        Read and validate an MCP server configuration file.
-
+        Read and validate an MCP server configuration file from .jupyter/mcp/config.json.
+        
         Args:
-            config_path (str): Path to the JSON configuration file
-
+            jupyter_dir (str): Path to the .jupyter directory
+            
         Returns:
             Dict[str, Any]: The validated configuration object
 
@@ -35,7 +35,7 @@ class MCPConfigLoader:
             ValidationError: If the config doesn't match the schema
             SchemaError: If there's an issue with the schema itself
         """
-        config_path = Path(config_path)
+        config_path = Path(jupyter_dir) / "mcp" / "config.json"
         config_path_str = str(config_path)
 
         # Check if file exists
