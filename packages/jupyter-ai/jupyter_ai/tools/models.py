@@ -86,13 +86,6 @@ class Tool(BaseModel):
 
         return self
 
-    @property
-    def is_async(self):
-        """
-        Returns whether this tool's `callable` is an async function.
-        """
-        return inspect.iscoroutinefunction(self.callable)
-
     def __eq__(self, other):
         if not isinstance(other, Tool):
             return False
@@ -163,7 +156,7 @@ class Toolkit(BaseModel):
         """
         self.tools.add(tool)
 
-    def find_tools(
+    def get_tools(
         self,
         read: bool = False,
         write: bool = False,
