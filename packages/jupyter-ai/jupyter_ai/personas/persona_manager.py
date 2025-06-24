@@ -262,7 +262,7 @@ class PersonaManager(LoggingConfigurable):
         abspath = self.get_chat_path()
         return os.path.dirname(abspath)
 
-    def get_dotjupyter_dir(self) -> Optional[str]:
+    def get_dotjupyter_dir(self) -> str | None:
         """
         Returns the path to the .jupyter directory for the current chat.
         """
