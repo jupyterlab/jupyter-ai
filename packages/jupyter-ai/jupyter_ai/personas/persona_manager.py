@@ -4,7 +4,7 @@ import asyncio
 import os
 from logging import Logger
 from time import time_ns
-from typing import TYPE_CHECKING, ClassVar
+from typing import TYPE_CHECKING, ClassVar, Optional
 
 from importlib_metadata import entry_points
 from jupyterlab_chat.models import Message
@@ -259,7 +259,7 @@ class PersonaManager(LoggingConfigurable):
         Returns the absolute path of the parent directory of the chat file
         assigned to this `PersonaManager`.
         """
-        abspath = self.get_chat_path(absolute=True)
+        abspath = self.get_chat_path()
         return os.path.dirname(abspath)
 
     def get_dotjupyter_dir(self) -> Optional[str]:
