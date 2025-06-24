@@ -4,7 +4,7 @@ import asyncio
 import os
 from logging import Logger
 from time import time_ns
-from typing import TYPE_CHECKING, ClassVar, Optional
+from typing import TYPE_CHECKING, ClassVar
 
 from importlib_metadata import entry_points
 from jupyterlab_chat.models import Message
