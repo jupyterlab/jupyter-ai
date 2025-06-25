@@ -4,7 +4,7 @@ import asyncio
 import os
 from logging import Logger
 from time import time_ns
-from typing import TYPE_CHECKING, ClassVar
+from typing import TYPE_CHECKING, Any, ClassVar
 
 from importlib_metadata import entry_points
 from jupyterlab_chat.models import Message
@@ -12,6 +12,7 @@ from jupyterlab_chat.ychat import YChat
 from traitlets.config import LoggingConfigurable
 
 from ..config_manager import ConfigManager
+from ..mcp.mcp_config_loader import MCPConfigLoader
 from .base_persona import BasePersona
 from .directories import find_dot_dir, find_workspace_dir
 
@@ -37,6 +38,7 @@ class PersonaManager(LoggingConfigurable):
     fileid_manager: BaseFileIdManager
     root_dir: str
     event_loop: AbstractEventLoop
+    _mcp_config_loader: MCPConfigLoader
 
     log: Logger  # type: ignore
     """
@@ -77,6 +79,9 @@ class PersonaManager(LoggingConfigurable):
 
         # Store file ID
         self.file_id = room_id.split(":")[2]
+
+        # Initialize MCP config loader
+        self._mcp_config_loader = MCPConfigLoader()
 
         # Load persona classes from entry points.
         # This is stored in a class attribute (global to all instances) because
@@ -273,3 +278,13 @@ class PersonaManager(LoggingConfigurable):
         Returns the path to the workspace directory for the current chat.
         """
         return find_workspace_dir(self.get_chat_dir(), root_dir=self.root_dir)
+
+    def get_mcp_config(self) -> dict[str, Any]:
+        """
+        Returns the MCP config for the current chat.
+        """
+        jdir = self.get_dotjupyter_dir()
+        if jdir is None:
+            return {}
+        else:
+            return self._mcp_config_loader.get_config(jdir)

@@ -341,6 +341,12 @@ class BasePersona(ABC, LoggingConfigurable, metaclass=ABCLoggingConfigurableMeta
         """
         return self.parent.get_workspace_dir()
 
+    def get_mcp_config(self) -> dict[str, Any]:
+        """
+        Returns the MCP config for the current chat.
+        """
+        return self.parent.get_mcp_config()
+
 
 class GenerationInterrupted(asyncio.CancelledError):
     """Exception raised when streaming is cancelled by the user"""
