@@ -12,7 +12,6 @@ from pydantic import BaseModel
 from traitlets import MetaHasTraits
 from traitlets.config import LoggingConfigurable
 
-from ..mcp.mcp_config_loader import MCPConfigLoader
 from .persona_awareness import PersonaAwareness
 
 # prevents a circular import
@@ -125,7 +124,6 @@ class BasePersona(ABC, LoggingConfigurable, metaclass=ABCLoggingConfigurableMeta
 
         # Register this persona as a user in the chat
         self.ychat.set_user(self.as_user())
-        self._mcp_config_loader = MCPConfigLoader()
 
     ################################################
     # abstract methods, required by subclasses.
@@ -347,11 +345,7 @@ class BasePersona(ABC, LoggingConfigurable, metaclass=ABCLoggingConfigurableMeta
         """
         Returns the MCP config for the current chat.
         """
-        jdir = self.get_dotjupyter_dir()
-        if jdir is None:
-            return {}
-        else:
-            return self._mcp_config_loader.get_config(jdir)
+        return self.parent.get_mcp_config()
 
 
 class GenerationInterrupted(asyncio.CancelledError):

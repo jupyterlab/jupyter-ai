@@ -5,14 +5,14 @@ from typing import Any
 from jsonschema import ValidationError, validate
 from jsonschema.exceptions import SchemaError
 
+SCHEMA_FILE = Path(__file__).parent / "schema.json"
 
 class MCPConfigLoader:
     """Loader for MCP server configuration files with JSON schema validation."""
 
     def __init__(self):
         # Load the schema from the schema.json file
-        schema_path = Path(__file__).parent / "schema.json"
-        with open(schema_path) as f:
+        with open(SCHEMA_FILE) as f:
             self.schema = json.load(f)
 
         # Cache for storing configurations and their modification times
