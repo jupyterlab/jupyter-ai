@@ -33,7 +33,9 @@ dependencies = [
     # traitlets>=5.6 is required in JL4
     "traitlets>=5.6",
     "deepmerge>=2.0,<3",
-    "jupyterlab-chat>=0.14.0,<0.15.0",
+    # NOTE: Make sure to update the corresponding dependency in
+    # `packages/jupyter-ai/package.json` to match the version range below
+    "jupyterlab-chat>=0.15.0,<0.16.0",
 ]
 
 dynamic = ["version", "description", "authors", "urls", "keywords"]
