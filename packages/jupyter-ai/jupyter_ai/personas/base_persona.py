@@ -234,12 +234,6 @@ class BasePersona(ABC, LoggingConfigurable, metaclass=ABCLoggingConfigurableMeta
         user = self.as_user()
         return asdict(user)
 
-    def get_mcp_config(self) -> dict[str, Any]:
-        """
-        Returns the MCP config for the current chat.
-        """
-        return self._mcp_config_loader.get_config(self.get_dotjupyter_dir())
-
     async def stream_message(self, reply_stream: "AsyncIterator") -> None:
         """
         Takes an async iterator, dubbed the 'reply stream', and streams it to a
@@ -349,6 +343,15 @@ class BasePersona(ABC, LoggingConfigurable, metaclass=ABCLoggingConfigurableMeta
         """
         return self.parent.get_workspace_dir()
 
+    def get_mcp_config(self) -> dict[str, Any]:
+        """
+        Returns the MCP config for the current chat.
+        """
+        jdir = self.get_dotjupyter_dir()
+        if jdir is None:
+            return {}
+        else:
+            return self._mcp_config_loader.get_config(jdir)
 
 class GenerationInterrupted(asyncio.CancelledError):
     """Exception raised when streaming is cancelled by the user"""
