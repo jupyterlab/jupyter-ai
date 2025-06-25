@@ -7,6 +7,7 @@ from jsonschema.exceptions import SchemaError
 
 SCHEMA_FILE = Path(__file__).parent / "schema.json"
 
+
 class MCPConfigLoader:
     """Loader for MCP server configuration files with JSON schema validation."""
 
