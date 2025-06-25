@@ -353,5 +353,6 @@ class BasePersona(ABC, LoggingConfigurable, metaclass=ABCLoggingConfigurableMeta
         else:
             return self._mcp_config_loader.get_config(jdir)
 
+
 class GenerationInterrupted(asyncio.CancelledError):
     """Exception raised when streaming is cancelled by the user"""
