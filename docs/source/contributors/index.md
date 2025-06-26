@@ -22,81 +22,120 @@ You can develop Jupyter AI on any system that can run a supported Python version
 
 You should have the newest supported version of JupyterLab installed.
 
-We highly recommend that you install [conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html) to start contributing to Jupyter AI, especially if you are developing on macOS on an Apple Silicon-based Mac (M1, M1 Pro, M2, etc.).
-
 You will need [a supported version of node.js](https://github.com/nodejs/release#release-schedule) to use Jupyter AI.
 
-:::{warning}
-:name: node-18-15
-Due to a compatibility issue with Webpack, Node.js 18.15.0 does not work with Jupyter AI.
-:::
+## Automatic development setup (recommended)
 
-## Development install
-After you have installed the prerequisites, create a new conda environment and activate it.
+To get a development setup automatically, you must first install a Python
+environment manager. The development setup script currently supports
+`micromamba`, `mamba`, or `conda`.
+
+We recommend
+[micromamba](https://micromamba.readthedocs.io/en/latest/installation.html) for
+its speed and minimal footprint. Alternatively, you can install
+[mamba](https://mamba.readthedocs.io/en/latest/installation.html) or
+[conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html).
+
+Then, clone the repository and run the development setup script:
 
 ```
-conda create -n jupyter-ai -c conda-forge python=3.12 nodejs=20
-conda activate jupyter-ai
+# Clone the repository
+git clone https://github.com/jupyterlab/jupyter-ai.git
+cd jupyter-ai
+
+# Run the development setup script
+./scripts/dev-setup.sh
 ```
 
-This command must be run from the root of the monorepo (`<jupyter-ai-top>`).
+This script will automatically create and set up a Jupyter AI development
+environment named `jaidev` for you, using the environment manager available on
+your system. Specifically, this script will:
 
-```
-# Move to the root of the repo package
-cd <jupyter-ai-top>
+- Detect your Python environment manager (micromamba, mamba, or conda),
+- Create a 'jaidev' Python environment with Python 3.11, Node.js 20, JupyterLab 4.4+, and `uv`,
+- Install all JavaScript dependencies,
+- Builds all frontend assets,
+- Perform editable installation of all Jupyter AI packages, and
+- Install documentation dependencies.
 
-# Installs all the dependencies and sets up the dev environment
-./scripts/install.sh
+After this is complete, you can start and launch JupyterLab in your default
+browser by running `jlpm dev` or simply `jupyter lab`.
+
+## Manual development setup
+
+To perform a minimal development setup in another Python environment without
+using `dev-setup.sh`, first verify that the below prerequisites are installed in
+your environment:
+
+- Python 3.9 - 3.11
+
+- JupyterLab >=4.4
+
+- Any [maintained](https://github.com/nodejs/release#release-schedule) version of `nodejs`
+
+- [`uv`](https://docs.astral.sh/uv/)
+
+Then, run these commands:
+
+```py
+# Install JS dependencies
 jlpm
+
+# Build frontend assets
+jlpm build
+
+# Perform editable installation of all Jupyter AI packages
+# This can also be done via the alias `jlpm di`
+jlpm dev:install
+```
+
+## Development builds
+
+You can open a new terminal and use that to build local changes to the
+repository. Make sure to activate the `jaidev` environment each time you begin
+development from a new terminal:
+
+```
+{micromamba,mamba,conda} activate jaidev
+
+# Build frontend assets
 jlpm build
 ```
 
-Start and launch JupyterLab in your default browser:
+`jlpm build` only needs to be run after modifying anything related to the
+frontend (e.g. `*.ts`, `*.tsx`, `*.css` files). The browser has to be refreshed
+to reflect new changes to the frontend.
+
+To only build a subset of Jupyter AI packages, use the `--scope` argument that
+gets forwarded to Lerna:
 
 ```
-jlpm dev
+# Builds frontend assets only for `packages/jupyter-ai` and its dependencies
+jlpm build --scope "@jupyter-ai/core"
 ```
 
-You can open a new terminal and use that to build and push changes to the repository. Enter the `conda` environment and build the project after making any changes.
+Note that after making changes to anything backend-related (e.g. `*.py` files),
+you must restart the server for those changes to take effect. You can restart
+the server by first typing `Ctrl + C` in the terminal running it, then running
+`jlpm dev` or `jupyter lab` to restart it.
+
+## Development reinstall
+
+To reinstall all Jupyter AI packages, run:
 
 ```
-cd <jupyter-ai-top>
-conda activate jupyter-ai
-jlpm build
+# reinstalls all Jupyter AI packages
+jlpm dev:reinstall
+
+# or, use the convenient alias:
+jlpm dr
 ```
 
-To change what Jupyter AI packages are installed in your dev environment, use the `dev-uninstall` script:
-
-```
-# uninstalls all Jupyter AI packages
-jlpm dev-uninstall
-```
-
-To reinstall Jupyter AI packages back into your dev environment, use the `dev-install` script:
-
-```
-# installs all Jupyter AI packages
-jlpm dev-install
-```
-
-To only install/uninstall a subset of Jupyter AI packages, use the `--scope` argument that gets forwarded to Lerna:
-
-```
-# installs jupyter_ai_magics and its dependencies
-jlpm dev-install --scope "@jupyter-ai/magics"
-```
-
-## Making changes while your server is running
-
-If you change, add, or remove a **magic command**, after rebuilding, restart the kernel
-or restart the server.
-
-If you make changes to the **user interface** or **lab extension**, run `jlpm build` and then
-refresh your browser tab.
+This is generally necessary when updating `pyproject.toml` files.
 
 ## Building documentation
 
-The `./scripts/install.sh` should automatically install the documentation
+The `./scripts/dev-setup.sh` should automatically install the documentation
 dependencies. You will need to install [pandoc](https://pandoc.org/) as well. You can install [pandoc from the conda-forge channel](https://anaconda.org/conda-forge/pandoc):
 
 ```
