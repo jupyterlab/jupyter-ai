@@ -111,7 +111,7 @@ export class ContextCommandsProvider implements IChatCommandProvider {
     // for readability, both to humans & to the AI.
     inputModel.value = inputModel.value.replaceAll(
       this._regex,
-      (command, path) => `\`${path}\``
+      (_, path) => `\`${path.replaceAll('\\ ', ' ')}\``
     );
 
     return;
