@@ -3,6 +3,7 @@
  * Distributed under the terms of the Modified BSD License.
  */
 
+import React from 'react';
 import { JupyterFrontEndPlugin } from '@jupyterlab/application';
 import type { Contents } from '@jupyterlab/services';
 import type { DocumentRegistry } from '@jupyterlab/docregistry';
@@ -12,6 +13,7 @@ import {
   IInputModel,
   ChatCommand
 } from '@jupyter/chat';
+import FindInPage from '@mui/icons-material/FindInPage';
 
 const CONTEXT_COMMANDS_PROVIDER_ID =
   '@jupyter-ai/core:context-commands-provider';
@@ -21,17 +23,18 @@ const CONTEXT_COMMANDS_PROVIDER_ID =
  */
 export class ContextCommandsProvider implements IChatCommandProvider {
   public id: string = CONTEXT_COMMANDS_PROVIDER_ID;
-  private _context_commands: ChatCommand[] = [
-    // TODO: add an icon!
-    // import FindInPage from '@mui/icons-material/FindInPage';
-    // may need to change the API to allow JSX els as icons
-    {
-      name: '@file',
-      providerId: this.id,
-      replaceWith: '@file:',
-      description: 'Include a file with your prompt'
-    }
-  ];
+
+  /**
+   * Regex that matches all valid `@file` calls. The first capturing group
+   * captures the path specified by the user. Paths may contain any combination
+   * of:
+   *
+   * `[a-zA-Z0-9], '/', '-', '_', '.', '@', '\\ ' (escaped space)`
+   *
+   * IMPORTANT: `+` ensures this regex only matches an occurrence of "@file:" if
+   * the captured path is non-empty.
+   */
+  _regex: RegExp = /@file:(([\w/\-_.@]|\\ )+)/g;
 
   constructor(
     contentsManager: Contents.IManager,
@@ -41,7 +44,9 @@ export class ContextCommandsProvider implements IChatCommandProvider {
     this._docRegistry = docRegistry;
   }
 
-  async getChatCommands(inputModel: IInputModel) {
+  async listCommandCompletions(
+    inputModel: IInputModel
+  ): Promise<ChatCommand[]> {
     // do nothing if the current word does not start with '@'.
     const currentWord = inputModel.currentWord;
     if (!currentWord || !currentWord.startsWith('@')) {
@@ -49,7 +54,7 @@ export class ContextCommandsProvider implements IChatCommandProvider {
     }
 
     // if the current word starts with `@file:`, return a list of valid file
-    // paths.
+    // paths that complete the currently specified path.
     if (currentWord.startsWith('@file:')) {
       const searchPath = currentWord.split('@file:')[1];
       const commands = await getPathCompletions(
@@ -60,19 +65,55 @@ export class ContextCommandsProvider implements IChatCommandProvider {
       return commands;
     }
 
-    // otherwise, a context command has not yet been specified. return a list of
-    // valid context commands.
-    const commands = this._context_commands.filter(cmd =>
-      cmd.name.startsWith(currentWord)
-    );
-    return commands;
+    // if the current word matches the start of @file, complete it
+    if ('@file'.startsWith(currentWord)) {
+      return [
+        {
+          name: '@file:',
+          providerId: this.id,
+          description: 'Include a file with your prompt',
+          icon: <FindInPage />
+        }
+      ];
+    }
+
+    // otherwise, return nothing as this provider cannot provide any completions
+    // for the current word.
+    return [];
   }
 
-  async handleChatCommand(
-    command: ChatCommand,
-    inputModel: IInputModel
-  ): Promise<void> {
-    // no handling needed because `replaceWith` is set in each command.
+  async onSubmit(inputModel: IInputModel): Promise<void> {
+    // search entire input for valid @file commands using `this._regex`
+    const matches = Array.from(inputModel.value.matchAll(this._regex));
+
+    // aggregate all file paths specified by @file commands in the input
+    const paths: string[] = [];
+    for (const match of matches) {
+      if (match.length < 2) {
+        continue;
+      }
+      // `this._regex` contains exactly 1 group that captures the path, so
+      // match[1] will contain the path specified by a @file command.
+      paths.push(match[1]);
+    }
+
+    // add each specified file path as an attachment, unescaping ' ' characters
+    // before doing so
+    for (let path of paths) {
+      path = path.replaceAll('\\ ', ' ');
+      inputModel.addAttachment?.({
+        type: 'file',
+        value: path
+      });
+    }
+
+    // replace each @file command with the path in an inline Markdown code block
+    // for readability, both to humans & to the AI.
+    inputModel.value = inputModel.value.replaceAll(
+      this._regex,
+      (command, path) => `\`${path}\``
+    );
+
     return;
   }
 
@@ -109,9 +150,15 @@ async function getPathCompletions(
   contentsManager: Contents.IManager,
   docRegistry: DocumentRegistry,
   searchPath: string
-) {
+): Promise<ChatCommand[]> {
+  // get parent directory & the partial basename to be completed
   const [parentPath, basename] = getParentAndBase(searchPath);
-  const parentDir = await contentsManager.get(parentPath);
+
+  // query the parent directory through the CM, un-escaping spaces beforehand
+  const parentDir = await contentsManager.get(
+    parentPath.replaceAll('\\ ', ' ')
+  );
+
   const commands: ChatCommand[] = [];
 
   if (!Array.isArray(parentDir.content)) {
@@ -140,17 +187,20 @@ async function getPathCompletions(
     // get icon
     const { icon } = docRegistry.getFileTypeForModel(child);
 
-    // compute list of results, while handling directories and non-directories
-    // appropriately.
-    const isDirectory = child.type === 'directory';
+    // calculate completion string, escaping any unescaped spaces
+    let completion = '@file:' + parentPath + child.name;
+    completion = completion.replaceAll(/(?<!\\) /g, '\\ ');
+
+    // add command completion to the list
     let newCommand: ChatCommand;
+    const isDirectory = child.type === 'directory';
     if (isDirectory) {
       newCommand = {
         name: child.name + '/',
         providerId: CONTEXT_COMMANDS_PROVIDER_ID,
         icon,
         description: 'Search this directory',
-        replaceWith: '@file:' + parentPath + child.name + '/'
+        replaceWith: completion + '/'
       };
     } else {
       newCommand = {
@@ -158,7 +208,8 @@ async function getPathCompletions(
         providerId: CONTEXT_COMMANDS_PROVIDER_ID,
         icon,
         description: 'Attach this file',
-        replaceWith: '@file:' + parentPath + child.name + ' '
+        replaceWith: completion,
+        spaceOnAccept: true
       };
     }
     commands.push(newCommand);

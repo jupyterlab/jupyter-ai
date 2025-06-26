@@ -92,7 +92,6 @@ class PersonaManager(LoggingConfigurable):
             assert isinstance(PersonaManager._persona_classes, list)
 
         self._personas = self._init_personas()
-        self.log.error(self.get_chat_dir())
 
     def _init_persona_classes(self) -> None:
         """
