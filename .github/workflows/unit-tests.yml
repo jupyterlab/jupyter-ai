@@ -33,7 +33,7 @@ jobs:
           dependency_type: ${{ matrix.dependency-type }}
 
       - name: Install extension dependencies and build the extension
-        run: ./scripts/install.sh
+        run: ./scripts/ci-setup.sh
 
       - name: List installed versions
         run: pip list
@@ -54,7 +54,7 @@ jobs:
         uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
 
       - name: Install extension dependencies and build the extension
-        run: ./scripts/install.sh
+        run: ./scripts/ci-setup.sh
 
       - name: Run mypy
         run: |

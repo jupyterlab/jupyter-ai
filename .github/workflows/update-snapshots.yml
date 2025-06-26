@@ -68,7 +68,7 @@ jobs:
         uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
 
       - name: Install extension dependencies and build the extension
-        run: ./scripts/install.sh
+        run: ./scripts/ci-setup.sh
 
       - uses: jupyterlab/maintainer-tools/.github/actions/update-snapshots@v1
         with:
