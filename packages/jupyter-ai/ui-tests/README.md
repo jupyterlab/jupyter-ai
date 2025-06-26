@@ -23,7 +23,7 @@ To run the tests, you need to:
 1. Compile the extension:
 
 ```sh
-./scripts/install.sh
+./scripts/dev-setup.sh
 ```
 
 > Check the extension is installed in JupyterLab.
