@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 from jupyter_ai.personas.base_persona import BasePersona, PersonaDefaults
-from jupyter_ai.personas.persona_manager import LocalPersonaLoader
+from jupyter_ai.personas.persona_manager import load_persona_classes_from_directory
 
 
 @pytest.fixture
@@ -17,13 +17,12 @@ def tmp_persona_dir():
         yield Path(temp_dir)
 
 
-class TestLocalPersonaLoader:
-    """Test cases for LocalPersonaLoader class."""
+class TestLoadPersonaClassesFromDirectory:
+    """Test cases for load_persona_classes_from_directory function."""
 
     def test_empty_directory_returns_empty_list(self, tmp_persona_dir):
         """Test that an empty directory returns an empty list of persona classes."""
-        loader = LocalPersonaLoader(root_dir=str(tmp_persona_dir))
-        result = loader.load_persona_classes()
+        result = load_persona_classes_from_directory(str(tmp_persona_dir))
         assert result == []
 
     def test_non_persona_file_returns_empty_list(self, tmp_persona_dir):
@@ -32,8 +31,7 @@ class TestLocalPersonaLoader:
         non_persona_file = tmp_persona_dir / "no_personas.py"
         non_persona_file.write_text("pass")
 
-        loader = LocalPersonaLoader(root_dir=str(tmp_persona_dir))
-        result = loader.load_persona_classes()
+        result = load_persona_classes_from_directory(str(tmp_persona_dir))
         assert result == []
 
     def test_simple_persona_file_returns_persona_class(self, tmp_persona_dir):
@@ -53,28 +51,18 @@ class TestPersona(BasePersona):
 """
         persona_file.write_text(persona_content)
 
-        loader = LocalPersonaLoader(root_dir=str(tmp_persona_dir))
-        result = loader.load_persona_classes()
+        result = load_persona_classes_from_directory(str(tmp_persona_dir))
 
         assert len(result) == 1
         assert result[0].__name__ == "TestPersona"
         assert issubclass(result[0], BasePersona)
 
-    def test_bad_persona_file_logs_exception_returns_empty_list(
-        self, tmp_persona_dir, caplog
-    ):
-        """Test that a file with syntax errors logs an exception and returns empty list."""
+    def test_bad_persona_file_returns_empty_list(self, tmp_persona_dir):
+        """Test that a file with syntax errors returns empty list."""
         # Create a file with invalid Python code
         bad_persona_file = tmp_persona_dir / "bad_persona.py"
         bad_persona_file.write_text("1/0")
 
-        loader = LocalPersonaLoader(root_dir=str(tmp_persona_dir))
-        result = loader.load_persona_classes()
+        result = load_persona_classes_from_directory(str(tmp_persona_dir))
 
         assert result == []
-        # Check that an error was logged
-        assert any(
-            "Unable to load persona classes from" in record.message
-            for record in caplog.records
-            if record.levelname in ["ERROR", "EXCEPTION"]
-        )
