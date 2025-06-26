@@ -5,6 +5,10 @@
 
 set -eux
 
+# Install uv
+# conda is installed from base-setup action
+conda install uv
+
 # Install JupyterLab
 pip install "jupyterlab>=4.4"
 
