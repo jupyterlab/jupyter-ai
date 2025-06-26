@@ -1,7 +1,6 @@
 name: jaidev
 channels:
   - conda-forge
-  - defaults
 dependencies:
   - python=3.11
   - nodejs=20
