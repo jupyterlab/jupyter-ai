@@ -11,4 +11,4 @@ pip install "jupyterlab>=4.4"
 # Build & install packages
 jlpm install
 jlpm build
-jlpm dev-install
+jlpm dev:install
