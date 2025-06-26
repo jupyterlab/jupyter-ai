@@ -2,6 +2,29 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 3.0.0beta1
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@3.0.0-beta.0...aefde63ea105c24a5d4b08f76722ec300c8a3c60))
+
+### Enhancements made
+
+- Upgrade to Jupyter Chat v0.15.0 [#1389](https://github.com/jupyterlab/jupyter-ai/pull/1389) ([@dlqqq](https://github.com/dlqqq))
+- Add MCP config to the .jupyter directory [#1385](https://github.com/jupyterlab/jupyter-ai/pull/1385) ([@ellisonbg](https://github.com/ellisonbg))
+- Added toolkit models [#1382](https://github.com/jupyterlab/jupyter-ai/pull/1382) ([@3coins](https://github.com/3coins))
+- Refresh the list of supported Gemini models. [#1381](https://github.com/jupyterlab/jupyter-ai/pull/1381) ([@haofan](https://github.com/haofan))
+- Allow personas to get chat path and directory [#1379](https://github.com/jupyterlab/jupyter-ai/pull/1379) ([@dlqqq](https://github.com/dlqqq))
+- Add functions for finding the .jupyter directory or the workspace directory [#1376](https://github.com/jupyterlab/jupyter-ai/pull/1376) ([@ellisonbg](https://github.com/ellisonbg))
+
+### Maintenance and upkeep improvements
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2025-06-10&to=2025-06-26&type=c))
+
+[@3coins](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3A3coins+updated%3A2025-06-10..2025-06-26&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2025-06-10..2025-06-26&type=Issues) | [@ellisonbg](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aellisonbg+updated%3A2025-06-10..2025-06-26&type=Issues) | [@haofan](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ahaofan+updated%3A2025-06-10..2025-06-26&type=Issues) | [@pre-commit-ci](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Apre-commit-ci+updated%3A2025-06-10..2025-06-26&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 3.0.0b0
 
 This is the first beta release of Jupyter AI v3! We've completed a majority of the new APIs & integrations that we plan to use in v3.0.0. It's now time for us to build features, fix bugs, (greatly) improve the UI, and make Jupyternaut a powerful default AI agent. We plan to move very quickly in the next couple of weeks to make v3.0.0 available to users as soon as we can. If everything works out, we will release v3.0.0 by the end of June. 💪
@@ -28,8 +51,6 @@ This release notably implements the "stop streaming" button that existed in Jupy
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2025-06-04&to=2025-06-10&type=c))
 
 [@brichet](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Abrichet+updated%3A2025-06-04..2025-06-10&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2025-06-04..2025-06-10&type=Issues) | [@srdas](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2025-06-04..2025-06-10&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 3.0.0a1
 
