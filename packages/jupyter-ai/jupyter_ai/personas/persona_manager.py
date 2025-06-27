@@ -51,11 +51,10 @@ class PersonaManager(LoggingConfigurable):
     type for type checkers.
     """
 
+    _persona_classes: ClassVar[list[type[BasePersona]] | None] = None
     _personas: dict[str, BasePersona]
     file_id: str
 
-    # class attrs
-    _persona_classes: ClassVar[list[type[BasePersona]] | None] = None
 
     def __init__(
         self,
@@ -91,9 +90,9 @@ class PersonaManager(LoggingConfigurable):
         # This is stored in a class attribute (global to all instances) because
         # the entry points are immutable after the server starts, so they only
         # need to be loaded once.
-        if not isinstance(PersonaManager._persona_classes, list):
+        if not isinstance(self._persona_classes, list):
             self._init_persona_classes()
-            assert isinstance(PersonaManager._persona_classes, list)
+            assert isinstance(self._persona_classes, list)
 
         self._personas = self._init_personas()
 
@@ -102,12 +101,18 @@ class PersonaManager(LoggingConfigurable):
         Initializes the list of persona *classes* by retrieving the
         `jupyter-ai.personas` entry points group.
 
-        This list is cached in the `PersonaManager._persona_classes` class
-        attribute, i.e. this method should only run once in the extension
+        # TODO: fix this part of docs now that we have it as an instance attr.
+        This list is cached in the `self._persona_classes` instance
+        attribute, .e. this method should only run once in the extension
         lifecycle.
         """
-        if PersonaManager._persona_classes:
-            return
+        # Loading is in two parts:
+        # 1. Load persona classes from package entry points.
+        # 2. Load persona classes from local filesystem.
+        #
+        # This allows for lightweight development of new personas by the user in
+        # their local filesystem. The first part is done here, and the second
+        # part is done in `_init_personas()`.
 
         persona_eps = entry_points().select(group=EPG_NAME)
         self.log.info(f"Found {len(persona_eps)} entry points under '{EPG_NAME}'.")
@@ -146,9 +151,9 @@ class PersonaManager(LoggingConfigurable):
             )
 
         # Load persona classes from local filesystem
-        persona_classes.extend(load_persona_classes_from_directory(self.root_dir))
+        persona_classes.extend(load_from_dir(self.get_dotjupyter_dir()))
 
-        PersonaManager._persona_classes = persona_classes
+        self._persona_classes = persona_classes
 
     def _init_personas(self) -> dict[str, BasePersona]:
         """
@@ -156,7 +161,7 @@ class PersonaManager(LoggingConfigurable):
         to the constructor.
         """
         # Ensure that persona classes were initialized first
-        persona_classes = PersonaManager._persona_classes
+        persona_classes = self._persona_classes
         assert isinstance(persona_classes, list)
 
         # If no persona classes are available, log a warning and return
@@ -297,22 +302,23 @@ class PersonaManager(LoggingConfigurable):
             return self._mcp_config_loader.get_config(jdir)
 
 
-def load_persona_classes_from_directory(root_dir: str) -> list[type[BasePersona]]:
+def load_from_dir(root_dir: str) -> list[type[BasePersona]]:
     """
     Load _persona class declarations_ from Python files in the local filesystem.
 
     Those class declarations are then used to instantiate personas by the
     `PersonaManager`.
 
-    Scans the root_dir for .py files containing "persona" in their name,
+    Scans the root_dir for .py files containing `persona` in their name that do
+    _not_ start with a single `_` (i.e. private modules are skipped). Then, it 
     dynamically imports them, and extracts any class declarations that are
-    subclasses of BasePersona.
+    subclasses of `BasePersona`.
 
     Args:
-        root_dir: Directory to scan for persona Python files
+        root_dir: Directory to scan for persona Python files.
 
     Returns:
-        List of BasePersona subclasses found in the directory
+        List of `BasePersona` subclasses found in the directory.
     """
     persona_classes: list[type[BasePersona]] = []
 
@@ -321,12 +327,12 @@ def load_persona_classes_from_directory(root_dir: str) -> list[type[BasePersona]
         return persona_classes
 
     # Find all .py files in the root directory that contain "persona" in the name
+    # TODO: protect with a try/except block for exceptions raised by glob
     all_py_files = glob(os.path.join(root_dir, "*.py"))
     py_files = [f for f in all_py_files if "persona" in Path(f).stem.lower()]
 
-    if not py_files:
-        return persona_classes
-
+    # For each .py file, dynamically import the module and extract all
+    # BasePersona subclasses.
     for py_file in py_files:
         try:
             # Get module name from file path

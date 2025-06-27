@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 from jupyter_ai.personas.base_persona import BasePersona, PersonaDefaults
-from jupyter_ai.personas.persona_manager import load_persona_classes_from_directory
+from jupyter_ai.personas.persona_manager import load_from_dir
 
 
 @pytest.fixture
@@ -18,11 +18,11 @@ def tmp_persona_dir():
 
 
 class TestLoadPersonaClassesFromDirectory:
-    """Test cases for load_persona_classes_from_directory function."""
+    """Test cases for load_from_dir function."""
 
     def test_empty_directory_returns_empty_list(self, tmp_persona_dir):
         """Test that an empty directory returns an empty list of persona classes."""
-        result = load_persona_classes_from_directory(str(tmp_persona_dir))
+        result = load_from_dir(str(tmp_persona_dir))
         assert result == []
 
     def test_non_persona_file_returns_empty_list(self, tmp_persona_dir):
@@ -31,7 +31,7 @@ class TestLoadPersonaClassesFromDirectory:
         non_persona_file = tmp_persona_dir / "no_personas.py"
         non_persona_file.write_text("pass")
 
-        result = load_persona_classes_from_directory(str(tmp_persona_dir))
+        result = load_from_dir(str(tmp_persona_dir))
         assert result == []
 
     def test_simple_persona_file_returns_persona_class(self, tmp_persona_dir):
@@ -51,7 +51,7 @@ class TestPersona(BasePersona):
 """
         persona_file.write_text(persona_content)
 
-        result = load_persona_classes_from_directory(str(tmp_persona_dir))
+        result = load_from_dir(str(tmp_persona_dir))
 
         assert len(result) == 1
         assert result[0].__name__ == "TestPersona"
@@ -63,6 +63,6 @@ class TestPersona(BasePersona):
         bad_persona_file = tmp_persona_dir / "bad_persona.py"
         bad_persona_file.write_text("1/0")
 
-        result = load_persona_classes_from_directory(str(tmp_persona_dir))
+        result = load_from_dir(str(tmp_persona_dir))
 
         assert result == []
