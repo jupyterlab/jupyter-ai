@@ -4,6 +4,7 @@ import asyncio
 import importlib.util
 import inspect
 import os
+import sys
 from glob import glob
 from logging import Logger
 from pathlib import Path
@@ -345,36 +346,46 @@ def load_from_dir(root_dir: str, log: Logger) -> list[type[BasePersona]]:
     if py_files:
         log.info(f"Found files from {root_dir}: {[Path(f).name for f in py_files]}")
     
-    # For each .py file, dynamically import the module and extract all
-    # BasePersona subclasses.
-    for py_file in py_files:
-        try:
-            # Get module name from file path
-            module_name = Path(py_file).stem
+    # Temporarily add root_dir to sys.path for imports
+    root_dir_in_path = root_dir in sys.path
+    if not root_dir_in_path:
+        sys.path.insert(0, root_dir)
+    
+    try:
+        # For each .py file, dynamically import the module and extract all
+        # BasePersona subclasses.
+        for py_file in py_files:
+            try:
+                # Get module name from file path
+                module_name = Path(py_file).stem
 
-            # Create module spec and load the module
-            spec = importlib.util.spec_from_file_location(module_name, py_file)
-            if spec is None or spec.loader is None:
+                # Create module spec and load the module
+                spec = importlib.util.spec_from_file_location(module_name, py_file)
+                if spec is None or spec.loader is None:
+                    continue
+
+                module = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(module)
+
+                # Find all classes in the module that are BasePersona subclasses
+                for name, obj in inspect.getmembers(module, inspect.isclass):
+                    # Check if it's a subclass of BasePersona but not BasePersona itself
+                    if (
+                        issubclass(obj, BasePersona)
+                        and obj is not BasePersona
+                        and obj.__module__ == module_name
+                    ):
+                        log.info(f"Found persona class '{obj.__name__}' in '{py_file}'")
+                        persona_classes.append(obj)
+
+            except Exception as e:
+                # On exception, log error and continue to next file
+                log.exception(f"Unable to load persona classes from '{py_file}', exception details printed below.")
                 continue
-
-            module = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(module)
-
-            # Find all classes in the module that are BasePersona subclasses
-            for name, obj in inspect.getmembers(module, inspect.isclass):
-                # Check if it's a subclass of BasePersona but not BasePersona itself
-                if (
-                    issubclass(obj, BasePersona)
-                    and obj is not BasePersona
-                    and obj.__module__ == module_name
-                ):
-                    log.info(f"Found persona class '{obj.__name__}' in '{py_file}'")
-                    persona_classes.append(obj)
-
-        except Exception as e:
-            # On exception, log error and continue to next file
-            log.exception(f"Unable to load persona classes from '{py_file}', exception details printed below.")
-            continue
+    finally:
+        # Remove root_dir from sys.path if we added it
+        if not root_dir_in_path and root_dir in sys.path:
+            sys.path.remove(root_dir)
 
     return persona_classes
 
