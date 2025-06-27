@@ -323,7 +323,7 @@ def load_from_dir(root_dir: str, log: Logger) -> list[type[BasePersona]]:
     """
     persona_classes: list[type[BasePersona]] = []
 
-    log.info(f"Loading persona files from {root_dir}")
+    log.info(f"Searching for persona files in {root_dir}")
     # Check if root directory exists
     if not os.path.exists(root_dir):
         return persona_classes
@@ -331,14 +331,19 @@ def load_from_dir(root_dir: str, log: Logger) -> list[type[BasePersona]]:
     # Find all .py files in the root directory that contain "persona" in the name
     try:
         all_py_files = glob(os.path.join(root_dir, "*.py"))
-        py_files = [f for f in all_py_files if "persona" in Path(f).stem.lower()]
+        py_files = []
+        for f in all_py_files:
+            fname_lower = Path(f).stem.lower()
+            if "persona" in fname_lower and not (fname_lower.startswith("_") or fname_lower.startswith(".")):
+                py_files.append(f)
+
     except Exception as e:
         # On exception with glob operation, return empty list
-        log.debug(f"{type(e).__name__} occurred while searching for Python files in {root_dir}")
+        log.error(f"{type(e).__name__} occurred while searching for Python files in {root_dir}")
         return persona_classes
 
     if py_files:
-        log.info(f"Loading persona files from {root_dir}: {[Path(f).name for f in py_files]}")
+        log.info(f"Found files from {root_dir}: {[Path(f).name for f in py_files]}")
     
     # For each .py file, dynamically import the module and extract all
     # BasePersona subclasses.
@@ -346,10 +351,6 @@ def load_from_dir(root_dir: str, log: Logger) -> list[type[BasePersona]]:
         try:
             # Get module name from file path
             module_name = Path(py_file).stem
-
-            # Skip if module name starts with underscore (private modules)
-            if module_name.startswith("_") or module_name.startswith("."):
-                continue
 
             # Create module spec and load the module
             spec = importlib.util.spec_from_file_location(module_name, py_file)
