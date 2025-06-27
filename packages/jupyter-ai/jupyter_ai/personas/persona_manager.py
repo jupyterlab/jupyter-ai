@@ -52,7 +52,11 @@ class PersonaManager(LoggingConfigurable):
     type for type checkers.
     """
 
-    _persona_classes: ClassVar[list[type[BasePersona]] | None] = None
+    # TODO: the Persona classes from entry points should be stored as a class
+    # attribute, since they will not change at runtime.
+    # That should be injected into this instance attribute when personas defined
+    # under `.jupyter` are loaded.
+    _persona_classes: list[type[BasePersona]] | None = None
     _personas: dict[str, BasePersona]
     file_id: str
 
@@ -152,7 +156,11 @@ class PersonaManager(LoggingConfigurable):
             )
 
         # Load persona classes from local filesystem
-        persona_classes.extend(load_from_dir(self.get_dotjupyter_dir(), self.log))
+        dotjupyter_dir = self.get_dotjupyter_dir()
+        if dotjupyter_dir is None:
+            self.log.info("No .jupyter directory found for loading local personas.")
+        else:
+            persona_classes.extend(load_from_dir(dotjupyter_dir, self.log))
 
         self._persona_classes = persona_classes
 
