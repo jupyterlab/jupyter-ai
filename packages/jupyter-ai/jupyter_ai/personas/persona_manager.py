@@ -347,7 +347,7 @@ def load_from_dir(root_dir: str, log: Logger) -> list[type[BasePersona]]:
             module_name = Path(py_file).stem
 
             # Skip if module name starts with underscore (private modules)
-            if module_name.startswith("_"):
+            if module_name.startswith("_") or module_name.startswith("."):
                 continue
 
             # Create module spec and load the module
