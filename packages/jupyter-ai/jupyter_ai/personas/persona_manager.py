@@ -323,6 +323,7 @@ def load_from_dir(root_dir: str, log: Logger) -> list[type[BasePersona]]:
     """
     persona_classes: list[type[BasePersona]] = []
 
+    log.info(f"Loading persona files from {root_dir}")
     # Check if root directory exists
     if not os.path.exists(root_dir):
         return persona_classes
@@ -366,6 +367,7 @@ def load_from_dir(root_dir: str, log: Logger) -> list[type[BasePersona]]:
                     and obj is not BasePersona
                     and obj.__module__ == module_name
                 ):
+                    log.info(f"Found persona class '{obj.__name__}' in '{py_file}'")
                     persona_classes.append(obj)
 
         except Exception as e:
@@ -376,3 +378,4 @@ def load_from_dir(root_dir: str, log: Logger) -> list[type[BasePersona]]:
             continue
 
     return persona_classes
+
