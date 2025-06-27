@@ -151,7 +151,7 @@ class PersonaManager(LoggingConfigurable):
             )
 
         # Load persona classes from local filesystem
-        persona_classes.extend(load_from_dir(self.get_dotjupyter_dir()))
+        persona_classes.extend(load_from_dir(self.get_dotjupyter_dir(), self.log))
 
         self._persona_classes = persona_classes
 
@@ -302,7 +302,7 @@ class PersonaManager(LoggingConfigurable):
             return self._mcp_config_loader.get_config(jdir)
 
 
-def load_from_dir(root_dir: str) -> list[type[BasePersona]]:
+def load_from_dir(root_dir: str, log: Logger) -> list[type[BasePersona]]:
     """
     Load _persona class declarations_ from Python files in the local filesystem.
 
@@ -314,11 +314,12 @@ def load_from_dir(root_dir: str) -> list[type[BasePersona]]:
     dynamically imports them, and extracts any class declarations that are
     subclasses of `BasePersona`.
 
-    Args:
-        root_dir: Directory to scan for persona Python files.
+         Args:
+         root_dir: Directory to scan for persona Python files.
+         log: Logger instance for logging messages.
 
-    Returns:
-        List of `BasePersona` subclasses found in the directory.
+     Returns:
+         List of `BasePersona` subclasses found in the directory.
     """
     persona_classes: list[type[BasePersona]] = []
 
@@ -327,10 +328,17 @@ def load_from_dir(root_dir: str) -> list[type[BasePersona]]:
         return persona_classes
 
     # Find all .py files in the root directory that contain "persona" in the name
-    # TODO: protect with a try/except block for exceptions raised by glob
-    all_py_files = glob(os.path.join(root_dir, "*.py"))
-    py_files = [f for f in all_py_files if "persona" in Path(f).stem.lower()]
+    try:
+        all_py_files = glob(os.path.join(root_dir, "*.py"))
+        py_files = [f for f in all_py_files if "persona" in Path(f).stem.lower()]
+    except Exception as e:
+        # On exception with glob operation, return empty list
+        log.debug(f"{type(e).__name__} occurred while searching for Python files in {root_dir}")
+        return persona_classes
 
+    if py_files:
+        log.info(f"Loading persona files from {root_dir}: {[Path(f).name for f in py_files]}")
+    
     # For each .py file, dynamically import the module and extract all
     # BasePersona subclasses.
     for py_file in py_files:
@@ -360,9 +368,11 @@ def load_from_dir(root_dir: str) -> list[type[BasePersona]]:
                 ):
                     persona_classes.append(obj)
 
-        except Exception:
-            # On exception, continue to next file
+        except Exception as e:
+            # On exception, log error and continue to next file
             # This mirrors the error handling pattern from entry point loading
+            log.error(f"Unable to load persona classes from '{py_file}'")
+            log.error(f"Error was: {type(e).__name__}: {e} - Unable to load persona classes from '{py_file}'")
             continue
 
     return persona_classes
