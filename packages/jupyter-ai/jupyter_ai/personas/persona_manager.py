@@ -9,7 +9,7 @@ from glob import glob
 from logging import Logger
 from pathlib import Path
 from time import time_ns
-from typing import TYPE_CHECKING, Any, ClassVar
+from typing import TYPE_CHECKING, Any
 
 from importlib_metadata import entry_points
 from jupyterlab_chat.models import Message
@@ -59,7 +59,6 @@ class PersonaManager(LoggingConfigurable):
     _persona_classes: list[type[BasePersona]] | None = None
     _personas: dict[str, BasePersona]
     file_id: str
-
 
     def __init__(
         self,
@@ -319,7 +318,7 @@ def load_from_dir(root_dir: str, log: Logger) -> list[type[BasePersona]]:
     `PersonaManager`.
 
     Scans the root_dir for .py files containing `persona` in their name that do
-    _not_ start with a single `_` (i.e. private modules are skipped). Then, it 
+    _not_ start with a single `_` (i.e. private modules are skipped). Then, it
     dynamically imports them, and extracts any class declarations that are
     subclasses of `BasePersona`.
 
@@ -343,22 +342,26 @@ def load_from_dir(root_dir: str, log: Logger) -> list[type[BasePersona]]:
         py_files = []
         for f in all_py_files:
             fname_lower = Path(f).stem.lower()
-            if "persona" in fname_lower and not (fname_lower.startswith("_") or fname_lower.startswith(".")):
+            if "persona" in fname_lower and not (
+                fname_lower.startswith("_") or fname_lower.startswith(".")
+            ):
                 py_files.append(f)
 
     except Exception as e:
         # On exception with glob operation, return empty list
-        log.error(f"{type(e).__name__} occurred while searching for Python files in {root_dir}")
+        log.error(
+            f"{type(e).__name__} occurred while searching for Python files in {root_dir}"
+        )
         return persona_classes
 
     if py_files:
         log.info(f"Found files from {root_dir}: {[Path(f).name for f in py_files]}")
-    
+
     # Temporarily add root_dir to sys.path for imports
     root_dir_in_path = root_dir in sys.path
     if not root_dir_in_path:
         sys.path.insert(0, root_dir)
-    
+
     try:
         # For each .py file, dynamically import the module and extract all
         # BasePersona subclasses.
@@ -386,9 +389,11 @@ def load_from_dir(root_dir: str, log: Logger) -> list[type[BasePersona]]:
                         log.info(f"Found persona class '{obj.__name__}' in '{py_file}'")
                         persona_classes.append(obj)
 
-            except Exception as e:
+            except Exception:
                 # On exception, log error and continue to next file
-                log.exception(f"Unable to load persona classes from '{py_file}', exception details printed below.")
+                log.exception(
+                    f"Unable to load persona classes from '{py_file}', exception details printed below."
+                )
                 continue
     finally:
         # Remove root_dir from sys.path if we added it
@@ -396,4 +401,3 @@ def load_from_dir(root_dir: str, log: Logger) -> list[type[BasePersona]]:
             sys.path.remove(root_dir)
 
     return persona_classes
-

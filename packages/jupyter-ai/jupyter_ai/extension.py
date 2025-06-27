@@ -442,20 +442,20 @@ class AiExtension(ExtensionApp):
         c = Config()
         c.ContentsManager.allow_hidden = True
         c.ContentsManager.hide_globs = [
-            "__pycache__",          # Python bytecode cache directories
-            "*.pyc",                # Compiled Python files
-            "*.pyo",                # Optimized Python files
-            ".DS_Store",            # macOS system files
-            "*~",                   # Editor backup files
-            ".ipynb_checkpoints",   # Jupyter notebook checkpoint files
-            ".git",                 # Git version control directory
-            ".venv",                # Python virtual environment directory
-            "venv",                 # Python virtual environment directory
-            ".env",                 # Environment variable files
-            "node_modules",         # Node.js dependencies directory
-            ".pytest_cache",        # PyTest cache directory
-            ".mypy_cache",          # MyPy type checker cache directory
-            "*.egg-info"            # Python package metadata directories
+            "__pycache__",  # Python bytecode cache directories
+            "*.pyc",  # Compiled Python files
+            "*.pyo",  # Optimized Python files
+            ".DS_Store",  # macOS system files
+            "*~",  # Editor backup files
+            ".ipynb_checkpoints",  # Jupyter notebook checkpoint files
+            ".git",  # Git version control directory
+            ".venv",  # Python virtual environment directory
+            "venv",  # Python virtual environment directory
+            ".env",  # Environment variable files
+            "node_modules",  # Node.js dependencies directory
+            ".pytest_cache",  # PyTest cache directory
+            ".mypy_cache",  # MyPy type checker cache directory
+            "*.egg-info",  # Python package metadata directories
         ]
         server_app.update_config(c)
         super()._link_jupyter_server_extension(server_app)
