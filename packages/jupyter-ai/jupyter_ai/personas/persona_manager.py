@@ -373,9 +373,7 @@ def load_from_dir(root_dir: str, log: Logger) -> list[type[BasePersona]]:
 
         except Exception as e:
             # On exception, log error and continue to next file
-            # This mirrors the error handling pattern from entry point loading
-            log.error(f"Unable to load persona classes from '{py_file}'")
-            log.error(f"Error was: {type(e).__name__}: {e} - Unable to load persona classes from '{py_file}'")
+            log.exception(f"Unable to load persona classes from '{py_file}', exception details printed below.")
             continue
 
     return persona_classes
