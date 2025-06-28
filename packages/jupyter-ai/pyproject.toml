@@ -40,6 +40,17 @@ dependencies = [
 
 dynamic = ["version", "description", "authors", "urls", "keywords"]
 
+[project.entry-points."jupyter_ai.default_tasks"]
+core_default_tasks = "jupyter_ai:tasks"
+
+[project.entry-points."jupyter_ai.chat_handlers"]
+default = "jupyter_ai.chat_handlers.default:DefaultChatHandler"
+ask = "jupyter_ai.chat_handlers.ask:AskChatHandler"
+generate = "jupyter_ai.chat_handlers.generate:GenerateChatHandler"
+learn = "jupyter_ai.chat_handlers.learn:LearnChatHandler"
+help = "jupyter_ai.chat_handlers.help:HelpChatHandler"
+github = "jupyter_ai.chat_handlers.copilot:GitHubCopilotChatHandler"
+
 [project.optional-dependencies]
 test = [
     # `jupyter_collaboration>=4` requires `jupyter_server_ydoc>=2.0.0`,
@@ -54,6 +65,7 @@ test = [
     "syrupy~=4.0.8",
     "types-jsonschema",
     "mypy",
+    "pylspclient",
 ]
 
 dev = ["jupyter_ai_magics[dev]"]
