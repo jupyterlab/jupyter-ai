@@ -5,6 +5,7 @@ import importlib.util
 import inspect
 import os
 import sys
+import traceback
 from glob import glob
 from logging import Logger
 from pathlib import Path
@@ -12,7 +13,7 @@ from time import time_ns
 from typing import TYPE_CHECKING, Any
 
 from importlib_metadata import entry_points
-from jupyterlab_chat.models import Message
+from jupyterlab_chat.models import Message, NewMessage
 from jupyterlab_chat.ychat import YChat
 from traitlets.config import LoggingConfigurable
 
@@ -52,11 +53,10 @@ class PersonaManager(LoggingConfigurable):
     type for type checkers.
     """
 
-    # TODO: the Persona classes from entry points should be stored as a class
-    # attribute, since they will not change at runtime.
-    # That should be injected into this instance attribute when personas defined
-    # under `.jupyter` are loaded.
-    _persona_classes: list[type[BasePersona]] | None = None
+    # We treat this as a class attribute so that we only have to load them once
+    _ep_persona_classes: list[dict] | None = None
+    # Local persona classes are instance attributes to support frequent reloading
+    _local_persona_classes: list[dict] | None = None
     _personas: dict[str, BasePersona]
     file_id: str
 
@@ -89,26 +89,22 @@ class PersonaManager(LoggingConfigurable):
 
         # Initialize MCP config loader
         self._mcp_config_loader = MCPConfigLoader()
-
-        # Load persona classes from entry points.
-        # This is stored in a class attribute (global to all instances) because
-        # the entry points are immutable after the server starts, so they only
-        # need to be loaded once.
-        if not isinstance(self._persona_classes, list):
-            self._init_persona_classes()
-            assert isinstance(self._persona_classes, list)
-
+        self._init_persona_classes()
+        self.log.info("Persona classes loaded!")
         self._personas = self._init_personas()
+        self.log.info("Personas created fully!")
 
     def _init_persona_classes(self) -> None:
+        """Read entry-point and local persona classes."""
+        if PersonaManager._ep_persona_classes is None:
+            self._init_ep_persona_classes()
+            assert isinstance(PersonaManager._ep_persona_classes, list)
+        self._init_local_persona_classes()
+
+    def _init_ep_persona_classes(self) -> None:
         """
         Initializes the list of persona *classes* by retrieving the
         `jupyter-ai.personas` entry points group.
-
-        # TODO: fix this part of docs now that we have it as an instance attr.
-        This list is cached in the `self._persona_classes` instance
-        attribute, .e. this method should only run once in the extension
-        lifecycle.
         """
         # Loading is in two parts:
         # 1. Load persona classes from package entry points.
@@ -122,14 +118,20 @@ class PersonaManager(LoggingConfigurable):
         self.log.info(f"Found {len(persona_eps)} entry points under '{EPG_NAME}'.")
         self.log.info("PENDING: Loading AI persona classes from entry points...")
         start_time_ns = time_ns()
-        persona_classes: list[type[BasePersona]] = []
+        persona_classes: list[dict] = []
 
         for persona_ep in persona_eps:
             try:
                 # Load a persona class from each entry point
                 persona_class = persona_ep.load()
                 assert issubclass(persona_class, BasePersona)
-                persona_classes.append(persona_class)
+                persona_classes.append(
+                    {
+                        "module": persona_ep.name,
+                        "persona_class": persona_class,
+                        "traceback": None,
+                    }
+                )
                 class_module, class_name = persona_ep.value.split(":")
                 self.log.info(
                     f"  - Loaded AI persona class '{class_name}' from '{class_module}' using entry point '{persona_ep.name}'."
@@ -138,13 +140,21 @@ class PersonaManager(LoggingConfigurable):
                 # On exception, log an error and continue.
                 # This does not stop the surrounding `for` loop. If a persona
                 # fails to load, it should not halt other personas from loading.
+                tb_str = traceback.format_exc()
                 self.log.exception(
-                    f"  - Unable to load AI persona from entry point `{persona_ep.name}` due to an exception printed below."
+                    f"  - Unable to load AI persona from entry point `{persona_ep.name}` due to an exception printed below.\n{tb_str}"
+                )
+                persona_classes.append(
+                    {
+                        "module": persona_ep.name,
+                        "persona_class": None,
+                        "traceback": tb_str,
+                    }
                 )
                 continue
 
         if len(persona_classes) > 0:
-            elapsed_time_ms = (time_ns() - start_time_ns) // 1000
+            elapsed_time_ms = (time_ns() - start_time_ns) // 1000000
             self.log.info(
                 f"SUCCESS: Loaded {len(persona_classes)} AI persona classes from entry points. Time elapsed: {elapsed_time_ms}ms."
             )
@@ -154,14 +164,15 @@ class PersonaManager(LoggingConfigurable):
                 + "Please verify your server configuration and open a new issue on our GitHub repo if this warning persists."
             )
 
-        # Load persona classes from local filesystem
+        PersonaManager._ep_persona_classes = persona_classes
+
+    def _init_local_persona_classes(self) -> None:
+        """Load persona classes from local filesystem."""
         dotjupyter_dir = self.get_dotjupyter_dir()
         if dotjupyter_dir is None:
             self.log.info("No .jupyter directory found for loading local personas.")
         else:
-            persona_classes.extend(load_from_dir(dotjupyter_dir, self.log))
-
-        self._persona_classes = persona_classes
+            self._local_persona_classes = load_from_dir(dotjupyter_dir, self.log)
 
     def _init_personas(self) -> dict[str, BasePersona]:
         """
@@ -169,7 +180,11 @@ class PersonaManager(LoggingConfigurable):
         to the constructor.
         """
         # Ensure that persona classes were initialized first
-        persona_classes = self._persona_classes
+        persona_classes = []
+        if isinstance(PersonaManager._ep_persona_classes, list):
+            persona_classes.extend(PersonaManager._ep_persona_classes)
+        if isinstance(self._local_persona_classes, list):
+            persona_classes.extend(self._local_persona_classes)
         assert isinstance(persona_classes, list)
 
         # If no persona classes are available, log a warning and return
@@ -183,7 +198,13 @@ class PersonaManager(LoggingConfigurable):
         start_time_ns = time_ns()
 
         personas: dict[str, BasePersona] = {}
-        for Persona in persona_classes:
+        for item in persona_classes:
+            item.get("module")
+            Persona = item.get("persona_class")
+            tb = item.get("traceback")
+            if Persona is None or tb is not None:
+                self._display_persona_error_message(item)
+                continue
             try:
                 persona = Persona(
                     parent=self,
@@ -192,10 +213,18 @@ class PersonaManager(LoggingConfigurable):
                     message_interrupted=self.message_interrupted,
                 )
             except Exception:
+                tb_str = traceback.format_exc()
                 self.log.exception(
                     f"The persona provided by `{Persona.__module__}` "
-                    "raised an exception while initializing, "
-                    "printed below."
+                    f"raised an exception while instantiating, "
+                    f"printed below.\n {tb_str}"
+                )
+                self._display_persona_error_message(
+                    {
+                        "module": Persona.__module__,
+                        "persona_class": Persona,
+                        "traceback": tb_str,
+                    }
                 )
                 continue
 
@@ -217,6 +246,13 @@ class PersonaManager(LoggingConfigurable):
             f"SUCCESS: Initialized {len(personas)} AI personas for chat room '{self.ychat.get_id()}'. Time elapsed: {elapsed_time_ms}ms."
         )
         return personas
+
+    def _display_persona_error_message(self, persona_item: dict) -> None:
+        tb = persona_item.get("traceback")
+        if tb is None:
+            return
+        body = f"Loading an AI persona raised an exception:\n\n```python\n{tb}```"
+        self.ychat.add_message(NewMessage(body=body, sender="PersonaManager"))
 
     @property
     def personas(self) -> dict[str, BasePersona]:
@@ -310,35 +346,35 @@ class PersonaManager(LoggingConfigurable):
             return self._mcp_config_loader.get_config(jdir)
 
 
-def load_from_dir(root_dir: str, log: Logger) -> list[type[BasePersona]]:
+def load_from_dir(dir: str, log: Logger) -> list[dict]:
     """
     Load _persona class declarations_ from Python files in the local filesystem.
 
     Those class declarations are then used to instantiate personas by the
     `PersonaManager`.
 
-    Scans the root_dir for .py files containing `persona` in their name that do
+    Scans the dir for .py files containing `persona` in their name that do
     _not_ start with a single `_` (i.e. private modules are skipped). Then, it
     dynamically imports them, and extracts any class declarations that are
     subclasses of `BasePersona`.
 
-         Args:
-         root_dir: Directory to scan for persona Python files.
-         log: Logger instance for logging messages.
+     Args:
+        dir: Directory to scan for persona Python files.
+        log: Logger instance for logging messages.
 
      Returns:
-         List of `BasePersona` subclasses found in the directory.
+        List of `BasePersona` subclasses found in the directory.
     """
-    persona_classes: list[type[BasePersona]] = []
+    persona_classes: list[dict] = []
 
-    log.info(f"Searching for persona files in {root_dir}")
+    log.info(f"Searching for persona files in {dir}")
     # Check if root directory exists
-    if not os.path.exists(root_dir):
+    if not os.path.exists(dir):
         return persona_classes
 
     # Find all .py files in the root directory that contain "persona" in the name
     try:
-        all_py_files = glob(os.path.join(root_dir, "*.py"))
+        all_py_files = glob(os.path.join(dir, "*.py"))
         py_files = []
         for f in all_py_files:
             fname_lower = Path(f).stem.lower()
@@ -350,17 +386,17 @@ def load_from_dir(root_dir: str, log: Logger) -> list[type[BasePersona]]:
     except Exception as e:
         # On exception with glob operation, return empty list
         log.error(
-            f"{type(e).__name__} occurred while searching for Python files in {root_dir}"
+            f"{type(e).__name__} occurred while searching for Python files in {dir}"
         )
         return persona_classes
 
     if py_files:
-        log.info(f"Found files from {root_dir}: {[Path(f).name for f in py_files]}")
+        log.info(f"Found files from {dir}: {[Path(f).name for f in py_files]}")
 
     # Temporarily add root_dir to sys.path for imports
-    root_dir_in_path = root_dir in sys.path
-    if not root_dir_in_path:
-        sys.path.insert(0, root_dir)
+    dir_in_path = dir in sys.path
+    if not dir_in_path:
+        sys.path.insert(0, dir)
 
     try:
         # For each .py file, dynamically import the module and extract all
@@ -387,17 +423,23 @@ def load_from_dir(root_dir: str, log: Logger) -> list[type[BasePersona]]:
                         and obj.__module__ == module_name
                     ):
                         log.info(f"Found persona class '{obj.__name__}' in '{py_file}'")
-                        persona_classes.append(obj)
+                        persona_classes.append(
+                            {"module": py_file, "persona_class": obj, "traceback": None}
+                        )
 
             except Exception:
                 # On exception, log error and continue to next file
+                tb_str = traceback.format_exc()
                 log.exception(
-                    f"Unable to load persona classes from '{py_file}', exception details printed below."
+                    f"Unable to load persona classes from '{py_file}', exception details printed below.\n{tb_str}"
+                )
+                persona_classes.append(
+                    {"module": py_file, "persona_class": None, "traceback": tb_str}
                 )
                 continue
     finally:
         # Remove root_dir from sys.path if we added it
-        if not root_dir_in_path and root_dir in sys.path:
-            sys.path.remove(root_dir)
+        if not dir_in_path and dir in sys.path:
+            sys.path.remove(dir)
 
     return persona_classes
