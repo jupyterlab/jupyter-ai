@@ -285,7 +285,7 @@ class PersonaManager(LoggingConfigurable):
         Method that routes an incoming message to the correct persona by calling
         its `process_message()` method.
 
-        - (TODO) If the chat contains only one persona & one user, then this
+        - If the chat contains only one persona & one user, then this
           method routes all new messages to that persona.
 
         - If the message contains `@`-mentioned personas, it routes to those personas
