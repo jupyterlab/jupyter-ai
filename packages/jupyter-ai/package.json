@@ -40,6 +40,8 @@
     "clean:lintcache": "rimraf .eslintcache .stylelintcache",
     "clean:labextension": "rimraf jupyter_ai/labextension",
     "clean:all": "jlpm clean:lib && jlpm clean:labextension && jlpm clean:lintcache",
+    "dev:install": "uv pip install -e \".[dev,all,test]\" && jupyter labextension develop . --overwrite && jupyter server extension enable jupyter_ai",
+    "dev:uninstall": "uv pip uninstall jupyter_ai -y",
     "eslint": "jlpm eslint:check --fix",
     "eslint:check": "eslint . --cache --ext .ts,.tsx",
     "install:extension": "jlpm build",
@@ -54,9 +56,7 @@
     "watch": "run-p watch:src watch:labextension",
     "watch:src": "tsc -w",
     "watch:labextension": "jupyter labextension watch .",
-    "dev-install": "pip install -e \".[dev,all,test]\" && jupyter labextension develop . --overwrite && jupyter server extension enable jupyter_ai",
-    "dev-uninstall": "pip uninstall jupyter_ai -y",
-    "install-from-src": "pip install ."
+    "install-from-src": "uv pip install ."
   },
   "dependencies": {
     "@emotion/react": "^11.10.5",

@@ -6,10 +6,10 @@
     "build:prod": {
       "dependsOn": ["^build:prod"]
     },
-    "dev-install": {
-      "dependsOn": ["^dev-install"]
+    "dev:install": {
+      "dependsOn": ["^dev:install"]
     },
-    "dev-uninstall": {
+    "dev:uninstall": {
       "dependsOn": ["clean:labextension"]
     },
     "install-from-src": {

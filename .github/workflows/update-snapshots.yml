@@ -67,8 +67,13 @@ jobs:
       - name: Base Setup
         uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
 
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }} # set by base-setup action
+
       - name: Install extension dependencies and build the extension
-        run: ./scripts/install.sh
+        run: ./scripts/ci-setup.sh
 
       - uses: jupyterlab/maintainer-tools/.github/actions/update-snapshots@v1
         with:
