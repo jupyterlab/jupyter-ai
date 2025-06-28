@@ -204,6 +204,7 @@ class PersonaManager(LoggingConfigurable):
             tb = item.get("traceback")
             if Persona is None or tb is not None:
                 self._display_persona_error_message(item)
+                continue
             try:
                 persona = Persona(
                     parent=self,

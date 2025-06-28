@@ -63,15 +63,19 @@ class TestPersona(BasePersona):
         result = load_from_dir(str(tmp_persona_dir), mock_logger)
 
         assert len(result) == 1
-        assert result[0].__name__ == "TestPersona"
-        assert issubclass(result[0], BasePersona)
+        assert result[0]["persona_class"].__name__ == "TestPersona"
+        assert issubclass(result[0]["persona_class"], BasePersona)
+        assert result[0]["traceback"] is None
 
-    def test_bad_persona_file_returns_empty_list(self, tmp_persona_dir, mock_logger):
-        """Test that a file with syntax errors returns empty list."""
+    def test_bad_persona_file_returns_error_entry(self, tmp_persona_dir, mock_logger):
+        """Test that a file with syntax errors returns an error entry."""
         # Create a file with invalid Python code
         bad_persona_file = tmp_persona_dir / "bad_persona.py"
-        bad_persona_file.write_text("1/0")
+        bad_persona_file.write_text("1/0  # This will cause a syntax error")
 
         result = load_from_dir(str(tmp_persona_dir), mock_logger)
 
-        assert result == []
+        assert len(result) == 1
+        assert result[0]["persona_class"] is None
+        assert result[0]["traceback"] is not None
+        assert "ZeroDivisionError" in result[0]["traceback"]
