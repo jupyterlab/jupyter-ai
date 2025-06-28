@@ -2,6 +2,25 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 3.0.0beta2
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@3.0.0-beta.1...3256ea92314b6ce65798e75255b469d1987eb981))
+
+### Enhancements made
+
+- Add error handling for persona loading failures [#1397](https://github.com/jupyterlab/jupyter-ai/pull/1397) ([@ellisonbg](https://github.com/ellisonbg))
+- Add ignore globs for hidden files in CM config [#1396](https://github.com/jupyterlab/jupyter-ai/pull/1396) ([@ellisonbg](https://github.com/ellisonbg))
+- Hide backslashes in `@file` paths with spaces [#1390](https://github.com/jupyterlab/jupyter-ai/pull/1390) ([@andrii-i](https://github.com/andrii-i))
+- Load personas dynamically from `.jupyter` dir [#1380](https://github.com/jupyterlab/jupyter-ai/pull/1380) ([@fperez](https://github.com/fperez))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2025-06-26&to=2025-06-28&type=c))
+
+[@andrii-i](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aandrii-i+updated%3A2025-06-26..2025-06-28&type=Issues) | [@ellisonbg](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aellisonbg+updated%3A2025-06-26..2025-06-28&type=Issues) | [@fperez](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Afperez+updated%3A2025-06-26..2025-06-28&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 3.0.0beta1
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@3.0.0-beta.0...aefde63ea105c24a5d4b08f76722ec300c8a3c60))
@@ -22,8 +41,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2025-06-10&to=2025-06-26&type=c))
 
 [@3coins](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3A3coins+updated%3A2025-06-10..2025-06-26&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2025-06-10..2025-06-26&type=Issues) | [@ellisonbg](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aellisonbg+updated%3A2025-06-10..2025-06-26&type=Issues) | [@haofan](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ahaofan+updated%3A2025-06-10..2025-06-26&type=Issues) | [@pre-commit-ci](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Apre-commit-ci+updated%3A2025-06-10..2025-06-26&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 3.0.0b0
 
