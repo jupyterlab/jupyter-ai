@@ -45,6 +45,7 @@ class PersonaManager(LoggingConfigurable):
     root_dir: str
     event_loop: AbstractEventLoop
     _mcp_config_loader: MCPConfigLoader
+    last_mentioned_persona: BasePersona | None
 
     log: Logger  # type: ignore
     """
@@ -89,6 +90,9 @@ class PersonaManager(LoggingConfigurable):
 
         # Initialize MCP config loader
         self._mcp_config_loader = MCPConfigLoader()
+        # Initialize last_mentioned_persona to None
+        self.last_mentioned_persona = None
+
         self._init_persona_classes()
         self.log.info("Persona classes loaded!")
         self._personas = self._init_personas()
@@ -282,21 +286,53 @@ class PersonaManager(LoggingConfigurable):
         its `process_message()` method.
 
         - (TODO) If the chat contains only one persona & one user, then this
-        method routes all new messages to that persona.
+          method routes all new messages to that persona.
 
-        - Otherwise, this method only routes new messages to personas that are
-        `@`-mentioned in the message.
+        - If the message contains `@`-mentioned personas, it routes to those personas
+          and updates the last_mentioned_persona.
+
+        - If no personas are mentioned and there is a last_mentioned_persona, it routes
+          to that persona.
+
+        - Otherwise, it does not route the message to any persona.
         """
+
+        sender_is_persona = new_message.sender.startswith("jupyter-ai-personas")
         mentioned_personas = self.get_mentioned_personas(new_message)
-        if not len(mentioned_personas):
+
+        # Don't route if it was a reply from persona, and no other personas were mentioned
+        if sender_is_persona and len(mentioned_personas) == 0:
             return
 
-        mentioned_persona_names = [persona.name for persona in mentioned_personas]
-        self.log.info(
-            f"Received new user message mentioning the following personas: {mentioned_persona_names}."
-        )
-        for persona in mentioned_personas:
+        # If one persona and one user in chat, route to the single persona
+        if len(self.personas) == 1 and len(self.ychat.get_users()) == 2:
+            persona = next(iter(self.personas.values()))
             self.event_loop.create_task(persona.process_message(new_message))
+            return
+
+        # If personas are mentioned in the message, route to them and update last_mentioned_persona
+        if len(mentioned_personas):
+            mentioned_persona_names = [persona.name for persona in mentioned_personas]
+            self.log.info(
+                f"Received new user message mentioning the following personas: {mentioned_persona_names}."
+            )
+            # Update the last mentioned persona, if sender was not persona
+            # This ensures that @-mention in message from persona works and
+            # doesn't reset the user called persona
+            if not sender_is_persona:
+                self.last_mentioned_persona = mentioned_personas[0]
+
+            for persona in mentioned_personas:
+                self.event_loop.create_task(persona.process_message(new_message))
+        # If no personas mentioned but we have a last mentioned persona, route to that one
+        elif self.last_mentioned_persona is not None:
+            self.log.info(
+                "No personas mentioned in message. Routing to last mentioned persona: "
+                f"{self.last_mentioned_persona.name}."
+            )
+            self.event_loop.create_task(
+                self.last_mentioned_persona.process_message(new_message)
+            )
 
     def get_chat_path(self, relative: bool = False) -> str:
         """

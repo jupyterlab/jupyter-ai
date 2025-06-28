@@ -20,5 +20,4 @@ class DebugPersona(BasePersona):
         )
 
     async def process_message(self, message: Message):
-        self.ychat.add_message(NewMessage(body="Hello!", sender=self.id))
-        return
+        self.send_message("Hola!")
