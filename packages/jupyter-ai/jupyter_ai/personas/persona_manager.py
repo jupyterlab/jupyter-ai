@@ -296,39 +296,53 @@ class PersonaManager(LoggingConfigurable):
 
         - Otherwise, it does not route the message to any persona.
         """
-
-        sender_is_persona = new_message.sender.startswith("jupyter-ai-personas")
-        mentioned_personas = self.get_mentioned_personas(new_message)
-
-        # Don't route if it was a reply from persona, and no other personas were mentioned
-        if sender_is_persona and len(mentioned_personas) == 0:
+        # Early exit if no personas are available
+        if not self.personas:
             return
 
-        # If one persona and one user in chat, route to the single persona
-        if len(self.personas) == 1 and len(self.ychat.get_users()) == 2:
-            persona = next(iter(self.personas.values()))
+        # Gather routing context
+        human_users = self.get_active_human_users()
+        sender_is_persona = is_persona(new_message.sender)
+        mentioned_personas = self.get_mentioned_personas(new_message)
+
+        human_user_count = len(human_users)
+        persona_count = len(self.personas)
+        mentioned_count = len(mentioned_personas)
+
+        # Multi-user chat: require explicit @-mentions only
+        if human_user_count > 1:
+            for persona in mentioned_personas:
+                self.event_loop.create_task(persona.process_message(new_message))
+            return
+
+        # Don't route persona replies without mentions
+        if sender_is_persona and mentioned_count == 0:
+            return
+
+        # Single user + single persona: auto-route all messages
+        if persona_count == 1 and human_user_count == 1:
+            persona = self.personas.values()
             self.event_loop.create_task(persona.process_message(new_message))
             return
 
-        # If personas are mentioned in the message, route to them and update last_mentioned_persona
-        if len(mentioned_personas):
+        # Handle mentioned personas
+        if mentioned_count > 0:
             mentioned_persona_names = [persona.name for persona in mentioned_personas]
             self.log.info(
-                f"Received new user message mentioning the following personas: {mentioned_persona_names}."
+                f"Routing message to mentioned personas: {mentioned_persona_names}"
             )
-            # Update the last mentioned persona, if sender was not persona
-            # This ensures that @-mention in message from persona works and
-            # doesn't reset the user called persona
+
+            # Update last mentioned persona if sender is human
             if not sender_is_persona:
                 self.last_mentioned_persona = mentioned_personas[0]
 
             for persona in mentioned_personas:
                 self.event_loop.create_task(persona.process_message(new_message))
-        # If no personas mentioned but we have a last mentioned persona, route to that one
+
+        # Fallback to last mentioned persona
         elif self.last_mentioned_persona is not None:
             self.log.info(
-                "No personas mentioned in message. Routing to last mentioned persona: "
-                f"{self.last_mentioned_persona.name}."
+                f"No personas mentioned. Routing to last mentioned persona: {self.last_mentioned_persona.name}"
             )
             self.event_loop.create_task(
                 self.last_mentioned_persona.process_message(new_message)
@@ -380,6 +394,20 @@ class PersonaManager(LoggingConfigurable):
             return {}
         else:
             return self._mcp_config_loader.get_config(jdir)
+
+    def get_active_human_users(self):
+        """Returns active human users in a chat session"""
+        users = []
+        for value in [k for k in self.ychat.awareness.states.values()]:
+            if "user" in value.keys() and not is_persona(value["user"]["username"]):
+                users.append(value["user"])
+
+        return users
+
+
+def is_persona(username: str):
+    """Returns true if username belongs to a persona"""
+    return username.startswith("jupyter-ai-personas")
 
 
 def load_from_dir(dir: str, log: Logger) -> list[dict]:
