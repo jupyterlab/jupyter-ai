@@ -285,6 +285,9 @@ class PersonaManager(LoggingConfigurable):
         Method that routes an incoming message to the correct persona by calling
         its `process_message()` method.
 
+        - If the chat has more than one user, then this requires
+          `@`- mention to route the message to the persona
+
         - If the chat contains only one persona & one user, then this
           method routes all new messages to that persona.
 
@@ -296,9 +299,6 @@ class PersonaManager(LoggingConfigurable):
 
         - Otherwise, it does not route the message to any persona.
         """
-        # Early exit if no personas are available
-        if not self.personas:
-            return
 
         # Gather routing context
         human_users = self.get_active_human_users()
@@ -321,8 +321,9 @@ class PersonaManager(LoggingConfigurable):
 
         # Single user + single persona: auto-route all messages
         if persona_count == 1 and human_user_count == 1:
-            persona = self.personas.values()
-            self.event_loop.create_task(persona.process_message(new_message))
+            for persona in self.personas.values():
+                self.event_loop.create_task(persona.process_message(new_message))
+                break
             return
 
         # Handle mentioned personas
