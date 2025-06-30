@@ -21,7 +21,6 @@ else
     echo "  - conda: https://docs.conda.io/en/latest/miniconda.html"
     exit 1
 fi
-
 echo "Using environment manager: $ENV_MANAGER"
 
 # Create `jaidev` environment if it does not exist
@@ -31,19 +30,36 @@ if ! $ENV_MANAGER env list | grep -q "jaidev"; then
     $ENV_MANAGER env create -f dev-environment.yml -y
     exit_code=$?
     if [ $exit_code -ne 0 ]; then
-        echo "Error: Failed to create 'jaidev' environment. Exiting."
+        echo "Error: Failed to create 'jaidev' environment."
+        echo "Please report this issue to the maintainers on GitHub."
         exit $exit_code
     fi
 fi
 
-
 # Run environment manager shell hook. This is required for
 # `activate`/`deactivate` commands to work in scripts
-eval "$($ENV_MANAGER shell hook --shell bash)"
+if [ "$ENV_MANAGER" = "conda" ]; then
+    eval "$(conda shell.bash hook)"
+else
+    # for mamba or micromamba
+    eval "$($ENV_MANAGER shell hook --shell bash)"
+fi
+exit_code=$?
+if [ $exit_code -ne 0 ]; then
+    echo "Error: Failed to run $ENV_MANAGER shell hook."
+    echo "Please report this issue to the maintainers on GitHub."
+    exit $exit_code
+fi
 
 # Activate `jaidev` environment
 echo "Activating Jupyter AI development environment 'jaidev'..."
 $ENV_MANAGER activate jaidev
+exit_code=$?
+if [ $exit_code -ne 0 ]; then
+    echo "Error: Failed to activate 'jaidev' environment."
+    echo "Please report this issue to the maintainers on GitHub."
+    exit $exit_code
+fi
 
 # Install JS dependencies
 echo "Installing NPM dependencies..."
