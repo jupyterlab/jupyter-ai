@@ -285,17 +285,13 @@ class PersonaManager(LoggingConfigurable):
         Method that routes an incoming message to the correct persona by calling
         its `process_message()` method.
 
-        - If the chat has more than one user, then this requires
-          `@`- mention to route the message to the persona
+        - If the chat has multiple users, then each persona only replies
+          when `@`-mentioned.
 
-        - If the chat contains only one persona & one user, then this
-          method routes all new messages to that persona.
-
-        - If the message contains `@`-mentioned personas, it routes to those personas
-          and updates the last_mentioned_persona.
-
-        - If no personas are mentioned and there is a last_mentioned_persona, it routes
-          to that persona.
+        - If there is only one user, the last mentioned persona replies
+          unless another persona is `@`-mentioned. If only one persona exists
+          as well, then the persona always replies, regardless of whether
+          it is `@`-mentioned.
 
         - Otherwise, it does not route the message to any persona.
         """
