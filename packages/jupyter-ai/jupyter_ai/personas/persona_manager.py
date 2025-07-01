@@ -45,6 +45,7 @@ class PersonaManager(LoggingConfigurable):
     root_dir: str
     event_loop: AbstractEventLoop
     _mcp_config_loader: MCPConfigLoader
+    last_mentioned_persona: BasePersona | None
 
     log: Logger  # type: ignore
     """
@@ -89,6 +90,9 @@ class PersonaManager(LoggingConfigurable):
 
         # Initialize MCP config loader
         self._mcp_config_loader = MCPConfigLoader()
+        # Initialize last_mentioned_persona to None
+        self.last_mentioned_persona = None
+
         self._init_persona_classes()
         self.log.info("Persona classes loaded!")
         self._personas = self._init_personas()
@@ -281,22 +285,55 @@ class PersonaManager(LoggingConfigurable):
         Method that routes an incoming message to the correct persona by calling
         its `process_message()` method.
 
-        - (TODO) If the chat contains only one persona & one user, then this
-        method routes all new messages to that persona.
+        - If the chat has multiple users, then each persona only replies
+          when `@`-mentioned.
 
-        - Otherwise, this method only routes new messages to personas that are
-        `@`-mentioned in the message.
+        - If there is only one user, the last mentioned persona replies
+          unless another persona is `@`-mentioned. If only one persona exists
+          as well, then the persona always replies, regardless of whether
+          it is `@`-mentioned.
+
         """
+
+        # Gather routing context
+        human_users = self.get_active_human_users()
+        sender_is_persona = is_persona(new_message.sender)
         mentioned_personas = self.get_mentioned_personas(new_message)
-        if not len(mentioned_personas):
+
+        human_user_count = len(human_users)
+        persona_count = len(self.personas)
+        mentioned_count = len(mentioned_personas)
+
+        # Don't route persona replies without mentions
+        if sender_is_persona and mentioned_count == 0:
             return
 
-        mentioned_persona_names = [persona.name for persona in mentioned_personas]
-        self.log.info(
-            f"Received new user message mentioning the following personas: {mentioned_persona_names}."
-        )
-        for persona in mentioned_personas:
+        # Multi-user chat: require explicit @-mentions only
+        if human_user_count > 1:
+            for persona in mentioned_personas:
+                self.event_loop.create_task(persona.process_message(new_message))
+            return
+
+        # Single user + multiple personas case: route to mentions if they are present,
+        # otherwise route to last mentioned
+        if persona_count > 1:
+            if mentioned_personas:
+                # Update last mentioned persona if sender is human
+                if not sender_is_persona:
+                    self.last_mentioned_persona = mentioned_personas[0]
+                for persona in mentioned_personas:
+                    asyncio.create_task(persona.process_message(new_message))
+            elif self.last_mentioned_persona:
+                asyncio.create_task(
+                    self.last_mentioned_persona.process_message(new_message)
+                )
+            return
+
+        # Default case (single user, 0/1 personas): persona always replies if present
+        for persona in self.personas.values():
             self.event_loop.create_task(persona.process_message(new_message))
+            break
+        return
 
     def get_chat_path(self, relative: bool = False) -> str:
         """
@@ -344,6 +381,20 @@ class PersonaManager(LoggingConfigurable):
             return {}
         else:
             return self._mcp_config_loader.get_config(jdir)
+
+    def get_active_human_users(self):
+        """Returns active human users in a chat session"""
+        users = []
+        for value in [k for k in self.ychat.awareness.states.values()]:
+            if "user" in value.keys() and not is_persona(value["user"]["username"]):
+                users.append(value["user"])
+
+        return users
+
+
+def is_persona(username: str):
+    """Returns true if username belongs to a persona"""
+    return username.startswith("jupyter-ai-personas")
 
 
 def load_from_dir(dir: str, log: Logger) -> list[dict]:
