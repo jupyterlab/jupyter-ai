@@ -304,45 +304,36 @@ class PersonaManager(LoggingConfigurable):
         persona_count = len(self.personas)
         mentioned_count = len(mentioned_personas)
 
+        # Don't route persona replies without mentions
+        if sender_is_persona and mentioned_count == 0:
+            return
+
         # Multi-user chat: require explicit @-mentions only
         if human_user_count > 1:
             for persona in mentioned_personas:
                 self.event_loop.create_task(persona.process_message(new_message))
             return
 
-        # Don't route persona replies without mentions
-        if sender_is_persona and mentioned_count == 0:
+        # Single user + multiple personas case: route to mentions if they are present,
+        # otherwise route to last mentioned
+        if persona_count > 1:
+            if mentioned_personas:
+                # Update last mentioned persona if sender is human
+                if not sender_is_persona:
+                    self.last_mentioned_persona = mentioned_personas[0]
+                for persona in mentioned_personas:
+                    asyncio.create_task(persona.process_message(new_message))
+            elif self.last_mentioned_persona:
+                asyncio.create_task(
+                    self.last_mentioned_persona.process_message(new_message)
+                )
             return
 
-        # Single user + single persona: auto-route all messages
-        if persona_count == 1 and human_user_count == 1:
-            for persona in self.personas.values():
-                self.event_loop.create_task(persona.process_message(new_message))
-                break
-            return
-
-        # Handle mentioned personas
-        if mentioned_count > 0:
-            mentioned_persona_names = [persona.name for persona in mentioned_personas]
-            self.log.info(
-                f"Routing message to mentioned personas: {mentioned_persona_names}"
-            )
-
-            # Update last mentioned persona if sender is human
-            if not sender_is_persona:
-                self.last_mentioned_persona = mentioned_personas[0]
-
-            for persona in mentioned_personas:
-                self.event_loop.create_task(persona.process_message(new_message))
-
-        # Fallback to last mentioned persona
-        elif self.last_mentioned_persona is not None:
-            self.log.info(
-                f"No personas mentioned. Routing to last mentioned persona: {self.last_mentioned_persona.name}"
-            )
-            self.event_loop.create_task(
-                self.last_mentioned_persona.process_message(new_message)
-            )
+        # Default case (single user, 0/1 personas): persona always replies if present
+        for persona in self.personas.values():
+            self.event_loop.create_task(persona.process_message(new_message))
+            break
+        return
 
     def get_chat_path(self, relative: bool = False) -> str:
         """
