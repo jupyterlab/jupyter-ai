@@ -1,5 +1,5 @@
 from jupyter_ai.personas.base_persona import BasePersona, PersonaDefaults
-from jupyterlab_chat.models import Message, NewMessage
+from jupyterlab_chat.models import Message
 
 
 class DebugPersona(BasePersona):
@@ -20,4 +20,5 @@ class DebugPersona(BasePersona):
         )
 
     async def process_message(self, message: Message):
-        self.send_message("Hola!")
+        # Note: Echoing messages with @persona mentions causes infinite loops
+        self.send_message("Hello!, how are you?")
