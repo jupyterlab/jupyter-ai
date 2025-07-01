@@ -293,7 +293,6 @@ class PersonaManager(LoggingConfigurable):
           as well, then the persona always replies, regardless of whether
           it is `@`-mentioned.
 
-        - Otherwise, it does not route the message to any persona.
         """
 
         # Gather routing context
