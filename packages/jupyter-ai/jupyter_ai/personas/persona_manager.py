@@ -40,13 +40,13 @@ class PersonaManager(LoggingConfigurable):
     """
 
     # Configurable traits
-    default_persona = Unicode(
-        default_value=None,
+    default_persona_id = Unicode(
+        default_value="jupyter-ai-personas::jupyter_ai::JupyternautPersona",
         help="" \
         "The ID of the default persona. If configured, the default persona " \
-        "will always reply to new user messages, even if not @-mentioned. " \
-        "Example ID: 'jupyter-ai-personas::jupyter-ai::Jupyternaut'. " \
-        "Defaults to `None`.",
+        "will automatically reply in a single-user chats until another " \
+        "persona is `@`-mentioned. " \
+        "Defaults to: 'jupyter-ai-personas::jupyter_ai::JupyternautPersona'. ",
         allow_none=True,
         config=True,
     )
@@ -107,9 +107,13 @@ class PersonaManager(LoggingConfigurable):
         self.last_mentioned_persona = None
 
         self._init_persona_classes()
-        self.log.info("Persona classes loaded!")
+        self.log.info(f"Persona classes loaded in chat '{self.room_id}'.")
         self._personas = self._init_personas()
-        self.log.info("Personas created fully!")
+        self.log.info(f"Personas initialized in chat '{self.room_id}'.")
+        if self.default_persona:
+            self.log.info(f"Default persona set to '{self.default_persona.name}' in chat '{self.room_id}'.")
+        else:
+            self.log.warning(f"No default persona is set in chat '{self.room_id}'.")
 
     def _init_persona_classes(self) -> None:
         """Read entry-point and local persona classes."""
@@ -278,94 +282,139 @@ class PersonaManager(LoggingConfigurable):
         persona ID.
         """
         return self._personas
+    
+
+    @property
+    def default_persona(self) -> BasePersona | None:
+        if not self.default_persona_id:
+            return None
+        return self.personas.get(self.default_persona_id)
+
 
     def get_mentioned_personas(self, new_message: Message) -> list[BasePersona]:
         """
         Returns a list of all personas `@`-mentioned in a chat message, given a
-        reference to the chat message. Checks the
-        `PersonaManager.default_persona` trait and includes it if valid.
+        reference to the chat message.
         """
-        # Get list of mentions from the message and initialize the returned list
         mentioned_ids = set(new_message.mentions or [])
         persona_list: list[BasePersona] = []
-
-        # Add `default_persona` to the mention set if it is valid
-        if self.default_persona:
-            if self.default_persona in self.personas:
-                mentioned_ids.add(self.default_persona)
-            else:
-                self.log.warning(
-                    f"'{self.default_persona}', specified by "
-                    "`PersonaManager.default_persona`, "
-                    "is not a valid persona ID. "
-                    f"Valid personas: '{list(self.personas.keys())}'"
-                )
-
-        # Retrieve & add mentioned AI personas to the returned list
         for mentioned_id in mentioned_ids:
             if mentioned_id in self.personas:
                 persona_list.append(self.personas[mentioned_id])
-
         return persona_list
+
 
     def route_message(self, new_message: Message):
         """
         Method that routes an incoming message to the correct personas by
         calling their `process_message()` methods.
 
-        - If a slash command is identified, the slash command will be handled in
-        `handle_slash_command()`.
+        - If the message contains a slash command, the slash command will be
+          dispatched to `route_slash_command()` first. If the slash command is
+          unrecognized, the message will be handled as a normal message.
 
         - If the chat has multiple users, then each persona only replies
           when `@`-mentioned.
 
         - If there is only one user, the last mentioned persona replies
           unless another persona is `@`-mentioned. The last mentioned persona
-          defaults to `AiExtension.default_persona` after starting the server.
+          defaults to `PersonaManager.default_persona` after starting the server.
 
         - If only one persona exists as well, then the persona always replies,
           regardless of whether it is `@`-mentioned.
         """
 
+        # Dispatch message to `route_slash_command()` if the first word is a
+        # slash command. Return immediately if the slash command is recognized.
+        first_word = get_first_word(new_message.body)
+        if first_word and first_word.startswith('/'):
+            slash_cmd_recognized = self.route_slash_command(new_message)
+            if slash_cmd_recognized:
+                return
+
         # Gather routing context
         human_users = self.get_active_human_users()
         sender_is_persona = is_persona(new_message.sender)
         mentioned_personas = self.get_mentioned_personas(new_message)
-
         human_user_count = len(human_users)
         persona_count = len(self.personas)
-        mentioned_count = len(mentioned_personas)
 
-        # Don't route persona replies without mentions
-        if sender_is_persona and mentioned_count == 0:
-            return
-
-        # Multi-user chat: require explicit @-mentions only
-        if human_user_count > 1:
-            for persona in mentioned_personas:
-                self.event_loop.create_task(persona.process_message(new_message))
-            return
-
-        # Single user + multiple personas case: route to mentions if they are present,
-        # otherwise route to last mentioned
-        if persona_count > 1:
+        # Multi-user case & message from persona case: only route message to
+        # mentioned personas
+        if sender_is_persona or human_user_count > 1:
             if mentioned_personas:
-                # Update last mentioned persona if sender is human
-                if not sender_is_persona:
-                    self.last_mentioned_persona = mentioned_personas[0]
-                for persona in mentioned_personas:
-                    asyncio.create_task(persona.process_message(new_message))
-            elif self.last_mentioned_persona:
-                asyncio.create_task(
-                    self.last_mentioned_persona.process_message(new_message)
-                )
+                self._broadcast(new_message, to_personas=mentioned_personas)
+            return
+
+        # Single user + multiple personas case: route message to mentioned
+        # personas if present. Otherwise route message to last mentioned
+        # persona, falling back to the default set by the
+        # `PersonaManager.default_persona_id` configurable trait.
+        if persona_count > 1:
+            # Update last mentioned persona 
+            if mentioned_personas and not sender_is_persona:
+                self.last_mentioned_persona = mentioned_personas[0]
+
+            default_persona = self.last_mentioned_persona or self.default_persona
+            targeted_personas = mentioned_personas
+            if default_persona and not targeted_personas:
+                targeted_personas = [default_persona]
+            self._broadcast(new_message, to_personas=targeted_personas)
             return
 
         # Default case (single user, 0/1 personas): persona always replies if present
-        for persona in self.personas.values():
-            self.event_loop.create_task(persona.process_message(new_message))
-            break
+        self._broadcast(new_message, to_personas=self.personas)
         return
+    
+
+    def _broadcast(self, message: Message, *, to_personas: list[BasePersona] | dict[str, BasePersona]) -> None:
+        """
+        Broadcasts a message to all personas in a given list or dictionary.
+        """
+        persona_list: list[BasePersona] = to_personas if isinstance(to_personas, list) else list(to_personas.values())
+        for persona in persona_list:
+            self.event_loop.create_task(persona.process_message(message))
+        return
+
+
+    def route_slash_command(self, new_message: Message) -> bool:
+        """
+        Routes & handles a message containing a slash command. Returns `True` if
+        the message specified a valid slash command recognized by
+        `PersonaManager`, `False` otherwise. Notes:
+
+        - Each message may have exactly one slash command, which must be
+        specified by the first word of the message.
+
+        - This method will return `True` even if the command was not handled
+        successfully. `False` is just meant to indicate that the control flow
+        should return back to `route_message()`. This allows AI personas to
+        receive custom slash commands that only they recognize.
+        """
+        first_word = get_first_word(new_message.body)
+        assert first_word.startswith('/')
+
+        command_id = first_word[1:]
+        if command_id == "refresh-personas":
+            self.handle_refresh_personas_command(new_message)
+            return True
+
+        # If command is unrecognized, log an error
+        self.log.warning(f"Unrecognized slash command: '/{command_id}'")
+        return False
+
+
+    def handle_refresh_personas_command(self, new_message: Message) -> None:
+        """
+        Handles the '/refresh-personas' slash command.
+        
+        TODO: How do we show status/completion in the UI?
+        """
+        self.log.info(f"Refreshing personas in chat '{self.room_id}'...")
+        pass
+        # self._personas = self._init_personas()
+        self.log.info(f"Refreshed all AI personas in chat '{self.room_id}'.")
+
 
     def get_chat_path(self, relative: bool = False) -> str:
         """
@@ -526,3 +575,25 @@ def load_from_dir(dir: str, log: Logger) -> list[dict]:
             sys.path.remove(dir)
 
     return persona_classes
+
+
+def get_first_word(input_str: str) -> str | None:
+    """
+    Finds the first word in a given string, ignoring leading whitespace.
+    
+    Returns the first word, or None if there is no first word.
+    """
+    start = 0
+    
+    # Skip leading whitespace
+    while start < len(input_str) and input_str[start].isspace():
+        start += 1
+    
+    # Find end of first word
+    end = start
+    while end < len(input_str) and not input_str[end].isspace():
+        end += 1
+    
+    first_word = input_str[start:end]
+    return first_word if first_word else None
+
