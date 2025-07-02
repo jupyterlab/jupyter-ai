@@ -106,11 +106,13 @@ class PersonaAwareness:
         with self.as_custom_client():
             return self.awareness.get_local_state()
 
-    def set_local_state(self, state: dict[str, Any]) -> None:
+    def set_local_state(self, state: Optional[dict[str, Any]]) -> None:
         """
-        Sets the local state of the awareness instance to the provided state.
-        This method is used to update the local state of the awareness instance
-        with a new state dictionary.
+        Sets the local state of this persona in the awareness map, indexed by
+        this instance's custom client ID.
+
+        Passing `state=None` deletes the local state indexed by this instance's
+        custom client ID.
         """
         with self.as_custom_client():
             self.awareness.set_local_state(state)
@@ -135,8 +137,10 @@ class PersonaAwareness:
             local_state = self.get_local_state() or {}
             self.set_local_state(local_state)
 
-    def stop(self) -> None:
+    def shutdown(self) -> None:
         """
-        Stops the awareness heartbeat task if it is running.
+        Stops this instance's background tasks and removes the persona's custom
+        client ID from the awareness map.
         """
         self._heartbeat_task.cancel()
+        self.set_local_state(None)

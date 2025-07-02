@@ -10,7 +10,7 @@ from glob import glob
 from logging import Logger
 from pathlib import Path
 from time import time_ns
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from importlib_metadata import entry_points
 from jupyterlab_chat.models import Message, NewMessage
@@ -25,6 +25,7 @@ from .directories import find_dot_dir, find_workspace_dir
 
 if TYPE_CHECKING:
     from asyncio import AbstractEventLoop
+    from typing import Any, ClassVar
 
     from jupyter_server_fileid.manager import (  # type: ignore[import-untyped]
         BaseFileIdManager,
@@ -51,6 +52,10 @@ class PersonaManager(LoggingConfigurable):
         config=True,
     )
 
+    # class attr storing persona classes from entry points
+    # We treat this as a class attribute so that we only have to load them once
+    _ep_persona_classes: ClassVar[list[dict] | None] = None
+
     # instance attrs
     ychat: YChat
     config_manager: ConfigManager
@@ -67,8 +72,6 @@ class PersonaManager(LoggingConfigurable):
     type for type checkers.
     """
 
-    # We treat this as a class attribute so that we only have to load them once
-    _ep_persona_classes: list[dict] | None = None
     # Local persona classes are instance attributes to support frequent reloading
     _local_persona_classes: list[dict] | None = None
     _personas: dict[str, BasePersona]
@@ -188,7 +191,14 @@ class PersonaManager(LoggingConfigurable):
         PersonaManager._ep_persona_classes = persona_classes
 
     def _init_local_persona_classes(self) -> None:
-        """Load persona classes from local filesystem."""
+        """
+        Load persona classes from local filesystem, storing them as a list in
+        `self._local_persona_classes`.
+
+        The `_init_personas()` method should be called after this method to
+        re-initialize `self.personas` using the new set of local persona
+        classes.
+        """
         dotjupyter_dir = self.get_dotjupyter_dir()
         if dotjupyter_dir is None:
             self.log.info("No .jupyter directory found for loading local personas.")
@@ -404,15 +414,25 @@ class PersonaManager(LoggingConfigurable):
         return False
 
 
-    def handle_refresh_personas_command(self, new_message: Message) -> None:
+    def handle_refresh_personas_command(self, _: Message) -> None:
         """
         Handles the '/refresh-personas' slash command.
         
         TODO: How do we show status/completion in the UI?
         """
-        self.log.info(f"Refreshing personas in chat '{self.room_id}'...")
-        pass
-        # self._personas = self._init_personas()
+        self.log.info(f"Received '/refresh-personas'. Refreshing personas in chat '{self.room_id}'...")
+
+        # Refresh personas in background task
+        asyncio.create_task(self._refresh_personas())
+    
+
+    async def _refresh_personas(self):
+        # Shutdown all personas
+        await self.shutdown_personas()
+        
+        # Refresh local personas and re-initialize persona instances
+        self._init_local_persona_classes()
+        self._personas = self._init_personas()
         self.log.info(f"Refreshed all AI personas in chat '{self.room_id}'.")
 
 
@@ -471,7 +491,30 @@ class PersonaManager(LoggingConfigurable):
                 users.append(value["user"])
 
         return users
+    
+    async def shutdown_personas(self):
+        """
+        Shuts down each persona. See `BasePersona.shutdown()` for more info.
+        This instance can be restarted by calling `self._init_personas()`.
 
+        This method will be called when `/refresh-personas` is run, and may be
+        called when the server is shutting down or when a chat session is
+        closed.
+        """
+        # First, free all transaction locks on the YDoc by awaiting the YChat
+        # background tasks first. These tasks run concurrently, so awaiting each
+        # in serial has no performance drawback.
+        # Without this, `/refresh-personas` causes a runtime error.
+        while self.ychat._background_tasks:
+            self.log.info(f"{self.ychat._background_tasks}")
+            task = next(iter(self.ychat._background_tasks))
+            await task
+            self.ychat._background_tasks.discard(task)
+        
+        # Then, shut down each persona
+        for persona in self.personas.values():
+            persona.shutdown()
+        
 
 def is_persona(username: str):
     """Returns true if username belongs to a persona"""
