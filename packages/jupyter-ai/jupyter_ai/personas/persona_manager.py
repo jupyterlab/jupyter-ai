@@ -436,7 +436,7 @@ class PersonaManager(LoggingConfigurable):
         receive custom slash commands that only they recognize.
         """
         first_word = get_first_word(new_message.body)
-        assert first_word.startswith('/')
+        assert first_word and first_word.startswith('/')
 
         command_id = first_word[1:]
         if command_id == "refresh-personas":
