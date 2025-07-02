@@ -45,7 +45,8 @@ export class SlashCommandProvider implements IChatCommandProvider {
       name: '/refresh-personas',
       providerId: this.id,
       description: 'Refresh available personas',
-      icon: <RefreshIcon />
+      icon: <RefreshIcon />,
+      spaceOnAccept: true
     }
   ];
 
