@@ -18,8 +18,8 @@
     "url": "https://github.com/jupyterlab/jupyter-ai.git"
   },
   "scripts": {
-    "dev-install": "pip install -e .",
-    "dev-uninstall": "pip uninstall jupyter_ai_test -y",
-    "install-from-src": "pip install ."
+    "dev:install": "uv pip install -e .",
+    "dev:uninstall": "uv pip uninstall jupyter_ai_test -y",
+    "install-from-src": "uv pip install ."
   }
 }
