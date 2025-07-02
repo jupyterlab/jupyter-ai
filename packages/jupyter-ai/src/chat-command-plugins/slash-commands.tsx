@@ -11,7 +11,6 @@ import {
   IInputModel,
   ChatCommand
 } from '@jupyter/chat';
-import SettingsIcon from '@mui/icons-material/Settings';
 import RefreshIcon from '@mui/icons-material/Refresh';
 
 const SLASH_COMMAND_PROVIDER_ID = '@jupyter-ai/core:slash-command-provider';
@@ -42,13 +41,6 @@ export class SlashCommandProvider implements IChatCommandProvider {
   _regex: RegExp = /\/([\w-]*)/g;
 
   _slash_commands: ChatCommand[] = [
-    {
-      name: '/default-persona',
-      providerId: this.id,
-      description: 'Set default persona',
-      replaceWith: '/default-persona @',
-      icon: <SettingsIcon />
-    },
     {
       name: '/refresh-personas',
       providerId: this.id,
@@ -81,7 +73,7 @@ export class SlashCommandProvider implements IChatCommandProvider {
   }
 
   async onSubmit(inputModel: IInputModel): Promise<void> {
-    // no-op, as this should be handled by `PersonaManager`
+    // no-op. slash commands are handled in the backend
     return;
   }
 }
