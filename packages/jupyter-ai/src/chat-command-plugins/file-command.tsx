@@ -15,19 +15,19 @@ import {
 } from '@jupyter/chat';
 import FindInPage from '@mui/icons-material/FindInPage';
 
-const CONTEXT_COMMANDS_PROVIDER_ID =
-  '@jupyter-ai/core:context-commands-provider';
+const FILE_COMMAND_PROVIDER_ID = '@jupyter-ai/core:file-command-provider';
 
 /**
- * A command provider that provides completions for context commands like `@file`.
+ * A command provider that provides completions for `@file` commands and handles
+ * `@file` command calls.
  */
-export class ContextCommandsProvider implements IChatCommandProvider {
-  public id: string = CONTEXT_COMMANDS_PROVIDER_ID;
+export class FileCommandProvider implements IChatCommandProvider {
+  public id: string = FILE_COMMAND_PROVIDER_ID;
 
   /**
-   * Regex that matches all valid `@file` calls. The first capturing group
-   * captures the path specified by the user. Paths may contain any combination
-   * of:
+   * Regex that matches all potential `@file` commands. The first capturing
+   * group captures the path specified by the user. Paths may contain any
+   * combination of:
    *
    * `[a-zA-Z0-9], '/', '-', '_', '.', '@', '\\ ' (escaped space)`
    *
@@ -197,7 +197,7 @@ async function getPathCompletions(
     if (isDirectory) {
       newCommand = {
         name: child.name + '/',
-        providerId: CONTEXT_COMMANDS_PROVIDER_ID,
+        providerId: FILE_COMMAND_PROVIDER_ID,
         icon,
         description: 'Search this directory',
         replaceWith: completion + '/'
@@ -205,7 +205,7 @@ async function getPathCompletions(
     } else {
       newCommand = {
         name: child.name,
-        providerId: CONTEXT_COMMANDS_PROVIDER_ID,
+        providerId: FILE_COMMAND_PROVIDER_ID,
         icon,
         description: 'Attach this file',
         replaceWith: completion,
@@ -218,15 +218,15 @@ async function getPathCompletions(
   return commands;
 }
 
-export const contextCommandsPlugin: JupyterFrontEndPlugin<void> = {
-  id: '@jupyter-ai/core:context-commands-plugin',
-  description: 'Adds Jupyter AI context commands to the chat commands menu.',
+export const fileCommandPlugin: JupyterFrontEndPlugin<void> = {
+  id: '@jupyter-ai/core:file-command-plugin',
+  description: 'Adds support for the @file command in Jupyter AI.',
   autoStart: true,
   requires: [IChatCommandRegistry],
   activate: (app, registry: IChatCommandRegistry) => {
     const { serviceManager, docRegistry } = app;
     registry.addProvider(
-      new ContextCommandsProvider(serviceManager.contents, docRegistry)
+      new FileCommandProvider(serviceManager.contents, docRegistry)
     );
   }
 };
