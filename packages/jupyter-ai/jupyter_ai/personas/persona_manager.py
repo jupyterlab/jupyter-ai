@@ -22,6 +22,7 @@ from ..config_manager import ConfigManager
 from ..mcp.mcp_config_loader import MCPConfigLoader
 from .base_persona import BasePersona
 from .directories import find_dot_dir, find_workspace_dir
+from jupyterlab_chat.models import User
 
 if TYPE_CHECKING:
     from asyncio import AbstractEventLoop
@@ -33,6 +34,11 @@ if TYPE_CHECKING:
 
 # EPG := entry point group
 EPG_NAME = "jupyter_ai.personas"
+
+SYSTEM_USERNAME = "hidden::jupyter_ai_system"
+"""
+Username used for system messages shown to the user.
+"""
 
 
 class PersonaManager(LoggingConfigurable):
@@ -278,12 +284,39 @@ class PersonaManager(LoggingConfigurable):
         )
         return personas
 
+
     def _display_persona_error_message(self, persona_item: dict) -> None:
         tb = persona_item.get("traceback")
         if tb is None:
             return
         body = f"Loading an AI persona raised an exception:\n\n```python\n{tb}```"
-        self.ychat.add_message(NewMessage(body=body, sender="PersonaManager"))
+        self.send_system_message(body)
+    
+
+    def send_system_message(self, body: str) -> None:
+        """
+        Sends a system message to the chat.
+        """
+        # Set a 'System' user use it to send the message
+        with self.ychat._ydoc.transaction():
+            self.ychat.set_user(user=User(
+                username=SYSTEM_USERNAME,
+                name="System",
+                display_name="System"
+            ))
+            self.ychat.add_message(NewMessage(body=body, sender=SYSTEM_USERNAME))
+        
+        # Hide 'System' user from `@`-mention menu by removing the user. This
+        # has to wait a second to allow the frontend to render the system user
+        # before removing it.
+        # TODO: allow users to be hidden from `@`-mentions, possibly based on
+        # username. Currently this will show 'User undefined' after reloading a
+        # chat with a system message.
+        async def _remove_system_user():
+            await asyncio.sleep(1)
+            self.ychat._yusers.pop(SYSTEM_USERNAME)
+        asyncio.create_task(_remove_system_user())
+
 
     @property
     def personas(self) -> dict[str, BasePersona]:
@@ -344,14 +377,15 @@ class PersonaManager(LoggingConfigurable):
 
         # Gather routing context
         human_users = self.get_active_human_users()
-        sender_is_persona = is_persona(new_message.sender)
+        sender_not_human = is_persona(new_message.sender) or new_message.sender == SYSTEM_USERNAME
+        sender_is_human = not sender_not_human
         mentioned_personas = self.get_mentioned_personas(new_message)
         human_user_count = len(human_users)
         persona_count = len(self.personas)
 
-        # Multi-user case & message from persona case: only route message to
+        # Multi-user case & non-human message case: only route message to
         # mentioned personas
-        if sender_is_persona or human_user_count > 1:
+        if sender_not_human or human_user_count > 1:
             if mentioned_personas:
                 self._broadcast(new_message, to_personas=mentioned_personas)
             return
@@ -362,7 +396,7 @@ class PersonaManager(LoggingConfigurable):
         # `PersonaManager.default_persona_id` configurable trait.
         if persona_count > 1:
             # Update last mentioned persona 
-            if mentioned_personas and not sender_is_persona:
+            if mentioned_personas and sender_is_human:
                 self.last_mentioned_persona = mentioned_personas[0]
 
             default_persona = self.last_mentioned_persona or self.default_persona
@@ -433,6 +467,9 @@ class PersonaManager(LoggingConfigurable):
         # Refresh local personas and re-initialize persona instances
         self._init_local_persona_classes()
         self._personas = self._init_personas()
+
+        # Write success message to chat & logs
+        self.send_system_message("Refreshed all AI personas in this chat.")
         self.log.info(f"Refreshed all AI personas in chat '{self.room_id}'.")
 
 
@@ -506,7 +543,6 @@ class PersonaManager(LoggingConfigurable):
         # in serial has no performance drawback.
         # Without this, `/refresh-personas` causes a runtime error.
         while self.ychat._background_tasks:
-            self.log.info(f"{self.ychat._background_tasks}")
             task = next(iter(self.ychat._background_tasks))
             await task
             self.ychat._background_tasks.discard(task)
