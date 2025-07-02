@@ -41,7 +41,7 @@
     "clean:labextension": "rimraf jupyter_ai/labextension",
     "clean:all": "jlpm clean:lib && jlpm clean:labextension && jlpm clean:lintcache",
     "dev:install": "uv pip install -e \".[dev,all,test]\" && jupyter labextension develop . --overwrite && jupyter server extension enable jupyter_ai",
-    "dev:uninstall": "uv pip uninstall jupyter_ai -y",
+    "dev:uninstall": "uv pip uninstall jupyter_ai",
     "eslint": "jlpm eslint:check --fix",
     "eslint:check": "eslint . --cache --ext .ts,.tsx",
     "install:extension": "jlpm build",
