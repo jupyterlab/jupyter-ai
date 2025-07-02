@@ -25,9 +25,9 @@ export class FileCommandProvider implements IChatCommandProvider {
   public id: string = FILE_COMMAND_PROVIDER_ID;
 
   /**
-   * Regex that matches all valid `@file` calls. The first capturing group
-   * captures the path specified by the user. Paths may contain any combination
-   * of:
+   * Regex that matches all potential `@file` commands. The first capturing
+   * group captures the path specified by the user. Paths may contain any
+   * combination of:
    *
    * `[a-zA-Z0-9], '/', '-', '_', '.', '@', '\\ ' (escaped space)`
    *
