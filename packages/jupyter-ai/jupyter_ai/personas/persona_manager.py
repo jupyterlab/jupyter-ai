@@ -16,6 +16,7 @@ from importlib_metadata import entry_points
 from jupyterlab_chat.models import Message, NewMessage
 from jupyterlab_chat.ychat import YChat
 from traitlets.config import LoggingConfigurable
+from traitlets import Unicode
 
 from ..config_manager import ConfigManager
 from ..mcp.mcp_config_loader import MCPConfigLoader
@@ -37,6 +38,18 @@ class PersonaManager(LoggingConfigurable):
     """
     Class that manages all personas for a single chat.
     """
+
+    # Configurable traits
+    default_persona = Unicode(
+        default_value=None,
+        help="" \
+        "The ID of the default persona. If configured, the default persona " \
+        "will always reply to new user messages, even if not @-mentioned. " \
+        "Example ID: 'jupyter-ai-personas::jupyter-ai::Jupyternaut'. " \
+        "Defaults to `None`.",
+        allow_none=True,
+        config=True,
+    )
 
     # instance attrs
     ychat: YChat
@@ -269,11 +282,26 @@ class PersonaManager(LoggingConfigurable):
     def get_mentioned_personas(self, new_message: Message) -> list[BasePersona]:
         """
         Returns a list of all personas `@`-mentioned in a chat message, given a
-        reference to the chat message.
+        reference to the chat message. Checks the
+        `PersonaManager.default_persona` trait and includes it if valid.
         """
+        # Get list of mentions from the message and initialize the returned list
         mentioned_ids = set(new_message.mentions or [])
         persona_list: list[BasePersona] = []
 
+        # Add `default_persona` to the mention set if it is valid
+        if self.default_persona:
+            if self.default_persona in self.personas:
+                mentioned_ids.add(self.default_persona)
+            else:
+                self.log.warning(
+                    f"'{self.default_persona}', specified by "
+                    "`PersonaManager.default_persona`, "
+                    "is not a valid persona ID. "
+                    f"Valid personas: '{list(self.personas.keys())}'"
+                )
+
+        # Retrieve & add mentioned AI personas to the returned list
         for mentioned_id in mentioned_ids:
             if mentioned_id in self.personas:
                 persona_list.append(self.personas[mentioned_id])
@@ -282,17 +310,21 @@ class PersonaManager(LoggingConfigurable):
 
     def route_message(self, new_message: Message):
         """
-        Method that routes an incoming message to the correct persona by calling
-        its `process_message()` method.
+        Method that routes an incoming message to the correct personas by
+        calling their `process_message()` methods.
+
+        - If a slash command is identified, the slash command will be handled in
+        `handle_slash_command()`.
 
         - If the chat has multiple users, then each persona only replies
           when `@`-mentioned.
 
         - If there is only one user, the last mentioned persona replies
-          unless another persona is `@`-mentioned. If only one persona exists
-          as well, then the persona always replies, regardless of whether
-          it is `@`-mentioned.
+          unless another persona is `@`-mentioned. The last mentioned persona
+          defaults to `AiExtension.default_persona` after starting the server.
 
+        - If only one persona exists as well, then the persona always replies,
+          regardless of whether it is `@`-mentioned.
         """
 
         # Gather routing context
