@@ -19,7 +19,7 @@
   },
   "scripts": {
     "dev:install": "uv pip install -e \".[dev,all]\"",
-    "dev:uninstall": "uv pip uninstall jupyter_ai_magics -y",
+    "dev:uninstall": "uv pip uninstall jupyter_ai_magics",
     "install-from-src": "uv pip install ."
   }
 }

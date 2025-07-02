@@ -33,7 +33,7 @@
     "dev:reinstall": "jlpm dev:uninstall && jlpm dev:install",
     "dev:uninstall": "lerna run dev:uninstall --stream",
     "di": "jlpm dev:install",
-    "dri": "jlpm dev:reinstall",
+    "dr": "jlpm dev:reinstall",
     "du": "jlpm dev:uninstall",
     "install-from-src": "lerna run install-from-src --stream",
     "lint": "jlpm && lerna run prettier && lerna run eslint",

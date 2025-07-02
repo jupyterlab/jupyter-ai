@@ -19,7 +19,7 @@
   },
   "scripts": {
     "dev:install": "uv pip install -e .",
-    "dev:uninstall": "uv pip uninstall jupyter_ai_test -y",
+    "dev:uninstall": "uv pip uninstall jupyter_ai_test",
     "install-from-src": "uv pip install ."
   }
 }
