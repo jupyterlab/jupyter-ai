@@ -15,7 +15,7 @@ import { IDocumentWidget } from '@jupyterlab/docregistry';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { SingletonLayout, Widget } from '@lumino/widgets';
 
-import { chatCommandPlugins } from './chat-commands';
+import { chatCommandPlugins } from './chat-command-plugins';
 import { completionPlugin } from './completions';
 import { StopButton } from './components/message-footer/stop-button';
 import { statusItemPlugin } from './status';
