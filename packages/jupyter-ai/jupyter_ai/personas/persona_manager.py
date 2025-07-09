@@ -314,7 +314,10 @@ class PersonaManager(LoggingConfigurable):
         # chat with a system message.
         async def _remove_system_user():
             await asyncio.sleep(1)
-            self.ychat._yusers.pop(SYSTEM_USERNAME)
+            try:
+                self.ychat._yusers.pop(SYSTEM_USERNAME)
+            except KeyError:
+                pass
         asyncio.create_task(_remove_system_user())
 
 
