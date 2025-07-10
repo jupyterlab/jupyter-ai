@@ -27,24 +27,25 @@ class JupyternautPersona(BasePersona):
         )
 
     async def process_message(self, message: Message) -> None:
-        if self.config_manager.lm_provider:
-            provider_name = self.config_manager.lm_provider.name
-            model_id = self.config_manager.lm_provider_params["model_id"]
-
-            runnable = self.build_runnable()
-            variables = JupyternautVariables(
-                input=message.body,
-                model_id=model_id,
-                provider_name=provider_name,
-                persona_name=self.name,
-            )
-            variables_dict = variables.model_dump()
-            reply_stream = runnable.astream(variables_dict)
-            await self.stream_message(reply_stream)
-        else:
+        if not self.config_manager.lm_provider:
             self.send_message(
                 "No language model provider configured. Please set one in the Jupyter AI settings."
             )
+            return
+
+        provider_name = self.config_manager.lm_provider.name
+        model_id = self.config_manager.lm_provider_params["model_id"]
+
+        runnable = self.build_runnable()
+        variables = JupyternautVariables(
+            input=message.body,
+            model_id=model_id,
+            provider_name=provider_name,
+            persona_name=self.name,
+        )
+        variables_dict = variables.model_dump()
+        reply_stream = runnable.astream(variables_dict)
+        await self.stream_message(reply_stream)
 
     def build_runnable(self) -> Any:
         # TODO: support model parameters. maybe we just add it to lm_provider_params in both 2.x and 3.x
