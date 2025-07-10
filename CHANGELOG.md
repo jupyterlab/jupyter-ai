@@ -2,6 +2,27 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 3.0.0beta4
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@3.0.0-beta.3...170388630cf76bff291b76eeb9c7a8c55b2b7013))
+
+### Enhancements made
+
+- Add `/refresh-personas` command and default persona configurable [#1405](https://github.com/jupyterlab/jupyter-ai/pull/1405) ([@dlqqq](https://github.com/dlqqq))
+
+### Bugs fixed
+
+- Bump `@jupyter/chat` dependency and regenerate `yarn.lock`, pin `cohere` to `<5.16` [#1412](https://github.com/jupyterlab/jupyter-ai/pull/1412) ([@andrii-i](https://github.com/andrii-i))
+- Return error message when the completion model is not specified for the Jupyternaut persona [#1408](https://github.com/jupyterlab/jupyter-ai/pull/1408) ([@srdas](https://github.com/srdas))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2025-07-07&to=2025-07-10&type=c))
+
+[@andrii-i](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aandrii-i+updated%3A2025-07-07..2025-07-10&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2025-07-07..2025-07-10&type=Issues) | [@ellisonbg](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aellisonbg+updated%3A2025-07-07..2025-07-10&type=Issues) | [@srdas](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2025-07-07..2025-07-10&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 3.0.0beta3
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@3.0.0-beta.2...030f0a47ace8529aaa24c36b167442685711e15e))
@@ -17,8 +38,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2025-06-28&to=2025-07-07&type=c))
 
 [@3coins](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3A3coins+updated%3A2025-06-28..2025-07-07&type=Issues) | [@andrii-i](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aandrii-i+updated%3A2025-06-28..2025-07-07&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2025-06-28..2025-07-07&type=Issues) | [@ellisonbg](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aellisonbg+updated%3A2025-06-28..2025-07-07&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 3.0.0beta2
 
