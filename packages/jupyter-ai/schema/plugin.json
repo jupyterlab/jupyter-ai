@@ -25,6 +25,14 @@
       }
     ]
   },
+  "properties": {
+    "showHiddenFiles": {
+      "type": "boolean",
+      "title": "Show hidden files",
+      "description": "Whether to show hidden files (enabled by Jupyter AI v3). The server parameter `ContentsManager.allow_hidden` must be set to `True` to display hidden files.",
+      "default": true
+    }
+  },
   "additionalProperties": false,
   "type": "object"
 }
