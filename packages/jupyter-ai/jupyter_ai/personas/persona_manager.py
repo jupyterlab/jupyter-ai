@@ -10,20 +10,23 @@ from glob import glob
 from logging import Logger
 from pathlib import Path
 from time import time_ns
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from importlib_metadata import entry_points
 from jupyterlab_chat.models import Message, NewMessage
 from jupyterlab_chat.ychat import YChat
 from traitlets.config import LoggingConfigurable
+from traitlets import Unicode
 
 from ..config_manager import ConfigManager
 from ..mcp.mcp_config_loader import MCPConfigLoader
 from .base_persona import BasePersona
 from .directories import find_dot_dir, find_workspace_dir
+from jupyterlab_chat.models import User
 
 if TYPE_CHECKING:
     from asyncio import AbstractEventLoop
+    from typing import Any, ClassVar
 
     from jupyter_server_fileid.manager import (  # type: ignore[import-untyped]
         BaseFileIdManager,
@@ -32,11 +35,32 @@ if TYPE_CHECKING:
 # EPG := entry point group
 EPG_NAME = "jupyter_ai.personas"
 
+SYSTEM_USERNAME = "hidden::jupyter_ai_system"
+"""
+Username used for system messages shown to the user.
+"""
+
 
 class PersonaManager(LoggingConfigurable):
     """
     Class that manages all personas for a single chat.
     """
+
+    # Configurable traits
+    default_persona_id = Unicode(
+        default_value="jupyter-ai-personas::jupyter_ai::JupyternautPersona",
+        help="" \
+        "The ID of the default persona. If configured, the default persona " \
+        "will automatically reply in a single-user chats until another " \
+        "persona is `@`-mentioned. " \
+        "Defaults to: 'jupyter-ai-personas::jupyter_ai::JupyternautPersona'. ",
+        allow_none=True,
+        config=True,
+    )
+
+    # class attr storing persona classes from entry points
+    # We treat this as a class attribute so that we only have to load them once
+    _ep_persona_classes: ClassVar[list[dict] | None] = None
 
     # instance attrs
     ychat: YChat
@@ -54,8 +78,6 @@ class PersonaManager(LoggingConfigurable):
     type for type checkers.
     """
 
-    # We treat this as a class attribute so that we only have to load them once
-    _ep_persona_classes: list[dict] | None = None
     # Local persona classes are instance attributes to support frequent reloading
     _local_persona_classes: list[dict] | None = None
     _personas: dict[str, BasePersona]
@@ -94,9 +116,13 @@ class PersonaManager(LoggingConfigurable):
         self.last_mentioned_persona = None
 
         self._init_persona_classes()
-        self.log.info("Persona classes loaded!")
+        self.log.info(f"Persona classes loaded in chat '{self.room_id}'.")
         self._personas = self._init_personas()
-        self.log.info("Personas created fully!")
+        self.log.info(f"Personas initialized in chat '{self.room_id}'.")
+        if self.default_persona:
+            self.log.info(f"Default persona set to '{self.default_persona.name}' in chat '{self.room_id}'.")
+        else:
+            self.log.warning(f"No default persona is set in chat '{self.room_id}'.")
 
     def _init_persona_classes(self) -> None:
         """Read entry-point and local persona classes."""
@@ -171,7 +197,14 @@ class PersonaManager(LoggingConfigurable):
         PersonaManager._ep_persona_classes = persona_classes
 
     def _init_local_persona_classes(self) -> None:
-        """Load persona classes from local filesystem."""
+        """
+        Load persona classes from local filesystem, storing them as a list in
+        `self._local_persona_classes`.
+
+        The `_init_personas()` method should be called after this method to
+        re-initialize `self.personas` using the new set of local persona
+        classes.
+        """
         dotjupyter_dir = self.get_dotjupyter_dir()
         if dotjupyter_dir is None:
             self.log.info("No .jupyter directory found for loading local personas.")
@@ -251,12 +284,42 @@ class PersonaManager(LoggingConfigurable):
         )
         return personas
 
+
     def _display_persona_error_message(self, persona_item: dict) -> None:
         tb = persona_item.get("traceback")
         if tb is None:
             return
         body = f"Loading an AI persona raised an exception:\n\n```python\n{tb}```"
-        self.ychat.add_message(NewMessage(body=body, sender="PersonaManager"))
+        self.send_system_message(body)
+    
+
+    def send_system_message(self, body: str) -> None:
+        """
+        Sends a system message to the chat.
+        """
+        # Set a 'System' user use it to send the message
+        with self.ychat._ydoc.transaction():
+            self.ychat.set_user(user=User(
+                username=SYSTEM_USERNAME,
+                name="System",
+                display_name="System"
+            ))
+            self.ychat.add_message(NewMessage(body=body, sender=SYSTEM_USERNAME))
+        
+        # Hide 'System' user from `@`-mention menu by removing the user. This
+        # has to wait a second to allow the frontend to render the system user
+        # before removing it.
+        # TODO: allow users to be hidden from `@`-mentions, possibly based on
+        # username. Currently this will show 'User undefined' after reloading a
+        # chat with a system message.
+        async def _remove_system_user():
+            await asyncio.sleep(1)
+            try:
+                self.ychat._yusers.pop(SYSTEM_USERNAME)
+            except KeyError:
+                pass
+        asyncio.create_task(_remove_system_user())
+
 
     @property
     def personas(self) -> dict[str, BasePersona]:
@@ -265,6 +328,14 @@ class PersonaManager(LoggingConfigurable):
         persona ID.
         """
         return self._personas
+    
+
+    @property
+    def default_persona(self) -> BasePersona | None:
+        if not self.default_persona_id:
+            return None
+        return self.personas.get(self.default_persona_id)
+
 
     def get_mentioned_personas(self, new_message: Message) -> list[BasePersona]:
         """
@@ -273,67 +344,137 @@ class PersonaManager(LoggingConfigurable):
         """
         mentioned_ids = set(new_message.mentions or [])
         persona_list: list[BasePersona] = []
-
         for mentioned_id in mentioned_ids:
             if mentioned_id in self.personas:
                 persona_list.append(self.personas[mentioned_id])
-
         return persona_list
+
 
     def route_message(self, new_message: Message):
         """
-        Method that routes an incoming message to the correct persona by calling
-        its `process_message()` method.
+        Method that routes an incoming message to the correct personas by
+        calling their `process_message()` methods.
+
+        - If the message contains a slash command, the slash command will be
+          dispatched to `route_slash_command()` first. If the slash command is
+          unrecognized, the message will be handled as a normal message.
 
         - If the chat has multiple users, then each persona only replies
           when `@`-mentioned.
 
         - If there is only one user, the last mentioned persona replies
-          unless another persona is `@`-mentioned. If only one persona exists
-          as well, then the persona always replies, regardless of whether
-          it is `@`-mentioned.
+          unless another persona is `@`-mentioned. The last mentioned persona
+          defaults to `PersonaManager.default_persona` after starting the server.
 
+        - If only one persona exists as well, then the persona always replies,
+          regardless of whether it is `@`-mentioned.
         """
+
+        # Dispatch message to `route_slash_command()` if the first word is a
+        # slash command. Return immediately if the slash command is recognized.
+        first_word = get_first_word(new_message.body)
+        if first_word and first_word.startswith('/'):
+            slash_cmd_recognized = self.route_slash_command(new_message)
+            if slash_cmd_recognized:
+                return
 
         # Gather routing context
         human_users = self.get_active_human_users()
-        sender_is_persona = is_persona(new_message.sender)
+        sender_not_human = is_persona(new_message.sender) or new_message.sender == SYSTEM_USERNAME
+        sender_is_human = not sender_not_human
         mentioned_personas = self.get_mentioned_personas(new_message)
-
         human_user_count = len(human_users)
         persona_count = len(self.personas)
-        mentioned_count = len(mentioned_personas)
 
-        # Don't route persona replies without mentions
-        if sender_is_persona and mentioned_count == 0:
-            return
-
-        # Multi-user chat: require explicit @-mentions only
-        if human_user_count > 1:
-            for persona in mentioned_personas:
-                self.event_loop.create_task(persona.process_message(new_message))
-            return
-
-        # Single user + multiple personas case: route to mentions if they are present,
-        # otherwise route to last mentioned
-        if persona_count > 1:
+        # Multi-user case & non-human message case: only route message to
+        # mentioned personas
+        if sender_not_human or human_user_count > 1:
             if mentioned_personas:
-                # Update last mentioned persona if sender is human
-                if not sender_is_persona:
-                    self.last_mentioned_persona = mentioned_personas[0]
-                for persona in mentioned_personas:
-                    asyncio.create_task(persona.process_message(new_message))
-            elif self.last_mentioned_persona:
-                asyncio.create_task(
-                    self.last_mentioned_persona.process_message(new_message)
-                )
+                self._broadcast(new_message, to_personas=mentioned_personas)
+            return
+
+        # Single user + multiple personas case: route message to mentioned
+        # personas if present. Otherwise route message to last mentioned
+        # persona, falling back to the default set by the
+        # `PersonaManager.default_persona_id` configurable trait.
+        if persona_count > 1:
+            # Update last mentioned persona 
+            if mentioned_personas and sender_is_human:
+                self.last_mentioned_persona = mentioned_personas[0]
+
+            default_persona = self.last_mentioned_persona or self.default_persona
+            targeted_personas = mentioned_personas
+            if default_persona and not targeted_personas:
+                targeted_personas = [default_persona]
+            self._broadcast(new_message, to_personas=targeted_personas)
             return
 
         # Default case (single user, 0/1 personas): persona always replies if present
-        for persona in self.personas.values():
-            self.event_loop.create_task(persona.process_message(new_message))
-            break
+        self._broadcast(new_message, to_personas=self.personas)
         return
+    
+
+    def _broadcast(self, message: Message, *, to_personas: list[BasePersona] | dict[str, BasePersona]) -> None:
+        """
+        Broadcasts a message to all personas in a given list or dictionary.
+        """
+        persona_list: list[BasePersona] = to_personas if isinstance(to_personas, list) else list(to_personas.values())
+        for persona in persona_list:
+            self.event_loop.create_task(persona.process_message(message))
+        return
+
+
+    def route_slash_command(self, new_message: Message) -> bool:
+        """
+        Routes & handles a message containing a slash command. Returns `True` if
+        the message specified a valid slash command recognized by
+        `PersonaManager`, `False` otherwise. Notes:
+
+        - Each message may have exactly one slash command, which must be
+        specified by the first word of the message.
+
+        - This method will return `True` even if the command was not handled
+        successfully. `False` is just meant to indicate that the control flow
+        should return back to `route_message()`. This allows AI personas to
+        receive custom slash commands that only they recognize.
+        """
+        first_word = get_first_word(new_message.body)
+        assert first_word and first_word.startswith('/')
+
+        command_id = first_word[1:]
+        if command_id == "refresh-personas":
+            self.handle_refresh_personas_command(new_message)
+            return True
+
+        # If command is unrecognized, log an error
+        self.log.warning(f"Unrecognized slash command: '/{command_id}'")
+        return False
+
+
+    def handle_refresh_personas_command(self, _: Message) -> None:
+        """
+        Handles the '/refresh-personas' slash command.
+        
+        TODO: How do we show status/completion in the UI?
+        """
+        self.log.info(f"Received '/refresh-personas'. Refreshing personas in chat '{self.room_id}'...")
+
+        # Refresh personas in background task
+        asyncio.create_task(self._refresh_personas())
+    
+
+    async def _refresh_personas(self):
+        # Shutdown all personas
+        await self.shutdown_personas()
+        
+        # Refresh local personas and re-initialize persona instances
+        self._init_local_persona_classes()
+        self._personas = self._init_personas()
+
+        # Write success message to chat & logs
+        self.send_system_message("Refreshed all AI personas in this chat.")
+        self.log.info(f"Refreshed all AI personas in chat '{self.room_id}'.")
+
 
     def get_chat_path(self, relative: bool = False) -> str:
         """
@@ -390,7 +531,29 @@ class PersonaManager(LoggingConfigurable):
                 users.append(value["user"])
 
         return users
+    
+    async def shutdown_personas(self):
+        """
+        Shuts down each persona. See `BasePersona.shutdown()` for more info.
+        This instance can be restarted by calling `self._init_personas()`.
 
+        This method will be called when `/refresh-personas` is run, and may be
+        called when the server is shutting down or when a chat session is
+        closed.
+        """
+        # First, free all transaction locks on the YDoc by awaiting the YChat
+        # background tasks first. These tasks run concurrently, so awaiting each
+        # in serial has no performance drawback.
+        # Without this, `/refresh-personas` causes a runtime error.
+        while self.ychat._background_tasks:
+            task = next(iter(self.ychat._background_tasks))
+            await task
+            self.ychat._background_tasks.discard(task)
+        
+        # Then, shut down each persona
+        for persona in self.personas.values():
+            persona.shutdown()
+        
 
 def is_persona(username: str):
     """Returns true if username belongs to a persona"""
@@ -494,3 +657,25 @@ def load_from_dir(dir: str, log: Logger) -> list[dict]:
             sys.path.remove(dir)
 
     return persona_classes
+
+
+def get_first_word(input_str: str) -> str | None:
+    """
+    Finds the first word in a given string, ignoring leading whitespace.
+    
+    Returns the first word, or None if there is no first word.
+    """
+    start = 0
+    
+    # Skip leading whitespace
+    while start < len(input_str) and input_str[start].isspace():
+        start += 1
+    
+    # Find end of first word
+    end = start
+    while end < len(input_str) and not input_str[end].isspace():
+        end += 1
+    
+    first_word = input_str[start:end]
+    return first_word if first_word else None
+

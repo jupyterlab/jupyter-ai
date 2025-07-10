@@ -346,6 +346,24 @@ class BasePersona(ABC, LoggingConfigurable, metaclass=ABCLoggingConfigurableMeta
         Returns the MCP config for the current chat.
         """
         return self.parent.get_mcp_config()
+    
+    def shutdown(self) -> None:
+        """
+        Shuts the persona down. This method should:
+         
+        - Halt all background tasks started by this instance.
+        - Remove the persona from the chat awareness
+
+        This method will be called when `/refresh-personas` is run, and may be
+        called when the server is shutting down or when a chat session is
+        closed.
+
+        Subclasses may need to override this method to add custom shutdown
+        logic. The override should generally call `super().shutdown()` first
+        before running custom shutdown logic.
+        """
+        # Stop awareness heartbeat task & remove self from chat awareness
+        self.awareness.shutdown()
 
 
 class GenerationInterrupted(asyncio.CancelledError):
