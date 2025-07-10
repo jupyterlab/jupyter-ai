@@ -27,6 +27,12 @@ class JupyternautPersona(BasePersona):
         )
 
     async def process_message(self, message: Message) -> None:
+        if not self.config_manager.lm_provider:
+            self.send_message(
+                "No language model provider configured. Please set one in the Jupyter AI settings."
+            )
+            return
+
         provider_name = self.config_manager.lm_provider.name
         model_id = self.config_manager.lm_provider_params["model_id"]
 
