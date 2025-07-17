@@ -300,7 +300,7 @@ def test_init_with_default_values(
 
     assert (
         cm_with_defaults_override.get_config().model_provider_id
-        == "bedrock-chat:anthropic.claude-v1"
+        == "bedrock-chat:anthropic.claude-v2"
     )
 
 
