@@ -2,12 +2,9 @@ import json
 import logging
 import os
 import time
-from copy import deepcopy
 from typing import Optional, Union
 
-from deepmerge import Merger, always_merger
-from jsonschema import Draft202012Validator as Validator
-from jupyter_ai.models import DescribeConfigResponse, GlobalConfig, UpdateConfigRequest
+from deepmerge import always_merger
 from jupyter_ai_magics import JupyternautPersona, Persona
 from jupyter_ai_magics.utils import (
     AnyProvider,
@@ -16,6 +13,7 @@ from jupyter_ai_magics.utils import (
     get_em_provider,
     get_lm_provider,
 )
+from .config import JaiConfig, DescribeConfigResponse, UpdateConfigRequest
 from jupyter_core.paths import jupyter_data_dir
 from traitlets import Integer, Unicode
 from traitlets.config import Configurable
@@ -25,20 +23,8 @@ Logger = Union[logging.Logger, logging.LoggerAdapter]
 # default path to config
 DEFAULT_CONFIG_PATH = os.path.join(jupyter_data_dir(), "jupyter_ai", "config.json")
 
-# default path to config JSON Schema
-DEFAULT_SCHEMA_PATH = os.path.join(
-    jupyter_data_dir(), "jupyter_ai", "config_schema.json"
-)
-
 # default no. of spaces to use when formatting config
 DEFAULT_INDENTATION_DEPTH = 4
-
-# path to the default schema defined in this project
-# if a file does not exist at SCHEMA_PATH, this file is used as a default.
-OUR_SCHEMA_PATH = os.path.join(
-    os.path.dirname(__file__), "config", "config_schema.json"
-)
-
 
 class AuthError(Exception):
     pass
@@ -60,7 +46,7 @@ class BlockedModelError(Exception):
     pass
 
 
-def _validate_provider_authn(config: GlobalConfig, provider: type[AnyProvider]):
+def _validate_provider_authn(config: JaiConfig, provider: type[AnyProvider]):
     # TODO: handle non-env auth strategies
     if not provider.auth_strategy or provider.auth_strategy.type != "env":
         return
@@ -83,13 +69,6 @@ class ConfigManager(Configurable):
         config=True,
     )
 
-    schema_path = Unicode(
-        default_value=DEFAULT_SCHEMA_PATH,
-        help="Path to the configuration's corresponding JSON Schema file.",
-        allow_none=False,
-        config=True,
-    )
-
     indentation_depth = Integer(
         default_value=DEFAULT_INDENTATION_DEPTH,
         help="Indentation depth, in number of spaces per level.",
@@ -100,6 +79,23 @@ class ConfigManager(Configurable):
     model_provider_id: Optional[str] = None
     embeddings_provider_id: Optional[str] = None
     completions_model_provider_id: Optional[str] = None
+
+    _defaults: dict
+    """
+    Dictionary that maps config keys (e.g. `model_provider_id`, `fields`) to
+    user-specified overrides, set by traitlets configuration.
+
+    Values in this dictionary should never be mutated as they may refer to
+    entries in the global `self.settings` dictionary.
+    """
+
+    _last_read: Optional[int]
+    """
+    When the server last read the config file. If the file was not
+    modified after this time, then we can return the cached
+    `self._config`.
+    """
+
 
     def __init__(
         self,
@@ -126,105 +122,44 @@ class ConfigManager(Configurable):
         self._blocked_providers = blocked_providers
         self._allowed_models = allowed_models
         self._blocked_models = blocked_models
+
         self._defaults = defaults
-        """
-        Dictionary that maps config keys (e.g. `model_provider_id`, `fields`) to
-        user-specified overrides, set by traitlets configuration.
-
-        Values in this dictionary should never be mutated as they may refer to
-        entries in the global `self.settings` dictionary.
-        """
-
         self._last_read: Optional[int] = None
-        """When the server last read the config file. If the file was not
-        modified after this time, then we can return the cached
-        `self._config`."""
 
-        self._config: Optional[GlobalConfig] = None
-        """In-memory cache of the `GlobalConfig` object parsed from the config
-        file."""
+        self._config: Optional[JaiConfig] = None
+        """The `JaiConfig` object that represents the config file."""
 
-        self._init_config_schema()
-        self._init_validator()
         self._init_config()
 
-    def _init_config_schema(self):
-        """
-        Initializes `config_schema.json` in the user's data dir whenever the
-        server extension starts. Users may add custom fields to their config
-        schema to insert new keys into the Jupyter AI config.
-
-        New in v2.31.1: Jupyter AI now merges the user's existing config schema
-        with Jupyter AI's config schema on init. This prevents validation errors
-        on missing keys when users upgrade Jupyter AI from an older version.
-
-        TODO v3: Remove the ability for users to provide a custom config schema.
-        This feature is entirely unused as far as I am aware, and we need to
-        simplify how Jupyter AI handles user configuration in v3 anyways.
-        """
-
-        # ensure the parent directory has been created
-        os.makedirs(os.path.dirname(self.schema_path), exist_ok=True)
-
-        # read existing_schema
-        if os.path.exists(self.schema_path):
-            with open(self.schema_path, encoding="utf-8") as f:
-                existing_schema = json.load(f)
-        else:
-            existing_schema = {}
-
-        # read default_schema
-        with open(OUR_SCHEMA_PATH, encoding="utf-8") as f:
-            default_schema = json.load(f)
-
-        # Create a custom `deepmerge.Merger` object to merge lists using the
-        # 'append_unique' strategy.
-        #
-        # This stops type union declarations like `["string", "null"]` from
-        # growing into `["string", "null", "string", "null"]` on restart.
-        # This fixes issue #1320.
-        merger = Merger(
-            [(list, ["append_unique"]), (dict, ["merge"]), (set, ["union"])],
-            ["override"],
-            ["override"],
-        )
-
-        # merge existing_schema into default_schema
-        # specifying existing_schema as the second argument ensures that
-        # existing_schema always overrides existing keys in default_schema, i.e.
-        # this call only adds new keys in default_schema.
-        schema = merger.merge(default_schema, existing_schema)
-        with open(self.schema_path, encoding="utf-8", mode="w") as f:
-            json.dump(schema, f, indent=self.indentation_depth)
-
-    def _init_validator(self) -> None:
-        with open(OUR_SCHEMA_PATH, encoding="utf-8") as f:
-            schema = json.loads(f.read())
-            Validator.check_schema(schema)
-            self.validator = Validator(schema)
-
     def _init_config(self):
-        default_config = self._init_defaults()
-        if os.path.exists(self.config_path) and os.stat(self.config_path).st_size != 0:
-            self._process_existing_config(default_config)
-        else:
-            self._create_default_config(default_config)
+        """
+        Initializes the config from the existing config file. If a config file
+        does not exist, then a default one is created.
 
-    def _process_existing_config(self, default_config):
+        TODO: how to handle invalid config files? create a copy & replace it
+        with an empty default?
+        """
+        # If config file exists, process it
+        if os.path.exists(self.config_path) and os.stat(self.config_path).st_size != 0:
+            self._process_existing_config()
+        else:
+            # Otherwise, write the default config to the config path, respecting
+            # the `defaults` argument passed to the constructor (set by multiple
+            # configurable traits).
+            self._write_config(JaiConfig())
+    
+    def _process_existing_config(self):
+        """
+        Reads the existing configuration file and returns a `JaiConfig` object.
+        """
         with open(self.config_path, encoding="utf-8") as f:
             existing_config = json.loads(f.read())
-            if "embeddings_fields" not in existing_config:
-                existing_config["embeddings_fields"] = {}
-            merged_config = always_merger.merge(
-                default_config,
-                {k: v for k, v in existing_config.items() if v is not None},
-            )
-            config = GlobalConfig(**merged_config)
+            config = JaiConfig(**existing_config)
             validated_config = self._validate_model_ids(config)
 
-            # re-write to the file to validate the config and apply any
-            # updates to the config file immediately
-            self._write_config(validated_config)
+        # re-write to the file to validate the config and apply any
+        # updates to the config file immediately
+        self._write_config(validated_config)
 
     def _validate_model_ids(self, config):
         lm_provider_keys = ["model_provider_id", "completions_model_provider_id"]
@@ -284,32 +219,14 @@ class ConfigManager(Configurable):
 
         return config
 
-    def _create_default_config(self, default_config):
-        self._write_config(GlobalConfig(**default_config))
+    def _read_config(self) -> JaiConfig:
+        """
+        Returns the user's current configuration as a `JaiConfig` object.
 
-    def _init_defaults(self):
-        config_keys = GlobalConfig.model_fields.keys()
-        schema_properties = self.validator.schema.get("properties", {})
-        default_config = {
-            field: schema_properties.get(field, {}).get("default")
-            for field in config_keys
-        }
-        if self._defaults is None:
-            return default_config
-
-        for config_key in config_keys:
-            # we call `deepcopy()` here to avoid directly referring to the
-            # values in `self._defaults`, as they map to entries in the global
-            # `self.settings` dictionary and may be mutated otherwise.
-            default_value = deepcopy(self._defaults.get(config_key))
-            if default_value is not None:
-                default_config[config_key] = default_value
-        return default_config
-
-    def _read_config(self) -> GlobalConfig:
-        """Returns the user's current configuration as a GlobalConfig object.
-        This should never be sent to the client as it includes API keys. Prefer
-        self.get_config() for sending the config to the client."""
+        NOTE: This method is private because the returned object should never be
+        sent to the client as it includes API keys. Prefer self.get_config() for
+        sending the config to the client.
+        """
         if self._config and self._last_read:
             last_write = os.stat(self.config_path).st_mtime_ns
             if last_write <= self._last_read:
@@ -320,17 +237,17 @@ class ConfigManager(Configurable):
             raw_config = json.loads(f.read())
             if "embeddings_fields" not in raw_config:
                 raw_config["embeddings_fields"] = {}
-            config = GlobalConfig(**raw_config)
+            config = JaiConfig(**raw_config)
             self._validate_config(config)
             return config
 
-    def _validate_config(self, config: GlobalConfig):
-        """Method used to validate the configuration. This is called after every
+    def _validate_config(self, config: JaiConfig):
+        """
+        Method used to validate the configuration. This is called after every
         read and before every write to the config file. Guarantees that the
-        config file conforms to the JSON Schema, and that the language and
-        embedding models have authn credentials if specified."""
-        self.validator.validate(config.model_dump())
-
+        user has specified authentication for all configured models that require
+        it.
+        """
         # validate language model config
         if config.model_provider_id:
             _, lm_provider = get_lm_provider(
@@ -444,9 +361,11 @@ class ConfigManager(Configurable):
 
         return True
 
-    def _write_config(self, new_config: GlobalConfig):
-        """Updates configuration and persists it to disk. This accepts a
-        complete `GlobalConfig` object, and should not be called publicly."""
+    def _write_config(self, new_config: JaiConfig):
+        """
+        Updates configuration given a complete `JaiConfig` object and saves it
+        to disk.
+        """
         # remove any empty field dictionaries
         new_config.fields = {k: v for k, v in new_config.fields.items() if v}
         new_config.completions_fields = {
@@ -481,7 +400,7 @@ class ConfigManager(Configurable):
             )
 
         config_dict["api_keys"].pop(key_name, None)
-        self._write_config(GlobalConfig(**config_dict))
+        self._write_config(JaiConfig(**config_dict))
 
     def update_config(self, config_update: UpdateConfigRequest):  # type:ignore
         last_write = os.stat(self.config_path).st_mtime_ns
@@ -497,7 +416,7 @@ class ConfigManager(Configurable):
 
         config_dict = self._read_config().model_dump()
         always_merger.merge(config_dict, config_update.model_dump(exclude_unset=True))
-        self._write_config(GlobalConfig(**config_dict))
+        self._write_config(JaiConfig(**config_dict))
 
     # this cannot be a property, as the parent Configurable already defines the
     # self.config attr.

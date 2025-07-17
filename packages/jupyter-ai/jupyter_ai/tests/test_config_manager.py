@@ -10,7 +10,7 @@ from jupyter_ai.config_manager import (
     KeyInUseError,
     WriteConflictError,
 )
-from jupyter_ai.models import DescribeConfigResponse, GlobalConfig, UpdateConfigRequest
+from jupyter_ai.config import DescribeConfigResponse, UpdateConfigRequest
 from jupyter_ai_magics.utils import get_em_providers, get_lm_providers
 from pydantic import ValidationError
 
@@ -18,11 +18,6 @@ from pydantic import ValidationError
 @pytest.fixture
 def config_path(jp_data_dir):
     return str(jp_data_dir / "config.json")
-
-
-@pytest.fixture
-def schema_path(jp_data_dir):
-    return str(jp_data_dir / "config_schema.json")
 
 
 @pytest.fixture
@@ -45,7 +40,7 @@ def config_file_with_model_fields(jp_data_dir):
 
 
 @pytest.fixture
-def common_cm_kwargs(config_path, schema_path):
+def common_cm_kwargs(config_path):
     """Kwargs that are commonly used when initializing the CM."""
     log = logging.getLogger()
     lm_providers = get_lm_providers()
@@ -55,7 +50,6 @@ def common_cm_kwargs(config_path, schema_path):
         "lm_providers": lm_providers,
         "em_providers": em_providers,
         "config_path": config_path,
-        "schema_path": schema_path,
         "allowed_providers": None,
         "blocked_providers": None,
         "allowed_models": None,
@@ -71,7 +65,7 @@ def common_cm_kwargs(config_path, schema_path):
 
 
 @pytest.fixture
-def cm_kargs_with_defaults(config_path, schema_path, common_cm_kwargs):
+def cm_kargs_with_defaults(config_path, common_cm_kwargs):
     """Kwargs that are commonly used when initializing the CM."""
     return {
         **common_cm_kwargs,
@@ -91,7 +85,7 @@ def cm_kargs_with_defaults(config_path, schema_path, common_cm_kwargs):
 
 @pytest.fixture
 def cm(common_cm_kwargs):
-    """The default ConfigManager instance, with an empty config and config schema."""
+    """The default ConfigManager instance, with an empty config."""
     return ConfigManager(**common_cm_kwargs)
 
 
@@ -117,20 +111,16 @@ def cm_with_allowlists(common_cm_kwargs):
 
 @pytest.fixture
 def cm_with_defaults(cm_kargs_with_defaults):
-    """The default ConfigManager instance, with an empty config and config schema."""
+    """The default ConfigManager instance, with an empty config."""
     return ConfigManager(**cm_kargs_with_defaults)
 
 
 @pytest.fixture(autouse=True)
-def reset(config_path, schema_path):
-    """Fixture that deletes the config and config schema after each test."""
+def reset(config_path):
+    """Fixture that deletes the temporary config file after each test."""
     yield
     try:
         os.remove(config_path)
-    except OSError:
-        pass
-    try:
-        os.remove(schema_path)
     except OSError:
         pass
 
@@ -277,7 +267,6 @@ def test_init_with_allowlists(cm: ConfigManager, common_cm_kwargs):
 def test_init_with_default_values(
     cm_with_defaults: ConfigManager,
     config_path: str,
-    schema_path: str,
     common_cm_kwargs,
 ):
     """
@@ -286,7 +275,6 @@ def test_init_with_default_values(
     Args:
         cm_with_defaults (ConfigManager): A ConfigManager instance with default values.
         config_path (str): The path to the configuration file.
-        schema_path (str): The path to the schema file.
     """
     config_response = cm_with_defaults.get_config()
     # assert config response
@@ -471,7 +459,7 @@ def test_returns_completion_model_fields(cm):
 
 
 def test_config_manager_does_not_write_to_defaults(
-    config_file_with_model_fields, schema_path
+    config_file_with_model_fields
 ):
     """
     Asserts that `ConfigManager` does not write to the `defaults` argument when
@@ -497,50 +485,10 @@ def test_config_manager_does_not_write_to_defaults(
         lm_providers=lm_providers,
         em_providers=em_providers,
         config_path=config_path,
-        schema_path=schema_path,
         defaults=defaults,
     )
 
     assert defaults == expected_defaults
-
-
-def test_config_manager_updates_schema(jp_data_dir, common_cm_kwargs):
-    """
-    Asserts that the ConfigManager adds new keys to the user's config schema
-    which are present in Jupyter AI's schema on init. Asserts that the main
-    issue reported in #1291 does not occur again in the future.
-    """
-    schema_path = str(jp_data_dir / "config_schema.json")
-    with open(schema_path, "w") as file:
-        json.dump(
-            {
-                "title": "CUSTOM SCHEMA TITLE",
-                "$schema": "https://json-schema.org/draft/2020-12/schema",
-                "$comment": "Default values are sourced from `config_manager.py`.",
-                "type": "object",
-                "properties": {
-                    "custom_field": {
-                        "$comment": "Custom field added by some developer.",
-                        "type": ["string", "null"],
-                        "default": None,
-                        "readOnly": False,
-                    },
-                    # missing all other properties in config_schema.json
-                },
-            },
-            file,
-        )
-
-    cm_kwargs = {**common_cm_kwargs, "schema_path": schema_path}
-
-    ConfigManager(**cm_kwargs)
-    with open(schema_path) as f:
-        new_schema = json.loads(f.read())
-        assert "custom_field" in new_schema["properties"]
-        assert "model_provider_id" in new_schema["properties"]
-        assert "fields" in new_schema["properties"]
-        assert "embeddings_fields" in new_schema["properties"]
-        assert "completions_fields" in new_schema["properties"]
 
 
 def test_config_manager_handles_empty_touched_file(common_cm_kwargs):
