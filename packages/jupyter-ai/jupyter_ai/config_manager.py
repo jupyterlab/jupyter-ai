@@ -4,6 +4,7 @@ import os
 import time
 from typing import Optional, Union
 
+from copy import deepcopy
 from deepmerge import always_merger
 from jupyter_ai_magics import JupyternautPersona, Persona
 from jupyter_ai_magics.utils import (
@@ -55,6 +56,15 @@ def _validate_provider_authn(config: JaiConfig, provider: type[AnyProvider]):
         raise AuthError(
             f"Missing API key for '{provider.auth_strategy.name}' in the config."
         )
+
+
+def remove_none_entries(d: dict):
+    """
+    Returns a deep copy of the given dictionary that excludes all top-level
+    entries whose value is `None`.
+    """
+    d = { k: deepcopy(d[k]) for k in d if d[k] is not None }
+    return d
 
 
 class ConfigManager(Configurable):
@@ -123,7 +133,7 @@ class ConfigManager(Configurable):
         self._allowed_models = allowed_models
         self._blocked_models = blocked_models
 
-        self._defaults = defaults
+        self._defaults = remove_none_entries(defaults)
         self._last_read: Optional[int] = None
 
         self._config: Optional[JaiConfig] = None
@@ -134,23 +144,32 @@ class ConfigManager(Configurable):
     def _init_config(self):
         """
         Initializes the config from the existing config file. If a config file
-        does not exist, then a default one is created.
+        does not exist, then a default one is created. If any field was set in
+        the `defaults` argument passed to the constructor, they will take
+        precedence over the existing configuration.
 
         TODO: how to handle invalid config files? create a copy & replace it
         with an empty default?
         """
-        # If config file exists, process it
+        # If config file exists, validate it first
         if os.path.exists(self.config_path) and os.stat(self.config_path).st_size != 0:
             self._process_existing_config()
         else:
-            # Otherwise, write the default config to the config path, respecting
-            # the `defaults` argument passed to the constructor (set by multiple
-            # configurable traits).
+            # Otherwise, write the default config to the config path
             self._write_config(JaiConfig())
+
+        # Allow fields specified in `defaults` argument to override the local
+        # configuration on init.
+        if self._defaults:
+            existing_config_args = self._read_config().model_dump()
+            merged_config_args = always_merger.merge(existing_config_args, self._defaults)
+            merged_config = JaiConfig(**merged_config_args)
+            self._write_config(merged_config)
     
+
     def _process_existing_config(self):
         """
-        Reads the existing configuration file and returns a `JaiConfig` object.
+        Reads the existing configuration file and validates it.
         """
         with open(self.config_path, encoding="utf-8") as f:
             existing_config = json.loads(f.read())
