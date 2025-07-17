@@ -13,7 +13,6 @@ if TYPE_CHECKING:
     )
     from .exception import store_exception
     from .magics import AiMagics
-    from .models.persona import JupyternautPersona, Persona
     from .providers import (
         AI21Provider,
         BaseProvider,
@@ -24,7 +23,6 @@ if TYPE_CHECKING:
     )
 else:
     _exports_by_module = {
-        # expose embedding model providers on the package root
         "embedding_providers": [
             "BaseEmbeddingsProvider",
             "GPT4AllEmbeddingsProvider",
@@ -33,9 +31,6 @@ else:
         ],
         "exception": ["store_exception"],
         "magics": ["AiMagics"],
-        # expose JupyternautPersona on the package root
-        # required by `jupyter-ai`.
-        "models.persona": ["JupyternautPersona", "Persona"],
         # expose model providers on the package root
         "providers": [
             "AI21Provider",
@@ -80,8 +75,6 @@ __all__ = [
     "QianfanEmbeddingsEndpointProvider",
     "store_exception",
     "AiMagics",
-    "JupyternautPersona",
-    "Persona",
     "AI21Provider",
     "BaseProvider",
     "GPT4AllProvider",

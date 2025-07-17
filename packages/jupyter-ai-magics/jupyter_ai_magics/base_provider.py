@@ -32,7 +32,6 @@ from .models.completion import (
     InlineCompletionRequest,
     InlineCompletionStreamChunk,
 )
-from .models.persona import Persona
 
 CHAT_SYSTEM_PROMPT = """
 You are Jupyternaut, a conversational assistant living in JupyterLab to help users.
@@ -217,18 +216,6 @@ class BaseProvider(BaseModel):
     """Whether this provider manages its own conversation history upstream. If
     set to `True`, Jupyter AI will not pass the chat history to this provider
     when invoked."""
-
-    persona: ClassVar[Optional[Persona]] = None
-    """
-    The **persona** of this provider, a struct that defines the name and avatar
-    shown on agent replies in the chat UI. When set to `None`, `jupyter-ai` will
-    choose a default persona when rendering agent messages by this provider.
-
-    Because this field is set to `None` by default, `jupyter-ai` will render a
-    default persona for all providers that are included natively with the
-    `jupyter-ai` package. This field is reserved for Jupyter AI modules that
-    serve a custom provider and want to distinguish it in the chat UI.
-    """
 
     unsupported_slash_commands: ClassVar[set] = set()
     """
