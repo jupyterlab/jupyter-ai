@@ -66,7 +66,7 @@ class AiExtension(ExtensionApp):
         (r"api/ai/providers/embeddings/?", EmbeddingsModelProviderHandler),
         (r"api/ai/completion/inline/?", DefaultInlineCompletionHandler),
         (
-            r"api/ai/static/jupyternaut.svg/?",
+            r"api/ai/static/jupyternaut.svg()/?",
             StaticFileHandler,
             {"path": JUPYTERNAUT_AVATAR_PATH},
         ),
