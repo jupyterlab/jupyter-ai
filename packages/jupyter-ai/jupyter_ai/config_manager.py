@@ -6,7 +6,6 @@ from typing import Optional, Union
 
 from copy import deepcopy
 from deepmerge import always_merger
-from jupyter_ai_magics import JupyternautPersona, Persona
 from jupyter_ai_magics.utils import (
     AnyProvider,
     EmProvidersDict,
@@ -539,14 +538,3 @@ class ConfigManager(Configurable):
             **fields,
             **authn_fields,
         }
-
-    @property
-    def persona(self) -> Persona:
-        """
-        The current agent persona, set by the selected LM provider. If the
-        selected LM provider is `None`, this property returns
-        `JupyternautPersona` by default.
-        """
-        lm_provider = self.lm_provider
-        persona = getattr(lm_provider, "persona", None) or JupyternautPersona
-        return persona
