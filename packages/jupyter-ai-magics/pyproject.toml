@@ -53,6 +53,9 @@ all = [
     "langchain_anthropic",
     "langchain_aws",
     "langchain_cohere",
+    # Pin cohere to <5.16 to prevent langchain_cohere from breaking as it uses ChatResponse removed in cohere 5.16.0
+    # TODO: remove cohere pin when langchain_cohere is updated to work with cohere >=5.16
+    "cohere<5.16",
     "langchain_google_genai",
     "langchain_mistralai",
     "langchain_nvidia_ai_endpoints",
