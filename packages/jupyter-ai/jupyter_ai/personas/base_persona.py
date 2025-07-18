@@ -353,7 +353,7 @@ class BasePersona(ABC, LoggingConfigurable, metaclass=ABCLoggingConfigurableMeta
         Process file attachments in the message and return their content as a string.
         """
         
-        if not hasattr(message, 'attachments') or not message.attachments:
+        if not message.attachments:
             return None
 
         context_parts = []
@@ -395,7 +395,7 @@ class BasePersona(ABC, LoggingConfigurable, metaclass=ABCLoggingConfigurableMeta
         """
         
         try:
-            attachment_data = self.get_attachment_from_ychat(attachment_id)
+            attachment_data = self.ychat.get_attachments().get(attachment_id)
             
             if attachment_data and isinstance(attachment_data, dict):
                 # If attachment has a 'value' field with filename
@@ -416,44 +416,7 @@ class BasePersona(ABC, LoggingConfigurable, metaclass=ABCLoggingConfigurableMeta
         except Exception as e:
             self.log.error(f"Failed to resolve attachment {attachment_id}: {e}")
             return None
-
-    def get_attachment_from_ychat(self, attachment_id: str) -> dict | None:
-        """
-        Get attachment data from the YChat document.
-        """
-        try:
-            # Access the underlying YDoc document
-            ydoc = self.ychat._ydoc
-            
-            # Try to access attachments from the document
-            with ydoc.transaction():
-                # Try getting attachments as a Map
-                try:
-                    import pycrdt
-                    yattachments = ydoc.get("attachments", type=pycrdt.Map)
-                    if yattachments and attachment_id in yattachments:
-                        attachment_data = yattachments[attachment_id]
-                        return attachment_data
-
-                except Exception as e:
-                    self.log.info(f"FILE: pycrdt Map access failed: {e}")
-                
-                # Try getting attachments as dict
-                try:
-                    import pycrdt
-                    attachments_dict = ydoc.get("attachments", type=pycrdt.Map)
-                    if attachments_dict and attachment_id in attachments_dict:
-                        return attachments_dict[attachment_id]
-
-                except Exception as e:
-                    self.log.info(f"FILE: Dict access failed: {e}")
-                    
-            return None
-            
-        except Exception as e:
-            self.log.error(f"Failed to get attachment from YChat: {e}")
-            return None
-    
+        
     def shutdown(self) -> None:
         """
         Shuts the persona down. This method should:
