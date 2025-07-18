@@ -36,12 +36,16 @@ class JupyternautPersona(BasePersona):
         provider_name = self.config_manager.lm_provider.name
         model_id = self.config_manager.lm_provider_params["model_id"]
 
+        # Process file attachments and include their content in the context
+        context = self.process_attachments(message)
+
         runnable = self.build_runnable()
         variables = JupyternautVariables(
             input=message.body,
             model_id=model_id,
             provider_name=provider_name,
             persona_name=self.name,
+            context=context,
         )
         variables_dict = variables.model_dump()
         reply_stream = runnable.astream(variables_dict)
@@ -60,3 +64,4 @@ class JupyternautPersona(BasePersona):
         )
 
         return runnable
+
