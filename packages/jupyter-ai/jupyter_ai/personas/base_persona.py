@@ -1,4 +1,5 @@
 import asyncio
+import os
 from abc import ABC, ABCMeta, abstractmethod
 from dataclasses import asdict
 from logging import Logger
@@ -346,6 +347,112 @@ class BasePersona(ABC, LoggingConfigurable, metaclass=ABCLoggingConfigurableMeta
         Returns the MCP config for the current chat.
         """
         return self.parent.get_mcp_config()
+
+    def process_attachments(self, message: Message) -> str | None:
+        """
+        Process file attachments in the message and return their content as a string.
+        """
+        
+        if not hasattr(message, 'attachments') or not message.attachments:
+            return None
+
+        context_parts = []
+
+        for attachment_id in message.attachments:
+            self.log.info(f"FILE: Processing attachment with ID: {attachment_id}")
+            try:
+                # Try to resolve attachment using multiple strategies
+                file_path = self.resolve_attachment_to_path(attachment_id)
+                
+                if not file_path:
+                    self.log.warning(f"Could not resolve attachment ID: {attachment_id}")
+                    continue
+                
+                # Read the file content
+                with open(file_path, "r", encoding="utf-8") as f:
+                    file_content = f.read()
+                
+                # Get relative path for display
+                rel_path = os.path.relpath(file_path, self.get_workspace_dir())
+                
+                # Add file content with header
+                context_parts.append(
+                    f"File: {rel_path}\n```\n{file_content}\n```"
+                )
+
+            except Exception as e:
+                self.log.warning(f"Failed to read attachment {attachment_id}: {e}")
+                context_parts.append(
+                    f"Attachment: {attachment_id} (could not read file: {e})"
+                )
+
+        result = "\n\n".join(context_parts) if context_parts else None
+        return result
+
+    def resolve_attachment_to_path(self, attachment_id: str) -> str | None:
+        """
+        Resolve an attachment ID to its file path using multiple strategies.
+        """
+        
+        try:
+            attachment_data = self.get_attachment_from_ychat(attachment_id)
+            
+            if attachment_data and isinstance(attachment_data, dict):
+                # If attachment has a 'value' field with filename
+                if 'value' in attachment_data:
+                    filename = attachment_data['value']
+                    
+                    # Try relative to workspace directory
+                    workspace_path = os.path.join(self.get_workspace_dir(), filename)
+                    if os.path.exists(workspace_path):
+                        return workspace_path
+                    
+                    # Try as absolute path
+                    if os.path.exists(filename):
+                        return filename
+                        
+            return None
+            
+        except Exception as e:
+            self.log.error(f"Failed to resolve attachment {attachment_id}: {e}")
+            return None
+
+    def get_attachment_from_ychat(self, attachment_id: str) -> dict | None:
+        """
+        Get attachment data from the YChat document.
+        """
+        try:
+            # Access the underlying YDoc document
+            ydoc = self.ychat._ydoc
+            
+            # Try to access attachments from the document
+            with ydoc.transaction():
+                # Try getting attachments as a Map
+                try:
+                    import pycrdt
+                    yattachments = ydoc.get("attachments", type=pycrdt.Map)
+                    if yattachments and attachment_id in yattachments:
+                        attachment_data = yattachments[attachment_id]
+                        return attachment_data
+
+                except Exception as e:
+                    self.log.info(f"FILE: pycrdt Map access failed: {e}")
+                
+                # Try getting attachments as dict
+                try:
+                    import pycrdt
+                    attachments_dict = ydoc.get("attachments", type=pycrdt.Map)
+                    if attachments_dict and attachment_id in attachments_dict:
+                        return attachments_dict[attachment_id]
+
+                except Exception as e:
+                    self.log.info(f"FILE: Dict access failed: {e}")
+                    
+            return None
+            
+        except Exception as e:
+            self.log.error(f"Failed to get attachment from YChat: {e}")
+            return None
     
     def shutdown(self) -> None:
         """
