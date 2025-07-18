@@ -31,6 +31,7 @@ dependencies = [
     # click>=8.1 is required by dask>=2023.11.0
     "click>=8.1.0,<9",
     "jsonpath-ng>=1.5.3,<2",
+    "langchain-google-vertexai",
 ]
 
 [project.optional-dependencies]
@@ -61,6 +62,7 @@ all = [
     "boto3",
     "qianfan",
     "together",
+    "langchain-google-vertexai",
 ]
 
 [project.entry-points."jupyter_ai.model_providers"]
@@ -84,6 +86,7 @@ together-ai = "jupyter_ai_magics:TogetherAIProvider"
 gemini = "jupyter_ai_magics.partner_providers.gemini:GeminiProvider"
 mistralai = "jupyter_ai_magics.partner_providers.mistralai:MistralAIProvider"
 openrouter = "jupyter_ai_magics.partner_providers.openrouter:OpenRouterProvider"
+vertexai = "jupyter_ai_magics.partner_providers.vertexai:VertexAIProvider"
 
 [project.entry-points."jupyter_ai.embeddings_model_providers"]
 azure = "jupyter_ai_magics.partner_providers.openai:AzureOpenAIEmbeddingsProvider"
@@ -96,6 +99,7 @@ ollama = "jupyter_ai_magics.partner_providers.ollama:OllamaEmbeddingsProvider"
 openai = "jupyter_ai_magics.partner_providers.openai:OpenAIEmbeddingsProvider"
 openai-custom = "jupyter_ai_magics.partner_providers.openai:OpenAIEmbeddingsCustomProvider"
 qianfan = "jupyter_ai_magics:QianfanEmbeddingsEndpointProvider"
+vertexai = "jupyter_ai_magics.partner_providers.vertexai:VertexAIEmbeddingsProvider"
 
 [tool.hatch.version]
 source = "nodejs"
