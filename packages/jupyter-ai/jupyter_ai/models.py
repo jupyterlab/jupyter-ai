@@ -36,4 +36,3 @@ class IndexedDir(BaseModel):
 
 class IndexMetadata(BaseModel):
     dirs: list[IndexedDir]
-

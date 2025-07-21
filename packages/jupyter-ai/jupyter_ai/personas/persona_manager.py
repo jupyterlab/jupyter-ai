@@ -13,16 +13,15 @@ from time import time_ns
 from typing import TYPE_CHECKING
 
 from importlib_metadata import entry_points
-from jupyterlab_chat.models import Message, NewMessage
+from jupyterlab_chat.models import Message, NewMessage, User
 from jupyterlab_chat.ychat import YChat
-from traitlets.config import LoggingConfigurable
 from traitlets import Unicode
+from traitlets.config import LoggingConfigurable
 
 from ..config_manager import ConfigManager
 from ..mcp.mcp_config_loader import MCPConfigLoader
 from .base_persona import BasePersona
 from .directories import find_dot_dir, find_workspace_dir
-from jupyterlab_chat.models import User
 
 if TYPE_CHECKING:
     from asyncio import AbstractEventLoop
@@ -49,10 +48,10 @@ class PersonaManager(LoggingConfigurable):
     # Configurable traits
     default_persona_id = Unicode(
         default_value="jupyter-ai-personas::jupyter_ai::JupyternautPersona",
-        help="" \
-        "The ID of the default persona. If configured, the default persona " \
-        "will automatically reply in a single-user chats until another " \
-        "persona is `@`-mentioned. " \
+        help=""
+        "The ID of the default persona. If configured, the default persona "
+        "will automatically reply in a single-user chats until another "
+        "persona is `@`-mentioned. "
         "Defaults to: 'jupyter-ai-personas::jupyter_ai::JupyternautPersona'. ",
         allow_none=True,
         config=True,
@@ -120,7 +119,9 @@ class PersonaManager(LoggingConfigurable):
         self._personas = self._init_personas()
         self.log.info(f"Personas initialized in chat '{self.room_id}'.")
         if self.default_persona:
-            self.log.info(f"Default persona set to '{self.default_persona.name}' in chat '{self.room_id}'.")
+            self.log.info(
+                f"Default persona set to '{self.default_persona.name}' in chat '{self.room_id}'."
+            )
         else:
             self.log.warning(f"No default persona is set in chat '{self.room_id}'.")
 
@@ -284,14 +285,12 @@ class PersonaManager(LoggingConfigurable):
         )
         return personas
 
-
     def _display_persona_error_message(self, persona_item: dict) -> None:
         tb = persona_item.get("traceback")
         if tb is None:
             return
         body = f"Loading an AI persona raised an exception:\n\n```python\n{tb}```"
         self.send_system_message(body)
-    
 
     def send_system_message(self, body: str) -> None:
         """
@@ -299,13 +298,13 @@ class PersonaManager(LoggingConfigurable):
         """
         # Set a 'System' user use it to send the message
         with self.ychat._ydoc.transaction():
-            self.ychat.set_user(user=User(
-                username=SYSTEM_USERNAME,
-                name="System",
-                display_name="System"
-            ))
+            self.ychat.set_user(
+                user=User(
+                    username=SYSTEM_USERNAME, name="System", display_name="System"
+                )
+            )
             self.ychat.add_message(NewMessage(body=body, sender=SYSTEM_USERNAME))
-        
+
         # Hide 'System' user from `@`-mention menu by removing the user. This
         # has to wait a second to allow the frontend to render the system user
         # before removing it.
@@ -318,8 +317,8 @@ class PersonaManager(LoggingConfigurable):
                 self.ychat._yusers.pop(SYSTEM_USERNAME)
             except KeyError:
                 pass
-        asyncio.create_task(_remove_system_user())
 
+        asyncio.create_task(_remove_system_user())
 
     @property
     def personas(self) -> dict[str, BasePersona]:
@@ -328,14 +327,12 @@ class PersonaManager(LoggingConfigurable):
         persona ID.
         """
         return self._personas
-    
 
     @property
     def default_persona(self) -> BasePersona | None:
         if not self.default_persona_id:
             return None
         return self.personas.get(self.default_persona_id)
-
 
     def get_mentioned_personas(self, new_message: Message) -> list[BasePersona]:
         """
@@ -348,7 +345,6 @@ class PersonaManager(LoggingConfigurable):
             if mentioned_id in self.personas:
                 persona_list.append(self.personas[mentioned_id])
         return persona_list
-
 
     def route_message(self, new_message: Message):
         """
@@ -373,14 +369,16 @@ class PersonaManager(LoggingConfigurable):
         # Dispatch message to `route_slash_command()` if the first word is a
         # slash command. Return immediately if the slash command is recognized.
         first_word = get_first_word(new_message.body)
-        if first_word and first_word.startswith('/'):
+        if first_word and first_word.startswith("/"):
             slash_cmd_recognized = self.route_slash_command(new_message)
             if slash_cmd_recognized:
                 return
 
         # Gather routing context
         human_users = self.get_active_human_users()
-        sender_not_human = is_persona(new_message.sender) or new_message.sender == SYSTEM_USERNAME
+        sender_not_human = (
+            is_persona(new_message.sender) or new_message.sender == SYSTEM_USERNAME
+        )
         sender_is_human = not sender_not_human
         mentioned_personas = self.get_mentioned_personas(new_message)
         human_user_count = len(human_users)
@@ -398,7 +396,7 @@ class PersonaManager(LoggingConfigurable):
         # persona, falling back to the default set by the
         # `PersonaManager.default_persona_id` configurable trait.
         if persona_count > 1:
-            # Update last mentioned persona 
+            # Update last mentioned persona
             if mentioned_personas and sender_is_human:
                 self.last_mentioned_persona = mentioned_personas[0]
 
@@ -412,17 +410,22 @@ class PersonaManager(LoggingConfigurable):
         # Default case (single user, 0/1 personas): persona always replies if present
         self._broadcast(new_message, to_personas=self.personas)
         return
-    
 
-    def _broadcast(self, message: Message, *, to_personas: list[BasePersona] | dict[str, BasePersona]) -> None:
+    def _broadcast(
+        self,
+        message: Message,
+        *,
+        to_personas: list[BasePersona] | dict[str, BasePersona],
+    ) -> None:
         """
         Broadcasts a message to all personas in a given list or dictionary.
         """
-        persona_list: list[BasePersona] = to_personas if isinstance(to_personas, list) else list(to_personas.values())
+        persona_list: list[BasePersona] = (
+            to_personas if isinstance(to_personas, list) else list(to_personas.values())
+        )
         for persona in persona_list:
             self.event_loop.create_task(persona.process_message(message))
         return
-
 
     def route_slash_command(self, new_message: Message) -> bool:
         """
@@ -439,7 +442,7 @@ class PersonaManager(LoggingConfigurable):
         receive custom slash commands that only they recognize.
         """
         first_word = get_first_word(new_message.body)
-        assert first_word and first_word.startswith('/')
+        assert first_word and first_word.startswith("/")
 
         command_id = first_word[1:]
         if command_id == "refresh-personas":
@@ -450,23 +453,23 @@ class PersonaManager(LoggingConfigurable):
         self.log.warning(f"Unrecognized slash command: '/{command_id}'")
         return False
 
-
     def handle_refresh_personas_command(self, _: Message) -> None:
         """
         Handles the '/refresh-personas' slash command.
-        
+
         TODO: How do we show status/completion in the UI?
         """
-        self.log.info(f"Received '/refresh-personas'. Refreshing personas in chat '{self.room_id}'...")
+        self.log.info(
+            f"Received '/refresh-personas'. Refreshing personas in chat '{self.room_id}'..."
+        )
 
         # Refresh personas in background task
         asyncio.create_task(self._refresh_personas())
-    
 
     async def _refresh_personas(self):
         # Shutdown all personas
         await self.shutdown_personas()
-        
+
         # Refresh local personas and re-initialize persona instances
         self._init_local_persona_classes()
         self._personas = self._init_personas()
@@ -474,7 +477,6 @@ class PersonaManager(LoggingConfigurable):
         # Write success message to chat & logs
         self.send_system_message("Refreshed all AI personas in this chat.")
         self.log.info(f"Refreshed all AI personas in chat '{self.room_id}'.")
-
 
     def get_chat_path(self, relative: bool = False) -> str:
         """
@@ -531,7 +533,7 @@ class PersonaManager(LoggingConfigurable):
                 users.append(value["user"])
 
         return users
-    
+
     async def shutdown_personas(self):
         """
         Shuts down each persona. See `BasePersona.shutdown()` for more info.
@@ -549,11 +551,11 @@ class PersonaManager(LoggingConfigurable):
             task = next(iter(self.ychat._background_tasks))
             await task
             self.ychat._background_tasks.discard(task)
-        
+
         # Then, shut down each persona
         for persona in self.personas.values():
             persona.shutdown()
-        
+
 
 def is_persona(username: str):
     """Returns true if username belongs to a persona"""
@@ -662,20 +664,19 @@ def load_from_dir(dir: str, log: Logger) -> list[dict]:
 def get_first_word(input_str: str) -> str | None:
     """
     Finds the first word in a given string, ignoring leading whitespace.
-    
+
     Returns the first word, or None if there is no first word.
     """
     start = 0
-    
+
     # Skip leading whitespace
     while start < len(input_str) and input_str[start].isspace():
         start += 1
-    
+
     # Find end of first word
     end = start
     while end < len(input_str) and not input_str[end].isspace():
         end += 1
-    
+
     first_word = input_str[start:end]
     return first_word if first_word else None
-

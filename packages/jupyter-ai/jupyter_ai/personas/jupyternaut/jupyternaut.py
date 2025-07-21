@@ -64,4 +64,3 @@ class JupyternautPersona(BasePersona):
         )
 
         return runnable
-

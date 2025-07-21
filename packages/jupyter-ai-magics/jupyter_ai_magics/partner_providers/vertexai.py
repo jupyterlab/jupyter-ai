@@ -20,6 +20,7 @@ class VertexAIProvider(BaseProvider, VertexAI):
         "For more information, see the [Vertex AI authentication documentation](https://python.langchain.com/docs/integrations/llms/google_vertex_ai_palm/)."
     )
 
+
 class VertexAIEmbeddingsProvider(BaseProvider, VertexAIEmbeddings):
     id = "vertexai"
     name = "Vertex AI"

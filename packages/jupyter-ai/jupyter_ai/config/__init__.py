@@ -1,1 +1,1 @@
-from .config_models import JaiConfig, UpdateConfigRequest, DescribeConfigResponse
+from .config_models import DescribeConfigResponse, JaiConfig, UpdateConfigRequest

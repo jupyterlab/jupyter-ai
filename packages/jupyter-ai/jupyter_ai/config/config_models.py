@@ -1,5 +1,7 @@
-from pydantic import BaseModel, field_validator
 from typing import Any, Optional
+
+from pydantic import BaseModel, field_validator
+
 
 class JaiConfig(BaseModel):
     """

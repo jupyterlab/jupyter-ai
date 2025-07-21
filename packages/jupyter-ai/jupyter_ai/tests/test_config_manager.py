@@ -4,13 +4,13 @@ import os
 from pathlib import Path
 
 import pytest
+from jupyter_ai.config import DescribeConfigResponse, UpdateConfigRequest
 from jupyter_ai.config_manager import (
     AuthError,
     ConfigManager,
     KeyInUseError,
     WriteConflictError,
 )
-from jupyter_ai.config import DescribeConfigResponse, UpdateConfigRequest
 from jupyter_ai_magics.utils import get_em_providers, get_lm_providers
 from pydantic import ValidationError
 
@@ -458,9 +458,7 @@ def test_returns_completion_model_fields(cm):
     assert cm.completions_lm_provider_params == expected_model_args
 
 
-def test_config_manager_does_not_write_to_defaults(
-    config_file_with_model_fields
-):
+def test_config_manager_does_not_write_to_defaults(config_file_with_model_fields):
     """
     Asserts that `ConfigManager` does not write to the `defaults` argument when
     the configured chat model differs from the one specified in `defaults`.
