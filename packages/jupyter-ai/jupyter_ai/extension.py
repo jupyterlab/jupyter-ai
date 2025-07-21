@@ -56,6 +56,7 @@ else:
     )
 
 
+from .model_providers.model_handlers import ChatModelEndpoint
 class AiExtension(ExtensionApp):
     name = "jupyter_ai"
     handlers = [  # type:ignore[assignment]
@@ -65,6 +66,7 @@ class AiExtension(ExtensionApp):
         (r"api/ai/providers/?", ModelProviderHandler),
         (r"api/ai/providers/embeddings/?", EmbeddingsModelProviderHandler),
         (r"api/ai/completion/inline/?", DefaultInlineCompletionHandler),
+        (r"api/ai/models/?", ChatModelEndpoint),
         (
             r"api/ai/static/jupyternaut.svg()/?",
             StaticFileHandler,
