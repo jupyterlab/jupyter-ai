@@ -50,8 +50,14 @@ all = [
     "huggingface_hub",
     "ipywidgets",
     "langchain_anthropic",
-    "langchain_aws",
-    "langchain_cohere",
+    # `langchain_aws<0.2` is not compatible with LangChain v0.3
+    "langchain_aws>=0.2,<0.3",
+    # `langchain_cohere<0.3` is not compatible with LangChain v0.3
+    "langchain_cohere>=0.3",
+    # Pin cohere to <5.16 to prevent langchain_cohere from breaking as it uses ChatResponse removed in cohere 5.16.0
+    # cohere>=5.5.6 is implied by langchain_cohere>=0.3
+    # TODO: remove cohere pin when langchain_cohere is updated to work with cohere >=5.16
+    "cohere>=5.5.6,<5.16",
     "langchain_google_genai",
     "langchain_mistralai",
     "langchain_nvidia_ai_endpoints",
@@ -61,6 +67,7 @@ all = [
     "boto3",
     "qianfan",
     "together",
+    "langchain-google-vertexai",
 ]
 
 [project.entry-points."jupyter_ai.model_providers"]
@@ -84,6 +91,7 @@ together-ai = "jupyter_ai_magics:TogetherAIProvider"
 gemini = "jupyter_ai_magics.partner_providers.gemini:GeminiProvider"
 mistralai = "jupyter_ai_magics.partner_providers.mistralai:MistralAIProvider"
 openrouter = "jupyter_ai_magics.partner_providers.openrouter:OpenRouterProvider"
+vertexai = "jupyter_ai_magics.partner_providers.vertexai:VertexAIProvider"
 
 [project.entry-points."jupyter_ai.embeddings_model_providers"]
 azure = "jupyter_ai_magics.partner_providers.openai:AzureOpenAIEmbeddingsProvider"
@@ -96,6 +104,7 @@ ollama = "jupyter_ai_magics.partner_providers.ollama:OllamaEmbeddingsProvider"
 openai = "jupyter_ai_magics.partner_providers.openai:OpenAIEmbeddingsProvider"
 openai-custom = "jupyter_ai_magics.partner_providers.openai:OpenAIEmbeddingsCustomProvider"
 qianfan = "jupyter_ai_magics:QianfanEmbeddingsEndpointProvider"
+vertexai = "jupyter_ai_magics.partner_providers.vertexai:VertexAIEmbeddingsProvider"
 
 [tool.hatch.version]
 source = "nodejs"
