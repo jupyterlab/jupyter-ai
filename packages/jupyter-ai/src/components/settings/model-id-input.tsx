@@ -92,6 +92,7 @@ export function ModelIdInput(props: ModelIdInputProps): JSX.Element {
           }
         }}
         freeSolo
+        autoSelect
         loading={loading}
         fullWidth={props.fullWidth}
         renderInput={params => (
