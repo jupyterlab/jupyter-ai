@@ -29,6 +29,7 @@ import { useStackingAlert } from './mui-extras/stacking-alert';
 import { RendermimeMarkdown } from './settings/rendermime-markdown';
 import { IJaiCompletionProvider } from '../tokens';
 import { getProviderId, getModelLocalId } from '../utils';
+import { ModelIdInput } from './settings/model-id-input';
 
 type ChatSettingsProps = {
   rmRegistry: IRenderMimeRegistry;
@@ -358,6 +359,14 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
       >
         Language model
       </h2>
+
+      <ModelIdInput
+        label="Chat model ID"
+        placeholder="e.g. 'anthropic/claude-3'"
+        fullWidth
+      />
+
+      <h2 className="jp-ai-ChatSettings-header">Language model v2</h2>
 
       {server.lmProviders.providers
         .map(lmp => lmp.chat_models.length)

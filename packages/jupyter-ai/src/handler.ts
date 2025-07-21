@@ -138,6 +138,10 @@ export namespace AiService {
     providers: ListProvidersEntry[];
   };
 
+  export type ListChatModelsResponse = {
+    chat_models: string[];
+  };
+
   export async function listLmProviders(): Promise<ListProvidersResponse> {
     return requestAPI<ListProvidersResponse>('providers');
   }
@@ -158,6 +162,24 @@ export namespace AiService {
   export async function deleteApiKey(keyName: string): Promise<void> {
     return requestAPI<void>(`api_keys/${keyName}`, {
       method: 'DELETE'
+    });
+  }
+
+  export async function listChatModels(): Promise<string[]> {
+    const response = await requestAPI<ListChatModelsResponse>('models/', {
+      method: 'GET'
+    });
+    return response.chat_models;
+  }
+
+  export async function getChatModel(): Promise<string | null> {
+    const response = await requestAPI<DescribeConfigResponse>('config/');
+    return response.model_provider_id;
+  }
+
+  export async function setChatModel(modelId: string): Promise<void> {
+    return await updateConfig({
+      model_provider_id: modelId
     });
   }
 }
