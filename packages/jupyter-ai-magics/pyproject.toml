@@ -55,8 +55,9 @@ all = [
     # `langchain_cohere<0.3` is not compatible with LangChain v0.3
     "langchain_cohere>=0.3",
     # Pin cohere to <5.16 to prevent langchain_cohere from breaking as it uses ChatResponse removed in cohere 5.16.0
+    # cohere>=5.5.6 is implied by langchain_cohere>=0.3
     # TODO: remove cohere pin when langchain_cohere is updated to work with cohere >=5.16
-    "cohere>=5.12,<5.16",
+    "cohere>=5.5.6,<5.16",
     "langchain_google_genai",
     "langchain_mistralai",
     "langchain_nvidia_ai_endpoints",
