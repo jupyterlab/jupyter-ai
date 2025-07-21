@@ -2,9 +2,9 @@ import json
 import logging
 import os
 import time
+from copy import deepcopy
 from typing import Optional, Union
 
-from copy import deepcopy
 from deepmerge import always_merger
 from jupyter_ai_magics.utils import (
     AnyProvider,
@@ -13,10 +13,11 @@ from jupyter_ai_magics.utils import (
     get_em_provider,
     get_lm_provider,
 )
-from .config import JaiConfig, DescribeConfigResponse, UpdateConfigRequest
 from jupyter_core.paths import jupyter_data_dir
 from traitlets import Integer, Unicode
 from traitlets.config import Configurable
+
+from .config import DescribeConfigResponse, JaiConfig, UpdateConfigRequest
 
 Logger = Union[logging.Logger, logging.LoggerAdapter]
 
@@ -25,6 +26,7 @@ DEFAULT_CONFIG_PATH = os.path.join(jupyter_data_dir(), "jupyter_ai", "config.jso
 
 # default no. of spaces to use when formatting config
 DEFAULT_INDENTATION_DEPTH = 4
+
 
 class AuthError(Exception):
     pass
@@ -62,7 +64,7 @@ def remove_none_entries(d: dict):
     Returns a deep copy of the given dictionary that excludes all top-level
     entries whose value is `None`.
     """
-    d = { k: deepcopy(d[k]) for k in d if d[k] is not None }
+    d = {k: deepcopy(d[k]) for k in d if d[k] is not None}
     return d
 
 
@@ -104,7 +106,6 @@ class ConfigManager(Configurable):
     modified after this time, then we can return the cached
     `self._config`.
     """
-
 
     def __init__(
         self,
@@ -161,10 +162,11 @@ class ConfigManager(Configurable):
         # configuration on init.
         if self._defaults:
             existing_config_args = self._read_config().model_dump()
-            merged_config_args = always_merger.merge(existing_config_args, self._defaults)
+            merged_config_args = always_merger.merge(
+                existing_config_args, self._defaults
+            )
             merged_config = JaiConfig(**merged_config_args)
             self._write_config(merged_config)
-    
 
     def _process_existing_config(self):
         """

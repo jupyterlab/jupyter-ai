@@ -352,7 +352,7 @@ class BasePersona(ABC, LoggingConfigurable, metaclass=ABCLoggingConfigurableMeta
         """
         Process file attachments in the message and return their content as a string.
         """
-        
+
         if not message.attachments:
             return None
 
@@ -363,22 +363,22 @@ class BasePersona(ABC, LoggingConfigurable, metaclass=ABCLoggingConfigurableMeta
             try:
                 # Try to resolve attachment using multiple strategies
                 file_path = self.resolve_attachment_to_path(attachment_id)
-                
+
                 if not file_path:
-                    self.log.warning(f"Could not resolve attachment ID: {attachment_id}")
+                    self.log.warning(
+                        f"Could not resolve attachment ID: {attachment_id}"
+                    )
                     continue
-                
+
                 # Read the file content
-                with open(file_path, "r", encoding="utf-8") as f:
+                with open(file_path, encoding="utf-8") as f:
                     file_content = f.read()
-                
+
                 # Get relative path for display
                 rel_path = os.path.relpath(file_path, self.get_workspace_dir())
-                
+
                 # Add file content with header
-                context_parts.append(
-                    f"File: {rel_path}\n```\n{file_content}\n```"
-                )
+                context_parts.append(f"File: {rel_path}\n```\n{file_content}\n```")
 
             except Exception as e:
                 self.log.warning(f"Failed to read attachment {attachment_id}: {e}")
@@ -393,34 +393,34 @@ class BasePersona(ABC, LoggingConfigurable, metaclass=ABCLoggingConfigurableMeta
         """
         Resolve an attachment ID to its file path using multiple strategies.
         """
-        
+
         try:
             attachment_data = self.ychat.get_attachments().get(attachment_id)
-            
+
             if attachment_data and isinstance(attachment_data, dict):
                 # If attachment has a 'value' field with filename
-                if 'value' in attachment_data:
-                    filename = attachment_data['value']
-                    
+                if "value" in attachment_data:
+                    filename = attachment_data["value"]
+
                     # Try relative to workspace directory
                     workspace_path = os.path.join(self.get_workspace_dir(), filename)
                     if os.path.exists(workspace_path):
                         return workspace_path
-                    
+
                     # Try as absolute path
                     if os.path.exists(filename):
                         return filename
-                        
+
             return None
-            
+
         except Exception as e:
             self.log.error(f"Failed to resolve attachment {attachment_id}: {e}")
             return None
-        
+
     def shutdown(self) -> None:
         """
         Shuts the persona down. This method should:
-         
+
         - Halt all background tasks started by this instance.
         - Remove the persona from the chat awareness
 

@@ -6,12 +6,10 @@ from pydantic import ValidationError
 from tornado import web
 from tornado.web import HTTPError
 
+from .config import UpdateConfigRequest
 from .models import (
     ListProvidersEntry,
     ListProvidersResponse,
-)
-from .config import (
-    UpdateConfigRequest
 )
 
 if TYPE_CHECKING:
