@@ -1,4 +1,5 @@
 import asyncio
+import os
 from abc import ABC, ABCMeta, abstractmethod
 from dataclasses import asdict
 from logging import Logger
@@ -346,7 +347,76 @@ class BasePersona(ABC, LoggingConfigurable, metaclass=ABCLoggingConfigurableMeta
         Returns the MCP config for the current chat.
         """
         return self.parent.get_mcp_config()
-    
+
+    def process_attachments(self, message: Message) -> Optional[str]:
+        """
+        Process file attachments in the message and return their content as a string.
+        """
+        
+        if not message.attachments:
+            return None
+
+        context_parts = []
+
+        for attachment_id in message.attachments:
+            self.log.info(f"FILE: Processing attachment with ID: {attachment_id}")
+            try:
+                # Try to resolve attachment using multiple strategies
+                file_path = self.resolve_attachment_to_path(attachment_id)
+                
+                if not file_path:
+                    self.log.warning(f"Could not resolve attachment ID: {attachment_id}")
+                    continue
+                
+                # Read the file content
+                with open(file_path, "r", encoding="utf-8") as f:
+                    file_content = f.read()
+                
+                # Get relative path for display
+                rel_path = os.path.relpath(file_path, self.get_workspace_dir())
+                
+                # Add file content with header
+                context_parts.append(
+                    f"File: {rel_path}\n```\n{file_content}\n```"
+                )
+
+            except Exception as e:
+                self.log.warning(f"Failed to read attachment {attachment_id}: {e}")
+                context_parts.append(
+                    f"Attachment: {attachment_id} (could not read file: {e})"
+                )
+
+        result = "\n\n".join(context_parts) if context_parts else None
+        return result
+
+    def resolve_attachment_to_path(self, attachment_id: str) -> Optional[str]:
+        """
+        Resolve an attachment ID to its file path using multiple strategies.
+        """
+        
+        try:
+            attachment_data = self.ychat.get_attachments().get(attachment_id)
+            
+            if attachment_data and isinstance(attachment_data, dict):
+                # If attachment has a 'value' field with filename
+                if 'value' in attachment_data:
+                    filename = attachment_data['value']
+                    
+                    # Try relative to workspace directory
+                    workspace_path = os.path.join(self.get_workspace_dir(), filename)
+                    if os.path.exists(workspace_path):
+                        return workspace_path
+                    
+                    # Try as absolute path
+                    if os.path.exists(filename):
+                        return filename
+                        
+            return None
+            
+        except Exception as e:
+            self.log.error(f"Failed to resolve attachment {attachment_id}: {e}")
+            return None
+        
     def shutdown(self) -> None:
         """
         Shuts the persona down. This method should:
