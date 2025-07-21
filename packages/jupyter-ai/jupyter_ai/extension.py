@@ -6,7 +6,7 @@ from functools import partial
 from typing import TYPE_CHECKING, Optional
 
 import traitlets
-from jupyter_ai_magics import BaseProvider, JupyternautPersona
+from jupyter_ai_magics import BaseProvider
 from jupyter_ai_magics.utils import get_em_providers, get_lm_providers
 from jupyter_events import EventLogger
 from jupyter_server.extension.application import ExtensionApp
@@ -40,7 +40,6 @@ from jupyter_collaboration import (  # type:ignore[import-untyped]  # isort:skip
 )
 
 
-JUPYTERNAUT_AVATAR_ROUTE = JupyternautPersona.avatar_route
 JUPYTERNAUT_AVATAR_PATH = str(
     os.path.join(os.path.dirname(__file__), "static", "jupyternaut.svg")
 )
@@ -60,17 +59,14 @@ else:
 class AiExtension(ExtensionApp):
     name = "jupyter_ai"
     handlers = [  # type:ignore[assignment]
-        (r"api/ai/api_keys/(?P<api_key_name>\w+)", ApiKeysHandler),
+        (r"api/ai/api_keys/(?P<api_key_name>\w+)/?", ApiKeysHandler),
         (r"api/ai/config/?", GlobalConfigHandler),
-        (r"api/ai/chats/stop_streaming?", InterruptStreamingHandler),
-        (r"api/ai/providers?", ModelProviderHandler),
-        (r"api/ai/providers/embeddings?", EmbeddingsModelProviderHandler),
+        (r"api/ai/chats/stop_streaming/?", InterruptStreamingHandler),
+        (r"api/ai/providers/?", ModelProviderHandler),
+        (r"api/ai/providers/embeddings/?", EmbeddingsModelProviderHandler),
         (r"api/ai/completion/inline/?", DefaultInlineCompletionHandler),
-        # serve the default persona avatar at this path.
-        # the `()` at the end of the URL denotes an empty regex capture group,
-        # required by Tornado.
         (
-            rf"{JUPYTERNAUT_AVATAR_ROUTE}()",
+            r"api/ai/static/jupyternaut.svg()/?",
             StaticFileHandler,
             {"path": JUPYTERNAUT_AVATAR_PATH},
         ),

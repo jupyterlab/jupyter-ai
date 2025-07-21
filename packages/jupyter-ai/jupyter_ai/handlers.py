@@ -9,7 +9,9 @@ from tornado.web import HTTPError
 from .models import (
     ListProvidersEntry,
     ListProvidersResponse,
-    UpdateConfigRequest,
+)
+from .config import (
+    UpdateConfigRequest
 )
 
 if TYPE_CHECKING:
