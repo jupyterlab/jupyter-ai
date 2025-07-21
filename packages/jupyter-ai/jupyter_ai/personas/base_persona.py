@@ -348,7 +348,7 @@ class BasePersona(ABC, LoggingConfigurable, metaclass=ABCLoggingConfigurableMeta
         """
         return self.parent.get_mcp_config()
 
-    def process_attachments(self, message: Message) -> str | None:
+    def process_attachments(self, message: Message) -> Optional[str]:
         """
         Process file attachments in the message and return their content as a string.
         """
@@ -389,7 +389,7 @@ class BasePersona(ABC, LoggingConfigurable, metaclass=ABCLoggingConfigurableMeta
         result = "\n\n".join(context_parts) if context_parts else None
         return result
 
-    def resolve_attachment_to_path(self, attachment_id: str) -> str | None:
+    def resolve_attachment_to_path(self, attachment_id: str) -> Optional[str]:
         """
         Resolve an attachment ID to its file path using multiple strategies.
         """
