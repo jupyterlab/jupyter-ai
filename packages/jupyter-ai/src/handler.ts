@@ -177,9 +177,22 @@ export namespace AiService {
     return response.model_provider_id;
   }
 
-  export async function setChatModel(modelId: string): Promise<void> {
+  export async function updateChatModel(modelId: string | null): Promise<void> {
     return await updateConfig({
       model_provider_id: modelId
+    });
+  }
+
+  export async function getCompletionModel(): Promise<string | null> {
+    const response = await requestAPI<DescribeConfigResponse>('config/');
+    return response.completions_model_provider_id;
+  }
+
+  export async function updateCompletionModel(
+    modelId: string | null
+  ): Promise<void> {
+    return await updateConfig({
+      completions_model_provider_id: modelId
     });
   }
 }
