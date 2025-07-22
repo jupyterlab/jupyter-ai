@@ -3,7 +3,7 @@ import logging
 import os
 import time
 from copy import deepcopy
-from typing import Optional, Union, Any
+from typing import Any, Optional, Union
 
 from deepmerge import always_merger
 from jupyter_ai_magics.utils import (
@@ -210,7 +210,6 @@ class ConfigManager(Configurable):
         it.
         """
         # TODO: re-implement this w/ liteLLM
-        pass
         # validate language model config
         # if config.model_provider_id:
         #     _, lm_provider = get_lm_provider(
@@ -398,7 +397,7 @@ class ConfigManager(Configurable):
         """
         config = self._read_config()
         return config.model_provider_id
-    
+
     @property
     def chat_model_params(self) -> dict[str, Any]:
         return self._provider_params("model_provider_id", self._lm_providers)

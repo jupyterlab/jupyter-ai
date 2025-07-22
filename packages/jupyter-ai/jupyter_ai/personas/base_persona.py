@@ -20,8 +20,9 @@ from .persona_awareness import PersonaAwareness
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
 
-    from .persona_manager import PersonaManager
     from litellm import ModelResponseStream
+
+    from .persona_manager import PersonaManager
 
 
 class PersonaDefaults(BaseModel):
@@ -234,7 +235,9 @@ class BasePersona(ABC, LoggingConfigurable, metaclass=ABCLoggingConfigurableMeta
         user = self.as_user()
         return asdict(user)
 
-    async def stream_message(self, reply_stream: "AsyncIterator[ModelResponseStream | str]") -> None:
+    async def stream_message(
+        self, reply_stream: "AsyncIterator[ModelResponseStream | str]"
+    ) -> None:
         """
         Takes an async iterator, dubbed the 'reply stream', and streams it to a
         new message by this persona in the YChat. The async iterator may yield

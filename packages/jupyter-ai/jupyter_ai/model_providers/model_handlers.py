@@ -1,10 +1,8 @@
-from typing import TYPE_CHECKING, Optional, cast
+from jupyter_server.base.handlers import APIHandler as BaseAPIHandler
 from pydantic import BaseModel
+from tornado import web
 
 from .model_list import CHAT_MODELS
-
-from jupyter_server.base.handlers import APIHandler as BaseAPIHandler
-from tornado import web
 
 
 class ChatModelEndpoint(BaseAPIHandler):
@@ -21,8 +19,10 @@ class ChatModelEndpoint(BaseAPIHandler):
         response = ListChatModelsResponse(chat_models=CHAT_MODELS)
         self.finish(response.model_dump_json())
 
+
 class ListChatModelsResponse(BaseModel):
     chat_models: list[str]
+
 
 class ListEmbeddingModelsResponse(BaseModel):
     embedding_models: list[str]

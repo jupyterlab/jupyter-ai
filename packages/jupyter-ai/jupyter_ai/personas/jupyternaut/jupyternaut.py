@@ -1,12 +1,15 @@
 from typing import Any, Optional
 
 from jupyterlab_chat.models import Message
-
-from ..base_persona import BasePersona, PersonaDefaults
-from .prompt_template import JUPYTERNAUT_SYSTEM_PROMPT_TEMPLATE, JupyternautSystemPromptArgs
 from litellm import acompletion
 
+from ..base_persona import BasePersona, PersonaDefaults
 from ..persona_manager import SYSTEM_USERNAME
+from .prompt_template import (
+    JUPYTERNAUT_SYSTEM_PROMPT_TEMPLATE,
+    JupyternautSystemPromptArgs,
+)
+
 
 class JupyternautPersona(BasePersona):
     """
@@ -37,17 +40,21 @@ class JupyternautPersona(BasePersona):
         context_as_messages = self.get_context_as_messages(model_id, message)
         response_aiter = await acompletion(
             model=model_id,
-            messages=[*context_as_messages, {
-                "role": "user",
-                "content": message.body,
-            }],
+            messages=[
+                *context_as_messages,
+                {
+                    "role": "user",
+                    "content": message.body,
+                },
+            ],
             stream=True,
         )
 
         await self.stream_message(response_aiter)
 
-
-    def get_context_as_messages(self, model_id: str, message: Message) -> list[dict[str, Any]]:
+    def get_context_as_messages(
+        self, model_id: str, message: Message
+    ) -> list[dict[str, Any]]:
         """
         Returns the current context, including attachments and recent messages,
         as a list of messages accepted by `litellm.acompletion()`.
@@ -55,17 +62,16 @@ class JupyternautPersona(BasePersona):
         system_msg_args = JupyternautSystemPromptArgs(
             model_id=model_id,
             persona_name=self.name,
-            context=self.process_attachments(message)
+            context=self.process_attachments(message),
         ).model_dump()
 
         system_msg = {
             "role": "system",
-            "content": JUPYTERNAUT_SYSTEM_PROMPT_TEMPLATE.render(**system_msg_args)
+            "content": JUPYTERNAUT_SYSTEM_PROMPT_TEMPLATE.render(**system_msg_args),
         }
 
         context_as_messages = [system_msg, *self._get_history_as_messages()]
         return context_as_messages
-
 
     def _get_history_as_messages(self, k: Optional[int] = 2) -> list[dict[str, Any]]:
         """
@@ -84,16 +90,11 @@ class JupyternautPersona(BasePersona):
 
         history: list[dict[str, Any]] = []
         for msg in recent_messages:
-            role = ("assistant"
+            role = (
+                "assistant"
                 if msg.sender.startswith("jupyter-ai-personas::")
-                else "system"
-                if msg.sender == SYSTEM_USERNAME
-                else "user"
+                else "system" if msg.sender == SYSTEM_USERNAME else "user"
             )
-            history.append({
-                "role": role,
-                "content": msg.body
-            })
-        
-        return history
+            history.append({"role": role, "content": msg.body})
 
+        return history

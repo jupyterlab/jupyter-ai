@@ -56,6 +56,8 @@ else:
 
 
 from .model_providers.model_handlers import ChatModelEndpoint
+
+
 class AiExtension(ExtensionApp):
     name = "jupyter_ai"
     handlers = [  # type:ignore[assignment]

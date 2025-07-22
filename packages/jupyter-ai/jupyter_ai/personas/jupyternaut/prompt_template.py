@@ -1,5 +1,6 @@
 from typing import Optional
 
+from jinja2 import Template
 from langchain.prompts import (
     ChatPromptTemplate,
     HumanMessagePromptTemplate,
@@ -7,7 +8,6 @@ from langchain.prompts import (
     SystemMessagePromptTemplate,
 )
 from pydantic import BaseModel
-from jinja2 import Template
 
 _JUPYTERNAUT_SYSTEM_PROMPT_FORMAT = """
 <instructions>
@@ -77,7 +77,10 @@ class JupyternautVariables(BaseModel):
     context: Optional[str] = None
 
 
-JUPYTERNAUT_SYSTEM_PROMPT_TEMPLATE: Template = Template(_JUPYTERNAUT_SYSTEM_PROMPT_FORMAT)
+JUPYTERNAUT_SYSTEM_PROMPT_TEMPLATE: Template = Template(
+    _JUPYTERNAUT_SYSTEM_PROMPT_FORMAT
+)
+
 
 class JupyternautSystemPromptArgs(BaseModel):
     persona_name: str

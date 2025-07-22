@@ -1,4 +1,4 @@
-from litellm import models_by_provider, all_embedding_models
+from litellm import all_embedding_models, models_by_provider
 
 chat_model_ids = []
 embedding_model_ids = []
@@ -12,9 +12,13 @@ for provider_name in models_by_provider:
             model_id = model_name
         else:
             model_id = f"{provider_name}/{model_name}"
-        
-        is_embedding = model_name in embedding_model_set or model_id in embedding_model_set or "embed" in model_id
-        
+
+        is_embedding = (
+            model_name in embedding_model_set
+            or model_id in embedding_model_set
+            or "embed" in model_id
+        )
+
         if is_embedding:
             embedding_model_ids.append(model_id)
         else:
