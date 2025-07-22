@@ -30,7 +30,6 @@ dependencies = [
     "pydantic>=2.10.0,<3",
     "click>=8.1.0,<9",
     "jsonpath-ng>=1.5.3,<2",
-    "langchain-google-vertexai",
 ]
 
 [project.optional-dependencies]
@@ -45,26 +44,8 @@ dev = [
 test = ["coverage", "pytest", "pytest-asyncio", "pytest-cov"]
 
 all = [
-    "ai21",
-    "gpt4all",
-    "huggingface_hub",
-    "ipywidgets",
-    "langchain_anthropic",
-    "langchain_aws",
-    "langchain_cohere",
-    # Pin cohere to <5.16 to prevent langchain_cohere from breaking as it uses ChatResponse removed in cohere 5.16.0
-    # TODO: remove cohere pin when langchain_cohere is updated to work with cohere >=5.16
-    "cohere<5.16",
-    "langchain_google_genai",
-    "langchain_mistralai",
-    "langchain_nvidia_ai_endpoints",
-    "langchain_openai",
-    "langchain_ollama",
-    "pillow",
+    # Required for using Amazon Bedrock
     "boto3",
-    "qianfan",
-    "together",
-    "langchain-google-vertexai",
 ]
 
 [project.entry-points."jupyter_ai.model_providers"]
