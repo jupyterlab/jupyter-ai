@@ -67,7 +67,7 @@ class AiExtension(ExtensionApp):
         (r"api/ai/providers/?", ModelProviderHandler),
         (r"api/ai/providers/embeddings/?", EmbeddingsModelProviderHandler),
         (r"api/ai/completion/inline/?", DefaultInlineCompletionHandler),
-        (r"api/ai/models/?", ChatModelEndpoint),
+        (r"api/ai/models/chat/?", ChatModelEndpoint),
         (
             r"api/ai/static/jupyternaut.svg()/?",
             StaticFileHandler,

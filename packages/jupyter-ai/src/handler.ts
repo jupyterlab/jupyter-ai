@@ -166,7 +166,7 @@ export namespace AiService {
   }
 
   export async function listChatModels(): Promise<string[]> {
-    const response = await requestAPI<ListChatModelsResponse>('models/', {
+    const response = await requestAPI<ListChatModelsResponse>('models/chat/', {
       method: 'GET'
     });
     return response.chat_models;
