@@ -1,10 +1,13 @@
+import json
 import os
+import re
 from unittest.mock import Mock, patch
 
 import pytest
 from IPython import InteractiveShell
 from IPython.core.display import Markdown
-from jupyter_ai_magics.magics import AiMagics
+from IPython.display import HTML, JSON, Markdown
+from jupyter_ai_magics.magics import DISPLAYS_BY_FORMAT, AiMagics
 from langchain_core.messages import AIMessage, HumanMessage
 from pytest import fixture
 from traitlets.config.loader import Config
@@ -121,3 +124,68 @@ def test_reset(ip):
     ai_magics.transcript = [AI1, H1, AI2, H2, AI3]
     ip.run_line_magic("ai", "reset")
     assert ai_magics.transcript == []
+
+
+class DummyShell:
+    def __init__(self):
+        self.set_next_input = Mock()
+        self.user_ns = {}
+        self.execution_count = 1
+
+
+@pytest.fixture
+def dummy_shell():
+    return DummyShell()
+
+
+@pytest.fixture
+def ai_magics(dummy_shell):
+    return AiMagics(shell=dummy_shell)
+
+
+def test_display_output_code_format(ai_magics, dummy_shell):
+    original_output = "   ```python\n" + "def add(a, b):\n    return a+b" + "\n```"
+    md = {"test_meta": "value"}
+    result = ai_magics.display_output(original_output, "code", md)
+
+    expected_output = "def add(a, b):\n    return a+b"
+    dummy_shell.set_next_input.assert_called_once_with(expected_output, replace=False)
+
+    assert isinstance(result, HTML)
+    assert result.metadata == md
+    assert "AI generated code inserted below" in result.data
+
+
+def test_display_output_markdown_format(ai_magics):
+    output_text = "This is **markdown** output."
+    md = {"jupyter_ai": {"dummy": "test"}}
+    result = ai_magics.display_output(output_text, "markdown", md)
+    assert isinstance(result, Markdown)
+    assert result.data == output_text
+    bundle = result._repr_mimebundle_()
+    assert bundle.get("text/markdown") == output_text
+
+
+def test_display_output_json_format(ai_magics):
+    data = {"key": "value", "number": 42}
+    json_string = json.dumps(data)
+    md = {"jupyter_ai": {"dummy": "json"}}
+    result = ai_magics.display_output(json_string, "json", md)
+    assert isinstance(result, JSON)
+    bundle = result._repr_mimebundle_()
+    json_data = bundle.get("application/json") or bundle.get("text/json")
+    if isinstance(json_data, str):
+        json_data = json.loads(json_data)
+    assert json_data == data
+
+    def test_display_output_json_format(ai_magics):
+        data = {"key": "value", "number": 42}
+        json_string = json.dumps(data)
+        md = {"jupyter_ai": {"dummy": "json"}}
+        result = ai_magics.display_output(json_string, "json", md)
+        assert isinstance(result, JSON)
+        bundle = result._repr_mimebundle_()
+        json_data = bundle.get("application/json") or bundle.get("text/json")
+        if isinstance(json_data, str):
+            json_data = json.loads(json_data)
+        assert json_data == data
