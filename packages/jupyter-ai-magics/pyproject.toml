@@ -48,42 +48,6 @@ all = [
     "boto3",
 ]
 
-[project.entry-points."jupyter_ai.model_providers"]
-ai21 = "jupyter_ai_magics:AI21Provider"
-anthropic-chat = "jupyter_ai_magics.partner_providers.anthropic:ChatAnthropicProvider"
-cohere = "jupyter_ai_magics.partner_providers.cohere:CohereProvider"
-gpt4all = "jupyter_ai_magics:GPT4AllProvider"
-huggingface_hub = "jupyter_ai_magics:HfHubProvider"
-ollama = "jupyter_ai_magics.partner_providers.ollama:OllamaProvider"
-openai = "jupyter_ai_magics.partner_providers.openai:OpenAIProvider"
-openai-chat = "jupyter_ai_magics.partner_providers.openai:ChatOpenAIProvider"
-openai-chat-custom = "jupyter_ai_magics.partner_providers.openai:ChatOpenAICustomProvider"
-azure-chat-openai = "jupyter_ai_magics.partner_providers.openai:AzureChatOpenAIProvider"
-sagemaker-endpoint = "jupyter_ai_magics.partner_providers.aws:SmEndpointProvider"
-amazon-bedrock = "jupyter_ai_magics.partner_providers.aws:BedrockProvider"
-amazon-bedrock-chat = "jupyter_ai_magics.partner_providers.aws:BedrockChatProvider"
-amazon-bedrock-custom = "jupyter_ai_magics.partner_providers.aws:BedrockCustomProvider"
-qianfan = "jupyter_ai_magics:QianfanProvider"
-nvidia-chat = "jupyter_ai_magics.partner_providers.nvidia:ChatNVIDIAProvider"
-together-ai = "jupyter_ai_magics:TogetherAIProvider"
-gemini = "jupyter_ai_magics.partner_providers.gemini:GeminiProvider"
-mistralai = "jupyter_ai_magics.partner_providers.mistralai:MistralAIProvider"
-openrouter = "jupyter_ai_magics.partner_providers.openrouter:OpenRouterProvider"
-vertexai = "jupyter_ai_magics.partner_providers.vertexai:VertexAIProvider"
-
-[project.entry-points."jupyter_ai.embeddings_model_providers"]
-azure = "jupyter_ai_magics.partner_providers.openai:AzureOpenAIEmbeddingsProvider"
-bedrock = "jupyter_ai_magics.partner_providers.aws:BedrockEmbeddingsProvider"
-cohere = "jupyter_ai_magics.partner_providers.cohere:CohereEmbeddingsProvider"
-mistralai = "jupyter_ai_magics.partner_providers.mistralai:MistralAIEmbeddingsProvider"
-gpt4all = "jupyter_ai_magics:GPT4AllEmbeddingsProvider"
-huggingface_hub = "jupyter_ai_magics:HfHubEmbeddingsProvider"
-ollama = "jupyter_ai_magics.partner_providers.ollama:OllamaEmbeddingsProvider"
-openai = "jupyter_ai_magics.partner_providers.openai:OpenAIEmbeddingsProvider"
-openai-custom = "jupyter_ai_magics.partner_providers.openai:OpenAIEmbeddingsCustomProvider"
-qianfan = "jupyter_ai_magics:QianfanEmbeddingsEndpointProvider"
-vertexai = "jupyter_ai_magics.partner_providers.vertexai:VertexAIEmbeddingsProvider"
-
 [tool.hatch.version]
 source = "nodejs"
 
