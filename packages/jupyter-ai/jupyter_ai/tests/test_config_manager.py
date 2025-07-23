@@ -43,8 +43,8 @@ def config_file_with_model_fields(jp_data_dir):
 def common_cm_kwargs(config_path):
     """Kwargs that are commonly used when initializing the CM."""
     log = logging.getLogger()
-    lm_providers = get_lm_providers()
-    em_providers = get_em_providers()
+    lm_providers = {}
+    em_providers = {}
     return {
         "log": log,
         "lm_providers": lm_providers,
@@ -467,8 +467,8 @@ def test_config_manager_does_not_write_to_defaults(config_file_with_model_fields
 
     config_path = config_file_with_model_fields
     log = logging.getLogger()
-    lm_providers = get_lm_providers()
-    em_providers = get_em_providers()
+    lm_providers = {}
+    em_providers = {}
 
     defaults = {
         "model_provider_id": None,

@@ -7,7 +7,6 @@ from typing import TYPE_CHECKING, Optional
 
 import traitlets
 from jupyter_ai_magics import BaseProvider
-from jupyter_ai_magics.utils import get_em_providers, get_lm_providers
 from jupyter_events import EventLogger
 from jupyter_server.extension.application import ExtensionApp
 from jupyter_server.serverapp import ServerApp
@@ -56,6 +55,9 @@ else:
     )
 
 
+from .model_providers.model_handlers import ChatModelEndpoint
+
+
 class AiExtension(ExtensionApp):
     name = "jupyter_ai"
     handlers = [  # type:ignore[assignment]
@@ -65,6 +67,7 @@ class AiExtension(ExtensionApp):
         (r"api/ai/providers/?", ModelProviderHandler),
         (r"api/ai/providers/embeddings/?", EmbeddingsModelProviderHandler),
         (r"api/ai/completion/inline/?", DefaultInlineCompletionHandler),
+        (r"api/ai/models/chat/?", ChatModelEndpoint),
         (
             r"api/ai/static/jupyternaut.svg()/?",
             StaticFileHandler,
@@ -322,12 +325,9 @@ class AiExtension(ExtensionApp):
         }
 
         # Fetch LM & EM providers
-        self.settings["lm_providers"] = get_lm_providers(
-            log=self.log, restrictions=restrictions
-        )
-        self.settings["em_providers"] = get_em_providers(
-            log=self.log, restrictions=restrictions
-        )
+        # TODO: remove this & jupyter_ai_magics.utils
+        self.settings["lm_providers"] = {}
+        self.settings["em_providers"] = {}
 
         self.settings["jai_config_manager"] = ConfigManager(
             # traitlets configuration, not JAI configuration.
