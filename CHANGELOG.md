@@ -2,6 +2,28 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 3.0.0beta5
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@3.0.0-beta.4...39352660e7040a5a6f7a1c016ab804ad4f658393))
+
+### Enhancements made
+
+- Add file attachment directly to JupyternautPersona when file is included in message [#1419](https://github.com/jupyterlab/jupyter-ai/pull/1419) ([@joadoumie](https://github.com/joadoumie))
+- Add VertexAI model provider [#1417](https://github.com/jupyterlab/jupyter-ai/pull/1417) ([@anthonyhungnguyen](https://github.com/anthonyhungnguyen))
+
+### Maintenance and upkeep improvements
+
+- Run pre-commit [#1423](https://github.com/jupyterlab/jupyter-ai/pull/1423) ([@dlqqq](https://github.com/dlqqq))
+- Remove config schema and legacy v2 persona references [#1420](https://github.com/jupyterlab/jupyter-ai/pull/1420) ([@dlqqq](https://github.com/dlqqq))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2025-07-10&to=2025-07-25&type=c))
+
+[@anthonyhungnguyen](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aanthonyhungnguyen+updated%3A2025-07-10..2025-07-25&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2025-07-10..2025-07-25&type=Issues) | [@joadoumie](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ajoadoumie+updated%3A2025-07-10..2025-07-25&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 3.0.0beta4
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@3.0.0-beta.3...170388630cf76bff291b76eeb9c7a8c55b2b7013))
@@ -20,8 +42,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2025-07-07&to=2025-07-10&type=c))
 
 [@andrii-i](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aandrii-i+updated%3A2025-07-07..2025-07-10&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2025-07-07..2025-07-10&type=Issues) | [@ellisonbg](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aellisonbg+updated%3A2025-07-07..2025-07-10&type=Issues) | [@srdas](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2025-07-07..2025-07-10&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 3.0.0beta3
 
