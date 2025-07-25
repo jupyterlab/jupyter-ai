@@ -6,7 +6,6 @@ from functools import partial
 from typing import TYPE_CHECKING, Optional
 
 import traitlets
-from jupyter_ai_magics import BaseProvider
 from jupyter_events import EventLogger
 from jupyter_server.extension.application import ExtensionApp
 from jupyter_server.serverapp import ServerApp
@@ -24,10 +23,8 @@ from .completions.handlers import DefaultInlineCompletionHandler
 from .config_manager import ConfigManager
 from .handlers import (
     ApiKeysHandler,
-    EmbeddingsModelProviderHandler,
     GlobalConfigHandler,
     InterruptStreamingHandler,
-    ModelProviderHandler,
 )
 from .personas import PersonaManager
 
@@ -64,8 +61,6 @@ class AiExtension(ExtensionApp):
         (r"api/ai/api_keys/(?P<api_key_name>\w+)/?", ApiKeysHandler),
         (r"api/ai/config/?", GlobalConfigHandler),
         (r"api/ai/chats/stop_streaming/?", InterruptStreamingHandler),
-        (r"api/ai/providers/?", ModelProviderHandler),
-        (r"api/ai/providers/embeddings/?", EmbeddingsModelProviderHandler),
         (r"api/ai/completion/inline/?", DefaultInlineCompletionHandler),
         (r"api/ai/models/chat/?", ChatModelEndpoint),
         (
@@ -341,13 +336,6 @@ class AiExtension(ExtensionApp):
             blocked_models=self.blocked_models,
             defaults=defaults,
         )
-
-        # Expose a subset of settings as read-only to the providers
-        BaseProvider.server_settings = types.MappingProxyType(
-            self.serverapp.web_app.settings
-        )
-
-        self.log.info("Registered providers.")
 
         self.log.info(f"Registered {self.name} server extension")
 
