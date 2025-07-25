@@ -1,5 +1,6 @@
 from typing import Optional
 
+from jinja2 import Template
 from langchain.prompts import (
     ChatPromptTemplate,
     HumanMessagePromptTemplate,
@@ -17,7 +18,7 @@ Jupyter AI is an installable software package listed on PyPI and Conda Forge as 
 
 When installed, Jupyter AI adds a chat experience in JupyterLab that allows multiple users to collaborate with one or more agents like yourself.
 
-You are not a language model, but rather an AI agent powered by a foundation model `{{model_id}}`, provided by '{{provider_name}}'.
+You are not a language model, but rather an AI agent powered by a foundation model `{{model_id}}`.
 
 You are receiving a request from a user in JupyterLab. Your goal is to fulfill this request to the best of your ability.
 
@@ -48,6 +49,7 @@ The user's request is located at the last message. Please fulfill the user's req
 </context>
 """.strip()
 
+# TODO: Delete this. This is just being kept to prevent merge conflicts.
 JUPYTERNAUT_PROMPT_TEMPLATE = ChatPromptTemplate.from_messages(
     [
         SystemMessagePromptTemplate.from_template(
@@ -59,6 +61,7 @@ JUPYTERNAUT_PROMPT_TEMPLATE = ChatPromptTemplate.from_messages(
 )
 
 
+# TODO: Delete this. This is just being kept to prevent merge conflicts.
 class JupyternautVariables(BaseModel):
     """
     Variables expected by `JUPYTERNAUT_PROMPT_TEMPLATE`, defined as a Pydantic
@@ -70,6 +73,16 @@ class JupyternautVariables(BaseModel):
 
     input: str
     persona_name: str
-    provider_name: str
+    model_id: str
+    context: Optional[str] = None
+
+
+JUPYTERNAUT_SYSTEM_PROMPT_TEMPLATE: Template = Template(
+    _JUPYTERNAUT_SYSTEM_PROMPT_FORMAT
+)
+
+
+class JupyternautSystemPromptArgs(BaseModel):
+    persona_name: str
     model_id: str
     context: Optional[str] = None
