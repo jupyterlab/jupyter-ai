@@ -319,17 +319,10 @@ class AiExtension(ExtensionApp):
             "completions_fields": self.model_parameters,
         }
 
-        # Fetch LM & EM providers
-        # TODO: remove this & jupyter_ai_magics.utils
-        self.settings["lm_providers"] = {}
-        self.settings["em_providers"] = {}
-
         self.settings["jai_config_manager"] = ConfigManager(
             # traitlets configuration, not JAI configuration.
             config=self.config,
             log=self.log,
-            lm_providers=self.settings["lm_providers"],
-            em_providers=self.settings["em_providers"],
             allowed_providers=self.allowed_providers,
             blocked_providers=self.blocked_providers,
             allowed_models=self.allowed_models,
