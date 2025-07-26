@@ -1,3 +1,4 @@
+from __future__ import annotations
 from ._version import __version__
 
 from typing import TYPE_CHECKING
