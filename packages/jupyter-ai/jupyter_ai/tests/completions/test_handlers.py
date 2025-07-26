@@ -4,7 +4,7 @@ from typing import Union
 
 import pytest
 from jupyter_ai.completions.handlers.default import DefaultInlineCompletionHandler
-from jupyter_ai.completions.models import (
+from jupyter_ai.completions.completion_types import (
     InlineCompletionReply,
     InlineCompletionRequest,
     InlineCompletionStreamChunk,
