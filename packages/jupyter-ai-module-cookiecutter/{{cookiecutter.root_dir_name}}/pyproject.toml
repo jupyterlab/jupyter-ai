@@ -29,9 +29,6 @@ dependencies = ["jupyter_ai"]
 [project.optional-dependencies]
 test = ["coverage", "pytest", "pytest-asyncio", "pytest-cov"]
 
-[project.entry-points."jupyter_ai.model_providers"]
-test-provider = "{{ cookiecutter.python_name }}.provider:TestProvider"
-
 [tool.hatch.build.hooks.version]
 path = "{{ cookiecutter.python_name }}/_version.py"
 

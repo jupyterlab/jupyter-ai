@@ -1,4 +1,4 @@
-from .models.completion import InlineCompletionRequest
+from .completion_types import InlineCompletionRequest
 
 
 def token_from_request(request: InlineCompletionRequest, suggestion: int):
@@ -49,3 +49,4 @@ def post_process_suggestion(suggestion: str, request: InlineCompletionRequest) -
         suggestion = suggestion.rstrip()[:-3].rstrip()
 
     return suggestion
+

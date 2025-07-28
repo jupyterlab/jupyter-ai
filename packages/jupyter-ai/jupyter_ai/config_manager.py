@@ -6,13 +6,6 @@ from copy import deepcopy
 from typing import Any, Optional, Union
 
 from deepmerge import always_merger
-from jupyter_ai_magics.utils import (
-    AnyProvider,
-    EmProvidersDict,
-    LmProvidersDict,
-    get_em_provider,
-    get_lm_provider,
-)
 from jupyter_core.paths import jupyter_data_dir
 from traitlets import Integer, Unicode
 from traitlets.config import Configurable
@@ -46,17 +39,6 @@ class KeyEmptyError(Exception):
 
 class BlockedModelError(Exception):
     pass
-
-
-def _validate_provider_authn(config: JaiConfig, provider: type[AnyProvider]):
-    # TODO: handle non-env auth strategies
-    if not provider.auth_strategy or provider.auth_strategy.type != "env":
-        return
-
-    if provider.auth_strategy.name not in config.api_keys:
-        raise AuthError(
-            f"Missing API key for '{provider.auth_strategy.name}' in the config."
-        )
 
 
 def remove_none_entries(d: dict):
@@ -110,8 +92,6 @@ class ConfigManager(Configurable):
     def __init__(
         self,
         log: Logger,
-        lm_providers: LmProvidersDict,
-        em_providers: EmProvidersDict,
         defaults: dict,
         allowed_providers: Optional[list[str]] = None,
         blocked_providers: Optional[list[str]] = None,
@@ -122,11 +102,6 @@ class ConfigManager(Configurable):
     ):
         super().__init__(*args, **kwargs)
         self.log = log
-
-        self._lm_providers = lm_providers
-        """List of LM providers."""
-        self._em_providers = em_providers
-        """List of EM providers."""
 
         self._allowed_providers = allowed_providers
         self._blocked_providers = blocked_providers
@@ -282,6 +257,7 @@ class ConfigManager(Configurable):
         #         and config.embeddings_provider_id not in config.embeddings_fields
         #     ):
         #         config.embeddings_fields[config.embeddings_provider_id] = {}
+        return
 
     def _validate_model(self, model_id: str, raise_exc=True):
         """
@@ -292,7 +268,7 @@ class ConfigManager(Configurable):
         """
 
         assert model_id is not None
-        components = model_id.split(":", 1)
+        components = model_id.split("/", 1)
         assert len(components) == 2
         provider_id, _ = components
 
@@ -340,29 +316,6 @@ class ConfigManager(Configurable):
         self._validate_config(new_config)
         with open(self.config_path, "w") as f:
             json.dump(new_config.model_dump(), f, indent=self.indentation_depth)
-
-    def delete_api_key(self, key_name: str):
-        config_dict = self._read_config().model_dump()
-        required_keys = []
-        for provider in [
-            self.lm_provider,
-            self.em_provider,
-            self.completions_lm_provider,
-        ]:
-            if (
-                provider
-                and provider.auth_strategy
-                and provider.auth_strategy.type == "env"
-            ):
-                required_keys.append(provider.auth_strategy.name)
-
-        if key_name in required_keys:
-            raise KeyInUseError(
-                "This API key is currently in use by the language or embedding model. Please change the model before deleting the corresponding API key."
-            )
-
-        config_dict["api_keys"].pop(key_name, None)
-        self._write_config(JaiConfig(**config_dict))
 
     def update_config(self, config_update: UpdateConfigRequest):  # type:ignore
         last_write = os.stat(self.config_path).st_mtime_ns
@@ -412,73 +365,22 @@ class ConfigManager(Configurable):
 
     @property
     def embedding_model_params(self) -> dict[str, Any]:
-        return self._provider_params("embeddings_provider_id", self._em_providers)
-
-    # TODO: use LiteLLM in completions
+        # TODO
+        return {}
+    
     @property
-    def completions_lm_provider(self):
-        return self._get_provider("completions_model_provider_id", self._lm_providers)
-
-    def _get_provider(self, key, listing):
+    def completion_model(self) -> str | None:
+        """
+        Returns the model ID of the completion model from AI settings, if any.
+        """
         config = self._read_config()
-        gid = getattr(config, key)
-        if gid is None:
-            return None
+        return config.completions_model_provider_id
 
-        _, Provider = get_lm_provider(gid, listing)
-        return Provider
-
-    # TODO: use LiteLLM in completions
     @property
-    def completions_lm_provider_params(self):
-        return self._provider_params(
-            "completions_model_provider_id", self._lm_providers, completions=True
-        )
+    def completion_model_params(self):
+        # TODO
+        return {}
 
-    def _provider_params(self, key, listing, completions: bool = False):
-        # read config
-        config = self._read_config()
-
-        # get model ID (without provider ID component) from model universal ID
-        # (with provider component).
-        model_uid = getattr(config, key)
-        if not model_uid:
-            return None
-        model_id = model_uid.split(":", 1)[1]
-
-        # get config fields (e.g. base API URL, etc.)
-        if completions:
-            fields = config.completions_fields.get(model_uid, {})
-        elif key == "embeddings_provider_id":
-            fields = config.embeddings_fields.get(model_uid, {})
-        else:
-            fields = config.fields.get(model_uid, {})
-
-        # exclude empty fields
-        # TODO: modify the config manager to never save empty fields in the
-        # first place.
-        fields = {
-            k: None if isinstance(v, str) and not len(v) else v
-            for k, v in fields.items()
-        }
-
-        # get authn fields
-        _, Provider = (
-            get_em_provider(model_uid, listing)
-            if key == "embeddings_provider_id"
-            else get_lm_provider(model_uid, listing)
-        )
-        authn_fields = {}
-        if Provider.auth_strategy and Provider.auth_strategy.type == "env":
-            keyword_param = (
-                Provider.auth_strategy.keyword_param
-                or Provider.auth_strategy.name.lower()
-            )
-            key_name = Provider.auth_strategy.name
-            authn_fields[keyword_param] = config.api_keys[key_name]
-
-        return {
-            "model_id": model_id,
-            **fields,
-            **authn_fields,
-        }
+    def delete_api_key(self, key_name: str):
+        # TODO: store in .env files
+        pass
