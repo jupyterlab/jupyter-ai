@@ -11,7 +11,6 @@ from jupyter_ai.config_manager import (
     KeyInUseError,
     WriteConflictError,
 )
-from jupyter_ai_magics.utils import get_em_providers, get_lm_providers
 from pydantic import ValidationError
 
 
@@ -43,12 +42,8 @@ def config_file_with_model_fields(jp_data_dir):
 def common_cm_kwargs(config_path):
     """Kwargs that are commonly used when initializing the CM."""
     log = logging.getLogger()
-    lm_providers = {}
-    em_providers = {}
     return {
         "log": log,
-        "lm_providers": lm_providers,
-        "em_providers": em_providers,
         "config_path": config_path,
         "allowed_providers": None,
         "blocked_providers": None,
@@ -467,8 +462,6 @@ def test_config_manager_does_not_write_to_defaults(config_file_with_model_fields
 
     config_path = config_file_with_model_fields
     log = logging.getLogger()
-    lm_providers = {}
-    em_providers = {}
 
     defaults = {
         "model_provider_id": None,
@@ -480,8 +473,6 @@ def test_config_manager_does_not_write_to_defaults(config_file_with_model_fields
 
     cm = ConfigManager(
         log=log,
-        lm_providers=lm_providers,
-        em_providers=em_providers,
         config_path=config_path,
         defaults=defaults,
     )
