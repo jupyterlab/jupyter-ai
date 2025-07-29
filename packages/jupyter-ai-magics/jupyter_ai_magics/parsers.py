@@ -79,13 +79,13 @@ class ListArgs(BaseModel):
 
 
 class RegisterArgs(BaseModel):
-    type: Literal["register"] = "register"
+    type: Literal["alias"] = "alias"
     name: str
     target: str
 
 
 class DeleteArgs(BaseModel):
-    type: Literal["delete"] = "delete"
+    type: Literal["dealias"] = "dealias"
     name: str
 
 
@@ -253,8 +253,8 @@ def list_subparser(**kwargs):
 
 
 @line_magic_parser.command(
-    name="register",
-    short_help="Register a new alias. See `%ai register --help` for options.",
+    name="alias",
+    short_help="Register a new alias. See `%ai alias --help` for options.",
 )
 @click.argument("name")
 @click.argument("target")
@@ -264,7 +264,7 @@ def register_subparser(**kwargs):
 
 
 @line_magic_parser.command(
-    name="delete", short_help="Delete an alias. See `%ai delete --help` for options."
+    name="dealias", short_help="Delete an alias. See `%ai dealias --help` for options."
 )
 @click.argument("name")
 def register_subparser(**kwargs):
