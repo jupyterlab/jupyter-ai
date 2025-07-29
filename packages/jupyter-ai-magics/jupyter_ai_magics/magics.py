@@ -133,7 +133,6 @@ class AiMagics(Magics):
         config=True,
     )
 
-    # TODO: rename this to initial_language_model
     initial_language_model = traitlets.Unicode(
         default_value=None,
         allow_none=True,
@@ -179,7 +178,9 @@ class AiMagics(Magics):
         # https://docs.litellm.ai/docs/completion/model_alias
         # initialize a registry of custom model/chain names
         self.custom_model_registry = self.aliases
-
+        
+    
+    
     @line_cell_magic
     def ai(self, line: str, cell: Optional[str] = None) -> Any:
         """
