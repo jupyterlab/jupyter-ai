@@ -3,7 +3,7 @@ import json
 import re
 import sys
 import warnings
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 import click
 import litellm
@@ -26,6 +26,7 @@ from .parsers import (
     cell_magic_parser,
     line_magic_parser,
 )
+
 
 class TextOrMarkdown:
     def __init__(self, text, markdown):
@@ -133,7 +134,7 @@ class AiMagics(Magics):
     )
 
     # TODO: rename this to initial_language_model
-    default_language_model = traitlets.Unicode(
+    initial_language_model = traitlets.Unicode(
         default_value=None,
         allow_none=True,
         help="""Default language model to use, as string in the format
@@ -198,7 +199,7 @@ class AiMagics(Magics):
         method; `%%ai` was run if and only if `cell is not None`.
         """
         raw_args = line.split(" ")
-        default_map = {"model_id": self.default_language_model}
+        default_map = {"model_id": self.initial_language_model}
 
         # parse arguments
         if cell:
@@ -216,7 +217,7 @@ class AiMagics(Magics):
                 default_map={"error": default_map},
             )
 
-        if args == 0 and self.default_language_model is None:
+        if args == 0 and self.initial_language_model is None:
             # this happens when `--help` is called on the root command, in which
             # case we want to exit early.
             return
@@ -270,16 +271,13 @@ class AiMagics(Magics):
 
         # Prepare messages for the model
         messages = []
-        
+
         # Add conversation history if available
         if self.transcript:
-            messages.extend(self.transcript[-2 * self.max_history:])
-            
+            messages.extend(self.transcript[-2 * self.max_history :])
+
         # Add current prompt
-        messages.append({
-            "role": "user",
-            "content": prompt
-        })
+        messages.append({"role": "user", "content": prompt})
 
         # Resolve model_id: check if it's in CHAT_MODELS or an alias
         model_id = args.model_id
@@ -291,18 +289,16 @@ class AiMagics(Magics):
                 raise ValueError(
                     f"Model ID '{model_id}' is not a known model or alias. "
                     "Run '%ai list' to see available models and aliases."
-            )
+                )
         try:
             # Call litellm completion
             response = litellm.completion(
-            model=model_id,
-            messages=messages,
-            stream=False
+                model=model_id, messages=messages, stream=False
             )
-            
+
             # Extract output text from response
             output = response.choices[0].message.content
-            
+
             # Append exchange to transcript
             self._append_exchange(prompt, output)
 
@@ -311,13 +307,13 @@ class AiMagics(Magics):
 
             # Return output given the format
             return self.display_output(output, args.format, metadata)
-            
+
         except Exception as e:
             error_msg = f"Error calling language model: {str(e)}"
             print(error_msg, file=sys.stderr)
             return error_msg
 
-    def display_output(self, output, display_format, metadata: Dict[str, Any]) -> Any:
+    def display_output(self, output, display_format, metadata: dict[str, Any]) -> Any:
         """
         Returns an IPython 'display object' that determines how an output is
         rendered. This is complex, so here are some notes:
@@ -333,7 +329,7 @@ class AiMagics(Magics):
         Markdown when viewed from a web browser.
 
         - See `DISPLAYS_BY_FORMAT` for the list of display objects that can be
-        returned by `jupyter_ai_magics`. 
+        returned by `jupyter_ai_magics`.
 
         TODO: Use a string enum to store the list of valid formats.
 
@@ -373,14 +369,8 @@ class AiMagics(Magics):
 
         TODO: bound this list to length `self.max_history * 2`.
         """
-        self.transcript.append({
-            "role": "user",
-            "content": prompt
-        })
-        self.transcript.append({
-            "role": "assistant",
-            "content": output
-        })
+        self.transcript.append({"role": "user", "content": prompt})
+        self.transcript.append({"role": "assistant", "content": output})
 
     def handle_help(self, _: HelpArgs) -> None:
         """
@@ -389,7 +379,6 @@ class AiMagics(Magics):
         # The line parser's help function prints both cell and line help
         with click.Context(line_magic_parser, info_name=r"%ai") as ctx:
             click.echo(line_magic_parser.get_help(ctx))
-
 
     def handle_delete_alias(self, args: DeleteArgs) -> TextOrMarkdown:
         """
@@ -477,7 +466,7 @@ class AiMagics(Magics):
 
         # Store the alias
         self.custom_model_registry[args.name] = args.target
-        
+
         output = f"Registered new alias `{args.name}`"
         return TextOrMarkdown(output, output)
 
@@ -495,7 +484,7 @@ class AiMagics(Magics):
 
         # Store the new target
         self.custom_model_registry[args.name] = args.target
-        
+
         output = f"Updated target of alias `{args.name}`"
         return TextOrMarkdown(output, output)
 
@@ -512,15 +501,15 @@ class AiMagics(Magics):
         """
         # Get list of available models from litellm
         models = CHAT_MODELS
-        
+
         # Format output for both text and markdown
         text_output = "Available models:\n\n"
         markdown_output = "## Available models\n\n"
-        
+
         for model in models:
             text_output += f"* {model}\n"
             markdown_output += f"* `{model}`\n"
-            
+
         # Also list any custom aliases
         if len(self.custom_model_registry) > 0:
             text_output += "\nAliases:\n"
@@ -528,5 +517,5 @@ class AiMagics(Magics):
             for alias, target in self.custom_model_registry.items():
                 text_output += f"* {alias} -> {target}\n"
                 markdown_output += f"* `{alias}` -> `{target}`\n"
-                
+
         return TextOrMarkdown(text_output, markdown_output)
