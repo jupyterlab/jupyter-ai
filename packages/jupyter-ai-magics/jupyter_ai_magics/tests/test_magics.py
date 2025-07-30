@@ -43,8 +43,8 @@ def test_non_default_model_cell(ip):
 def test_default_model_error_line(ip):
     ip.config.AiMagics.initial_language_model = "my-favourite-llm"
     ip.extension_manager.load_extension("jupyter_ai_magics")
-    with patch.object(AiMagics, "handle_error", return_value=None) as mock_run:
-        ip.run_cell_magic("ai", "error", cell=None)
+    with patch.object(AiMagics, "handle_fix", return_value=None) as mock_run:
+        ip.run_cell_magic("ai", "fix", cell=None)
         assert mock_run.called
         cell_args = mock_run.call_args.args[0]
         assert cell_args.model_id == "my-favourite-llm"
