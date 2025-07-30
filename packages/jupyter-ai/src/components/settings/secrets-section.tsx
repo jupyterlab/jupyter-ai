@@ -21,6 +21,10 @@ export function SecretsSection(): JSX.Element {
   const [error, setError] = useState<boolean>(false);
   const errorAlert = useStackingAlert();
 
+  /**
+   * Function that loads secrets from the Secrets REST API, setting the
+   * `loading` state accordingly.
+   */
   const loadSecrets = async () => {
     try {
       setLoading(true);
@@ -33,6 +37,22 @@ export function SecretsSection(): JSX.Element {
       errorAlert.show('error', error as unknown as any);
     } finally {
       setLoading(false);
+    }
+  };
+
+  /**
+   * Function that is like `loadSecrets`, but does not affect the `loading`
+   * state. This prevents the child components from being remounted.
+   */
+  const reloadSecrets = async () => {
+    try {
+      const secrets = await AiService.listSecrets();
+      setEditableSecrets(secrets.editable_secrets);
+      setStaticSecrets(secrets.static_secrets);
+      setError(false);
+    } catch (error) {
+      setError(true);
+      errorAlert.show('error', error as unknown as any);
     }
   };
 
@@ -79,7 +99,7 @@ export function SecretsSection(): JSX.Element {
       </p>
       <SecretsInput
         editableSecrets={editableSecrets}
-        reloadSecrets={loadSecrets}
+        reloadSecrets={reloadSecrets}
       />
 
       {/* Static secrets subsection */}
