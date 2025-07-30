@@ -60,17 +60,47 @@ export function SecretsInput(props: SecretsInputProps): JSX.Element | null {
   return (
     <Box>
       {/* SUBSECTION: Editable secrets */}
-      <Box
-        sx={{
-          '& > .MuiBox-root:not(:first-child)': {
-            marginTop: -2
-          }
-        }}
-      >
-        {props.editableSecrets.map(secret => (
-          <EditableSecret key={secret} alert={alert} secret={secret} reloadSecrets={props.reloadSecrets} />
-        ))}
-      </Box>
+      {props.editableSecrets.length > 0 ? (
+        <Box
+          sx={{
+            '& > .MuiBox-root:not(:first-child)': {
+              marginTop: -2
+            }
+          }}
+        >
+          {props.editableSecrets.map(secret => (
+            <EditableSecret
+              key={secret}
+              alert={alert}
+              secret={secret}
+              reloadSecrets={props.reloadSecrets}
+            />
+          ))}
+        </Box>
+      ) : (
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 4,
+            textAlign: 'center',
+            color: 'text.secondary',
+            backgroundColor: 'action.hover',
+            borderRadius: 1,
+            marginBottom: 2
+          }}
+        >
+          <Typography variant="h6" sx={{ marginBottom: 1, fontWeight: 500 }}>
+            No secrets configured
+          </Typography>
+          <Typography variant="body2" sx={{ maxWidth: 400, opacity: 0.8 }}>
+            Add your first API key or secret to start using Jupyter AI with your
+            preferred model provider.
+          </Typography>
+        </Box>
+      )}
 
       {/* Add secret button */}
       {isAddingSecret ? (
