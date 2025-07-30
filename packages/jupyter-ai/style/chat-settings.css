@@ -1,15 +1,34 @@
-.jp-ai-ChatSettings-header {
+/*
+ *
+ * Selectors must be nested in `.jp-ThemedContainer` to have a higher
+ * specificity than selectors in rules provided by JupyterLab.
+ *
+ * See: https://jupyterlab.readthedocs.io/en/latest/extension/extension_migration.html#css-styling
+ * See also: https://github.com/jupyterlab/jupyter-ai/issues/1090
+ */
+
+.jp-ThemedContainer .jp-ai-ChatSettings {
+  padding: 1.5rem 1.5rem;
+  box-sizing: border-box;
+}
+
+.jp-ThemedContainer .jp-ai-ChatSettings a {
+  color: var(--jp-content-link-color);
+  text-decoration: underline;
+}
+
+.jp-ThemedContainer .jp-ai-ChatSettings-header {
   font-size: var(--jp-ui-font-size3);
   font-weight: 400;
   color: var(--jp-ui-font-color1);
 }
 
-.jp-ai-ChatSettings-h3 {
+.jp-ThemedContainer .jp-ai-ChatSettings-h3 {
   font-size: var(--jp-ui-font-size2);
   font-weight: 400;
   color: var(--jp-ui-font-color1);
 }
 
-.jp-ai-ChatSettings-welcome {
+.jp-ThemedContainer .jp-ai-ChatSettings-welcome {
   color: var(--jp-ui-font-color1);
 }

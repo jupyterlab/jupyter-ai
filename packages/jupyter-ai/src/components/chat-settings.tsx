@@ -46,13 +46,11 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
 
   return (
     <Box
+      className="jp-ai-ChatSettings"
       sx={{
-        padding: '0 12px 12px',
-        boxSizing: 'border-box',
         '& .MuiAlert-root': {
           marginTop: 2
-        },
-        overflowY: 'auto'
+        }
       }}
     >
       {/* SECTION: Chat model */}

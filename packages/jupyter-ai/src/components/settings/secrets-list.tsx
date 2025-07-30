@@ -5,8 +5,7 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
-  Typography,
-  Paper
+  Typography
 } from '@mui/material';
 import LockIcon from '@mui/icons-material/Lock';
 
@@ -27,52 +26,44 @@ export function SecretsList(props: SecretsListProps): JSX.Element | null {
   }
 
   return (
-    <Paper
-      variant="outlined"
-      sx={{
-        borderRadius: 2,
-        overflow: 'hidden'
-      }}
-    >
-      <List sx={{ padding: 0 }}>
-        {props.secrets.map((secret, index) => (
-          <ListItem
-            key={secret}
-            sx={{
-              borderBottom:
-                index < props.secrets.length - 1 ? '1px solid' : 'none',
-              borderBottomColor: 'divider',
-              paddingY: 1.5,
-              paddingX: 2,
-              '&:hover': {
-                backgroundColor: 'action.hover'
-              }
-            }}
-          >
-            <ListItemIcon sx={{ minWidth: 36 }}>
-              <LockIcon fontSize="small" />
-            </ListItemIcon>
-            <ListItemText
-              primary={
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Typography
-                    variant="body1"
-                    component="code"
-                    sx={{
-                      fontFamily: 'monospace',
-                      fontSize: '0.875rem',
-                      fontWeight: 500,
-                      opacity: 0.618
-                    }}
-                  >
-                    {secret}
-                  </Typography>
-                </Box>
-              }
-            />
-          </ListItem>
-        ))}
-      </List>
-    </Paper>
+    <List sx={{ padding: 0 }}>
+      {props.secrets.map((secret, index) => (
+        <ListItem
+          key={secret}
+          sx={{
+            borderBottom:
+              index < props.secrets.length - 1 ? '1px solid' : 'none',
+            borderBottomColor: 'divider',
+            paddingY: 1.5,
+            paddingX: 2,
+            '&:hover': {
+              backgroundColor: 'action.hover'
+            }
+          }}
+        >
+          <ListItemIcon sx={{ minWidth: 36 }}>
+            <LockIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText
+            primary={
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Typography
+                  variant="body1"
+                  component="code"
+                  sx={{
+                    fontFamily: 'monospace',
+                    fontSize: '0.875rem',
+                    fontWeight: 500,
+                    opacity: 0.618
+                  }}
+                >
+                  {secret}
+                </Typography>
+              </Box>
+            }
+          />
+        </ListItem>
+      ))}
+    </List>
   );
 }
