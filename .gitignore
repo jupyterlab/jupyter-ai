@@ -142,3 +142,6 @@ packages/**/_version.py
 # Ignore local chat files & local .jupyter/ dir
 *.chat
 .jupyter/
+
+# Ignore secrets in '.env'
+.env
