@@ -311,7 +311,6 @@ class EnvSecretsManager(LoggingConfigurable):
             # Build the new `.env` file using these variables.
             # See `build_updated_dotenv()` for more info on how this is done.
             new_dotenv_content = build_updated_dotenv(dotenv_content, updated_secrets)
-            self.log.error(new_dotenv_content)
 
             # Return early if no changes are needed in `.env`.
             if new_dotenv_content is None:
