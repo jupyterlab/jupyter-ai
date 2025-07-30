@@ -965,18 +965,18 @@ produced the following Python error:
 Write a new version of this code that does not produce that error.
 ```
 
-As a shortcut for explaining errors, you can use the `%ai error` command, which will explain the most recent error using the model of your choice.
+As a shortcut for explaining and fixing errors, you can use the `%ai fix` command, which will explain the most recent error using the model of your choice.
 
 ```
-%ai error anthropic:claude-v1.2
+%ai fix anthropic:claude-v1.2
 ```
 
 ### Creating and managing aliases
 
-You can create an alias for a model using the `%ai register` command. For example, the command:
+You can create an alias for a model using the `%ai alias` command. For example, the command:
 
 ```
-%ai register claude anthropic:claude-v1.2
+%ai alias claude anthropic:claude-v1.2
 ```
 
 will register the alias `claude` as pointing to the `anthropic` provider's `claude-v1.2` model. You can then use this alias as you would use any other model name:
@@ -1001,10 +1001,10 @@ prompt = PromptTemplate(
 chain = LLMChain(llm=llm, prompt=prompt)
 ```
 
-… and then use `%ai register` to give it a name:
+… and then use `%ai alias` to give it a name:
 
 ```
-%ai register companyname chain
+%ai alias companyname chain
 ```
 
 You can change an alias's target using the `%ai update` command:
@@ -1013,10 +1013,10 @@ You can change an alias's target using the `%ai update` command:
 %ai update claude anthropic:claude-instant-v1.0
 ```
 
-You can delete an alias using the `%ai delete` command:
+You can delete an alias using the `%ai dealias` command:
 
 ```
-%ai delete claude
+%ai dealias claude
 ```
 
 You can see a list of all aliases by running the `%ai list` command.
