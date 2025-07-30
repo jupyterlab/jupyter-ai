@@ -261,8 +261,8 @@ class EnvSecretsManager(LoggingConfigurable):
             dotenv_secrets_names.add(name)
         
         return SecretsList(
-            dotenv_secrets=sorted(list(dotenv_secrets_names)),
-            process_secrets=sorted(list(process_secrets_names))
+            editable_secrets=sorted(list(dotenv_secrets_names)),
+            static_secrets=sorted(list(process_secrets_names))
         )
 
 

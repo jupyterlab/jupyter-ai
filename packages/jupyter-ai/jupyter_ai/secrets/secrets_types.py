@@ -4,18 +4,24 @@ from pydantic import BaseModel
 class SecretsList(BaseModel):
     """
     The response type returned by `GET /api/ai/secrets`.
+
+    The response fields only include the names of each secret, and never must
+    never include the value of any secret.
     """
 
-    dotenv_secrets: list[str]
+    editable_secrets: list[str] = []
     """
-    List of secret names set in the `.env` file. These secrets can be edited.
+    List of secrets set in the `.env` file. These secrets can be edited.
     """
 
-    process_secrets: list[str]
+    static_secrets: list[str] = []
     """
-    List of secret names passed as environment variables to the Python process.
-    This includes any environment variable whose name contains 'KEY' or 'TOKEN'
-    or 'SECRET'. These secrets cannot be edited.
+    List of secrets passed as environment variables to the Python process or
+    passed as traitlets configuration to JupyterLab. These secrets cannot be
+    edited.
+
+    Environment variables passed to the Python process are only included if
+    their name contains 'KEY' or 'TOKEN' or 'SECRET'.
     """
 
 
