@@ -178,9 +178,7 @@ class AiMagics(Magics):
         # https://docs.litellm.ai/docs/completion/model_alias
         # initialize a registry of custom model/chain names
         self.custom_model_registry = self.initial_aliases
-        
-    
-    
+
     @line_cell_magic
     def ai(self, line: str, cell: Optional[str] = None) -> Any:
         """
