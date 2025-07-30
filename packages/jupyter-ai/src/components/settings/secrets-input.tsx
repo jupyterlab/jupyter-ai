@@ -96,8 +96,8 @@ export function SecretsInput(props: SecretsInputProps): JSX.Element | null {
             No secrets configured
           </Typography>
           <Typography variant="body2" sx={{ maxWidth: 400, opacity: 0.8 }}>
-            Add your first API key or secret to start using Jupyter AI with your
-            preferred model provider.
+            Click "Add secret" to add an API key and start using Jupyternaut
+            with your preferred model provider.
           </Typography>
         </Box>
       )}
