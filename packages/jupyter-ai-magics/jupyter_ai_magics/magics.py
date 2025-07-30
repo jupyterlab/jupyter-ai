@@ -16,7 +16,7 @@ from ._version import __version__
 from .parsers import (
     CellArgs,
     DeleteArgs,
-    ErrorArgs,
+    FixArgs,
     HelpArgs,
     ListArgs,
     RegisterArgs,
@@ -84,7 +84,7 @@ CANNOT_DETERMINE_MODEL_MARKDOWN = """Cannot determine model provider from model 
 To see a list of models you can use, run `%ai list`"""
 
 
-AI_COMMANDS = {"dealias", "error", "help", "list", "alias", "update"}
+AI_COMMANDS = {"dealias", "fix", "help", "list", "alias", "update"}
 
 # Strings for listing providers and models
 # Avoid composing strings, to make localization easier in the future
@@ -213,7 +213,7 @@ class AiMagics(Magics):
                 raw_args,
                 prog_name=r"%ai",
                 standalone_mode=False,
-                default_map={"error": default_map},
+                default_map={"fix": default_map},
             )
 
         if args == 0 and self.initial_language_model is None:
@@ -223,8 +223,8 @@ class AiMagics(Magics):
 
         # If a value error occurs, don't print the full stacktrace
         try:
-            if args.type == "error":
-                return self.handle_error(args)
+            if args.type == "fix":
+                return self.handle_fix(args)
             if args.type == "help":
                 return self.handle_help(args)
             if args.type == "list":
@@ -402,15 +402,13 @@ class AiMagics(Magics):
         """
         self.transcript = []
 
-    def handle_error(self, args: ErrorArgs) -> Any:
+    def handle_fix(self, args: FixArgs) -> Any:
         """
-        Handles `%ai error`. Meant to provide fixes for any exceptions raised in
+        Handles `%ai fix`. Meant to provide fixes for any exceptions raised in
         the kernel while running cells.
 
-        TODO: rename this to `%ai fix`?
-
         TODO: annotate a valid return type when we find a type that is shared by
-        all display objects.
+        all display objects. 
         """
         no_errors_message = "There have been no errors since the kernel started."
 
@@ -432,11 +430,14 @@ class AiMagics(Magics):
         if last_error is None:
             return TextOrMarkdown(no_errors_message, no_errors_message)
 
-        prompt = f"Explain the following error:\n\n{last_error}"
-        # Set CellArgs based on ErrorArgs
+        prompt = f"Explain the following error and propose a fix:\n\n{last_error}"
+        # Set CellArgs based on FixArgs
         values = args.model_dump()
         values["type"] = "root"
         cell_args = CellArgs(**values)
+        print("I will attempt to explain and fix the error. " \
+            "For further assistance, consider installing the magic wand extension: " \
+            "https://github.com/jupyter-ai-contrib/jupyterlab-magic-wand")
 
         return self.run_ai_cell(cell_args, prompt)
 
