@@ -121,7 +121,7 @@ class AiMagics(Magics):
 
     # TODO: rename this to initial_aliases
     # This should only set the "starting set" of aliases
-    aliases = traitlets.Dict(
+    initial_aliases = traitlets.Dict(
         default_value={},
         value_trait=traitlets.Unicode(),
         key_trait=traitlets.Unicode(),
@@ -177,7 +177,7 @@ class AiMagics(Magics):
         # TODO: use LiteLLM aliases to provide this
         # https://docs.litellm.ai/docs/completion/model_alias
         # initialize a registry of custom model/chain names
-        self.custom_model_registry = self.aliases
+        self.custom_model_registry = self.initial_aliases
         
     
     
