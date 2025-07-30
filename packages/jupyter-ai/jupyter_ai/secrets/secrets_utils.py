@@ -63,6 +63,10 @@ def build_updated_dotenv(
             k: v for k, v in updated_secrets.items()
             if v is not None
         }
+    
+    # Return early if update has effect.
+    if not (secrets_to_add or secrets_to_update or secrets_to_remove):
+        return None
 
     # First, handle the case of adding secrets to a new `.env` file.
     if not dotenv_env:
@@ -73,7 +77,7 @@ def build_updated_dotenv(
             if i != max_i:
                 new_content += "\n"
 
-        return new_content or None
+        return new_content
 
     # Now handle the case of updating an existing `.env` file.
     # To preserve formatting, multiline variables, and inline comments on
@@ -131,7 +135,7 @@ def build_updated_dotenv(
             if i != max_i:
                 new_content += "\n"
 
-    return new_content or None
+    return new_content
 
 
 def get_whitespace_around(text: str) -> tuple[str, str]:

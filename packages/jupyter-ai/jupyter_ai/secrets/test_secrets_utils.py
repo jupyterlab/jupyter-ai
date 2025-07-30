@@ -127,3 +127,8 @@ class TestBuildUpdatedDotenv:
         assert "# Another comment" in result
         assert 'KEY="value"' in result
         assert 'NEW_KEY="new_value"' in result
+    
+    def test_delete_last_secret(self):
+        dotenv_content="KEY='value'"
+        result = build_updated_dotenv(dotenv_content, {"KEY": None})
+        assert isinstance(result, str) and result.strip() == ""

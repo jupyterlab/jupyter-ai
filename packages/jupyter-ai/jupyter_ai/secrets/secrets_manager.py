@@ -6,6 +6,7 @@ from io import StringIO
 import asyncio
 from tornado.web import HTTPError
 import os
+from datetime import datetime
 
 from .secrets_utils import build_updated_dotenv
 from .secrets_types import SecretsList
@@ -13,7 +14,6 @@ from .secrets_types import SecretsList
 if TYPE_CHECKING:
     from typing import Any, Optional
     import logging
-    import datetime
     from ..extension import AiExtension
     from jupyter_server.services.contents.filemanager import AsyncFileContentsManager
 
@@ -35,7 +35,7 @@ class EnvSecretsManager(LoggingConfigurable):
     parent class. This annotation exists only to help type checkers like `mypy`.
     """
 
-    _last_modified: Optional[datetime.datetime]
+    _last_modified: Optional[datetime]
     """
     The 'last modified' timestamp on the '.env' file retrieved in the previous
     tick of the `_watch_dotenv()` background task.
@@ -311,6 +311,7 @@ class EnvSecretsManager(LoggingConfigurable):
             # Build the new `.env` file using these variables.
             # See `build_updated_dotenv()` for more info on how this is done.
             new_dotenv_content = build_updated_dotenv(dotenv_content, updated_secrets)
+            self.log.error(new_dotenv_content)
 
             # Return early if no changes are needed in `.env`.
             if new_dotenv_content is None:
@@ -325,7 +326,7 @@ class EnvSecretsManager(LoggingConfigurable):
                     "content": new_dotenv_content
                 }, ".env")
                 last_modified = dotenv_file.get('last_modified')
-                assert isinstance(last_modified, datetime.datetime)
+                assert isinstance(last_modified, datetime)
             except Exception as e:
                 self.log.exception("Unknown exception raised when updating `.env`:")
 
@@ -333,6 +334,7 @@ class EnvSecretsManager(LoggingConfigurable):
             self._last_modified = last_modified
             # This automatically sets `self._dotenv_env`.
             self._apply_dotenv(new_dotenv_content)
+            self.log.info("Updated secrets in `.env`.")
     
 
     def get_secret(self, secret_name: str) -> Optional[str]:
