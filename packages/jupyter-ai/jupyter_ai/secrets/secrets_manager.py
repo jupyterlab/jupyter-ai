@@ -18,6 +18,21 @@ if TYPE_CHECKING:
     from jupyter_server.services.contents.filemanager import AsyncFileContentsManager
 
 class EnvSecretsManager(LoggingConfigurable):
+    """
+    The default secrets manager implementation.
+
+    TODO: Create a `BaseSecretsManager` class and add an
+    `AiExtension.secrets_manager_class` configurable trait to allow custom
+    implementations.
+
+    TODO: Add a `EnvSecretsManager.dotenv_path` configurable trait to allow
+    users to change the path of the `.env` file.
+
+    TODO: Add a `EnvSecretsManager.envvar_secrets` configurable trait to allow
+    users to pass a list of glob expressions that define which environment
+    variables are listed as secrets in the UI. This should default to `*TOKEN*,
+    *SECRET*, *KEY*`.
+    """
 
     parent: AiExtension
     """
@@ -259,6 +274,11 @@ class EnvSecretsManager(LoggingConfigurable):
         # Add secrets from .env, if any
         for name in self._dotenv_env:
             dotenv_secrets_names.add(name)
+        
+        # Remove `TIKTOKEN_CACHE_DIR`, which is set in the initial environment
+        # by some other package and is not a secret.
+        # This gets included otherwise since it contains 'TOKEN' in its name.
+        process_secrets_names.discard("TIKTOKEN_CACHE_DIR")
         
         return SecretsList(
             editable_secrets=sorted(list(dotenv_secrets_names)),

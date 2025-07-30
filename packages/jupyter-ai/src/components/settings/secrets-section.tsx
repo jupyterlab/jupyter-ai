@@ -83,7 +83,7 @@ export function SecretsSection(): JSX.Element {
       />
 
       {/* Static secrets subsection */}
-      {staticSecrets && (
+      {staticSecrets.length ? (
         <Alert severity="info">
           <p style={{ marginTop: 0 }}>
             The secrets below are set by the environment variables and the
@@ -93,7 +93,7 @@ export function SecretsSection(): JSX.Element {
           </p>
           <SecretsList secrets={staticSecrets} />
         </Alert>
-      )}
+      ) : null}
     </Box>
   );
 }
