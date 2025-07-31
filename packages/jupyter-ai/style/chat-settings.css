@@ -4,6 +4,12 @@
   color: var(--jp-ui-font-color1);
 }
 
+.jp-ai-ChatSettings-h3 {
+  font-size: var(--jp-ui-font-size2);
+  font-weight: 400;
+  color: var(--jp-ui-font-color1);
+}
+
 .jp-ai-ChatSettings-welcome {
   color: var(--jp-ui-font-color1);
 }

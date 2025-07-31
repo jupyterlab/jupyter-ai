@@ -9,6 +9,7 @@ import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { IJaiCompletionProvider } from '../tokens';
 import { ModelIdInput } from './settings/model-id-input';
 import { ModelParametersInput } from './settings/model-parameters-input';
+import { SecretsSection } from './settings/secrets-section';
 
 type ChatSettingsProps = {
   rmRegistry: IRenderMimeRegistry;
@@ -54,7 +55,7 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
         overflowY: 'auto'
       }}
     >
-      {/* Chat model section */}
+      {/* SECTION: Chat model */}
       <h2 className="jp-ai-ChatSettings-header">Chat model</h2>
       <p>Configure the language model used by Jupyternaut in chats.</p>
       <ModelIdInput
@@ -63,10 +64,10 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
         placeholder="e.g. 'anthropic/claude-3-5-haiku-latest'"
       />
 
-      {/* Embedding model section */}
+      {/* SECTION: Embedding model */}
       {/* TODO */}
 
-      {/* Completion model section */}
+      {/* SECTION: Completion model */}
       <h2 className="jp-ai-ChatSettings-header">
         Completion model
         <CompleterSettingsButton
@@ -88,10 +89,15 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
           setCompletionModel(latestChatModelId);
         }}
       />
+
       {/* Model parameters section */}
-      <h2 className="jp-ai-ChatSettings-header">Model parameters</h2>
+      {/* <h2 className="jp-ai-ChatSettings-header">Model parameters</h2>
       <p>Configure additional parameters for the language model.</p>
-      <ModelParametersInput />
+      <ModelParametersInput /> */}
+
+      {/* SECTION: Secrets (and API keys) */}
+      <h2 className="jp-ai-ChatSettings-header">Secrets and API keys</h2>
+      <SecretsSection />
     </Box>
   );
 }
