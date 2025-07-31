@@ -8,6 +8,7 @@ import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { IJaiCompletionProvider } from '../tokens';
 import { ModelIdInput } from './settings/model-id-input';
+import { ModelParametersInput } from './settings/model-parameters-input';
 
 type ChatSettingsProps = {
   rmRegistry: IRenderMimeRegistry;
@@ -87,6 +88,10 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
           setCompletionModel(latestChatModelId);
         }}
       />
+      {/* Model parameters section */}
+      <h2 className="jp-ai-ChatSettings-header">Model parameters</h2>
+      <p>Configure additional parameters for the language model.</p>
+      <ModelParametersInput />
     </Box>
   );
 }
