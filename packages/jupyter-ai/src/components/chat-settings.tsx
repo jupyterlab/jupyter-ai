@@ -349,7 +349,8 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
         '& .MuiAlert-root': {
           marginTop: 2
         },
-        overflowY: 'auto'
+        overflowY: 'auto',
+        height: '100%'
       }}
     >
       {/* Chat language model section */}
