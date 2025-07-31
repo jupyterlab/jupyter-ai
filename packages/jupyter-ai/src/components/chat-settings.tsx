@@ -8,7 +8,7 @@ import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { IJaiCompletionProvider } from '../tokens';
 import { ModelIdInput } from './settings/model-id-input';
-import { ModelParametersInput } from './settings/model-parameters-input';
+// import { ModelParametersInput } from './settings/model-parameters-input';
 import { SecretsSection } from './settings/secrets-section';
 
 type ChatSettingsProps = {
