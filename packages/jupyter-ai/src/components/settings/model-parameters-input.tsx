@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button, TextField, Box, Alert, IconButton } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-interface ModelParameter {
+interface IModelParameter {
   id: string;
   name: string;
   type: string;
@@ -10,25 +10,25 @@ interface ModelParameter {
   isStatic?: boolean;
 }
 
-interface StaticParameterDef {
+interface IStaticParameterDef {
   name: string;
   type: string;
   label: string;
 }
 
 // Add some common fields as static parameters here
-const STATIC_PARAMETERS: StaticParameterDef[] = [
+const STATIC_PARAMETERS: IStaticParameterDef[] = [
   { name: 'temperature', type: 'float', label: 'Temperature' },
   { name: 'api_url', type: 'string', label: 'API URL' },
   { name: 'max_tokens', type: 'integer', label: 'Max Tokens' }
 ];
 
 export function ModelParametersInput(): JSX.Element {
-  const [parameters, setParameters] = useState<ModelParameter[]>([]);
+  const [parameters, setParameters] = useState<IModelParameter[]>([]);
   const [validationError, setValidationError] = useState<string>('');
 
   const handleAddParameter = () => {
-    const newParameter: ModelParameter = {
+    const newParameter: IModelParameter = {
       id: Date.now().toString(),
       name: '',
       type: '',
@@ -39,7 +39,7 @@ export function ModelParametersInput(): JSX.Element {
     setValidationError('');
   };
 
-  const handleAddStaticParameter = (staticParam: StaticParameterDef) => {
+  const handleAddStaticParameter = (staticParam: IStaticParameterDef) => {
     // Check if static parameter already exists
     const exists = parameters.some(
       param => param.name === staticParam.name && param.isStatic
@@ -48,7 +48,7 @@ export function ModelParametersInput(): JSX.Element {
       setValidationError(`Parameter "${staticParam.label}" is already added`);
       return;
     }
-    const newParameter: ModelParameter = {
+    const newParameter: IModelParameter = {
       id: Date.now().toString(),
       name: staticParam.name,
       type: staticParam.type,
@@ -61,7 +61,7 @@ export function ModelParametersInput(): JSX.Element {
   // For when user changes their parameter
   const handleParameterChange = (
     id: string,
-    field: keyof ModelParameter,
+    field: keyof IModelParameter,
     value: string
   ) => {
     setParameters(prev =>
