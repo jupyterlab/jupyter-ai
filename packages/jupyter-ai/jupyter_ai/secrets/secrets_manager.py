@@ -105,7 +105,7 @@ class EnvSecretsManager(LoggingConfigurable):
         Watches the `.env` file and automatically responds to changes.
         """
         while True:
-            await asyncio.sleep(1)
+            await asyncio.sleep(2)
 
             # Fetch file content and its last modified timestamp
             try:
