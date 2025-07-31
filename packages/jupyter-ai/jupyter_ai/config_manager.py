@@ -108,6 +108,9 @@ class ConfigManager(Configurable):
         self._allowed_models = allowed_models
         self._blocked_models = blocked_models
 
+        self._lm_providers: dict[str, Any] = (
+            {}
+        )  # Placeholder: should be set to actual language model providers
         self._defaults = remove_none_entries(defaults)
         self._last_read: Optional[int] = None
 
@@ -355,6 +358,19 @@ class ConfigManager(Configurable):
     def chat_model_params(self) -> dict[str, Any]:
         return self._provider_params("model_provider_id", self._lm_providers)
 
+    def _provider_params(
+        self, provider_id_attr: str, providers: dict
+    ) -> dict[str, Any]:
+        """
+        Returns the parameters for the provider specified by the given attribute.
+        """
+        config = self._read_config()
+        provider_id = getattr(config, provider_id_attr, None)
+        if not provider_id or provider_id not in providers:
+            return {}
+        return providers[provider_id].get("params", {})
+        return self._provider_params("model_provider_id", self._lm_providers)
+
     @property
     def embedding_model(self) -> str | None:
         """
@@ -367,7 +383,7 @@ class ConfigManager(Configurable):
     def embedding_model_params(self) -> dict[str, Any]:
         # TODO
         return {}
-    
+
     @property
     def completion_model(self) -> str | None:
         """

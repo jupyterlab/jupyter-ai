@@ -49,4 +49,3 @@ def post_process_suggestion(suggestion: str, request: InlineCompletionRequest) -
         suggestion = suggestion.rstrip()[:-3].rstrip()
 
     return suggestion
-

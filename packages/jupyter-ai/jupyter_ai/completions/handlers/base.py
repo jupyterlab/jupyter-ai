@@ -5,6 +5,9 @@ from asyncio import AbstractEventLoop
 from typing import Union
 
 import tornado
+from jupyter_server.base.handlers import JupyterHandler
+from pydantic import ValidationError
+
 from ..completion_types import (
     CompletionError,
     InlineCompletionList,
@@ -12,13 +15,9 @@ from ..completion_types import (
     InlineCompletionRequest,
     InlineCompletionStreamChunk,
 )
-from jupyter_server.base.handlers import JupyterHandler
-from pydantic import ValidationError
 
 
-class BaseInlineCompletionHandler(
-    JupyterHandler, tornado.websocket.WebSocketHandler
-):
+class BaseInlineCompletionHandler(JupyterHandler, tornado.websocket.WebSocketHandler):
     """A Tornado WebSocket handler that receives inline completion requests and
     fulfills them accordingly. This class is instantiated once per WebSocket
     connection."""

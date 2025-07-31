@@ -1,14 +1,15 @@
 import json
+
 # from types import SimpleNamespace
 from typing import Union
 
 import pytest
-from jupyter_ai.completions.handlers.default import DefaultInlineCompletionHandler
 from jupyter_ai.completions.completion_types import (
     InlineCompletionReply,
     InlineCompletionRequest,
     InlineCompletionStreamChunk,
 )
+from jupyter_ai.completions.handlers.default import DefaultInlineCompletionHandler
 from pytest import fixture
 from tornado.httputil import HTTPServerRequest
 from tornado.web import Application

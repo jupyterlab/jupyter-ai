@@ -5,8 +5,10 @@ import jupyter_ydoc
 
 # expose jupyter_ai_magics ipython extension
 # DO NOT REMOVE.
-from jupyter_ai_magics import load_ipython_extension, unload_ipython_extension
-
+from jupyter_ai_magics import (  # type: ignore[import-untyped]
+    load_ipython_extension,
+    unload_ipython_extension,
+)
 
 from ._version import __version__
 from .extension import AiExtension

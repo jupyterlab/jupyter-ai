@@ -1,6 +1,5 @@
 # Copyright (c) Jupyter Development Team.
 # Distributed under the terms of the Modified BSD License.
-from unittest import mock
 
 import pytest
 from jupyter_ai.extension import AiExtension
@@ -55,4 +54,4 @@ def jp_server_config(jp_server_config):
 
 @pytest.fixture
 def ai_extension(jp_serverapp):
-    ai = AiExtension()
+    AiExtension()

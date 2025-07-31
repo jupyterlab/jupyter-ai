@@ -141,7 +141,7 @@ class AiExtension(ExtensionApp):
         config=True,
     )
 
-    default_language_model = Unicode(
+    initial_language_model = Unicode(
         default_value=None,
         allow_none=True,
         help="""
@@ -302,7 +302,7 @@ class AiExtension(ExtensionApp):
         self.log.info(f"Configured model blocklist: {self.blocked_models}")
         self.log.info(f"Configured model parameters: {self.model_parameters}")
         defaults = {
-            "model_provider_id": self.default_language_model,
+            "model_provider_id": self.initial_language_model,
             "embeddings_provider_id": self.default_embeddings_model,
             "completions_model_provider_id": self.default_completions_model,
             "api_keys": self.default_api_keys,

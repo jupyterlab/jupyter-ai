@@ -1,7 +1,8 @@
 from __future__ import annotations
-from ._version import __version__
 
 from typing import TYPE_CHECKING
+
+from ._version import __version__
 
 if TYPE_CHECKING:
     from IPython.core.interactiveshell import InteractiveShell
