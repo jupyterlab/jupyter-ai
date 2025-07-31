@@ -118,7 +118,6 @@ class EnvSecretsManager(LoggingConfigurable):
                 if e.status_code == 404:
                     self._handle_dotenv_notfound()
                     continue
-                raise e
             except Exception as e:
                 self.log.exception("Unknown exception in `_watch_dotenv()`:")
                 continue
@@ -197,7 +196,8 @@ class EnvSecretsManager(LoggingConfigurable):
             # Continue if file does not exist, otherwise re-raise
             if e.status_code == 404:
                 pass
-            raise e
+            else:
+                raise e
         except Exception as e:
             self.log.exception("Unknown exception raised when fetching `.gitignore`:")
             pass
@@ -324,7 +324,8 @@ class EnvSecretsManager(LoggingConfigurable):
                 # Continue if file does not exist, otherwise re-raise
                 if e.status_code == 404:
                     pass
-                raise e
+                else:
+                    raise e
             except Exception as e:
                 self.log.exception("Unknown exception raised when reading `.env` in response to an update:")
             
@@ -348,6 +349,11 @@ class EnvSecretsManager(LoggingConfigurable):
                 assert isinstance(last_modified, datetime)
             except Exception as e:
                 self.log.exception("Unknown exception raised when updating `.env`:")
+
+            # If this is a new file, ensure the `.env` file is listed in `.gitignore`.
+            # `self._last_modified == None` should imply the `.env` file did not exist.
+            if not self._last_modified:
+                self.event_loop.create_task(self._ensure_dotenv_gitignored())
 
             # Update last modified timestamp and apply the new environment.
             self._last_modified = last_modified
