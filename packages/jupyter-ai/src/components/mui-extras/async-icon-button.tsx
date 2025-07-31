@@ -1,9 +1,9 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { Box, CircularProgress, IconButton } from '@mui/material';
 import { ContrastingTooltip } from './contrasting-tooltip';
 
 type AsyncIconButtonProps = {
-  onClick: () => Promise<unknown>;
+  onClick: () => 'canceled' | Promise<unknown>;
   onError: (emsg: string) => unknown;
   onSuccess: () => unknown;
   children: JSX.Element;
@@ -23,18 +23,21 @@ type AsyncIconButtonProps = {
 export function AsyncIconButton(props: AsyncIconButtonProps): JSX.Element {
   const [loading, setLoading] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-  const shouldConfirm = useMemo(() => !!props.confirm, []);
 
   async function handleClick() {
-    if (shouldConfirm && !showConfirm) {
+    if (props.confirm && !showConfirm) {
       setShowConfirm(true);
       return;
     }
 
-    setLoading(true);
     let thrown = false;
     try {
-      await props.onClick();
+      const promise = props.onClick();
+      if (promise === 'canceled') {
+        return;
+      }
+      setLoading(true);
+      await promise;
     } catch (e: unknown) {
       thrown = true;
       if (e instanceof Error) {
@@ -42,10 +45,14 @@ export function AsyncIconButton(props: AsyncIconButtonProps): JSX.Element {
       } else {
         // this should never happen.
         // if this happens, it means the thrown value was not of type `Error`.
-        props.onError('Unknown error occurred.');
+        console.error(e);
+        props.onError(
+          'Unknown error occurred. Check the browser console logs.'
+        );
       }
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
     if (!thrown) {
       props.onSuccess();
     }

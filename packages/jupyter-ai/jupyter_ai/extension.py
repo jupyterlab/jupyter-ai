@@ -18,10 +18,11 @@ from tornado.web import StaticFileHandler
 from traitlets import Integer, List, Type, Unicode
 from traitlets.config import Config
 
+from .secrets.secrets_rest_api import SecretsRestAPI
+from .secrets.secrets_manager import EnvSecretsManager
 from .completions.handlers import DefaultInlineCompletionHandler
 from .config_manager import ConfigManager
 from .handlers import (
-    ApiKeysHandler,
     GlobalConfigHandler,
     InterruptStreamingHandler,
 )
@@ -57,11 +58,11 @@ from .model_providers.model_handlers import ChatModelEndpoint
 class AiExtension(ExtensionApp):
     name = "jupyter_ai"
     handlers = [  # type:ignore[assignment]
-        (r"api/ai/api_keys/(?P<api_key_name>\w+)/?", ApiKeysHandler),
         (r"api/ai/config/?", GlobalConfigHandler),
         (r"api/ai/chats/stop_streaming/?", InterruptStreamingHandler),
         (r"api/ai/completion/inline/?", DefaultInlineCompletionHandler),
         (r"api/ai/models/chat/?", ChatModelEndpoint),
+        (r"api/ai/secrets/?", SecretsRestAPI),
         (
             r"api/ai/static/jupyternaut.svg()/?",
             StaticFileHandler,
@@ -294,20 +295,12 @@ class AiExtension(ExtensionApp):
     def initialize_settings(self):
         start = time.time()
 
-        # Read from allowlist and blocklist
-        restrictions = {
-            "allowed_providers": self.allowed_providers,
-            "blocked_providers": self.blocked_providers,
-        }
-        self.settings["allowed_models"] = self.allowed_models
-        self.settings["blocked_models"] = self.blocked_models
+        # Log traitlets configuration
         self.log.info(f"Configured provider allowlist: {self.allowed_providers}")
         self.log.info(f"Configured provider blocklist: {self.blocked_providers}")
         self.log.info(f"Configured model allowlist: {self.allowed_models}")
         self.log.info(f"Configured model blocklist: {self.blocked_models}")
-        self.settings["model_parameters"] = self.model_parameters
         self.log.info(f"Configured model parameters: {self.model_parameters}")
-
         defaults = {
             "model_provider_id": self.initial_language_model,
             "embeddings_provider_id": self.default_embeddings_model,
@@ -318,8 +311,8 @@ class AiExtension(ExtensionApp):
             "completions_fields": self.model_parameters,
         }
 
+        # Initialize ConfigManager
         self.settings["jai_config_manager"] = ConfigManager(
-            # traitlets configuration, not JAI configuration.
             config=self.config,
             log=self.log,
             allowed_providers=self.allowed_providers,
@@ -329,16 +322,21 @@ class AiExtension(ExtensionApp):
             defaults=defaults,
         )
 
-        self.log.info(f"Registered {self.name} server extension")
+        # Initialize SecretsManager
+        self.settings["jai_secrets_manager"] = EnvSecretsManager(parent=self)
 
+        # Bind event loop to settings dictionary 
         self.settings["jai_event_loop"] = self.event_loop
 
-        # Create empty dictionary for events communicating that
-        # message generation/streaming got interrupted.
+        # Bind dictionary of interrupts to settings dictionary.
+        # Each key is a message ID, each value is an asyncio.Event.
+        # When a message's interrupt event is set, the response is halted.
         self.settings["jai_message_interrupted"] = {}
 
-        latency_ms = round((time.time() - start) * 1000)
-        self.log.info(f"Initialized Jupyter AI server extension in {latency_ms} ms.")
+        # Log server extension startup time
+        self.log.info(f"Registered {self.name} server extension")
+        startup_time = round((time.time() - start) * 1000)
+        self.log.info(f"Initialized Jupyter AI server extension in {startup_time} ms.")
 
     async def stop_extension(self):
         """
@@ -358,7 +356,10 @@ class AiExtension(ExtensionApp):
         Private method that defines the cleanup code to run when the server is
         stopping.
         """
-        # TODO: explore if cleanup is necessary
+        secrets_manager = self.settings.get("jai_secrets_manager", None)
+
+        if secrets_manager:
+            secrets_manager.stop()
 
     def _init_persona_manager(
         self, room_id: str, ychat: YChat
@@ -427,7 +428,6 @@ class AiExtension(ExtensionApp):
             ".git",  # Git version control directory
             ".venv",  # Python virtual environment directory
             "venv",  # Python virtual environment directory
-            ".env",  # Environment variable files
             "node_modules",  # Node.js dependencies directory
             ".pytest_cache",  # PyTest cache directory
             ".mypy_cache",  # MyPy type checker cache directory

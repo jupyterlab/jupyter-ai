@@ -44,19 +44,6 @@ class GlobalConfigHandler(BaseAPIHandler):
             ) from e
 
 
-class ApiKeysHandler(BaseAPIHandler):
-    @property
-    def config_manager(self) -> ConfigManager:  # type:ignore[override]
-        return self.settings["jai_config_manager"]
-
-    @web.authenticated
-    def delete(self, api_key_name: str):
-        try:
-            self.config_manager.delete_api_key(api_key_name)
-        except Exception as e:
-            raise HTTPError(500, str(e))
-
-
 class InterruptStreamingHandler(BaseAPIHandler):
     """Interrupt a current message streaming"""
 
