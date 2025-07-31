@@ -38,6 +38,7 @@ dependencies = [
     "jupyterlab-chat>=0.16.0,<0.17.0",
     "litellm>=1.73,<2",
     "jinja2>=3.0,<4",
+    "python_dotenv>=1,<2",
 ]
 
 dynamic = ["version", "description", "authors", "urls", "keywords"]
