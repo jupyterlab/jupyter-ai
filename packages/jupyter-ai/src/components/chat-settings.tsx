@@ -21,7 +21,7 @@ import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { Select } from './select';
 import { AiService } from '../handler';
 import { ModelFields } from './settings/model-fields';
-import { ModelParametersInput} from './settings/model-parameters-input';
+import { ModelParametersInput } from './settings/model-parameters-input';
 import { ServerInfoState, useServerInfo } from './settings/use-server-info';
 import { ExistingApiKeys } from './settings/existing-api-keys';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';

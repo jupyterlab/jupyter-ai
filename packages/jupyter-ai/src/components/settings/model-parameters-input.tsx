@@ -20,7 +20,7 @@ interface StaticParameterDef {
 const STATIC_PARAMETERS: StaticParameterDef[] = [
   { name: 'temperature', type: 'float', label: 'Temperature' },
   { name: 'api_url', type: 'string', label: 'API URL' },
-  { name: 'max_tokens', type: 'integer', label: 'Max Tokens' },
+  { name: 'max_tokens', type: 'integer', label: 'Max Tokens' }
 ];
 
 export function ModelParametersInput(): JSX.Element {
@@ -41,7 +41,9 @@ export function ModelParametersInput(): JSX.Element {
 
   const handleAddStaticParameter = (staticParam: StaticParameterDef) => {
     // Check if static parameter already exists
-    const exists = parameters.some(param => param.name === staticParam.name && param.isStatic);
+    const exists = parameters.some(
+      param => param.name === staticParam.name && param.isStatic
+    );
     if (exists) {
       setValidationError(`Parameter "${staticParam.label}" is already added`);
       return;
@@ -57,9 +59,13 @@ export function ModelParametersInput(): JSX.Element {
     setValidationError('');
   };
   // For when user changes their parameter
-  const handleParameterChange = (id: string, field: keyof ModelParameter, value: string) => {
-    setParameters(prev => 
-      prev.map(param => 
+  const handleParameterChange = (
+    id: string,
+    field: keyof ModelParameter,
+    value: string
+  ) => {
+    setParameters(prev =>
+      prev.map(param =>
         param.id === id ? { ...param, [field]: value } : param
       )
     );
@@ -73,16 +79,18 @@ export function ModelParametersInput(): JSX.Element {
   };
 
   const handleSaveParameters = () => {
-    
     // Validation: Check if any parameter has a value but missing name or type (only for custom parameters)
-    const invalidParams = parameters.filter(param => 
-      param.value.trim() !== '' && 
-      !param.isStatic && 
-      (param.name.trim() === '' || param.type.trim() === '')
+    const invalidParams = parameters.filter(
+      param =>
+        param.value.trim() !== '' &&
+        !param.isStatic &&
+        (param.name.trim() === '' || param.type.trim() === '')
     );
 
     if (invalidParams.length > 0) {
-      setValidationError('Parameter value specified but name or type is missing');
+      setValidationError(
+        'Parameter value specified but name or type is missing'
+      );
       return;
     }
 
@@ -100,17 +108,16 @@ export function ModelParametersInput(): JSX.Element {
   };
 
   const showSaveButton = parameters.length > 0;
-  const availableStaticParams = STATIC_PARAMETERS.filter(staticParam => 
-    !parameters.some(param => param.name === staticParam.name && param.isStatic)
+  const availableStaticParams = STATIC_PARAMETERS.filter(
+    staticParam =>
+      !parameters.some(
+        param => param.name === staticParam.name && param.isStatic
+      )
   );
 
   return (
     <Box>
-      <Button 
-        variant="outlined" 
-        onClick={handleAddParameter}
-        sx={{ mb: 2 }}
-      >
+      <Button variant="outlined" onClick={handleAddParameter} sx={{ mb: 2 }}>
         Add a custom model parameter
       </Button>
       {/* Static parameter buttons */}
@@ -135,11 +142,11 @@ export function ModelParametersInput(): JSX.Element {
       )}
 
       {parameters.map(param => (
-        <Box 
-          key={param.id} 
-          sx={{ 
-            display: 'flex', 
-            gap: 2, 
+        <Box
+          key={param.id}
+          sx={{
+            display: 'flex',
+            gap: 2,
             mb: 2,
             alignItems: 'center'
           }}
@@ -148,7 +155,9 @@ export function ModelParametersInput(): JSX.Element {
             label="Parameter name"
             placeholder="e.g. temperature, api_url"
             value={param.name}
-            onChange={(e) => handleParameterChange(param.id, 'name', e.target.value)}
+            onChange={e =>
+              handleParameterChange(param.id, 'name', e.target.value)
+            }
             size="small"
             sx={{ flex: 1 }}
             disabled={param.isStatic}
@@ -160,7 +169,9 @@ export function ModelParametersInput(): JSX.Element {
             label="Parameter type"
             placeholder="e.g. float, string"
             value={param.type}
-            onChange={(e) => handleParameterChange(param.id, 'type', e.target.value)}
+            onChange={e =>
+              handleParameterChange(param.id, 'type', e.target.value)
+            }
             size="small"
             sx={{ flex: 1 }}
             disabled={param.isStatic}
@@ -172,7 +183,9 @@ export function ModelParametersInput(): JSX.Element {
             label="Parameter value"
             placeholder="e.g. 0.7, https://localhost:8989"
             value={param.value}
-            onChange={(e) => handleParameterChange(param.id, 'value', e.target.value)}
+            onChange={e =>
+              handleParameterChange(param.id, 'value', e.target.value)
+            }
             size="small"
             sx={{ flex: 1 }}
           />
@@ -194,8 +207,8 @@ export function ModelParametersInput(): JSX.Element {
       )}
 
       {showSaveButton && (
-        <Button 
-          variant="contained" 
+        <Button
+          variant="contained"
           onClick={handleSaveParameters}
           sx={{ mt: 1 }}
         >
