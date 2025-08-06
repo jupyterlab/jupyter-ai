@@ -435,9 +435,7 @@ class AiMagics(Magics):
         values = args.model_dump()
         values["type"] = "root"
         cell_args = CellArgs(**values)
-        print("I will attempt to explain and fix the error. " \
-            "For further assistance, consider installing the magic wand extension: " \
-            "https://github.com/jupyter-ai-contrib/jupyterlab-magic-wand")
+        print("I will attempt to explain and fix the error. ")
 
         return self.run_ai_cell(cell_args, prompt)
 
