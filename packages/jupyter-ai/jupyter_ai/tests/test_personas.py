@@ -7,7 +7,7 @@ from pathlib import Path
 from unittest.mock import Mock
 
 import pytest
-from jupyter_ai.personas.base_persona import BasePersona, PersonaDefaults
+from jupyter_ai.personas.base_persona import BasePersona
 from jupyter_ai.personas.persona_manager import load_from_dir
 
 
