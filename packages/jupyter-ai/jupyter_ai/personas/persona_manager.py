@@ -209,8 +209,22 @@ class PersonaManager(LoggingConfigurable):
         dotjupyter_dir = self.get_dotjupyter_dir()
         if dotjupyter_dir is None:
             self.log.info("No .jupyter directory found for loading local personas.")
-        else:
-            self._local_persona_classes = load_from_dir(dotjupyter_dir, self.log)
+            return
+
+        dotjupyter_personas = load_from_dir(dotjupyter_dir, self.log)
+        if dotjupyter_personas:
+            self.send_system_message(
+                "Found persona files in .jupyter directory. Please move them to .jupyter/personas/ subdirectory."
+            )
+
+        personas_subdir = os.path.join(dotjupyter_dir, "personas")
+        if not os.path.exists(personas_subdir):
+            self.log.info(
+                "No 'personas' subdirectory found in .jupyter directory for loading local personas."
+            )
+            return
+
+        self._local_persona_classes = load_from_dir(personas_subdir, self.log)
 
     def _init_personas(self) -> dict[str, BasePersona]:
         """
