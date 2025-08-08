@@ -1,8 +1,30 @@
 import React, { useState, useEffect } from 'react';
-import { Autocomplete, TextField, Button, Box } from '@mui/material';
+import { Autocomplete, TextField, Button, Box, Typography } from '@mui/material';
 import { AiService } from '../../handler';
 import { useStackingAlert } from '../mui-extras/stacking-alert';
 import Save from '@mui/icons-material/Save';
+
+/**
+ * Highlights matched substrings in a given text by wrapping them in bold tags.
+ */
+const highlightMatches = (text: string, inputValue: string) => {
+  if (!inputValue) return text;
+
+  const parts = text.split(new RegExp(`(${inputValue})`, 'gi'));
+  return (
+    <Typography component="span">
+      {parts.map((part, index) =>
+        part.toLowerCase() === inputValue.toLowerCase() ? (
+          <Typography component="span" key={index} sx={{ fontWeight: 'bold' }}>
+            {part}
+          </Typography>
+        ) : (
+          part
+        )
+      )}
+    </Typography>
+  );
+};
 
 export type ModelIdInputProps = {
   /**
@@ -129,13 +151,15 @@ export function ModelIdInput(props: ModelIdInputProps): JSX.Element {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
       <Autocomplete
-        options={models}
+        options={models.filter(model => 
+          model.toLowerCase().includes(input.toLowerCase())
+        )}
         value={input}
         freeSolo
         autoSelect
         loading={loading}
         fullWidth={props.fullWidth}
-        onInputChange={(e, newValue, r) => {
+        onInputChange={(_, newValue) => {
           // This condition prevents whitespace from being inserted in the model
           // ID by accident.
           if (newValue !== null && !newValue.includes(' ')) {
@@ -149,6 +173,11 @@ export function ModelIdInput(props: ModelIdInputProps): JSX.Element {
             placeholder={props.placeholder}
             fullWidth={props.fullWidth ?? true}
           />
+        )}
+        renderOption={(props, option) => (
+          <li {...props}>
+            {highlightMatches(option, input)}
+          </li>
         )}
       />
       <Button
