@@ -214,13 +214,13 @@ class PersonaManager(LoggingConfigurable):
         dotjupyter_personas = load_from_dir(dotjupyter_dir, self.log)
         if dotjupyter_personas:
             self.send_system_message(
-                "Found persona files in .jupyter directory. Please move them to .jupyter/personas/ subdirectory."
+                "Found persona files in `.jupyter` directory. Please move them to `.jupyter/personas/` subdirectory."
             )
 
         personas_subdir = os.path.join(dotjupyter_dir, "personas")
         if not os.path.exists(personas_subdir):
             self.log.info(
-                "No 'personas' subdirectory found in .jupyter directory for loading local personas."
+                "No `personas` subdirectory found in `.jupyter` directory for loading local personas."
             )
             return
 
