@@ -230,9 +230,9 @@ class AiMagics(Magics):
             if args.type == "list":
                 return self.handle_list(args)
             if args.type == "alias":
-                return self.handle_register_alias(args)
+                return self.handle_alias(args)
             if args.type == "dealias":
-                return self.handle_delete_alias(args)
+                return self.handle_dealias(args)
             if args.type == "update":
                 return self.handle_update(args)
             if args.type == "version":
@@ -379,7 +379,7 @@ class AiMagics(Magics):
         with click.Context(line_magic_parser, info_name=r"%ai") as ctx:
             click.echo(line_magic_parser.get_help(ctx))
 
-    def handle_delete_alias(self, args: DeleteArgs) -> TextOrMarkdown:
+    def handle_dealias(self, args: DeleteArgs) -> TextOrMarkdown:
         """
         Handles `%ai dealias`. Deletes a model alias.
         """
@@ -439,7 +439,7 @@ class AiMagics(Magics):
 
         return self.run_ai_cell(cell_args, prompt)
 
-    def handle_register_alias(self, args: RegisterArgs) -> TextOrMarkdown:
+    def handle_alias(self, args: RegisterArgs) -> TextOrMarkdown:
         """
         Handles `%ai alias`. Adds an alias for a model ID for future calls.
         """
@@ -452,14 +452,6 @@ class AiMagics(Magics):
             raise ValueError(
                 f"The name {args.name} is already associated with a model; "
                 + "use %ai update to change its target"
-            )
-
-        # Validate name format
-        acceptable_name = re.compile("^[a-zA-Z0-9._-]+$")
-        if not acceptable_name.match(args.name):
-            raise ValueError(
-                "A registry name may contain ASCII letters, numbers, hyphens, underscores, "
-                + "and periods. No other characters, including a colon, are permitted"
             )
 
         # Store the alias

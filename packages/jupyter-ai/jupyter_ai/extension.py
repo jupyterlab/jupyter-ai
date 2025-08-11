@@ -141,7 +141,7 @@ class AiExtension(ExtensionApp):
         config=True,
     )
 
-    initial_language_model = Unicode(
+    initial_chat_model = Unicode(
         default_value=None,
         allow_none=True,
         help="""
