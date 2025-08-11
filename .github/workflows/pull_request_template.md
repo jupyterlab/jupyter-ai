@@ -1,23 +1,25 @@
 <!--
-Thank you for contributing to Jupyter AI! Please make sure to select/apply Assignees, Labels, Type, Projects, Milestone, and Relationships on the sidebar if applicable.
+Thank you for contributing to Jupyter AI! Please fill out the following items to submit a pull request.
+See the contributing guidelines for more information:
+https://github.com/jupyterlab/jupyterlab/blob/main/CONTRIBUTING.md
 -->
 
-## Problem
+## References
 
-<!-- Describe the issue this PR addresses. -->
+<!-- Note issue numbers this pull request addresses (should be at least one, see contributing guidelines above). -->
 
-## Solution
+<!-- Note any other pull requests that address this issue and how this pull request is different. -->
 
-<!-- Explain your approach and how it solves the problem. -->
+## Code changes
 
-## Testing Instructions
+<!-- Describe the code changes and how they address the issue. -->
 
-<!-- How can reviewers test this change? -->
+## User-facing changes
 
-## Screenshots/Demo
+<!-- Describe any visual or user interaction changes and how they address the issue. -->
 
-<!-- If applicable, add screenshots or recordings to help explain your changes -->
+<!-- For visual changes, include before and after screenshots or GIF/mp4/other video demo here. -->
 
-## Future Enhancements
+## Backwards-incompatible changes
 
-<!-- If applicable, please describe any future enhancements to be implemented -->
+<!-- Describe any backwards-incompatible changes to JupyterAI public APIs. -->
