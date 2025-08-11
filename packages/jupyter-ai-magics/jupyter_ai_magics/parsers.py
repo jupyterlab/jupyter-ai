@@ -272,10 +272,6 @@ def register_subparser(**kwargs):
     return DeleteArgs(**kwargs)
 
 
-@line_magic_parser.command(
-    name="update",
-    short_help="Update the target of an alias. See `%ai update --help` for options.",
-)
 @click.argument("name")
 @click.argument("target")
 def register_subparser(**kwargs):

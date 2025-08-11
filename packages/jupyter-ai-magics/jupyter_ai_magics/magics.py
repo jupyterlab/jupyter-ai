@@ -233,8 +233,6 @@ class AiMagics(Magics):
                 return self.handle_alias(args)
             if args.type == "dealias":
                 return self.handle_dealias(args)
-            if args.type == "update":
-                return self.handle_update(args)
             if args.type == "version":
                 return self.handle_version(args)
             if args.type == "reset":
@@ -447,35 +445,10 @@ class AiMagics(Magics):
         if args.name in AI_COMMANDS:
             raise ValueError(f"The name {args.name} is reserved for a command")
 
-        # Existing alias names are not allowed
-        if args.name in self.custom_model_registry:
-            raise ValueError(
-                f"The name {args.name} is already associated with a model; "
-                + "use %ai update to change its target"
-            )
-
         # Store the alias
         self.custom_model_registry[args.name] = args.target
 
         output = f"Registered new alias `{args.name}`"
-        return TextOrMarkdown(output, output)
-
-    def handle_update(self, args: UpdateArgs) -> TextOrMarkdown:
-        """
-        Handles `%ai update`. Updates a model alias.
-        """
-        if args.name in AI_COMMANDS:
-            raise ValueError(
-                f"Reserved command names, including {args.name}, cannot be updated"
-            )
-
-        if args.name not in self.custom_model_registry:
-            raise ValueError(f"There is no alias called {args.name}")
-
-        # Store the new target
-        self.custom_model_registry[args.name] = args.target
-
-        output = f"Updated target of alias `{args.name}`"
         return TextOrMarkdown(output, output)
 
     def handle_version(self, args: VersionArgs) -> str:
