@@ -211,8 +211,7 @@ class PersonaManager(LoggingConfigurable):
             self.log.info("No .jupyter directory found for loading local personas.")
             return
 
-        dotjupyter_personas = load_from_dir(dotjupyter_dir, self.log)
-        if dotjupyter_personas:
+        if find_persona_files(dotjupyter_dir):
             self.send_system_message(
                 "Found persona files in `.jupyter` directory. Please move them to `.jupyter/personas/` subdirectory."
             )
@@ -576,6 +575,25 @@ def is_persona(username: str):
     return username.startswith("jupyter-ai-personas")
 
 
+def find_persona_files(dir: str) -> list[str]:
+    """Find persona Python files in a directory without loading them."""
+    if not os.path.exists(dir):
+        return []
+
+    try:
+        all_py_files = glob(os.path.join(dir, "*.py"))
+        py_files = []
+        for f in all_py_files:
+            fname_lower = Path(f).stem.lower()
+            if "persona" in fname_lower and not (
+                fname_lower.startswith("_") or fname_lower.startswith(".")
+            ):
+                py_files.append(f)
+        return py_files
+    except Exception:
+        return []
+
+
 def load_from_dir(dir: str, log: Logger) -> list[dict]:
     """
     Load _persona class declarations_ from Python files in the local filesystem.
@@ -597,31 +615,11 @@ def load_from_dir(dir: str, log: Logger) -> list[dict]:
     """
     persona_classes: list[dict] = []
 
-    log.info(f"Searching for persona files in {dir}")
-    # Check if root directory exists
-    if not os.path.exists(dir):
+    py_files = find_persona_files(dir)
+    if not py_files:
         return persona_classes
 
-    # Find all .py files in the root directory that contain "persona" in the name
-    try:
-        all_py_files = glob(os.path.join(dir, "*.py"))
-        py_files = []
-        for f in all_py_files:
-            fname_lower = Path(f).stem.lower()
-            if "persona" in fname_lower and not (
-                fname_lower.startswith("_") or fname_lower.startswith(".")
-            ):
-                py_files.append(f)
-
-    except Exception as e:
-        # On exception with glob operation, return empty list
-        log.error(
-            f"{type(e).__name__} occurred while searching for Python files in {dir}"
-        )
-        return persona_classes
-
-    if py_files:
-        log.info(f"Found files from {dir}: {[Path(f).name for f in py_files]}")
+    log.info(f"Loading persona files from {dir}: {[Path(f).name for f in py_files]}")
 
     # Temporarily add root_dir to sys.path for imports
     dir_in_path = dir in sys.path
