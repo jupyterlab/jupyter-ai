@@ -1,7 +1,7 @@
 <!--
 Thank you for contributing to Jupyter AI! Please fill out the following items to submit a pull request.
 See the contributing guidelines for more information:
-https://github.com/jupyterlab/jupyterlab/blob/main/CONTRIBUTING.md
+https://jupyter-ai.readthedocs.io/en/latest/contributors/
 -->
 
 ## References
@@ -22,4 +22,4 @@ https://github.com/jupyterlab/jupyterlab/blob/main/CONTRIBUTING.md
 
 ## Backwards-incompatible changes
 
-<!-- Describe any backwards-incompatible changes to JupyterAI public APIs. -->
+<!-- Describe any backwards-incompatible changes to Jupyter AI public APIs. -->
