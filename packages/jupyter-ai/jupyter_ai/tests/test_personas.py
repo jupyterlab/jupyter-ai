@@ -8,7 +8,7 @@ from unittest.mock import Mock
 
 import pytest
 from jupyter_ai.personas.base_persona import BasePersona
-from jupyter_ai.personas.persona_manager import load_from_dir
+from jupyter_ai.personas.persona_manager import find_persona_files, load_from_dir
 
 
 @pytest.fixture
@@ -22,6 +22,39 @@ def tmp_persona_dir():
 def mock_logger():
     """Create a mock logger for testing."""
     return Mock()
+
+
+class TestFindPersonaFiles:
+    """Test cases for find_persona_files function."""
+
+    def test_nonexistent_directory_returns_empty_list(self):
+        """Test that a non-existent directory returns an empty list."""
+        result = find_persona_files("/nonexistent/directory/path")
+        assert result == []
+
+    def test_empty_directory_returns_empty_list(self, tmp_persona_dir):
+        """Test that an empty directory returns an empty list."""
+        result = find_persona_files(str(tmp_persona_dir))
+        assert result == []
+
+    def test_finds_valid_ignores_invalid_persona_files(self, tmp_persona_dir):
+        """Test that persona files with valid filenames are found while private, hidden, and non-valid files are ignored."""
+        (tmp_persona_dir / "my_persona.py").write_text("pass")
+        (tmp_persona_dir / "PersonalAssistant.py").write_text("pass")
+
+        (tmp_persona_dir / "my_other_code.py").write_text("pass")
+        (tmp_persona_dir / "_private_persona.py").write_text("pass")
+        (tmp_persona_dir / ".hidden_persona.py").write_text("pass")
+
+        result = find_persona_files(str(tmp_persona_dir))
+        result_names = [Path(f).name for f in result]
+
+        assert "my_persona.py" in result_names
+        assert "PersonalAssistant.py" in result_names
+
+        assert "my_other_code.py" not in result_names
+        assert "_private_persona.py" not in result_names
+        assert ".hidden_persona.py" not in result_names
 
 
 class TestLoadPersonaClassesFromDirectory:
