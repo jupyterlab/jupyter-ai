@@ -151,6 +151,17 @@ class AiExtension(ExtensionApp):
         config=True,
     )
 
+    initial_language_model = Unicode(
+        default_value=None,
+        allow_none=True,
+        help="""
+        Default language model to use, as string in the format
+        <provider-id>:<model-id>, defaults to None.
+        """,
+        config=True,
+    )
+
+
     default_embeddings_model = Unicode(
         default_value=None,
         allow_none=True,

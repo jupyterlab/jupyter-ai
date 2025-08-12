@@ -177,7 +177,7 @@ class AiMagics(Magics):
         # TODO: use LiteLLM aliases to provide this
         # https://docs.litellm.ai/docs/completion/model_alias
         # initialize a registry of custom model/chain names
-        self.custom_model_registry = self.initial_aliases
+        self.aliases = self.initial_aliases.copy()
 
     @line_cell_magic
     def ai(self, line: str, cell: Optional[str] = None) -> Any:
@@ -280,8 +280,8 @@ class AiMagics(Magics):
         model_id = args.model_id
         if model_id not in CHAT_MODELS:
             # Check if it's an alias
-            if model_id in self.custom_model_registry:
-                model_id = self.custom_model_registry[model_id]
+            if model_id in self.aliases:
+                model_id = self.aliases[model_id]
             else:
                 raise ValueError(
                     f"Model ID '{model_id}' is not a known model or alias. "
@@ -387,10 +387,10 @@ class AiMagics(Magics):
                 f"Reserved command names, including {args.name}, cannot be deleted"
             )
 
-        if args.name not in self.custom_model_registry:
+        if args.name not in self.aliases:
             raise ValueError(f"There is no alias called {args.name}")
 
-        del self.custom_model_registry[args.name]
+        del self.aliases[args.name]
         output = f"Deleted alias `{args.name}`"
         return TextOrMarkdown(output, output)
 
@@ -446,7 +446,7 @@ class AiMagics(Magics):
             raise ValueError(f"The name {args.name} is reserved for a command")
 
         # Store the alias
-        self.custom_model_registry[args.name] = args.target
+        self.aliases[args.name] = args.target
 
         output = f"Registered new alias `{args.name}`"
         return TextOrMarkdown(output, output)
@@ -474,10 +474,10 @@ class AiMagics(Magics):
             markdown_output += f"* `{model}`\n"
 
         # Also list any custom aliases
-        if len(self.custom_model_registry) > 0:
+        if len(self.aliases) > 0:
             text_output += "\nAliases:\n"
             markdown_output += "\n### Aliases\n\n"
-            for alias, target in self.custom_model_registry.items():
+            for alias, target in self.aliases.items():
                 text_output += f"* {alias} -> {target}\n"
                 markdown_output += f"* `{alias}` -> `{target}`\n"
 
