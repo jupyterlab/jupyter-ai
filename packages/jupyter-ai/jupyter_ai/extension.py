@@ -18,8 +18,6 @@ from tornado.web import StaticFileHandler
 from traitlets import Integer, List, Type, Unicode
 from traitlets.config import Config
 
-from .secrets.secrets_rest_api import SecretsRestAPI
-from .secrets.secrets_manager import EnvSecretsManager
 from .completions.handlers import DefaultInlineCompletionHandler
 from .config_manager import ConfigManager
 from .handlers import (
@@ -27,6 +25,8 @@ from .handlers import (
     InterruptStreamingHandler,
 )
 from .personas import PersonaManager
+from .secrets.secrets_manager import EnvSecretsManager
+from .secrets.secrets_rest_api import SecretsRestAPI
 
 if TYPE_CHECKING:
     from asyncio import AbstractEventLoop
@@ -50,7 +50,6 @@ else:
     from jupyter_collaboration.utils import (  # type:ignore[import-not-found,import-untyped]
         JUPYTER_COLLABORATION_EVENTS_URI,
     )
-
 
 from .model_providers.model_handlers import ChatModelEndpoint
 
@@ -160,7 +159,6 @@ class AiExtension(ExtensionApp):
         """,
         config=True,
     )
-
 
     default_embeddings_model = Unicode(
         default_value=None,
@@ -336,7 +334,7 @@ class AiExtension(ExtensionApp):
         # Initialize SecretsManager
         self.settings["jai_secrets_manager"] = EnvSecretsManager(parent=self)
 
-        # Bind event loop to settings dictionary 
+        # Bind event loop to settings dictionary
         self.settings["jai_event_loop"] = self.event_loop
 
         # Bind dictionary of interrupts to settings dictionary.

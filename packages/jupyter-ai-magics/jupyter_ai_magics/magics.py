@@ -406,7 +406,7 @@ class AiMagics(Magics):
         the kernel while running cells.
 
         TODO: annotate a valid return type when we find a type that is shared by
-        all display objects. 
+        all display objects.
         """
         no_errors_message = "There have been no errors since the kernel started."
 

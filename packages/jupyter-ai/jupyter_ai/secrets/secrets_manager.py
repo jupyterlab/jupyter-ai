@@ -1,21 +1,26 @@
 from __future__ import annotations
-from traitlets.config import LoggingConfigurable
-from typing import TYPE_CHECKING
-from dotenv import load_dotenv, dotenv_values
-from io import StringIO
+
 import asyncio
-from tornado.web import HTTPError
 import os
 from datetime import datetime
+from io import StringIO
+from typing import TYPE_CHECKING
 
-from .secrets_utils import build_updated_dotenv
+from dotenv import dotenv_values, load_dotenv
+from tornado.web import HTTPError
+from traitlets.config import LoggingConfigurable
+
 from .secrets_types import SecretsList
+from .secrets_utils import build_updated_dotenv
 
 if TYPE_CHECKING:
-    from typing import Any, Optional
     import logging
-    from ..extension import AiExtension
+    from typing import Any
+
     from jupyter_server.services.contents.filemanager import AsyncFileContentsManager
+
+    from ..extension import AiExtension
+
 
 class EnvSecretsManager(LoggingConfigurable):
     """
@@ -50,7 +55,7 @@ class EnvSecretsManager(LoggingConfigurable):
     parent class. This annotation exists only to help type checkers like `mypy`.
     """
 
-    _last_modified: Optional[datetime]
+    _last_modified: datetime | None
     """
     The 'last modified' timestamp on the '.env' file retrieved in the previous
     tick of the `_watch_dotenv()` background task.
@@ -81,7 +86,7 @@ class EnvSecretsManager(LoggingConfigurable):
     @property
     def contents_manager(self) -> AsyncFileContentsManager:
         return self.parent.serverapp.contents_manager
-    
+
     @property
     def event_loop(self) -> asyncio.AbstractEventLoop:
         return self.parent.event_loop
@@ -98,7 +103,6 @@ class EnvSecretsManager(LoggingConfigurable):
         # Start `_watch_dotenv()` task to automatically update the environment
         # variables when `.env` is modified
         self._watch_dotenv_task = self.event_loop.create_task(self._watch_dotenv())
-    
 
     async def _watch_dotenv(self) -> None:
         """
@@ -118,13 +122,13 @@ class EnvSecretsManager(LoggingConfigurable):
                 if e.status_code == 404:
                     self._handle_dotenv_notfound()
                     continue
-            except Exception as e:
+            except Exception:
                 self.log.exception("Unknown exception in `_watch_dotenv()`:")
                 continue
 
             # Continue if the `.env` file was already processed and its content
             # is unchanged.
-            if self._last_modified == dotenv_file['last_modified']:
+            if self._last_modified == dotenv_file["last_modified"]:
                 continue
 
             # When this line is reached, the .env file needs to be applied.
@@ -132,18 +136,21 @@ class EnvSecretsManager(LoggingConfigurable):
             # in `.gitignore`, and store the latest last modified timestamp.
             if self._last_modified:
                 # Statement when .env file was modified:
-                self.log.info("Detected changes to the '.env' file. Re-applying '.env' to the environment...")
+                self.log.info(
+                    "Detected changes to the '.env' file. Re-applying '.env' to the environment..."
+                )
             else:
                 # Statement when the .env file was just created, or when this is
                 # the first iteration and a .env file already exists:
-                self.log.info("Detected '.env' file at the workspace root. Applying '.env' to the environment...")
+                self.log.info(
+                    "Detected '.env' file at the workspace root. Applying '.env' to the environment..."
+                )
                 self.event_loop.create_task(self._ensure_dotenv_gitignored())
-            self._last_modified = dotenv_file['last_modified']
+            self._last_modified = dotenv_file["last_modified"]
 
             # Apply the latest `.env` file to the environment.
             # See `self._apply_dotenv()` for more info.
             self._apply_dotenv(dotenv_content)
-    
 
     def _apply_dotenv(self, content: str) -> None:
         """
@@ -160,9 +167,7 @@ class EnvSecretsManager(LoggingConfigurable):
         # Parse the latest `.env` file and store it in `self._dotenv_env`,
         # tracking deleted environment variables in `deleted_envvars`.
         new_dotenv_env = dotenv_values(stream=StringIO(content))
-        new_dotenv_env = {
-            k: v for k, v in new_dotenv_env.items() if v != None
-        }
+        new_dotenv_env = {k: v for k, v in new_dotenv_env.items() if v != None}
         deleted_envvars = [k for k in self._dotenv_env if k not in new_dotenv_env]
         self._dotenv_env = new_dotenv_env
 
@@ -175,8 +180,6 @@ class EnvSecretsManager(LoggingConfigurable):
             )
         load_dotenv(stream=StringIO(content), override=True)
         self.log.info("Applied '.env' to the environment.")
-
-    
 
     async def _ensure_dotenv_gitignored(self) -> bool:
         """
@@ -198,10 +201,9 @@ class EnvSecretsManager(LoggingConfigurable):
                 pass
             else:
                 raise e
-        except Exception as e:
+        except Exception:
             self.log.exception("Unknown exception raised when fetching `.gitignore`:")
-            pass
-            
+
         # Return early if the `.gitignore` file exists and already lists `.env`.
         old_content: str = (gitignore_file or {}).get("content", "")
         if ".env\n" in old_content:
@@ -213,19 +215,18 @@ class EnvSecretsManager(LoggingConfigurable):
         new_lines = "# Ignore secrets in '.env'\n.env\n"
         new_content = old_content + "\n" + new_lines if old_content else new_lines
         try:
-            gitignore_file = await self.contents_manager.save({
+            gitignore_file = await self.contents_manager.save(
+                {
                     "type": "file",
                     "format": "text",
                     "mimetype": "text/plain",
-                    "content": new_content
+                    "content": new_content,
                 },
-                ".gitignore"
+                ".gitignore",
             )
-        except Exception as e:
+        except Exception:
             self.log.exception("Unknown exception raised when updating `.gitignore`:")
-            pass
         self.log.info("Updated `.gitignore` file to include `.env`.")
-        
 
     def _reset_envvars(self, names: list[str]) -> None:
         """
@@ -238,7 +239,6 @@ class EnvSecretsManager(LoggingConfigurable):
                 os.environ[ev_name] = self._initial_env.get(ev_name)
             else:
                 del os.environ[ev_name]
-    
 
     def _handle_dotenv_notfound(self) -> None:
         """
@@ -250,7 +250,6 @@ class EnvSecretsManager(LoggingConfigurable):
         if self._dotenv_env:
             self._reset_envvars(list(self._dotenv_env.keys()))
             self._dotenv_env = {}
-
 
     def list_secrets(self) -> SecretsList:
         """
@@ -270,26 +269,25 @@ class EnvSecretsManager(LoggingConfigurable):
         for name in self._initial_env.keys():
             if "KEY" in name or "TOKEN" in name or "SECRET" in name:
                 process_secrets_names.add(name)
-        
+
         # Add secrets from .env, if any
         for name in self._dotenv_env:
             dotenv_secrets_names.add(name)
-        
+
         # Remove `TIKTOKEN_CACHE_DIR`, which is set in the initial environment
         # by some other package and is not a secret.
         # This gets included otherwise since it contains 'TOKEN' in its name.
         process_secrets_names.discard("TIKTOKEN_CACHE_DIR")
-        
+
         return SecretsList(
             editable_secrets=sorted(list(dotenv_secrets_names)),
-            static_secrets=sorted(list(process_secrets_names))
+            static_secrets=sorted(list(process_secrets_names)),
         )
 
-
     async def update_secrets(
-            self,
-            updated_secrets: dict[str, str | None],
-        ) -> None:
+        self,
+        updated_secrets: dict[str, str | None],
+    ) -> None:
         """
         Accepts a dictionary of secrets to update, adds/updates/deletes them
         from `.env` accordingly, and applies the updated `.env` file to the
@@ -326,9 +324,11 @@ class EnvSecretsManager(LoggingConfigurable):
                     pass
                 else:
                     raise e
-            except Exception as e:
-                self.log.exception("Unknown exception raised when reading `.env` in response to an update:")
-            
+            except Exception:
+                self.log.exception(
+                    "Unknown exception raised when reading `.env` in response to an update:"
+                )
+
             # Build the new `.env` file using these variables.
             # See `build_updated_dotenv()` for more info on how this is done.
             new_dotenv_content = build_updated_dotenv(dotenv_content, updated_secrets)
@@ -336,18 +336,21 @@ class EnvSecretsManager(LoggingConfigurable):
             # Return early if no changes are needed in `.env`.
             if new_dotenv_content is None:
                 return
-            
+
             # Save new content
             try:
-                dotenv_file = await self.contents_manager.save({
-                    "type": "file",
-                    "format": "text",
-                    "mimetype": "text/plain",
-                    "content": new_dotenv_content
-                }, ".env")
-                last_modified = dotenv_file.get('last_modified')
+                dotenv_file = await self.contents_manager.save(
+                    {
+                        "type": "file",
+                        "format": "text",
+                        "mimetype": "text/plain",
+                        "content": new_dotenv_content,
+                    },
+                    ".env",
+                )
+                last_modified = dotenv_file.get("last_modified")
                 assert isinstance(last_modified, datetime)
-            except Exception as e:
+            except Exception:
                 self.log.exception("Unknown exception raised when updating `.env`:")
 
             # If this is a new file, ensure the `.env` file is listed in `.gitignore`.
@@ -360,17 +363,14 @@ class EnvSecretsManager(LoggingConfigurable):
             # This automatically sets `self._dotenv_env`.
             self._apply_dotenv(new_dotenv_content)
             self.log.info("Updated secrets in `.env`.")
-    
 
-    def get_secret(self, secret_name: str) -> Optional[str]:
+    def get_secret(self, secret_name: str) -> str | None:
         """
         Returns the value of a secret given its name. The returned secret must
         NEVER be shared with frontend clients!
         """
         # TODO
-        pass
 
-    
     def stop(self) -> None:
         """
         Stops this instance and any background tasks spawned by this instance.
