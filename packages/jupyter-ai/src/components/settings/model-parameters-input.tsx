@@ -2,19 +2,19 @@ import React, { useState } from 'react';
 import { Button, TextField, Box, Alert, IconButton } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-interface ModelParameter {
+type ModelParameter = {
   id: string;
   name: string;
   type: string;
   value: string;
   isStatic?: boolean;
-}
+};
 
-interface StaticParameterDef {
+type StaticParameterDef = {
   name: string;
   type: string;
   label: string;
-}
+};
 
 // Add some common fields as static parameters here
 const STATIC_PARAMETERS: StaticParameterDef[] = [

@@ -26,7 +26,7 @@ export function ModelField(props: ModelFieldProps): JSX.Element {
           // JSON.parse does not allow single quotes or trailing commas
           JSON.parse(e.target.value);
           setErrorMessage(null);
-        } catch (exc) {
+        } catch {
           setErrorMessage('You must specify a value in JSON format.');
         }
         break;
