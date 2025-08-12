@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Autocomplete, TextField, Button, Box, Typography } from '@mui/material';
+import {
+  TextField,
+  Button,
+  Box,
+  Typography,
+  Menu,
+  MenuItem
+} from '@mui/material';
 import { AiService } from '../../handler';
 import { useStackingAlert } from '../mui-extras/stacking-alert';
 import Save from '@mui/icons-material/Save';
@@ -73,7 +80,25 @@ export function ModelIdInput(props: ModelIdInputProps): JSX.Element {
   const [updating, setUpdating] = useState(false);
 
   const [input, setInput] = useState('');
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const alert = useStackingAlert();
+
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleMenuItemClick = (value: string) => {
+    setInput(value);
+    handleMenuClose();
+  };
+
+  const filteredModels = models.filter(model =>
+    model.toLowerCase().includes(input.toLowerCase())
+  );
 
   /**
    * Effect: Fetch list of models and current model on initial render, based on
@@ -150,36 +175,95 @@ export function ModelIdInput(props: ModelIdInputProps): JSX.Element {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-      <Autocomplete
-        options={models.filter(model => 
-          model.toLowerCase().includes(input.toLowerCase())
-        )}
+      <TextField
+        label={props.label || 'Model ID'}
+        placeholder={props.placeholder}
+        fullWidth={props.fullWidth ?? true}
         value={input}
-        freeSolo
-        autoSelect
-        loading={loading}
-        fullWidth={props.fullWidth}
-        onInputChange={(_, newValue) => {
-          // This condition prevents whitespace from being inserted in the model
-          // ID by accident.
-          if (newValue !== null && !newValue.includes(' ')) {
+        onChange={e => {
+          const newValue = e.target.value;
+          if (!newValue.includes(' ')) {
             setInput(newValue);
           }
         }}
-        renderInput={params => (
-          <TextField
-            {...params}
-            label={props.label || 'Model ID'}
-            placeholder={props.placeholder}
-            fullWidth={props.fullWidth ?? true}
-          />
-        )}
-        renderOption={(props, option) => (
-          <li {...props}>
-            {highlightMatches(option, input)}
-          </li>
-        )}
+        InputProps={{
+          endAdornment:
+            // input && filteredModels.length > 0 ? (
+            input ? (
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  height: '100%',
+                  justifyContent: 'left',
+                  width: '100%'
+                }}
+              >
+                <Box
+                  sx={{
+                    cursor: 'pointer',
+                    ml: 1,
+                    display: 'flex',
+                    alignItems: 'center'
+                  }}
+                  onClick={handleMenuOpen}
+                  tabIndex={0}
+                  role="button"
+                >
+                  <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+                    <path
+                      d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99a1 1 0 0 0 1.41-1.41l-4.99-5zm-6 0C8.01 14 6 11.99 6 9.5S8.01 5 10.5 5 15 7.01 15 9.5 12.99 14 10.5 14z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                  {filteredModels.length > 0 ? (
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        ml: 1,
+                        userSelect: 'none',
+                        color: 'text.secondary'
+                      }}
+                    >
+                      Click to see {filteredModels.length} match
+                      {filteredModels.length !== 1 ? 'es' : ''}
+                    </Typography>
+                  ) : (
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        ml: 1,
+                        userSelect: 'none',
+                        color: 'text.secondary'
+                      }}
+                    >
+                      No matches
+                    </Typography>
+                  )}
+                </Box>
+              </Box>
+            ) : null
+        }}
       />
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleMenuClose}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'left'
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'left'
+        }}
+      >
+        {filteredModels.map((model, index) => (
+          <MenuItem key={index} onClick={() => handleMenuItemClick(model)}>
+            {highlightMatches(model, input)}
+          </MenuItem>
+        ))}
+      </Menu>
       <Button
         variant="contained"
         onClick={handleUpdateChatModel}
