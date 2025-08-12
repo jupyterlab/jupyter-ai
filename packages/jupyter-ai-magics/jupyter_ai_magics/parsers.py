@@ -54,8 +54,8 @@ class CellArgs(BaseModel):
 
 
 # Should match CellArgs
-class ErrorArgs(BaseModel):
-    type: Literal["error"] = "error"
+class FixArgs(BaseModel):
+    type: Literal["fix"] = "fix"
     model_id: str
     format: FORMAT_CHOICES_TYPE
     model_parameters: Optional[str] = None
@@ -79,13 +79,13 @@ class ListArgs(BaseModel):
 
 
 class RegisterArgs(BaseModel):
-    type: Literal["register"] = "register"
+    type: Literal["alias"] = "alias"
     name: str
     target: str
 
 
 class DeleteArgs(BaseModel):
-    type: Literal["delete"] = "delete"
+    type: Literal["dealias"] = "dealias"
     name: str
 
 
@@ -182,7 +182,7 @@ def line_magic_parser():
     """
 
 
-@line_magic_parser.command(name="error")
+@line_magic_parser.command(name="fix")
 @click.argument("model_id", required=False)
 @click.option(
     "-f",
@@ -219,14 +219,14 @@ def line_magic_parser():
     default="{}",
 )
 @click.pass_context
-def error_subparser(context: click.Context, **kwargs):
+def fix_subparser(context: click.Context, **kwargs):
     """
-    Explains the most recent error. Takes the same options (except -r) as
+    Explains and fixes the most recent error. Takes the same options (except -r) as
     the basic `%%ai` command.
     """
     if not kwargs["model_id"] and context.default_map:
-        kwargs["model_id"] = context.default_map["error_subparser"]["model_id"]
-    return ErrorArgs(**kwargs)
+        kwargs["model_id"] = context.default_map["fix_subparser"]["model_id"]
+    return FixArgs(**kwargs)
 
 
 @line_magic_parser.command(name="version")
@@ -253,8 +253,8 @@ def list_subparser(**kwargs):
 
 
 @line_magic_parser.command(
-    name="register",
-    short_help="Register a new alias. See `%ai register --help` for options.",
+    name="alias",
+    short_help="Register a new alias. See `%ai alias --help` for options.",
 )
 @click.argument("name")
 @click.argument("target")
@@ -264,7 +264,7 @@ def register_subparser(**kwargs):
 
 
 @line_magic_parser.command(
-    name="delete", short_help="Delete an alias. See `%ai delete --help` for options."
+    name="dealias", short_help="Delete an alias. See `%ai dealias --help` for options."
 )
 @click.argument("name")
 def register_subparser(**kwargs):
@@ -272,10 +272,6 @@ def register_subparser(**kwargs):
     return DeleteArgs(**kwargs)
 
 
-@line_magic_parser.command(
-    name="update",
-    short_help="Update the target of an alias. See `%ai update --help` for options.",
-)
 @click.argument("name")
 @click.argument("target")
 def register_subparser(**kwargs):

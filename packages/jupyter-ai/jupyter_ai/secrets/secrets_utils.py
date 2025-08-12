@@ -1,11 +1,12 @@
 from __future__ import annotations
-from dotenv import dotenv_values
-from dotenv.parser import parse_stream
+
 from io import StringIO
 from typing import TYPE_CHECKING
 
+from dotenv import dotenv_values
+from dotenv.parser import parse_stream
+
 if TYPE_CHECKING:
-    from typing import Optional
     import logging
 
 ENVIRONMENT_VAR_REGEX = "^([a-zA-Z_][a-zA-Z_0-9]*)=?(['\"])?"
@@ -13,10 +14,11 @@ ENVIRONMENT_VAR_REGEX = "^([a-zA-Z_][a-zA-Z_0-9]*)=?(['\"])?"
 Regex that matches a environment variable definition.
 """
 
+
 def build_updated_dotenv(
     dotenv_content: str,
     updated_secrets: dict[str, str | None],
-    log: Optional[logging.Logger] = None
+    log: logging.Logger | None = None,
 ) -> str | None:
     """
     Accepts the existing `.env` file as a parsed dictionary of environment
@@ -59,11 +61,8 @@ def build_updated_dotenv(
     else:
         # Case 4: keys can only be added when a `.env` file is not
         # present.
-        secrets_to_add = {
-            k: v for k, v in updated_secrets.items()
-            if v is not None
-        }
-    
+        secrets_to_add = {k: v for k, v in updated_secrets.items() if v is not None}
+
     # Return early if update has effect.
     if not (secrets_to_add or secrets_to_update or secrets_to_remove):
         return None
@@ -89,7 +88,7 @@ def build_updated_dotenv(
     # 1. The `parse_stream()` function returns an Iterator that yields 'Binding'
     # objects that represent 'parsed chunks' of a `.env` file. Each chunk may
     # contain:
-    # 
+    #
     # - An environment variable definition (`Binding.key is not None`),
     # - An invalid line (`Binding.error == True`),
     # - A standalone comment (if neither condition applies).
@@ -113,7 +112,9 @@ def build_updated_dotenv(
         if binding.key in secrets_to_update:
             name = binding.key
             # extra logic to preserve formatting as best as we can
-            whitespace_before, whitespace_after = get_whitespace_around(binding.original.string)
+            whitespace_before, whitespace_after = get_whitespace_around(
+                binding.original.string
+            )
             value = secrets_to_update[name]
             new_content += whitespace_before
             new_content += f'{name}="{value}"'
@@ -124,9 +125,9 @@ def build_updated_dotenv(
 
     if secrets_to_add:
         # Ensure new secrets get put at least 2 lines below the rest
-        if not new_content.endswith('\n'):
+        if not new_content.endswith("\n"):
             new_content += "\n\n"
-        elif not new_content.endswith('\n\n'):
+        elif not new_content.endswith("\n\n"):
             new_content += "\n"
 
         max_i = len(secrets_to_add) - 1
@@ -141,17 +142,17 @@ def build_updated_dotenv(
 def get_whitespace_around(text: str) -> tuple[str, str]:
     """
     Extract whitespace prefix and suffix from a string.
-    
+
     Args:
         text: The input string
-        
+
     Returns:
         A tuple of (prefix, suffix) where prefix is the leading whitespace
         and suffix is the trailing whitespace
     """
     if not text:
         return ("", "")
-    
+
     # Find prefix (leading whitespace)
     prefix_end = 0
     for i, char in enumerate(text):
@@ -161,15 +162,15 @@ def get_whitespace_around(text: str) -> tuple[str, str]:
     else:
         # String is all whitespace
         return (text, "")
-    
+
     # Find suffix (trailing whitespace)
     suffix_start = len(text)
     for i in range(len(text) - 1, -1, -1):
         if not text[i].isspace():
             suffix_start = i + 1
             break
-    
+
     prefix = text[:prefix_end]
     suffix = text[suffix_start:]
-    
+
     return (prefix, suffix)

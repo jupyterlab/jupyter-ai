@@ -1,5 +1,6 @@
-from pydantic import BaseModel
 from typing import Optional
+
+from pydantic import BaseModel
 
 
 class SecretsList(BaseModel):
@@ -30,4 +31,5 @@ class UpdateSecretsRequest(BaseModel):
     """
     The request body expected by `PUT /api/ai/secrets`.
     """
+
     updated_secrets: dict[str, Optional[str]]
