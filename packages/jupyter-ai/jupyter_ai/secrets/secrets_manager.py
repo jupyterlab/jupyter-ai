@@ -6,12 +6,12 @@ from datetime import datetime
 from io import StringIO
 from typing import TYPE_CHECKING
 
-from dotenv import dotenv_values, load_dotenv
+from dotenv import load_dotenv
 from tornado.web import HTTPError
 from traitlets.config import LoggingConfigurable
 
 from .secrets_types import SecretsList
-from .secrets_utils import build_updated_dotenv
+from .secrets_utils import build_updated_dotenv, parse_dotenv
 
 if TYPE_CHECKING:
     import logging
@@ -85,7 +85,11 @@ class EnvSecretsManager(LoggingConfigurable):
 
     @property
     def contents_manager(self) -> AsyncFileContentsManager:
-        return self.parent.serverapp.contents_manager
+        assert self.parent.serverapp
+        # By default, `serverapp.contents_manager` is typed as `ContentsManager |
+        # None`. However, a custom implementation may provide async methods, so
+        # we cast it as the async version of the default `FileContentsManager`.
+        return self.parent.serverapp.contents_manager # type:ignore[return-value]
 
     @property
     def event_loop(self) -> asyncio.AbstractEventLoop:
@@ -166,8 +170,7 @@ class EnvSecretsManager(LoggingConfigurable):
         """
         # Parse the latest `.env` file and store it in `self._dotenv_env`,
         # tracking deleted environment variables in `deleted_envvars`.
-        new_dotenv_env = dotenv_values(stream=StringIO(content))
-        new_dotenv_env = {k: v for k, v in new_dotenv_env.items() if v != None}
+        new_dotenv_env = parse_dotenv(content)
         deleted_envvars = [k for k in self._dotenv_env if k not in new_dotenv_env]
         self._dotenv_env = new_dotenv_env
 
@@ -181,7 +184,7 @@ class EnvSecretsManager(LoggingConfigurable):
         load_dotenv(stream=StringIO(content), override=True)
         self.log.info("Applied '.env' to the environment.")
 
-    async def _ensure_dotenv_gitignored(self) -> bool:
+    async def _ensure_dotenv_gitignored(self) -> None:
         """
         Ensures the `.env` file is listed in the `.gitignore` file at the
         workspace root, creating/updating the `.gitignore` file to list `.env`
@@ -236,7 +239,7 @@ class EnvSecretsManager(LoggingConfigurable):
         """
         for ev_name in names:
             if ev_name in self._initial_env:
-                os.environ[ev_name] = self._initial_env.get(ev_name)
+                os.environ[ev_name] = self._initial_env[ev_name]
             else:
                 del os.environ[ev_name]
 

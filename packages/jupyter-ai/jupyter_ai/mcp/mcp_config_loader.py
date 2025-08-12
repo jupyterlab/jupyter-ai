@@ -11,7 +11,7 @@ SCHEMA_FILE = Path(__file__).parent / "schema.json"
 class MCPConfigLoader:
     """Loader for MCP server configuration files with JSON schema validation."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         # Load the schema from the schema.json file
         with open(SCHEMA_FILE) as f:
             self.schema = json.load(f)
