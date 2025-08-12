@@ -479,7 +479,7 @@ class AiMagics(Magics):
         # if the user wants code, add another cell with the output.
         if display_format == "code":
             # Strip a leading language indicator and trailing triple-backticks
-            lang_indicator = r"^```[a-zA-Z0-9]*\n"
+            lang_indicator = r"^\s*```[a-zA-Z0-9]*\s*\n"
             output = re.sub(lang_indicator, "", output)
             output = re.sub(r"\n```$", "", output)
             self.shell.set_next_input(output, replace=False)
