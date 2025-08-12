@@ -16,14 +16,13 @@ interface StaticParameterDef {
   label: string;
 }
 
-// Add some common fields as static parameters here
 const STATIC_PARAMETERS: StaticParameterDef[] = [
   { name: 'temperature', type: 'float', label: 'Temperature' },
   { name: 'api_url', type: 'string', label: 'API URL' },
   { name: 'max_tokens', type: 'integer', label: 'Max Tokens' }
 ];
 
-export function ModelParametersInput(): JSX.Element {
+export function ModelArgumentsInput(): JSX.Element {
   const [parameters, setParameters] = useState<ModelParameter[]>([]);
   const [validationError, setValidationError] = useState<string>('');
 
@@ -40,7 +39,6 @@ export function ModelParametersInput(): JSX.Element {
   };
 
   const handleAddStaticParameter = (staticParam: StaticParameterDef) => {
-    // Check if static parameter already exists
     const exists = parameters.some(
       param => param.name === staticParam.name && param.isStatic
     );
@@ -58,7 +56,6 @@ export function ModelParametersInput(): JSX.Element {
     setParameters([...parameters, newParameter]);
     setValidationError('');
   };
-  // For when user changes their parameter
   const handleParameterChange = (
     id: string,
     field: keyof ModelParameter,
@@ -72,7 +69,6 @@ export function ModelParametersInput(): JSX.Element {
     setValidationError('');
   };
 
-  // For when user deletes parameter
   const handleDeleteParameter = (id: string) => {
     setParameters(prev => prev.filter(param => param.id !== id));
     setValidationError('');
@@ -94,7 +90,6 @@ export function ModelParametersInput(): JSX.Element {
       return;
     }
 
-    // Filter out parameters with empty values
     const validParams = parameters.filter(param => param.value.trim() !== '');
 
     // Creates JSON object of valid parameters ONLY if all 3 fields are given valid inputs
@@ -103,7 +98,6 @@ export function ModelParametersInput(): JSX.Element {
       return acc;
     }, {} as Record<string, string>);
 
-    // Logs the JSON object of its input state to the browser console
     console.log('Model Parameters:', paramsObject);
   };
 

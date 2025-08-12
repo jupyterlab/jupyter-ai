@@ -8,7 +8,7 @@ import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { IJaiCompletionProvider } from '../tokens';
 import { ModelIdInput } from './settings/model-id-input';
-// import { ModelParametersInput } from './settings/model-parameters-input';
+// import { ModelArgumentsInput } from './settings/model-arguments-input';
 import { SecretsSection } from './settings/secrets-section';
 
 type ChatSettingsProps = {
@@ -91,7 +91,7 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
       {/* Model parameters section */}
       {/* <h2 className="jp-ai-ChatSettings-header">Model parameters</h2>
       <p>Configure additional parameters for the language model.</p>
-      <ModelParametersInput /> */}
+      <ModelArgumentsInput /> */}
 
       {/* SECTION: Secrets (and API keys) */}
       <h2 className="jp-ai-ChatSettings-header">Secrets and API keys</h2>
