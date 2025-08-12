@@ -363,11 +363,13 @@ class AiMagics(Magics):
         Appends an exchange between a user and a language model to
         `self.transcript`. This transcript will be included in future `%ai`
         calls to preserve conversation history.
-
-        TODO: bound this list to length `self.max_history * 2`.
         """
         self.transcript.append({"role": "user", "content": prompt})
         self.transcript.append({"role": "assistant", "content": output})
+        # Keep only the most recent `self.max_history * 2` messages
+        max_len = self.max_history * 2
+        if len(self.transcript) > max_len:
+            self.transcript = self.transcript[-max_len:]
 
     def handle_help(self, _: HelpArgs) -> None:
         """
