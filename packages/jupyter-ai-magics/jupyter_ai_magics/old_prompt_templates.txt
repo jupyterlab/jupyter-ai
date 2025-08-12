@@ -29,4 +29,3 @@ model_kwargs["prompt_templates"] = {
     ),
     "text": PromptTemplate.from_template("{prompt}"),  # No customization
 }
-

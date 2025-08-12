@@ -15,7 +15,6 @@ class DefaultInlineCompletionHandler(BaseInlineCompletionHandler):
 
         # reply = await llm.generate_inline_completions(request)
         # self.reply(reply)
-        pass
 
     async def handle_stream_request(self, request: InlineCompletionRequest):
         # TODO: migrate this to use LiteLLM
@@ -26,6 +25,7 @@ class DefaultInlineCompletionHandler(BaseInlineCompletionHandler):
         # async for reply in llm.stream_inline_completions(request):
         #     self.reply(reply)
         pass
+
 
 # old methods on BaseProvider, for reference when migrating this to LiteLLM
 #

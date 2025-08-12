@@ -1,11 +1,15 @@
 from __future__ import annotations
-from jupyter_server.base.handlers import APIHandler as BaseAPIHandler
-from tornado.web import authenticated, HTTPError
+
 from typing import TYPE_CHECKING
+
+from jupyter_server.base.handlers import APIHandler as BaseAPIHandler
+from tornado.web import HTTPError, authenticated
+
 from .secrets_types import UpdateSecretsRequest
 
 if TYPE_CHECKING:
     from .secrets_manager import EnvSecretsManager
+
 
 class SecretsRestAPI(BaseAPIHandler):
     """

@@ -23,4 +23,3 @@ class ListProvidersEntry(BaseModel):
     # fields: list[Field]
     chat_models: Optional[list[str]] = None
     completion_models: Optional[list[str]] = None
-
