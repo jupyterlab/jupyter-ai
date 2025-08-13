@@ -219,4 +219,16 @@ export namespace AiService {
       completions_model_provider_id: modelId
     });
   }
+
+  export async function getModelParameters(
+    modelId?: string,
+    provider?: string
+  ): Promise<any> {
+    const params = new URLSearchParams();
+    if (modelId) params.append('model', modelId);
+    if (provider) params.append('provider', provider);
+    
+    const endpoint = `model-parameters${params.toString() ? `?${params.toString()}` : ''}`;
+    return await requestAPI(endpoint);
+  }
 }
