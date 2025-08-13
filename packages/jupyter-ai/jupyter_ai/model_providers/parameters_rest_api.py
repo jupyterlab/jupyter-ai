@@ -1,51 +1,55 @@
-"""
-REST API endpoint for model parameter definitions.
-"""
 from jupyter_server.base.handlers import APIHandler as BaseAPIHandler
 from tornado.web import authenticated, HTTPError
-from pydantic import BaseModel
-from typing import List, Optional
+import json
 
 from litellm.litellm_core_utils.get_supported_openai_params import get_supported_openai_params
-
-class ModelParametersResponse(BaseModel):
-    """Response model for model parameters API."""
-    #parameters: List[]
-    count: int
     
 class ModelParametersRestAPI(BaseAPIHandler):
     """
     REST API for model parameters at `/api/ai/model-parameters`
     
-    GET /api/ai/model-parameters: Returns all supported OpenAI parameters
-    GET /api/ai/model-parameters?core=true: Returns only core parameters
+    GET /api/ai/model-parameters: Returns common parameters
+    GET /api/ai/model-parameters?model=gpt-4: Returns parameters for specific model
     """
     
     @authenticated
     def get(self):
         """
-        Returns list of supported model parameters for OpenAI-compatible models.
+        Returns list of supported model parameters.
         
         Query Parameters:
-        - core (boolean): If true, returns only core/common parameters
-        
-        These parameters work with LiteLLM across different providers.
+        - model (string): Model ID to get parameters for
+        - provider (string): Custom LLM provider (optional)
+        If no model provided, returns common parameters.
         """
         try:
-            core_only = self.get_query_argument("core", default="false").lower() == "true"
-            if core_only:
-                parameters = get_core_parameters()
-            else:
-                parameters = get_supported_openai_params()
+            model = self.get_query_argument("model", default=None)
+            provider = self.get_query_argument("provider", default=None)
             
-            response = ModelParametersResponse(
-                parameters=parameters,
-                count=len(parameters)
-            )
+            # Temporary common parameters that work across most models
+            common_params = ["temperature", "max_tokens", "top_p", "stop"]
+            
+            if model:
+                try:
+                    parameters = get_supported_openai_params(
+                        model=model,
+                        custom_llm_provider=provider
+                    )
+                    if not parameters:
+                        parameters = common_params
+                except Exception:
+                    parameters = common_params
+            else:
+                parameters = common_params
+            
+            response = {
+                "parameters": parameters,
+                "count": len(parameters)
+            }
             
             self.set_status(200)
             self.set_header("Content-Type", "application/json")
-            self.finish(response.model_dump_json())
+            self.finish(json.dumps(response))
             
         except Exception as e:
             self.log.exception("Failed to get model parameters")
