@@ -18,6 +18,6 @@ jobs:
       - name: Lint TypeScript source
         run: jlpm lerna run lint:check
 
-  precommit:
-    name: pre-commit check
-    # TODO
+  # TODO
+  # precommit:
+  #   name: pre-commit check
