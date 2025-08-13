@@ -248,7 +248,10 @@ def help_subparser():
 )
 @click.argument("provider_id", required=False)
 def list_subparser(**kwargs):
-    """List language models, optionally scoped to PROVIDER_ID."""
+    """List language models, optionally scoped to PROVIDER_ID.\n\n
+    If no PROVIDER_ID is given, all providers are listed.
+    If PROVIDER_ID is given, only models from that provider are listed.
+    If PROVIDER_ID is 'all', models from all providers are listed."""
     return ListArgs(**kwargs)
 
 
