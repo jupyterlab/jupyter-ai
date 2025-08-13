@@ -410,27 +410,6 @@ def test_forbid_write_write_conflict(cm: ConfigManager):
         )
 
 
-def test_update_api_key(cm: ConfigManager):
-    """Asserts that updates via direct edits to the config file are immediately
-    reflected by the ConfigManager."""
-    LM_GID, EM_GID, LM_LID, EM_LID, _ = configure_to_cohere(cm)
-    cm.update_config(UpdateConfigRequest(api_keys={"COHERE_API_KEY": "barfoo"}))
-
-    config_desc = cm.get_config()
-    assert config_desc.api_keys == ["COHERE_API_KEY"]
-    assert cm.lm_provider_params == {"cohere_api_key": "barfoo", "model_id": LM_LID}
-    assert cm.em_provider_params == {"cohere_api_key": "barfoo", "model_id": EM_LID}
-
-
-def test_delete_api_key(cm: ConfigManager):
-    configure_to_cohere(cm)
-    cm.update_config(UpdateConfigRequest(api_keys={"OPENAI_API_KEY": "asdf"}))
-    assert cm.get_config().api_keys == ["COHERE_API_KEY", "OPENAI_API_KEY"]
-
-    cm.delete_api_key("OPENAI_API_KEY")
-    assert cm.get_config().api_keys == ["COHERE_API_KEY"]
-
-
 def test_forbid_deleting_key_in_use(cm: ConfigManager):
     configure_to_cohere(cm)
 

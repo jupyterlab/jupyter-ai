@@ -380,3 +380,9 @@ class EnvSecretsManager(LoggingConfigurable):
         This method should be called if and only if the server is shutting down.
         """
         self._watch_dotenv_task.cancel()
+
+        # Reset any environment variables set in `.env` back to their initial
+        # values. This is only required for the unit test suite.
+        envvar_names = self._dotenv_env.keys()
+        self._reset_envvars(envvar_names)
+        self._dotenv_env = {}
