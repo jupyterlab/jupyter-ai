@@ -201,20 +201,27 @@ class AiMagics(Magics):
         default_map = {"model_id": self.initial_language_model}
 
         # parse arguments
-        if cell:
-            args = cell_magic_parser(
-                raw_args,
-                prog_name=r"%%ai",
-                standalone_mode=False,
-                default_map={"cell_magic_parser": default_map},
-            )
-        else:
-            args = line_magic_parser(
-                raw_args,
-                prog_name=r"%ai",
-                standalone_mode=False,
-                default_map={"fix": default_map},
-            )
+        try:
+            if cell:
+                args = cell_magic_parser(
+                    raw_args,
+                    prog_name=r"%%ai",
+                    standalone_mode=False,
+                    default_map={"cell_magic_parser": default_map},
+                )
+            else:
+                args = line_magic_parser(
+                    raw_args,
+                    prog_name=r"%ai",
+                    standalone_mode=False,
+                    default_map={"fix": default_map},
+                )
+        except Exception as e:
+            if "model_id" in str(e) and "string_type" in str(e):
+                error_msg = "No Model ID entered, please enter it in the following format: `%%ai <model_id>`"
+                print(error_msg, file=sys.stderr)
+                return
+            raise e
 
         if args == 0 and self.initial_language_model is None:
             # this happens when `--help` is called on the root command, in which
@@ -283,10 +290,9 @@ class AiMagics(Magics):
             if model_id in self.aliases:
                 model_id = self.aliases[model_id]
             else:
-                raise ValueError(
-                    f"Model ID '{model_id}' is not a known model or alias. "
-                    "Run '%ai list' to see available models and aliases."
-                )
+                error_msg = f"Model ID '{model_id}' is not a known model or alias. Run '%ai list' to see available models and aliases."
+                print(error_msg, file=sys.stderr)  # Log to stderr
+                return
         try:
             # Call litellm completion
             response = litellm.completion(
