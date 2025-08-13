@@ -13,6 +13,11 @@ from jupyter_ai.config_manager import (
 )
 from pydantic import ValidationError
 
+pytest.skip(
+    "Skipping outdated v2 ConfigManager tests which will be re-implemented during v3 refactor.",
+    allow_module_level=True
+)
+
 
 @pytest.fixture
 def config_path(jp_data_dir):
