@@ -3,6 +3,7 @@ from tornado.web import authenticated, HTTPError
 import json
 
 from litellm.litellm_core_utils.get_supported_openai_params import get_supported_openai_params
+from .parameter_schemas import get_parameters_with_schemas
     
 class ModelParametersRestAPI(BaseAPIHandler):
     """
@@ -31,20 +32,24 @@ class ModelParametersRestAPI(BaseAPIHandler):
             
             if model:
                 try:
-                    parameters = get_supported_openai_params(
+                    parameter_names = get_supported_openai_params(
                         model=model,
                         custom_llm_provider=provider
                     )
-                    if not parameters:
-                        parameters = common_params
+                    if not parameter_names:
+                        parameter_names = common_params
                 except Exception:
-                    parameters = common_params
+                    parameter_names = common_params
             else:
-                parameters = common_params
+                parameter_names = common_params
+            
+            # Get parameter schemas with types, defaults, and descriptions
+            parameters_with_schemas = get_parameters_with_schemas(parameter_names)
             
             response = {
-                "parameters": parameters,
-                "count": len(parameters)
+                "parameters": parameters_with_schemas,
+                "parameter_names": parameter_names,
+                "count": len(parameter_names)
             }
             
             self.set_status(200)
