@@ -201,6 +201,7 @@ class AiMagics(Magics):
         default_map = {"model_id": self.initial_language_model}
 
         # parse arguments
+        args = None
         try:
             if cell:
                 args = cell_magic_parser(
@@ -220,6 +221,9 @@ class AiMagics(Magics):
             if "model_id" in str(e) and "string_type" in str(e):
                 error_msg = "No Model ID entered, please enter it in the following format: `%%ai <model_id>`"
                 print(error_msg, file=sys.stderr)
+                return
+            if not args:
+                print("No valid %ai magics arguments given, run `%ai help` for all options.", file=sys.stderr)
                 return
             raise e
 
@@ -468,25 +472,67 @@ class AiMagics(Magics):
 
     def handle_list(self, args: ListArgs):
         """
-        Handles `%ai list`. Lists all LiteLLM models.
+        Handles `%ai list`. 
+         - `%ai list` shows all providers by default, and ask the user to run %ai list <provider-name>.
+         - `%ai list <provider-name>` shows all models available from one provider. It should also note that the list is not comprehensive, and include a reference to the upstream LiteLLM docs.
+         - `%ai list all` should list all models.
         """
         # Get list of available models from litellm
         models = CHAT_MODELS
 
-        # Format output for both text and markdown
-        text_output = "Available models:\n\n"
-        markdown_output = "## Available models\n\n"
+        # If provider_id is None, only return provider IDs
+        if getattr(args, 'provider_id', None) is None:
+            # Extract unique provider IDs from model IDs
+            provider_ids = set()
+            for model in models:
+                if '/' in model:
+                    provider_ids.add(model.split('/')[0])
 
-        for model in models:
-            text_output += f"* {model}\n"
-            markdown_output += f"* `{model}`\n"
+            # Format output for both text and markdown
+            text_output = "Available providers\n\n (Run `%ai list <provider_name>` to see models for a specific provider)\n\n"
+            markdown_output = "## Available providers\n\n (Run `%ai list <provider_name>` to see models for a specific provider)\n\n"
 
-        # Also list any custom aliases
-        if len(self.aliases) > 0:
-            text_output += "\nAliases:\n"
-            markdown_output += "\n### Aliases\n\n"
-            for alias, target in self.aliases.items():
-                text_output += f"* {alias} -> {target}\n"
-                markdown_output += f"* `{alias}` -> `{target}`\n"
+            for provider_id in sorted(provider_ids):
+                text_output += f"* {provider_id}\n"
+                markdown_output += f"* `{provider_id}`\n"
 
-        return TextOrMarkdown(text_output, markdown_output)
+            return TextOrMarkdown(text_output, markdown_output)
+        
+        elif getattr(args, 'provider_id', None) == 'all':
+        # Otherwise show all models and aliases
+            text_output = "All available models\n\n  (The list is not comprehensive, a list of models is available at https://docs.litellm.ai/docs/providers)\n\n"
+            markdown_output = "## All available models \n\n (The list is not comprehensive, a list of models is available at https://docs.litellm.ai/docs/providers)\n\n"
+
+            for model in models:
+                text_output += f"* {model}\n"
+                markdown_output += f"* `{model}`\n"
+
+            # Also list any custom aliases
+            if len(self.aliases) > 0:
+                text_output += "\nAliases:\n"
+                markdown_output += "\n### Aliases\n\n"
+                for alias, target in self.aliases.items():
+                    text_output += f"* {alias} -> {target}\n"
+                    markdown_output += f"* `{alias}` -> `{target}`\n"
+
+            return TextOrMarkdown(text_output, markdown_output)
+        
+        else:
+            # If a specific provider_id is given, filter models by that provider
+            provider_id = args.provider_id
+            filtered_models = [m for m in models if m.startswith(provider_id + "/")]
+
+            if not filtered_models:
+                return TextOrMarkdown(
+                    f"No models found for provider '{provider_id}'.",
+                    f"No models found for provider `{provider_id}`.",
+                )
+
+            text_output = f"Available models for provider '{provider_id}'\n\n (The list is not comprehensive, a list of models is available at https://docs.litellm.ai/docs/providers/{provider_id})\n\n"
+            markdown_output = f"## Available models for provider `{provider_id}`\n\n (The list is not comprehensive, a list of models is available at https://docs.litellm.ai/docs/providers/{provider_id})\n\n"
+
+            for model in filtered_models:
+                text_output += f"* {model}\n"
+                markdown_output += f"* `{model}`\n"
+
+            return TextOrMarkdown(text_output, markdown_output)
