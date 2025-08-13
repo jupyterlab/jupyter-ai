@@ -99,28 +99,6 @@ export namespace AiService {
     | MultiEnvAuthStrategy
     | null;
 
-  export type TextField = {
-    type: 'text';
-    key: string;
-    label: string;
-    format: string;
-  };
-
-  export type MultilineTextField = {
-    type: 'text-multiline';
-    key: string;
-    label: string;
-    format: string;
-  };
-
-  export type IntegerField = {
-    type: 'integer';
-    key: string;
-    label: string;
-  };
-
-  export type Field = TextField | MultilineTextField | IntegerField;
-
   export type ListProvidersEntry = {
     id: string;
     name: string;
@@ -131,7 +109,6 @@ export namespace AiService {
     registry: boolean;
     completion_models: string[];
     chat_models: string[];
-    fields: Field[];
   };
 
   export type ListProvidersResponse = {
