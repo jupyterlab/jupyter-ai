@@ -383,6 +383,6 @@ class EnvSecretsManager(LoggingConfigurable):
 
         # Reset any environment variables set in `.env` back to their initial
         # values. This is only required for the unit test suite.
-        envvar_names = self._dotenv_env.keys()
+        envvar_names = list(self._dotenv_env.keys())
         self._reset_envvars(envvar_names)
         self._dotenv_env = {}
