@@ -41,4 +41,4 @@ ignore = ["W002"]
 addopts = "--ignore packages/jupyter-ai-module-cookiecutter"
 
 [tool.mypy]
-exclude = ["tests"]
+exclude = ["tests", ".venv"]

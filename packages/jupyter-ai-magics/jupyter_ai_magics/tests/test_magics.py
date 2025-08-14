@@ -16,8 +16,10 @@ def ip() -> InteractiveShell:
 def test_aliases_config(ip):
     ip.config.AiMagics.initial_aliases = {"my_custom_alias": "my_provider:my_model"}
     ip.extension_manager.load_extension("jupyter_ai_magics")
-    providers_list = ip.run_line_magic("ai", "list").text
-    assert "my_custom_alias" in providers_list
+    # Use 'list all' to see all models and aliases
+    providers_list = ip.run_line_magic("ai", "list all").text
+    # Check that alias appears in the output
+    assert "my_custom_alias -> my_provider:my_model" in providers_list
 
 
 def test_default_model_cell(ip):

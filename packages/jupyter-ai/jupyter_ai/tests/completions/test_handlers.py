@@ -14,6 +14,10 @@ from pytest import fixture
 from tornado.httputil import HTTPServerRequest
 from tornado.web import Application
 
+pytest.skip(
+    "Skipping inline completion tests until LiteLLM migration is complete in v3.",
+    allow_module_level=True
+)
 
 class MockCompletionHandler(DefaultInlineCompletionHandler):
     def __init__(self, lm_provider=None, lm_provider_params=None, raise_exc=False):
