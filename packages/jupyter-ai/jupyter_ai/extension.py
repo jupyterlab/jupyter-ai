@@ -1,8 +1,9 @@
+from __future__ import annotations
 import os
 import time
 from asyncio import get_event_loop_policy
 from functools import partial
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 import traitlets
 from jupyter_events import EventLogger
@@ -29,6 +30,7 @@ from .secrets.secrets_manager import EnvSecretsManager
 from .secrets.secrets_rest_api import SecretsRestAPI
 
 if TYPE_CHECKING:
+    from typing import Any, Optional
     from asyncio import AbstractEventLoop
 
 from jupyter_collaboration import (  # type:ignore[import-untyped]  # isort:skip
@@ -206,16 +208,17 @@ class AiExtension(ExtensionApp):
         config=True,
     )
 
-    def initialize(self):
+    def initialize(self, argv: Any = None) -> None:
         super().initialize()
 
         self.ychats_by_room: dict[str, YChat] = {}
         """Cache of YChat instances, indexed by room ID."""
 
-        self.event_logger = self.serverapp.web_app.settings["event_logger"]
-        self.event_logger.add_listener(
-            schema_id=JUPYTER_COLLABORATION_EVENTS_URI, listener=self.connect_chat
-        )
+        if self.serverapp is not None:
+            self.event_logger = self.serverapp.web_app.settings["event_logger"]
+            self.event_logger.add_listener(
+                schema_id=JUPYTER_COLLABORATION_EVENTS_URI, listener=self.connect_chat
+            )
 
     @property
     def event_loop(self) -> "AbstractEventLoop":

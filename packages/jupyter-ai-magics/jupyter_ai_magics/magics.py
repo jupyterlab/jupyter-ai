@@ -535,4 +535,14 @@ class AiMagics(Magics):
                 text_output += f"* {model}\n"
                 markdown_output += f"* `{model}`\n"
 
+            # Also list any custom aliases for this provider
+            if len(self.aliases) > 0:
+                text_output += "\nAliases:\n"
+                markdown_output += "\n### Aliases\n\n"
+                for alias, target in self.aliases.items():
+                    if target.startswith(provider_id + "/"):
+                        text_output += f"* {alias} -> {target}\n"
+                        markdown_output += f"* `{alias}` -> `{target}`\n"
+
+
             return TextOrMarkdown(text_output, markdown_output)

@@ -174,3 +174,19 @@ def get_whitespace_around(text: str) -> tuple[str, str]:
     suffix = text[suffix_start:]
 
     return (prefix, suffix)
+
+
+def parse_dotenv(content: str) -> dict[str, str]:
+    """
+    Parses the given content of a `.env` file and returns the environment
+    variables defined in that file as a dictionary.
+    
+    Args:
+        content: The content of the `.env` file as a string.
+        
+    Returns:
+        A dictionary of environment variables. Entries with `None` values are
+        removed automatically.
+    """
+    raw_values = dotenv_values(stream=StringIO(content))
+    return {k: v for k, v in raw_values.items() if v is not None}
