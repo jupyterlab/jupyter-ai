@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Button, TextField, Alert, IconButton } from '@mui/material';
+import {
+  Box,
+  Button,
+  TextField,
+  Alert,
+  IconButton,
+  Autocomplete
+} from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { AiService } from '../../handler';
 
@@ -9,12 +16,6 @@ type ModelParameter = {
   type: string;
   value: string;
   isStatic?: boolean;
-};
-
-type StaticParameterDef = {
-  name: string;
-  type: string;
-  label: string;
 };
 
 export type ModelParametersInputProps = {
@@ -59,26 +60,6 @@ export function ModelParametersInput(
     setValidationError('');
   };
 
-  const handleAddStaticParameter = (staticParam: StaticParameterDef) => {
-    // Check if static parameter already exists
-    const exists = parameters.some(
-      param => param.name === staticParam.name && param.isStatic
-    );
-    if (exists) {
-      setValidationError(`Parameter "${staticParam.label}" is already added`);
-      return;
-    }
-    const newParameter: ModelParameter = {
-      id: Date.now().toString(),
-      name: staticParam.name,
-      type: staticParam.type,
-      value: '',
-      isStatic: true
-    };
-    setParameters([...parameters, newParameter]);
-    setValidationError('');
-  };
-  // For when user changes their parameter
   const handleParameterChange = (
     id: string,
     field: keyof ModelParameter,
@@ -92,7 +73,25 @@ export function ModelParametersInput(
     setValidationError('');
   };
 
-  // For when user deletes parameter
+  // Handle parameter name selection from dropdown
+  const handleParameterNameSelect = (id: string, paramName: string | null) => {
+    if (!paramName) return;
+    const paramSchema = availableParameters?.parameters?.[paramName];
+
+    setParameters(prev =>
+      prev.map(param =>
+        param.id === id
+          ? {
+              ...param,
+              name: paramName,
+              type: paramSchema?.type || param.type
+            }
+          : param
+      )
+    );
+    setValidationError('');
+  };
+
   const handleDeleteParameter = (id: string) => {
     setParameters(prev => prev.filter(param => param.id !== id));
     setValidationError('');
@@ -129,47 +128,21 @@ export function ModelParametersInput(
 
   const showSaveButton = parameters.length > 0;
 
-  // Get available parameters from API that haven't been added yet
-  const availableApiParams = availableParameters?.parameters
-    ? Object.entries(availableParameters.parameters).filter(
-        ([paramName]) =>
-          !parameters.some(param => param.name === paramName && param.isStatic)
-      )
-    : [];
+  const getParameterOptions = (excludeParamId?: string) => {
+    const apiParamNames = availableParameters?.parameters
+      ? Object.keys(availableParameters.parameters)
+      : [];
+
+    // Filters out parameters that are already selected by other rows
+    const usedParamNames = parameters
+      .filter(param => param.id !== excludeParamId && param.name.trim() !== '')
+      .map(param => param.name);
+
+    return apiParamNames.filter(name => !usedParamNames.includes(name));
+  };
 
   return (
     <Box>
-      <Button variant="outlined" onClick={handleAddParameter} sx={{ mb: 2 }}>
-        Add a custom model parameter
-      </Button>
-      {/* Available parameters from API */}
-      {availableApiParams.length > 0 && (
-        <Box sx={{ mb: 2 }}>
-          <Box sx={{ mb: 1, fontWeight: 'medium', fontSize: '0.875rem' }}>
-            Available parameters for {props.modelId}:
-          </Box>
-          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2 }}>
-            {availableApiParams.map(([paramName, schema]: [string, any]) => (
-              <Button
-                key={paramName}
-                variant="outlined"
-                size="small"
-                onClick={() =>
-                  handleAddStaticParameter({
-                    name: paramName,
-                    type: schema.type,
-                    label: paramName
-                  })
-                }
-                title={schema.description}
-              >
-                {paramName} ({schema.type})
-              </Button>
-            ))}
-          </Box>
-        </Box>
-      )}
-
       {parameters.map(param => (
         <Box
           key={param.id}
@@ -180,20 +153,61 @@ export function ModelParametersInput(
             alignItems: 'center'
           }}
         >
-          <TextField
-            label="Parameter name"
-            placeholder="e.g. temperature, api_url"
-            value={param.name}
-            onChange={e =>
-              handleParameterChange(param.id, 'name', e.target.value)
-            }
-            size="small"
-            sx={{ flex: 1 }}
-            disabled={param.isStatic}
-            InputProps={{
-              readOnly: param.isStatic
-            }}
-          />
+          {param.isStatic ? (
+            <TextField
+              label="Parameter name"
+              value={param.name}
+              size="small"
+              sx={{ flex: 1 }}
+              disabled={true}
+              InputProps={{
+                readOnly: true
+              }}
+            />
+          ) : (
+            <Autocomplete
+              options={getParameterOptions(param.id)}
+              value={param.name || null}
+              onChange={(_, newValue) => {
+                handleParameterNameSelect(param.id, newValue);
+              }}
+              freeSolo
+              size="small"
+              sx={{ flex: 1 }}
+              renderInput={params => (
+                <TextField
+                  {...params}
+                  label="Parameter name"
+                  placeholder="Select or type parameter name"
+                />
+              )}
+              getOptionLabel={option => {
+                if (typeof option === 'string') return option;
+                return '';
+              }}
+              renderOption={(props, option) => {
+                const schema = availableParameters?.parameters?.[option];
+                return (
+                  <Box component="li" {...props} title={schema?.description}>
+                    <Box>
+                      <Box sx={{ fontWeight: 'medium' }}>{option}</Box>
+                      {schema && (
+                        <Box
+                          sx={{ fontSize: '0.75rem', color: 'text.secondary' }}
+                        >
+                          {schema.type}{' '}
+                          {schema.description &&
+                            `- ${schema.description.slice(0, 50)}${
+                              schema.description.length > 50 ? '...' : ''
+                            }`}
+                        </Box>
+                      )}
+                    </Box>
+                  </Box>
+                );
+              }}
+            />
+          )}
           <TextField
             label="Parameter type"
             placeholder="e.g. float, string"
@@ -209,7 +223,7 @@ export function ModelParametersInput(
             }}
           />
           <TextField
-            label="Parameter value"
+            label="Argument value"
             placeholder="e.g. 0.7, https://localhost:8989"
             value={param.value}
             onChange={e =>
@@ -235,12 +249,12 @@ export function ModelParametersInput(
         </Alert>
       )}
 
+      <Button variant="outlined" onClick={handleAddParameter} sx={{ m: 3 }}>
+        Add a custom model parameter
+      </Button>
+
       {showSaveButton && (
-        <Button
-          variant="contained"
-          onClick={handleSaveParameters}
-          sx={{ mt: 1 }}
-        >
+        <Button variant="contained" onClick={handleSaveParameters}>
           Save Model Parameters
         </Button>
       )}

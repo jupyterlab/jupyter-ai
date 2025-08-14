@@ -146,7 +146,7 @@ export function ModelIdInput(props: ModelIdInputProps): JSX.Element {
         autoSelect
         loading={loading}
         fullWidth={props.fullWidth}
-        onInputChange={(e, newValue, r) => {
+        onInputChange={(_, newValue) => {
           // This condition prevents whitespace from being inserted in the model
           // ID by accident.
           if (newValue !== null && !newValue.includes(' ')) {
@@ -179,14 +179,6 @@ export function ModelIdInput(props: ModelIdInputProps): JSX.Element {
           ? `Updating ${props.modality} model...`
           : `Update ${props.modality} model`}
       </Button>
-
-      {/* Display model parameters */}
-      {modelParameters && (
-        <div>
-          <strong>Parameters:</strong>{' '}
-          {JSON.stringify(modelParameters, null, 2)}
-        </div>
-      )}
 
       {alert.jsx}
     </Box>
