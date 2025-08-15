@@ -4,8 +4,7 @@ import {
   Button,
   Box,
   Typography,
-  Menu,
-  MenuItem
+  Autocomplete
 } from '@mui/material';
 import { AiService } from '../../handler';
 import { useStackingAlert } from '../mui-extras/stacking-alert';
@@ -15,13 +14,14 @@ import Save from '@mui/icons-material/Save';
  * Highlights matched substrings in a given text by wrapping them in bold tags.
  */
 const highlightMatches = (text: string, inputValue: string) => {
-  if (!inputValue) return text;
+  const trimmedInput = inputValue.trim();
+  if (!trimmedInput) return text;
 
-  const parts = text.split(new RegExp(`(${inputValue})`, 'gi'));
+  const parts = text.split(new RegExp(`(${trimmedInput})`, 'gi'));
   return (
     <Typography component="span">
       {parts.map((part, index) =>
-        part.toLowerCase() === inputValue.toLowerCase() ? (
+        part.toLowerCase() === trimmedInput.toLowerCase() ? (
           <Typography component="span" key={index} sx={{ fontWeight: 'bold' }}>
             {part}
           </Typography>
@@ -75,30 +75,12 @@ export type ModelIdInputProps = {
  */
 export function ModelIdInput(props: ModelIdInputProps): JSX.Element {
   const [models, setModels] = useState<string[]>([]);
-  const [prevModel, setPrevModel] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
 
   const [input, setInput] = useState('');
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [isOpen, setIsOpen] = useState(false);
   const alert = useStackingAlert();
-
-  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleMenuItemClick = (value: string) => {
-    setInput(value);
-    handleMenuClose();
-  };
-
-  const filteredModels = models.filter(model =>
-    model.toLowerCase().includes(input.toLowerCase())
-  );
 
   /**
    * Effect: Fetch list of models and current model on initial render, based on
@@ -125,7 +107,6 @@ export function ModelIdInput(props: ModelIdInputProps): JSX.Element {
         }
 
         setModels(modelsResponse);
-        setPrevModel(currModelResponse);
         setInput(currModelResponse ?? '');
       } catch (error) {
         console.error('Failed to load chat models:', error);
@@ -151,8 +132,7 @@ export function ModelIdInput(props: ModelIdInputProps): JSX.Element {
         throw new Error(`Unrecognized model modality '${props.modality}'.`);
       }
 
-      // update local state and run parent callback
-      setPrevModel(newModelId);
+      // run parent callback
       props.onModelIdFetch?.(newModelId, true);
 
       // show success alert
@@ -175,99 +155,55 @@ export function ModelIdInput(props: ModelIdInputProps): JSX.Element {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-      <TextField
-        label={props.label || 'Model ID'}
-        placeholder={props.placeholder}
-        fullWidth={props.fullWidth ?? true}
+      <Autocomplete
+        freeSolo
+        autoComplete
+        options={models}
         value={input}
-        onChange={e => {
-          const newValue = e.target.value;
-          if (!newValue.includes(' ')) {
-            setInput(newValue);
+        onChange={(_, newValue) => {
+          setInput(newValue || '');
+          // Close dropdown after selection
+          if (newValue && models.includes(newValue)) {
+            setIsOpen(false);
           }
         }}
-        InputProps={{
-          endAdornment:
-            // input && filteredModels.length > 0 ? (
-            input ? (
-              <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  height: '100%',
-                  justifyContent: 'left',
-                  width: '100%'
-                }}
-              >
-                <Box
-                  sx={{
-                    cursor: 'pointer',
-                    ml: 1,
-                    display: 'flex',
-                    alignItems: 'center'
-                  }}
-                  onClick={handleMenuOpen}
-                  tabIndex={0}
-                  role="button"
-                >
-                  <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
-                    <path
-                      d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99a1 1 0 0 0 1.41-1.41l-4.99-5zm-6 0C8.01 14 6 11.99 6 9.5S8.01 5 10.5 5 15 7.01 15 9.5 12.99 14 10.5 14z"
-                      fill="currentColor"
-                    />
-                  </svg>
-                  {filteredModels.length > 0 ? (
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        ml: 1,
-                        userSelect: 'none',
-                        color: 'text.secondary'
-                      }}
-                    >
-                      Click to see {filteredModels.length} match
-                      {filteredModels.length !== 1 ? 'es' : ''}
-                    </Typography>
-                  ) : (
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        ml: 1,
-                        userSelect: 'none',
-                        color: 'text.secondary'
-                      }}
-                    >
-                      No matches
-                    </Typography>
-                  )}
-                </Box>
-              </Box>
-            ) : null
+        onInputChange={(_, newValue, reason) => {
+          setInput(newValue);
+          // Show dropdown when typing, hide on selection
+          setIsOpen(reason === 'input' && Boolean(newValue?.trim()));
         }}
+        filterOptions={(options, { inputValue }) => {
+          const searchTerm = inputValue.trim().toLowerCase();
+          if (!searchTerm || searchTerm.length < 2) return []; // Don't filter if input is empty or too short
+          return options.filter(option =>
+            option.toLowerCase().includes(searchTerm)
+          );
+        }}
+        open={
+          isOpen &&
+          input.trim().length >= 2 && // Only show dropdown if input is at least 2 characters, reduces fuzziness of search
+          Boolean(
+            models.filter(model =>
+              model.toLowerCase().includes(input.trim().toLowerCase())
+            ).length > 0
+          )
+        }
+        renderInput={params => (
+          <TextField
+            {...params}
+            label={props.label || 'Model ID'}
+            placeholder={props.placeholder}
+            fullWidth={props.fullWidth ?? true}
+          />
+        )}
+        renderOption={(props, option) => (
+          <li {...props}>{highlightMatches(option, input)}</li>
+        )}
       />
-      <Menu
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
-        onClose={handleMenuClose}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'left'
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'left'
-        }}
-      >
-        {filteredModels.map((model, index) => (
-          <MenuItem key={index} onClick={() => handleMenuItemClick(model)}>
-            {highlightMatches(model, input)}
-          </MenuItem>
-        ))}
-      </Menu>
       <Button
         variant="contained"
         onClick={handleUpdateChatModel}
-        disabled={loading || prevModel === (input || null) || updating}
+        disabled={loading || updating}
         sx={{ alignSelf: 'center' }}
         startIcon={<Save />}
       >
