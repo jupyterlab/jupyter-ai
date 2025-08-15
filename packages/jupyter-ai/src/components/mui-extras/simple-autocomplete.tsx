@@ -137,7 +137,7 @@ function highlightMatches(
     parts.push(text.slice(lastIndex));
   }
 
-  return parts.length > 1 ? <>{parts}</> : text;
+  return parts.length > 0 ? <>{parts}</> : text;
 }
 
 /**
