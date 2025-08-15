@@ -1,4 +1,10 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import React, {
+  useState,
+  useRef,
+  useEffect,
+  useMemo,
+  useCallback
+} from 'react';
 import {
   TextField,
   MenuItem,
@@ -177,76 +183,85 @@ export function SimpleAutocomplete(
   // Determine if menu should be open
   const shouldShowMenu = isOpen && filteredOptions.length > 0;
 
-  function handleInputChange(event: React.ChangeEvent<HTMLInputElement>): void {
-    const newValue = event.target.value;
-    setInputValue(newValue);
-    setFocusedIndex(-1);
+  const handleInputChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>): void => {
+      const newValue = event.target.value;
+      setInputValue(newValue);
+      setFocusedIndex(-1);
 
-    if (!isOpen && newValue.trim() !== '') {
-      setIsOpen(true);
-    }
+      if (!isOpen && newValue.trim() !== '') {
+        setIsOpen(true);
+      }
 
-    if (props.onChange) {
-      props.onChange(newValue);
-    }
-  }
+      if (props.onChange) {
+        props.onChange(newValue);
+      }
+    },
+    [isOpen, props.onChange]
+  );
 
-  function handleInputFocus(): void {
+  const handleInputFocus = useCallback((): void => {
     setIsOpen(true);
-  }
+  }, []);
 
-  function handleOptionClick(option: AutocompleteOption): void {
-    setInputValue(option.value);
+  const handleOptionClick = useCallback(
+    (option: AutocompleteOption): void => {
+      setInputValue(option.value);
+      setIsOpen(false);
+      setFocusedIndex(-1);
+
+      if (props.onChange) {
+        props.onChange(option.value);
+      }
+
+      if (inputRef.current) {
+        inputRef.current.blur();
+      }
+    },
+    [props.onChange]
+  );
+
+  const handleKeyDown = useCallback(
+    (event: React.KeyboardEvent): void => {
+      if (!shouldShowMenu) {
+        return;
+      }
+
+      switch (event.key) {
+        case 'ArrowDown':
+          event.preventDefault();
+          setFocusedIndex(prev => {
+            return prev < filteredOptions.length - 1 ? prev + 1 : 0;
+          });
+          break;
+
+        case 'ArrowUp':
+          event.preventDefault();
+          setFocusedIndex(prev => {
+            return prev > 0 ? prev - 1 : filteredOptions.length - 1;
+          });
+          break;
+
+        case 'Enter':
+          event.preventDefault();
+          if (focusedIndex >= 0 && focusedIndex < filteredOptions.length) {
+            handleOptionClick(filteredOptions[focusedIndex]);
+          }
+          break;
+
+        case 'Escape':
+          setIsOpen(false);
+          setFocusedIndex(-1);
+          break;
+      }
+    },
+    [shouldShowMenu, filteredOptions, focusedIndex, handleOptionClick]
+  );
+
+  const handleClickAway = useCallback((): void => {
     setIsOpen(false);
     setFocusedIndex(-1);
-
-    if (props.onChange) {
-      props.onChange(option.value);
-    }
-
-    if (inputRef.current) {
-      inputRef.current.blur();
-    }
-  }
-
-  function handleKeyDown(event: React.KeyboardEvent): void {
-    if (!shouldShowMenu) {
-      return;
-    }
-
-    switch (event.key) {
-      case 'ArrowDown':
-        event.preventDefault();
-        setFocusedIndex(prev => {
-          return prev < filteredOptions.length - 1 ? prev + 1 : 0;
-        });
-        break;
-
-      case 'ArrowUp':
-        event.preventDefault();
-        setFocusedIndex(prev => {
-          return prev > 0 ? prev - 1 : filteredOptions.length - 1;
-        });
-        break;
-
-      case 'Enter':
-        event.preventDefault();
-        if (focusedIndex >= 0 && focusedIndex < filteredOptions.length) {
-          handleOptionClick(filteredOptions[focusedIndex]);
-        }
-        break;
-
-      case 'Escape':
-        setIsOpen(false);
-        setFocusedIndex(-1);
-        break;
-    }
-  }
-
-  function handleClickAway(): void {
-    setIsOpen(false);
-    setFocusedIndex(-1);
-  }
+  }, []);
 
   return (
     <ClickAwayListener onClickAway={handleClickAway}>
