@@ -1,39 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import {
-  TextField,
-  Button,
-  Box,
-  Typography,
-  Autocomplete
-} from '@mui/material';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Button, Box } from '@mui/material';
 import { AiService } from '../../handler';
 import { useStackingAlert } from '../mui-extras/stacking-alert';
 import Save from '@mui/icons-material/Save';
-
-/**
- * Highlights matched substrings in a given text by wrapping them in bold tags.
- */
-const highlightMatches = (text: string, inputValue: string) => {
-  const trimmedInput = inputValue.trim();
-  if (!trimmedInput) {
-    return text;
-  } // If input is empty, return original text
-
-  const parts = text.split(new RegExp(`(${trimmedInput})`, 'gi'));
-  return (
-    <Typography component="span">
-      {parts.map((part, index) =>
-        part.toLowerCase() === trimmedInput.toLowerCase() ? (
-          <Typography component="span" key={index} sx={{ fontWeight: 'bold' }}>
-            {part}
-          </Typography>
-        ) : (
-          part
-        )
-      )}
-    </Typography>
-  );
-};
+import { SimpleAutocomplete } from '../mui-extras/simple-autocomplete';
 
 export type ModelIdInputProps = {
   /**
@@ -81,7 +51,6 @@ export function ModelIdInput(props: ModelIdInputProps): JSX.Element {
   const [updating, setUpdating] = useState(false);
 
   const [input, setInput] = useState('');
-  const [isOpen, setIsOpen] = useState(false);
   const alert = useStackingAlert();
 
   /**
@@ -155,54 +124,18 @@ export function ModelIdInput(props: ModelIdInputProps): JSX.Element {
     }
   };
 
+  const modelsAsOptions = useMemo(() => {
+    return models.map(m => ({ label: m, value: m }));
+  }, [models]);
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-      <Autocomplete
-        freeSolo
-        autoComplete
-        options={models}
+      <SimpleAutocomplete
+        options={modelsAsOptions}
         value={input}
-        onChange={(_, newValue) => {
-          setInput(newValue || '');
-          // Close dropdown after selection
-          if (newValue && models.includes(newValue)) {
-            setIsOpen(false);
-          }
-        }}
-        onInputChange={(_, newValue, reason) => {
-          setInput(newValue);
-          // Show dropdown when typing, hide on selection
-          setIsOpen(reason === 'input' && Boolean(newValue?.trim()));
-        }}
-        filterOptions={(options, { inputValue }) => {
-          const searchTerm = inputValue.trim().toLowerCase();
-          if (!searchTerm || searchTerm.length < 2) {
-            return []; // Don't filter if input is empty or too short
-          }
-          return options.filter(option =>
-            option.toLowerCase().includes(searchTerm)
-          );
-        }}
-        open={
-          isOpen &&
-          input.trim().length >= 2 && // Only show dropdown if input is at least 2 characters, reduces fuzziness of search
-          Boolean(
-            models.filter(model =>
-              model.toLowerCase().includes(input.trim().toLowerCase())
-            ).length > 0
-          )
-        }
-        renderInput={params => (
-          <TextField
-            {...params}
-            label={props.label || 'Model ID'}
-            placeholder={props.placeholder}
-            fullWidth={props.fullWidth ?? true}
-          />
-        )}
-        renderOption={(props, option) => (
-          <li {...props}>{highlightMatches(option, input)}</li>
-        )}
+        onChange={v => setInput(v)}
+        placeholder={props.placeholder}
+        boldMatches
       />
       <Button
         variant="contained"
