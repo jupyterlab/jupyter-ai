@@ -136,6 +136,7 @@ export function ModelIdInput(props: ModelIdInputProps): JSX.Element {
         onChange={v => setInput(v)}
         placeholder={props.placeholder}
         boldMatches
+        showClearButton
       />
       <Button
         variant="contained"

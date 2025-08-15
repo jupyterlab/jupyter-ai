@@ -11,9 +11,12 @@ import {
   Paper,
   Popper,
   ClickAwayListener,
-  TextFieldProps
+  TextFieldProps,
+  IconButton,
+  InputAdornment
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import ClearIcon from '@mui/icons-material/Clear';
 
 const StyledPopper = styled(Popper)(({ theme }) => ({
   zIndex: theme.zIndex.modal,
@@ -79,6 +82,11 @@ export type SimpleAutocompleteProps = {
    * character for this prop to take effect.
    */
   boldMatches?: boolean;
+
+  /**
+   * (optional) If true, shows a clear button when the input has a value.
+   */
+  showClearButton?: boolean;
 };
 
 function defaultOptionsFilter(
@@ -276,6 +284,32 @@ export function SimpleAutocomplete(
           onKeyDown={handleKeyDown}
           placeholder={props.placeholder}
           fullWidth
+          InputProps={{
+            ...props.textFieldProps?.InputProps,
+            endAdornment:
+              props.showClearButton && inputValue ? (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="clear input"
+                    onClick={() => {
+                      setInputValue('');
+                      if (props.onChange) {
+                        props.onChange('');
+                      }
+                      if (inputRef.current) {
+                        inputRef.current.focus();
+                      }
+                    }}
+                    edge="end"
+                    size="small"
+                  >
+                    <ClearIcon />
+                  </IconButton>
+                </InputAdornment>
+              ) : (
+                props.textFieldProps?.InputProps?.endAdornment
+              )
+          }}
         />
 
         <StyledPopper
