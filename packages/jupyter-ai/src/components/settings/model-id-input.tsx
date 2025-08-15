@@ -176,7 +176,9 @@ export function ModelIdInput(props: ModelIdInputProps): JSX.Element {
         }}
         filterOptions={(options, { inputValue }) => {
           const searchTerm = inputValue.trim().toLowerCase();
-          if (!searchTerm || searchTerm.length < 2) return []; // Don't filter if input is empty or too short
+          if (!searchTerm || searchTerm.length < 2) {
+            return []; // Don't filter if input is empty or too short
+          }
           return options.filter(option =>
             option.toLowerCase().includes(searchTerm)
           );
