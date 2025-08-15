@@ -15,7 +15,9 @@ import Save from '@mui/icons-material/Save';
  */
 const highlightMatches = (text: string, inputValue: string) => {
   const trimmedInput = inputValue.trim();
-  if (!trimmedInput) return text;
+  if (!trimmedInput) {
+    return text;
+  } // If input is empty, return original text
 
   const parts = text.split(new RegExp(`(${trimmedInput})`, 'gi'));
   return (
