@@ -99,27 +99,6 @@ export namespace AiService {
     | MultiEnvAuthStrategy
     | null;
 
-  export type TextField = {
-    type: 'text';
-    key: string;
-    label: string;
-    format: string;
-  };
-
-  export type MultilineTextField = {
-    type: 'text-multiline';
-    key: string;
-    label: string;
-    format: string;
-  };
-
-  export type IntegerField = {
-    type: 'integer';
-    key: string;
-    label: string;
-  };
-
-  export type Field = TextField | MultilineTextField | IntegerField;
 
   export type ListProvidersEntry = {
     id: string;
@@ -131,7 +110,6 @@ export namespace AiService {
     registry: boolean;
     completion_models: string[];
     chat_models: string[];
-    fields: Field[];
   };
 
   export type ListProvidersResponse = {
@@ -230,5 +208,21 @@ export namespace AiService {
     
     const endpoint = `model-parameters${params.toString() ? `?${params.toString()}` : ''}`;
     return await requestAPI(endpoint);
+  }
+
+  export async function saveModelParameters(
+    modelId: string,
+    parameters: Record<string, any>
+  ): Promise<any> {
+    return await requestAPI('model-parameters', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model_id: modelId,
+        parameters: parameters
+      })
+    });
   }
 }

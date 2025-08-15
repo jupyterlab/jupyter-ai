@@ -49,7 +49,7 @@ export function ModelIdInput(props: ModelIdInputProps): JSX.Element {
   const [prevModel, setPrevModel] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
-  const [modelParameters, setModelParameters] = useState<any>(null);
+  const [setModelParameters] = useState<any>(null);
 
   const [input, setInput] = useState('');
   const alert = useStackingAlert();

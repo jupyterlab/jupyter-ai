@@ -97,7 +97,7 @@ export function ModelParametersInput(
     setValidationError('');
   };
 
-  const handleSaveParameters = () => {
+  const handleSaveParameters = async () => {
     // Validation: Check if any parameter has a value but missing name or type (only for custom parameters)
     const invalidParams = parameters.filter(
       param =>
@@ -113,8 +113,29 @@ export function ModelParametersInput(
       return;
     }
 
+    if (!props.modelId) {
+      setValidationError('No model selected');
+      return;
+    }
+
     // Filter out parameters with empty values
     const validParams = parameters.filter(param => param.value.trim() !== '');
+
+    // Validation: Check boolean values
+    const invalidBooleanParams = validParams.filter(param => {
+      if (param.type.toLowerCase() === 'boolean') {
+        const value = param.value.toLowerCase().trim();
+        return value !== 'true' && value !== 'false';
+      }
+      return false;
+    });
+
+    if (invalidBooleanParams.length > 0) {
+      setValidationError(
+        'Boolean parameters must have value "true" or "false"'
+      );
+      return;
+    }
 
     // Creates JSON object of valid parameters ONLY if all 3 fields are given valid inputs
     const paramsObject = validParams.reduce((acc, param) => {
@@ -122,8 +143,14 @@ export function ModelParametersInput(
       return acc;
     }, {} as Record<string, string>);
 
-    // Logs the JSON object of its input state to the browser console
-    console.log('Model Parameters:', paramsObject);
+    try {
+      await AiService.saveModelParameters(props.modelId, paramsObject);
+      setValidationError('');
+      console.log('Model parameters saved successfully');
+    } catch (error) {
+      console.error('Failed to save model parameters:', error);
+      setValidationError('Failed to save parameters. Please try again.');
+    }
   };
 
   const showSaveButton = parameters.length > 0;
