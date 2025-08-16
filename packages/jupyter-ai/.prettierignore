@@ -1,5 +1,9 @@
-node_modules
+# Local NPM dependencies
 **/node_modules
+
+# Build artifacts
 **/lib
-**/package.json
-jupyter_ai
+**/labextension/*
+
+# Local caches
+**/.mypy_cache

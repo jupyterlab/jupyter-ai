@@ -70,6 +70,8 @@ const plugin: JupyterFrontEndPlugin<void> = {
         openInlineCompleterSettings
       );
     } catch (e) {
+      // TODO: Do better error handling here.
+      console.error(e);
       settingsWidget = buildErrorWidget(themeManager);
     }
 

@@ -19,7 +19,6 @@ export function buildAiSettings(
         rmRegistry={rmRegistry}
         completionProvider={completionProvider}
         openInlineCompleterSettings={openInlineCompleterSettings}
-        inputOptions={false}
       />
     </JlThemeProvider>
   );

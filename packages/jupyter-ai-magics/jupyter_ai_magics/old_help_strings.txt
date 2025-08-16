@@ -1,0 +1,20 @@
+Bedrock:
+
+"- For Cross-Region Inference use the appropriate `Inference profile ID` (Model ID with a region prefix, e.g., `us.meta.llama3-2-11b-instruct-v1:0`). See the [inference profiles documentation](https://docs.aws.amazon.com/bedrock/latest/userguide/inference-profiles-support.html). \n"
+"- For custom/provisioned models, specify the model ARN (Amazon Resource Name) as the model ID. For more information, see the [Amazon Bedrock model IDs documentation](https://docs.aws.amazon.com/bedrock/latest/userguide/model-ids.html).\n\n"
+"The model provider must also be specified below. This is the provider of your foundation model *in lowercase*, e.g., `amazon`, `anthropic`, `cohere`, `meta`, or `mistral`."
+
+SageMaker Endpoints:
+
+"Specify an endpoint name as the model ID. "
+"In addition, you must specify a region name, request schema, and response path. "
+"For more information, see the documentation about [SageMaker endpoints deployment](https://docs.aws.amazon.com/sagemaker/latest/dg/realtime-endpoints-deploy-models.html) "
+"and about [using magic commands with SageMaker endpoints](https://jupyter-ai.readthedocs.io/en/latest/users/index.html#using-magic-commands-with-sagemaker-endpoints)."
+
+Vertex AI:
+
+"To use Vertex AI Generative AI you must have the langchain-google-vertexai Python package installed and either:\n\n"
+"- Have credentials configured for your environment (gcloud, workload identity, etc...)\n"
+"- Store the path to a service account JSON file as the GOOGLE_APPLICATION_CREDENTIALS environment variable\n\n"
+"This codebase uses the google.auth library which first looks for the application credentials variable mentioned above, and then looks for system-level auth. "
+"For more information, see the [Vertex AI authentication documentation](https://python.langchain.com/docs/integrations/llms/google_vertex_ai_palm/)."

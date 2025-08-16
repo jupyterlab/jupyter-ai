@@ -762,7 +762,7 @@ We currently support the following language model providers:
 To configure a default model you can use the IPython `%config` magic:
 
 ```python
-%config AiMagics.default_language_model = "anthropic:claude-v1.2"
+%config AiMagics.initial_language_model = "anthropic:claude-v1.2"
 ```
 
 Then subsequent magics can be invoked without typing in the model:
@@ -772,10 +772,10 @@ Then subsequent magics can be invoked without typing in the model:
 Write a poem about C++.
 ```
 
-You can configure the default model for all notebooks by specifying `c.AiMagics.default_language_model` tratilet in `ipython_config.py`, for example:
+You can configure the default model for all notebooks by specifying `c.AiMagics.initial_language_model` tratilet in `ipython_config.py`, for example:
 
 ```python
-c.AiMagics.default_language_model = "anthropic:claude-v1.2"
+c.AiMagics.initial_language_model = "anthropic:claude-v1.2"
 ```
 
 The location of `ipython_config.py` file is documented in [IPython configuration reference](https://ipython.readthedocs.io/en/stable/config/intro.html).
@@ -965,18 +965,18 @@ produced the following Python error:
 Write a new version of this code that does not produce that error.
 ```
 
-As a shortcut for explaining errors, you can use the `%ai error` command, which will explain the most recent error using the model of your choice.
+As a shortcut for explaining and fixing errors, you can use the `%ai fix` command, which will explain the most recent error using the model of your choice.
 
 ```
-%ai error anthropic:claude-v1.2
+%ai fix anthropic:claude-v1.2
 ```
 
 ### Creating and managing aliases
 
-You can create an alias for a model using the `%ai register` command. For example, the command:
+You can create an alias for a model using the `%ai alias` command. For example, the command:
 
 ```
-%ai register claude anthropic:claude-v1.2
+%ai alias claude anthropic:claude-v1.2
 ```
 
 will register the alias `claude` as pointing to the `anthropic` provider's `claude-v1.2` model. You can then use this alias as you would use any other model name:
@@ -1001,10 +1001,10 @@ prompt = PromptTemplate(
 chain = LLMChain(llm=llm, prompt=prompt)
 ```
 
-… and then use `%ai register` to give it a name:
+… and then use `%ai alias` to give it a name:
 
 ```
-%ai register companyname chain
+%ai alias companyname chain
 ```
 
 You can change an alias's target using the `%ai update` command:
@@ -1013,10 +1013,10 @@ You can change an alias's target using the `%ai update` command:
 %ai update claude anthropic:claude-instant-v1.0
 ```
 
-You can delete an alias using the `%ai delete` command:
+You can delete an alias using the `%ai dealias` command:
 
 ```
-%ai delete claude
+%ai dealias claude
 ```
 
 You can see a list of all aliases by running the `%ai list` command.
@@ -1103,7 +1103,7 @@ the selections they make in the settings panel will take precedence over these v
 
 Specify default language model
 ```bash
-jupyter lab --AiExtension.default_language_model=bedrock-chat:anthropic.claude-v2
+jupyter lab --AiExtension.initial_language_model=bedrock-chat:anthropic.claude-v2
 ```
 
 Specify default embedding model
