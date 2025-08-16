@@ -49,7 +49,6 @@ export function ModelIdInput(props: ModelIdInputProps): JSX.Element {
   const [prevModel, setPrevModel] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
-  const [setModelParameters] = useState<any>(null);
 
   const [input, setInput] = useState('');
   const alert = useStackingAlert();
@@ -94,11 +93,10 @@ export function ModelIdInput(props: ModelIdInputProps): JSX.Element {
 
   const fetchModelParameters = async (modelId: string) => {
     try {
-      const parameters = await AiService.getModelParameters(modelId);
-      setModelParameters(parameters);
+      await AiService.getModelParameters(modelId);
+      // Just validate model has parameters, don't store them
     } catch (error) {
       console.error('Failed to fetch model parameters:', error);
-      setModelParameters(null);
     }
   };
 
@@ -154,8 +152,6 @@ export function ModelIdInput(props: ModelIdInputProps): JSX.Element {
             // Fetch parameters when user types a model ID
             if (newValue.trim()) {
               fetchModelParameters(newValue.trim());
-            } else {
-              setModelParameters(null);
             }
           }
         }}
