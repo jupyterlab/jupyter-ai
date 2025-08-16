@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { Autocomplete, TextField, Button, Box } from '@mui/material';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Button, Box } from '@mui/material';
 import { AiService } from '../../handler';
 import { useStackingAlert } from '../mui-extras/stacking-alert';
 import Save from '@mui/icons-material/Save';
+import { SimpleAutocomplete } from '../mui-extras/simple-autocomplete';
 
 export type ModelIdInputProps = {
   /**
@@ -46,7 +47,6 @@ export type ModelIdInputProps = {
  */
 export function ModelIdInput(props: ModelIdInputProps): JSX.Element {
   const [models, setModels] = useState<string[]>([]);
-  const [prevModel, setPrevModel] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
 
@@ -78,7 +78,6 @@ export function ModelIdInput(props: ModelIdInputProps): JSX.Element {
         }
 
         setModels(modelsResponse);
-        setPrevModel(currModelResponse);
         setInput(currModelResponse ?? '');
       } catch (error) {
         console.error('Failed to load chat models:', error);
@@ -104,8 +103,7 @@ export function ModelIdInput(props: ModelIdInputProps): JSX.Element {
         throw new Error(`Unrecognized model modality '${props.modality}'.`);
       }
 
-      // update local state and run parent callback
-      setPrevModel(newModelId);
+      // run parent callback
       props.onModelIdFetch?.(newModelId, true);
 
       // show success alert
@@ -126,35 +124,24 @@ export function ModelIdInput(props: ModelIdInputProps): JSX.Element {
     }
   };
 
+  const modelsAsOptions = useMemo(() => {
+    return models.map(m => ({ label: m, value: m }));
+  }, [models]);
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-      <Autocomplete
-        options={models}
+      <SimpleAutocomplete
+        options={modelsAsOptions}
         value={input}
-        freeSolo
-        autoSelect
-        loading={loading}
-        fullWidth={props.fullWidth}
-        onInputChange={(e, newValue, r) => {
-          // This condition prevents whitespace from being inserted in the model
-          // ID by accident.
-          if (newValue !== null && !newValue.includes(' ')) {
-            setInput(newValue);
-          }
-        }}
-        renderInput={params => (
-          <TextField
-            {...params}
-            label={props.label || 'Model ID'}
-            placeholder={props.placeholder}
-            fullWidth={props.fullWidth ?? true}
-          />
-        )}
+        onChange={v => setInput(v)}
+        placeholder={props.placeholder}
+        boldMatches
+        showClearButton
       />
       <Button
         variant="contained"
         onClick={handleUpdateChatModel}
-        disabled={loading || prevModel === (input || null) || updating}
+        disabled={loading || updating}
         sx={{ alignSelf: 'center' }}
         startIcon={<Save />}
       >
