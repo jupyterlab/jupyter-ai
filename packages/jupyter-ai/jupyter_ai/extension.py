@@ -54,6 +54,7 @@ else:
     )
 
 from .model_providers.model_handlers import ChatModelEndpoint
+from .model_providers.parameters_rest_api import ModelParametersRestAPI
 
 
 class AiExtension(ExtensionApp):
@@ -63,6 +64,7 @@ class AiExtension(ExtensionApp):
         (r"api/ai/chats/stop_streaming/?", InterruptStreamingHandler),
         (r"api/ai/completion/inline/?", DefaultInlineCompletionHandler),
         (r"api/ai/models/chat/?", ChatModelEndpoint),
+        (r"api/ai/model-parameters/?", ModelParametersRestAPI),
         (r"api/ai/secrets/?", SecretsRestAPI),
         (
             r"api/ai/static/jupyternaut.svg()/?",

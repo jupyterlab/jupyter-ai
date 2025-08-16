@@ -91,6 +91,15 @@ export function ModelIdInput(props: ModelIdInputProps): JSX.Element {
     loadData();
   }, []);
 
+  const fetchModelParameters = async (modelId: string) => {
+    try {
+      await AiService.getModelParameters(modelId);
+      // Just validate model has parameters, don't store them
+    } catch (error) {
+      console.error('Failed to fetch model parameters:', error);
+    }
+  };
+
   const handleUpdateChatModel = async () => {
     setUpdating(true);
     try {
@@ -135,11 +144,15 @@ export function ModelIdInput(props: ModelIdInputProps): JSX.Element {
         autoSelect
         loading={loading}
         fullWidth={props.fullWidth}
-        onInputChange={(e, newValue, r) => {
+        onInputChange={(_, newValue) => {
           // This condition prevents whitespace from being inserted in the model
           // ID by accident.
           if (newValue !== null && !newValue.includes(' ')) {
             setInput(newValue);
+            // Fetch parameters when user types a model ID
+            if (newValue.trim()) {
+              fetchModelParameters(newValue.trim());
+            }
           }
         }}
         renderInput={params => (
@@ -162,6 +175,7 @@ export function ModelIdInput(props: ModelIdInputProps): JSX.Element {
           ? `Updating ${props.modality} model...`
           : `Update ${props.modality} model`}
       </Button>
+
       {alert.jsx}
     </Box>
   );
