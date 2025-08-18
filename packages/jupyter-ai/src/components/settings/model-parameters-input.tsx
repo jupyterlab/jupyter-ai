@@ -1,6 +1,16 @@
-import React, { useState } from 'react';
-import { Button, TextField, Box, Alert, IconButton } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import {
+  Box,
+  Button,
+  TextField,
+  Alert,
+  IconButton,
+  Autocomplete
+} from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
+import Save from '@mui/icons-material/Save';
+import { AiService } from '../../handler';
+import { useStackingAlert } from '../mui-extras/stacking-alert';
 
 type ModelParameter = {
   id: string;
@@ -10,22 +20,36 @@ type ModelParameter = {
   isStatic?: boolean;
 };
 
-type StaticParameterDef = {
-  name: string;
-  type: string;
-  label: string;
+export type ModelParametersInputProps = {
+  modelId?: string | null;
 };
 
-// Add some common fields as static parameters here
-const STATIC_PARAMETERS: StaticParameterDef[] = [
-  { name: 'temperature', type: 'float', label: 'Temperature' },
-  { name: 'api_url', type: 'string', label: 'API URL' },
-  { name: 'max_tokens', type: 'integer', label: 'Max Tokens' }
-];
-
-export function ModelParametersInput(): JSX.Element {
+export function ModelParametersInput(
+  props: ModelParametersInputProps
+): JSX.Element {
+  const [availableParameters, setAvailableParameters] = useState<any>(null);
   const [parameters, setParameters] = useState<ModelParameter[]>([]);
   const [validationError, setValidationError] = useState<string>('');
+  const alert = useStackingAlert();
+
+  useEffect(() => {
+    async function fetchAvailableParameters() {
+      if (!props.modelId) {
+        setAvailableParameters(null);
+        return;
+      }
+
+      try {
+        const response = await AiService.getModelParameters(props.modelId);
+        setAvailableParameters(response);
+      } catch (error) {
+        console.error('Failed to fetch available parameters:', error);
+        setAvailableParameters(null);
+      }
+    }
+
+    fetchAvailableParameters();
+  }, [props.modelId]);
 
   const handleAddParameter = () => {
     const newParameter: ModelParameter = {
@@ -39,26 +63,6 @@ export function ModelParametersInput(): JSX.Element {
     setValidationError('');
   };
 
-  const handleAddStaticParameter = (staticParam: StaticParameterDef) => {
-    // Check if static parameter already exists
-    const exists = parameters.some(
-      param => param.name === staticParam.name && param.isStatic
-    );
-    if (exists) {
-      setValidationError(`Parameter "${staticParam.label}" is already added`);
-      return;
-    }
-    const newParameter: ModelParameter = {
-      id: Date.now().toString(),
-      name: staticParam.name,
-      type: staticParam.type,
-      value: '',
-      isStatic: true
-    };
-    setParameters([...parameters, newParameter]);
-    setValidationError('');
-  };
-  // For when user changes their parameter
   const handleParameterChange = (
     id: string,
     field: keyof ModelParameter,
@@ -72,13 +76,33 @@ export function ModelParametersInput(): JSX.Element {
     setValidationError('');
   };
 
-  // For when user deletes parameter
+  // Handle parameter name selection from dropdown
+  const handleParameterNameSelect = (id: string, paramName: string | null) => {
+    if (!paramName) {
+      return;
+    }
+    const paramSchema = availableParameters?.parameters?.[paramName];
+
+    setParameters(prev =>
+      prev.map(param =>
+        param.id === id
+          ? {
+              ...param,
+              name: paramName,
+              type: paramSchema?.type || param.type
+            }
+          : param
+      )
+    );
+    setValidationError('');
+  };
+
   const handleDeleteParameter = (id: string) => {
     setParameters(prev => prev.filter(param => param.id !== id));
     setValidationError('');
   };
 
-  const handleSaveParameters = () => {
+  const handleSaveParameters = async () => {
     // Validation: Check if any parameter has a value but missing name or type (only for custom parameters)
     const invalidParams = parameters.filter(
       param =>
@@ -94,8 +118,29 @@ export function ModelParametersInput(): JSX.Element {
       return;
     }
 
+    if (!props.modelId) {
+      setValidationError('No model selected');
+      return;
+    }
+
     // Filter out parameters with empty values
     const validParams = parameters.filter(param => param.value.trim() !== '');
+
+    // Validation: Check boolean values
+    const invalidBooleanParams = validParams.filter(param => {
+      if (param.type.toLowerCase() === 'boolean') {
+        const value = param.value.toLowerCase().trim();
+        return value !== 'true' && value !== 'false';
+      }
+      return false;
+    });
+
+    if (invalidBooleanParams.length > 0) {
+      setValidationError(
+        'Boolean parameters must have value "true" or "false"'
+      );
+      return;
+    }
 
     // Creates JSON object of valid parameters ONLY if all 3 fields are given valid inputs
     const paramsObject = validParams.reduce((acc, param) => {
@@ -103,44 +148,45 @@ export function ModelParametersInput(): JSX.Element {
       return acc;
     }, {} as Record<string, string>);
 
-    // Logs the JSON object of its input state to the browser console
-    console.log('Model Parameters:', paramsObject);
+    try {
+      await AiService.saveModelParameters(props.modelId, paramsObject);
+      setValidationError('');
+
+      // Show success alert
+      console.log('About to show alert with:', alert);
+      alert.show(
+        'success',
+        `Successfully saved parameters for model '${props.modelId}'.`
+      );
+      console.log('Alert.show called successfully');
+    } catch (error) {
+      console.error('Failed to save model parameters:', error);
+      const msg =
+        error instanceof Error ? error.message : 'An unknown error occurred';
+
+      // Show error alert
+      alert.show('error', `Failed to save model parameters: ${msg}`);
+      setValidationError('Failed to save parameters. Please try again.');
+    }
   };
 
   const showSaveButton = parameters.length > 0;
-  const availableStaticParams = STATIC_PARAMETERS.filter(
-    staticParam =>
-      !parameters.some(
-        param => param.name === staticParam.name && param.isStatic
-      )
-  );
+
+  const getParameterOptions = (excludeParamId?: string) => {
+    const apiParamNames = availableParameters?.parameters
+      ? Object.keys(availableParameters.parameters)
+      : [];
+
+    // Filters out parameters that are already selected by other rows
+    const usedParamNames = parameters
+      .filter(param => param.id !== excludeParamId && param.name.trim() !== '')
+      .map(param => param.name);
+
+    return apiParamNames.filter(name => !usedParamNames.includes(name));
+  };
 
   return (
     <Box>
-      <Button variant="outlined" onClick={handleAddParameter} sx={{ mb: 2 }}>
-        Add a custom model parameter
-      </Button>
-      {/* Static parameter buttons */}
-      {availableStaticParams.length > 0 && (
-        <Box sx={{ mb: 2 }}>
-          <Box sx={{ mb: 1, fontWeight: 'medium', fontSize: '0.875rem' }}>
-            Common parameters:
-          </Box>
-          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2 }}>
-            {availableStaticParams.map(staticParam => (
-              <Button
-                key={staticParam.name}
-                variant="outlined"
-                size="small"
-                onClick={() => handleAddStaticParameter(staticParam)}
-              >
-                {staticParam.label}
-              </Button>
-            ))}
-          </Box>
-        </Box>
-      )}
-
       {parameters.map(param => (
         <Box
           key={param.id}
@@ -151,20 +197,63 @@ export function ModelParametersInput(): JSX.Element {
             alignItems: 'center'
           }}
         >
-          <TextField
-            label="Parameter name"
-            placeholder="e.g. temperature, api_url"
-            value={param.name}
-            onChange={e =>
-              handleParameterChange(param.id, 'name', e.target.value)
-            }
-            size="small"
-            sx={{ flex: 1 }}
-            disabled={param.isStatic}
-            InputProps={{
-              readOnly: param.isStatic
-            }}
-          />
+          {param.isStatic ? (
+            <TextField
+              label="Parameter name"
+              value={param.name}
+              size="small"
+              sx={{ flex: 1 }}
+              disabled={true}
+              InputProps={{
+                readOnly: true
+              }}
+            />
+          ) : (
+            <Autocomplete
+              options={getParameterOptions(param.id)}
+              value={param.name || null}
+              onChange={(_, newValue) => {
+                handleParameterNameSelect(param.id, newValue);
+              }}
+              freeSolo
+              size="small"
+              sx={{ flex: 1 }}
+              renderInput={params => (
+                <TextField
+                  {...params}
+                  label="Parameter name"
+                  placeholder="Select or type parameter name"
+                />
+              )}
+              getOptionLabel={option => {
+                if (typeof option === 'string') {
+                  return option;
+                }
+                return '';
+              }}
+              renderOption={(props, option) => {
+                const schema = availableParameters?.parameters?.[option];
+                return (
+                  <Box component="li" {...props} title={schema?.description}>
+                    <Box>
+                      <Box sx={{ fontWeight: 'medium' }}>{option}</Box>
+                      {schema && (
+                        <Box
+                          sx={{ fontSize: '0.75rem', color: 'text.secondary' }}
+                        >
+                          {schema.type}{' '}
+                          {schema.description &&
+                            `- ${schema.description.slice(0, 50)}${
+                              schema.description.length > 50 ? '...' : ''
+                            }`}
+                        </Box>
+                      )}
+                    </Box>
+                  </Box>
+                );
+              }}
+            />
+          )}
           <TextField
             label="Parameter type"
             placeholder="e.g. float, string"
@@ -180,7 +269,7 @@ export function ModelParametersInput(): JSX.Element {
             }}
           />
           <TextField
-            label="Parameter value"
+            label="Argument value"
             placeholder="e.g. 0.7, https://localhost:8989"
             value={param.value}
             onChange={e =>
@@ -206,15 +295,21 @@ export function ModelParametersInput(): JSX.Element {
         </Alert>
       )}
 
+      <Button variant="outlined" onClick={handleAddParameter} sx={{ m: 3 }}>
+        Add a custom model parameter
+      </Button>
+
       {showSaveButton && (
         <Button
           variant="contained"
           onClick={handleSaveParameters}
-          sx={{ mt: 1 }}
+          sx={{ alignSelf: 'center' }}
+          startIcon={<Save />}
         >
-          Save Model Parameters
+          Update Model Parameters
         </Button>
       )}
+      {alert.jsx}
     </Box>
   );
 }

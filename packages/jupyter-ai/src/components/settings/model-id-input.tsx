@@ -1,9 +1,8 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { Button, Box } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Autocomplete, TextField, Button, Box } from '@mui/material';
 import { AiService } from '../../handler';
 import { useStackingAlert } from '../mui-extras/stacking-alert';
 import Save from '@mui/icons-material/Save';
-import { SimpleAutocomplete } from '../mui-extras/simple-autocomplete';
 
 export type ModelIdInputProps = {
   /**
@@ -47,6 +46,7 @@ export type ModelIdInputProps = {
  */
 export function ModelIdInput(props: ModelIdInputProps): JSX.Element {
   const [models, setModels] = useState<string[]>([]);
+  const [prevModel, setPrevModel] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
 
@@ -78,6 +78,7 @@ export function ModelIdInput(props: ModelIdInputProps): JSX.Element {
         }
 
         setModels(modelsResponse);
+        setPrevModel(currModelResponse);
         setInput(currModelResponse ?? '');
       } catch (error) {
         console.error('Failed to load chat models:', error);
@@ -89,6 +90,15 @@ export function ModelIdInput(props: ModelIdInputProps): JSX.Element {
 
     loadData();
   }, []);
+
+  const fetchModelParameters = async (modelId: string) => {
+    try {
+      await AiService.getModelParameters(modelId);
+      // Just validate model has parameters, don't store them
+    } catch (error) {
+      console.error('Failed to fetch model parameters:', error);
+    }
+  };
 
   const handleUpdateChatModel = async () => {
     setUpdating(true);
@@ -103,7 +113,8 @@ export function ModelIdInput(props: ModelIdInputProps): JSX.Element {
         throw new Error(`Unrecognized model modality '${props.modality}'.`);
       }
 
-      // run parent callback
+      // update local state and run parent callback
+      setPrevModel(newModelId);
       props.onModelIdFetch?.(newModelId, true);
 
       // show success alert
@@ -124,24 +135,39 @@ export function ModelIdInput(props: ModelIdInputProps): JSX.Element {
     }
   };
 
-  const modelsAsOptions = useMemo(() => {
-    return models.map(m => ({ label: m, value: m }));
-  }, [models]);
-
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-      <SimpleAutocomplete
-        options={modelsAsOptions}
+      <Autocomplete
+        options={models}
         value={input}
-        onChange={v => setInput(v)}
-        placeholder={props.placeholder}
-        boldMatches
-        showClearButton
+        freeSolo
+        autoSelect
+        loading={loading}
+        fullWidth={props.fullWidth}
+        onInputChange={(_, newValue) => {
+          // This condition prevents whitespace from being inserted in the model
+          // ID by accident.
+          if (newValue !== null && !newValue.includes(' ')) {
+            setInput(newValue);
+            // Fetch parameters when user types a model ID
+            if (newValue.trim()) {
+              fetchModelParameters(newValue.trim());
+            }
+          }
+        }}
+        renderInput={params => (
+          <TextField
+            {...params}
+            label={props.label || 'Model ID'}
+            placeholder={props.placeholder}
+            fullWidth={props.fullWidth ?? true}
+          />
+        )}
       />
       <Button
         variant="contained"
         onClick={handleUpdateChatModel}
-        disabled={loading || updating}
+        disabled={loading || prevModel === (input || null) || updating}
         sx={{ alignSelf: 'center' }}
         startIcon={<Save />}
       >
