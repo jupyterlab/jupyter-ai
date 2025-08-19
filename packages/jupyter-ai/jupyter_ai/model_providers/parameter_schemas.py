@@ -125,7 +125,7 @@ def get_parameter_schema(param_name: str) -> dict[str, Any]:
         }
     return schema
 
-def get_parameters_with_schemas(param_names: list) -> dict[str, Any]:
+def get_parameters_with_schemas(param_names: list[str]) -> dict[str, Any]:
     """
     Get schemas for a list of parameter names.
 
