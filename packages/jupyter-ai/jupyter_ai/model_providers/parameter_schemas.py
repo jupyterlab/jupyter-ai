@@ -1,5 +1,11 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING, cast
 
-PARAMETER_SCHEMAS = {
+if TYPE_CHECKING:
+    from typing import Any
+
+
+PARAMETER_SCHEMAS: dict[str, dict[str, Any]] = {
     "temperature": {
         "type": "number",
         "min": 0,
@@ -104,8 +110,13 @@ PARAMETER_SCHEMAS = {
     }
 }
 
-def get_parameter_schema(param_name: str) -> dict:
-    """Get schema for a specific parameter."""
+def get_parameter_schema(param_name: str) -> dict[str, Any]:
+    """
+    Get the schema for a specific parameter.
+
+    TODO: Define a Pydantic model for the parameter schema, e.g.
+    `ParameterSchema`. Update the return type annotation to `ParameterSchema`.
+    """
     schema = PARAMETER_SCHEMAS.get(param_name)
     if schema is None:
         return {
@@ -114,8 +125,12 @@ def get_parameter_schema(param_name: str) -> dict:
         }
     return schema
 
-def get_parameters_with_schemas(param_names: list) -> dict:
-    """Get schemas for a list of parameter names."""
+def get_parameters_with_schemas(param_names: list[str]) -> dict[str, Any]:
+    """
+    Get schemas for a list of parameter names.
+
+    TODO: Update the return type annotation to `dict[str, ParameterSchema]`.
+    """
     return {
         name: get_parameter_schema(name) 
         for name in param_names

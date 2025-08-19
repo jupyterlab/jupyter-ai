@@ -61,7 +61,7 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
         modality="chat"
         label="Chat model ID"
         placeholder="e.g. 'anthropic/claude-3-5-haiku-latest'"
-        onModelIdFetch={(modelId) => setChatModel(modelId)}
+        onModelIdFetch={modelId => setChatModel(modelId)}
       />
 
       {/* SECTION: Embedding model */}

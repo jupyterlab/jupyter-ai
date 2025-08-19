@@ -49,6 +49,15 @@ class ModelParametersRestAPI(BaseAPIHandler):
             # Get parameter schemas with types, defaults, and descriptions
             parameters_with_schemas = get_parameters_with_schemas(parameter_names)
             
+            # TODO: Define the response type as a Pydantic model to prevent
+            # breaking API changes, e.g. `GetModelParametersResponse`.
+            #
+            # TODO: replace 'number' with 'float' in parameter schemas for
+            # clarity. 'number' is ambiguous as to whether it is an integer or
+            # float. Make sure to update the frontend type.
+            #
+            # TODO: Drop 'count' from the response (and the corresponding types
+            # across the frontend & backend).
             response = {
                 "parameters": parameters_with_schemas,
                 "parameter_names": parameter_names,
@@ -97,6 +106,12 @@ class ModelParametersRestAPI(BaseAPIHandler):
             )
             config_manager.update_config(update_request)
             
+            # TODO: Determine what a response could be used for, and remove the
+            # response if it is unnecessary. Right now the response body is
+            # ignored by the frontend.
+            #
+            # TODO: Define the response type as a Pydantic model to prevent
+            # breaking API changes, e.g. `UpdateModelParametersResponse`.
             response = {
                 "status": "success",
                 "message": f"Parameters saved for model {model_id}",
