@@ -161,14 +161,6 @@ export function ModelIdInput(props: ModelIdInputProps): JSX.Element {
           : `Update ${props.modality} model`}
       </Button>
 
-      {/* Display model parameters */}
-      {modelParameters && (
-        <div>
-          <strong>Parameters:</strong>{' '}
-          {JSON.stringify(modelParameters, null, 2)}
-        </div>
-      )}
-
       {alert.jsx}
     </Box>
   );
