@@ -27,7 +27,8 @@ export type ModelParametersInputProps = {
 export function ModelParametersInput(
   props: ModelParametersInputProps
 ): JSX.Element {
-  const [availableParameters, setAvailableParameters] = useState<any>(null);
+  const [availableParameters, setAvailableParameters] =
+    useState<AiService.GetModelParametersResponse | null>(null);
   const [parameters, setParameters] = useState<ModelParameter[]>([]);
   const [validationError, setValidationError] = useState<string>('');
   const alert = useStackingAlert();
@@ -126,7 +127,10 @@ export function ModelParametersInput(
     // Check for empty parameter values
     const emptyParams = parameters.filter(param => param.value.trim() === '');
     if (emptyParams.length > 0) {
-      alert.show('error', 'All parameters must have argument values. Use the delete button to remove unwanted parameters.');
+      alert.show(
+        'error',
+        'All parameters must have argument values. Use the delete button to remove unwanted parameters.'
+      );
       return;
     }
 
@@ -147,10 +151,13 @@ export function ModelParametersInput(
     }
 
     // Creates JSON object of parameters ONLY if all 3 fields are given valid inputs
-    const paramsObject = parameters.reduce((acc, param) => {
-      acc[param.name] = param.value;
-      return acc;
-    }, {} as Record<string, string>);
+    const paramsObject = parameters.reduce(
+      (acc: Record<string, string>, param: ModelParameter) => {
+        acc[param.name] = param.value;
+        return acc;
+      },
+      {}
+    );
 
     try {
       await AiService.saveModelParameters(props.modelId, paramsObject);

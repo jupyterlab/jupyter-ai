@@ -197,10 +197,30 @@ export namespace AiService {
     });
   }
 
+  export type GetModelParametersResponse = {
+    parameters: Record<string, ParameterSchema>;
+    parameter_names: string[];
+    count: number;
+  };
+
+  export type ParameterSchema = {
+    type: 'boolean' | 'integer' | 'number' | 'string' | 'array' | 'object';
+    description: string;
+    min?: number;
+    max?: number;
+  };
+
+  export type UpdateModelParametersResponse = {
+    status: string;
+    message: string;
+    model_id: string;
+    parameters: Record<string, any>;
+  };
+
   export async function getModelParameters(
     modelId?: string,
     provider?: string
-  ): Promise<any> {
+  ): Promise<GetModelParametersResponse> {
     const params = new URLSearchParams();
     if (modelId) {
       params.append('model', modelId);
@@ -212,14 +232,14 @@ export namespace AiService {
     const endpoint = `model-parameters${
       params.toString() ? `?${params.toString()}` : ''
     }`;
-    return await requestAPI(endpoint);
+    return await requestAPI<GetModelParametersResponse>(endpoint);
   }
 
   export async function saveModelParameters(
     modelId: string,
     parameters: Record<string, any>
-  ): Promise<any> {
-    return await requestAPI('model-parameters', {
+  ): Promise<UpdateModelParametersResponse> {
+    return await requestAPI<UpdateModelParametersResponse>('model-parameters', {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json'
