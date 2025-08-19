@@ -78,7 +78,9 @@ export function ModelParametersInput(
 
   // Handle parameter name selection from dropdown
   const handleParameterNameSelect = (id: string, paramName: string | null) => {
-    if (!paramName) return;
+    if (!paramName) {
+      return;
+    }
     const paramSchema = availableParameters?.parameters?.[paramName];
 
     setParameters(prev =>
@@ -121,11 +123,15 @@ export function ModelParametersInput(
       return;
     }
 
-    // Filter out parameters with empty values
-    const validParams = parameters.filter(param => param.value.trim() !== '');
+    // Check for empty parameter values
+    const emptyParams = parameters.filter(param => param.value.trim() === '');
+    if (emptyParams.length > 0) {
+      alert.show('error', 'All parameters must have argument values. Use the delete button to remove unwanted parameters.');
+      return;
+    }
 
     // Validation: Check boolean values
-    const invalidBooleanParams = validParams.filter(param => {
+    const hasBooleanError = parameters.some(param => {
       if (param.type.toLowerCase() === 'boolean') {
         const value = param.value.toLowerCase().trim();
         return value !== 'true' && value !== 'false';
@@ -133,15 +139,15 @@ export function ModelParametersInput(
       return false;
     });
 
-    if (invalidBooleanParams.length > 0) {
+    if (hasBooleanError) {
       setValidationError(
         'Boolean parameters must have value "true" or "false"'
       );
       return;
     }
 
-    // Creates JSON object of valid parameters ONLY if all 3 fields are given valid inputs
-    const paramsObject = validParams.reduce((acc, param) => {
+    // Creates JSON object of parameters ONLY if all 3 fields are given valid inputs
+    const paramsObject = parameters.reduce((acc, param) => {
       acc[param.name] = param.value;
       return acc;
     }, {} as Record<string, string>);
@@ -224,7 +230,9 @@ export function ModelParametersInput(
                 />
               )}
               getOptionLabel={option => {
-                if (typeof option === 'string') return option;
+                if (typeof option === 'string') {
+                  return option;
+                }
                 return '';
               }}
               renderOption={(props, option) => {

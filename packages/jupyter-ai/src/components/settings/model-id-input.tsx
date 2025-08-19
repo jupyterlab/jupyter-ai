@@ -79,6 +79,9 @@ export function ModelIdInput(props: ModelIdInputProps): JSX.Element {
 
         setModels(modelsResponse);
         setInput(currModelResponse ?? '');
+
+        // Call the callback with initial=true when first loading
+        props.onModelIdFetch?.(currModelResponse, true);
       } catch (error) {
         console.error('Failed to load chat models:', error);
         setModels([]);
@@ -113,7 +116,7 @@ export function ModelIdInput(props: ModelIdInputProps): JSX.Element {
       }
 
       // run parent callback
-      props.onModelIdFetch?.(newModelId, true);
+      props.onModelIdFetch?.(newModelId, false);
 
       // show success alert
       // TODO: maybe just use the JL Notifications API
@@ -137,12 +140,20 @@ export function ModelIdInput(props: ModelIdInputProps): JSX.Element {
     return models.map(m => ({ label: m, value: m }));
   }, [models]);
 
+  const handleAutocompleteChange = (v: string) => {
+    setInput(v);
+    // Fetch parameters when user selects/types a model ID
+    if (v.trim()) {
+      fetchModelParameters(v.trim());
+    }
+  };
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
       <SimpleAutocomplete
         options={modelsAsOptions}
         value={input}
-        onChange={v => setInput(v)}
+        onChange={handleAutocompleteChange}
         placeholder={props.placeholder}
         boldMatches
         showClearButton
@@ -158,7 +169,6 @@ export function ModelIdInput(props: ModelIdInputProps): JSX.Element {
           ? `Updating ${props.modality} model...`
           : `Update ${props.modality} model`}
       </Button>
-
       {alert.jsx}
     </Box>
   );

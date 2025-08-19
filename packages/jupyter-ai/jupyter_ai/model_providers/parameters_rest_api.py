@@ -22,8 +22,8 @@ class ModelParametersRestAPI(BaseAPIHandler):
         Returns list of supported model parameters.
         
         Query Parameters:
-        - model (string): Model ID to get parameters for
-        - provider (string): Custom LLM provider (optional)
+        - model (string, optional): Model ID to get parameters for
+        - provider (string, optional): Custom LLM provider
         If no model provided, returns common parameters.
         """
         try:
@@ -55,7 +55,6 @@ class ModelParametersRestAPI(BaseAPIHandler):
                 "count": len(parameter_names)
             }
             
-            self.set_status(200)
             self.set_header("Content-Type", "application/json")
             self.finish(json.dumps(response))
             
@@ -67,7 +66,7 @@ class ModelParametersRestAPI(BaseAPIHandler):
     def put(self):
         """
         Saves model parameters to configuration.
-        Request body:
+        Example request body:
         {
             "model_id": "gpt-4", 
             "parameters": {
@@ -78,6 +77,13 @@ class ModelParametersRestAPI(BaseAPIHandler):
         """
         try:
             request_body = json.loads(self.request.body.decode('utf-8'))
+            
+            # Validate required fields
+            if "model_id" not in request_body:
+                raise HTTPError(400, "Missing required field: model_id")
+            if "parameters" not in request_body:
+                raise HTTPError(400, "Missing required field: parameters")
+                
             model_id = request_body["model_id"]
             parameters = request_body["parameters"]
             
@@ -98,7 +104,6 @@ class ModelParametersRestAPI(BaseAPIHandler):
                 "parameters": parameters
             }
             
-            self.set_status(200)
             self.set_header("Content-Type", "application/json")
             self.finish(json.dumps(response))
             

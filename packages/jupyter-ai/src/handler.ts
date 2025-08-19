@@ -99,7 +99,6 @@ export namespace AiService {
     | MultiEnvAuthStrategy
     | null;
 
-
   export type ListProvidersEntry = {
     id: string;
     name: string;
@@ -203,10 +202,16 @@ export namespace AiService {
     provider?: string
   ): Promise<any> {
     const params = new URLSearchParams();
-    if (modelId) params.append('model', modelId);
-    if (provider) params.append('provider', provider);
-    
-    const endpoint = `model-parameters${params.toString() ? `?${params.toString()}` : ''}`;
+    if (modelId) {
+      params.append('model', modelId);
+    }
+    if (provider) {
+      params.append('provider', provider);
+    }
+
+    const endpoint = `model-parameters${
+      params.toString() ? `?${params.toString()}` : ''
+    }`;
     return await requestAPI(endpoint);
   }
 
