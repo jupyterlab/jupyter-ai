@@ -93,15 +93,6 @@ export function ModelIdInput(props: ModelIdInputProps): JSX.Element {
     loadData();
   }, []);
 
-  const fetchModelParameters = async (modelId: string) => {
-    try {
-      await AiService.getModelParameters(modelId);
-      // Just validate model has parameters, don't store them
-    } catch (error) {
-      console.error('Failed to fetch model parameters:', error);
-    }
-  };
-
   const handleUpdateChatModel = async () => {
     setUpdating(true);
     try {
@@ -140,20 +131,12 @@ export function ModelIdInput(props: ModelIdInputProps): JSX.Element {
     return models.map(m => ({ label: m, value: m }));
   }, [models]);
 
-  const handleAutocompleteChange = (v: string) => {
-    setInput(v);
-    // Fetch parameters when user selects/types a model ID
-    if (v.trim()) {
-      fetchModelParameters(v.trim());
-    }
-  };
-
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
       <SimpleAutocomplete
         options={modelsAsOptions}
         value={input}
-        onChange={handleAutocompleteChange}
+        onChange={setInput}
         placeholder={props.placeholder}
         boldMatches
         showClearButton

@@ -135,3 +135,66 @@ def get_parameters_with_schemas(param_names: list[str]) -> dict[str, Any]:
         name: get_parameter_schema(name) 
         for name in param_names
     }
+
+def coerce_parameter_value(value: str, param_type: str):
+    """
+    Coerce a string value to the appropriate type based on parameter type.
+    
+    Args:
+        value: The string value to coerce
+        param_type: The parameter type (e.g., 'number', 'integer', 'boolean', 'string')
+    
+    Returns:
+        The coerced value in the appropriate type
+        
+    Raises:
+        ValueError: If the value cannot be coerced to the specified type
+    """
+    if not isinstance(value, str):
+        return value  # Already the correct type
+    
+    # Normalize the type string
+    param_type = param_type.lower().strip()
+    
+    # Handle different types
+    if param_type in ['number', 'float']:
+        try:
+            return float(value)
+        except ValueError:
+            raise ValueError(f"Cannot convert '{value}' to number")
+            
+    elif param_type in ['integer', 'int']:
+        try:
+            return int(value)
+        except ValueError:
+            raise ValueError(f"Cannot convert '{value}' to integer")
+            
+    elif param_type in ['boolean', 'bool']:
+        value_lower = value.lower().strip()
+        if value_lower == 'true':
+            return True
+        elif value_lower == 'false':
+            return False
+        else:
+            raise ValueError(f"Cannot convert '{value}' to boolean (expected 'true' or 'false')")
+            
+    elif param_type in ['string', 'str']:
+        return value  # Already a string
+        
+    elif param_type in ['array', 'list']:
+        try:
+            import json
+            return json.loads(value)
+        except (json.JSONDecodeError, TypeError):
+            raise ValueError(f"Cannot convert '{value}' to array (expected valid JSON array)")
+            
+    elif param_type in ['object', 'dict']:
+        try:
+            import json
+            return json.loads(value)
+        except (json.JSONDecodeError, TypeError):
+            raise ValueError(f"Cannot convert '{value}' to object (expected valid JSON object)")
+        
+    else:
+        # For unknown types, return as string
+        return value

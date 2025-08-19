@@ -3,7 +3,7 @@ from tornado.web import authenticated, HTTPError
 import json
 
 from litellm.litellm_core_utils.get_supported_openai_params import get_supported_openai_params
-from .parameter_schemas import get_parameters_with_schemas
+from .parameter_schemas import get_parameters_with_schemas, coerce_parameter_value
 from ..config_manager import ConfigManager
 from ..config import UpdateConfigRequest
     
@@ -96,13 +96,27 @@ class ModelParametersRestAPI(BaseAPIHandler):
             model_id = request_body["model_id"]
             parameters = request_body["parameters"]
             
+            # Validate parameter structure and apply type coercion
+            coerced_parameters = {}
+            for param_name, param_data in parameters.items():
+                if not isinstance(param_data, dict):
+                    raise HTTPError(400, f"Parameter '{param_name}' must be an object with 'value' and 'type' fields")
+                if "value" not in param_data:
+                    raise HTTPError(400, f"Parameter '{param_name}' missing required field: value")
+                if "type" not in param_data:
+                    raise HTTPError(400, f"Parameter '{param_name}' missing required field: type")
+                try:
+                    coerced_value = coerce_parameter_value(param_data["value"], param_data["type"])
+                    coerced_parameters[param_name] = coerced_value
+                except ValueError as e:
+                    raise HTTPError(400, f"Invalid value for parameter '{param_name}': {str(e)}")
+            
             config_manager = self.settings.get("jai_config_manager")
             if not config_manager:
                 raise HTTPError(500, "Config manager not available")
             
-            # Create update request with the parameters stored in fields
             update_request = UpdateConfigRequest(
-                fields={model_id: parameters}
+                fields={model_id: coerced_parameters}
             )
             config_manager.update_config(update_request)
             
@@ -116,7 +130,7 @@ class ModelParametersRestAPI(BaseAPIHandler):
                 "status": "success",
                 "message": f"Parameters saved for model {model_id}",
                 "model_id": model_id,
-                "parameters": parameters
+                "parameters": coerced_parameters
             }
             
             self.set_header("Content-Type", "application/json")

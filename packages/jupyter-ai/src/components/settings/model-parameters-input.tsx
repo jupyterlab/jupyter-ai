@@ -13,7 +13,6 @@ import { AiService } from '../../handler';
 import { useStackingAlert } from '../mui-extras/stacking-alert';
 
 type ModelParameter = {
-  id: string;
   name: string;
   type: string;
   value: string;
@@ -46,6 +45,10 @@ export function ModelParametersInput(
       } catch (error) {
         console.error('Failed to fetch available parameters:', error);
         setAvailableParameters(null);
+        alert.show(
+          'error',
+          `Failed to fetch parameters for model '${props.modelId}. You can still add custom parameters manually.`
+        );
       }
     }
 
@@ -54,7 +57,6 @@ export function ModelParametersInput(
 
   const handleAddParameter = () => {
     const newParameter: ModelParameter = {
-      id: Date.now().toString(),
       name: '',
       type: '',
       value: '',
@@ -65,20 +67,23 @@ export function ModelParametersInput(
   };
 
   const handleParameterChange = (
-    id: string,
+    name: string,
     field: keyof ModelParameter,
     value: string
   ) => {
     setParameters(prev =>
       prev.map(param =>
-        param.id === id ? { ...param, [field]: value } : param
+        param.name === name ? { ...param, [field]: value } : param
       )
     );
     setValidationError('');
   };
 
   // Handle parameter name selection from dropdown
-  const handleParameterNameSelect = (id: string, paramName: string | null) => {
+  const handleParameterNameSelect = (
+    currentName: string,
+    paramName: string | null
+  ) => {
     if (!paramName) {
       return;
     }
@@ -86,7 +91,7 @@ export function ModelParametersInput(
 
     setParameters(prev =>
       prev.map(param =>
-        param.id === id
+        param.name === currentName
           ? {
               ...param,
               name: paramName,
@@ -98,8 +103,8 @@ export function ModelParametersInput(
     setValidationError('');
   };
 
-  const handleDeleteParameter = (id: string) => {
-    setParameters(prev => prev.filter(param => param.id !== id));
+  const handleDeleteParameter = (name: string) => {
+    setParameters(prev => prev.filter(param => param.name !== name));
     setValidationError('');
   };
 
@@ -129,6 +134,7 @@ export function ModelParametersInput(
     if (emptyParams.length > 0) {
       alert.show(
         'error',
+
         'All parameters must have argument values. Use the delete button to remove unwanted parameters.'
       );
       return;
@@ -150,28 +156,25 @@ export function ModelParametersInput(
       return;
     }
 
-    // Creates JSON object of parameters ONLY if all 3 fields are given valid inputs
-    const paramsObject = parameters.reduce(
-      (acc: Record<string, string>, param: ModelParameter) => {
-        acc[param.name] = param.value;
-        return acc;
-      },
-      {}
-    );
+    // Creates JSON object of parameters with type and value structure
+    const paramsObject = parameters.reduce((acc, param) => {
+      acc[param.name] = {
+        value: param.value,
+        type: param.type
+      };
+      return acc;
+    }, {} as Record<string, { value: string; type: string }>);
 
     try {
       await AiService.saveModelParameters(props.modelId, paramsObject);
       setValidationError('');
 
       // Show success alert
-      console.log('About to show alert with:', alert);
       alert.show(
         'success',
         `Successfully saved parameters for model '${props.modelId}'.`
       );
-      console.log('Alert.show called successfully');
     } catch (error) {
-      console.error('Failed to save model parameters:', error);
       const msg =
         error instanceof Error ? error.message : 'An unknown error occurred';
 
@@ -183,14 +186,16 @@ export function ModelParametersInput(
 
   const showSaveButton = parameters.length > 0;
 
-  const getParameterOptions = (excludeParamId?: string) => {
+  const getParameterOptions = (excludeParamName?: string) => {
     const apiParamNames = availableParameters?.parameters
       ? Object.keys(availableParameters.parameters)
       : [];
 
     // Filters out parameters that are already selected by other rows
     const usedParamNames = parameters
-      .filter(param => param.id !== excludeParamId && param.name.trim() !== '')
+      .filter(
+        param => param.name !== excludeParamName && param.name.trim() !== ''
+      )
       .map(param => param.name);
 
     return apiParamNames.filter(name => !usedParamNames.includes(name));
@@ -198,9 +203,9 @@ export function ModelParametersInput(
 
   return (
     <Box>
-      {parameters.map(param => (
+      {parameters.map((param, index) => (
         <Box
-          key={param.id}
+          key={index}
           sx={{
             display: 'flex',
             gap: 2,
@@ -221,10 +226,10 @@ export function ModelParametersInput(
             />
           ) : (
             <Autocomplete
-              options={getParameterOptions(param.id)}
+              options={getParameterOptions(param.name)}
               value={param.name || null}
               onChange={(_, newValue) => {
-                handleParameterNameSelect(param.id, newValue);
+                handleParameterNameSelect(param.name, newValue);
               }}
               freeSolo
               size="small"
@@ -270,7 +275,7 @@ export function ModelParametersInput(
             placeholder="e.g. float, string"
             value={param.type}
             onChange={e =>
-              handleParameterChange(param.id, 'type', e.target.value)
+              handleParameterChange(param.name, 'type', e.target.value)
             }
             size="small"
             sx={{ flex: 1 }}
@@ -284,13 +289,13 @@ export function ModelParametersInput(
             placeholder="e.g. 0.7, https://localhost:8989"
             value={param.value}
             onChange={e =>
-              handleParameterChange(param.id, 'value', e.target.value)
+              handleParameterChange(param.name, 'value', e.target.value)
             }
             size="small"
             sx={{ flex: 1 }}
           />
           <IconButton
-            onClick={() => handleDeleteParameter(param.id)}
+            onClick={() => handleDeleteParameter(param.name)}
             color="error"
             size="small"
             sx={{ ml: 1 }}
