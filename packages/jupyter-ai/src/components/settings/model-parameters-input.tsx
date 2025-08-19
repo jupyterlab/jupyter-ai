@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { Button, TextField, Box, Alert, IconButton } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Box, Button, TextField, Alert, IconButton } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { AiService } from '../../handler';
 
 type ModelParameter = {
   id: string;
@@ -16,16 +17,35 @@ type StaticParameterDef = {
   label: string;
 };
 
-// Add some common fields as static parameters here
-const STATIC_PARAMETERS: StaticParameterDef[] = [
-  { name: 'temperature', type: 'float', label: 'Temperature' },
-  { name: 'api_url', type: 'string', label: 'API URL' },
-  { name: 'max_tokens', type: 'integer', label: 'Max Tokens' }
-];
+export type ModelParametersInputProps = {
+  modelId?: string | null;
+};
 
-export function ModelParametersInput(): JSX.Element {
+export function ModelParametersInput(
+  props: ModelParametersInputProps
+): JSX.Element {
+  const [availableParameters, setAvailableParameters] = useState<any>(null);
   const [parameters, setParameters] = useState<ModelParameter[]>([]);
   const [validationError, setValidationError] = useState<string>('');
+
+  useEffect(() => {
+    async function fetchAvailableParameters() {
+      if (!props.modelId) {
+        setAvailableParameters(null);
+        return;
+      }
+
+      try {
+        const response = await AiService.getModelParameters(props.modelId);
+        setAvailableParameters(response);
+      } catch (error) {
+        console.error('Failed to fetch available parameters:', error);
+        setAvailableParameters(null);
+      }
+    }
+
+    fetchAvailableParameters();
+  }, [props.modelId]);
 
   const handleAddParameter = () => {
     const newParameter: ModelParameter = {
@@ -108,33 +128,42 @@ export function ModelParametersInput(): JSX.Element {
   };
 
   const showSaveButton = parameters.length > 0;
-  const availableStaticParams = STATIC_PARAMETERS.filter(
-    staticParam =>
-      !parameters.some(
-        param => param.name === staticParam.name && param.isStatic
+
+  // Get available parameters from API that haven't been added yet
+  const availableApiParams = availableParameters?.parameters
+    ? Object.entries(availableParameters.parameters).filter(
+        ([paramName]) =>
+          !parameters.some(param => param.name === paramName && param.isStatic)
       )
-  );
+    : [];
 
   return (
     <Box>
       <Button variant="outlined" onClick={handleAddParameter} sx={{ mb: 2 }}>
         Add a custom model parameter
       </Button>
-      {/* Static parameter buttons */}
-      {availableStaticParams.length > 0 && (
+      {/* Available parameters from API */}
+      {availableApiParams.length > 0 && (
         <Box sx={{ mb: 2 }}>
           <Box sx={{ mb: 1, fontWeight: 'medium', fontSize: '0.875rem' }}>
-            Common parameters:
+            Available parameters for {props.modelId}:
           </Box>
           <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2 }}>
-            {availableStaticParams.map(staticParam => (
+            {availableApiParams.map(([paramName, schema]: [string, any]) => (
               <Button
-                key={staticParam.name}
+                key={paramName}
                 variant="outlined"
                 size="small"
-                onClick={() => handleAddStaticParameter(staticParam)}
+                onClick={() =>
+                  handleAddStaticParameter({
+                    name: paramName,
+                    type: schema.type,
+                    label: paramName
+                  })
+                }
+                title={schema.description}
               >
-                {staticParam.label}
+                {paramName} ({schema.type})
               </Button>
             ))}
           </Box>

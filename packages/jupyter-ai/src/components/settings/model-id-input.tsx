@@ -49,6 +49,7 @@ export function ModelIdInput(props: ModelIdInputProps): JSX.Element {
   const [models, setModels] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
+  const [modelParameters, setModelParameters] = useState<any>(null);
 
   const [input, setInput] = useState('');
   const alert = useStackingAlert();
@@ -89,6 +90,16 @@ export function ModelIdInput(props: ModelIdInputProps): JSX.Element {
 
     loadData();
   }, []);
+
+  const fetchModelParameters = async (modelId: string) => {
+    try {
+      const parameters = await AiService.getModelParameters(modelId);
+      setModelParameters(parameters);
+    } catch (error) {
+      console.error('Failed to fetch model parameters:', error);
+      setModelParameters(null);
+    }
+  };
 
   const handleUpdateChatModel = async () => {
     setUpdating(true);
@@ -149,6 +160,15 @@ export function ModelIdInput(props: ModelIdInputProps): JSX.Element {
           ? `Updating ${props.modality} model...`
           : `Update ${props.modality} model`}
       </Button>
+
+      {/* Display model parameters */}
+      {modelParameters && (
+        <div>
+          <strong>Parameters:</strong>{' '}
+          {JSON.stringify(modelParameters, null, 2)}
+        </div>
+      )}
+
       {alert.jsx}
     </Box>
   );
