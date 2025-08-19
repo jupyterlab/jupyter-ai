@@ -112,9 +112,6 @@ class ModelParametersRestAPI(BaseAPIHandler):
             #
             # TODO: Define the response type as a Pydantic model to prevent
             # breaking API changes, e.g. `UpdateModelParametersResponse`.
-            #
-            # TODO: Drop 'status', 'message', and 'model_id' from the response
-            # (and the corresponding types across the frontend & backend).
             response = {
                 "status": "success",
                 "message": f"Parameters saved for model {model_id}",
