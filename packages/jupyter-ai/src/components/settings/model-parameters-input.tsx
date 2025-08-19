@@ -8,7 +8,9 @@ import {
   Autocomplete
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
+import Save from '@mui/icons-material/Save';
 import { AiService } from '../../handler';
+import { useStackingAlert } from '../mui-extras/stacking-alert';
 
 type ModelParameter = {
   id: string;
@@ -28,6 +30,7 @@ export function ModelParametersInput(
   const [availableParameters, setAvailableParameters] = useState<any>(null);
   const [parameters, setParameters] = useState<ModelParameter[]>([]);
   const [validationError, setValidationError] = useState<string>('');
+  const alert = useStackingAlert();
 
   useEffect(() => {
     async function fetchAvailableParameters() {
@@ -146,9 +149,21 @@ export function ModelParametersInput(
     try {
       await AiService.saveModelParameters(props.modelId, paramsObject);
       setValidationError('');
-      console.log('Model parameters saved successfully');
+
+      // Show success alert
+      console.log('About to show alert with:', alert);
+      alert.show(
+        'success',
+        `Successfully saved parameters for model '${props.modelId}'.`
+      );
+      console.log('Alert.show called successfully');
     } catch (error) {
       console.error('Failed to save model parameters:', error);
+      const msg =
+        error instanceof Error ? error.message : 'An unknown error occurred';
+
+      // Show error alert
+      alert.show('error', `Failed to save model parameters: ${msg}`);
       setValidationError('Failed to save parameters. Please try again.');
     }
   };
@@ -281,10 +296,16 @@ export function ModelParametersInput(
       </Button>
 
       {showSaveButton && (
-        <Button variant="contained" onClick={handleSaveParameters}>
-          Save Model Parameters
+        <Button
+          variant="contained"
+          onClick={handleSaveParameters}
+          sx={{ alignSelf: 'center' }}
+          startIcon={<Save />}
+        >
+          Update Model Parameters
         </Button>
       )}
+      {alert.jsx}
     </Box>
   );
 }
