@@ -355,21 +355,22 @@ class ConfigManager(Configurable):
         return config.model_provider_id
 
     @property
-    def chat_model_params(self) -> dict[str, Any]:
-        return self._provider_params("model_provider_id", self._lm_providers)
-
-    def _provider_params(
-        self, provider_id_attr: str, providers: dict
-    ) -> dict[str, Any]:
+    def chat_model_args(self) -> dict[str, Any]:
         """
-        Returns the parameters for the provider specified by the given attribute.
+        Returns the model arguments for the current chat model configured by the
+        user.
+
+        If the current chat model is `None`, this returns an empty dictionary.
+        Otherwise, it returns the model arguments set in the dictionary at 
+        `.fields.<chat-model-id>`.
         """
         config = self._read_config()
-        provider_id = getattr(config, provider_id_attr, None)
-        if not provider_id or provider_id not in providers:
+        model_id = config.model_provider_id
+        if not model_id:
             return {}
-        return providers[provider_id].get("params", {})
-        return self._provider_params("model_provider_id", self._lm_providers)
+
+        model_args = config.fields.get(model_id, {})
+        return model_args
 
     @property
     def embedding_model(self) -> str | None:
@@ -400,3 +401,4 @@ class ConfigManager(Configurable):
     def delete_api_key(self, key_name: str):
         # TODO: store in .env files
         pass
+

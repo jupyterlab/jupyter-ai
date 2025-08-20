@@ -37,8 +37,10 @@ class JupyternautPersona(BasePersona):
             return
 
         model_id = self.config_manager.chat_model
+        model_args = self.config_manager.chat_model_args
         context_as_messages = self.get_context_as_messages(model_id, message)
         response_aiter = await acompletion(
+            **model_args,
             model=model_id,
             messages=[
                 *context_as_messages,
