@@ -29,14 +29,6 @@ from .parsers import (
     line_magic_parser,
 )
 
-# Notify if .env file missing in workspace root when the extension is loaded.
-# This is useful for users to know that they can set API keys in the JupyterLab
-# UI, but it is not always required to run the extension.
-dotenv_path = os.path.join(os.getcwd(), ".env")
-if not os.path.isfile(dotenv_path):
-    print(f"No .env file found at {dotenv_path}. You can add API keys via the AI Settings in the JupyterLab UI.", file=sys.stderr)
-
-
 class TextOrMarkdown:
     def __init__(self, text, markdown):
         self.text = text
@@ -182,6 +174,14 @@ class AiMagics(Magics):
             "Trio's custom handler, but this means exception groups will not "
             "show full tracebacks.",
         )
+
+        # Notify if .env file is missing in workspace root when the extension is loaded.
+        # This is useful for users to know that they can set API keys in the JupyterLab
+        # UI, but it is not always required to run the extension.
+        dotenv_path = os.path.join(os.getcwd(), ".env")
+        if not os.path.isfile(dotenv_path):
+            print(f"No `.env` file containing provider API keys found at {dotenv_path}. \
+                  You can add API keys to the `.env` file via the AI Settings in the JupyterLab UI.", file=sys.stderr)
 
         # TODO: use LiteLLM aliases to provide this
         # https://docs.litellm.ai/docs/completion/model_alias
