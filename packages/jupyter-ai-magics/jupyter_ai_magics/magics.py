@@ -29,6 +29,9 @@ from .parsers import (
     line_magic_parser,
 )
 
+# Load the .env file from the workspace root
+dotenv_path = os.path.join(os.getcwd(), ".env")
+
 class TextOrMarkdown:
     def __init__(self, text, markdown):
         self.text = text
@@ -178,7 +181,6 @@ class AiMagics(Magics):
         # Notify if .env file is missing in workspace root when the extension is loaded.
         # This is useful for users to know that they can set API keys in the JupyterLab
         # UI, but it is not always required to run the extension.
-        dotenv_path = os.path.join(os.getcwd(), ".env")
         if not os.path.isfile(dotenv_path):
             print(f"No `.env` file containing provider API keys found at {dotenv_path}. \
                   You can add API keys to the `.env` file via the AI Settings in the JupyterLab UI.", file=sys.stderr)
