@@ -4,6 +4,8 @@ import re
 import sys
 import warnings
 from typing import Any, Optional
+import os
+from dotenv import load_dotenv
 
 import click
 import litellm
@@ -26,6 +28,13 @@ from .parsers import (
     cell_magic_parser,
     line_magic_parser,
 )
+
+# Notify if .env file missing in workspace root when the extension is loaded.
+# This is useful for users to know that they can set API keys in the JupyterLab
+# UI, but it is not always required to run the extension.
+dotenv_path = os.path.join(os.getcwd(), ".env")
+if not os.path.isfile(dotenv_path):
+    print(f"No .env file found at {dotenv_path}. You can add API keys via the AI Settings in the JupyterLab UI.", file=sys.stderr)
 
 
 class TextOrMarkdown:
@@ -197,6 +206,11 @@ class AiMagics(Magics):
         or cell magic was run can be determined by the arguments given to this
         method; `%%ai` was run if and only if `cell is not None`.
         """
+        # Load .env file from workspace root, with override=True in case `.env` has been modified
+        # since the kernel started. This allows users to change API keys without restarting the kernel.
+        if os.path.isfile(dotenv_path):
+            load_dotenv(dotenv_path, override=True)
+
         raw_args = line.split(" ")
         default_map = {"model_id": self.initial_language_model}
 
