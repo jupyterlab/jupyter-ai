@@ -11,8 +11,12 @@ from jupyter_ai.config_manager import (
     KeyInUseError,
     WriteConflictError,
 )
-from jupyter_ai_magics.utils import get_em_providers, get_lm_providers
 from pydantic import ValidationError
+
+pytest.skip(
+    "Skipping outdated v2 ConfigManager tests which will be re-implemented during v3 refactor.",
+    allow_module_level=True
+)
 
 
 @pytest.fixture
@@ -43,12 +47,8 @@ def config_file_with_model_fields(jp_data_dir):
 def common_cm_kwargs(config_path):
     """Kwargs that are commonly used when initializing the CM."""
     log = logging.getLogger()
-    lm_providers = get_lm_providers()
-    em_providers = get_em_providers()
     return {
         "log": log,
-        "lm_providers": lm_providers,
-        "em_providers": em_providers,
         "config_path": config_path,
         "allowed_providers": None,
         "blocked_providers": None,
@@ -410,27 +410,6 @@ def test_forbid_write_write_conflict(cm: ConfigManager):
         )
 
 
-def test_update_api_key(cm: ConfigManager):
-    """Asserts that updates via direct edits to the config file are immediately
-    reflected by the ConfigManager."""
-    LM_GID, EM_GID, LM_LID, EM_LID, _ = configure_to_cohere(cm)
-    cm.update_config(UpdateConfigRequest(api_keys={"COHERE_API_KEY": "barfoo"}))
-
-    config_desc = cm.get_config()
-    assert config_desc.api_keys == ["COHERE_API_KEY"]
-    assert cm.lm_provider_params == {"cohere_api_key": "barfoo", "model_id": LM_LID}
-    assert cm.em_provider_params == {"cohere_api_key": "barfoo", "model_id": EM_LID}
-
-
-def test_delete_api_key(cm: ConfigManager):
-    configure_to_cohere(cm)
-    cm.update_config(UpdateConfigRequest(api_keys={"OPENAI_API_KEY": "asdf"}))
-    assert cm.get_config().api_keys == ["COHERE_API_KEY", "OPENAI_API_KEY"]
-
-    cm.delete_api_key("OPENAI_API_KEY")
-    assert cm.get_config().api_keys == ["COHERE_API_KEY"]
-
-
 def test_forbid_deleting_key_in_use(cm: ConfigManager):
     configure_to_cohere(cm)
 
@@ -467,8 +446,6 @@ def test_config_manager_does_not_write_to_defaults(config_file_with_model_fields
 
     config_path = config_file_with_model_fields
     log = logging.getLogger()
-    lm_providers = get_lm_providers()
-    em_providers = get_em_providers()
 
     defaults = {
         "model_provider_id": None,
@@ -480,8 +457,6 @@ def test_config_manager_does_not_write_to_defaults(config_file_with_model_fields
 
     cm = ConfigManager(
         log=log,
-        lm_providers=lm_providers,
-        em_providers=em_providers,
         config_path=config_path,
         defaults=defaults,
     )

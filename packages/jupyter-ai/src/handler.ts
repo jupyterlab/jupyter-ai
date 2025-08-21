@@ -31,7 +31,7 @@ export async function requestAPI<T>(
   if (data.length > 0) {
     try {
       data = JSON.parse(data);
-    } catch (error) {
+    } catch {
       console.log('Not a JSON response body.', response);
     }
   }
@@ -99,28 +99,6 @@ export namespace AiService {
     | MultiEnvAuthStrategy
     | null;
 
-  export type TextField = {
-    type: 'text';
-    key: string;
-    label: string;
-    format: string;
-  };
-
-  export type MultilineTextField = {
-    type: 'text-multiline';
-    key: string;
-    label: string;
-    format: string;
-  };
-
-  export type IntegerField = {
-    type: 'integer';
-    key: string;
-    label: string;
-  };
-
-  export type Field = TextField | MultilineTextField | IntegerField;
-
   export type ListProvidersEntry = {
     id: string;
     name: string;
@@ -131,11 +109,14 @@ export namespace AiService {
     registry: boolean;
     completion_models: string[];
     chat_models: string[];
-    fields: Field[];
   };
 
   export type ListProvidersResponse = {
     providers: ListProvidersEntry[];
+  };
+
+  export type ListChatModelsResponse = {
+    chat_models: string[];
   };
 
   export async function listLmProviders(): Promise<ListProvidersResponse> {
@@ -155,9 +136,118 @@ export namespace AiService {
     });
   }
 
-  export async function deleteApiKey(keyName: string): Promise<void> {
-    return requestAPI<void>(`api_keys/${keyName}`, {
-      method: 'DELETE'
+  export type SecretsList = {
+    editable_secrets: string[];
+    static_secrets: string[];
+  };
+
+  export async function listSecrets(): Promise<SecretsList> {
+    return requestAPI<SecretsList>('secrets/', {
+      method: 'GET'
+    });
+  }
+
+  export type UpdateSecretsRequest = {
+    updated_secrets: Record<string, string>;
+  };
+
+  export async function updateSecrets(
+    updatedSecrets: Record<string, string | null>
+  ): Promise<void> {
+    return requestAPI<void>('secrets/', {
+      method: 'PUT',
+      body: JSON.stringify({
+        updated_secrets: updatedSecrets
+      })
+    });
+  }
+
+  export async function deleteSecret(secretName: string): Promise<void> {
+    return updateSecrets({ [secretName]: null });
+  }
+
+  export async function listChatModels(): Promise<string[]> {
+    const response = await requestAPI<ListChatModelsResponse>('models/chat/', {
+      method: 'GET'
+    });
+    return response.chat_models;
+  }
+
+  export async function getChatModel(): Promise<string | null> {
+    const response = await requestAPI<DescribeConfigResponse>('config/');
+    return response.model_provider_id;
+  }
+
+  export async function updateChatModel(modelId: string | null): Promise<void> {
+    return await updateConfig({
+      model_provider_id: modelId
+    });
+  }
+
+  export async function getCompletionModel(): Promise<string | null> {
+    const response = await requestAPI<DescribeConfigResponse>('config/');
+    return response.completions_model_provider_id;
+  }
+
+  export async function updateCompletionModel(
+    modelId: string | null
+  ): Promise<void> {
+    return await updateConfig({
+      completions_model_provider_id: modelId
+    });
+  }
+
+  export type GetModelParametersResponse = {
+    parameters: Record<string, ParameterSchema>;
+    parameter_names: string[];
+    count: number;
+  };
+
+  export type ParameterSchema = {
+    type: 'boolean' | 'integer' | 'number' | 'string' | 'array' | 'object';
+    description: string;
+    min?: number;
+    max?: number;
+  };
+
+  export type UpdateModelParametersResponse = {
+    status: string;
+    message: string;
+    model_id: string;
+    parameters: Record<string, any>;
+  };
+
+  export async function getModelParameters(
+    modelId?: string,
+    provider?: string
+  ): Promise<GetModelParametersResponse> {
+    const params = new URLSearchParams();
+    if (modelId) {
+      params.append('model', modelId);
+    }
+    if (provider) {
+      params.append('provider', provider);
+    }
+
+    const endpoint = `model-parameters${
+      params.toString() ? `?${params.toString()}` : ''
+    }`;
+    return await requestAPI<GetModelParametersResponse>(endpoint);
+  }
+
+  export async function saveModelParameters(
+    modelId: string,
+    parameters: Record<string, any>
+  ): Promise<UpdateModelParametersResponse> {
+    return await requestAPI<UpdateModelParametersResponse>('model-parameters', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model_id: modelId,
+        parameters: parameters
+      })
     });
   }
 }

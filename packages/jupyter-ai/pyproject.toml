@@ -36,6 +36,9 @@ dependencies = [
     # NOTE: Make sure to update the corresponding dependency in
     # `packages/jupyter-ai/package.json` to match the version range below
     "jupyterlab-chat>=0.16.0,<0.17.0",
+    "litellm>=1.73,<2",
+    "jinja2>=3.0,<4",
+    "python_dotenv>=1,<2",
 ]
 
 dynamic = ["version", "description", "authors", "urls", "keywords"]
@@ -58,7 +61,7 @@ test = [
 
 dev = ["jupyter_ai_magics[dev]"]
 
-all = ["jupyter_ai_magics[all]", "pypdf", "arxiv"]
+all = ["jupyter_ai_magics[all]"]
 
 [tool.hatch.version]
 source = "nodejs"

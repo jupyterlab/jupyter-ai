@@ -1,4 +1,4 @@
-from .models.completion import InlineCompletionRequest
+from .completion_types import InlineCompletionRequest
 
 
 def token_from_request(request: InlineCompletionRequest, suggestion: int):

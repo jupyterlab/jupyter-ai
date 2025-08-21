@@ -3,16 +3,9 @@ import logging
 import os
 import time
 from copy import deepcopy
-from typing import Optional, Union
+from typing import Any, Optional, Union
 
 from deepmerge import always_merger
-from jupyter_ai_magics.utils import (
-    AnyProvider,
-    EmProvidersDict,
-    LmProvidersDict,
-    get_em_provider,
-    get_lm_provider,
-)
 from jupyter_core.paths import jupyter_data_dir
 from traitlets import Integer, Unicode
 from traitlets.config import Configurable
@@ -46,17 +39,6 @@ class KeyEmptyError(Exception):
 
 class BlockedModelError(Exception):
     pass
-
-
-def _validate_provider_authn(config: JaiConfig, provider: type[AnyProvider]):
-    # TODO: handle non-env auth strategies
-    if not provider.auth_strategy or provider.auth_strategy.type != "env":
-        return
-
-    if provider.auth_strategy.name not in config.api_keys:
-        raise AuthError(
-            f"Missing API key for '{provider.auth_strategy.name}' in the config."
-        )
 
 
 def remove_none_entries(d: dict):
@@ -110,8 +92,6 @@ class ConfigManager(Configurable):
     def __init__(
         self,
         log: Logger,
-        lm_providers: LmProvidersDict,
-        em_providers: EmProvidersDict,
         defaults: dict,
         allowed_providers: Optional[list[str]] = None,
         blocked_providers: Optional[list[str]] = None,
@@ -123,16 +103,14 @@ class ConfigManager(Configurable):
         super().__init__(*args, **kwargs)
         self.log = log
 
-        self._lm_providers = lm_providers
-        """List of LM providers."""
-        self._em_providers = em_providers
-        """List of EM providers."""
-
         self._allowed_providers = allowed_providers
         self._blocked_providers = blocked_providers
         self._allowed_models = allowed_models
         self._blocked_models = blocked_models
 
+        self._lm_providers: dict[str, Any] = (
+            {}
+        )  # Placeholder: should be set to actual language model providers
         self._defaults = remove_none_entries(defaults)
         self._last_read: Optional[int] = None
 
@@ -175,69 +153,10 @@ class ConfigManager(Configurable):
         with open(self.config_path, encoding="utf-8") as f:
             existing_config = json.loads(f.read())
             config = JaiConfig(**existing_config)
-            validated_config = self._validate_model_ids(config)
 
         # re-write to the file to validate the config and apply any
         # updates to the config file immediately
-        self._write_config(validated_config)
-
-    def _validate_model_ids(self, config):
-        lm_provider_keys = ["model_provider_id", "completions_model_provider_id"]
-        em_provider_keys = ["embeddings_provider_id"]
-        clm_provider_keys = ["completions_model_provider_id"]
-
-        # if the currently selected language or embedding model are
-        # forbidden, set them to `None` and log a warning.
-        for lm_key in lm_provider_keys:
-            lm_id = getattr(config, lm_key)
-            if lm_id is not None and not self._validate_model(lm_id, raise_exc=False):
-                self.log.warning(
-                    f"Language model {lm_id} is forbidden by current allow/blocklists. Setting to None."
-                )
-                setattr(config, lm_key, None)
-        for em_key in em_provider_keys:
-            em_id = getattr(config, em_key)
-            if em_id is not None and not self._validate_model(em_id, raise_exc=False):
-                self.log.warning(
-                    f"Embedding model {em_id} is forbidden by current allow/blocklists. Setting to None."
-                )
-                setattr(config, em_key, None)
-        for clm_key in clm_provider_keys:
-            clm_id = getattr(config, clm_key)
-            if clm_id is not None and not self._validate_model(clm_id, raise_exc=False):
-                self.log.warning(
-                    f"Completion model {clm_id} is forbidden by current allow/blocklists. Setting to None."
-                )
-                setattr(config, clm_key, None)
-
-        # if the currently selected language or embedding model ids are
-        # not associated with models, set them to `None` and log a warning.
-        for lm_key in lm_provider_keys:
-            lm_id = getattr(config, lm_key)
-            if lm_id is not None and not get_lm_provider(lm_id, self._lm_providers)[1]:
-                self.log.warning(
-                    f"No language model is associated with '{lm_id}'. Setting to None."
-                )
-                setattr(config, lm_key, None)
-        for em_key in em_provider_keys:
-            em_id = getattr(config, em_key)
-            if em_id is not None and not get_em_provider(em_id, self._em_providers)[1]:
-                self.log.warning(
-                    f"No embedding model is associated with '{em_id}'. Setting to None."
-                )
-                setattr(config, em_key, None)
-        for clm_key in clm_provider_keys:
-            clm_id = getattr(config, clm_key)
-            if (
-                clm_id is not None
-                and not get_lm_provider(clm_id, self._lm_providers)[1]
-            ):
-                self.log.warning(
-                    f"No completion model is associated with '{clm_id}'. Setting to None."
-                )
-                setattr(config, clm_key, None)
-
-        return config
+        self._write_config(config)
 
     def _read_config(self) -> JaiConfig:
         """
@@ -268,78 +187,80 @@ class ConfigManager(Configurable):
         user has specified authentication for all configured models that require
         it.
         """
+        # TODO: re-implement this w/ liteLLM
         # validate language model config
-        if config.model_provider_id:
-            _, lm_provider = get_lm_provider(
-                config.model_provider_id, self._lm_providers
-            )
+        # if config.model_provider_id:
+        #     _, lm_provider = get_lm_provider(
+        #         config.model_provider_id, self._lm_providers
+        #     )
 
-            # verify model is declared by some provider
-            if not lm_provider:
-                raise ValueError(
-                    f"No language model is associated with '{config.model_provider_id}'."
-                )
+        #     # verify model is declared by some provider
+        #     if not lm_provider:
+        #         raise ValueError(
+        #             f"No language model is associated with '{config.model_provider_id}'."
+        #         )
 
-            # verify model is not blocked
-            self._validate_model(config.model_provider_id)
+        #     # verify model is not blocked
+        #     self._validate_model(config.model_provider_id)
 
-            # verify model is authenticated
-            _validate_provider_authn(config, lm_provider)
+        #     # verify model is authenticated
+        #     _validate_provider_authn(config, lm_provider)
 
-            # verify fields exist for this model if needed
-            if lm_provider.fields and config.model_provider_id not in config.fields:
-                config.fields[config.model_provider_id] = {}
+        #     # verify fields exist for this model if needed
+        #     if lm_provider.fields and config.model_provider_id not in config.fields:
+        #         config.fields[config.model_provider_id] = {}
 
         # validate completions model config
-        if config.completions_model_provider_id:
-            _, completions_provider = get_lm_provider(
-                config.completions_model_provider_id, self._lm_providers
-            )
+        # if config.completions_model_provider_id:
+        #     _, completions_provider = get_lm_provider(
+        #         config.completions_model_provider_id, self._lm_providers
+        #     )
 
-            # verify model is declared by some provider
-            if not completions_provider:
-                raise ValueError(
-                    f"No language model is associated with '{config.completions_model_provider_id}'."
-                )
+        #     # verify model is declared by some provider
+        #     if not completions_provider:
+        #         raise ValueError(
+        #             f"No language model is associated with '{config.completions_model_provider_id}'."
+        #         )
 
-            # verify model is not blocked
-            self._validate_model(config.completions_model_provider_id)
+        #     # verify model is not blocked
+        #     self._validate_model(config.completions_model_provider_id)
 
-            # verify model is authenticated
-            _validate_provider_authn(config, completions_provider)
+        #     # verify model is authenticated
+        #     _validate_provider_authn(config, completions_provider)
 
-            # verify completions fields exist for this model if needed
-            if (
-                completions_provider.fields
-                and config.completions_model_provider_id
-                not in config.completions_fields
-            ):
-                config.completions_fields[config.completions_model_provider_id] = {}
+        #     # verify completions fields exist for this model if needed
+        #     if (
+        #         completions_provider.fields
+        #         and config.completions_model_provider_id
+        #         not in config.completions_fields
+        #     ):
+        #         config.completions_fields[config.completions_model_provider_id] = {}
 
-        # validate embedding model config
-        if config.embeddings_provider_id:
-            _, em_provider = get_em_provider(
-                config.embeddings_provider_id, self._em_providers
-            )
+        # # validate embedding model config
+        # if config.embeddings_provider_id:
+        #     _, em_provider = get_em_provider(
+        #         config.embeddings_provider_id, self._em_providers
+        #     )
 
-            # verify model is declared by some provider
-            if not em_provider:
-                raise ValueError(
-                    f"No embedding model is associated with '{config.embeddings_provider_id}'."
-                )
+        #     # verify model is declared by some provider
+        #     if not em_provider:
+        #         raise ValueError(
+        #             f"No embedding model is associated with '{config.embeddings_provider_id}'."
+        #         )
 
-            # verify model is not blocked
-            self._validate_model(config.embeddings_provider_id)
+        #     # verify model is not blocked
+        #     self._validate_model(config.embeddings_provider_id)
 
-            # verify model is authenticated
-            _validate_provider_authn(config, em_provider)
+        #     # verify model is authenticated
+        #     _validate_provider_authn(config, em_provider)
 
-            # verify embedding fields exist for this model if needed
-            if (
-                em_provider.fields
-                and config.embeddings_provider_id not in config.embeddings_fields
-            ):
-                config.embeddings_fields[config.embeddings_provider_id] = {}
+        #     # verify embedding fields exist for this model if needed
+        #     if (
+        #         em_provider.fields
+        #         and config.embeddings_provider_id not in config.embeddings_fields
+        #     ):
+        #         config.embeddings_fields[config.embeddings_provider_id] = {}
+        return
 
     def _validate_model(self, model_id: str, raise_exc=True):
         """
@@ -350,7 +271,7 @@ class ConfigManager(Configurable):
         """
 
         assert model_id is not None
-        components = model_id.split(":", 1)
+        components = model_id.split("/", 1)
         assert len(components) == 2
         provider_id, _ = components
 
@@ -399,29 +320,6 @@ class ConfigManager(Configurable):
         with open(self.config_path, "w") as f:
             json.dump(new_config.model_dump(), f, indent=self.indentation_depth)
 
-    def delete_api_key(self, key_name: str):
-        config_dict = self._read_config().model_dump()
-        required_keys = []
-        for provider in [
-            self.lm_provider,
-            self.em_provider,
-            self.completions_lm_provider,
-        ]:
-            if (
-                provider
-                and provider.auth_strategy
-                and provider.auth_strategy.type == "env"
-            ):
-                required_keys.append(provider.auth_strategy.name)
-
-        if key_name in required_keys:
-            raise KeyInUseError(
-                "This API key is currently in use by the language or embedding model. Please change the model before deleting the corresponding API key."
-            )
-
-        config_dict["api_keys"].pop(key_name, None)
-        self._write_config(JaiConfig(**config_dict))
-
     def update_config(self, config_update: UpdateConfigRequest):  # type:ignore
         last_write = os.stat(self.config_path).st_mtime_ns
         if config_update.last_read and config_update.last_read < last_write:
@@ -449,94 +347,58 @@ class ConfigManager(Configurable):
         )
 
     @property
-    def lm_gid(self):
+    def chat_model(self) -> str | None:
+        """
+        Returns the model ID of the chat model from AI settings, if any.
+        """
         config = self._read_config()
         return config.model_provider_id
 
     @property
-    def em_gid(self):
+    def chat_model_args(self) -> dict[str, Any]:
+        """
+        Returns the model arguments for the current chat model configured by the
+        user.
+
+        If the current chat model is `None`, this returns an empty dictionary.
+        Otherwise, it returns the model arguments set in the dictionary at 
+        `.fields.<chat-model-id>`.
+        """
+        config = self._read_config()
+        model_id = config.model_provider_id
+        if not model_id:
+            return {}
+
+        model_args = config.fields.get(model_id, {})
+        return model_args
+
+    @property
+    def embedding_model(self) -> str | None:
+        """
+        Returns the model ID of the embedding model from AI settings, if any.
+        """
         config = self._read_config()
         return config.embeddings_provider_id
 
     @property
-    def lm_provider(self):
-        return self._get_provider("model_provider_id", self._lm_providers)
+    def embedding_model_params(self) -> dict[str, Any]:
+        # TODO
+        return {}
 
     @property
-    def em_provider(self):
-        return self._get_provider("embeddings_provider_id", self._em_providers)
-
-    @property
-    def completions_lm_provider(self):
-        return self._get_provider("completions_model_provider_id", self._lm_providers)
-
-    def _get_provider(self, key, listing):
+    def completion_model(self) -> str | None:
+        """
+        Returns the model ID of the completion model from AI settings, if any.
+        """
         config = self._read_config()
-        gid = getattr(config, key)
-        if gid is None:
-            return None
-
-        _, Provider = get_lm_provider(gid, listing)
-        return Provider
+        return config.completions_model_provider_id
 
     @property
-    def lm_provider_params(self):
-        return self._provider_params("model_provider_id", self._lm_providers)
+    def completion_model_params(self):
+        # TODO
+        return {}
 
-    @property
-    def em_provider_params(self):
-        return self._provider_params("embeddings_provider_id", self._em_providers)
+    def delete_api_key(self, key_name: str):
+        # TODO: store in .env files
+        pass
 
-    @property
-    def completions_lm_provider_params(self):
-        return self._provider_params(
-            "completions_model_provider_id", self._lm_providers, completions=True
-        )
-
-    def _provider_params(self, key, listing, completions: bool = False):
-        # read config
-        config = self._read_config()
-
-        # get model ID (without provider ID component) from model universal ID
-        # (with provider component).
-        model_uid = getattr(config, key)
-        if not model_uid:
-            return None
-        model_id = model_uid.split(":", 1)[1]
-
-        # get config fields (e.g. base API URL, etc.)
-        if completions:
-            fields = config.completions_fields.get(model_uid, {})
-        elif key == "embeddings_provider_id":
-            fields = config.embeddings_fields.get(model_uid, {})
-        else:
-            fields = config.fields.get(model_uid, {})
-
-        # exclude empty fields
-        # TODO: modify the config manager to never save empty fields in the
-        # first place.
-        fields = {
-            k: None if isinstance(v, str) and not len(v) else v
-            for k, v in fields.items()
-        }
-
-        # get authn fields
-        _, Provider = (
-            get_em_provider(model_uid, listing)
-            if key == "embeddings_provider_id"
-            else get_lm_provider(model_uid, listing)
-        )
-        authn_fields = {}
-        if Provider.auth_strategy and Provider.auth_strategy.type == "env":
-            keyword_param = (
-                Provider.auth_strategy.keyword_param
-                or Provider.auth_strategy.name.lower()
-            )
-            key_name = Provider.auth_strategy.name
-            authn_fields[keyword_param] = config.api_keys[key_name]
-
-        return {
-            "model_id": model_id,
-            **fields,
-            **authn_fields,
-        }

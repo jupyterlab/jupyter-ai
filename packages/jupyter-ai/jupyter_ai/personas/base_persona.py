@@ -20,6 +20,8 @@ from .persona_awareness import PersonaAwareness
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
 
+    from litellm import ModelResponseStream
+
     from .persona_manager import PersonaManager
 
 
@@ -233,10 +235,13 @@ class BasePersona(ABC, LoggingConfigurable, metaclass=ABCLoggingConfigurableMeta
         user = self.as_user()
         return asdict(user)
 
-    async def stream_message(self, reply_stream: "AsyncIterator") -> None:
+    async def stream_message(
+        self, reply_stream: "AsyncIterator[ModelResponseStream | str]"
+    ) -> None:
         """
         Takes an async iterator, dubbed the 'reply stream', and streams it to a
-        new message by this persona in the YChat.
+        new message by this persona in the YChat. The async iterator may yield
+        either strings or `litellm.ModelResponseStream` objects. Details:
 
         - Creates a new message upon receiving the first chunk from the reply
         stream, then continuously updates it until the stream is closed.
@@ -248,6 +253,15 @@ class BasePersona(ABC, LoggingConfigurable, metaclass=ABCLoggingConfigurableMeta
         try:
             self.awareness.set_local_state_field("isWriting", True)
             async for chunk in reply_stream:
+                # Coerce LiteLLM stream chunk to a string delta
+                if not isinstance(chunk, str):
+                    chunk = chunk.choices[0].delta.content
+
+                # LiteLLM streams always terminate with an empty chunk, so we
+                # ignore and continue when this occurs.
+                if not chunk:
+                    continue
+
                 if (
                     stream_id
                     and stream_id in self.message_interrupted.keys()

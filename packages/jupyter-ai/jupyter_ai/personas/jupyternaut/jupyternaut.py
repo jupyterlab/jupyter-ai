@@ -1,12 +1,14 @@
-from typing import Any
+from typing import Any, Optional
 
 from jupyterlab_chat.models import Message
-from langchain_core.output_parsers import StrOutputParser
-from langchain_core.runnables.history import RunnableWithMessageHistory
+from litellm import acompletion
 
-from ...history import YChatHistory
 from ..base_persona import BasePersona, PersonaDefaults
-from .prompt_template import JUPYTERNAUT_PROMPT_TEMPLATE, JupyternautVariables
+from ..persona_manager import SYSTEM_USERNAME
+from .prompt_template import (
+    JUPYTERNAUT_SYSTEM_PROMPT_TEMPLATE,
+    JupyternautSystemPromptArgs,
+)
 
 
 class JupyternautPersona(BasePersona):
@@ -27,40 +29,74 @@ class JupyternautPersona(BasePersona):
         )
 
     async def process_message(self, message: Message) -> None:
-        if not self.config_manager.lm_provider:
+        if not self.config_manager.chat_model:
             self.send_message(
-                "No language model provider configured. Please set one in the Jupyter AI settings."
+                "No chat model is configured.\n\n"
+                "You must set one first in the Jupyter AI settings, found in 'Settings > AI Settings' from the menu bar."
             )
             return
 
-        provider_name = self.config_manager.lm_provider.name
-        model_id = self.config_manager.lm_provider_params["model_id"]
+        model_id = self.config_manager.chat_model
+        model_args = self.config_manager.chat_model_args
+        context_as_messages = self.get_context_as_messages(model_id, message)
+        response_aiter = await acompletion(
+            **model_args,
+            model=model_id,
+            messages=[
+                *context_as_messages,
+                {
+                    "role": "user",
+                    "content": message.body,
+                },
+            ],
+            stream=True,
+        )
 
-        # Process file attachments and include their content in the context
-        context = self.process_attachments(message)
+        await self.stream_message(response_aiter)
 
-        runnable = self.build_runnable()
-        variables = JupyternautVariables(
-            input=message.body,
+    def get_context_as_messages(
+        self, model_id: str, message: Message
+    ) -> list[dict[str, Any]]:
+        """
+        Returns the current context, including attachments and recent messages,
+        as a list of messages accepted by `litellm.acompletion()`.
+        """
+        system_msg_args = JupyternautSystemPromptArgs(
             model_id=model_id,
-            provider_name=provider_name,
             persona_name=self.name,
-            context=context,
-        )
-        variables_dict = variables.model_dump()
-        reply_stream = runnable.astream(variables_dict)
-        await self.stream_message(reply_stream)
+            context=self.process_attachments(message),
+        ).model_dump()
 
-    def build_runnable(self) -> Any:
-        # TODO: support model parameters. maybe we just add it to lm_provider_params in both 2.x and 3.x
-        llm = self.config_manager.lm_provider(**self.config_manager.lm_provider_params)
-        runnable = JUPYTERNAUT_PROMPT_TEMPLATE | llm | StrOutputParser()
+        system_msg = {
+            "role": "system",
+            "content": JUPYTERNAUT_SYSTEM_PROMPT_TEMPLATE.render(**system_msg_args),
+        }
 
-        runnable = RunnableWithMessageHistory(
-            runnable=runnable,  #  type:ignore[arg-type]
-            get_session_history=lambda: YChatHistory(ychat=self.ychat, k=2),
-            input_messages_key="input",
-            history_messages_key="history",
-        )
+        context_as_messages = [system_msg, *self._get_history_as_messages()]
+        return context_as_messages
 
-        return runnable
+    def _get_history_as_messages(self, k: Optional[int] = 2) -> list[dict[str, Any]]:
+        """
+        Returns the current history as a list of messages accepted by
+        `litellm.acompletion()`.
+        """
+        # TODO: consider bounding history based on message size (e.g. total
+        # char/token count) instead of message count.
+        all_messages = self.ychat.get_messages()
+
+        # gather last k * 2 messages and return
+        # we exclude the last message since that is the human message just
+        # submitted by a user.
+        start_idx = 0 if k is None else -2 * k - 1
+        recent_messages: list[Message] = all_messages[start_idx:-1]
+
+        history: list[dict[str, Any]] = []
+        for msg in recent_messages:
+            role = (
+                "assistant"
+                if msg.sender.startswith("jupyter-ai-personas::")
+                else "system" if msg.sender == SYSTEM_USERNAME else "user"
+            )
+            history.append({"role": role, "content": msg.body})
+
+        return history

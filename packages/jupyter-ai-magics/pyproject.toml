@@ -22,15 +22,10 @@ dynamic = ["version", "description", "authors", "urls", "keywords"]
 
 dependencies = [
     "ipython",
-    "importlib_metadata>=5.2.0",
-    "langchain>=0.3.0,<0.4.0",
-    "langchain_community>=0.3.0,<0.4.0",
     # pydantic <2.10.0 raises a "protected namespaces" error in JAI
     # - See: https://docs.pydantic.dev/latest/api/config/#pydantic.config.ConfigDict.protected_namespaces
     "pydantic>=2.10.0,<3",
     "click>=8.1.0,<9",
-    "jsonpath-ng>=1.5.3,<2",
-    "langchain-google-vertexai",
 ]
 
 [project.optional-dependencies]
@@ -45,63 +40,9 @@ dev = [
 test = ["coverage", "pytest", "pytest-asyncio", "pytest-cov"]
 
 all = [
-    "ai21",
-    "gpt4all",
-    "huggingface_hub",
-    "ipywidgets",
-    "langchain_anthropic",
-    "langchain_aws",
-    "langchain_cohere",
-    # Pin cohere to <5.16 to prevent langchain_cohere from breaking as it uses ChatResponse removed in cohere 5.16.0
-    # TODO: remove cohere pin when langchain_cohere is updated to work with cohere >=5.16
-    "cohere<5.16",
-    "langchain_google_genai",
-    "langchain_mistralai",
-    "langchain_nvidia_ai_endpoints",
-    "langchain_openai",
-    "langchain_ollama",
-    "pillow",
+    # Required for using Amazon Bedrock
     "boto3",
-    "qianfan",
-    "together",
-    "langchain-google-vertexai",
 ]
-
-[project.entry-points."jupyter_ai.model_providers"]
-ai21 = "jupyter_ai_magics:AI21Provider"
-anthropic-chat = "jupyter_ai_magics.partner_providers.anthropic:ChatAnthropicProvider"
-cohere = "jupyter_ai_magics.partner_providers.cohere:CohereProvider"
-gpt4all = "jupyter_ai_magics:GPT4AllProvider"
-huggingface_hub = "jupyter_ai_magics:HfHubProvider"
-ollama = "jupyter_ai_magics.partner_providers.ollama:OllamaProvider"
-openai = "jupyter_ai_magics.partner_providers.openai:OpenAIProvider"
-openai-chat = "jupyter_ai_magics.partner_providers.openai:ChatOpenAIProvider"
-openai-chat-custom = "jupyter_ai_magics.partner_providers.openai:ChatOpenAICustomProvider"
-azure-chat-openai = "jupyter_ai_magics.partner_providers.openai:AzureChatOpenAIProvider"
-sagemaker-endpoint = "jupyter_ai_magics.partner_providers.aws:SmEndpointProvider"
-amazon-bedrock = "jupyter_ai_magics.partner_providers.aws:BedrockProvider"
-amazon-bedrock-chat = "jupyter_ai_magics.partner_providers.aws:BedrockChatProvider"
-amazon-bedrock-custom = "jupyter_ai_magics.partner_providers.aws:BedrockCustomProvider"
-qianfan = "jupyter_ai_magics:QianfanProvider"
-nvidia-chat = "jupyter_ai_magics.partner_providers.nvidia:ChatNVIDIAProvider"
-together-ai = "jupyter_ai_magics:TogetherAIProvider"
-gemini = "jupyter_ai_magics.partner_providers.gemini:GeminiProvider"
-mistralai = "jupyter_ai_magics.partner_providers.mistralai:MistralAIProvider"
-openrouter = "jupyter_ai_magics.partner_providers.openrouter:OpenRouterProvider"
-vertexai = "jupyter_ai_magics.partner_providers.vertexai:VertexAIProvider"
-
-[project.entry-points."jupyter_ai.embeddings_model_providers"]
-azure = "jupyter_ai_magics.partner_providers.openai:AzureOpenAIEmbeddingsProvider"
-bedrock = "jupyter_ai_magics.partner_providers.aws:BedrockEmbeddingsProvider"
-cohere = "jupyter_ai_magics.partner_providers.cohere:CohereEmbeddingsProvider"
-mistralai = "jupyter_ai_magics.partner_providers.mistralai:MistralAIEmbeddingsProvider"
-gpt4all = "jupyter_ai_magics:GPT4AllEmbeddingsProvider"
-huggingface_hub = "jupyter_ai_magics:HfHubEmbeddingsProvider"
-ollama = "jupyter_ai_magics.partner_providers.ollama:OllamaEmbeddingsProvider"
-openai = "jupyter_ai_magics.partner_providers.openai:OpenAIEmbeddingsProvider"
-openai-custom = "jupyter_ai_magics.partner_providers.openai:OpenAIEmbeddingsCustomProvider"
-qianfan = "jupyter_ai_magics:QianfanEmbeddingsEndpointProvider"
-vertexai = "jupyter_ai_magics.partner_providers.vertexai:VertexAIEmbeddingsProvider"
 
 [tool.hatch.version]
 source = "nodejs"
