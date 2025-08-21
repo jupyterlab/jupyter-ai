@@ -32,6 +32,10 @@ class ModelParametersRestAPI(BaseAPIHandler):
             
             # Temporary common parameters that work across most models
             common_params = ["temperature", "max_tokens", "top_p", "stop"]
+            # Params controlling tool availability & usage require a unique UX
+            # if they are to be made configurable from the frontend. Therefore
+            # they are disabled for now.
+            EXCLUDED_PARAMS = { "tools", "tool_choice", "parallel_tool_calls" }
             
             if model:
                 try:
@@ -45,6 +49,9 @@ class ModelParametersRestAPI(BaseAPIHandler):
                     parameter_names = common_params
             else:
                 parameter_names = common_params
+            
+            # Filter out excluded params
+            parameter_names = [n for n in parameter_names if n not in EXCLUDED_PARAMS]
             
             # Get parameter schemas with types, defaults, and descriptions
             parameters_with_schemas = get_parameters_with_schemas(parameter_names)
@@ -130,7 +137,8 @@ class ModelParametersRestAPI(BaseAPIHandler):
                 "status": "success",
                 "message": f"Parameters saved for model {model_id}",
                 "model_id": model_id,
-                "parameters": coerced_parameters
+                "parameters": coerced_parameters,
+                "new_config": config_manager.fields.get(model_id, None)
             }
             
             self.set_header("Content-Type", "application/json")
