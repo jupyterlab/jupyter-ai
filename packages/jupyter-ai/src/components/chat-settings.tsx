@@ -17,6 +17,21 @@ type ChatSettingsProps = {
   openInlineCompleterSettings: () => void;
 };
 
+const MODEL_ID_HELP = (
+  <p>
+    You may provide any model ID accepted by LiteLLM. Details can be found from
+    the{' '}
+    <a
+      href="https://docs.litellm.ai/docs/providers"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      LiteLLM documentation
+    </a>
+    .
+  </p>
+);
+
 /**
  * Component that returns the settings view in the chat panel.
  */
@@ -57,6 +72,7 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
       {/* SECTION: Chat model */}
       <h2 className="jp-ai-ChatSettings-header">Chat model</h2>
       <p>Configure the language model used by Jupyternaut in chats.</p>
+      {MODEL_ID_HELP}
       <ModelIdInput
         modality="chat"
         label="Chat model ID"
@@ -64,31 +80,32 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
         onModelIdFetch={modelId => setChatModel(modelId)}
       />
 
-      {/* SECTION: Embedding model */}
-      {/* TODO */}
-
       {/* SECTION: Completion model */}
-      <h2 className="jp-ai-ChatSettings-header">
-        Completion model
-        <CompleterSettingsButton
-          provider={props.completionProvider}
-          openSettings={props.openInlineCompleterSettings}
-          isCompleterEnabled={isCompleterEnabled}
-          hasCompletionModel={!!completionModel}
+      {/* TODO: Re-enable this when the completion backend works with LiteLLM. */}
+      <Box sx={{ display: 'none' }}>
+        <h2 className="jp-ai-ChatSettings-header">
+          Completion model
+          <CompleterSettingsButton
+            provider={props.completionProvider}
+            openSettings={props.openInlineCompleterSettings}
+            isCompleterEnabled={isCompleterEnabled}
+            hasCompletionModel={!!completionModel}
+          />
+        </h2>
+        <p>
+          Configure the language model used to generate inline completions when
+          editing documents in JupyterLab.
+        </p>
+        {MODEL_ID_HELP}
+        <ModelIdInput
+          modality="completion"
+          label="Completion model ID"
+          placeholder="e.g. 'anthropic/claude-3-5-haiku-latest'"
+          onModelIdFetch={modelId => {
+            setCompletionModel(modelId);
+          }}
         />
-      </h2>
-      <p>
-        Configure the language model used to generate inline completions when
-        editing documents in JupyterLab.
-      </p>
-      <ModelIdInput
-        modality="completion"
-        label="Completion model ID"
-        placeholder="e.g. 'anthropic/claude-3-5-haiku-latest'"
-        onModelIdFetch={latestChatModelId => {
-          setCompletionModel(latestChatModelId);
-        }}
-      />
+      </Box>
 
       {/* Model parameters section */}
       <h2 className="jp-ai-ChatSettings-header">Model parameters</h2>

@@ -138,7 +138,6 @@ class ModelParametersRestAPI(BaseAPIHandler):
                 "message": f"Parameters saved for model {model_id}",
                 "model_id": model_id,
                 "parameters": coerced_parameters,
-                "new_config": config_manager.fields.get(model_id, None)
             }
             
             self.set_header("Content-Type", "application/json")
