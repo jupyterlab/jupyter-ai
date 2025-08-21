@@ -8,7 +8,7 @@ import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { IRenderMimeRegistry } from '@jupyterlab/rendermime';
 import { IJaiCompletionProvider } from '../tokens';
 import { ModelIdInput } from './settings/model-id-input';
-// import { ModelParametersInput } from './settings/model-parameters-input';
+import { ModelParametersInput } from './settings/model-parameters-input';
 import { SecretsSection } from './settings/secrets-section';
 
 type ChatSettingsProps = {
@@ -22,6 +22,7 @@ type ChatSettingsProps = {
  */
 export function ChatSettings(props: ChatSettingsProps): JSX.Element {
   const [completionModel, setCompletionModel] = useState<string | null>(null);
+  const [chatModel, setChatModel] = useState<string | null>(null);
   const [isCompleterEnabled, setIsCompleterEnabled] = useState(
     props.completionProvider && props.completionProvider.isEnabled()
   );
@@ -60,6 +61,7 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
         modality="chat"
         label="Chat model ID"
         placeholder="e.g. 'anthropic/claude-3-5-haiku-latest'"
+        onModelIdFetch={modelId => setChatModel(modelId)}
       />
 
       {/* SECTION: Embedding model */}
@@ -89,9 +91,9 @@ export function ChatSettings(props: ChatSettingsProps): JSX.Element {
       />
 
       {/* Model parameters section */}
-      {/* <h2 className="jp-ai-ChatSettings-header">Model parameters</h2>
+      <h2 className="jp-ai-ChatSettings-header">Model parameters</h2>
       <p>Configure additional parameters for the language model.</p>
-      <ModelParametersInput /> */}
+      <ModelParametersInput modelId={chatModel} />
 
       {/* SECTION: Secrets (and API keys) */}
       <h2 className="jp-ai-ChatSettings-header">Secrets and API keys</h2>

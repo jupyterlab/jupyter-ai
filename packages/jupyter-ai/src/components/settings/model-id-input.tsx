@@ -79,6 +79,9 @@ export function ModelIdInput(props: ModelIdInputProps): JSX.Element {
 
         setModels(modelsResponse);
         setInput(currModelResponse ?? '');
+
+        // Call the callback with initial=true when first loading
+        props.onModelIdFetch?.(currModelResponse, true);
       } catch (error) {
         console.error('Failed to load chat models:', error);
         setModels([]);
@@ -104,7 +107,7 @@ export function ModelIdInput(props: ModelIdInputProps): JSX.Element {
       }
 
       // run parent callback
-      props.onModelIdFetch?.(newModelId, true);
+      props.onModelIdFetch?.(newModelId, false);
 
       // show success alert
       // TODO: maybe just use the JL Notifications API
@@ -133,7 +136,7 @@ export function ModelIdInput(props: ModelIdInputProps): JSX.Element {
       <SimpleAutocomplete
         options={modelsAsOptions}
         value={input}
-        onChange={v => setInput(v)}
+        onChange={setInput}
         placeholder={props.placeholder}
         boldMatches
         showClearButton
