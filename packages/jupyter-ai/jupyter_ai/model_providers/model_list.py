@@ -10,4 +10,4 @@ In the future, we may provide a shared `jupyter_ai_models` package that provides
 the model list, allowing `jupyter_ai` and `jupyter_ai_magics` to be mutually
 independent.
 """
-from jupyter_ai_magics.model_list import CHAT_MODELS, EMBEDDING_MODELS
+from jupyter_ai_magics.model_list import CHAT_MODELS, EMBEDDING_MODELS # type: ignore
