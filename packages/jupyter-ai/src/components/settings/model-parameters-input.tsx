@@ -30,29 +30,79 @@ export function ModelParametersInput(
     useState<AiService.GetModelParametersResponse | null>(null);
   const [parameters, setParameters] = useState<ModelParameter[]>([]);
   const [validationError, setValidationError] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(false);
   const alert = useStackingAlert();
 
+  const inferParameterType = (value: any): string => {
+    if (typeof value === 'boolean') {
+      return 'boolean';
+    }
+    if (typeof value === 'number') {
+      return Number.isInteger(value) ? 'integer' : 'number';
+    }
+    if (Array.isArray(value)) {
+      return 'array';
+    }
+    if (typeof value === 'object' && value !== null) {
+      return 'object';
+    }
+    return 'string';
+  };
+
+  const convertConfigToParameters = (
+    savedParams: Record<string, any>,
+    parameterSchemas?: Record<string, AiService.ParameterSchema>
+  ): ModelParameter[] => {
+    return Object.entries(savedParams).map(([name, value]) => {
+      const schema = parameterSchemas?.[name];
+      const inferredType = schema?.type || inferParameterType(value);
+
+      return {
+        name,
+        type: inferredType,
+        value: String(value),
+        isStatic: true
+      };
+    });
+  };
+
   useEffect(() => {
-    async function fetchAvailableParameters() {
+    async function fetchParametersAndConfig() {
       if (!props.modelId) {
         setAvailableParameters(null);
+        setParameters([]);
         return;
       }
 
+      setIsLoading(true);
       try {
-        const response = await AiService.getModelParameters(props.modelId);
-        setAvailableParameters(response);
+        // Fetch both parameter schemas and existing config in parallel
+        const [paramResponse, configResponse] = await Promise.all([
+          AiService.getModelParameters(props.modelId),
+          AiService.getConfig()
+        ]);
+
+        setAvailableParameters(paramResponse);
+        const savedParams = configResponse.fields[props.modelId] || {};
+        const existingParams = convertConfigToParameters(
+          savedParams,
+          paramResponse.parameters
+        );
+
+        setParameters(existingParams);
       } catch (error) {
-        console.error('Failed to fetch available parameters:', error);
+        console.error('Failed to fetch parameters:', error);
         setAvailableParameters(null);
         alert.show(
           'error',
-          `Failed to fetch parameters for model '${props.modelId}. You can still add custom parameters manually.`
+          `Failed to fetch parameters for model '${props.modelId}'. You can still add custom parameters manually.`
         );
+      } finally {
+        setIsLoading(false);
       }
     }
 
-    fetchAvailableParameters();
+    fetchParametersAndConfig();
   }, [props.modelId]);
 
   const handleAddParameter = () => {
@@ -73,7 +123,9 @@ export function ModelParametersInput(
   ) => {
     setParameters(prev =>
       prev.map(param =>
-        param.name === name ? { ...param, [field]: value } : param
+        param.name === name
+          ? { ...param, [field]: value, isStatic: false }
+          : param
       )
     );
     setValidationError('');
@@ -95,7 +147,8 @@ export function ModelParametersInput(
           ? {
               ...param,
               name: paramName,
-              type: paramSchema?.type || param.type
+              type: paramSchema?.type || param.type,
+              isStatic: false
             }
           : param
       )
@@ -200,6 +253,14 @@ export function ModelParametersInput(
 
     return apiParamNames.filter(name => !usedParamNames.includes(name));
   };
+
+  if (isLoading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+        Loading parameters...
+      </Box>
+    );
+  }
 
   return (
     <Box>
@@ -322,7 +383,7 @@ export function ModelParametersInput(
           sx={{ alignSelf: 'center' }}
           startIcon={<Save />}
         >
-          Update Model Parameters
+          Save Model Parameters
         </Button>
       )}
       {alert.jsx}
