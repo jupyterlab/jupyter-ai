@@ -2,6 +2,46 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 3.0.0beta6
+
+This release includes several major upgrades to Jupyter AI v3, most notably migrating from Langchain to LiteLLM.
+
+- 🎉 **Jupyter AI now provides >1000 LLMs out-of-the-box, without requiring an optional dependency for most providers**. The only optional dependency that you may need is `boto3`, which is required for Amazon Bedrock models.
+
+- 🚀 **Jupyter AI is significantly faster to install and start.** The Jupyter AI server extension startup time has been reduced from ~10000ms to ~2500ms (-75 pp). The remaining startup latency mostly comes from the time it takes to import `jupyter_ai`. We plan to improve this further by iterating on #1115.
+
+- 💪 **We have completely overhauled the AI settings page & simplified the model configuration process.** The new AI settings page allows you to type in any LiteLLM model ID, without being restricted to the suggestions that appear as a popup. This will allow you to use the latest LLMs as soon as they are released, even if they have not yet been added to the model lists in our source code.
+
+  - By v3, users will also be able to define custom model parameters, which are passed directly as keyword arguments to `litellm.acompletion()`. Users will not have to request maintainers to add fields to models anymore.
+
+- 🔑 **Finally, we've greatly simplified the process of providing your API keys.** All API keys can now be defined as environment variables directly passed to `jupyter-lab`. You may also define API keys locally in the `.env` file at your workspace root, which is used throughout all of Jupyter AI. You can edit the `.env` file directly, use the UI we provide in the AI settings page.
+
+There are some minor breaking changes:
+
+- The path local personas are loaded from has been moved from `.jupyter/` to `.jupyter/personas`.
+
+- The new "model parameters" section has a couple of bugs that will be fixed in future pre-releases.
+
+- We have temporary hidden the "inline completion model" section until we refactor the backend to work with LiteLLM. That work is being tracked in #1431. Contributions welcome.
+
+- We have also hidden the "embedding model" section. We plan for Jupyternaut to automatically gather the context it needs entirely through agentic tool-calling, which may remove the need for a vector store & embedding model. This may change in the future depending on the results on this effort.
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@3.0.0-beta.5...230246328cbbade6254edf656c9bebef5b6b9757))
+
+### Enhancements made
+
+- PR Template [#1446](https://github.com/jupyterlab/jupyter-ai/pull/1446) ([@jonahjung22](https://github.com/jonahjung22))
+- Load local personas from `.jupyter/personas` instead of `.jupyter/` [#1443](https://github.com/jupyterlab/jupyter-ai/pull/1443) ([@andrii-i](https://github.com/andrii-i))
+- Migrate from LangChain to LiteLLM (major upgrade) [#1426](https://github.com/jupyterlab/jupyter-ai/pull/1426) ([@dlqqq](https://github.com/dlqqq))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2025-07-25&to=2025-08-22&type=c))
+
+[@andrii-i](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aandrii-i+updated%3A2025-07-25..2025-08-22&type=Issues) | [@cszhbo](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Acszhbo+updated%3A2025-07-25..2025-08-22&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2025-07-25..2025-08-22&type=Issues) | [@jonahjung22](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ajonahjung22+updated%3A2025-07-25..2025-08-22&type=Issues) | [@srdas](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2025-07-25..2025-08-22&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 3.0.0beta5
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@3.0.0-beta.4...39352660e7040a5a6f7a1c016ab804ad4f658393))
@@ -21,8 +61,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2025-07-10&to=2025-07-25&type=c))
 
 [@anthonyhungnguyen](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aanthonyhungnguyen+updated%3A2025-07-10..2025-07-25&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2025-07-10..2025-07-25&type=Issues) | [@joadoumie](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ajoadoumie+updated%3A2025-07-10..2025-07-25&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 3.0.0beta4
 
