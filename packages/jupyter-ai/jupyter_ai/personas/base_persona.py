@@ -1,29 +1,39 @@
+from __future__ import annotations
 import asyncio
 import os
 from abc import ABC, ABCMeta, abstractmethod
 from dataclasses import asdict
 from logging import Logger
 from time import time
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any, Optional, Tuple
 
 from jupyter_ai.config_manager import ConfigManager
 from jupyterlab_chat.models import Message, NewMessage, User
 from jupyterlab_chat.ychat import YChat
+from litellm import ModelResponseStream, supports_function_calling
+from litellm.utils import function_to_dict
 from pydantic import BaseModel
 from traitlets import MetaHasTraits
 from traitlets.config import LoggingConfigurable
 
 from .persona_awareness import PersonaAwareness
+from ..litellm_utils import ToolCallList, ResolvedToolCall
 
-# prevents a circular import
-# types imported under this block have to be surrounded in single quotes on use
+# Import toolkits
+from jupyter_ai_tools.toolkits.file_system import toolkit as fs_toolkit
+from jupyter_ai_tools.toolkits.code_execution import toolkit as codeexec_toolkit
+from jupyter_ai_tools.toolkits.git import toolkit as git_toolkit
+
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
-
-    from litellm import ModelResponseStream
-
     from .persona_manager import PersonaManager
+    from ..tools import Toolkit
 
+DEFAULT_TOOLKITS: dict[str, Toolkit] = {
+    "fs": fs_toolkit,
+    "codeexec": codeexec_toolkit,
+    "git": git_toolkit,
+}
 
 class PersonaDefaults(BaseModel):
     """
@@ -237,7 +247,7 @@ class BasePersona(ABC, LoggingConfigurable, metaclass=ABCLoggingConfigurableMeta
 
     async def stream_message(
         self, reply_stream: "AsyncIterator[ModelResponseStream | str]"
-    ) -> None:
+    ) -> Tuple[ResolvedToolCall, ToolCallList]:
         """
         Takes an async iterator, dubbed the 'reply stream', and streams it to a
         new message by this persona in the YChat. The async iterator may yield
@@ -247,21 +257,36 @@ class BasePersona(ABC, LoggingConfigurable, metaclass=ABCLoggingConfigurableMeta
         stream, then continuously updates it until the stream is closed.
 
         - Automatically manages its awareness state to show writing status.
+
+        Returns a list of `ResolvedToolCall` objects. If this list is not empty,
+        the persona should run these tools.
         """
         stream_id: Optional[str] = None
         stream_interrupted = False
         try:
             self.awareness.set_local_state_field("isWriting", True)
-            async for chunk in reply_stream:
-                # Coerce LiteLLM stream chunk to a string delta
-                if not isinstance(chunk, str):
-                    chunk = chunk.choices[0].delta.content
+            toolcall_list = ToolCallList()
+            resolved_toolcalls: list[ResolvedToolCall] = []
 
-                # LiteLLM streams always terminate with an empty chunk, so we
-                # ignore and continue when this occurs.
-                if not chunk:
+            async for chunk in reply_stream:
+                # Compute `content_delta` and `tool_calls_delta` based on the
+                # type of object yielded by `reply_stream`.
+                if isinstance(chunk, ModelResponseStream):
+                    delta = chunk.choices[0].delta
+                    content_delta = delta.content
+                    toolcalls_delta = delta.tool_calls
+                elif isinstance(chunk, str):
+                    content_delta = chunk
+                    toolcalls_delta = None
+                else:
+                    raise Exception(f"Unrecognized type in stream_message(): {type(chunk)}")
+
+                # LiteLLM streams always terminate with an empty chunk, so 
+                # continue in this case.
+                if not (content_delta or toolcalls_delta):
                     continue
 
+                # Terminate the stream if the user requested it.
                 if (
                     stream_id
                     and stream_id in self.message_interrupted.keys()
@@ -280,34 +305,46 @@ class BasePersona(ABC, LoggingConfigurable, metaclass=ABCLoggingConfigurableMeta
                     stream_interrupted = True
                     break
 
-                if not stream_id:
-                    stream_id = self.ychat.add_message(
-                        NewMessage(body="", sender=self.id)
-                    )
-                    self.message_interrupted[stream_id] = asyncio.Event()
-                    self.awareness.set_local_state_field("isWriting", stream_id)
+                # Append `content_delta` to the existing message.
+                if content_delta:
+                    # Start the stream with an empty message on the initial reply.
+                    # Bind the new message ID to `stream_id`.
+                    if not stream_id:
+                        stream_id = self.ychat.add_message(
+                            NewMessage(body="", sender=self.id)
+                        )
+                        self.message_interrupted[stream_id] = asyncio.Event()
+                        self.awareness.set_local_state_field("isWriting", stream_id)
+                    assert stream_id
 
-                assert stream_id
-                self.ychat.update_message(
-                    Message(
-                        id=stream_id,
-                        body=chunk,
-                        time=time(),
-                        sender=self.id,
-                        raw_time=False,
-                    ),
-                    append=True,
-                )
+                    self.ychat.update_message(
+                        Message(
+                            id=stream_id,
+                            body=content_delta,
+                            time=time(),
+                            sender=self.id,
+                            raw_time=False,
+                        ),
+                        append=True,
+                    )
+                if toolcalls_delta:
+                    toolcall_list += toolcalls_delta
+            
+            # After the reply stream is complete, resolve the list of tool calls.
+            resolved_toolcalls = toolcall_list.resolve()
         except Exception as e:
             self.log.error(
                 f"Persona '{self.name}' encountered an exception printed below when attempting to stream output."
             )
             self.log.exception(e)
         finally:
+            # Reset local state
             self.awareness.set_local_state_field("isWriting", False)
-            if stream_id:
-                # if stream was interrupted, add a tombstone
-                if stream_interrupted:
+            self.message_interrupted.pop(stream_id, None)
+
+            # If stream was interrupted, add a tombstone and return `[]`,
+            # indicating that no tools should be run afterwards.
+            if stream_id and stream_interrupted:
                     stream_tombstone = "\n\n(AI response stopped by user)"
                     self.ychat.update_message(
                         Message(
@@ -319,8 +356,15 @@ class BasePersona(ABC, LoggingConfigurable, metaclass=ABCLoggingConfigurableMeta
                         ),
                         append=True,
                     )
-                if stream_id in self.message_interrupted.keys():
-                    del self.message_interrupted[stream_id]
+                    return None
+            
+            # Otherwise return the resolved list.
+            if len(resolved_toolcalls):
+                count = len(resolved_toolcalls)
+                names = sorted([tc.function.name for tc in resolved_toolcalls])
+                self.log.info(f"AI response triggered {count} tool calls: {names}")
+            return resolved_toolcalls, toolcall_list
+            
 
     def send_message(self, body: str) -> None:
         """
@@ -361,7 +405,7 @@ class BasePersona(ABC, LoggingConfigurable, metaclass=ABCLoggingConfigurableMeta
         Returns the MCP config for the current chat.
         """
         return self.parent.get_mcp_config()
-
+    
     def process_attachments(self, message: Message) -> Optional[str]:
         """
         Process file attachments in the message and return their content as a string.
@@ -431,6 +475,99 @@ class BasePersona(ABC, LoggingConfigurable, metaclass=ABCLoggingConfigurableMeta
             self.log.error(f"Failed to resolve attachment {attachment_id}: {e}")
             return None
 
+    def get_tools(self, model_id: str) -> list[dict]:
+        """
+        Returns the `tools` parameter which should be passed to
+        `litellm.acompletion()` for a given LiteLLM model ID.
+
+        If the model does not support tool-calling, this method returns an empty
+        list. Otherwise, it returns the list of tools available in the current
+        environment. These may include:
+
+        - The default set of tool functions in Jupyter AI, defined in the
+        `jupyter_ai_tools` package.
+
+        - (TODO) Tools provided by MCP server configuration, if any.
+
+        - (TODO) Web search.
+
+        - (TODO) File search using vector store IDs.
+
+        TODO: cache this
+
+        TODO: Implement some permissions system so users can control what tools
+        are allowable.
+
+        NOTE: The returned list is expected by LiteLLM to conform to the `tools`
+        parameter defintiion defined by the OpenAI API:
+        https://platform.openai.com/docs/guides/tools#available-tools
+
+        NOTE: This API is a WIP and is very likely to change.
+        """
+        # Return early if the model does not support tool calling
+        if not supports_function_calling(model=model_id):
+            return []
+
+        tool_descriptions = []
+
+        # Get all tools from `jupyter_ai_tools` and store their object descriptions
+        for toolkit_name, toolkit in DEFAULT_TOOLKITS.items():
+            # TODO: make these tool permissions configurable.
+            for tool in toolkit.get_tools():
+                # Here, we are using a util function from LiteLLM to coerce
+                # each `Tool` struct into a tool description dictionary expected
+                # by LiteLLM.
+                desc = {
+                    "type": "function",
+                    "function": function_to_dict(tool.callable),
+                }
+
+                # Prepend the toolkit name to each function name, hopefully
+                # ensuring every tool function has a unique name.
+                # e.g. 'git_add' => 'git__git_add'
+                #
+                # TODO: Actually ensure this instead of hoping.
+                desc['function']['name'] = f"{toolkit_name}__{desc['function']['name']}"
+                tool_descriptions.append(desc)
+        
+        # Finally, return the tool descriptions
+        return tool_descriptions
+    
+
+    async def run_tools(self, tools: list[ResolvedToolCall]) -> list[dict]:
+        """
+        Runs the tools specified in the list of tool calls returned by
+        `self.stream_message()`. Returns a list of dictionaries
+        `toolcall_outputs: list[dict]`, which should be appended directly to the
+        message history on the next invocation of the LLM.
+        """
+        if not len(tools):
+            return []
+
+        tool_outputs: list[dict] = []
+        for tool_call in tools:
+            # Get tool definition from the correct toolkit
+            toolkit_name, tool_name = tool_call.function.name.split("__")
+            assert toolkit_name in DEFAULT_TOOLKITS
+            tool_defn = DEFAULT_TOOLKITS[toolkit_name].get_tool_unsafe(tool_name)
+
+            # Run tool and store its output
+            output = await tool_defn.callable(**tool_call.function.arguments)
+
+            # Store the tool output in a dictionary accepted by LiteLLM
+            output_dict = {
+                "tool_call_id": tool_call.id,
+                "role": "tool",
+                "name": tool_call.function.name,
+                "content": output,
+            }
+            tool_outputs.append(output_dict)
+        
+        self.log.info(f"Ran {len(tools)} tool functions.")
+        return tool_outputs
+
+
+    
     def shutdown(self) -> None:
         """
         Shuts the persona down. This method should:
