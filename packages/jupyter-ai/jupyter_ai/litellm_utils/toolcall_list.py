@@ -1,9 +1,61 @@
 from litellm.utils import ChatCompletionDeltaToolCall, Function
 import json
+from pydantic import BaseModel
+from typing import Any
 
-from .toolcall_types import ResolvedToolCall, ResolvedFunction
+class ResolvedFunction(BaseModel):
+    """
+    A type-safe, parsed representation of `litellm.utils.Function`.
+    """
 
-class ToolCallList():
+    name: str
+    """
+    Name of the tool function to be called.
+
+    TODO: Check if this attribute is defined for non-function tools, e.g. tools
+    provided by a MCP server. The docstring on `litellm.utils.Function` implies
+    that `name` may be `None`.
+    """
+
+    arguments: dict[str, Any]
+    """
+    Arguments to the tool function, as a dictionary.
+    """
+
+
+class ResolvedToolCall(BaseModel):
+    """
+    A type-safe, parsed representation of
+    `litellm.utils.ChatCompletionDeltaToolCall`.
+    """
+
+    id: str | None
+    """
+    The ID of the tool call. This should always be provided by LiteLLM, this
+    type is left optional as we do not use this attribute.
+    """
+
+    type: str
+    """
+    The 'type' of tool call. Usually 'function'.
+
+    TODO: Make this a union of string literals to ensure we are handling every
+    potential type of tool call.
+    """
+
+    function: ResolvedFunction
+    """
+    The resolved function. See `ResolvedFunction` for more info.
+    """
+
+    index: int
+    """
+    The index of this tool call.
+
+    This is usually 0 unless the LLM supports parallel tool calling.
+    """
+
+class ToolCallList(BaseModel):
     """
     A helper object that defines a custom `__iadd__()` method which accepts a
     `tool_call_deltas: list[ChatCompletionDeltaToolCall]` argument. This class
@@ -27,14 +79,7 @@ class ToolCallList():
     ```
     """
 
-    _aggregate: list[ChatCompletionDeltaToolCall]
-
-    def __init__(self):
-        self.size = None
-        
-        # Initialize `_aggregate`
-        self._aggregate = []
-    
+    _aggregate: list[ChatCompletionDeltaToolCall] = []
 
     def __iadd__(self, other: list[ChatCompletionDeltaToolCall] | None) -> 'ToolCallList':
         """
@@ -116,6 +161,13 @@ class ToolCallList():
             resolved_toolcalls.append(resolved_toolcall)
         
         return resolved_toolcalls
-            
-        
     
+    def to_json(self) -> list[dict[str, Any]]:
+        """
+        Returns the list of tool calls as a Python dictionary that can be
+        JSON-serialized.
+        """
+        return [
+            model.model_dump() for model in self._aggregate
+        ]
+            

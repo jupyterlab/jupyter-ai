@@ -5,7 +5,7 @@ from abc import ABC, ABCMeta, abstractmethod
 from dataclasses import asdict
 from logging import Logger
 from time import time
-from typing import TYPE_CHECKING, Any, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Optional
 
 from jupyter_ai.config_manager import ConfigManager
 from jupyterlab_chat.models import Message, NewMessage, User
@@ -17,7 +17,7 @@ from traitlets import MetaHasTraits
 from traitlets.config import LoggingConfigurable
 
 from .persona_awareness import PersonaAwareness
-from ..litellm_utils import ToolCallList, ResolvedToolCall
+from ..litellm_utils import ToolCallList, StreamResult, ResolvedToolCall
 
 # Import toolkits
 from jupyter_ai_tools.toolkits.file_system import toolkit as fs_toolkit
@@ -247,7 +247,7 @@ class BasePersona(ABC, LoggingConfigurable, metaclass=ABCLoggingConfigurableMeta
 
     async def stream_message(
         self, reply_stream: "AsyncIterator[ModelResponseStream | str]"
-    ) -> Tuple[ResolvedToolCall, ToolCallList]:
+    ) -> StreamResult:
         """
         Takes an async iterator, dubbed the 'reply stream', and streams it to a
         new message by this persona in the YChat. The async iterator may yield
@@ -263,12 +263,21 @@ class BasePersona(ABC, LoggingConfigurable, metaclass=ABCLoggingConfigurableMeta
         """
         stream_id: Optional[str] = None
         stream_interrupted = False
+        tool_calls = ToolCallList()
         try:
             self.awareness.set_local_state_field("isWriting", True)
-            toolcall_list = ToolCallList()
-            resolved_toolcalls: list[ResolvedToolCall] = []
 
             async for chunk in reply_stream:
+                # Start the stream with an empty message on the initial reply.
+                # Bind the new message ID to `stream_id`.
+                if not stream_id:
+                    stream_id = self.ychat.add_message(
+                        NewMessage(body="", sender=self.id)
+                    )
+                    self.message_interrupted[stream_id] = asyncio.Event()
+                    self.awareness.set_local_state_field("isWriting", stream_id)
+                assert stream_id
+
                 # Compute `content_delta` and `tool_calls_delta` based on the
                 # type of object yielded by `reply_stream`.
                 if isinstance(chunk, ModelResponseStream):
@@ -307,16 +316,6 @@ class BasePersona(ABC, LoggingConfigurable, metaclass=ABCLoggingConfigurableMeta
 
                 # Append `content_delta` to the existing message.
                 if content_delta:
-                    # Start the stream with an empty message on the initial reply.
-                    # Bind the new message ID to `stream_id`.
-                    if not stream_id:
-                        stream_id = self.ychat.add_message(
-                            NewMessage(body="", sender=self.id)
-                        )
-                        self.message_interrupted[stream_id] = asyncio.Event()
-                        self.awareness.set_local_state_field("isWriting", stream_id)
-                    assert stream_id
-
                     self.ychat.update_message(
                         Message(
                             id=stream_id,
@@ -328,10 +327,8 @@ class BasePersona(ABC, LoggingConfigurable, metaclass=ABCLoggingConfigurableMeta
                         append=True,
                     )
                 if toolcalls_delta:
-                    toolcall_list += toolcalls_delta
+                    tool_calls += toolcalls_delta
             
-            # After the reply stream is complete, resolve the list of tool calls.
-            resolved_toolcalls = toolcall_list.resolve()
         except Exception as e:
             self.log.error(
                 f"Persona '{self.name}' encountered an exception printed below when attempting to stream output."
@@ -358,12 +355,17 @@ class BasePersona(ABC, LoggingConfigurable, metaclass=ABCLoggingConfigurableMeta
                     )
                     return None
             
-            # Otherwise return the resolved list.
+            # TODO: determine where this should live
+            resolved_toolcalls = tool_calls.resolve()
             if len(resolved_toolcalls):
                 count = len(resolved_toolcalls)
                 names = sorted([tc.function.name for tc in resolved_toolcalls])
                 self.log.info(f"AI response triggered {count} tool calls: {names}")
-            return resolved_toolcalls, toolcall_list
+
+            return StreamResult(
+                id=stream_id,
+                tool_calls=tool_calls
+            )
             
 
     def send_message(self, body: str) -> None:
@@ -552,7 +554,9 @@ class BasePersona(ABC, LoggingConfigurable, metaclass=ABCLoggingConfigurableMeta
             tool_defn = DEFAULT_TOOLKITS[toolkit_name].get_tool_unsafe(tool_name)
 
             # Run tool and store its output
-            output = await tool_defn.callable(**tool_call.function.arguments)
+            output = tool_defn.callable(**tool_call.function.arguments)
+            if asyncio.iscoroutine(output):
+                output = await output
 
             # Store the tool output in a dictionary accepted by LiteLLM
             output_dict = {
