@@ -1,4 +1,6 @@
 from typing import Any, Optional
+import time
+import json
 
 from jupyterlab_chat.models import Message
 from litellm import acompletion
@@ -9,7 +11,6 @@ from .prompt_template import (
     JUPYTERNAUT_SYSTEM_PROMPT_TEMPLATE,
     JupyternautSystemPromptArgs,
 )
-from ...litellm_utils import ResolvedToolCall
 
 
 class JupyternautPersona(BasePersona):
@@ -39,34 +40,60 @@ class JupyternautPersona(BasePersona):
 
         model_id = self.config_manager.chat_model
 
-        # `True` on the first LLM invocation, `False` on all invocations after.
-        initial_invocation = True
-        # List of tool calls requested by the LLM in the previous invocaiton.
-        tool_calls: list[ResolvedToolCall] = []
-        tool_call_list = None
+        # `True` before the first LLM response is sent, `False` afterwards.
+        initial_response = True
         # List of tool call outputs computed in the previous invocation.
         tool_call_outputs: list[dict] = []
 
+        # Initialize list of messages, including history and context
+        messages: list[dict] = self.get_context_as_messages(model_id, message)
+
         # Loop until the AI is complete running all its tools.
-        while initial_invocation or len(tool_call_outputs):
-            messages = self.get_context_as_messages(model_id, message)
-
-            # TODO: Find a better way to track tool calls
-            if not initial_invocation and tool_calls:
-                self.log.error(messages[-1])
-                messages[-1]['tool_calls'] = tool_call_list._aggregate
-                messages.extend(tool_call_outputs)
-
-            self.log.error(messages)
+        while initial_response or len(tool_call_outputs):
+            # Stream message to the chat
             response_aiter = await acompletion(
                 model=model_id,
                 messages=messages,
                 tools=self.get_tools(model_id),
                 stream=True,
             )
-            tool_calls, tool_call_list = await self.stream_message(response_aiter)
-            initial_invocation = False
-            tool_call_outputs = await self.run_tools(tool_calls)
+            result = await self.stream_message(response_aiter)
+            initial_response = False
+
+            # Append new reply to `messages`
+            reply = self.ychat.get_message(result.id)
+            tool_calls_json = result.tool_calls.to_json()
+            messages.append({
+                "role": "assistant",
+                "content": reply.body,
+                "tool_calls": tool_calls_json
+            })
+            
+            # Show tool call requests to YChat (not synced with `messages`)
+            if len(tool_calls_json):
+                self.ychat.update_message(Message(
+                    id=result.id,
+                    body=f"\n\n```\n{json.dumps(tool_calls_json, indent=2)}\n```\n",
+                    sender=self.id,
+                    time=time.time(),
+                    raw_time=False
+                ), append=True)
+
+            # Run tools and append outputs to `messages`
+            tool_call_outputs = await self.run_tools(result.tool_calls.resolve())
+            messages.extend(tool_call_outputs)
+
+            # Add tool call outputs to YChat (not synced with `messages`)
+            if tool_call_outputs:
+                self.ychat.update_message(Message(
+                    id=result.id,
+                    body=f"\n\n```\n{json.dumps(tool_call_outputs, indent=2)}\n```\n",
+                    sender=self.id,
+                    time=time.time(),
+                    raw_time=False
+                ), append=True)
+    
+
 
     def get_context_as_messages(
         self, model_id: str, message: Message
