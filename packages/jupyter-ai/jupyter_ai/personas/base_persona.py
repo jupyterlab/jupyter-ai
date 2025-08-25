@@ -17,7 +17,7 @@ from traitlets import MetaHasTraits
 from traitlets.config import LoggingConfigurable
 
 from .persona_awareness import PersonaAwareness
-from ..litellm_utils import ToolCallList, StreamResult, ResolvedToolCall
+from ..litellm_utils import ToolCallList, StreamResult, run_tools, ToolCallOutput
 
 # Import toolkits
 from ..tools.default_toolkit import DEFAULT_TOOLKIT
@@ -255,7 +255,7 @@ class BasePersona(ABC, LoggingConfigurable, metaclass=ABCLoggingConfigurableMeta
         """
         stream_id: Optional[str] = None
         stream_interrupted = False
-        tool_calls = ToolCallList()
+        tool_call_list = ToolCallList()
         try:
             self.awareness.set_local_state_field("isWriting", True)
 
@@ -319,7 +319,7 @@ class BasePersona(ABC, LoggingConfigurable, metaclass=ABCLoggingConfigurableMeta
                         append=True,
                     )
                 if toolcalls_delta:
-                    tool_calls += toolcalls_delta
+                    tool_call_list += toolcalls_delta
             
         except Exception as e:
             self.log.error(
@@ -348,15 +348,13 @@ class BasePersona(ABC, LoggingConfigurable, metaclass=ABCLoggingConfigurableMeta
                     return None
             
             # TODO: determine where this should live
-            resolved_toolcalls = tool_calls.resolve()
-            if len(resolved_toolcalls):
-                count = len(resolved_toolcalls)
-                names = sorted([tc.function.name for tc in resolved_toolcalls])
-                self.log.info(f"AI response triggered {count} tool calls: {names}")
+            count = len(tool_call_list)
+            if count > 0:
+                self.log.info(f"AI response triggered {count} tool calls.")
 
             return StreamResult(
                 id=stream_id,
-                tool_calls=tool_calls
+                tool_call_list=tool_call_list
             )
             
 
@@ -520,38 +518,13 @@ class BasePersona(ABC, LoggingConfigurable, metaclass=ABCLoggingConfigurableMeta
         return tool_descriptions
     
 
-    async def run_tools(self, tools: list[ResolvedToolCall]) -> list[dict]:
+    async def run_tools(self, tool_call_list: ToolCallList) -> list[ToolCallOutput]:
         """
-        Runs the tools specified in the list of tool calls returned by
-        `self.stream_message()`. Returns a list of dictionaries
-        `toolcall_outputs: list[dict]`, which should be appended directly to the
-        message history on the next invocation of the LLM.
+        Runs the tools specified in a given tool call list using the default
+        toolkit.
         """
-        if not len(tools):
-            return []
-
-        tool_outputs: list[dict] = []
-        for tool_call in tools:
-            # Get tool definition from the correct toolkit
-            # TODO: validation?
-            tool_name = tool_call.function.name
-            tool_defn = DEFAULT_TOOLKIT.get_tool_unsafe(tool_name)
-
-            # Run tool and store its output
-            output = tool_defn.callable(**tool_call.function.arguments)
-            if asyncio.iscoroutine(output):
-                output = await output
-
-            # Store the tool output in a dictionary accepted by LiteLLM
-            output_dict = {
-                "tool_call_id": tool_call.id,
-                "role": "tool",
-                "name": tool_call.function.name,
-                "content": output,
-            }
-            tool_outputs.append(output_dict)
-        
-        self.log.info(f"Ran {len(tools)} tool functions.")
+        tool_outputs = await run_tools(tool_call_list, toolkit=DEFAULT_TOOLKIT)
+        self.log.info(f"Ran {len(tool_outputs)} tool functions.")
         return tool_outputs
 
 

@@ -7,7 +7,7 @@ class StreamResult(BaseModel):
     ID of the new message.
     """
 
-    tool_calls: ToolCallList
+    tool_call_list: ToolCallList
     """
     Tool calls requested by the LLM in its streamed response.
     """

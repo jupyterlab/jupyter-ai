@@ -62,7 +62,7 @@ class JupyternautPersona(BasePersona):
 
             # Append new reply to `messages`
             reply = self.ychat.get_message(result.id)
-            tool_calls_json = result.tool_calls.to_json()
+            tool_calls_json = result.tool_call_list.to_json()
             messages.append({
                 "role": "assistant",
                 "content": reply.body,
@@ -80,7 +80,7 @@ class JupyternautPersona(BasePersona):
                 ), append=True)
 
             # Run tools and append outputs to `messages`
-            tool_call_outputs = await self.run_tools(result.tool_calls.resolve())
+            tool_call_outputs = await self.run_tools(result.tool_call_list)
             messages.extend(tool_call_outputs)
 
             # Add tool call outputs to YChat (not synced with `messages`)

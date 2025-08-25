@@ -170,4 +170,8 @@ class ToolCallList(BaseModel):
         return [
             model.model_dump() for model in self._aggregate
         ]
+    
+
+    def __len__(self) -> int:
+        return len(self._aggregate)
             
