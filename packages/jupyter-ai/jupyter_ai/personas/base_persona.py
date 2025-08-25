@@ -20,20 +20,12 @@ from .persona_awareness import PersonaAwareness
 from ..litellm_utils import ToolCallList, StreamResult, ResolvedToolCall
 
 # Import toolkits
-from jupyter_ai_tools.toolkits.file_system import toolkit as fs_toolkit
-from jupyter_ai_tools.toolkits.code_execution import toolkit as codeexec_toolkit
-from jupyter_ai_tools.toolkits.git import toolkit as git_toolkit
+from ..tools.default_toolkit import DEFAULT_TOOLKIT
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
     from .persona_manager import PersonaManager
     from ..tools import Toolkit
-
-DEFAULT_TOOLKITS: dict[str, Toolkit] = {
-    "fs": fs_toolkit,
-    "codeexec": codeexec_toolkit,
-    "git": git_toolkit,
-}
 
 class PersonaDefaults(BaseModel):
     """
@@ -512,27 +504,19 @@ class BasePersona(ABC, LoggingConfigurable, metaclass=ABCLoggingConfigurableMeta
 
         tool_descriptions = []
 
-        # Get all tools from `jupyter_ai_tools` and store their object descriptions
-        for toolkit_name, toolkit in DEFAULT_TOOLKITS.items():
-            # TODO: make these tool permissions configurable.
-            for tool in toolkit.get_tools():
-                # Here, we are using a util function from LiteLLM to coerce
-                # each `Tool` struct into a tool description dictionary expected
-                # by LiteLLM.
-                desc = {
-                    "type": "function",
-                    "function": function_to_dict(tool.callable),
-                }
-
-                # Prepend the toolkit name to each function name, hopefully
-                # ensuring every tool function has a unique name.
-                # e.g. 'git_add' => 'git__git_add'
-                #
-                # TODO: Actually ensure this instead of hoping.
-                desc['function']['name'] = f"{toolkit_name}__{desc['function']['name']}"
-                tool_descriptions.append(desc)
+        # Get all tools from the default toolkit and store their object descriptions
+        for tool in DEFAULT_TOOLKIT.get_tools():
+            # Here, we are using a util function from LiteLLM to coerce
+            # each `Tool` struct into a tool description dictionary expected
+            # by LiteLLM.
+            desc = {
+                "type": "function",
+                "function": function_to_dict(tool.callable),
+            }
+            tool_descriptions.append(desc)
         
         # Finally, return the tool descriptions
+        self.log.info(tool_descriptions)
         return tool_descriptions
     
 
@@ -549,9 +533,9 @@ class BasePersona(ABC, LoggingConfigurable, metaclass=ABCLoggingConfigurableMeta
         tool_outputs: list[dict] = []
         for tool_call in tools:
             # Get tool definition from the correct toolkit
-            toolkit_name, tool_name = tool_call.function.name.split("__")
-            assert toolkit_name in DEFAULT_TOOLKITS
-            tool_defn = DEFAULT_TOOLKITS[toolkit_name].get_tool_unsafe(tool_name)
+            # TODO: validation?
+            tool_name = tool_call.function.name
+            tool_defn = DEFAULT_TOOLKIT.get_tool_unsafe(tool_name)
 
             # Run tool and store its output
             output = tool_defn.callable(**tool_call.function.arguments)
