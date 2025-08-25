@@ -518,7 +518,7 @@ class BasePersona(ABC, LoggingConfigurable, metaclass=ABCLoggingConfigurableMeta
         return tool_descriptions
     
 
-    async def run_tools(self, tool_call_list: ToolCallList) -> list[ToolCallOutput]:
+    async def run_tools(self, tool_call_list: ToolCallList) -> list[dict]:
         """
         Runs the tools specified in a given tool call list using the default
         toolkit.

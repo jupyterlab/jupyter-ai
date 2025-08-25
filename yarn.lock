@@ -2256,6 +2256,7 @@ __metadata:
     "@lumino/widgets": ^2.3.2
     "@mui/icons-material": ^5.11.0
     "@mui/material": ^5.11.0
+    "@r2wc/react-to-web-component": ^2.0.4
     "@stylistic/eslint-plugin": ^3.0.1
     "@types/jest": ^29
     "@types/react-dom": ^18.2.0
@@ -4823,6 +4824,25 @@ __metadata:
   version: 2.11.8
   resolution: "@popperjs/core@npm:2.11.8"
   checksum: e5c69fdebf52a4012f6a1f14817ca8e9599cb1be73dd1387e1785e2ed5e5f0862ff817f420a87c7fc532add1f88a12e25aeb010ffcbdc98eace3d55ce2139cf0
+  languageName: node
+  linkType: hard
+
+"@r2wc/core@npm:^1.0.0":
+  version: 1.2.0
+  resolution: "@r2wc/core@npm:1.2.0"
+  checksum: e0dc23e8fd1f0d96193b67f5eb04b74b25b9f4609778e6ea2427c565eb590f458553cad307a2fdb3fc4614f6a576d7701b9bacf11775958bc560cc3b3b5aaae7
+  languageName: node
+  linkType: hard
+
+"@r2wc/react-to-web-component@npm:^2.0.4":
+  version: 2.0.4
+  resolution: "@r2wc/react-to-web-component@npm:2.0.4"
+  dependencies:
+    "@r2wc/core": ^1.0.0
+  peerDependencies:
+    react: ^18.0.0 || ^19.0.0
+    react-dom: ^18.0.0 || ^19.0.0
+  checksum: 7b140ffd612173a30d74717d18efcf554774ef0ed0fe72f207ec21df707685ef5f4c34521e6840041665550c6461171dc32f12835f35beb1788ccac0c66c0e5c
   languageName: node
   linkType: hard
 

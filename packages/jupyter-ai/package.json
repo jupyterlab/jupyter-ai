@@ -79,6 +79,7 @@
     "@lumino/widgets": "^2.3.2",
     "@mui/icons-material": "^5.11.0",
     "@mui/material": "^5.11.0",
+    "@r2wc/react-to-web-component": "^2.0.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
