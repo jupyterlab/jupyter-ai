@@ -325,7 +325,6 @@ class AiMagics(Magics):
             # Add api_base if provided
             if args.api_base:
                 completion_args["api_base"] = args.api_base
-                print(f"Using custom API base: {args.api_base}")
 
             # Add API key from .env if api_key is provided
             if args.api_key:
