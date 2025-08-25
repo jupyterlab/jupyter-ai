@@ -5,6 +5,7 @@ import json
 from jupyterlab_chat.models import Message
 from litellm import acompletion
 
+from ...litellm_utils import StreamResult, ToolCallOutput
 from ..base_persona import BasePersona, PersonaDefaults
 from ..persona_manager import SYSTEM_USERNAME
 from .prompt_template import (
@@ -69,30 +70,78 @@ class JupyternautPersona(BasePersona):
                 "tool_calls": tool_calls_json
             })
             
-            # Show tool call requests to YChat (not synced with `messages`)
-            if len(tool_calls_json):
-                self.ychat.update_message(Message(
-                    id=result.id,
-                    body=f"\n\n```\n{json.dumps(tool_calls_json, indent=2)}\n```\n",
-                    sender=self.id,
-                    time=time.time(),
-                    raw_time=False
-                ), append=True)
+            # Render tool calls in new message
+            if len(result.tool_call_list):
+                self.render_tool_calls(result)
 
             # Run tools and append outputs to `messages`
             tool_call_outputs = await self.run_tools(result.tool_call_list)
             messages.extend(tool_call_outputs)
 
-            # Add tool call outputs to YChat (not synced with `messages`)
+            # Render tool call outputs in new message
             if tool_call_outputs:
-                self.ychat.update_message(Message(
-                    id=result.id,
-                    body=f"\n\n```\n{json.dumps(tool_call_outputs, indent=2)}\n```\n",
-                    sender=self.id,
-                    time=time.time(),
-                    raw_time=False
-                ), append=True)
+                self.render_tool_call_outputs(
+                    message_id=result.id,
+                    tool_call_outputs=tool_call_outputs
+                )
     
+    def render_tool_calls(self, stream_result: StreamResult):
+        """
+        Renders tool calls by appending the tool calls to a message.
+        """
+        message_id = stream_result.id
+        tool_call_list = stream_result.tool_call_list
+
+        for tool_call in tool_call_list.resolve():
+            id = tool_call.id
+            index = tool_call.index
+            type_val = tool_call.type
+            function = tool_call.function.model_dump_json()
+            # We have to HTML-escape double quotes in the JSON string.
+            function = function.replace('"', "&quot;")
+
+            self.ychat.update_message(Message(
+                id=message_id,
+                body=f'\n\n<jai-tool-call id="{id}" type="{type_val}" index={index} function="{function}"></jai-tool-call>\n',
+                sender=self.id,
+                time=time.time(),
+                raw_time=False
+            ), append=True)
+
+
+    def render_tool_call_outputs(self, message_id: str, tool_call_outputs: list[dict]):
+        # TODO
+        # self.ychat.update_message(Message(
+        #     id=message_id,
+        #     body=f"\n\n```\n{json.dumps(tool_call_outputs, indent=2)}\n```\n",
+        #     sender=self.id,
+        #     time=time.time(),
+        #     raw_time=False
+        # ), append=True)
+
+        # Updates the content of the last message directly
+        message = self.ychat.get_message(message_id)
+        body = message.body
+        for output in tool_call_outputs:
+            if not output['content']:
+                output['content'] = ""
+            output = ToolCallOutput(**output)
+            tool_id = output.tool_call_id
+            tool_output = output.model_dump_json()
+            tool_output = tool_output.replace('"', '&quot;')
+            body = body.replace(
+                f'<jai-tool-call id="{tool_id}"',
+                f'<jai-tool-call id="{tool_id}" output="{tool_output}"',
+            )
+
+        self.log.error(body)
+        self.ychat.update_message(Message(
+            id=message.id,
+            time=time.time(),
+            body=body,
+            sender=self.id,
+            raw_time=False
+        ))
 
 
     def get_context_as_messages(
