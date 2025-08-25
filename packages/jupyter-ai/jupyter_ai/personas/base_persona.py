@@ -477,7 +477,7 @@ class BasePersona(ABC, LoggingConfigurable, metaclass=ABCLoggingConfigurableMeta
         environment. These may include:
 
         - The default set of tool functions in Jupyter AI, defined in the
-        `jupyter_ai_tools` package.
+        the default toolkit from `jupyter_ai.tools`.
 
         - (TODO) Tools provided by MCP server configuration, if any.
 
