@@ -89,10 +89,11 @@ const plugin: JupyterFrontEndPlugin<void> = {
           }
           aiSettings.id = 'jupyter-ai-settings';
           aiSettings.title.label = 'AI settings';
+          aiSettings.title.caption = 'AI settings';
           aiSettings.title.closable = true;
         }
         if (!aiSettings.isAttached) {
-          app?.shell.add(aiSettings, notebookShell ? 'left' : 'main');
+          app?.shell.add(aiSettings, notebookShell ? 'right' : 'main');
         }
         app.shell.activateById(aiSettings.id);
       },
