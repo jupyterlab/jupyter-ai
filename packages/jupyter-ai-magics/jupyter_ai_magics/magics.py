@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 import click
 import litellm
 import traitlets
+from typing import Optional
 from IPython.core.magic import Magics, line_cell_magic, magics_class
 from IPython.display import HTML, JSON, Markdown, Math
 from jupyter_ai.model_providers.model_list import CHAT_MODELS
@@ -314,10 +315,30 @@ class AiMagics(Magics):
                 print(error_msg, file=sys.stderr)  # Log to stderr
                 return
         try:
+            # Prepare litellm completion arguments
+            completion_args = {
+                "model": model_id, 
+                "messages": messages, 
+                "stream": False
+            }
+
+            # Add api_base if provided
+            if args.api_base:
+                completion_args["api_base"] = args.api_base
+                print(f"Using custom API base: {args.api_base}")
+
+            # Add API key from .env if api_key is provided
+            if args.api_key:
+                # Retrieve the actual API key from the .env file
+                api_key_value = os.getenv(args.api_key)
+                if not api_key_value:
+                    error_msg = f"API key '{args.api_key}' not found in .env file."
+                    print(error_msg, file=sys.stderr)
+                    return
+                completion_args["api_key"] = api_key_value
+
             # Call litellm completion
-            response = litellm.completion(
-                model=model_id, messages=messages, stream=False
-            )
+            response = litellm.completion(**completion_args)
 
             # Extract output text from response
             output = response.choices[0].message.content
