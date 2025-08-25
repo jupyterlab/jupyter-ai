@@ -1,7 +1,9 @@
-from .models import Tool, Toolkit
-from jupyter_ai_tools.toolkits.code_execution import bash
-
+import asyncio
 import pathlib
+import shlex
+from typing import Optional
+
+from .models import Tool, Toolkit
 
 
 def read(file_path: str, offset: int, limit: int) -> str:
@@ -245,6 +247,52 @@ async def search_grep(pattern: str, include: str = "*") -> str:
         return result
     except Exception as e:
         raise RuntimeError(f"Ripgrep search failed: {str(e)}") from e
+
+
+async def bash(command: str, timeout: Optional[int] = None) -> str:
+    """Executes a bash command and returns the result
+
+    Args:
+        command: The bash command to execute
+        timeout: Optional timeout in seconds
+
+    Returns:
+        The command output (stdout and stderr combined)
+    """
+    # coerce `timeout` to the correct type. sometimes LLMs pass this as a string
+    if isinstance(timeout, str):
+        timeout = int(timeout)
+
+    proc = await asyncio.create_subprocess_exec(
+        *shlex.split(command),
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE,
+    )
+
+    try:
+        stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout)
+        stdout = stdout.decode("utf-8")
+        stderr = stderr.decode("utf-8")
+
+        if proc.returncode != 0:
+            info = f"Command returned non-zero exit code {proc.returncode}. This usually indicates an error."
+            info += "\n\n" + fr"Original command: {command}"
+            if not (stdout or stderr):
+                info += "\n\nNo further information was given in stdout or stderr."
+                return info
+            if stdout:
+                info += f"stdout:\n\n```\n{stdout}\n```\n\n"
+            if stderr:
+                info += f"stderr:\n\n```\n{stderr}\n```\n\n"
+            return info
+
+        if stdout:
+            return stdout
+        return "Command executed successfully with exit code 0. No stdout/stderr was returned."
+
+    except asyncio.TimeoutError:
+        proc.kill()
+        return f"Command timed out after {timeout} seconds"
 
 
 DEFAULT_TOOLKIT = Toolkit(name="jupyter-ai-default-toolkit")
