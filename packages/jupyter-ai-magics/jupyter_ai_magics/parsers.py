@@ -53,7 +53,7 @@ class CellArgs(BaseModel):
     response_path: Optional[str] = None
     # Parameters for custom API endpoints
     api_base: Optional[str] = None
-    api_key: Optional[str] = None
+    api_key_name: Optional[str] = None
 
 
 # Should match CellArgs
@@ -68,7 +68,7 @@ class FixArgs(BaseModel):
     response_path: Optional[str] = None
     # Parameters for custom API endpoints
     api_base: Optional[str] = None
-    api_key: Optional[str] = None
+    api_key_name: Optional[str] = None
 
 
 class HelpArgs(BaseModel):
@@ -145,7 +145,7 @@ def verify_json_value(ctx, param, value):
     help="Base URL for the API endpoint.",
 )
 @click.option(
-    "--api-key",
+    "--api-key-name",
     required=False,
     help="Name of the environment variable containing the API key.",
 )
@@ -186,7 +186,7 @@ def cell_magic_parser(context: click.Context, **kwargs):
 
     Optional parameters:
     --api-base: Base URL for the API endpoint
-    --api-key: Name of the environment variable containing the API key
+    --api-key-name: Name of the environment variable containing the API key
                (the actual key should be stored in the .env file)
 
     To view available language models, please run `%ai list`.
@@ -218,7 +218,7 @@ def line_magic_parser():
     help="Base URL for the API endpoint.",
 )
 @click.option(
-    "--api-key",
+    "--api-key-name",
     required=False,
     help="Name of the environment variable containing the API key.",
 )
