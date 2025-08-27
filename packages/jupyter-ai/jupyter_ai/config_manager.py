@@ -317,6 +317,10 @@ class ConfigManager(Configurable):
         }
 
         self._validate_config(new_config)
+
+        # Create config directory if it doesn't exist.
+        os.makedirs(os.path.dirname(self.config_path), exist_ok=True)
+
         with open(self.config_path, "w") as f:
             json.dump(new_config.model_dump(), f, indent=self.indentation_depth)
 
@@ -361,7 +365,7 @@ class ConfigManager(Configurable):
         user.
 
         If the current chat model is `None`, this returns an empty dictionary.
-        Otherwise, it returns the model arguments set in the dictionary at 
+        Otherwise, it returns the model arguments set in the dictionary at
         `.fields.<chat-model-id>`.
         """
         config = self._read_config()
@@ -401,4 +405,3 @@ class ConfigManager(Configurable):
     def delete_api_key(self, key_name: str):
         # TODO: store in .env files
         pass
-
