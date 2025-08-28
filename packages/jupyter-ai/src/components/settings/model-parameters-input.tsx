@@ -1,11 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Box,
   Button,
   TextField,
   Alert,
   IconButton,
-  Autocomplete
+  Autocomplete,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Save from '@mui/icons-material/Save';
@@ -18,6 +22,15 @@ type ModelParameter = {
   value: string;
   isStatic?: boolean;
 };
+
+const PARAMETER_TYPES = [
+  'string',
+  'integer',
+  'number',
+  'boolean',
+  'array',
+  'object'
+] as const;
 
 export type ModelParametersInputProps = {
   modelId?: string | null;
@@ -32,6 +45,7 @@ export function ModelParametersInput(
   const [validationError, setValidationError] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const alert = useStackingAlert();
+  const argumentValueRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
   const inferParameterType = (value: any): string => {
     if (typeof value === 'boolean') {
@@ -129,6 +143,13 @@ export function ModelParametersInput(
       )
     );
     setValidationError('');
+
+    // Auto-focus on the argument value input when type is selected
+    if (field === 'type' && value) {
+      setTimeout(() => {
+        argumentValueRefs.current[name]?.focus();
+      }, 0);
+    }
   };
 
   // Handle parameter name selection from dropdown
@@ -331,20 +352,23 @@ export function ModelParametersInput(
               }}
             />
           )}
-          <TextField
-            label="Parameter type"
-            placeholder="e.g. float, string"
-            value={param.type}
-            onChange={e =>
-              handleParameterChange(param.name, 'type', e.target.value)
-            }
-            size="small"
-            sx={{ flex: 1 }}
-            disabled={param.isStatic}
-            InputProps={{
-              readOnly: param.isStatic
-            }}
-          />
+          <FormControl size="small" sx={{ flex: 1 }} disabled={param.isStatic}>
+            <InputLabel>Parameter type</InputLabel>
+            <Select
+              value={param.type}
+              label="Parameter type"
+              onChange={e =>
+                handleParameterChange(param.name, 'type', e.target.value)
+              }
+              disabled={param.isStatic}
+            >
+              {PARAMETER_TYPES.map(type => (
+                <MenuItem key={type} value={type}>
+                  {type}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
           <TextField
             label="Argument value"
             placeholder="e.g. 0.7, https://localhost:8989"
@@ -354,6 +378,9 @@ export function ModelParametersInput(
             }
             size="small"
             sx={{ flex: 1 }}
+            inputRef={el => {
+              argumentValueRefs.current[param.name] = el;
+            }}
           />
           <IconButton
             onClick={() => handleDeleteParameter(param.name)}
