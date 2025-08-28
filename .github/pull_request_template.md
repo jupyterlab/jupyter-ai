@@ -4,7 +4,7 @@ See the contributing guidelines for more information:
 https://jupyter-ai.readthedocs.io/en/latest/contributors/
 -->
 
-## References
+## Description
 
 <!-- Note issue numbers this pull request addresses (should be at least one, see contributing guidelines above). -->
 
