@@ -3,7 +3,7 @@ from tornado.web import authenticated, HTTPError
 import json
 
 from litellm.litellm_core_utils.get_supported_openai_params import get_supported_openai_params
-from .parameter_schemas import get_parameters_with_schemas, coerce_parameter_value, GetModelParametersResponse
+from .parameter_schemas import get_parameters_with_schemas, coerce_parameter_value, GetModelParametersResponse, UpdateModelParametersResponse
 from ..config_manager import ConfigManager
 from ..config import UpdateConfigRequest
     
@@ -118,18 +118,16 @@ class ModelParametersRestAPI(BaseAPIHandler):
             )
             config_manager.update_config(update_request)
             
-            # TODO: Define the response type as a Pydantic model to prevent
-            # breaking API changes. Response body is currently unused by frontend
-            # but kept for API compatibility.
-            response = {
-                "status": "success",
-                "message": f"Parameters saved for model {model_id}",
-                "model_id": model_id,
-                "parameters": coerced_parameters,
-            }
+            # Create Pydantic response model for API compatibility
+            response = UpdateModelParametersResponse(
+                status="success",
+                message=f"Parameters saved for model {model_id}",
+                model_id=model_id,
+                parameters=coerced_parameters
+            )
             
             self.set_header("Content-Type", "application/json")
-            self.finish(json.dumps(response))
+            self.finish(response.model_dump_json())
             
         except json.JSONDecodeError:
             raise HTTPError(400, "Invalid JSON in request body")
