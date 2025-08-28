@@ -51,6 +51,9 @@ class CellArgs(BaseModel):
     region_name: Optional[str] = None
     request_schema: Optional[str] = None
     response_path: Optional[str] = None
+    # Parameters for custom API endpoints
+    api_base: Optional[str] = None
+    api_key_name: Optional[str] = None
 
 
 # Should match CellArgs
@@ -63,6 +66,9 @@ class FixArgs(BaseModel):
     region_name: Optional[str] = None
     request_schema: Optional[str] = None
     response_path: Optional[str] = None
+    # Parameters for custom API endpoints
+    api_base: Optional[str] = None
+    api_key_name: Optional[str] = None
 
 
 class HelpArgs(BaseModel):
@@ -134,6 +140,16 @@ def verify_json_value(ctx, param, value):
     help=FORMAT_HELP,
 )
 @click.option(
+    "--api-base",
+    required=False,
+    help="Base URL for the API endpoint.",
+)
+@click.option(
+    "--api-key-name",
+    required=False,
+    help="Name of the environment variable containing the API key.",
+)
+@click.option(
     REGION_NAME_SHORT_OPTION,
     REGION_NAME_LONG_OPTION,
     required=False,
@@ -168,6 +184,11 @@ def cell_magic_parser(context: click.Context, **kwargs):
     model IDs (with the provider ID explicitly prefixed, followed by a colon)
     are accepted.
 
+    Optional parameters:
+    --api-base: Base URL for the API endpoint
+    --api-key-name: Name of the environment variable containing the API key
+               (the actual key should be stored in the .env file)
+
     To view available language models, please run `%ai list`.
     """
     if not kwargs["model_id"] and context.default_map:
@@ -190,6 +211,16 @@ def line_magic_parser():
     type=click.Choice(FORMAT_CHOICES, case_sensitive=False),
     default="markdown",
     help=FORMAT_HELP,
+)
+@click.option(
+    "--api-base",
+    required=False,
+    help="Base URL for the API endpoint.",
+)
+@click.option(
+    "--api-key-name",
+    required=False,
+    help="Name of the environment variable containing the API key.",
 )
 @click.option(
     REGION_NAME_SHORT_OPTION,
