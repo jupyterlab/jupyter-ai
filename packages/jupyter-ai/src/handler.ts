@@ -200,21 +200,13 @@ export namespace AiService {
   export type GetModelParametersResponse = {
     parameters: Record<string, ParameterSchema>;
     parameter_names: string[];
-    count: number;
   };
 
   export type ParameterSchema = {
-    type: 'boolean' | 'integer' | 'number' | 'string' | 'array' | 'object';
+    type: 'boolean' | 'integer' | 'float' | 'string' | 'array' | 'object';
     description: string;
     min?: number;
     max?: number;
-  };
-
-  export type UpdateModelParametersResponse = {
-    status: string;
-    message: string;
-    model_id: string;
-    parameters: Record<string, any>;
   };
 
   export async function getModelParameters(
@@ -238,8 +230,8 @@ export namespace AiService {
   export async function saveModelParameters(
     modelId: string,
     parameters: Record<string, any>
-  ): Promise<UpdateModelParametersResponse> {
-    return await requestAPI<UpdateModelParametersResponse>('model-parameters', {
+  ): Promise<void> {
+    await requestAPI<void>('model-parameters', {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json'
