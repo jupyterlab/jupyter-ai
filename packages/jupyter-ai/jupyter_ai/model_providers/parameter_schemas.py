@@ -1,5 +1,6 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, cast, Literal, Optional
+from pydantic import BaseModel
 
 if TYPE_CHECKING:
     from typing import Any
@@ -110,26 +111,36 @@ PARAMETER_SCHEMAS: dict[str, dict[str, Any]] = {
     }
 }
 
-def get_parameter_schema(param_name: str) -> dict[str, Any]:
+
+class ParameterSchema(BaseModel):
+    """Pydantic model for parameter schema definition."""
+    type: Literal['boolean', 'integer', 'float', 'string', 'array', 'object']
+    description: str
+    min: Optional[float] = None
+    max: Optional[float] = None
+
+
+class GetModelParametersResponse(BaseModel):
+    """Pydantic model for GET model parameters response."""
+    parameters: dict[str, ParameterSchema]
+    parameter_names: list[str]
+
+
+def get_parameter_schema(param_name: str) -> ParameterSchema:
     """
     Get the schema for a specific parameter.
-
-    TODO: Define a Pydantic model for the parameter schema, e.g.
-    `ParameterSchema`. Update the return type annotation to `ParameterSchema`.
     """
     schema = PARAMETER_SCHEMAS.get(param_name)
     if schema is None:
-        return {
-            "type": "string",
-            "description": f"Parameter {param_name} (schema not defined)"
-        }
-    return schema
+        return ParameterSchema(
+            type="string",
+            description=f"Parameter {param_name} (schema not defined)"
+        )
+    return ParameterSchema(**schema)
 
-def get_parameters_with_schemas(param_names: list[str]) -> dict[str, Any]:
+def get_parameters_with_schemas(param_names: list[str]) -> dict[str, ParameterSchema]:
     """
     Get schemas for a list of parameter names.
-
-    TODO: Update the return type annotation to `dict[str, ParameterSchema]`.
     """
     return {
         name: get_parameter_schema(name) 

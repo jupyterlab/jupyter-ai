@@ -3,7 +3,7 @@ from tornado.web import authenticated, HTTPError
 import json
 
 from litellm.litellm_core_utils.get_supported_openai_params import get_supported_openai_params
-from .parameter_schemas import get_parameters_with_schemas, coerce_parameter_value
+from .parameter_schemas import get_parameters_with_schemas, coerce_parameter_value, GetModelParametersResponse
 from ..config_manager import ConfigManager
 from ..config import UpdateConfigRequest
     
@@ -56,16 +56,14 @@ class ModelParametersRestAPI(BaseAPIHandler):
             # Get parameter schemas with types, defaults, and descriptions
             parameters_with_schemas = get_parameters_with_schemas(parameter_names)
             
-            # TODO: Define the response type as a Pydantic model to prevent
-            # breaking API changes, e.g. `GetModelParametersResponse`.
-            #
-            response = {
-                "parameters": parameters_with_schemas,
-                "parameter_names": parameter_names
-            }
+            # Create Pydantic response model
+            response = GetModelParametersResponse(
+                parameters=parameters_with_schemas,
+                parameter_names=parameter_names
+            )
             
             self.set_header("Content-Type", "application/json")
-            self.finish(json.dumps(response))
+            self.finish(response.model_dump_json())
             
         except Exception as e:
             self.log.exception("Failed to get model parameters")
