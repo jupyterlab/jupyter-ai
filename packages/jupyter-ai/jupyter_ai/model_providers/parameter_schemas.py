@@ -7,13 +7,13 @@ if TYPE_CHECKING:
 
 PARAMETER_SCHEMAS: dict[str, dict[str, Any]] = {
     "temperature": {
-        "type": "number",
+        "type": "float",
         "min": 0,
         "max": 2,
         "description": "Controls randomness in the output. Lower values make it more focused and deterministic."
     },
     "top_p": {
-        "type": "number", 
+        "type": "float", 
         "min": 0,
         "max": 1,
         "description": "Nucleus sampling parameter. Consider tokens with top_p probability mass."
@@ -69,13 +69,13 @@ PARAMETER_SCHEMAS: dict[str, dict[str, Any]] = {
     # },
     
     "presence_penalty": {
-        "type": "number",
+        "type": "float",
         "min": -2,
         "max": 2,
         "description": "Penalize new tokens based on whether they appear in the text so far."
     },
     "frequency_penalty": {
-        "type": "number",
+        "type": "float",
         "min": -2,
         "max": 2,
         "description": "Penalize new tokens based on their frequency in the text so far."
