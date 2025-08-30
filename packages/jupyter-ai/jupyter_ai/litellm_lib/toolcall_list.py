@@ -29,10 +29,9 @@ class ResolvedToolCall(BaseModel):
     `litellm.utils.ChatCompletionDeltaToolCall`.
     """
 
-    id: str | None
+    id: str
     """
-    The ID of the tool call. This should always be provided by LiteLLM, this
-    type is left optional as we do not use this attribute.
+    The ID of the tool call.
     """
 
     type: str
@@ -62,7 +61,7 @@ class ToolCallList(BaseModel):
     is used to aggregate the tool call deltas yielded from a LiteLLM response
     stream and produce a list of tool calls.
 
-    After all tool call deltas are added, the `process()` method may be called
+    After all tool call deltas are added, the `resolve()` method may be called
     to return a list of resolved tool calls.
 
     Example usage:
@@ -75,7 +74,7 @@ class ToolCallList(BaseModel):
         tool_call_delta = chunk.choices[0].delta.tool_calls
         tool_call_list += tool_call_delta
     
-    tool_call_list.resolve()
+    tool_calls = tool_call_list.resolve()
     ```
     """
 
@@ -128,7 +127,11 @@ class ToolCallList(BaseModel):
             
     def resolve(self) -> list[ResolvedToolCall]:
         """
-        Resolve the aggregated tool call delta lists into a list of tool calls.
+        Returns the aggregated tool calls as `list[ResolvedToolCall]`.
+
+        Raises an exception if any function arguments could not be parsed from
+        JSON into a dictionary. This method should only be called after the
+        stream completed without errors.
         """
         resolved_toolcalls: list[ResolvedToolCall] = []
         for i, raw_toolcall in enumerate(self._aggregate):

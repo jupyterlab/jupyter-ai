@@ -17,15 +17,12 @@ from traitlets import MetaHasTraits
 from traitlets.config import LoggingConfigurable
 
 from .persona_awareness import PersonaAwareness
-from ..litellm_utils import ToolCallList, StreamResult, run_tools, ToolCallOutput
-
-# Import toolkits
+from ..litellm_lib import ToolCallList, StreamResult, run_tools
 from ..tools.default_toolkit import DEFAULT_TOOLKIT
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
     from .persona_manager import PersonaManager
-    from ..tools import Toolkit
 
 class PersonaDefaults(BaseModel):
     """
