@@ -1,11 +1,10 @@
 from typing import Any, Optional
 import time
-import json
 
 from jupyterlab_chat.models import Message
 from litellm import acompletion
 
-from ...litellm_utils import StreamResult, ToolCallOutput
+from ...litellm_lib import StreamResult, ToolCallOutput
 from ..base_persona import BasePersona, PersonaDefaults
 from ..persona_manager import SYSTEM_USERNAME
 from .prompt_template import (
@@ -110,15 +109,6 @@ class JupyternautPersona(BasePersona):
 
 
     def render_tool_call_outputs(self, message_id: str, tool_call_outputs: list[dict]):
-        # TODO
-        # self.ychat.update_message(Message(
-        #     id=message_id,
-        #     body=f"\n\n```\n{json.dumps(tool_call_outputs, indent=2)}\n```\n",
-        #     sender=self.id,
-        #     time=time.time(),
-        #     raw_time=False
-        # ), append=True)
-
         # Updates the content of the last message directly
         message = self.ychat.get_message(message_id)
         body = message.body
@@ -134,7 +124,6 @@ class JupyternautPersona(BasePersona):
                 f'<jai-tool-call id="{tool_id}" output="{tool_output}"',
             )
 
-        self.log.error(body)
         self.ychat.update_message(Message(
             id=message.id,
             time=time.time(),

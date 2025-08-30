@@ -1,3 +1,4 @@
+from __future__ import annotations
 from pydantic import BaseModel
 from .toolcall_list import ToolCallList
 
@@ -11,3 +12,10 @@ class StreamResult(BaseModel):
     """
     Tool calls requested by the LLM in its streamed response.
     """
+
+class ToolCallOutput(BaseModel):
+    tool_call_id: str
+    role: str = "tool"
+    name: str
+    content: str
+

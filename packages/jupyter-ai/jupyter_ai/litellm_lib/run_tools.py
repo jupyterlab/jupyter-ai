@@ -1,14 +1,6 @@
 import asyncio
-from pydantic import BaseModel
 from .toolcall_list import ToolCallList
 from ..tools import Toolkit
-
-
-class ToolCallOutput(BaseModel):
-    tool_call_id: str
-    role: str = "tool"
-    name: str
-    content: str
 
 
 async def run_tools(tool_call_list: ToolCallList, toolkit: Toolkit) -> list[dict]:
