@@ -45,7 +45,7 @@ export function ModelParametersInput(
   const [validationError, setValidationError] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const alert = useStackingAlert();
-  const argumentValueRefs = useRef<Record<string, HTMLInputElement | null>>({});
+  const argumentValueRefs = useRef<Record<number, HTMLInputElement | null>>({});
 
   const inferParameterType = (value: any): string => {
     if (typeof value === 'boolean') {
@@ -131,14 +131,19 @@ export function ModelParametersInput(
   };
 
   const handleParameterChange = (
-    name: string,
+    index: number,
     field: keyof ModelParameter,
     value: string
   ) => {
     setParameters(prev =>
-      prev.map(param =>
-        param.name === name
-          ? { ...param, [field]: value, isStatic: false }
+      prev.map((param, i) =>
+        i === index
+          ? { 
+              ...param, 
+              [field]: value, 
+              // Only mark as non-static if it wasn't already static
+              isStatic: param.isStatic && field !== 'value' ? param.isStatic : false
+            }
           : param
       )
     );
@@ -147,14 +152,14 @@ export function ModelParametersInput(
     // Auto-focus on the argument value input when type is selected
     if (field === 'type' && value) {
       setTimeout(() => {
-        argumentValueRefs.current[name]?.focus();
+        argumentValueRefs.current[index]?.focus();
       }, 0);
     }
   };
 
   // Handle parameter name selection from dropdown
   const handleParameterNameSelect = (
-    currentName: string,
+    index: number,
     paramName: string | null
   ) => {
     if (!paramName) {
@@ -163,8 +168,8 @@ export function ModelParametersInput(
     const paramSchema = availableParameters?.parameters?.[paramName];
 
     setParameters(prev =>
-      prev.map(param =>
-        param.name === currentName
+      prev.map((param, i) =>
+        i === index
           ? {
               ...param,
               name: paramName,
@@ -177,8 +182,8 @@ export function ModelParametersInput(
     setValidationError('');
   };
 
-  const handleDeleteParameter = (name: string) => {
-    setParameters(prev => prev.filter(param => param.name !== name));
+  const handleDeleteParameter = (index: number) => {
+    setParameters(prev => prev.filter((_, i) => i !== index));
     setValidationError('');
   };
 
@@ -311,7 +316,7 @@ export function ModelParametersInput(
               options={getParameterOptions(param.name)}
               value={param.name || null}
               onChange={(_, newValue) => {
-                handleParameterNameSelect(param.name, newValue);
+                handleParameterNameSelect(index, newValue);
               }}
               freeSolo
               size="small"
@@ -358,7 +363,7 @@ export function ModelParametersInput(
               value={param.type}
               label="Parameter type"
               onChange={e =>
-                handleParameterChange(param.name, 'type', e.target.value)
+                handleParameterChange(index, 'type', e.target.value)
               }
               disabled={param.isStatic}
             >
@@ -374,16 +379,16 @@ export function ModelParametersInput(
             placeholder="e.g. 0.7, https://localhost:8989"
             value={param.value}
             onChange={e =>
-              handleParameterChange(param.name, 'value', e.target.value)
+              handleParameterChange(index, 'value', e.target.value)
             }
             size="small"
             sx={{ flex: 1 }}
             inputRef={el => {
-              argumentValueRefs.current[param.name] = el;
+              argumentValueRefs.current[index] = el;
             }}
           />
           <IconButton
-            onClick={() => handleDeleteParameter(param.name)}
+            onClick={() => handleDeleteParameter(index)}
             color="error"
             size="small"
             sx={{ ml: 1 }}
