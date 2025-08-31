@@ -1,10 +1,9 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, cast, Literal, Optional, Any
+from typing import TYPE_CHECKING, cast, Literal, Any
 from pydantic import BaseModel
 
 if TYPE_CHECKING:
     pass
-
 
 PARAMETER_SCHEMAS: dict[str, dict[str, Any]] = {
     "temperature": {
