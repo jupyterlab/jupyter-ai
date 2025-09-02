@@ -138,11 +138,12 @@ export function ModelParametersInput(
     setParameters(prev =>
       prev.map((param, i) =>
         i === index
-          ? { 
-              ...param, 
-              [field]: value, 
+          ? {
+              ...param,
+              [field]: value,
               // Only mark as non-static if it wasn't already static
-              isStatic: param.isStatic && field !== 'value' ? param.isStatic : false
+              isStatic:
+                param.isStatic && field !== 'value' ? param.isStatic : false
             }
           : param
       )
