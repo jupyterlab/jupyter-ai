@@ -308,7 +308,7 @@ def list_subparser(**kwargs):
 )
 def register_subparser(**kwargs):
     """Register a new alias called NAME for the model or chain named TARGET.
-    
+
     Optional parameters:
     --api-base: Base URL for the API endpoint
     --api-key-name: Name of the environment variable containing the API key
@@ -343,7 +343,7 @@ def dealias_subparser(**kwargs):
 )
 def update_subparser(**kwargs):
     """Update an alias called NAME to refer to the model or chain named TARGET.
-    
+
     Optional parameters:
     --api-base: Base URL for the API endpoint
     --api-key-name: Name of the environment variable containing the API key
