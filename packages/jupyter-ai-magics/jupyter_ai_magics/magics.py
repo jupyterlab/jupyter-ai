@@ -1,16 +1,15 @@
 import base64
 import json
+import os
 import re
 import sys
 import warnings
 from typing import Any, Optional
-import os
-from dotenv import load_dotenv
 
 import click
 import litellm
 import traitlets
-from typing import Optional
+from dotenv import load_dotenv
 from IPython.core.magic import Magics, line_cell_magic, magics_class
 from IPython.display import HTML, JSON, Markdown, Math
 from jupyter_ai.model_providers.model_list import CHAT_MODELS
@@ -32,6 +31,7 @@ from .parsers import (
 
 # Load the .env file from the workspace root
 dotenv_path = os.path.join(os.getcwd(), ".env")
+
 
 class TextOrMarkdown:
     def __init__(self, text, markdown):
@@ -128,12 +128,14 @@ class AiMagics(Magics):
     # This should only set the "starting set" of aliases
     initial_aliases = traitlets.Dict(
         default_value={},
-        value_trait=traitlets.Unicode(),
+        value_trait=traitlets.Dict(),
         key_trait=traitlets.Unicode(),
         help="""Aliases for model identifiers.
 
-        Keys define aliases, values define the provider and the model to use.
-        The values should include identifiers in in the `provider:model` format.
+        Keys define aliases, values define a dictionary containing:
+        - target: The provider and model to use in the `provider:model` format
+        - api_base: Optional base URL for the API endpoint
+        - api_key_name: Optional name of the environment variable containing the API key
         """,
         config=True,
     )
@@ -183,8 +185,11 @@ class AiMagics(Magics):
         # This is useful for users to know that they can set API keys in the JupyterLab
         # UI, but it is not always required to run the extension.
         if not os.path.isfile(dotenv_path):
-            print(f"No `.env` file containing provider API keys found at {dotenv_path}. \
-                  You can add API keys to the `.env` file via the AI Settings in the JupyterLab UI.", file=sys.stderr)
+            print(
+                f"No `.env` file containing provider API keys found at {dotenv_path}. \
+                  You can add API keys to the `.env` file via the AI Settings in the JupyterLab UI.",
+                file=sys.stderr,
+            )
 
         # TODO: use LiteLLM aliases to provide this
         # https://docs.litellm.ai/docs/completion/model_alias
@@ -240,7 +245,10 @@ class AiMagics(Magics):
                 print(error_msg, file=sys.stderr)
                 return
             if not args:
-                print("No valid %ai magics arguments given, run `%ai help` for all options.", file=sys.stderr)
+                print(
+                    "No valid %ai magics arguments given, run `%ai help` for all options.",
+                    file=sys.stderr,
+                )
                 return
             raise e
 
@@ -306,21 +314,23 @@ class AiMagics(Magics):
 
         # Resolve model_id: check if it's in CHAT_MODELS or an alias
         model_id = args.model_id
-        if model_id not in CHAT_MODELS:
-            # Check if it's an alias
-            if model_id in self.aliases:
-                model_id = self.aliases[model_id]
-            else:
-                error_msg = f"Model ID '{model_id}' is not a known model or alias. Run '%ai list' to see available models and aliases."
-                print(error_msg, file=sys.stderr)  # Log to stderr
-                return
+        # Check if model_id is an alias and get stored configuration
+        alias_config = None
+        if model_id not in CHAT_MODELS and model_id in self.aliases:
+            alias_config = self.aliases[model_id]
+            model_id = alias_config["target"]
+            # Use stored api_base and api_key_name if not provided in current call
+            if not args.api_base and alias_config["api_base"]:
+                args.api_base = alias_config["api_base"]
+            if not args.api_key_name and alias_config["api_key_name"]:
+                args.api_key_name = alias_config["api_key_name"]
+        elif model_id not in CHAT_MODELS:
+            error_msg = f"Model ID '{model_id}' is not a known model or alias. Run '%ai list' to see available models and aliases."
+            print(error_msg, file=sys.stderr)  # Log to stderr
+            return
         try:
             # Prepare litellm completion arguments
-            completion_args = {
-                "model": model_id, 
-                "messages": messages, 
-                "stream": False
-            }
+            completion_args = {"model": model_id, "messages": messages, "stream": False}
 
             # Add api_base if provided
             if args.api_base:
@@ -493,8 +503,12 @@ class AiMagics(Magics):
         if args.name in AI_COMMANDS:
             raise ValueError(f"The name {args.name} is reserved for a command")
 
-        # Store the alias
-        self.aliases[args.name] = args.target
+        # Store the alias with its configuration
+        self.aliases[args.name] = {
+            "target": args.target,
+            "api_base": args.api_base,
+            "api_key_name": args.api_key_name,
+        }
 
         output = f"Registered new alias `{args.name}`"
         return TextOrMarkdown(output, output)
@@ -508,7 +522,7 @@ class AiMagics(Magics):
 
     def handle_list(self, args: ListArgs):
         """
-        Handles `%ai list`. 
+        Handles `%ai list`.
          - `%ai list` shows all providers by default, and ask the user to run %ai list <provider-name>.
          - `%ai list <provider-name>` shows all models available from one provider. It should also note that the list is not comprehensive, and include a reference to the upstream LiteLLM docs.
          - `%ai list all` should list all models.
@@ -517,12 +531,12 @@ class AiMagics(Magics):
         models = CHAT_MODELS
 
         # If provider_id is None, only return provider IDs
-        if getattr(args, 'provider_id', None) is None:
+        if getattr(args, "provider_id", None) is None:
             # Extract unique provider IDs from model IDs
             provider_ids = set()
             for model in models:
-                if '/' in model:
-                    provider_ids.add(model.split('/')[0])
+                if "/" in model:
+                    provider_ids.add(model.split("/")[0])
 
             # Format output for both text and markdown
             text_output = "Available providers\n\n (Run `%ai list <provider_name>` to see models for a specific provider)\n\n"
@@ -533,9 +547,9 @@ class AiMagics(Magics):
                 markdown_output += f"* `{provider_id}`\n"
 
             return TextOrMarkdown(text_output, markdown_output)
-        
-        elif getattr(args, 'provider_id', None) == 'all':
-        # Otherwise show all models and aliases
+
+        elif getattr(args, "provider_id", None) == "all":
+            # Otherwise show all models and aliases
             text_output = "All available models\n\n  (The list is not comprehensive, a list of models is available at https://docs.litellm.ai/docs/providers)\n\n"
             markdown_output = "## All available models \n\n (The list is not comprehensive, a list of models is available at https://docs.litellm.ai/docs/providers)\n\n"
 
@@ -547,12 +561,25 @@ class AiMagics(Magics):
             if len(self.aliases) > 0:
                 text_output += "\nAliases:\n"
                 markdown_output += "\n### Aliases\n\n"
-                for alias, target in self.aliases.items():
-                    text_output += f"* {alias} -> {target}\n"
-                    markdown_output += f"* `{alias}` -> `{target}`\n"
+                for alias, config in self.aliases.items():
+                    text_output += f"* {alias}:\n"
+                    text_output += f"  - target: {config['target']}\n"
+                    if config["api_base"]:
+                        text_output += f"  - api_base: {config['api_base']}\n"
+                    if config["api_key_name"]:
+                        text_output += f"  - api_key_name: {config['api_key_name']}\n"
+
+                    markdown_output += f"* `{alias}`:\n"
+                    markdown_output += f"  - target: `{config['target']}`\n"
+                    if config["api_base"]:
+                        markdown_output += f"  - api_base: `{config['api_base']}`\n"
+                    if config["api_key_name"]:
+                        markdown_output += (
+                            f"  - api_key_name: `{config['api_key_name']}`\n"
+                        )
 
             return TextOrMarkdown(text_output, markdown_output)
-        
+
         else:
             # If a specific provider_id is given, filter models by that provider
             provider_id = args.provider_id
@@ -575,10 +602,24 @@ class AiMagics(Magics):
             if len(self.aliases) > 0:
                 text_output += "\nAliases:\n"
                 markdown_output += "\n### Aliases\n\n"
-                for alias, target in self.aliases.items():
-                    if target.startswith(provider_id + "/"):
-                        text_output += f"* {alias} -> {target}\n"
-                        markdown_output += f"* `{alias}` -> `{target}`\n"
+                for alias, config in self.aliases.items():
+                    if config["target"].startswith(provider_id + "/"):
+                        text_output += f"* {alias}:\n"
+                        text_output += f"  - target: {config['target']}\n"
+                        if config["api_base"]:
+                            text_output += f"  - api_base: {config['api_base']}\n"
+                        if config["api_key_name"]:
+                            text_output += (
+                                f"  - api_key_name: {config['api_key_name']}\n"
+                            )
 
+                        markdown_output += f"* `{alias}`:\n"
+                        markdown_output += f"  - target: `{config['target']}`\n"
+                        if config["api_base"]:
+                            markdown_output += f"  - api_base: `{config['api_base']}`\n"
+                        if config["api_key_name"]:
+                            markdown_output += (
+                                f"  - api_key_name: `{config['api_key_name']}`\n"
+                            )
 
             return TextOrMarkdown(text_output, markdown_output)
