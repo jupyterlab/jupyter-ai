@@ -88,6 +88,8 @@ class RegisterArgs(BaseModel):
     type: Literal["alias"] = "alias"
     name: str
     target: str
+    api_base: Optional[str] = None
+    api_key_name: Optional[str] = None
 
 
 class DeleteArgs(BaseModel):
@@ -99,6 +101,8 @@ class UpdateArgs(BaseModel):
     type: Literal["update"] = "update"
     name: str
     target: str
+    api_base: Optional[str] = None
+    api_key_name: Optional[str] = None
 
 
 class ResetArgs(BaseModel):
@@ -292,8 +296,23 @@ def list_subparser(**kwargs):
 )
 @click.argument("name")
 @click.argument("target")
+@click.option(
+    "--api-base",
+    required=False,
+    help="Base URL for the API endpoint.",
+)
+@click.option(
+    "--api-key-name",
+    required=False,
+    help="Name of the environment variable containing the API key.",
+)
 def register_subparser(**kwargs):
-    """Register a new alias called NAME for the model or chain named TARGET."""
+    """Register a new alias called NAME for the model or chain named TARGET.
+
+    Optional parameters:
+    --api-base: Base URL for the API endpoint
+    --api-key-name: Name of the environment variable containing the API key
+    """
     return RegisterArgs(**kwargs)
 
 
@@ -301,15 +320,34 @@ def register_subparser(**kwargs):
     name="dealias", short_help="Delete an alias. See `%ai dealias --help` for options."
 )
 @click.argument("name")
-def register_subparser(**kwargs):
+def dealias_subparser(**kwargs):
     """Delete an alias called NAME."""
     return DeleteArgs(**kwargs)
 
 
+@line_magic_parser.command(
+    name="update",
+    short_help="Update an alias. See `%ai update --help` for options.",
+)
 @click.argument("name")
 @click.argument("target")
-def register_subparser(**kwargs):
-    """Update an alias called NAME to refer to the model or chain named TARGET."""
+@click.option(
+    "--api-base",
+    required=False,
+    help="Base URL for the API endpoint.",
+)
+@click.option(
+    "--api-key-name",
+    required=False,
+    help="Name of the environment variable containing the API key.",
+)
+def update_subparser(**kwargs):
+    """Update an alias called NAME to refer to the model or chain named TARGET.
+
+    Optional parameters:
+    --api-base: Base URL for the API endpoint
+    --api-key-name: Name of the environment variable containing the API key
+    """
     return UpdateArgs(**kwargs)
 
 
@@ -317,6 +355,6 @@ def register_subparser(**kwargs):
     name="reset",
     short_help="Clear the conversation transcript.",
 )
-def register_subparser(**kwargs):
+def reset_subparser(**kwargs):
     """Clear the conversation transcript."""
     return ResetArgs()
