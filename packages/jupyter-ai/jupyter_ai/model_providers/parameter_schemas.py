@@ -1,9 +1,6 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, cast, Literal, Any
+from typing import Literal, Any
 from pydantic import BaseModel
-
-if TYPE_CHECKING:
-    pass
 
 PARAMETER_SCHEMAS: dict[str, dict[str, Any]] = {
     "temperature": {
@@ -110,7 +107,6 @@ PARAMETER_SCHEMAS: dict[str, dict[str, Any]] = {
     }
 }
 
-
 class ParameterSchema(BaseModel):
     """Pydantic model for parameter schema definition."""
     type: Literal['boolean', 'integer', 'float', 'string', 'array', 'object']
@@ -127,7 +123,6 @@ class UpdateModelParametersResponse(BaseModel):
     message: str
     model_id: str
     parameters: dict[str, Any]
-
 
 def get_parameter_schema(param_name: str) -> ParameterSchema:
     """

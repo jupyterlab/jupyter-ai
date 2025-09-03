@@ -120,9 +120,6 @@ class ModelParametersRestAPI(BaseAPIHandler):
             
             # Create Pydantic response model for API compatibility
             response = UpdateModelParametersResponse(
-                status="success",
-                message=f"Parameters saved for model {model_id}",
-                model_id=model_id,
                 parameters=coerced_parameters
             )
             

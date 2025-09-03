@@ -209,6 +209,10 @@ export namespace AiService {
     max?: number;
   };
 
+  export type UpdateModelParametersResponse = {
+    parameters: Record<string, any>;
+  };
+
   export async function getModelParameters(
     modelId?: string,
     provider?: string
@@ -230,8 +234,8 @@ export namespace AiService {
   export async function saveModelParameters(
     modelId: string,
     parameters: Record<string, any>
-  ): Promise<void> {
-    await requestAPI<void>('model-parameters', {
+  ): Promise<UpdateModelParametersResponse> {
+    return await requestAPI<UpdateModelParametersResponse>('model-parameters', {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json'
