@@ -1,19 +1,16 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, cast
-
-if TYPE_CHECKING:
-    from typing import Any
-
+from typing import Literal, Any
+from pydantic import BaseModel
 
 PARAMETER_SCHEMAS: dict[str, dict[str, Any]] = {
     "temperature": {
-        "type": "number",
+        "type": "float",
         "min": 0,
         "max": 2,
         "description": "Controls randomness in the output. Lower values make it more focused and deterministic."
     },
     "top_p": {
-        "type": "number", 
+        "type": "float", 
         "min": 0,
         "max": 1,
         "description": "Nucleus sampling parameter. Consider tokens with top_p probability mass."
@@ -69,13 +66,13 @@ PARAMETER_SCHEMAS: dict[str, dict[str, Any]] = {
     # },
     
     "presence_penalty": {
-        "type": "number",
+        "type": "float",
         "min": -2,
         "max": 2,
         "description": "Penalize new tokens based on whether they appear in the text so far."
     },
     "frequency_penalty": {
-        "type": "number",
+        "type": "float",
         "min": -2,
         "max": 2,
         "description": "Penalize new tokens based on their frequency in the text so far."
@@ -110,26 +107,35 @@ PARAMETER_SCHEMAS: dict[str, dict[str, Any]] = {
     }
 }
 
-def get_parameter_schema(param_name: str) -> dict[str, Any]:
+class ParameterSchema(BaseModel):
+    """Pydantic model for parameter schema definition."""
+    type: Literal['boolean', 'integer', 'float', 'string', 'array', 'object']
+    description: str
+
+class GetModelParametersResponse(BaseModel):
+    """Pydantic model for GET model parameters response."""
+    parameters: dict[str, ParameterSchema]
+    parameter_names: list[str]
+
+class UpdateModelParametersResponse(BaseModel):
+    """Pydantic model for PUT model parameters response."""
+    parameters: dict[str, Any]
+
+def get_parameter_schema(param_name: str) -> ParameterSchema:
     """
     Get the schema for a specific parameter.
-
-    TODO: Define a Pydantic model for the parameter schema, e.g.
-    `ParameterSchema`. Update the return type annotation to `ParameterSchema`.
     """
     schema = PARAMETER_SCHEMAS.get(param_name)
     if schema is None:
-        return {
-            "type": "string",
-            "description": f"Parameter {param_name} (schema not defined)"
-        }
-    return schema
+        return ParameterSchema(
+            type="string",
+            description=f"Parameter {param_name} (schema not defined)"
+        )
+    return ParameterSchema(**schema)
 
-def get_parameters_with_schemas(param_names: list[str]) -> dict[str, Any]:
+def get_parameters_with_schemas(param_names: list[str]) -> dict[str, ParameterSchema]:
     """
     Get schemas for a list of parameter names.
-
-    TODO: Update the return type annotation to `dict[str, ParameterSchema]`.
     """
     return {
         name: get_parameter_schema(name) 
