@@ -119,9 +119,6 @@ class GetModelParametersResponse(BaseModel):
 
 class UpdateModelParametersResponse(BaseModel):
     """Pydantic model for PUT model parameters response."""
-    status: str
-    message: str
-    model_id: str
     parameters: dict[str, Any]
 
 def get_parameter_schema(param_name: str) -> ParameterSchema:
