@@ -2,6 +2,36 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 3.0.0beta7
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@3.0.0-beta.6...55aff83376e770ee9953e8949ba11b7d54109650))
+
+### Enhancements made
+
+- Upgrade to `jupyterlab-chat` v0.17.0 [#1480](https://github.com/jupyterlab/jupyter-ai/pull/1480) ([@dlqqq](https://github.com/dlqqq))
+- Add `api_base` to common model parameters [#1478](https://github.com/jupyterlab/jupyter-ai/pull/1478) ([@jonahjung22](https://github.com/jonahjung22))
+- [magics] Add options to include the API url & key with alias [#1477](https://github.com/jupyterlab/jupyter-ai/pull/1477) ([@srdas](https://github.com/srdas))
+- Simplify model parameter REST API [#1475](https://github.com/jupyterlab/jupyter-ai/pull/1475) ([@jonahjung22](https://github.com/jonahjung22))
+- Add model parameter type dropdown [#1473](https://github.com/jupyterlab/jupyter-ai/pull/1473) ([@jonahjung22](https://github.com/jonahjung22))
+- [magics] Add `--api-base` and `--api-key-name` arguments [#1471](https://github.com/jupyterlab/jupyter-ai/pull/1471) ([@srdas](https://github.com/srdas))
+- Show the AI settings in the right area with Jupyter Notebook [#1470](https://github.com/jupyterlab/jupyter-ai/pull/1470) ([@jtpio](https://github.com/jtpio))
+
+### Bugs fixed
+
+- Fix empty directory for Jupyter AI config [#1472](https://github.com/jupyterlab/jupyter-ai/pull/1472) ([@andreyvelich](https://github.com/andreyvelich))
+
+### Maintenance and upkeep improvements
+
+- fixes directory of pr template [#1474](https://github.com/jupyterlab/jupyter-ai/pull/1474) ([@jonahjung22](https://github.com/jonahjung22))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2025-08-22&to=2025-09-10&type=c))
+
+[@andreyvelich](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aandreyvelich+updated%3A2025-08-22..2025-09-10&type=Issues) | [@brichet](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Abrichet+updated%3A2025-08-22..2025-09-10&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2025-08-22..2025-09-10&type=Issues) | [@ellisonbg](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aellisonbg+updated%3A2025-08-22..2025-09-10&type=Issues) | [@jonahjung22](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ajonahjung22+updated%3A2025-08-22..2025-09-10&type=Issues) | [@jtpio](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ajtpio+updated%3A2025-08-22..2025-09-10&type=Issues) | [@srdas](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2025-08-22..2025-09-10&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 3.0.0beta6
 
 This release includes several major upgrades to Jupyter AI v3, most notably migrating from Langchain to LiteLLM.
@@ -39,8 +69,6 @@ There are some minor breaking changes:
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2025-07-25&to=2025-08-22&type=c))
 
 [@andrii-i](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aandrii-i+updated%3A2025-07-25..2025-08-22&type=Issues) | [@cszhbo](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Acszhbo+updated%3A2025-07-25..2025-08-22&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2025-07-25..2025-08-22&type=Issues) | [@jonahjung22](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ajonahjung22+updated%3A2025-07-25..2025-08-22&type=Issues) | [@srdas](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2025-07-25..2025-08-22&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 3.0.0beta5
 
