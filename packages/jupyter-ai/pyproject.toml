@@ -35,7 +35,7 @@ dependencies = [
     "deepmerge>=2.0,<3",
     # NOTE: Make sure to update the corresponding dependency in
     # `packages/jupyter-ai/package.json` to match the version range below
-    "jupyterlab-chat>=0.16.0,<0.17.0",
+    "jupyterlab-chat>=0.17.0,<0.18.0",
     "litellm>=1.73,<2",
     "jinja2>=3.0,<4",
     "python_dotenv>=1,<2",
