@@ -121,7 +121,6 @@ class RootNode(JaiAsyncNode):
     """
 
     async def prep_async(self, shared):
-        self.log.info("Running RootNode.prep_async()")
         # Initialize `shared.litellm_messages` using the YChat message history
         # if it is unset.
         if not ('litellm_messages' in shared and isinstance(shared['litellm_messages'], list) and len(shared['litellm_messages']) > 0):
@@ -325,5 +324,12 @@ async def run_default_flow(params: DefaultFlowParams):
     flow.set_params(params)
 
     # Finally, run the async node
-    await flow.run_async({})
+    try:
+        params['awareness'].set_local_state_field("isWriting", True)
+        await flow.run_async({})
+    except Exception as e:
+        # TODO: implement error handling
+        params['logger'].exception("Exception occurred while running default agent flow:")
+    finally:
+        params['awareness'].set_local_state_field("isWriting", False)
 
