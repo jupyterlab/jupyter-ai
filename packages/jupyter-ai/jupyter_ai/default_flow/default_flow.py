@@ -207,7 +207,6 @@ class RootNode(JaiAsyncNode):
                 "content": content,
                 "tool_call_ui_elements": tool_calls.render()
             })
-            self.log.error(message_body)
             self.ychat.update_message(
                 Message(
                     id=stream_id,
@@ -274,8 +273,6 @@ class ToolExecutorNode(JaiAsyncNode):
         # TODO: Run 1 tool at a time?
         outputs = await run_tools(tool_calls, self.toolkit)
 
-        for output in outputs:
-            self.log.error(output)
         return outputs
     
     async def post_async(self, shared, prep_res: Tuple[str, ToolCallList], exec_res: list[LitellmToolCallOutput]):
@@ -300,12 +297,9 @@ class ToolExecutorNode(JaiAsyncNode):
                 raw_time=False,
             )
         )
-        self.log.error(message_body)
 
         # Add tool outputs to `shared['litellm_messages']`
         shared['litellm_messages'].extend(exec_res)
-        for msg in shared['litellm_messages']:
-            self.log.error(msg)
 
         # Delete shared state that is now stale
         del shared['prev_message_id']
