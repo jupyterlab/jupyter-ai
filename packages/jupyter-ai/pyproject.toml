@@ -39,6 +39,7 @@ dependencies = [
     "litellm>=1.73,<2",
     "jinja2>=3.0,<4",
     "python_dotenv>=1,<2",
+    "pocketflow==0.0.3",
 ]
 
 dynamic = ["version", "description", "authors", "urls", "keywords"]

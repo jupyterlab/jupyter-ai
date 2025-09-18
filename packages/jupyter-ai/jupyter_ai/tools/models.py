@@ -1,5 +1,6 @@
 import re
 from typing import Callable, Optional
+from litellm.utils import function_to_dict
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -135,7 +136,7 @@ class Toolkit(BaseModel):
 
     name: str
     description: Optional[str] = None
-    tools: set = Field(default_factory=set)
+    tools: set[Tool] = Field(default_factory=set)
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     def add_tool(self, tool: Tool):
@@ -145,6 +146,19 @@ class Toolkit(BaseModel):
             tool: The tool to add to the toolkit.
         """
         self.tools.add(tool)
+
+    def get_tool_unsafe(self, tool_name: str) -> Tool:
+        """
+        (WIP) Gets a tool by its name. This is just a temporary method which is
+        used to make Jupyternaut agentic before we implement the
+        read/write/execute/delete permissions.
+        """
+        for tool in self.tools:
+            if tool_name == tool.name:
+                return tool
+        
+        raise Exception(f"Tool not found: {tool_name}")
+        
 
     def get_tools(
         self,
@@ -202,3 +216,24 @@ class Toolkit(BaseModel):
                 toolset.add(tool)
 
         return toolset
+    
+    def to_json(self) -> list[dict]:
+        """
+        Returns a list of tool descriptions in the type expected by LiteLLM.
+        """
+        tool_descriptions = []
+
+        # Get all tools from the default toolkit and store their object descriptions
+        for tool in self.get_tools():
+            # Here, we are using a util function from LiteLLM to coerce
+            # each `Tool` struct into a tool description dictionary expected
+            # by LiteLLM.
+            desc = {
+                "type": "function",
+                "function": function_to_dict(tool.callable),
+            }
+            tool_descriptions.append(desc)
+
+        # Finally, return the tool descriptions
+        return tool_descriptions
+

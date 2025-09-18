@@ -1,14 +1,12 @@
-from typing import Any, Optional
-
 from jupyterlab_chat.models import Message
-from litellm import acompletion
 
 from ..base_persona import BasePersona, PersonaDefaults
-from ..persona_manager import SYSTEM_USERNAME
+from ...default_flow import run_default_flow, DefaultFlowParams
 from .prompt_template import (
     JUPYTERNAUT_SYSTEM_PROMPT_TEMPLATE,
     JupyternautSystemPromptArgs,
 )
+from ...tools import DEFAULT_TOOLKIT
 
 
 class JupyternautPersona(BasePersona):
@@ -29,6 +27,7 @@ class JupyternautPersona(BasePersona):
         )
 
     async def process_message(self, message: Message) -> None:
+        # Return early if no chat model is configured
         if not self.config_manager.chat_model:
             self.send_message(
                 "No chat model is configured.\n\n"
@@ -36,67 +35,28 @@ class JupyternautPersona(BasePersona):
             )
             return
 
-        model_id = self.config_manager.chat_model
-        model_args = self.config_manager.chat_model_args
-        context_as_messages = self.get_context_as_messages(model_id, message)
-        response_aiter = await acompletion(
-            **model_args,
-            model=model_id,
-            messages=[
-                *context_as_messages,
-                {
-                    "role": "user",
-                    "content": message.body,
-                },
-            ],
-            stream=True,
-        )
-
-        await self.stream_message(response_aiter)
-
-    def get_context_as_messages(
-        self, model_id: str, message: Message
-    ) -> list[dict[str, Any]]:
-        """
-        Returns the current context, including attachments and recent messages,
-        as a list of messages accepted by `litellm.acompletion()`.
-        """
-        system_msg_args = JupyternautSystemPromptArgs(
-            model_id=model_id,
-            persona_name=self.name,
-            context=self.process_attachments(message),
-        ).model_dump()
-
-        system_msg = {
-            "role": "system",
-            "content": JUPYTERNAUT_SYSTEM_PROMPT_TEMPLATE.render(**system_msg_args),
+        # Build default flow params
+        system_prompt = self._build_system_prompt(message)
+        flow_params: DefaultFlowParams = {
+            "persona_id": self.id,
+            "model_id": self.config_manager.chat_model,
+            "model_args": self.config_manager.chat_model_args,
+            "ychat": self.ychat,
+            "awareness": self.awareness,
+            "system_prompt": system_prompt,
+            "toolkit": DEFAULT_TOOLKIT,
+            "logger": self.log,
         }
 
-        context_as_messages = [system_msg, *self._get_history_as_messages()]
-        return context_as_messages
+        # Run default agent flow
+        await run_default_flow(flow_params)
 
-    def _get_history_as_messages(self, k: Optional[int] = 2) -> list[dict[str, Any]]:
-        """
-        Returns the current history as a list of messages accepted by
-        `litellm.acompletion()`.
-        """
-        # TODO: consider bounding history based on message size (e.g. total
-        # char/token count) instead of message count.
-        all_messages = self.ychat.get_messages()
-
-        # gather last k * 2 messages and return
-        # we exclude the last message since that is the human message just
-        # submitted by a user.
-        start_idx = 0 if k is None else -2 * k - 1
-        recent_messages: list[Message] = all_messages[start_idx:-1]
-
-        history: list[dict[str, Any]] = []
-        for msg in recent_messages:
-            role = (
-                "assistant"
-                if msg.sender.startswith("jupyter-ai-personas::")
-                else "system" if msg.sender == SYSTEM_USERNAME else "user"
-            )
-            history.append({"role": role, "content": msg.body})
-
-        return history
+    def _build_system_prompt(self, message: Message) -> str:
+        context = self.process_attachments(message)
+        format_args = JupyternautSystemPromptArgs(
+            persona_name=self.name,
+            model_id=self.config_manager.chat_model,
+            context=context,
+        )
+        system_prompt = JUPYTERNAUT_SYSTEM_PROMPT_TEMPLATE.render(format_args.model_dump())
+        return system_prompt
