@@ -2,6 +2,8 @@ from litellm.utils import ChatCompletionDeltaToolCall, Function
 import json
 from pydantic import BaseModel
 from typing import Any
+from .types import LitellmToolCall, LitellmToolCallOutput, JaiToolCallProps
+from jinja2 import Template
 
 class ResolvedFunction(BaseModel):
     """
@@ -53,6 +55,13 @@ class ResolvedToolCall(BaseModel):
 
     This is usually 0 unless the LLM supports parallel tool calling.
     """
+
+JAI_TOOL_CALL_TEMPLATE = Template("""
+{% for props in props_list %}
+<jai-tool-call {{props | xmlattr}}>
+</jai-tool-call>
+{% endfor %}
+""".strip())
 
 class ToolCallList(BaseModel):
     """
@@ -165,16 +174,80 @@ class ToolCallList(BaseModel):
         
         return resolved_toolcalls
     
-    def to_json(self) -> list[dict[str, Any]]:
+    @property
+    def complete(self) -> bool:
+        for i, tool_call in enumerate(self._aggregate):
+            if tool_call.index != i:
+                return False
+            if not tool_call.function:
+                return False
+            if not tool_call.function.name:
+                return False
+            if not tool_call.type:
+                return False
+            if not tool_call.function.arguments:
+                return False
+            try:
+                json.loads(tool_call.function.arguments)
+            except Exception:
+                return False
+
+        return True
+    
+    def as_litellm_tool_calls(self) -> list[LitellmToolCall]:
         """
-        Returns the list of tool calls as a Python dictionary that can be
-        JSON-serialized.
+        Returns the current list of tool calls as a list of dictionaries.
+        
+        This should be set in the `tool_calls` key in the dictionary of the
+        LiteLLM assistant message responsible for dispatching these tool calls.
         """
         return [
             model.model_dump() for model in self._aggregate
         ]
-    
 
+    def render(self, outputs: list[LitellmToolCallOutput] | None = None) -> str:
+        """
+        Renders this tool call list as a list of `<jai-tool-call>` elements to
+        be shown in the chat.
+        """
+        # Initialize list of props to render into tool call UI elements
+        props_list: list[JaiToolCallProps] = []
+
+        # Index all outputs if passed
+        outputs_by_id: dict[str, LitellmToolCallOutput] | None = None
+        if outputs:
+            outputs_by_id = {}
+            for output in outputs:
+                outputs_by_id[output['tool_call_id']] = output
+
+        for tool_call in self._aggregate:
+            # Build the props for each tool call UI element
+            props: JaiToolCallProps = {
+                'id': tool_call.id,
+                'index': tool_call.index,
+                'type': tool_call.type,
+                'function_name': tool_call.function.name,
+                'function_args': tool_call.function.arguments,
+            }
+
+            # Add the output if present
+            if outputs_by_id and tool_call.id in outputs_by_id:
+                output = outputs_by_id[tool_call.id]
+                # Make sure to manually convert the dictionary to a JSON string
+                # first. Without doing this, Jinja2 will convert a dictionary to
+                # JSON using single quotes instead of double quotes, which
+                # cannot be parsed by the frontend.
+                output = json.dumps(output)
+                props['output'] = output
+
+            props_list.append(props)
+        
+        # Render the tool call UI elements using the Jinja2 template and return
+        return JAI_TOOL_CALL_TEMPLATE.render({
+            "props_list": props_list
+        })
+
+    
     def __len__(self) -> int:
         return len(self._aggregate)
             

@@ -4,24 +4,22 @@ import os
 from abc import ABC, ABCMeta, abstractmethod
 from dataclasses import asdict
 from logging import Logger
-from time import time
 from typing import TYPE_CHECKING, Any, Optional
 
 from jupyter_ai.config_manager import ConfigManager
 from jupyterlab_chat.models import Message, NewMessage, User
 from jupyterlab_chat.ychat import YChat
-from litellm import ModelResponseStream, supports_function_calling
+from litellm import supports_function_calling
 from litellm.utils import function_to_dict
 from pydantic import BaseModel
 from traitlets import MetaHasTraits
 from traitlets.config import LoggingConfigurable
 
 from .persona_awareness import PersonaAwareness
-from ..litellm_lib import ToolCallList, StreamResult, run_tools
+from ..litellm_lib import ToolCallList, run_tools
 from ..tools.default_toolkit import DEFAULT_TOOLKIT
 
 if TYPE_CHECKING:
-    from collections.abc import AsyncIterator
     from .persona_manager import PersonaManager
 
 class PersonaDefaults(BaseModel):
@@ -234,127 +232,6 @@ class BasePersona(ABC, LoggingConfigurable, metaclass=ABCLoggingConfigurableMeta
         user = self.as_user()
         return asdict(user)
 
-    async def stream_message(
-        self, reply_stream: "AsyncIterator[ModelResponseStream | str]"
-    ) -> StreamResult:
-        """
-        Takes an async iterator, dubbed the 'reply stream', and streams it to a
-        new message by this persona in the YChat. The async iterator may yield
-        either strings or `litellm.ModelResponseStream` objects. Details:
-
-        - Creates a new message upon receiving the first chunk from the reply
-        stream, then continuously updates it until the stream is closed.
-
-        - Automatically manages its awareness state to show writing status.
-
-        Returns a list of `ResolvedToolCall` objects. If this list is not empty,
-        the persona should run these tools.
-        """
-        stream_id: Optional[str] = None
-        stream_interrupted = False
-        tool_call_list = ToolCallList()
-        try:
-            self.awareness.set_local_state_field("isWriting", True)
-
-            async for chunk in reply_stream:
-                # Start the stream with an empty message on the initial reply.
-                # Bind the new message ID to `stream_id`.
-                if not stream_id:
-                    stream_id = self.ychat.add_message(
-                        NewMessage(body="", sender=self.id)
-                    )
-                    self.message_interrupted[stream_id] = asyncio.Event()
-                    self.awareness.set_local_state_field("isWriting", stream_id)
-                assert stream_id
-
-                # Compute `content_delta` and `tool_calls_delta` based on the
-                # type of object yielded by `reply_stream`.
-                if isinstance(chunk, ModelResponseStream):
-                    delta = chunk.choices[0].delta
-                    content_delta = delta.content
-                    toolcalls_delta = delta.tool_calls
-                elif isinstance(chunk, str):
-                    content_delta = chunk
-                    toolcalls_delta = None
-                else:
-                    raise Exception(f"Unrecognized type in stream_message(): {type(chunk)}")
-
-                # LiteLLM streams always terminate with an empty chunk, so 
-                # continue in this case.
-                if not (content_delta or toolcalls_delta):
-                    continue
-
-                # Terminate the stream if the user requested it.
-                if (
-                    stream_id
-                    and stream_id in self.message_interrupted.keys()
-                    and self.message_interrupted[stream_id].is_set()
-                ):
-                    try:
-                        # notify the model provider that streaming was interrupted
-                        # (this is essential to allow the model to stop generating)
-                        await reply_stream.athrow(  # type:ignore[attr-defined]
-                            GenerationInterrupted()
-                        )
-                    except GenerationInterrupted:
-                        # do not let the exception bubble up in case if
-                        # the provider did not handle it
-                        pass
-                    stream_interrupted = True
-                    break
-
-                # Append `content_delta` to the existing message.
-                if content_delta:
-                    self.ychat.update_message(
-                        Message(
-                            id=stream_id,
-                            body=content_delta,
-                            time=time(),
-                            sender=self.id,
-                            raw_time=False,
-                        ),
-                        append=True,
-                    )
-                if toolcalls_delta:
-                    tool_call_list += toolcalls_delta
-            
-        except Exception as e:
-            self.log.error(
-                f"Persona '{self.name}' encountered an exception printed below when attempting to stream output."
-            )
-            self.log.exception(e)
-        finally:
-            # Reset local state
-            self.awareness.set_local_state_field("isWriting", False)
-            self.message_interrupted.pop(stream_id, None)
-
-            # If stream was interrupted, add a tombstone and return `[]`,
-            # indicating that no tools should be run afterwards.
-            if stream_id and stream_interrupted:
-                    stream_tombstone = "\n\n(AI response stopped by user)"
-                    self.ychat.update_message(
-                        Message(
-                            id=stream_id,
-                            body=stream_tombstone,
-                            time=time(),
-                            sender=self.id,
-                            raw_time=False,
-                        ),
-                        append=True,
-                    )
-                    return None
-            
-            # TODO: determine where this should live
-            count = len(tool_call_list)
-            if count > 0:
-                self.log.info(f"AI response triggered {count} tool calls.")
-
-            return StreamResult(
-                id=stream_id,
-                tool_call_list=tool_call_list
-            )
-            
-
     def send_message(self, body: str) -> None:
         """
         Sends a new message to the chat from this persona.
@@ -464,68 +341,6 @@ class BasePersona(ABC, LoggingConfigurable, metaclass=ABCLoggingConfigurableMeta
             self.log.error(f"Failed to resolve attachment {attachment_id}: {e}")
             return None
 
-    def get_tools(self, model_id: str) -> list[dict]:
-        """
-        Returns the `tools` parameter which should be passed to
-        `litellm.acompletion()` for a given LiteLLM model ID.
-
-        If the model does not support tool-calling, this method returns an empty
-        list. Otherwise, it returns the list of tools available in the current
-        environment. These may include:
-
-        - The default set of tool functions in Jupyter AI, defined in the
-        the default toolkit from `jupyter_ai.tools`.
-
-        - (TODO) Tools provided by MCP server configuration, if any.
-
-        - (TODO) Web search.
-
-        - (TODO) File search using vector store IDs.
-
-        TODO: cache this
-
-        TODO: Implement some permissions system so users can control what tools
-        are allowable.
-
-        NOTE: The returned list is expected by LiteLLM to conform to the `tools`
-        parameter defintiion defined by the OpenAI API:
-        https://platform.openai.com/docs/guides/tools#available-tools
-
-        NOTE: This API is a WIP and is very likely to change.
-        """
-        # Return early if the model does not support tool calling
-        if not supports_function_calling(model=model_id):
-            return []
-
-        tool_descriptions = []
-
-        # Get all tools from the default toolkit and store their object descriptions
-        for tool in DEFAULT_TOOLKIT.get_tools():
-            # Here, we are using a util function from LiteLLM to coerce
-            # each `Tool` struct into a tool description dictionary expected
-            # by LiteLLM.
-            desc = {
-                "type": "function",
-                "function": function_to_dict(tool.callable),
-            }
-            tool_descriptions.append(desc)
-        
-        # Finally, return the tool descriptions
-        self.log.info(tool_descriptions)
-        return tool_descriptions
-    
-
-    async def run_tools(self, tool_call_list: ToolCallList) -> list[dict]:
-        """
-        Runs the tools specified in a given tool call list using the default
-        toolkit.
-        """
-        tool_outputs = await run_tools(tool_call_list, toolkit=DEFAULT_TOOLKIT)
-        self.log.info(f"Ran {len(tool_outputs)} tool functions.")
-        return tool_outputs
-
-
-    
     def shutdown(self) -> None:
         """
         Shuts the persona down. This method should:

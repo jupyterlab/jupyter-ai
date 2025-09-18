@@ -1,21 +1,39 @@
 from __future__ import annotations
-from pydantic import BaseModel
-from .toolcall_list import ToolCallList
+from typing import TypedDict, Literal, Optional
 
-class StreamResult(BaseModel):
+
+class LitellmToolCall(TypedDict):
     id: str
-    """
-    ID of the new message.
-    """
+    type: Literal['function']
+    function: str
+    index: int
 
-    tool_call_list: ToolCallList
-    """
-    Tool calls requested by the LLM in its streamed response.
-    """
+class LitellmMessage(TypedDict):
+    role: Literal['assistant', 'user', 'system']
+    content: str
+    tool_calls: Optional[list[LitellmToolCall]]
 
-class ToolCallOutput(BaseModel):
+class LitellmToolCallOutput(TypedDict):
     tool_call_id: str
-    role: str = "tool"
+    role: Literal['tool']
     name: str
     content: str
 
+class JaiToolCallProps(TypedDict):
+    id: str | None
+
+    type: Literal['function'] | None
+
+    index: int | None
+
+    function_name: str | None
+
+    function_args: str | None
+    """
+    The arguments to the function as a dictionary converted to a JSON string.
+    """
+
+    output: str | None
+    """
+    The `LitellmToolCallOutput` as a JSON string.
+    """

@@ -1,5 +1,6 @@
 import re
 from typing import Callable, Optional
+from litellm.utils import function_to_dict
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -215,3 +216,24 @@ class Toolkit(BaseModel):
                 toolset.add(tool)
 
         return toolset
+    
+    def to_json(self) -> list[dict]:
+        """
+        Returns a list of tool descriptions in the type expected by LiteLLM.
+        """
+        tool_descriptions = []
+
+        # Get all tools from the default toolkit and store their object descriptions
+        for tool in self.get_tools():
+            # Here, we are using a util function from LiteLLM to coerce
+            # each `Tool` struct into a tool description dictionary expected
+            # by LiteLLM.
+            desc = {
+                "type": "function",
+                "function": function_to_dict(tool.callable),
+            }
+            tool_descriptions.append(desc)
+
+        # Finally, return the tool descriptions
+        return tool_descriptions
+
