@@ -23,7 +23,10 @@ export const webComponentsPlugin: JupyterFrontEndPlugin<IRenderMime.ISanitizer> 
         props: {
           id: 'string',
           type: 'string',
-          function: 'json',
+          function_name: 'string',
+          // this is deliberately not 'json' since `function_args` may be a
+          // partial JSON string.
+          function_args: 'string',
           index: 'number',
           output: 'json'
         }
@@ -55,7 +58,14 @@ export const webComponentsPlugin: JupyterFrontEndPlugin<IRenderMime.ISanitizer> 
             allowedTags: [...(options?.allowedTags ?? []), 'jai-tool-call'],
             allowedAttributes: {
               ...options?.allowedAttributes,
-              'jai-tool-call': ['id', 'type', 'function', 'index', 'output']
+              'jai-tool-call': [
+                'id',
+                'type',
+                'function_name',
+                'function_args',
+                'index',
+                'output'
+              ]
             }
           });
         }
