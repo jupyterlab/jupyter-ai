@@ -183,9 +183,6 @@ export class SelectionCommandProvider implements IChatCommandProvider {
       });
     }
 
-    // replace @selection command with a label for readability
-    inputModel.value = inputModel.value.replace(this._regex, `\`selection\``);
-
     return;
   }
 }
