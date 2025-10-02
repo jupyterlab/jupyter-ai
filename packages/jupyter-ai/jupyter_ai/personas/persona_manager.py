@@ -359,6 +359,12 @@ class PersonaManager(LoggingConfigurable):
                 persona_list.append(self.personas[mentioned_id])
         return persona_list
 
+    def on_chat_message(self, room_id: str, message: Message):
+        self.route_message(message)
+
+    def on_slash_cmd_message(self, room_id: str, message: Message):
+        self.route_slash_command(message)
+
     def route_message(self, new_message: Message):
         """
         Method that routes an incoming message to the correct personas by
