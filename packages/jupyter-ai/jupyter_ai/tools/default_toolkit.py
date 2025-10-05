@@ -165,7 +165,7 @@ def write(file_path: str, content: str) -> None:
     path.write_text(content, encoding="utf-8")
 
 
-async def search_grep(pattern: str, include: str = "*") -> str:
+async def search_grep(pattern: str, include: str = "*", cwd: Optional[str] = None) -> str:
     """
     Search for text patterns in files using ripgrep.
 
@@ -200,6 +200,8 @@ async def search_grep(pattern: str, include: str = "*") -> str:
         - {a,b} matches either "a" or "b"
         - ! at start negates the pattern
         Examples: "*.py", "**/*.js", "src/**/*.{ts,tsx}", "!*.test.*"
+    cwd : str, optional
+        The directory to search in. Defaults to current working directory.
 
     Returns
     -------
@@ -241,20 +243,21 @@ async def search_grep(pattern: str, include: str = "*") -> str:
     
     # Join command with proper shell escaping
     command = " ".join(f'"{part}"' if " " in part or any(c in part for c in "!*?[]{}()") else part for part in cmd_parts)
-    
+
     try:
-        result = await bash(command)
+        result = await bash(command, cwd=cwd)
         return result
     except Exception as e:
         raise RuntimeError(f"Ripgrep search failed: {str(e)}") from e
 
 
-async def bash(command: str, timeout: Optional[int] = None) -> str:
+async def bash(command: str, timeout: Optional[int] = None, cwd: Optional[str] = None) -> str:
     """Executes a bash command and returns the result
 
     Args:
         command: The bash command to execute
         timeout: Optional timeout in seconds
+        cwd: Optional working directory to execute the command in
 
     Returns:
         The command output (stdout and stderr combined)
@@ -267,6 +270,7 @@ async def bash(command: str, timeout: Optional[int] = None) -> str:
         *shlex.split(command),
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
+        cwd=cwd,
     )
 
     try:
