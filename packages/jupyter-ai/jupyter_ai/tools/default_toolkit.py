@@ -6,20 +6,23 @@ from typing import Optional
 from .models import Tool, Toolkit
 
 
-def read(file_path: str, offset: int, limit: int) -> str:
+def read(file_path: str, offset: int, limit: int, cwd: Optional[str] = None) -> str:
     """
     Read a subset of lines from a text file.
 
     Parameters
     ----------
     file_path : str
-        Absolute path to the file that should be read.
+        Path to the file that should be read. Can be absolute or relative to cwd.
     offset : int
         The line number at which to start reading (1-based indexing).
     limit : int
-        Number of lines to read starting from *offset*.  
+        Number of lines to read starting from *offset.
         If *offset + limit* exceeds the number of lines in the file,
         all available lines after *offset* are returned.
+    cwd : str, optional
+        The directory to use as the base for relative paths. If not provided,
+        file_path must be absolute.
 
     Returns
     -------
@@ -33,6 +36,8 @@ def read(file_path: str, offset: int, limit: int) -> str:
     ['third line\n', 'fourth line\n', 'fifth line\n', 'sixth line\n']
     """
     path = pathlib.Path(file_path)
+    if cwd and not path.is_absolute():
+        path = pathlib.Path(cwd) / path
     if not path.is_file():
         raise FileNotFoundError(f"File not found: {file_path}")
 
@@ -69,6 +74,7 @@ def edit(
     old_string: str,
     new_string: str,
     replace_all: bool = False,
+    cwd: Optional[str] = None,
 ) -> None:
     """
     Replace occurrences of a substring in a file.
@@ -76,7 +82,7 @@ def edit(
     Parameters
     ----------
     file_path : str
-        Absolute path to the file that should be edited.
+        Path to the file that should be edited. Can be absolute or relative to cwd.
     old_string : str
         Text that should be replaced.
     new_string : str
@@ -84,6 +90,9 @@ def edit(
     replace_all : bool, optional
         If ``True`` all occurrences of *old_string* are replaced.
         If ``False`` (default), only the first occurrence in the file is replaced.
+    cwd : str, optional
+        The directory to use as the base for relative paths. If not provided,
+        file_path must be absolute.
 
     Returns
     -------
@@ -110,6 +119,8 @@ def edit(
     >>> edit('/tmp/test.txt', 'foo', 'bar', replace_all=True)
     """
     path = pathlib.Path(file_path)
+    if cwd and not path.is_absolute():
+        path = pathlib.Path(cwd) / path
     if not path.is_file():
         raise FileNotFoundError(f"File not found: {file_path}")
 
@@ -129,16 +140,19 @@ def edit(
     path.write_text(new_content, encoding="utf-8")
 
 
-def write(file_path: str, content: str) -> None:
+def write(file_path: str, content: str, cwd: Optional[str] = None) -> None:
     """
     Write content to a file, creating it if it doesn't exist.
 
     Parameters
     ----------
     file_path : str
-        Absolute path to the file that should be written.
+        Path to the file that should be written. Can be absolute or relative to cwd.
     content : str
         Content to write to the file.
+    cwd : str, optional
+        The directory to use as the base for relative paths. If not provided,
+        file_path must be absolute.
 
     Returns
     -------
@@ -160,7 +174,9 @@ def write(file_path: str, content: str) -> None:
     >>> write('/tmp/data.json', '{"key": "value"}')
     """
     path = pathlib.Path(file_path)
-    
+    if cwd and not path.is_absolute():
+        path = pathlib.Path(cwd) / path
+
     # Write the content to the file
     path.write_text(content, encoding="utf-8")
 

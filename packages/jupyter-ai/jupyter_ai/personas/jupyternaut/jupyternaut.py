@@ -1,3 +1,4 @@
+from functools import partial
 from typing import Optional
 from jupyterlab_chat.models import Message
 
@@ -71,40 +72,19 @@ class JupyternautPersona(BasePersona):
         # Get workspace directory for this chat
         workspace_dir = self.get_workspace_dir()
 
-        # Create wrapper functions that bind workspace_dir
-        # We can't use functools.partial because litellm.function_to_dict expects __name__
-        async def bash(command: str, timeout: Optional[int] = None) -> str:
-            """Executes a bash command and returns the result
-
-            Args:
-                command: The bash command to execute
-                timeout: Optional timeout in seconds
-
-            Returns:
-                The command output (stdout and stderr combined)
-            """
-            from ...tools.default_toolkit import bash as bash_orig
-            return await bash_orig(command, timeout=timeout, cwd=workspace_dir)
-
-        async def search_grep(pattern: str, include: str = "*") -> str:
-            """Search for text patterns in files using ripgrep.
-
-            Args:
-                pattern: A regular expression pattern to search for
-                include: A glob pattern to filter which files to search
-
-            Returns:
-                The raw output from ripgrep, including file paths, line numbers, and matching lines
-            """
-            from ...tools.default_toolkit import search_grep as search_grep_orig
-            return await search_grep_orig(pattern, include=include, cwd=workspace_dir)
+        def bind_cwd(func, **kwargs):
+            """Create a partial function with custom __name__ and __doc__ preserved"""
+            bound_func = partial(func, **kwargs)
+            bound_func.__name__ = func.__name__
+            bound_func.__doc__ = func.__doc__
+            return bound_func
 
         # Create toolkit with workspace-aware tools
         toolkit = Toolkit(name="jupyter-ai-contextual-toolkit")
-        toolkit.add_tool(Tool(callable=bash))
-        toolkit.add_tool(Tool(callable=search_grep))
-        toolkit.add_tool(Tool(callable=read))
-        toolkit.add_tool(Tool(callable=edit))
-        toolkit.add_tool(Tool(callable=write))
+        toolkit.add_tool(Tool(callable=bind_cwd(bash, cwd=workspace_dir)))
+        toolkit.add_tool(Tool(callable=bind_cwd(search_grep, cwd=workspace_dir)))
+        toolkit.add_tool(Tool(callable=bind_cwd(read, cwd=workspace_dir)))
+        toolkit.add_tool(Tool(callable=bind_cwd(edit, cwd=workspace_dir)))
+        toolkit.add_tool(Tool(callable=bind_cwd(write, cwd=workspace_dir)))
 
         return toolkit
