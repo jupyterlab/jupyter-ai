@@ -20,7 +20,7 @@ class LitellmToolCallOutput(TypedDict):
     content: str
 
 class JaiToolCallProps(TypedDict):
-    id: str | None
+    tool_id: str | None
 
     type: Literal['function'] | None
 

@@ -10,7 +10,7 @@ import ExpandMore from '@mui/icons-material/ExpandMore';
 import CheckCircle from '@mui/icons-material/CheckCircle';
 
 type JaiToolCallProps = {
-  id?: string;
+  tool_id?: string;
   type?: string;
   function_name?: string;
   function_args?: string;
@@ -77,13 +77,13 @@ export function JaiToolCall(props: JaiToolCallProps): JSX.Element | null {
     </Box>
   ) : null;
 
-  if (!props.id || !props.type || !props.function_name) {
+  if (!props.tool_id || !props.type || !props.function_name) {
     return null;
   }
 
   return (
     <Box
-      key={props.id}
+      key={props.tool_id}
       sx={{
         border: '1px solid #e0e0e0',
         borderRadius: 1,

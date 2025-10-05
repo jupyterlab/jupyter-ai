@@ -223,7 +223,7 @@ class ToolCallList(BaseModel):
         for tool_call in self._aggregate:
             # Build the props for each tool call UI element
             props: JaiToolCallProps = {
-                'id': tool_call.id,
+                'tool_id': tool_call.id,
                 'index': tool_call.index,
                 'type': tool_call.type,
                 'function_name': tool_call.function.name,
