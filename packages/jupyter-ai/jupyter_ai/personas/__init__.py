@@ -1,2 +1,2 @@
-from .base_persona import BasePersona, PersonaDefaults
-from .persona_manager import PersonaManager
+from .base_persona import *
+from .persona_manager import *

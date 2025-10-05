@@ -20,6 +20,7 @@ import { completionPlugin } from './completions';
 import { StopButton } from './components/message-footer/stop-button';
 import { statusItemPlugin } from './status';
 import { IJaiCompletionProvider } from './tokens';
+import { webComponentsPlugin } from './web-components';
 import { buildErrorWidget } from './widgets/chat-error';
 import { buildAiSettings } from './widgets/settings-widget';
 
@@ -125,6 +126,7 @@ export default [
   plugin,
   statusItemPlugin,
   completionPlugin,
+  webComponentsPlugin,
   stopStreaming,
   ...chatCommandPlugins
 ];

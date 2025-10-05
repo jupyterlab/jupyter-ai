@@ -1,29 +1,26 @@
+from __future__ import annotations
 import asyncio
 import os
 from abc import ABC, ABCMeta, abstractmethod
 from dataclasses import asdict
 from logging import Logger
-from time import time
 from typing import TYPE_CHECKING, Any, Optional
 
 from jupyter_ai.config_manager import ConfigManager
 from jupyterlab_chat.models import Message, NewMessage, User
 from jupyterlab_chat.ychat import YChat
+from litellm import supports_function_calling
+from litellm.utils import function_to_dict
 from pydantic import BaseModel
 from traitlets import MetaHasTraits
 from traitlets.config import LoggingConfigurable
 
 from .persona_awareness import PersonaAwareness
+from ..litellm_lib import ToolCallList, run_tools
+from ..tools.default_toolkit import DEFAULT_TOOLKIT
 
-# prevents a circular import
-# types imported under this block have to be surrounded in single quotes on use
 if TYPE_CHECKING:
-    from collections.abc import AsyncIterator
-
-    from litellm import ModelResponseStream
-
     from .persona_manager import PersonaManager
-
 
 class PersonaDefaults(BaseModel):
     """
@@ -235,93 +232,6 @@ class BasePersona(ABC, LoggingConfigurable, metaclass=ABCLoggingConfigurableMeta
         user = self.as_user()
         return asdict(user)
 
-    async def stream_message(
-        self, reply_stream: "AsyncIterator[ModelResponseStream | str]"
-    ) -> None:
-        """
-        Takes an async iterator, dubbed the 'reply stream', and streams it to a
-        new message by this persona in the YChat. The async iterator may yield
-        either strings or `litellm.ModelResponseStream` objects. Details:
-
-        - Creates a new message upon receiving the first chunk from the reply
-        stream, then continuously updates it until the stream is closed.
-
-        - Automatically manages its awareness state to show writing status.
-        """
-        stream_id: Optional[str] = None
-        stream_interrupted = False
-        try:
-            self.awareness.set_local_state_field("isWriting", True)
-            async for chunk in reply_stream:
-                # Coerce LiteLLM stream chunk to a string delta
-                if not isinstance(chunk, str):
-                    chunk = chunk.choices[0].delta.content
-
-                # LiteLLM streams always terminate with an empty chunk, so we
-                # ignore and continue when this occurs.
-                if not chunk:
-                    continue
-
-                if (
-                    stream_id
-                    and stream_id in self.message_interrupted.keys()
-                    and self.message_interrupted[stream_id].is_set()
-                ):
-                    try:
-                        # notify the model provider that streaming was interrupted
-                        # (this is essential to allow the model to stop generating)
-                        await reply_stream.athrow(  # type:ignore[attr-defined]
-                            GenerationInterrupted()
-                        )
-                    except GenerationInterrupted:
-                        # do not let the exception bubble up in case if
-                        # the provider did not handle it
-                        pass
-                    stream_interrupted = True
-                    break
-
-                if not stream_id:
-                    stream_id = self.ychat.add_message(
-                        NewMessage(body="", sender=self.id)
-                    )
-                    self.message_interrupted[stream_id] = asyncio.Event()
-                    self.awareness.set_local_state_field("isWriting", stream_id)
-
-                assert stream_id
-                self.ychat.update_message(
-                    Message(
-                        id=stream_id,
-                        body=chunk,
-                        time=time(),
-                        sender=self.id,
-                        raw_time=False,
-                    ),
-                    append=True,
-                )
-        except Exception as e:
-            self.log.error(
-                f"Persona '{self.name}' encountered an exception printed below when attempting to stream output."
-            )
-            self.log.exception(e)
-        finally:
-            self.awareness.set_local_state_field("isWriting", False)
-            if stream_id:
-                # if stream was interrupted, add a tombstone
-                if stream_interrupted:
-                    stream_tombstone = "\n\n(AI response stopped by user)"
-                    self.ychat.update_message(
-                        Message(
-                            id=stream_id,
-                            body=stream_tombstone,
-                            time=time(),
-                            sender=self.id,
-                            raw_time=False,
-                        ),
-                        append=True,
-                    )
-                if stream_id in self.message_interrupted.keys():
-                    del self.message_interrupted[stream_id]
-
     def send_message(self, body: str) -> None:
         """
         Sends a new message to the chat from this persona.
@@ -361,7 +271,7 @@ class BasePersona(ABC, LoggingConfigurable, metaclass=ABCLoggingConfigurableMeta
         Returns the MCP config for the current chat.
         """
         return self.parent.get_mcp_config()
-
+    
     def process_attachments(self, message: Message) -> Optional[str]:
         """
         Process file attachments in the message and return their content as a string.

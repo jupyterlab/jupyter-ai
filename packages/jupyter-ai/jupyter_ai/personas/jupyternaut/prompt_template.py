@@ -39,6 +39,18 @@ The user's request is located at the last message. Please fulfill the user's req
 {% if context %}The user has shared the following context:
 
 {{context}}
+
+You have access to tools that can help you work with this context:
+- `read(file_path, offset, limit)`: Read specific lines from a file
+- `search_grep(pattern, include)`: Search for text patterns across files
+- `bash(command)`: Execute bash commands to interact with files and the system
+
+Use these tools strategically based on the user's request. For example:
+- If asked about file contents, use `read()` to examine specific portions
+- If searching for specific code or text, use `search_grep()`
+- For complex operations, use `bash()` commands
+
+File paths in the context are relative to the workspace directory.
 {% else %}The user did not share any additional context.{% endif %}
 </context>
 """.strip()
