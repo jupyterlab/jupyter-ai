@@ -1,9 +1,0 @@
-{
-  "author_name": "Project Jupyter",
-  "author_email": "jupyter@googlegroups.com",
-  "version": "0.1.0",
-  "python_name": "jupyter_ai_test",
-  "root_dir_name": "{{ cookiecutter.python_name | replace('_', '-') }}",
-  "project_short_description": "Jupyter AI",
-  "repository": "https://github.com/jupyterlab/jupyter-ai"
-}
