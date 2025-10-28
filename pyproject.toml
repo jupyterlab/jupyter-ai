@@ -4,7 +4,6 @@ build-backend = "hatchling.build"
 
 [project]
 name = "jupyter_ai"
-version = "3.0.0b7"
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.9"
@@ -25,6 +24,7 @@ classifiers = [
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
 ]
+dynamic = ["version"]
 
 dependencies = [
   "jupyter_ai_router",
@@ -57,7 +57,4 @@ Source = "https://github.com/jupyterlab/jupyter-ai"
 Tracker = "https://github.com/jupyterlab/jupyter-ai/issues"
 
 [tool.hatch.version]
-path = "jupyter_ai/_version.py"
-
-[tool.hatch.build.hooks.version]
-path = "jupyter_ai/_version.py"
+path = "jupyter_ai/__init__.py"

@@ -1,2 +1,1 @@
-# The following import is to make sure jupyter_ydoc is imported before
-from ._version import __version__
+__version__ = "3.0.0b7"
