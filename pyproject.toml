@@ -3,42 +3,86 @@ requires = ["hatchling>=1.4.0", "jupyterlab~=4.0", "hatch-nodejs-version"]
 build-backend = "hatchling.build"
 
 [project]
-name = "jupyter_ai_monorepo"
-dynamic = ["version", "description", "authors", "urls", "keywords"]
+name = "jupyter_ai"
+readme = "README.md"
+license = { file = "LICENSE" }
 requires-python = ">=3.9"
-dependencies = [
-  "jupyter-ai-magics @ {root:uri}/packages/jupyter-ai-magics",
-  "jupyter-ai @ {root:uri}/packages/jupyter-ai",
+classifiers = [
+  "Framework :: Jupyter",
+  "Framework :: Jupyter :: JupyterLab",
+  "Framework :: Jupyter :: JupyterLab :: 4",
+  "Framework :: Jupyter :: JupyterLab :: Extensions",
+  "Framework :: Jupyter :: JupyterLab :: Extensions :: Prebuilt",
+  "License :: OSI Approved :: BSD License",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
 ]
 
+dependencies = [
+  "jupyter_ai_router",
+  "jupyter_ai_persona_manager",
+  "jupyter_ai_litellm",
+  "jupyter_ai_jupyternaut",
+  "jupyter_ai_chat_commands",
+  # TODO: add jupyter_ai_magic_commands once published
+]
+
+dynamic = ["version", "description", "authors", "urls", "keywords"]
+
 [project.optional-dependencies]
-build = []
-
-[project.readme]
-file = "README.md"
-content-type = "text/markdown"
-
-[project.license]
-text = "BSD 3-Clause License"
+test = [
+  # `jupyter_collaboration>=4` requires `jupyter_server_ydoc>=2.0.0`,
+  # which requires `jupyter_server>=2.15.0`.
+  "jupyter_server[test]>=2.15.0,<3",
+  "coverage",
+  "pytest",
+  "pytest-asyncio",
+  "pytest-cov",
+  "pytest-tornasync",
+  "pytest-jupyter",
+  "syrupy~=4.0.8",
+  "types-jsonschema",
+  "mypy",
+]
 
 [tool.hatch.version]
 source = "nodejs"
-path = "package.json"
 
-[tool.hatch.build]
-packages = ["packages/jupyter-ai-magics", "packages/jupyter-ai"]
+[tool.hatch.metadata.hooks.nodejs]
+fields = ["description", "authors", "urls"]
 
-[tool.hatch.metadata]
-allow-direct-references = true
+[tool.hatch.build.targets.sdist]
+artifacts = ["jupyter_ai/labextension"]
+exclude = [".github", "binder"]
 
-[tool.check-manifest]
-ignore = [".*"]
+[tool.hatch.build.targets.wheel.shared-data]
+"jupyter_ai/labextension" = "share/jupyter/labextensions/@jupyter-ai/core"
+"install.json" = "share/jupyter/labextensions/@jupyter-ai/core/install.json"
+"jupyter-config/server-config" = "etc/jupyter/jupyter_server_config.d"
+"jupyter-config/nb-config" = "etc/jupyter/jupyter_notebook_config.d"
 
-[tool.check-wheel-contents]
-ignore = ["W002"]
+[tool.hatch.build.hooks.version]
+path = "jupyter_ai/_version.py"
 
-[tool.pytest.ini_options]
-addopts = "--ignore packages/jupyter-ai-module-cookiecutter"
+[tool.hatch.build.hooks.jupyter-builder]
+dependencies = ["hatch-jupyter-builder>=0.5"]
+build-function = "hatch_jupyter_builder.npm_builder"
+ensured-targets = [
+  "jupyter_ai/labextension/static/style.js",
+  "jupyter_ai/labextension/package.json",
+]
+skip-if-exists = ["jupyter_ai/labextension/static/style.js"]
 
-[tool.mypy]
-exclude = ["tests", ".venv"]
+[tool.hatch.build.hooks.jupyter-builder.build-kwargs]
+build_cmd = "build:prod"
+npm = ["jlpm"]
+
+[tool.hatch.build.hooks.jupyter-builder.editable-build-kwargs]
+build_cmd = "install:extension"
+npm = ["jlpm"]
+source_dir = "src"
+build_dir = "jupyter_ai/labextension"

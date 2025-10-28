@@ -1,8 +1,7 @@
 {
-  "name": "@jupyter-ai/monorepo",
+  "name": "@jupyter-ai/core",
   "version": "3.0.0-beta.7",
   "description": "A generative AI extension for JupyterLab",
-  "private": true,
   "keywords": [
     "jupyter",
     "jupyterlab",
@@ -18,37 +17,54 @@
     "name": "Project Jupyter",
     "email": "jupyter@googlegroups.com"
   },
-  "workspaces": [
-    ".",
-    "packages/*"
-  ],
+  "files": [],
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "style": "style/index.css",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jupyterlab/jupyter-ai.git"
+  },
   "scripts": {
-    "build": "lerna run build --stream",
-    "build:core": "lerna run build --stream --scope \"@jupyter-ai/core\"",
-    "build:prod": "lerna run build:prod --stream",
-    "clean": "lerna run clean",
-    "clean:all": "lerna run clean:all",
-    "dev": "jupyter lab --config playground/config.py",
-    "dev:install": "lerna run dev:install --stream",
-    "dev:reinstall": "jlpm dev:uninstall && jlpm dev:install",
-    "dev:uninstall": "lerna run dev:uninstall --stream",
-    "di": "jlpm dev:install",
-    "dr": "jlpm dev:reinstall",
-    "du": "jlpm dev:uninstall",
-    "install-from-src": "lerna run install-from-src --stream",
-    "lint": "jlpm && lerna run prettier && lerna run eslint",
-    "lint:check": "lerna run prettier:check && lerna run eslint:check",
-    "watch": "lerna run watch --parallel --stream",
-    "test": "lerna run test"
+    "build": "jlpm build:lib && jlpm build:labextension:dev",
+    "build:prod": "jlpm clean && jlpm build:lib && jlpm build:labextension",
+    "build:labextension": "jupyter labextension build .",
+    "build:labextension:dev": "jupyter labextension build --development True .",
+    "build:lib": "tsc",
+    "clean": "jlpm clean:lib",
+    "clean:lib": "rimraf lib tsconfig.tsbuildinfo",
+    "clean:lintcache": "rimraf .eslintcache .stylelintcache",
+    "clean:labextension": "rimraf jupyter_ai/labextension",
+    "clean:all": "jlpm clean:lib && jlpm clean:labextension && jlpm clean:lintcache",
+    "dev:install": "uv pip install -e \".[dev,all,test]\" && jupyter labextension develop . --overwrite && jupyter server extension enable jupyter_ai",
+    "dev:uninstall": "uv pip uninstall jupyter_ai",
+    "eslint": "jlpm eslint:check --fix",
+    "eslint:check": "eslint . --cache --ext .ts,.tsx",
+    "install:extension": "jlpm build",
+    "lint": "jlpm stylelint && jlpm prettier && jlpm eslint",
+    "lint:check": "jlpm stylelint:check && jlpm prettier:check && jlpm eslint:check",
+    "prettier": "jlpm prettier:base --write --list-different",
+    "prettier:base": "prettier \"**/*{.ts,.tsx,.js,.jsx,.css,.json,.md}\"",
+    "prettier:check": "jlpm prettier:base --check",
+    "stylelint": "jlpm stylelint:check --fix",
+    "stylelint:check": "stylelint --cache \"style/**/*.css\"",
+    "test": "jest --coverage",
+    "watch": "run-p watch:src watch:labextension",
+    "watch:src": "tsc -w",
+    "watch:labextension": "jupyter labextension watch .",
+    "install-from-src": "uv pip install ."
   },
-  "devDependencies": {
-    "lerna": "^6.4.1",
-    "nx": "^15.9.2"
-  },
-  "resolutions": {
-    "@jupyterlab/completer": "^4.2.0"
-  },
-  "nx": {
-    "includedScripts": []
+  "jupyterlab": {
+    "discovery": {
+      "server": {
+        "managers": [
+          "pip"
+        ],
+        "base": {
+          "name": "jupyter_ai"
+        }
+      }
+    },
+    "extension": false
   }
 }
