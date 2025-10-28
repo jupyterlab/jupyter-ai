@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "jupyter_ai"
-dynamic = ["version"]
+version = "3.0.0b7"
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.9"
