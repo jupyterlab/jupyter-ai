@@ -35,12 +35,6 @@ dependencies = [
   # TODO: add jupyter_ai_magic_commands once published
 ]
 
-[project.urls]
-Documentation = "https://jupyter-ai.readthedocs.io/en/v3/"
-Source = "https://github.com/jupyterlab/jupyter-ai"
-Tracker = "https://github.com/jupyterlab/jupyter-ai/issues"
-
-
 [project.optional-dependencies]
 test = [
   # `jupyter_collaboration>=4` requires `jupyter_server_ydoc>=2.0.0`,
@@ -56,6 +50,14 @@ test = [
   "types-jsonschema",
   "mypy",
 ]
+
+[project.urls]
+Documentation = "https://jupyter-ai.readthedocs.io/en/v3/"
+Source = "https://github.com/jupyterlab/jupyter-ai"
+Tracker = "https://github.com/jupyterlab/jupyter-ai/issues"
+
+[tool.hatch.version]
+path = "jupyter_ai/_version.py"
 
 [tool.hatch.build.hooks.version]
 path = "jupyter_ai/_version.py"
