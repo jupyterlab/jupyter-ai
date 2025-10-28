@@ -1,12 +1,16 @@
 [build-system]
-requires = ["hatchling>=1.4.0", "jupyterlab~=4.0", "hatch-nodejs-version"]
+requires = ["hatchling>=1.4.0"]
 build-backend = "hatchling.build"
 
 [project]
 name = "jupyter_ai"
+dynamic = ["version"]
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.9"
+description = "A set of extensions providing agentic AI in JupyterLab"
+authors = [{ name = "Project Jupyter", email = "jupyter@googlegroups.com" }]
+keywords = ["jupyter", "jupyterlab", "jupyterlab-extension", "jupyter-ai"]
 classifiers = [
   "Framework :: Jupyter",
   "Framework :: Jupyter :: JupyterLab",
@@ -31,7 +35,11 @@ dependencies = [
   # TODO: add jupyter_ai_magic_commands once published
 ]
 
-dynamic = ["version", "description", "authors", "urls", "keywords"]
+[project.urls]
+Documentation = "https://jupyter-ai.readthedocs.io/en/v3/"
+Source = "https://github.com/jupyterlab/jupyter-ai"
+Tracker = "https://github.com/jupyterlab/jupyter-ai/issues"
+
 
 [project.optional-dependencies]
 test = [
@@ -49,40 +57,5 @@ test = [
   "mypy",
 ]
 
-[tool.hatch.version]
-source = "nodejs"
-
-[tool.hatch.metadata.hooks.nodejs]
-fields = ["description", "authors", "urls"]
-
-[tool.hatch.build.targets.sdist]
-artifacts = ["jupyter_ai/labextension"]
-exclude = [".github", "binder"]
-
-[tool.hatch.build.targets.wheel.shared-data]
-"jupyter_ai/labextension" = "share/jupyter/labextensions/@jupyter-ai/core"
-"install.json" = "share/jupyter/labextensions/@jupyter-ai/core/install.json"
-"jupyter-config/server-config" = "etc/jupyter/jupyter_server_config.d"
-"jupyter-config/nb-config" = "etc/jupyter/jupyter_notebook_config.d"
-
 [tool.hatch.build.hooks.version]
 path = "jupyter_ai/_version.py"
-
-[tool.hatch.build.hooks.jupyter-builder]
-dependencies = ["hatch-jupyter-builder>=0.5"]
-build-function = "hatch_jupyter_builder.npm_builder"
-ensured-targets = [
-  "jupyter_ai/labextension/static/style.js",
-  "jupyter_ai/labextension/package.json",
-]
-skip-if-exists = ["jupyter_ai/labextension/static/style.js"]
-
-[tool.hatch.build.hooks.jupyter-builder.build-kwargs]
-build_cmd = "build:prod"
-npm = ["jlpm"]
-
-[tool.hatch.build.hooks.jupyter-builder.editable-build-kwargs]
-build_cmd = "install:extension"
-npm = ["jlpm"]
-source_dir = "src"
-build_dir = "jupyter_ai/labextension"
