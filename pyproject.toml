@@ -34,7 +34,7 @@ dependencies = [
   "jupyter_ai_litellm>=0.0.1",
   "jupyter_ai_magic_commands>=0.0.2",
   "jupyter_ai_chat_commands>=0.0.2",
-  "jupyter_ai_jupyternaut",
+  "jupyter_ai_jupyternaut>=0.0.3",
 ]
 
 [project.optional-dependencies]
