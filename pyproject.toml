@@ -27,13 +27,14 @@ classifiers = [
 dynamic = ["version"]
 
 dependencies = [
+  "jupyterlab_chat>=0.19.0a0",
+  "jupyter_server_documents>=0.1.0a8",
   "jupyter_ai_router>=0.0.2",
   "jupyter_ai_persona_manager>=0.0.4",
   "jupyter_ai_litellm>=0.0.1",
+  "jupyter_ai_magic_commands>=0.0.2",
   "jupyter_ai_chat_commands>=0.0.2",
-  "jupyter_server_documents>=0.1.0a8",
   "jupyter_ai_jupyternaut",
-  # TODO: add jupyter_ai_magic_commands once published
 ]
 
 [project.optional-dependencies]
