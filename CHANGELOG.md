@@ -2,6 +2,24 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 3.0.0b8
+
+See [this issue](https://github.com/jupyterlab/jupyter-ai/issues/1495) for more info. We're presenting this release at JupyterCon 2025 in San Diego two days from now! More details to follow.
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@3.0.0-beta.7...e819ba1de1c126fdb394b1e1163bc8ef60afd78c))
+
+### Enhancements made
+
+- Make Jupyter AI a metapackage [#1494](https://github.com/jupyterlab/jupyter-ai/pull/1494) ([@dlqqq](https://github.com/dlqqq))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2025-09-10&to=2025-11-03&type=c))
+
+[@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2025-09-10..2025-11-03&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 3.0.0beta7
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@3.0.0-beta.6...55aff83376e770ee9953e8949ba11b7d54109650))
@@ -29,8 +47,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2025-08-22&to=2025-09-10&type=c))
 
 [@andreyvelich](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aandreyvelich+updated%3A2025-08-22..2025-09-10&type=Issues) | [@brichet](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Abrichet+updated%3A2025-08-22..2025-09-10&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2025-08-22..2025-09-10&type=Issues) | [@ellisonbg](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aellisonbg+updated%3A2025-08-22..2025-09-10&type=Issues) | [@jonahjung22](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ajonahjung22+updated%3A2025-08-22..2025-09-10&type=Issues) | [@jtpio](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ajtpio+updated%3A2025-08-22..2025-09-10&type=Issues) | [@srdas](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2025-08-22..2025-09-10&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 3.0.0beta6
 
