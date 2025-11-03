@@ -1,44 +1,62 @@
 [build-system]
-requires = ["hatchling>=1.4.0", "jupyterlab~=4.0", "hatch-nodejs-version"]
+requires = ["hatchling>=1.4.0"]
 build-backend = "hatchling.build"
 
 [project]
-name = "jupyter_ai_monorepo"
-dynamic = ["version", "description", "authors", "urls", "keywords"]
+name = "jupyter_ai"
+readme = "README.md"
+license = { file = "LICENSE" }
 requires-python = ">=3.9"
+description = "A set of extensions providing agentic AI in JupyterLab"
+authors = [{ name = "Project Jupyter", email = "jupyter@googlegroups.com" }]
+keywords = ["jupyter", "jupyterlab", "jupyterlab-extension", "jupyter-ai"]
+classifiers = [
+  "Framework :: Jupyter",
+  "Framework :: Jupyter :: JupyterLab",
+  "Framework :: Jupyter :: JupyterLab :: 4",
+  "Framework :: Jupyter :: JupyterLab :: Extensions",
+  "Framework :: Jupyter :: JupyterLab :: Extensions :: Prebuilt",
+  "License :: OSI Approved :: BSD License",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+]
+dynamic = ["version"]
+
 dependencies = [
-  "jupyter-ai-magics @ {root:uri}/packages/jupyter-ai-magics",
-  "jupyter-ai @ {root:uri}/packages/jupyter-ai",
+  "jupyterlab_chat>=0.19.0a0",
+  "jupyter_server_documents>=0.1.0a8",
+  "jupyter_ai_router>=0.0.2",
+  "jupyter_ai_persona_manager>=0.0.4",
+  "jupyter_ai_litellm>=0.0.1",
+  "jupyter_ai_magic_commands>=0.0.2",
+  "jupyter_ai_chat_commands>=0.0.3",
+  "jupyter_ai_jupyternaut>=0.0.4",
 ]
 
 [project.optional-dependencies]
-build = []
+test = [
+  # `jupyter_collaboration>=4` requires `jupyter_server_ydoc>=2.0.0`,
+  # which requires `jupyter_server>=2.15.0`.
+  "jupyter_server[test]>=2.15.0,<3",
+  "coverage",
+  "pytest",
+  "pytest-asyncio",
+  "pytest-cov",
+  "pytest-tornasync",
+  "pytest-jupyter",
+  "syrupy~=4.0.8",
+  "types-jsonschema",
+  "mypy",
+]
 
-[project.readme]
-file = "README.md"
-content-type = "text/markdown"
-
-[project.license]
-text = "BSD 3-Clause License"
+[project.urls]
+Documentation = "https://jupyter-ai.readthedocs.io/en/v3/"
+Source = "https://github.com/jupyterlab/jupyter-ai"
+Tracker = "https://github.com/jupyterlab/jupyter-ai/issues"
 
 [tool.hatch.version]
-source = "nodejs"
-path = "package.json"
-
-[tool.hatch.build]
-packages = ["packages/jupyter-ai-magics", "packages/jupyter-ai"]
-
-[tool.hatch.metadata]
-allow-direct-references = true
-
-[tool.check-manifest]
-ignore = [".*"]
-
-[tool.check-wheel-contents]
-ignore = ["W002"]
-
-[tool.pytest.ini_options]
-addopts = "--ignore packages/jupyter-ai-module-cookiecutter"
-
-[tool.mypy]
-exclude = ["tests", ".venv"]
+path = "jupyter_ai/__init__.py"

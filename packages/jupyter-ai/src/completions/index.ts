@@ -1,1 +1,0 @@
-export { completionPlugin } from './plugin';
