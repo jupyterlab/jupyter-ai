@@ -2,6 +2,22 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 3.0.0b9
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/v3.0.0b8...bc407706258e93f9a2ae3cd7bbb05ada9c31acc3))
+
+### Bugs fixed
+
+- Fix chat commands UI & Jupyternaut model configuration [#1498](https://github.com/jupyterlab/jupyter-ai/pull/1498) ([@dlqqq](https://github.com/dlqqq))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2025-11-03&to=2025-11-05&type=c))
+
+[@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2025-11-03..2025-11-05&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 3.0.0b8
 
 See [this issue](https://github.com/jupyterlab/jupyter-ai/issues/1495) for more info. We're presenting this release at JupyterCon 2025 in San Diego two days from now! More details to follow.
@@ -17,8 +33,6 @@ See [this issue](https://github.com/jupyterlab/jupyter-ai/issues/1495) for more 
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2025-09-10&to=2025-11-03&type=c))
 
 [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2025-09-10..2025-11-03&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 3.0.0beta7
 
