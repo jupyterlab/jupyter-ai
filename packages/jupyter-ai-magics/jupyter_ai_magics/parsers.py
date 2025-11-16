@@ -47,6 +47,7 @@ class CellArgs(BaseModel):
     model_id: str
     format: FORMAT_CHOICES_TYPE
     model_parameters: Optional[str] = None
+    error_handle: bool = False
     # The following parameters are required only for SageMaker models
     region_name: Optional[str] = None
     request_schema: Optional[str] = None
@@ -179,6 +180,14 @@ def verify_json_value(ctx, param, value):
     help=MODEL_PARAMETERS_HELP,
     callback=verify_json_value,
     default="{}",
+)
+@click.option(
+    "--error-handle",
+    "--errorhandle",
+    "error_handle",
+    is_flag=True,
+    default=False,
+    help="Execute the cell normally and call the language model only when an error occurs.",
 )
 @click.pass_context
 def cell_magic_parser(context: click.Context, **kwargs):

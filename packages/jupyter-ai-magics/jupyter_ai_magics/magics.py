@@ -4,6 +4,7 @@ import os
 import re
 import sys
 import warnings
+import traceback
 from typing import Any, Optional
 
 import click
@@ -287,6 +288,10 @@ class AiMagics(Magics):
                 subcommands."""
             )
 
+        # エラーハンドルモードではセルを通常実行し、失敗時のみLLMへ情報を渡す
+        if args.error_handle:
+            return self.run_cell_with_error_handle(args, cell)
+
         prompt = cell.strip()
 
         return self.run_ai_cell(args, prompt)
@@ -365,6 +370,50 @@ class AiMagics(Magics):
             error_msg = f"Error calling language model: {str(e)}"
             print(error_msg, file=sys.stderr)
             return error_msg
+
+    def run_cell_with_error_handle(self, args: CellArgs, cell: str):
+        # セルを通常通り実行し、例外発生時のみLLMに説明を依頼する
+        ip = self.shell
+        try:
+            exec_result = ip.run_cell(cell)
+        except BaseException as exc:
+            traceback_text = "".join(
+                traceback.TracebackException.from_exception(exc).format()
+            )
+            return self._handle_cell_error(args, cell, traceback_text)
+
+        if not exec_result or getattr(exec_result, "success", True):
+            return
+
+        error_exc = getattr(exec_result, "error_in_exec", None) or getattr(
+            exec_result, "error_before_exec", None
+        )
+        if not error_exc:
+            return
+
+        traceback_text = "".join(
+            traceback.TracebackException.from_exception(error_exc).format()
+        )
+        return self._handle_cell_error(args, cell, traceback_text)
+
+    def _handle_cell_error(self, args: CellArgs, cell: str, traceback_text: str):
+        # 実行したコードとトレースバックをテンプレートへ埋め込んでLLMへ送る
+        if not traceback_text:
+            return
+
+        prompt = self.error_help_prompt.format(
+            code=cell.strip(), error=traceback_text.strip()
+        )
+        safe_prompt = prompt.replace("{", "{{").replace("}", "}}")
+
+        values = args.model_dump()
+        values["error_handle"] = False
+        helper_args = CellArgs(**values)
+
+        print(
+            "An error was detected while executing the cell. Asking the AI assistant for help."
+        )
+        return self.run_ai_cell(helper_args, safe_prompt)
 
     def display_output(self, output, display_format, metadata: dict[str, Any]) -> Any:
         """
@@ -625,3 +674,17 @@ class AiMagics(Magics):
                             )
 
             return TextOrMarkdown(text_output, markdown_output)
+    # エラー説明用テンプレート（コード／トレースバックを差し込む）
+    error_help_prompt = traitlets.Unicode(
+        default_value=(
+            "You are an AI assistant that helps debug Jupyter notebook cells.\n\n"
+            "Given the cell source code and the resulting Python error, explain the likely cause "
+            "and propose specific steps the user can take to fix it.\n\n"
+            "Cell source:\n{code}\n\nError traceback:\n{error}\n"
+        ),
+        help="""Template used when `--error-handle` is supplied.
+
+        The template should reference `{code}` and `{error}` placeholders, which will be replaced
+        with the executed cell contents and the formatted traceback respectively.""",
+        config=True,
+    )
