@@ -401,9 +401,8 @@ class AiMagics(Magics):
         if not traceback_text:
             return
 
-        prompt = self.error_help_prompt.format(
-            code=cell.strip(), error=traceback_text.strip()
-        )
+        template = self._get_error_help_prompt()
+        prompt = template.format(code=cell.strip(), error=traceback_text.strip())
         safe_prompt = prompt.replace("{", "{{").replace("}", "}}")
 
         values = args.model_dump()
@@ -414,6 +413,27 @@ class AiMagics(Magics):
             "An error was detected while executing the cell. Asking the AI assistant for help."
         )
         return self.run_ai_cell(helper_args, safe_prompt)
+
+    def _get_error_help_prompt(self) -> str:
+        """
+        Returns the prompt template for error handling, preferring an external file if present.
+        """
+        candidate_path = self.error_help_prompt_path or os.path.join(
+            os.getcwd(), "errorhandle_prompt.cfg"
+        )
+
+        if candidate_path and os.path.isfile(candidate_path):
+            try:
+                with open(candidate_path, "r", encoding="utf-8") as f:
+                    return f.read()
+            except OSError as exc:
+                print(
+                    f"Failed to read error prompt file at {candidate_path}: {exc}",
+                    file=sys.stderr,
+                )
+
+        # フォールバックは組み込みのデフォルト（日本語）
+        return self.error_help_prompt
 
     def display_output(self, output, display_format, metadata: dict[str, Any]) -> Any:
         """
@@ -677,14 +697,24 @@ class AiMagics(Magics):
     # エラー説明用テンプレート（コード／トレースバックを差し込む）
     error_help_prompt = traitlets.Unicode(
         default_value=(
-            "You are an AI assistant that helps debug Jupyter notebook cells.\n\n"
-            "Given the cell source code and the resulting Python error, explain the likely cause "
-            "and propose specific steps the user can take to fix it.\n\n"
-            "Cell source:\n{code}\n\nError traceback:\n{error}\n"
+            "あなたは Jupyter セルのエラーを解説し、修正方針を提案する AI アシスタントです。\n\n"
+            "次の情報を基に、原因の仮説と具体的な修正ステップを日本語で短く記述してください。\n"
+            "- セルソース:\n{code}\n\n"
+            "- エラートレースバック:\n{error}\n"
         ),
         help="""Template used when `--error-handle` is supplied.
 
         The template should reference `{code}` and `{error}` placeholders, which will be replaced
         with the executed cell contents and the formatted traceback respectively.""",
+        config=True,
+    )
+
+    # 外部ファイルからプロンプトを読む場合のパス（未設定ならリポジトリ直下 errorhandle_prompt.cfg を試す）
+    error_help_prompt_path = traitlets.Unicode(
+        default_value=None,
+        allow_none=True,
+        help="""Optional path to a file containing the error-help prompt template.
+        If set (or if a default file exists at workspace root), its contents will be used instead of `error_help_prompt`.
+        The template must include `{code}` and `{error}` placeholders.""",
         config=True,
     )
