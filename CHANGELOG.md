@@ -2,6 +2,24 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 2.31.7
+
+The Dask dashboard (showing progress of `/learn` calls) is now disabled by default, as it is only intended for local development. Pass the `--AiExtension.enable_dask_dashboard=True` trait to enable the Dask dashboard on port `8787`.
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.31.6...bbf6d163da3ff76c900b108e6c26b1c46b7d5cb1))
+
+### Bugs fixed
+
+- [2.x] Disable Dask dashboard by default [#1506](https://github.com/jupyterlab/jupyter-ai/pull/1506) ([@dlqqq](https://github.com/dlqqq))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2025-07-25&to=2025-11-25&type=c))
+
+[@3coins](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3A3coins+updated%3A2025-07-25..2025-11-25&type=Issues) | [@brichet](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Abrichet+updated%3A2025-07-25..2025-11-25&type=Issues) | [@cszhbo](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Acszhbo+updated%3A2025-07-25..2025-11-25&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2025-07-25..2025-11-25&type=Issues) | [@ellisonbg](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aellisonbg+updated%3A2025-07-25..2025-11-25&type=Issues) | [@felix5572](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Afelix5572+updated%3A2025-07-25..2025-11-25&type=Issues) | [@krassowski](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2025-07-25..2025-11-25&type=Issues) | [@srdas](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2025-07-25..2025-11-25&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 2.31.6
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@2.31.5...0fad182d794c28f50dc58efda30098e53d263315))
@@ -22,8 +40,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2025-06-04&to=2025-07-25&type=c))
 
 [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2025-06-04..2025-07-25&type=Issues) | [@ellisonbg](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aellisonbg+updated%3A2025-06-04..2025-07-25&type=Issues) | [@meeseeksmachine](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ameeseeksmachine+updated%3A2025-06-04..2025-07-25&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 2.31.5
 
