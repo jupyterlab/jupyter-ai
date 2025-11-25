@@ -3,13 +3,14 @@ import re
 import time
 import types
 
+import dask
 from dask.distributed import Client as DaskClient
 from importlib_metadata import entry_points
 from jupyter_ai_magics import BaseProvider, JupyternautPersona
 from jupyter_ai_magics.utils import get_em_providers, get_lm_providers
 from jupyter_server.extension.application import ExtensionApp
 from tornado.web import StaticFileHandler
-from traitlets import Dict, Integer, List, Unicode
+from traitlets import Dict, Integer, List, Unicode, Bool
 
 from .chat_handlers.base import BaseChatHandler
 from .completions.handlers import DefaultInlineCompletionHandler
@@ -204,6 +205,17 @@ class AiExtension(ExtensionApp):
         config=True,
     )
 
+    enable_dask_dashboard = Bool(
+        default_value=False,
+        help="""
+        Whether to enable the dask dashboard on port 8787.
+
+        Made an optional trait defaulting to False in v2.31.7.
+        """,
+        allow_none=False,
+        config=True,
+    )
+
     def initialize_settings(self):
         start = time.time()
 
@@ -322,8 +334,15 @@ class AiExtension(ExtensionApp):
         default_chat_handler = self.settings["jai_chat_handlers"]["default"]
         default_chat_handler.send_help_message()
 
-    async def _get_dask_client(self):
-        return DaskClient(processes=False, asynchronous=True)
+    async def _get_dask_client(self) -> DaskClient:
+        # If configured, enabled Dask dashboard
+        if self.enable_dask_dashboard:
+            return DaskClient(processes=False, asynchronous=True)
+
+        # By default, disable Dask dashboard on port 8787
+        dask.config.set({"distributed.dashboard.link": False})
+        return DaskClient(processes=False, asynchronous=True, dashboard_address=None)
+
 
     async def stop_extension(self):
         """
