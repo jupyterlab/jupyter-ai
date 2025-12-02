@@ -11,72 +11,60 @@ please see the {doc}`developer's guide </developers/index>`.
 ## Prerequisites
 
 You can run Jupyter AI on any system that can run a supported Python version
-from 3.9 to 3.12, including recent Windows, macOS, and Linux versions. Python
+from 3.9 to 3.13, including recent Windows, macOS, and Linux versions. Python
 3.8 support is also available in Jupyter AI v2.29.1 and below.
 
-If you use `conda`, you can install Python 3.12 in your environment by running:
+If you use `conda`, you can install Python 3.13 in your environment by running:
 
 ```
-conda install python=3.12
+conda install python=3.13
 ```
 
-The `jupyter_ai` package, which provides the lab extension and user interface in
-JupyterLab, depends on JupyterLab 4. If upgrading to JupyterLab 4 is not
-possible in your environment, you should install `jupyter_ai` v1.x instead.
-See "Installation" for more details.
-
-:::{attention}
-:name: jupyter-lab-3-end-of-maintenance
-JupyterLab 3 reached its end of maintenance date on May 15, 2024. As a result, we will not backport new features to the v1 branch supporting JupyterLab 3. Fixes for critical issues will still be backported until December 31, 2024. If you are still using JupyterLab 3, we strongly encourage you to **upgrade to JupyterLab 4 as soon as possible**. For more information, see [JupyterLab 3 end of maintenance](https://blog.jupyter.org/jupyterlab-3-end-of-maintenance-879778927db2) on the Jupyter Blog.
-:::
+The `jupyter_ai` package, which provides the lab extension and user interface in JupyterLab, depends on JupyterLab 4.
 
 You can install JupyterLab using `pip` or `conda`.
 
 1. via `pip`:
 
 ```
-# change 4.0 to 3.0 if you need JupyterLab 3
-pip install jupyterlab~=4.0
+pip install jupyterlab
 ```
 
 2. via `conda`:
 
 ```
-# change 4.0 to 3.0 if you need JupyterLab 3
 conda config --add channels conda-forge
 conda config --set channel_priority strict
-conda install jupyterlab~=4.0
+conda install jupyterlab
 ```
 
-You can also use Jupyter AI in Jupyter Notebook 7.2+. To install Jupyter Notebook 7.2:
+You can also use Jupyter AI in Jupyter Notebook 7.5+. To install Jupyter Notebook 7.5:
 
 1. via `pip`:
 
 ```
-pip install notebook~=7.2
+pip install notebook~=7.5
 ```
 
 2. via `conda`:
+
 ```
-conda install notebook~=7.2
+conda install notebook~=7.5
 ```
 
 :::{note}
-To activate the chat interface in Jupyter Notebook, click on "View > Left sidebar > Show Jupyter AI Chat".
+To activate the chat interface in Jupyter Notebook, click on "View > Left sidebar > Show Jupyter AI Chat". You will see the chat panel as shown below.
 :::
+
+<img src="../_static/notebook-chat.png"
+    alt="Screen shot of the chat settings interface with Juptyter notebook"
+    class="screenshot" />
 
 The `jupyter_ai_magics` package, which provides exclusively the IPython magics,
 does not depend on JupyterLab or `jupyter_ai`. You can install
 `jupyter_ai_magics` without installing `jupyterlab` or `jupyter_ai`.
 If you have both `jupyter_ai_magics` and `jupyter_ai` installed, you should
 have the same version of each, to avoid errors.
-
-Jupyter AI internally uses Pydantic v1 and should work with either Pydantic
-version 1 or version 2. For compatibility, developers using Pydantic V2
-should import classes using the `pydantic.v1` package. See the
-[LangChain Pydantic migration plan](https://python.langchain.com/docs/guides/pydantic_compatibility)
-for advice about how developers should use `v1` to avoid mixing v1 and v2
-classes in their code.
 
 ## Installation
 
@@ -88,10 +76,10 @@ clobbering Python packages in your existing Python environment.
 
 To do so, install
 [conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html)
-and create an environment that uses Python 3.12 and the latest version of
+and create an environment that uses Python 3.13 and the latest version of
 JupyterLab:
 
-    $ conda create -n jupyter-ai python=3.12 jupyterlab
+    $ conda create -n jupyter-ai python=3.13 jupyterlab
     $ conda activate jupyter-ai
 
 You can now choose how to install Jupyter AI.
@@ -118,13 +106,12 @@ If you are not using JupyterLab and you only want to install the Jupyter AI
     $ pip install 'jupyter-ai-magics[all]'
 
 `jupyter-ai` depends on `jupyter-ai-magics`, so installing `jupyter-ai`
-automatically installs `jupyter-ai-magics`.
+automatically installs `jupyter-ai-magics` (recommended).
 
 :::{warning}
 :name: quoting-cli-arguments
 If running the above commands result in an error like `zsh: no matches found: jupyter-ai[all]`, this is because the `jupyter-ai[all]` argument must be surrounded by single or double quotes. Some shells reserve square brackets for pattern matching, so arguments containing square brackets must be quoted.
 :::
-
 
 ### Minimal installation via `pip`
 
@@ -196,29 +183,25 @@ or
 
 ## Model providers
 
-Jupyter AI supports a wide range of model providers and models. To use Jupyter AI with a particular provider, you must install its Python packages and set its API key (or other credentials) in your environment or in the chat interface.
+Jupyter AI supports a wide range of model providers and models. Access to the various providers is undertaken using the [LiteLLM](https://docs.litellm.ai/) interface, which enables hundreds of models. You can select the model to be used in the chat interface from the `Settings` tab -> `Jupyterbaut Settings`, where you can see the models by typing in a search string.
 
-Jupyter AI supports the following model providers:
+<img src="../_static/jupyternaut-settings.png"
+    alt="Chat settings interface with Juptyter Lab"
+    class="screenshot" />
 
-| Provider                     | Provider ID          | Environment variable(s)    | Python package(s)                         |
-|------------------------------|----------------------|----------------------------|-------------------------------------------|
-| AI21                         | `ai21`               | `AI21_API_KEY`             | `ai21`                                    |
-| Anthropic                    | `anthropic`          | `ANTHROPIC_API_KEY`        | `langchain-anthropic`                     |
-| Anthropic (chat)             | `anthropic-chat`     | `ANTHROPIC_API_KEY`        | `langchain-anthropic`                     |
-| Bedrock                      | `bedrock`            | N/A                        | `langchain-aws`                           |
-| Bedrock (chat)               | `bedrock-chat`       | N/A                        | `langchain-aws`                           |
-| Bedrock (custom/provisioned) | `bedrock-custom`     | N/A                        | `langchain-aws`                           |
-| Cohere                       | `cohere`             | `COHERE_API_KEY`           | `langchain-cohere`                        |
-| ERNIE-Bot                    | `qianfan`            | `QIANFAN_AK`, `QIANFAN_SK` | `qianfan`                                 |
-| Gemini                       | `gemini`             | `GOOGLE_API_KEY`           | `langchain-google-genai`                  |
-| GPT4All                      | `gpt4all`            | N/A                        | `gpt4all`                                 |
-| Hugging Face Hub             | `huggingface_hub`    | `HUGGINGFACEHUB_API_TOKEN` | `huggingface_hub`, `ipywidgets`, `pillow` |
-| MistralAI                    | `mistralai`          | `MISTRAL_API_KEY`          | `langchain-mistralai`                     |
-| NVIDIA                       | `nvidia-chat`        | `NVIDIA_API_KEY`           | `langchain_nvidia_ai_endpoints`           |
-| Ollama                       | `ollama`             | N/A                        | `langchain-ollama`                        |
-| OpenAI                       | `openai`             | `OPENAI_API_KEY`           | `langchain-openai`                        |
-| OpenAI (chat)                | `openai-chat`        | `OPENAI_API_KEY`           | `langchain-openai`                        |
-| SageMaker endpoint           | `sagemaker-endpoint` | N/A                        | `langchain-aws`                           |
+The LiteLLM interface does not show all available models and you can see the [full list of providers and models](https://docs.litellm.ai/docs/providers) online.
+
+To use Jupyter AI with a particular provider, you must set its API key (or other credentials) in the Jupyternaut settings, as needed. The names of the API keys are available from the LiteLLM documentation for each provider.
+
+<img src="../_static/jupyternaut-settings-api-keys.png"
+    alt="Chat settings interface with Juptyter Lab"
+    class="screenshot" />
+
+In the same interface it is also possible to set model parameters.
+
+<img src="../_static/jupyternaut-settings-model-parameters.png"
+    alt="Chat settings interface with Juptyter Lab"
+    class="screenshot" />
 
 The environment variable names shown above are also the names of the settings keys used when setting up the chat interface.
 If multiple variables are listed for a provider, **all** must be specified.
@@ -275,13 +258,12 @@ The first time you open the chat interface, Jupyter AI will ask you which models
 :name: language-models-and-embedding-models
 Users may select a language model and, optionally, an embedding model. You should select one of each so that you can use the full functionality of the chat interface.
 
-A **language model** responds to users' messages in the chat panel. It accepts a prompt and produces a response. Language models are typically *pre-trained*; they are ready to use, but their training sets are biased and incomplete, and users need to be aware of their biases when they use the chat interface.
+A **language model** responds to users' messages in the chat panel. It accepts a prompt and produces a response. Language models are typically _pre-trained_; they are ready to use, but their training sets are biased and incomplete, and users need to be aware of their biases when they use the chat interface.
 
 An **embedding model** is used when [learning and asking about local data](#learning-about-local-data). These models can transform your data, including documents and source code files, into vectors that can help Jupyter AI compose prompts to language models.
 
 Your language model and your embedding model do not need to be provided by the same vendor, but you will need authentication credentials for each model provider that you use.
 :::
-
 
 <img src="../_static/chat-select-model.png"
     alt="Screen shot of the setup interface, showing model selections and key"
@@ -300,7 +282,9 @@ Once you have set all the necessary keys, click the "back" (left arrow) button i
     class="screenshot" />
 
 You may customize the template of the chat interface from the default one. The steps are as follows:
+
 1. Create a new `config.py` file in your current directory with the contents you want to see in the help message, by editing the template below:
+
 ```
 c.AiExtension.help_message_template = """
 Sup. I'm {persona_name}. This is a sassy custom help message.
@@ -310,10 +294,13 @@ Here's the slash commands you can use. Use 'em or don't... I don't care.
 {slash_commands_list}
 """.strip()
 ```
+
 2.  Start JupyterLab with the following command:
+
 ```
 jupyter lab --config=config.py
 ```
+
 The new help message will be used instead of the default, as shown below
 
 <img src="../_static/chat-icon-left-tab-bar-custom.png"
@@ -329,22 +316,22 @@ To compose a message, type it in the text box at the bottom of the chat interfac
 The chat backend remembers the last two exchanges in your conversation and passes them to the language model. You can ask follow up questions without repeating information from your previous conversations. Here is an example of a chat conversation with a follow up question:
 
 #### Initial question
+
 <img src="../_static/chat-history-context-1.png"
     alt='Screen shot of an example coding question sent to Jupyternaut, who responds with the code and explanation.'
     class="screenshot" />
 
 #### Follow-up question
+
 <img src="../_static/chat-history-context-2.png"
     alt='Screen shot of an example follow up question sent to Jupyternaut, who responds with the improved code and explanation.'
     class="screenshot" />
-
 
 ### Amazon Bedrock Usage
 
 Jupyter AI enables use of language models hosted on [Amazon Bedrock](https://aws.amazon.com/bedrock/) on AWS. Ensure that you have authentication to use AWS using the `boto3` SDK with credentials stored in the `default` profile. Guidance on how to do this can be found in the [`boto3` documentation](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html).
 
 For details on enabling model access in your AWS account, using cross-region inference, or invoking custom/provisioned models, please see our dedicated documentation page on [using Amazon Bedrock in Jupyter AI](bedrock.md).
-
 
 ### OpenRouter and OpenAI Interface Usage
 
@@ -354,12 +341,11 @@ Likewise, for many models, you may directly choose the OpenAI provider in Jupyte
 
 For details on enabling model access via the AI Settings and using models via OpenRouter or OpenAI, please see the dedicated documentation page on using [OpenRouter and OpenAI providers in Jupyter AI](openrouter.md).
 
-
 ### SageMaker endpoints usage
 
 Jupyter AI supports language models hosted on SageMaker endpoints that use JSON
 schemas. The first step is to authenticate with AWS via the `boto3` SDK and have
-the credentials stored in the `default` profile.  Guidance on how to do this can
+the credentials stored in the `default` profile. Guidance on how to do this can
 be found in the
 [`boto3` documentation](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html).
 
@@ -375,45 +361,44 @@ Each of the additional fields under "Language model" is required. These fields
 should contain the following data:
 
 - **Endpoint name**: The name of your endpoint. This can be retrieved from the
-AWS Console at the URL
-`https://<region>.console.aws.amazon.com/sagemaker/home?region=<region>#/endpoints`.
+  AWS Console at the URL
+  `https://<region>.console.aws.amazon.com/sagemaker/home?region=<region>#/endpoints`.
 
 - **Region name**: The AWS region your SageMaker endpoint is hosted in, such as `us-west-2`.
 
 - **Request schema**: The JSON object the endpoint expects, with the prompt
-being substituted into any value that matches the string literal `"<prompt>"`.
-In this example, the request schema `{"text_inputs":"<prompt>"}` generates a JSON
-object with the prompt stored under the `text_inputs` key.
+  being substituted into any value that matches the string literal `"<prompt>"`.
+  In this example, the request schema `{"text_inputs":"<prompt>"}` generates a JSON
+  object with the prompt stored under the `text_inputs` key.
 
 - **Response path**: A [JSONPath](https://goessner.net/articles/JsonPath/index.html)
-string that retrieves the language model's output from the endpoint's JSON
-response.  In this example, the endpoint returns an object with the schema
-`{"generated_texts":["<output>"]}`, hence the response path is
-`generated_texts.[0]`.
+  string that retrieves the language model's output from the endpoint's JSON
+  response. In this example, the endpoint returns an object with the schema
+  `{"generated_texts":["<output>"]}`, hence the response path is
+  `generated_texts.[0]`.
 
 ### GPT4All usage (early-stage)
 
 Currently, we offer experimental support for GPT4All. To get started, first
 decide which models you will use. We currently offer the following models from GPT4All:
 
-| Model name                   | Model size | Model bin URL                                              |
-|---------------------------------|------------|------------------------------------------------------------|
-| `ggml-gpt4all-l13b-snoozy`      | 7.6 GB     | `http://gpt4all.io/models/ggml-gpt4all-l13b-snoozy.bin`    |
-| `ggml-gpt4all-j-v1.2-jazzy`     | 3.8 GB     | `https://gpt4all.io/models/ggml-gpt4all-j-v1.2-jazzy.bin`  |
-| `ggml-gpt4all-j-v1.3-groovy`    | 3.8 GB     | `https://gpt4all.io/models/ggml-gpt4all-j-v1.3-groovy.bin` |
-| `mistral-7b-openorca.Q4_0`      | 3.8 GB     | `https://gpt4all.io/models/gguf/mistral-7b-openorca.Q4_0.gguf` |
-| `mistral-7b-instruct-v0.1.Q4_0` | 3.8 GB     | `https://gpt4all.io/models/gguf/mistral-7b-instruct-v0.1.Q4_0.gguf` |
-| `gpt4all-falcon-q4_0`           | 3.9 GB     | `https://gpt4all.io/models/gguf/gpt4all-falcon-q4_0.gguf` |
-| `wizardlm-13b-v1.2.Q4_0`        | 6.9 GB     | `https://gpt4all.io/models/gguf/wizardlm-13b-v1.2.Q4_0.gguf` |
-| `nous-hermes-llama2-13b.Q4_0`   | 6.9 GB     | `https://gpt4all.io/models/gguf/nous-hermes-llama2-13b.Q4_0.gguf` |
-| `gpt4all-13b-snoozy-q4_0`       | 6.9 GB     | `https://gpt4all.io/models/gguf/gpt4all-13b-snoozy-q4_0.gguf` |
-| `mpt-7b-chat-merges-q4_0`       | 3.5 GB     | `https://gpt4all.io/models/gguf/mpt-7b-chat-merges-q4_0.gguf` |
-| `orca-mini-3b-gguf2-q4_0`       | 1.8 GB     | `https://gpt4all.io/models/gguf/orca-mini-3b-gguf2-q4_0.gguf` |
-| `starcoder-q4_0`                | 8.4 GB     | `https://gpt4all.io/models/gguf/starcoder-q4_0.gguf` |
-| `rift-coder-v0-7b-q4_0`         | 3.6 GB     | `https://gpt4all.io/models/gguf/rift-coder-v0-7b-q4_0.gguf` |
-| `all-MiniLM-L6-v2-f16`          | 44 MB      | `https://gpt4all.io/models/gguf/all-MiniLM-L6-v2-f16.gguf` |
+| Model name                      | Model size | Model bin URL                                                                                             |
+| ------------------------------- | ---------- | --------------------------------------------------------------------------------------------------------- |
+| `ggml-gpt4all-l13b-snoozy`      | 7.6 GB     | `http://gpt4all.io/models/ggml-gpt4all-l13b-snoozy.bin`                                                   |
+| `ggml-gpt4all-j-v1.2-jazzy`     | 3.8 GB     | `https://gpt4all.io/models/ggml-gpt4all-j-v1.2-jazzy.bin`                                                 |
+| `ggml-gpt4all-j-v1.3-groovy`    | 3.8 GB     | `https://gpt4all.io/models/ggml-gpt4all-j-v1.3-groovy.bin`                                                |
+| `mistral-7b-openorca.Q4_0`      | 3.8 GB     | `https://gpt4all.io/models/gguf/mistral-7b-openorca.Q4_0.gguf`                                            |
+| `mistral-7b-instruct-v0.1.Q4_0` | 3.8 GB     | `https://gpt4all.io/models/gguf/mistral-7b-instruct-v0.1.Q4_0.gguf`                                       |
+| `gpt4all-falcon-q4_0`           | 3.9 GB     | `https://gpt4all.io/models/gguf/gpt4all-falcon-q4_0.gguf`                                                 |
+| `wizardlm-13b-v1.2.Q4_0`        | 6.9 GB     | `https://gpt4all.io/models/gguf/wizardlm-13b-v1.2.Q4_0.gguf`                                              |
+| `nous-hermes-llama2-13b.Q4_0`   | 6.9 GB     | `https://gpt4all.io/models/gguf/nous-hermes-llama2-13b.Q4_0.gguf`                                         |
+| `gpt4all-13b-snoozy-q4_0`       | 6.9 GB     | `https://gpt4all.io/models/gguf/gpt4all-13b-snoozy-q4_0.gguf`                                             |
+| `mpt-7b-chat-merges-q4_0`       | 3.5 GB     | `https://gpt4all.io/models/gguf/mpt-7b-chat-merges-q4_0.gguf`                                             |
+| `orca-mini-3b-gguf2-q4_0`       | 1.8 GB     | `https://gpt4all.io/models/gguf/orca-mini-3b-gguf2-q4_0.gguf`                                             |
+| `starcoder-q4_0`                | 8.4 GB     | `https://gpt4all.io/models/gguf/starcoder-q4_0.gguf`                                                      |
+| `rift-coder-v0-7b-q4_0`         | 3.6 GB     | `https://gpt4all.io/models/gguf/rift-coder-v0-7b-q4_0.gguf`                                               |
+| `all-MiniLM-L6-v2-f16`          | 44 MB      | `https://gpt4all.io/models/gguf/all-MiniLM-L6-v2-f16.gguf`                                                |
 | `em_german_mistral_v01.Q4_0`    | 3.8 GB     | `https://huggingface.co/TheBloke/em_german_mistral_v01-GGUF/resolve/main/em_german_mistral_v01.Q4_0.gguf` |
-
 
 Note that each model comes with its own license, and that users are themselves
 responsible for verifying that their usage complies with the license. You can
@@ -442,7 +427,7 @@ models.
 
 ### Ollama usage
 
-To get started, follow the instructions on the [Ollama website](https://ollama.com/) to set up `ollama` and download the models locally. To select a model, enter the model name in the settings panel, for example `deepseek-coder-v2`.  You can see all locally available models with  `ollama list`.
+To get started, follow the instructions on the [Ollama website](https://ollama.com/) to set up `ollama` and download the models locally. To select a model, enter the model name in the settings panel, for example `deepseek-coder-v2`. You can see all locally available models with `ollama list`.
 
 For the Ollama models to be available to JupyterLab-AI, your Ollama server _must_ be running. You can check that this is the case by calling `ollama serve` at the terminal, and should see something like:
 
@@ -454,7 +439,7 @@ Error: listen tcp 127.0.0.1:11434: bind: address already in use
 In some platforms (e.g. macOS or Windows), there may also be a graphical user interface or application that lets you start/stop the Ollama server from a menu.
 
 :::{tip}
-If you don't see Ollama listed as a model provider in the Jupyter-AI configuration box, despite confirming that your Ollama server is active, you may be missing the  [`langchain-ollama` python package](https://pypi.org/project/langchain-ollama/) that is necessary for Jupyter-AI to interface with Ollama, as indicated in the [model providers](#model-providers) section above.
+If you don't see Ollama listed as a model provider in the Jupyter-AI configuration box, despite confirming that your Ollama server is active, you may be missing the [`langchain-ollama` python package](https://pypi.org/project/langchain-ollama/) that is necessary for Jupyter-AI to interface with Ollama, as indicated in the [model providers](#model-providers) section above.
 
 You can install it with `pip install langchain-ollama` (as of Feb'2025 it is not available on conda-forge).
 :::
@@ -467,7 +452,6 @@ To configure this in the chat, set the "Base API URL" field in the AI settings p
     width="100%"
     alt='Screenshot of the settings panel with Ollama on non-default port.'
     class="screenshot" />
-
 
 To configure this in the magic commands, you should set the `OLLAMA_HOST` environment variable to the your Ollama server's custom IP address and port number (assuming you chose 11000) in a new code cell:
 
@@ -623,21 +607,21 @@ use the `-a` or `--all-files` option.
 
 Jupyter AI can only learn from files with the following file extensions:
 
-* .py
-* .md
-* .R
-* .Rmd
-* .jl
-* .sh
-* .ipynb
-* .js
-* .ts
-* .jsx
-* .tsx
-* .txt
-* .html
-* .pdf
-* .tex
+- .py
+- .md
+- .R
+- .Rmd
+- .jl
+- .sh
+- .ipynb
+- .js
+- .ts
+- .jsx
+- .tsx
+- .txt
+- .html
+- .pdf
+- .tex
 
 ### Learning arXiv files
 
@@ -648,8 +632,8 @@ The `/learn` command also provides downloading and processing papers from the [a
 ```
 
 ### Exporting chat history
-Use the `/export` command to export the chat history from the current session to a markdown file named `chat_history-YYYY-MM-DD-HH-mm-ss.md`. You can also specify a filename using `/export <file_name>`. Each export will include the entire chat history up to that point in the session.
 
+Use the `/export` command to export the chat history from the current session to a markdown file named `chat_history-YYYY-MM-DD-HH-mm-ss.md`. You can also specify a filename using `/export <file_name>`. Each export will include the entire chat history up to that point in the session.
 
 ### Fixing a code cell with an error
 
@@ -679,7 +663,6 @@ contents of the failing cell.
 <img src="../_static/fix-response.png"
     alt='Screenshot of a response from `/fix`, with the "Replace active cell" action hovered.'
     class="screenshot" style="max-width:65%" />
-
 
 ### Additional chat commands
 
@@ -783,7 +766,7 @@ The location of `ipython_config.py` file is documented in [IPython configuration
 ### Listing available models
 
 Jupyter AI also includes multiple subcommands, which may be invoked via the
-`%ai` *line* magic. Jupyter AI uses subcommands to provide additional utilities
+`%ai` _line_ magic. Jupyter AI uses subcommands to provide additional utilities
 in notebooks while keeping the same concise syntax for invoking a language model.
 
 The `%ai list` subcommand prints a list of available providers and models. Some
@@ -1039,7 +1022,8 @@ The location of `ipython_config.py` file is documented in [IPython configuration
 
 You can use magic commands with models hosted using Amazon SageMaker.
 
-First, make sure that you've set your `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` environment variables  before starting JupyterLab as follows:
+First, make sure that you've set your `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` environment variables before starting JupyterLab as follows:
+
 ```
 os.environ['AWS_ACCESS_KEY_ID'] = <your_aws_access_key_id>
 os.environ['AWS_SECRET_ACCESS_KEY'] = <your_aws_secret_access_key>
@@ -1064,15 +1048,17 @@ os.environ['AWS_SECRET_ACCESS_KEY'] = secret_access_key
 :::{note}
 :name: using-env-key
 You may also set these keys directly using the `%env` magic command, but the key value may be echoed in the cell output. If you prefer to use `%env`, be sure to not share the notebook with people you don't trust, as this may leak your API keys.
+
 ```
 %env AWS_ACCESS_KEY_ID = <your_aws_access_key_id>
 %env AWS_SECRET_ACCESS_KEY = <your_aws_secret_access_key>
 ```
+
 :::
 
 For more information about environment variables, see [Environment variables to configure the AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-envvars.html) in AWS's documentation.
 
-Jupyter AI supports language models hosted on SageMaker endpoints that use JSON schemas. Authenticate with AWS via the `boto3` SDK and have the credentials stored in the `default` profile.  Guidance on how to do this can be found in the [`boto3` documentation](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html).
+Jupyter AI supports language models hosted on SageMaker endpoints that use JSON schemas. Authenticate with AWS via the `boto3` SDK and have the credentials stored in the `default` profile. Guidance on how to do this can be found in the [`boto3` documentation](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html).
 
 You will need to deploy a model in SageMaker, then provide it as the model name (as `sagemaker-endpoint:my-model-name`). See the [documentation on how to deploy a JumpStart model](https://docs.aws.amazon.com/sagemaker/latest/dg/jumpstart-deploy.html).
 
@@ -1089,7 +1075,6 @@ The `--request-schema` parameter is the JSON object the endpoint expects as inpu
 
 The `--response-path` option is a [JSONPath](https://goessner.net/articles/JsonPath/index.html) string that retrieves the language model's output from the endpoint's JSON response. For example, if your endpoint returns an object with the schema `{"generated_texts":["<output>"]}`, its response path is `generated_texts.[0]`.
 
-
 ## Configuration
 
 You can specify an allowlist, to only allow only a certain list of providers, or
@@ -1102,25 +1087,28 @@ These values are offered as a starting point for users, so they don't have to se
 the selections they make in the settings panel will take precedence over these values.
 
 Specify default language model
+
 ```bash
 jupyter lab --AiExtension.initial_language_model=bedrock-chat:anthropic.claude-v2
 ```
 
 Specify default embedding model
+
 ```bash
 jupyter lab --AiExtension.default_embeddings_model=bedrock:amazon.titan-embed-text-v1
 ```
 
 Specify default completions model
+
 ```bash
 jupyter lab --AiExtension.default_completions_model=bedrock-chat:anthropic.claude-v2
 ```
 
 Specify default API keys
+
 ```bash
 jupyter lab --AiExtension.default_api_keys={'OPENAI_API_KEY': 'sk-abcd'}
 ```
-
 
 ### Blocklisting providers
 
@@ -1201,7 +1189,6 @@ BedrockProvider(model_kwargs={"maxTokens":200}, ...)
 Here is another example, where `anthropic` provider will be created with the
 values for `max_tokens` and `temperature`, when `claude-2` model is selected.
 
-
 ```bash
 jupyter lab --AiExtension.model_parameters anthropic:claude-2='{"max_tokens":1024,"temperature":0.9}'
 ```
@@ -1235,15 +1222,15 @@ model.
 
 ```json
 {
-    "AiExtension": {
-        "model_parameters": {
-            "bedrock:ai21.j2-mid-v1": {
-                "model_kwargs": {
-                    "maxTokens": 200
-                }
-            }
+  "AiExtension": {
+    "model_parameters": {
+      "bedrock:ai21.j2-mid-v1": {
+        "model_kwargs": {
+          "maxTokens": 200
         }
+      }
     }
+  }
 }
 ```
 
