@@ -60,11 +60,7 @@ To activate the chat interface in Jupyter Notebook, click on "View > Left sideba
     alt="Screen shot of the chat settings interface with Juptyter notebook"
     class="screenshot" />
 
-The `jupyter_ai_magics` package, which provides exclusively the IPython magics,
-does not depend on JupyterLab or `jupyter_ai`. You can install
-`jupyter_ai_magics` without installing `jupyterlab` or `jupyter_ai`.
-If you have both `jupyter_ai_magics` and `jupyter_ai` installed, you should
-have the same version of each, to avoid errors.
+The `jupyter-ai-magic-commands` package, which provides the IPython magics, is automatically installed as a dependency when installing `jupyter_ai`.
 
 ## Installation
 
@@ -84,64 +80,43 @@ JupyterLab:
 
 You can now choose how to install Jupyter AI.
 
-We offer 3 different ways to install Jupyter AI. You can read through each
+We offer different ways to install Jupyter AI. You can read through each
 section to pick the installation method that works best for you.
 
-1. Quick installation via `pip` (recommended)
-2. Minimal installation via `pip`
-3. Minimal installation via `conda`
+### Installation via `pip` (recommended)
 
-### Quick installation via `pip` (recommended)
+To install both the `%%ai` magic and the JupyterLab extension, you can run:
 
-If you want to install both the `%%ai` magic and the JupyterLab extension, you can run:
+    $ pip install jupyter-ai==<version number>
 
-    $ pip install 'jupyter-ai[all]'
+Choose the version number, the latest version is `3.0.0b9`.
 
 Then, restart JupyterLab. This will install every optional dependency, which
 provides access to all models currently supported by `jupyter-ai`.
 
-If you are not using JupyterLab and you only want to install the Jupyter AI
-`%%ai` magic, you can run:
-
-    $ pip install 'jupyter-ai-magics[all]'
-
-`jupyter-ai` depends on `jupyter-ai-magics`, so installing `jupyter-ai`
-automatically installs `jupyter-ai-magics` (recommended).
-
-:::{warning}
+<!-- :::{warning}
 :name: quoting-cli-arguments
 If running the above commands result in an error like `zsh: no matches found: jupyter-ai[all]`, this is because the `jupyter-ai[all]` argument must be surrounded by single or double quotes. Some shells reserve square brackets for pattern matching, so arguments containing square brackets must be quoted.
-:::
+::: -->
 
-### Minimal installation via `pip`
+### Additional dependencies
 
 Most model providers in Jupyter AI require a specific dependency to be installed
 before they are available for use. These are called _provider dependencies_.
 Provider dependencies are optional to Jupyter AI, meaning that Jupyter AI can be
-installed with or without any provider dependencies installed. If a provider
+installed with or without any or some provider dependencies installed. If a provider
 requires a dependency that is not installed, its models are not listed in the
 user interface which allows you to select a language model.
 
-To perform a minimal installation via `pip` without any provider dependencies,
-omit the `[all]` optional dependency group from the package name:
+For example, to install Jupyter AI with added support for AWS Bedrock models, run:
 
 ```
-pip install jupyter-ai
+pip install boto3
 ```
 
-By selectively installing provider dependencies, you can control which models
-are available in your Jupyter AI environment.
+For more information on model providers and which dependencies (if any) they require, see the LiteLLM documentation for [providers](https://docs.litellm.ai/docs/providers).
 
-For example, to install Jupyter AI with only added support for Anthropic models, run:
-
-```
-pip install jupyter-ai langchain-anthropic
-```
-
-For more information on model providers and which dependencies they require, see
-[the model provider table](https://jupyter-ai.readthedocs.io/en/latest/users/index.html#model-providers).
-
-### Minimal installation via `conda`
+<!-- ### Installation via `conda`
 
 As an alternative to using `pip`, you can install `jupyter-ai` using
 [Conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html)
@@ -161,7 +136,7 @@ conda install conda-forge::jupyter-ai conda-forge::langchain-openai
 ```
 
 For more information on model providers and which dependencies they require, see
-[the model provider table](https://jupyter-ai.readthedocs.io/en/latest/users/index.html#model-providers).
+[the model provider table](https://jupyter-ai.readthedocs.io/en/latest/users/index.html#model-providers). -->
 
 ## Uninstallation
 
@@ -169,27 +144,23 @@ If you installed Jupyter AI using `pip`, to remove the extension, run:
 
     $ pip uninstall jupyter-ai
 
-or
+If you installed `jupyter-ai` in a conda environment you can eliminate the environment by first deactivating it and then running
 
-    $ pip uninstall jupyter-ai-magics
+```
+conda remove -n jupyter-ai --all
+```
 
-If you installed Jupyter AI using `conda`, you can remove it by running:
-
-    $ conda remove jupyter-ai
-
-or
-
-    $ conda remove jupyter-ai-magics
+When prompted, simply relace "Y" to proceed.
 
 ## Model providers
 
-Jupyter AI supports a wide range of model providers and models. Access to the various providers is undertaken using the [LiteLLM](https://docs.litellm.ai/) interface, which enables hundreds of models. You can select the model to be used in the chat interface from the `Settings` tab -> `Jupyterbaut Settings`, where you can see the models by typing in a search string.
+Jupyter AI supports a wide range of model providers and models. Access to the various providers is undertaken using the [LiteLLM](https://docs.litellm.ai/) interface, which enables hundreds of models. You can select the model to be used in the chat interface from the `Settings` tab -> `Jupyternaut Settings`, where you can see the models by typing in a search string.
 
 <img src="../_static/jupyternaut-settings.png"
     alt="Chat settings interface with Juptyter Lab"
     class="screenshot" />
 
-The LiteLLM interface does not show all available models and you can see the [full list of providers and models](https://docs.litellm.ai/docs/providers) online.
+The LiteLLM interface does not show _all_ available models and you can see the [full list of providers and models](https://docs.litellm.ai/docs/providers) online.
 
 To use Jupyter AI with a particular provider, you must set its API key (or other credentials) in the Jupyternaut settings, as needed. The names of the API keys are available from the LiteLLM documentation for each provider.
 
@@ -197,16 +168,13 @@ To use Jupyter AI with a particular provider, you must set its API key (or other
     alt="Chat settings interface with Juptyter Lab"
     class="screenshot" />
 
-In the same interface it is also possible to set model parameters.
+In the same interface it is also possible to set model parameters. This is a new feature in v3.
 
 <img src="../_static/jupyternaut-settings-model-parameters.png"
     alt="Chat settings interface with Juptyter Lab"
     class="screenshot" />
 
-The environment variable names shown above are also the names of the settings keys used when setting up the chat interface.
-If multiple variables are listed for a provider, **all** must be specified.
-
-To use the Bedrock models, you need access to the Bedrock service, and you will need to authenticate via [boto3](https://github.com/boto/boto3). For more information, see the [Amazon Bedrock Homepage](https://aws.amazon.com/bedrock/).
+To use the Bedrock models, you need access to the Bedrock service, and you will need to authenticate via [boto3](https://github.com/boto/boto3), which also needs to be installed, as mentioned previously. For more information, see the [Amazon Bedrock Homepage](https://aws.amazon.com/bedrock/).
 
 You need the `pillow` Python package to use Hugging Face Hub's text-to-image models.
 
@@ -218,16 +186,8 @@ SageMaker endpoint names are created when you deploy a model. For more informati
 ["Create your endpoint and deploy your model"](https://docs.aws.amazon.com/sagemaker/latest/dg/realtime-endpoints-deployment.html)
 in the SageMaker documentation.
 
-To use SageMaker's models, you will need to authenticate via
+To use SageMaker's models, you will also need to be authenticated via
 [boto3](https://github.com/boto/boto3).
-
-For example, to use OpenAI models, use the chat interface settings panel to choose the OpenAI language model:
-
-<img src="../_static/chat-settings-choose-language-model.png"
-    alt="Screen shot of the chat settings interface with language model dropdown open"
-    class="screenshot" />
-
-Then, enter your API key in the 'API Keys' section.
 
 :::{attention}
 :name: open-ai-cost
