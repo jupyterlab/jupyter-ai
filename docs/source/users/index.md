@@ -174,20 +174,19 @@ In the same interface it is also possible to set model parameters. This is a new
     alt="Chat settings interface with Juptyter Lab"
     class="screenshot" />
 
-To use the Bedrock models, you need access to the Bedrock service, and you will need to authenticate via [boto3](https://github.com/boto/boto3), which also needs to be installed, as mentioned previously. For more information, see the [Amazon Bedrock Homepage](https://aws.amazon.com/bedrock/).
+Here are some examples of additional packages that may be installed as needed:
 
-You need the `pillow` Python package to use Hugging Face Hub's text-to-image models.
+- To use the Bedrock models, you need access to the Bedrock service, and you will need to authenticate via [boto3](https://github.com/boto/boto3), which also needs to be installed, as mentioned previously. For more information, see the [Amazon Bedrock Homepage](https://aws.amazon.com/bedrock/).
 
-You can find a list of Hugging Face's models at [https://huggingface.co/models](https://huggingface.co/models).
+- You need the `pillow` Python package to use Hugging Face Hub's text-to-image models.
 
-To use NVIDIA models, create a free account with the [NVIDIA NGC service](https://catalog.ngc.nvidia.com/), which hosts AI solution catalogs, containers, models, and more. Navigate to Catalog > [AI Foundation Models](https://catalog.ngc.nvidia.com/ai-foundation-models), and select a model with an API endpoint. Click "API" on the model's detail page, and click "Generate Key". Save this key, and set it as the environment variable `NVIDIA_API_KEY` to access any of the model endpoints.
+- You can find a list of Hugging Face's models at [https://huggingface.co/models](https://huggingface.co/models).
 
-SageMaker endpoint names are created when you deploy a model. For more information, see
-["Create your endpoint and deploy your model"](https://docs.aws.amazon.com/sagemaker/latest/dg/realtime-endpoints-deployment.html)
-in the SageMaker documentation.
+- To use NVIDIA models, create a free account with the [NVIDIA NGC service](https://catalog.ngc.nvidia.com/), which hosts AI solution catalogs, containers, models, and more. Navigate to Catalog > [AI Foundation Models](https://catalog.ngc.nvidia.com/ai-foundation-models), and select a model with an API endpoint. Click "API" on the model's detail page, and click "Generate Key". Save this key, and set it as the environment variable `NVIDIA_API_KEY` to access any of the model endpoints.
 
-To use SageMaker's models, you will also need to be authenticated via
-[boto3](https://github.com/boto/boto3).
+- SageMaker endpoint names are created when you deploy a model. For more information, see
+  ["Create your endpoint and deploy your model"](https://docs.aws.amazon.com/sagemaker/latest/dg/realtime-endpoints-deployment.html)
+  in the SageMaker documentation. To use SageMaker's models, you will also need to be authenticated via [boto3](https://github.com/boto/boto3).
 
 :::{attention}
 :name: open-ai-cost
@@ -207,39 +206,33 @@ The chat interface sends data to generative AI models hosted by third parties. P
 
 Once you have started JupyterLab, click the new "chat" icon in the left side panel to open the chat interface. You can right-click on the panel icon and move it to the other side, if you prefer.
 
-<img src="../_static/chat-getting-started.png"
-    alt="Screen shot of the setup interface"
-    class="screenshot" />
+<img src="../_static/chat-interface.png"
+    alt="Screen shot of the chat interface"
+    class="screenshot"
+    width="400"
+    height="auto" />
 
-The first time you open the chat interface, Jupyter AI will ask you which models you want to use as a language model and as an embedding model. Once you have made your selections, the UI may display text boxes for one or more settings keys.
+Make sure you have chosen a language model by going to `Settings` -> `Jupyternaut settings` as shown in the Model Providers section above. You can also enter the model paramaters as well as the related API keys if necessary.
 
-:::{admonition} Language models and embedding models
-:class: tip
-:name: language-models-and-embedding-models
-Users may select a language model and, optionally, an embedding model. You should select one of each so that you can use the full functionality of the chat interface.
+A **language model** responds to users' messages in the chat panel using **Personas**. The default Persona is `Jupyternaut`. It accepts a prompt and produces a response. Language models are typically _pre-trained_; they are ready to use, but their training sets are biased and incomplete, and users need to be aware of their biases when they use the chat interface. Here is an example of a new chat. Click on `+Chat` at the top left of the chat panel and name a new chat in the following window that will pop up:
 
-A **language model** responds to users' messages in the chat panel. It accepts a prompt and produces a response. Language models are typically _pre-trained_; they are ready to use, but their training sets are biased and incomplete, and users need to be aware of their biases when they use the chat interface.
+<img src="../_static/chat-new.png"
+    alt="Screen shot of the new chat"
+    class="screenshot"
+    width="300"
+    height="auto" />
 
-An **embedding model** is used when [learning and asking about local data](#learning-about-local-data). These models can transform your data, including documents and source code files, into vectors that can help Jupyter AI compose prompts to language models.
+Enter the name of the chat and see the chat appear in the chat panel:
 
-Your language model and your embedding model do not need to be provided by the same vendor, but you will need authentication credentials for each model provider that you use.
-:::
+<img src="../_static/chat-newchat.png"
+    alt="Screen shot of the new chat"
+    class="screenshot"
+    width="300"
+    height="auto" />
 
-<img src="../_static/chat-select-model.png"
-    alt="Screen shot of the setup interface, showing model selections and key"
-    class="screenshot" />
+You can then @-mention the Persona in the chat prompt area as shown and issue a prompt to the persona.
 
-Before you can use the chat interface, you need to provide your API keys for the model providers that you have selected. Paste or type your keys into the boxes provided.
-
-<img src="../_static/chat-select-model-complete.png"
-    alt="Screen shot of the setup interface, showing model selections and key populated"
-    class="screenshot" />
-
-Once you have set all the necessary keys, click the "back" (left arrow) button in the upper-left corner of the Jupyter AI side panel. The chat interface now appears, with a help menu of available `/` (slash) commands, and you can ask a question using the message box at the bottom.
-
-<img src="../_static/chat-icon-left-tab-bar.png"
-    alt="Screen shot of the initial chat interface."
-    class="screenshot" />
+## Customize the chat interface
 
 You may customize the template of the chat interface from the default one. The steps are as follows:
 
