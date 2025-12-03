@@ -219,7 +219,7 @@ A **language model** responds to users' messages in the chat panel using **Perso
 <img src="../_static/chat-new.png"
     alt="Screen shot of the new chat"
     class="screenshot"
-    width="300"
+    width="400"
     height="auto" />
 
 Enter the name of the chat and see the chat appear in the chat panel:
@@ -227,10 +227,64 @@ Enter the name of the chat and see the chat appear in the chat panel:
 <img src="../_static/chat-newchat.png"
     alt="Screen shot of the new chat"
     class="screenshot"
-    width="300"
+    width="400"
     height="auto" />
 
 You can then @-mention the Persona in the chat prompt area as shown and issue a prompt to the persona.
+
+<img src="../_static/chat-at-mention.png"
+    alt="Screen shot of the chat persona"
+    class="screenshot"
+    width="400"
+    height="auto" />
+
+Then issue the required prompt as shown:
+
+<img src="../_static/chat-prompt.png"
+    alt="Screen shot of the chat prompt"
+    class="screenshot"
+    width="400"
+    height="auto" />
+
+And then we get a response:
+
+<img src="../_static/chat-response.png"
+    alt="Screen shot of the new chat response"
+    class="screenshot"
+    width="400"
+    height="auto" />
+
+You can also see the `Delete` button shown alongside the prompt if you need to clear up the chat; there is a similar button in the response area as well.
+
+All the chat content is stored in a file named `<chat_name>.chat` where an entire record of the chat is maintained as a Jupyter Server document. This persistent chat is also used as context memory when invoking the LLM from the chat. You can also open the chat file and see its contents as shown here.
+
+<img src="../_static/chat-ydoc.png"
+    alt="Screen shot of the chat doc"
+    class="screenshot"
+    width="600"
+    height="auto" />
+
+You can remove the chat by simply deleting its `.chat` file.
+
+Additional chat streams may be started as well, mimicking chat channels in social media applications. For example, create a second chat using the `+ Chat` button:
+
+<img src="../_static/chat-second.png"
+    alt="Screen shot of the second chat"
+    class="screenshot"
+    width="400"
+    height="auto" />
+
+## Attaching context to the prompt
+
+The chat panel also allows adding a flat file as context as shown. You can see how to use the drop-down to select your chat stream and then select a file followed by a prompt. The example below shows a python file and the chat explains it.
+
+<img src="../_static/chat-attach-file.png"
+    alt="Screen shot of using a file as context"
+    class="screenshot"
+    width="800"
+    height="auto" />
+
+You can also attach files using the paperclip icon in the chat window.
 
 ## Customize the chat interface
 
