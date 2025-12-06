@@ -83,7 +83,7 @@ You can now choose how to install Jupyter AI.
 We offer different ways to install Jupyter AI. You can read through each
 section to pick the installation method that works best for you.
 
-### Installation via `pip` (recommended)
+### Installation via `pip`
 
 To install both the `%%ai` magic and the JupyterLab extension, you can run:
 
@@ -94,10 +94,14 @@ Choose the version number, the latest version is `3.0.0b9`.
 Then, restart JupyterLab. This will install every optional dependency, which
 provides access to all models currently supported by `jupyter-ai`.
 
-<!-- :::{warning}
+For an installation with all related packages, use:
+
+    $ pip install "jupyter-ai[all]"==<version number>
+
+:::{warning}
 :name: quoting-cli-arguments
-If running the above commands result in an error like `zsh: no matches found: jupyter-ai[all]`, this is because the `jupyter-ai[all]` argument must be surrounded by single or double quotes. Some shells reserve square brackets for pattern matching, so arguments containing square brackets must be quoted.
-::: -->
+If running the above commands without quotes results in an error like `zsh: no matches found: jupyter-ai[all]`, this is because the `jupyter-ai[all]` argument must be surrounded by single or double quotes. Some shells reserve square brackets for pattern matching, so arguments containing square brackets must be quoted.
+:::
 
 ### Additional dependencies
 
@@ -238,7 +242,7 @@ You can then @-mention the Persona in the chat prompt area as shown and issue a 
     width="400"
     height="auto" />
 
-Then issue the required prompt as shown:
+To compose a message, type it in the text box at the bottom of the chat interface and press <kbd>ENTER</kbd> to send it. You can press <kbd>SHIFT</kbd>+<kbd>ENTER</kbd> to add a new line. (These are the default keybindings; you can change them in the chat settings pane.) Once you have sent a message, you should see a response from Jupyternaut, the Jupyter AI chatbot persona.
 
 <img src="../_static/chat-prompt.png"
     alt="Screen shot of the chat prompt"
@@ -286,7 +290,9 @@ The chat panel also allows adding a flat file as context as shown. You can see h
 
 You can also attach files using the paperclip icon in the chat window.
 
-## Customize the chat interface
+## Additional details about the chat interface
+
+<!-- ## Customize the chat interface
 
 You may customize the template of the chat interface from the default one. The steps are as follows:
 
@@ -312,13 +318,11 @@ The new help message will be used instead of the default, as shown below
 
 <img src="../_static/chat-icon-left-tab-bar-custom.png"
     alt="Screen shot of the custom chat interface."
-    class="screenshot" />
+    class="screenshot" /> -->
 
-To compose a message, type it in the text box at the bottom of the chat interface and press <kbd>ENTER</kbd> to send it. You can press <kbd>SHIFT</kbd>+<kbd>ENTER</kbd> to add a new line. (These are the default keybindings; you can change them in the chat settings pane.) Once you have sent a message, you should see a response from Jupyternaut, the Jupyter AI chatbot.
-
-<img src="../_static/chat-hello-world.png"
+<!-- <img src="../_static/chat-hello-world.png"
     alt='Screen shot of an example "Hello world" message sent to Jupyternaut, who responds with "Hello world, how are you today?"'
-    class="screenshot" />
+    class="screenshot" /> -->
 
 The chat backend remembers the last two exchanges in your conversation and passes them to the language model. You can ask follow up questions without repeating information from your previous conversations. Here is an example of a chat conversation with a follow up question:
 
@@ -328,7 +332,11 @@ The chat backend remembers the last two exchanges in your conversation and passe
     alt='Screen shot of an example coding question sent to Jupyternaut, who responds with the code and explanation.'
     class="screenshot" />
 
+We see that Jupyter AI not only created the code, but it also added it to a notebook. Then, it asked if it would be allowed to run the code in the notebook, and when it was prompted to do so, it ran the code and returned the answers.
+
 #### Follow-up question
+
+Next, you can ask that the function be extended. The function is updated and executed as shown:
 
 <img src="../_static/chat-history-context-2.png"
     alt='Screen shot of an example follow up question sent to Jupyternaut, who responds with the improved code and explanation.'
@@ -342,13 +350,13 @@ For details on enabling model access in your AWS account, using cross-region inf
 
 ### OpenRouter and OpenAI Interface Usage
 
-Jupyter AI enables use of language models accessible through [OpenRouter](https://openrouter.ai)'s unified interface. Examples of models that may be accessed via OpenRouter are: [Deepseek](https://openrouter.ai/deepseek/deepseek-chat), [Qwen](https://openrouter.ai/qwen/), [mistral](https://openrouter.ai/mistralai/), etc. OpenRouter enables usage of any model conforming to the OpenAI API.
+Jupyter AI enables use of language models accessible through [OpenRouter](https://openrouter.ai)'s unified interface. Examples of models that may be accessed via OpenRouter are: [Deepseek](https://openrouter.ai/deepseek/deepseek-chat), [Qwen](https://openrouter.ai/qwen/), [Mistral](https://openrouter.ai/mistralai/), etc. OpenRouter enables usage of any model conforming to the OpenAI API. In the `Chat model` area in `Jupyternaut settings` choose `openrouter/` to see all the models from this provider.
 
-Likewise, for many models, you may directly choose the OpenAI provider in Jupyter AI instead of OpenRouter in the same way.
+Likewise, for many models, you may directly choose the OpenAI provider in Jupyter AI instead of OpenRouter in the same way. In the `Chat model` area in `Jupyternaut settings` choose `openai/` to see all the models from this provider.
 
-For details on enabling model access via the AI Settings and using models via OpenRouter or OpenAI, please see the dedicated documentation page on using [OpenRouter and OpenAI providers in Jupyter AI](openrouter.md).
+<!-- For details on enabling model access via the AI Settings and using models via OpenRouter or OpenAI, please see the dedicated documentation page on using [OpenRouter and OpenAI providers in Jupyter AI](openrouter.md). -->
 
-### SageMaker endpoints usage
+<!-- ### SageMaker endpoints usage
 
 Jupyter AI supports language models hosted on SageMaker endpoints that use JSON
 schemas. The first step is to authenticate with AWS via the `boto3` SDK and have
@@ -382,9 +390,9 @@ should contain the following data:
   string that retrieves the language model's output from the endpoint's JSON
   response. In this example, the endpoint returns an object with the schema
   `{"generated_texts":["<output>"]}`, hence the response path is
-  `generated_texts.[0]`.
+  `generated_texts.[0]`. -->
 
-### GPT4All usage (early-stage)
+<!-- ### GPT4All usage (early-stage)
 
 Currently, we offer experimental support for GPT4All. To get started, first
 decide which models you will use. We currently offer the following models from GPT4All:
@@ -430,7 +438,7 @@ use in the chat interface.
 
 GPT4All support is still an early-stage feature, so some bugs may be encountered
 during usage. Our team is still actively improving support for locally-hosted
-models.
+models. -->
 
 ### Ollama usage
 
@@ -443,17 +451,19 @@ $ ollama serve
 Error: listen tcp 127.0.0.1:11434: bind: address already in use
 ```
 
+This indicates that Ollama is running on its default port number, 11434.
+
 In some platforms (e.g. macOS or Windows), there may also be a graphical user interface or application that lets you start/stop the Ollama server from a menu.
 
-:::{tip}
+<!-- :::{tip}
 If you don't see Ollama listed as a model provider in the Jupyter-AI configuration box, despite confirming that your Ollama server is active, you may be missing the [`langchain-ollama` python package](https://pypi.org/project/langchain-ollama/) that is necessary for Jupyter-AI to interface with Ollama, as indicated in the [model providers](#model-providers) section above.
 
 You can install it with `pip install langchain-ollama` (as of Feb'2025 it is not available on conda-forge).
-:::
+::: -->
 
 By default, Ollama is served on `127.0.0.1:11434` (locally on port `11434`), so Jupyter AI expects this by default. If you wish to use a remote Ollama server with a different IP address or a local Ollama server on a different port number, you have to configure this in advance.
 
-To configure this in the chat, set the "Base API URL" field in the AI settings page to your Ollama server's custom IP address and port number:
+To configure this in Jupyternaut settings, set the "Base API URL" field in the Model parameters section to your Ollama server's custom IP address and port number:
 
 <img src="../_static/ollama-settings.png"
     width="100%"
