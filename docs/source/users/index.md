@@ -463,18 +463,18 @@ You can install it with `pip install langchain-ollama` (as of Feb'2025 it is not
 
 By default, Ollama is served on `127.0.0.1:11434` (locally on port `11434`), so Jupyter AI expects this by default. If you wish to use a remote Ollama server with a different IP address or a local Ollama server on a different port number, you have to configure this in advance.
 
-To configure this in Jupyternaut settings, set the "Base API URL" field in the Model parameters section to your Ollama server's custom IP address and port number:
+To configure this in Jupyternaut settings, set the `api_base` paremeter field in the Model parameters section to your Ollama server's custom IP address and port number:
 
 <img src="../_static/ollama-settings.png"
-    width="100%"
+    width="95%"
     alt='Screenshot of the settings panel with Ollama on non-default port.'
     class="screenshot" />
 
-To configure this in the magic commands, you should set the `OLLAMA_HOST` environment variable to the your Ollama server's custom IP address and port number (assuming you chose 11000) in a new code cell:
+To configure this in the magic commands, you should set the `OLLAMA_HOST` environment variable to the your Ollama server's custom IP address and port number (assuming you chose 10000) in a new code cell:
 
 ```
 %load_ext jupyter_ai_magics
-os.environ["OLLAMA_HOST"] = "http://localhost:11000"
+os.environ["OLLAMA_HOST"] = "http://localhost:10000"
 ```
 
 After running that cell, the AI magic command can then be used like so:
@@ -502,16 +502,18 @@ Review your model provider's cost policy before making large requests.
 After highlighting a portion of your notebook, check "Include selection" in the chat panel, type your message, and then send your message. Your outgoing message will include your selection.
 
 <img src="../_static/chat-interface-selection.png"
-    alt='Screen shot of JupyterLab with Jupyter AI&apos;s chat panel active. A Python function is selected, the user has "What does this code do?" as their prompt, and the user has chosen to include the selection with their message.'
+    alt='Screen shot of JupyterLab with Jupyter AI&apos;s chat panel active. A Python function is selected, the user has "What does this code do?" as their prompt, and the user has chosen to include the selection with their message.' 
+    width="95%"
     class="screenshot" />
 
 Below your message, you will see Jupyternaut's response.
 
 <img src="../_static/chat-explain-code-output.png"
-    alt="Screen shot of Jupyter AI's chat panel, showing an answer to the question asked above."
+    alt="Screen shot of Jupyter AI's chat panel, showing an answer to the question asked above." 
+    width="95%" 
     class="screenshot" />
 
-You can copy Jupyternaut's response to the clipboard so that you can paste it into your notebook, or into any other application. You can also choose to replace the selection with Jupyternaut's response by clicking "Replace selection" before you send your message.
+You can copy Jupyternaut's response to the clipboard so that you can paste it into your notebook, or into any other application. You can also choose to replace the selection with Jupyternaut's response by clicking "Replace selection" before you send your message. The generated response can also be copied to a cell above or below the active cell. This is is shown below.
 
 :::{warning}
 :name: replace-selection
@@ -521,23 +523,28 @@ you run it.
 :::
 
 <img src="../_static/chat-replace-selection-input.png"
-    alt='Screen shot of Jupyter AI with a Python function selected, the user having typed "Rewrite this function to be iterative, not recursive" as their prompt, and with the user having chosen to include the selection with their message and to replace the selection with the response.'
+    alt='Screen shot of Jupyter AI with a Python function selected, the user having typed "Rewrite this function to be iterative, not recursive" as their prompt, and with the user having chosen to include the selection with their message and to replace the selection with the response.' 
+    width="95%"
     class="screenshot" />
 
 After Jupyternaut sends a response, your notebook will be updated immediately with the response replacing the selection. You can also see the response in the chat panel.
 
 ### Generating a new notebook
 
-You can use Jupyter AI to generate an entire notebook from a text prompt. To get started, open the chat panel, and send it a message starting with `/generate`.
+You can use Jupyter AI to generate an entire notebook from a text prompt. To get started, open the chat panel, and send it a message asking it to generate a new notebook to do what you request.
 
 <img src="../_static/chat-generate-input.png"
-    alt='Screen shot of a prompt reading "/generate A demonstration of how to use Matplotlib" in Jupyter AI'
+    alt='Screen shot of a prompt reading "/generate A demonstration of how to use Matplotlib" in Jupyter AI' 
+    width="75%" 
     class="screenshot" />
 
 Generating a notebook can take a substantial amount of time, so Jupyter AI will respond to your message immediately while it works. You can continue to ask it other questions in the meantime.
 
+When Jupyter AI is done generating your notebook, it will open the notebook in JupyterLab and ask you to link it with the kernel to run it. Here is the response to the prompt above:
+
 <img src="../_static/chat-generate-command-response.png"
-    alt="Screen shot of Jupyternaut responding to a generate message with a message that it is working on a notebook."
+    alt="Screen shot of Jupyternaut responding to a generate message with a message that it is working on a notebook." 
+    width="95%" 
     class="screenshot" />
 
 :::{note}
@@ -548,8 +555,6 @@ as you would normally. Do not shut your JupyterLab instance down while
 Jupyter AI is working.
 :::
 
-When Jupyter AI is done generating your notebook, it will send you another message with the filename that it generated. You can then open this file using the file browser.
-
 :::{warning}
 :name: generated-notebook
 Generated notebooks may contain errors and may have unintended side effects when
@@ -557,7 +562,7 @@ you run the code contained in them. Please review all generated code carefully
 before you run it.
 :::
 
-### Learning about local data
+<!-- ### Learning about local data
 
 Using the `/learn` command, you can teach Jupyter AI about local data so that Jupyternaut can include it when answering your questions. This local data is embedded using the embedding model you selected in the settings panel.
 
@@ -650,40 +655,34 @@ The `/learn` command also provides downloading and processing papers from the [a
 
 ### Exporting chat history
 
-Use the `/export` command to export the chat history from the current session to a markdown file named `chat_history-YYYY-MM-DD-HH-mm-ss.md`. You can also specify a filename using `/export <file_name>`. Each export will include the entire chat history up to that point in the session.
+Use the `/export` command to export the chat history from the current session to a markdown file named `chat_history-YYYY-MM-DD-HH-mm-ss.md`. You can also specify a filename using `/export <file_name>`. Each export will include the entire chat history up to that point in the session. -->
 
 ### Fixing a code cell with an error
 
-The `/fix` command can be used to fix any code cell with an error output in a
-Jupyter notebook file. To start, type `/fix` into the chat input. Jupyter AI
-will then prompt you to select a cell with error output before sending the
-request.
+You can drag a cell with an error into the chat box and ask Jupyternaut to fix it.
+
+<!-- The `/fix` command can be used to fix any code cell with an error output in a Jupyter notebook file. To start, type `/fix` into the chat input. Jupyter AI will then prompt you to select a cell with error output before sending the request.
 
 <img src="../_static/fix-no-error-cell-selected.png"
     alt='Screenshot of the chat input containing `/fix` without a code cell with error output selected.'
-    class="screenshot" />
-
-Then click on a code cell with error output. A blue bar should appear
-immediately to the left of the code cell.
+    class="screenshot" /> -->
 
 <img src="../_static/fix-error-cell-selected.png"
     alt='Screenshot of a code cell with error output selected.'
+    width="95%"
     class="screenshot" />
 
-After this, the Send button to the right of the chat input will be enabled, and
-you can use your mouse or keyboard to send `/fix` to Jupyternaut. The code cell
-and its associated error output are included in the message automatically. When
-complete, Jupyternaut will reply with suggested code that should fix the error.
-You can use the action toolbar under each code block to quickly replace the
-contents of the failing cell.
+After this, the Send button to the right of the chat input will be enabled, and you can use your mouse or keyboard to send this to Jupyternaut. The code cell and its associated error output are included in the message automatically. When complete, Jupyternaut will update the notebook with the corrected code.
 
 <img src="../_static/fix-response.png"
     alt='Screenshot of a response from `/fix`, with the "Replace active cell" action hovered.'
-    class="screenshot" style="max-width:65%" />
+    class="screenshot" style="max-width:95%" />
 
 ### Additional chat commands
 
-To start a new conversation, use the `/clear` command. This will clear the chat panel and reset the model's memory.
+To start a new conversation, simply use the `+ Chat` button at the top left of the chat panel.
+
+To delete elements of the chat you can use the "trash" icon on the right of the chat prompt or the chat response in the chat panel. The "trash" icon will appear when you mouse over any prompt or response. You may delete either the prompt or the response, or both. These will be removed from the chat panel as well as the underlying `.chat` server document. If you want to delete the entire chat, you can just delete the relevant `.chat` file in your folder.
 
 ## The `%ai` and `%%ai` magic commands
 
