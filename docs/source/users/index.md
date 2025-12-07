@@ -682,26 +682,26 @@ After this, the Send button to the right of the chat input will be enabled, and 
 
 To start a new conversation, simply use the `+ Chat` button at the top left of the chat panel.
 
-To delete elements of the chat you can use the "trash" icon on the right of the chat prompt or the chat response in the chat panel. The "trash" icon will appear when you mouse over any prompt or response. You may delete either the prompt or the response, or both. These will be removed from the chat panel as well as the underlying `.chat` server document. If you want to delete the entire chat, you can just delete the relevant `.chat` file in your folder.
+To delete elements of the chat you can use the "trash" icon on the right of the chat prompt or the chat response in the chat panel. The "trash" icon will appear when you mouse over any prompt or response. You may delete either the prompt or the response, or both. These will be removed from the chat panel as well as the underlying `.chat` Jupyter server document. If you want to delete the entire chat, you can just delete the relevant `.chat` file in your folder.
 
 ## The `%ai` and `%%ai` magic commands
 
 Jupyter AI can also be used in notebooks via Jupyter AI magics. This section
 provides guidance on how to use Jupyter AI magics effectively. The examples in
-this section are based on the [Jupyter AI example notebooks](https://github.com/jupyterlab/jupyter-ai/blob/main/examples/).
+this section cover a range of commands that may be used with the `%ai%` and `%%ai` magics.
 
 If you already have `jupyter_ai` installed, the magics package
-`jupyter_ai_magics` is installed automatically. Otherwise, run
+`jupyter_ai_magic_commands` is installed automatically. The code for the magics is in the `jupyter-ai-magic-commands` [repository](https://github.com/jupyter-ai-contrib/jupyter-ai-magic-commands). It can be installed separately using the command:
 
-    pip install jupyter_ai_magics
-
-in your terminal to install the magics package.
+```
+pip install jupyter-ai-magic-commands
+```
 
 Before you send your first prompt to an AI model, load the IPython extension by
 running the following code in a notebook cell or IPython shell:
 
 ```
-%load_ext jupyter_ai_magics
+%load_ext jupyter_ai_magic_commands
 ```
 
 This command should not produce any output.
@@ -709,14 +709,14 @@ This command should not produce any output.
 :::{note}
 If you are using remote kernels, such as in Amazon SageMaker Studio, the above
 command will throw an error. You will need to install the magics package
-on your remote kernel separately, even if you already have `jupyter_ai_magics`
+on your remote kernel separately, even if you already have `jupyter_ai_magic_commands`
 installed in your server's environment. In a notebook, run
 
 ```
 %pip install jupyter_ai_magics
 ```
 
-and re-run `%load_ext jupyter_ai_magics`.
+and re-run `%load_ext jupyter_ai_magic_commands`.
 :::
 
 Once the extension has loaded, you can run `%%ai` cell magic commands and
@@ -724,37 +724,74 @@ Once the extension has loaded, you can run `%%ai` cell magic commands and
 You can also pass `--help` as an argument to any line magic command (for example,
 `%ai list --help`) to learn about what the command does and how to use it.
 
+### Listing available models
+
+Jupyter AI also includes multiple subcommands, which may be invoked via the
+`%ai` _line_ magic. Jupyter AI uses subcommands to provide additional utilities
+in notebooks while keeping the same concise syntax for invoking a language model.
+
+The `%ai list` subcommand prints a list of available providers and models. Some
+providers explicitly define a list of supported models in their API. However,
+other providers, like Hugging Face Hub, lack a well-defined list of available
+models. In such cases, it's best to consult the provider's upstream
+documentation. The [Hugging Face website](https://huggingface.co/) includes a
+list of models, for example. To get help:
+
+<img src="../_static/magics-list-help.png"
+    alt='Screenshot of magics help for the list attribute.'
+    width="95%"
+    class="screenshot" />
+
+Optionally, you can specify a provider ID as a positional argument to `%ai list`
+to get all models provided by one provider. For example, `%ai list openai` will
+display only models provided by the `openai` provider.
+To see all the available providers run (the top of the list is shown):
+
 ### Choosing a provider and model
 
 The `%%ai` cell magic allows you to invoke a language model of your choice with
-a given prompt. The model is identified with a **global model ID**, which is a string with the
-syntax `<provider-id>:<local-model-id>`, where `<provider-id>` is the ID of the
-provider and `<local-model-id>` is the ID of the model scoped to that provider.
-The prompt begins on the second line of the cell.
+a given prompt. The model is identified with a **global model ID**, which is a string with the syntax `<provider-id>:<local-model-id>`, where `<provider-id>` is the ID of the provider and `<local-model-id>` is the ID of the model scoped to that provider.
 
-For example, to send a text prompt to the provider `anthropic` and the model ID
-`claude-v1.2`, enter the following code into a cell and run it:
+<img src="../_static/magics-list.png"
+    alt='Screenshot of magics list of all providers.'
+    width="75%"
+    class="screenshot" />
+
+To see all the models for a given provider:
+
+<img src="../_static/magics-list-any-provider.png"
+    alt='Screenshot of magics list for a selected provider.'
+    width="75%"
+    class="screenshot" />
+
+And to list all available models:
+
+<img src="../_static/magics-list-all.png"
+    alt='Screenshot of magics list of all models.'
+    width="75%"
+    class="screenshot" />
+
+### Invoking magics
+
+The prompt begins on the second line of the cell. For example, to send a text prompt to the provider `bedrock` and the model ID `anthropic.claude-3-5-haiku-20241022-v1:0`, enter the following code into a cell and run it:
 
 ```
-%%ai anthropic:claude-v1.2
-Write a poem about C++.
+%%ai bedrock/anthropic.claude-3-5-haiku-20241022-v1:0
+What is the capital of France?
 ```
 
-We currently support the following language model providers:
+The response is:
 
-- `ai21`
-- `anthropic`
-- `anthropic-chat`
-- `bedrock`
-- `bedrock-chat`
-- `bedrock-custom`
-- `cohere`
-- `huggingface_hub`
-- `nvidia-chat`
-- `ollama`
-- `openai`
-- `openai-chat`
-- `sagemaker-endpoint`
+```text
+The capital of France is Paris.
+```
+
+Another example using a different provider:
+
+<img src="../_static/magics-example-openai.png"
+    alt='Screenshot of magics example.'
+    width="75%"
+    class="screenshot" />
 
 ### Configuring a default model
 
@@ -779,24 +816,7 @@ c.AiMagics.initial_language_model = "anthropic:claude-v1.2"
 
 The location of `ipython_config.py` file is documented in [IPython configuration reference](https://ipython.readthedocs.io/en/stable/config/intro.html).
 
-### Listing available models
-
-Jupyter AI also includes multiple subcommands, which may be invoked via the
-`%ai` _line_ magic. Jupyter AI uses subcommands to provide additional utilities
-in notebooks while keeping the same concise syntax for invoking a language model.
-
-The `%ai list` subcommand prints a list of available providers and models. Some
-providers explicitly define a list of supported models in their API. However,
-other providers, like Hugging Face Hub, lack a well-defined list of available
-models. In such cases, it's best to consult the provider's upstream
-documentation. The [Hugging Face website](https://huggingface.co/) includes a
-list of models, for example.
-
-Optionally, you can specify a provider ID as a positional argument to `%ai list`
-to get all models provided by one provider. For example, `%ai list openai` will
-display only models provided by the `openai` provider.
-
-### Abbreviated syntax
+<!-- ### Abbreviated syntax
 
 If your model ID is associated with only one provider, you can omit the `provider-id` and
 the colon from the first line. For example, because `ai21` is the only provider of the
@@ -812,7 +832,7 @@ or just the model,
 ```
 %%ai j2-jumbo-instruct # infers AI21 provider
 Write some JavaScript code that prints "hello world" to the console.
-```
+``` -->
 
 ### Formatting the output
 
@@ -858,6 +878,13 @@ include calls to nonexistent (hallucinated) APIs.
 A function that computes the lowest common multiples of two integers, and
 a function that runs 5 test cases of the lowest common multiple function
 ```
+
+Another code example:
+
+<img src="../_static/magics-format-code.png"
+    alt='Screenshot of magics formatting output.'
+    width="75%"
+    class="screenshot" />
 
 ### Configuring the amount of history to include in the context
 
@@ -1034,7 +1061,28 @@ c.AiMagics.aliases = {
 
 The location of `ipython_config.py` file is documented in [IPython configuration reference](https://ipython.readthedocs.io/en/stable/config/intro.html).
 
-### Using magic commands with SageMaker endpoints
+Here are some examples of using aliases. You can shorten the magics in the first line of each cell by setting a much shorter alias as shown below:
+
+<img src="../_static/magics-set-alias.png"
+    alt='Screenshot of magics set alias.'
+    width="75%"
+    class="screenshot" />
+
+Usage of the alias is shown here:
+
+<img src="../_static/magics-alias-usage.png"
+    alt='Screenshot of magics usage of alias.'
+    width="75%"
+    class="screenshot" />
+
+You can remove the alias above with the `dealias` command:
+
+<img src="../_static/magics-dealias.png"
+    alt='Screenshot of magics usage of alias.'
+    width="25%"
+    class="screenshot" />
+
+<!-- ### Using magic commands with SageMaker endpoints
 
 You can use magic commands with models hosted using Amazon SageMaker.
 
@@ -1089,7 +1137,7 @@ The `--region-name` parameter is set to the [AWS region code](https://docs.aws.a
 
 The `--request-schema` parameter is the JSON object the endpoint expects as input, with the prompt being substituted into any value that matches the string literal `"<prompt>"`. For example, the request schema `{"text_inputs":"<prompt>"}` will submit a JSON object with the prompt stored under the `text_inputs` key.
 
-The `--response-path` option is a [JSONPath](https://goessner.net/articles/JsonPath/index.html) string that retrieves the language model's output from the endpoint's JSON response. For example, if your endpoint returns an object with the schema `{"generated_texts":["<output>"]}`, its response path is `generated_texts.[0]`.
+The `--response-path` option is a [JSONPath](https://goessner.net/articles/JsonPath/index.html) string that retrieves the language model's output from the endpoint's JSON response. For example, if your endpoint returns an object with the schema `{"generated_texts":["<output>"]}`, its response path is `generated_texts.[0]`. -->
 
 ## Configuration
 
@@ -1105,10 +1153,10 @@ the selections they make in the settings panel will take precedence over these v
 Specify default language model
 
 ```bash
-jupyter lab --AiExtension.initial_language_model=bedrock-chat:anthropic.claude-v2
+jupyter lab --AiExtension.initial_language_model=bedrock/anthropic.claude-3-5-haiku-20241022-v1:0
 ```
 
-Specify default embedding model
+<!-- Specify default embedding model
 
 ```bash
 jupyter lab --AiExtension.default_embeddings_model=bedrock:amazon.titan-embed-text-v1
@@ -1118,7 +1166,7 @@ Specify default completions model
 
 ```bash
 jupyter lab --AiExtension.default_completions_model=bedrock-chat:anthropic.claude-v2
-```
+``` -->
 
 Specify default API keys
 
@@ -1188,10 +1236,10 @@ unpacked and passed as-is to the provider class.
 #### Configuring as a startup option
 
 In this sample, the `bedrock` provider will be created with the value for
-`model_kwargs` when `ai21.j2-mid-v1` model is selected.
+`model_kwargs` when `bedrock/anthropic.claude-3-5-haiku-20241022-v1:0` model is selected.
 
 ```bash
-jupyter lab --AiExtension.model_parameters bedrock:ai21.j2-mid-v1='{"model_kwargs":{"maxTokens":200}}'
+jupyter lab --AiExtension.model_parameters bedrock/anthropic.claude-3-5-haiku-20241022-v1:0='{"model_kwargs":{"maxTokens":200}}'
 ```
 
 Note the usage of single quotes surrounding the dictionary to escape the double
@@ -1203,10 +1251,10 @@ BedrockProvider(model_kwargs={"maxTokens":200}, ...)
 ```
 
 Here is another example, where `anthropic` provider will be created with the
-values for `max_tokens` and `temperature`, when `claude-2` model is selected.
+values for `max_tokens` and `temperature`, when `bedrock/anthropic.claude-3-5-haiku-20241022-v1:0` model is selected.
 
 ```bash
-jupyter lab --AiExtension.model_parameters anthropic:claude-2='{"max_tokens":1024,"temperature":0.9}'
+jupyter lab --AiExtension.model_parameters bedrock/anthropic.claude-3-5-haiku-20241022-v1:0='{"max_tokens":1024,"temperature":0.9}'
 ```
 
 The above will result in the following LLM class to be generated.
@@ -1221,8 +1269,8 @@ command-line, you can append them as additional arguments to
 
 ```bash
 jupyter lab \
---AiExtension.model_parameters bedrock:ai21.j2-mid-v1='{"model_kwargs":{"maxTokens":200}}' \
---AiExtension.model_parameters anthropic:claude-2='{"max_tokens":1024,"temperature":0.9}'
+--AiExtension.model_parameters bedrock/anthropic.claude-3-5-haiku-20241022-v1:0='{"model_kwargs":{"maxTokens":200}}' \
+--AiExtension.model_parameters openai/gpt-4.1='{"max_tokens":1024,"temperature":0.9}'
 ```
 
 However, for more complex configuration, we highly recommend that you specify
@@ -1233,14 +1281,14 @@ following section.
 
 This configuration can also be specified in a config file in json format.
 
-Here is an example for configuring the `bedrock` provider for `ai21.j2-mid-v1`
+Here is an example for configuring the `bedrock` provider for `bedrock/anthropic.claude-3-5-haiku-20241022-v1:0`
 model.
 
 ```json
 {
   "AiExtension": {
     "model_parameters": {
-      "bedrock:ai21.j2-mid-v1": {
+      "bedrock/anthropic.claude-3-5-haiku-20241022-v1:0": {
         "model_kwargs": {
           "maxTokens": 200
         }
