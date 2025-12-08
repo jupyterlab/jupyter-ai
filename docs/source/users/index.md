@@ -78,10 +78,10 @@ JupyterLab:
     $ conda create -n jupyter-ai python=3.13 jupyterlab
     $ conda activate jupyter-ai
 
-You can now choose how to install Jupyter AI.
+<!-- You can now choose how to install Jupyter AI.
 
 We offer different ways to install Jupyter AI. You can read through each
-section to pick the installation method that works best for you.
+section to pick the installation method that works best for you. -->
 
 ### Installation via `pip`
 
