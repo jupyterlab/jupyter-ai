@@ -59,6 +59,32 @@ You should see an interface similar to the one above. Use the `+ Chat` button in
 
 To connect a LLM for use in your chat threads you can select the `Settings` dropdown menu, select `Jupyternaut settings` in it to see the settings panel, in which you can select a chat model, specify model parameters if needed, and also add API keys for using LLMs that require it.
 
+To use `uv` instead of `pip`:
+
+Create a virtual environment with `uv` in any folder:
+
+```
+uv venv --python 3.13
+```
+
+Activate the environment:
+
+```
+source .venv/bin/activate
+```
+
+Install with
+
+```
+uv pip install "jupyter-ai[all]"==<version number>
+```
+
+Run with
+
+```
+jupyter lab
+```
+
 ## Contents
 
 ```{toctree}

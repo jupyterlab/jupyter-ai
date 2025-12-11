@@ -103,6 +103,32 @@ For an installation with all related packages, use:
 If running the above commands without quotes results in an error like `zsh: no matches found: jupyter-ai[all]`, this is because the `jupyter-ai[all]` argument must be surrounded by single or double quotes. Some shells reserve square brackets for pattern matching, so arguments containing square brackets must be quoted.
 :::
 
+### Installation via `uv`
+
+Create a virtual environment with `uv` in any folder:
+
+```
+uv venv --python 3.13
+```
+
+Activate the environment:
+
+```
+source .venv/bin/activate
+```
+
+Install with
+
+```
+uv pip install "jupyter-ai[all]"==<version number>
+```
+
+Run with
+
+```
+jupyter lab
+```
+
 ### Additional dependencies
 
 Most model providers in Jupyter AI require a specific dependency to be installed
