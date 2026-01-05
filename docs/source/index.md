@@ -1,4 +1,6 @@
-# Jupyter AI v3
+# Jupyter AI v3 (beta)
+
+Documentation for v2 is available [here](https://jupyter-ai.readthedocs.io/en/v2/). 
 
 Welcome to Jupyter AI, which brings generative AI to Jupyter. Jupyter AI provides a user-friendly
 and powerful way to explore generative AI models in notebooks and improve your productivity

@@ -2,12 +2,12 @@
 # Read the Docs configuration file
 # See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
 
-version: 2
+version: 3
 
 build:
   os: ubuntu-22.04
   tools:
-    python: "3.11"
+    python: "3.12"
   apt_packages:
     - pandoc
 
