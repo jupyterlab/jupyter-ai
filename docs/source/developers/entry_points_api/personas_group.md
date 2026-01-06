@@ -3,19 +3,22 @@
 ```{contents} Contents
 ```
 
-## Summary
+## Overview
 
 This entry point group allows packages to add custom AI personas to the chat.
 AI personas are analogous to "bots" in other chat applications. Every available
 persona will be available in every chat by default. If a chat has any other
 users besides the current user and a single AI persona, then AI personas will
-only respond when `@`-mentioned. Jupyternaut provides a single AI persona by
-default: `Jupyternaut`.
+only respond when `@`-mentioned. Jupyter AI provides a single AI persona by
+default: `Jupyternaut`. 
+
+See the repository 
+[`jupyter-ai-persona-manager`](https://github.com/jupyter-ai-contrib/jupyter-ai-persona-manager) which allows developers to add AI personas.
 
 For example, if your Jupyter AI instance has `Jupyternaut` and `MyCustomPersona`
 as 2 AI personas, then each persona will only respond when `@`-mentioned.
 
-- To call `Jupyternaut`, your message must include `@Jupyternaut`.
+- To call `Jupyternaut`, your message must include `@Jupyternaut`. 
 
 - To call `MyCustomPersona`, your message must include `@MyCustomPersona`.
 
@@ -24,8 +27,14 @@ as 2 AI personas, then each persona will only respond when `@`-mentioned.
   personas.
 
 This group expects a **persona class**, a subclass of
-`jupyter_ai.personas:BasePersona`. Instructions on defining one are given in the
-next section.
+`jupyter_ai_persona_manager:BasePersona`. Instructions on defining one are given
+in the next section.
+
+- For details about the default `Jupyternaut` persona, refer to its repository
+  [jupyter-ai-contrib/jupyter-ai-jupyternaut](https://github.com/jupyter-ai-contrib/jupyter-ai-jupyternaut).
+- For a second pre-installed persona for `Claude Code`, look into
+  [jupyter-ai-contrib/jupyter-ai-claude-code](https://github.com/jupyter-ai-contrib/jupyter-ai-claude-code/).
+  This is a good example of a custom persona.
 
 ## How-to: Define a custom AI persona
 
@@ -51,11 +60,7 @@ The `process_message()` method takes the signature:
     @abstractmethod
     async def process_message(self, message: Message) -> None:
         """
-        Processes a new message. This method exclusively defines how new
-        messages are handled by a persona, and should be considered the "main
-        entry point" to this persona. Reading chat history and streaming a reply
-        can be done through method calls to `self.ychat`. See
-        `JupyternautPersona` for a reference implementation on how to do so.
+        Processes a new message. This method exclusively defines how new messages are handled by a persona, and should be considered the "main entry point" to this persona. Reading chat history and streaming a reply can be done through method calls to `self.ychat`. See `JupyternautPersona` for a reference implementation on how to do so.
 
         This is an abstract method that must be implemented by subclasses.
         """
@@ -63,8 +68,8 @@ The `process_message()` method takes the signature:
 
 This method accepts a `Message` object that represents a new message from a
 human user. There are many attributes on this object, but the main one is
-`message.body`, which contains the content of the message as a string.
-A full reference can be found in `jupyterlab_chat.models:Message`.
+`message.body`, which contains the content of the message as a string. A full
+reference can be found in `jupyterlab_chat.models:Message`.
 
 Subclasses may use the built-in methods on `BasePersona` to respond to the user.
 The two main methods are:
@@ -82,17 +87,32 @@ responds to new messages. Personas do not need to use the same chat model as
 Jupyternaut, and can use any library of their choice, provided it is installed
 in the same environment.
 
-However, if your persona wants to use the same configured LangChain model used
+<!-- However, if your persona wants to use the same configured LangChain model used
 by Jupyternaut, you can access that through the `self.config: ConfigManager`
-attribute available to subclasses.
+attribute available to subclasses. -->
 
-Add and call this method on a persona to access the LangChain runnable used by
+If your persona wants to call chat models in the same way as Jupyternaut, then you can use the same set up:
+
+```python
+async def get_agent(self, model_id: str, model_args, system_prompt: str):
+        model = ChatLiteLLM(**model_args, model=model_id, streaming=True)
+        memory_store = await self.get_memory_store()
+
+        return create_agent(
+            model,
+            system_prompt=system_prompt,
+            checkpointer=memory_store,
+            tools=self.get_tools(),
+        )
+```
+
+<!-- Add and call this method on a persona to access the LangChain runnable used by
 Jupyternaut:
 
 ```py
 def build_runnable(self) -> Any:
     llm = self.config.lm_provider(**self.config.lm_provider_params)
-    runnable = JUPYTERNAUT_PROMPT_TEMPLATE | llm | StrOutputParser()
+    runnable =   | llm | StrOutputParser()
 
     runnable = RunnableWithMessageHistory(
         runnable=runnable,  #  type:ignore[arg-type]
@@ -102,9 +122,9 @@ def build_runnable(self) -> Any:
     )
 
     return runnable
-```
+``` -->
 
-See `jupyter_ai.personas.jupyternaut` for a complete reference.
+See `jupyter_ai_jupyternaut` for a complete reference.
 
 ### Defining AI persona defaults
 

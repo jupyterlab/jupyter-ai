@@ -2,34 +2,38 @@
 
 [(Return to the Chat Interface page)](index.md#amazon-bedrock-usage)
 
-Bedrock supports many language model providers such as AI21 Labs, Amazon, Anthropic, Cohere, Meta, and Mistral AI. To use the base models from any supported provider make sure to enable them in Amazon Bedrock by using the AWS console. You should also select embedding models in Bedrock in addition to language completion models if you intend to use retrieval augmented generation (RAG) on your documents.
+Bedrock supports many language model providers such as Amazon, Anthropic, Arcee AI, AutoGluon, BRIA AI, Camb.ai, Cohere, DeepSeek, Google, HuggingFace, IBM, Inception, Liquid AI, Meta, Mistral AI, Moonshot, NVIDIA, OpenAI, Qwen, Stability, Writer, etc., this is a sample of the many providers that are available. To use the base models from any supported provider make sure to enable them in Amazon Bedrock by using the AWS console. You should also select embedding models in Bedrock in addition to language completion models if you intend to use retrieval augmented generation (RAG) on your documents.
 
 Go to Amazon Bedrock and select `Model Access` as shown here:
 
 <img src="../_static/bedrock-model-access.png"
-    width="75%"
+    width="95%"
     alt='Screenshot of the left panel in the AWS console where Bedrock model access is provided.'
     class="screenshot" />
 
-Click through on `Model Access` and follow the instructions to grant access to the models you wish to use, as shown below. Make sure to accept the end user license (EULA) as required by each model. You may need your system administrator to grant access to your account if you do not have authority to do so.
+Click through on `Model Catalog` to see all the available models. Serverless foundation models are now automatically enabled across all AWS commercial regions when first invoked in your account, so you can start using them instantly. You no longer need to manually activate model access through this page. Note that for Anthropic models, some first-time users may need to submit use case details before they can access the model. For serverless models served from AWS Marketplace, a user with AWS Marketplace permissions must invoke the model once to enable it account-wide. After this one-time enablement, all users can access the model without needing these permissions.
+
+Account administrators retain full control over model access through [IAM policies](https://docs.aws.amazon.com/bedrock/latest/userguide/security_iam_id-based-policy-examples.html) and [Service Control Policies](https://aws.amazon.com/blogs/security/unlock-new-possibilities-aws-organizations-service-control-policy-now-supports-full-iam-language/) to restrict model access as needed.
+
+To get started, simply select a model from the Model catalog and open it in the playground or invoke the model using the [InvokeModel](https://docs.aws.amazon.com/bedrock/latest/APIReference/API_runtime_InvokeModel.html) or [Converse API](https://docs.aws.amazon.com/bedrock/latest/APIReference/API_runtime_Converse.html) operations. Note that for Anthropic models, some first-time users may need to submit use case details before they can access the model. Review our documentation for the complete list of available models.
+
+All Bedrock serverless foundation model EULAs can be accessed [here](https://aws.amazon.com/legal/bedrock/third-party-models/). EULAs can also be accessed from the model details page in the Model catalog.
 
 <img src="../_static/bedrock-model-select.png"
-    width="75%"
+    width="95%"
     alt='Screenshot of the Bedrock console where models may be selected.'
     class="screenshot" />
 
-You should also select embedding models in addition to language completion models if you intend to use retrieval augmented generation (RAG) on your documents.
-
-You may now select a chosen Bedrock model from the drop-down menu box title `Completion model` in the chat interface. If RAG is going to be used then pick an embedding model that you chose from the Bedrock models as well. An example of these selections is shown below:
+You may now select a chosen Bedrock model from the drop-down menu box titled `Chat model` in the Jupyternaut settings tab (via the `Settings` dropdown). An example of the bedrock provider models is shown:
 
 <img src="../_static/bedrock-chat-basemodel.png"
-    width="50%"
+    width="75%"
     alt='Screenshot of the Jupyter AI chat panel where the base language model and embedding model is selected.'
     class="screenshot" />
 
 If your provider requires an API key, please enter it in the box that will show for that provider. Make sure to click on `Save Changes` to ensure that the inputs have been saved.
 
-Bedrock also allows custom models to be trained from scratch or fine-tuned from a base model. Jupyter AI enables a custom model to be called in the chat panel using its `arn` (Amazon Resource Name). A fine-tuned model will have your 12-digit customer number in the ARN:
+<!-- Bedrock also allows custom models to be trained from scratch or fine-tuned from a base model. Jupyter AI enables a custom model to be called in the chat panel using its `arn` (Amazon Resource Name). A fine-tuned model will have your 12-digit customer number in the ARN:
 
 <img src="../_static/bedrock-chat-custom-model-arn.png"
     width="75%"
@@ -84,6 +88,6 @@ Amazon Bedrock now permits cross-region inference, where a model hosted in a dif
 1. Bedrock Base models: All available models will already be available in the drop down model list. The above interface also allows use of base model IDs or ARNs, though this is unnecessary as they are in the dropdown list.
 2. Bedrock Custom models: If you have fine-tuned a Bedrock base model you may use the ARN for this custom model. Make sure to enter the correct provider information, such as `amazon`, `anthropic`, `cohere`, `meta`, `mistral` (always in lower case).
 3. Provisioned Models: These are models that run on dedicated endpoints. Users can purchase Provisioned Throughput Model Units to get faster throughput. These may be base or custom models. Enter the ARN for these models in the Model ID field.
-4. Cross-region Inference: Use the Inference profile ID for the cross-region model instead of the ARN.
+4. Cross-region Inference: Use the Inference profile ID for the cross-region model instead of the ARN. -->
 
 [(Return to the Chat Interface page)](index.md#amazon-bedrock-usage)
