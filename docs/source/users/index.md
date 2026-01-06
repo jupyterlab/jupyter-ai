@@ -306,15 +306,12 @@ Additional chat streams may be started as well, mimicking chat channels in socia
 
 ## Attaching context to the prompt
 
-The chat panel also allows adding a flat file as context as shown. You can see how to use the drop-down to select your chat stream and then select a file followed by a prompt. The example below shows a python file and the chat explains it.
+The chat panel also allows adding a flat file as context as shown. You can start a chat and then use the `@` mention to see the `@Jupyternaut` persona as well as the `@file` options. The latter allows you to choose a file as context and then ask questions about it, as shown in the following video:
 
-<img src="../_static/chat-attach-file.png"
-    alt="Screen shot of using a file as context"
-    class="screenshot"
-    width="800"
-    height="auto" />
+<video controls width="800">
+    <source src="../_static/chat-attach-file.mov" type="video/mp4">
+</video>
 
-You can also attach files using the paperclip icon in the chat window.
 
 ## Additional details about the chat interface
 
