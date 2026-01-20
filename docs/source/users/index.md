@@ -837,6 +837,24 @@ You can configure the default model for all notebooks by specifying `c.AiMagics.
 c.AiMagics.initial_language_model = "anthropic:claude-v1.2"
 ```
 
+You can also configure the default response format that `%%ai` uses when you do not
+pass the `-f/--format` flag. By default the magics interpret model output as
+`markdown`. To change this default, set the `AiMagics.default_response_format`
+traitlet using `%config` or in `ipython_config.py`. Valid values are the same
+formats accepted by the `-f/--format` flag (for example: `code`, `image`,
+`markdown`, `math`, `html`, `json`, `text`). An explicit `-f/--format` on the
+magic always takes precedence over this default.
+
+```python
+%config AiMagics.default_response_format = "text"
+```
+
+To set it globally for all notebooks, add the following to `ipython_config.py`:
+
+```python
+c.AiMagics.default_response_format = "text"
+```
+
 The location of `ipython_config.py` file is documented in [IPython configuration reference](https://ipython.readthedocs.io/en/stable/config/intro.html).
 
 <!-- ### Abbreviated syntax
@@ -877,6 +895,12 @@ For example, to force the output of a command to be interpreted as HTML, you can
 %%ai anthropic:claude-v1.2 -f html
 Create a square using SVG with a black border and white fill.
 ```
+
+Note: The magics package supports configuring a default format that is used when
+you don't provide `-f/--format`. Set `AiMagics.default_response_format` via
+`%config` or in `ipython_config.py` to change the fallback format (for example
+`text` for plain text output). Passing `-f/--format` on an individual magic
+invocation always overrides `AiMagics.default_response_format`.
 
 The following cell will produce output in IPython's `Math` format, which in a web browser
 will look like properly typeset equations.
