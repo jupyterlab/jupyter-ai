@@ -9,14 +9,23 @@ class ChatAnthropicProvider(
     id = "anthropic-chat"
     name = "Anthropic"
     models = [
-        "claude-2.0",
-        "claude-2.1",
+        # Claude 4.5 models (current flagship)
+        "claude-sonnet-4-5-20250929",
+        "claude-opus-4-5-20251101",
+        "claude-haiku-4-5-20251001",
+        # Claude 4 models (2025 releases)
+        "claude-opus-4-1-20250805",
+        "claude-opus-4-20250514",
+        "claude-sonnet-4-20250514",
+        # Claude 3.7 models
+        "claude-3-7-sonnet-20250219",
+        # Claude 3.5 models (still supported)
+        "claude-3-5-haiku-20241022",
+        "claude-3-5-sonnet-20241022",
+        # Claude 3 models (legacy but still supported)
         "claude-3-opus-20240229",
         "claude-3-sonnet-20240229",
         "claude-3-haiku-20240307",
-        "claude-3-5-haiku-20241022",
-        "claude-3-5-sonnet-20240620",
-        "claude-3-5-sonnet-20241022",
     ]
     model_id_key = "model"
     pypi_package_deps = ["anthropic"]
