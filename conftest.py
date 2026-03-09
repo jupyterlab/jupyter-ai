@@ -10,7 +10,17 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from jupyter_server.serverapp import ServerApp
 
-pytest_plugins = ("jupyter_server.pytest_plugin",)
+from importlib.util import find_spec
+
+_HAS_PYTEST_JUPYTER = find_spec("pytest_jupyter") is not None
+_HAS_JUPYTER_SERVER_PYTEST_PLUGIN = find_spec("jupyter_server.pytest_plugin") is not None
+
+pytest_plugins = (
+    ("jupyter_server.pytest_plugin",)
+    if _HAS_PYTEST_JUPYTER and _HAS_JUPYTER_SERVER_PYTEST_PLUGIN
+    else ()
+)
+
 
 @pytest.fixture
 def jp_server_config(jp_server_config, tmp_path):
@@ -69,4 +79,3 @@ def mock_ai_extension(jp_server_config, jp_configurable_serverapp) -> MockAiExte
     """
     serverapp = jp_configurable_serverapp()
     return MockAiExtension(config=jp_server_config, serverapp=serverapp)
-
