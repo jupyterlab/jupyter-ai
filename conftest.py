@@ -10,16 +10,13 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from jupyter_server.serverapp import ServerApp
 
-from importlib.util import find_spec
+try:
+    import pytest_jupyter.jupyter_server  # noqa: F401
+except ModuleNotFoundError:
+    pytest_plugins = ()
+else:
+    pytest_plugins = ("jupyter_server.pytest_plugin",)
 
-_HAS_PYTEST_JUPYTER = find_spec("pytest_jupyter") is not None
-_HAS_JUPYTER_SERVER_PYTEST_PLUGIN = find_spec("jupyter_server.pytest_plugin") is not None
-
-pytest_plugins = (
-    ("jupyter_server.pytest_plugin",)
-    if _HAS_PYTEST_JUPYTER and _HAS_JUPYTER_SERVER_PYTEST_PLUGIN
-    else ()
-)
 
 
 @pytest.fixture
