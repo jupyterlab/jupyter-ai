@@ -10,7 +10,14 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from jupyter_server.serverapp import ServerApp
 
-pytest_plugins = ("jupyter_server.pytest_plugin",)
+try:
+    import pytest_jupyter.jupyter_server  # noqa: F401
+except ModuleNotFoundError:
+    pytest_plugins = ()
+else:
+    pytest_plugins = ("jupyter_server.pytest_plugin",)
+
+
 
 @pytest.fixture
 def jp_server_config(jp_server_config, tmp_path):
@@ -69,4 +76,3 @@ def mock_ai_extension(jp_server_config, jp_configurable_serverapp) -> MockAiExte
     """
     serverapp = jp_configurable_serverapp()
     return MockAiExtension(config=jp_server_config, serverapp=serverapp)
-
