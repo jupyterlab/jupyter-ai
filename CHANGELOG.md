@@ -2,6 +2,104 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 3.0.0b9
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/v3.0.0b8...bc407706258e93f9a2ae3cd7bbb05ada9c31acc3))
+
+### Bugs fixed
+
+- Fix chat commands UI & Jupyternaut model configuration [#1498](https://github.com/jupyterlab/jupyter-ai/pull/1498) ([@dlqqq](https://github.com/dlqqq))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2025-11-03&to=2025-11-05&type=c))
+
+[@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2025-11-03..2025-11-05&type=Issues)
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
+## 3.0.0b8
+
+See [this issue](https://github.com/jupyterlab/jupyter-ai/issues/1495) for more info. We're presenting this release at JupyterCon 2025 in San Diego two days from now! More details to follow.
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@3.0.0-beta.7...e819ba1de1c126fdb394b1e1163bc8ef60afd78c))
+
+### Enhancements made
+
+- Make Jupyter AI a metapackage [#1494](https://github.com/jupyterlab/jupyter-ai/pull/1494) ([@dlqqq](https://github.com/dlqqq))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2025-09-10&to=2025-11-03&type=c))
+
+[@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2025-09-10..2025-11-03&type=Issues)
+
+## 3.0.0beta7
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@3.0.0-beta.6...55aff83376e770ee9953e8949ba11b7d54109650))
+
+### Enhancements made
+
+- Upgrade to `jupyterlab-chat` v0.17.0 [#1480](https://github.com/jupyterlab/jupyter-ai/pull/1480) ([@dlqqq](https://github.com/dlqqq))
+- Add `api_base` to common model parameters [#1478](https://github.com/jupyterlab/jupyter-ai/pull/1478) ([@jonahjung22](https://github.com/jonahjung22))
+- [magics] Add options to include the API url & key with alias [#1477](https://github.com/jupyterlab/jupyter-ai/pull/1477) ([@srdas](https://github.com/srdas))
+- Simplify model parameter REST API [#1475](https://github.com/jupyterlab/jupyter-ai/pull/1475) ([@jonahjung22](https://github.com/jonahjung22))
+- Add model parameter type dropdown [#1473](https://github.com/jupyterlab/jupyter-ai/pull/1473) ([@jonahjung22](https://github.com/jonahjung22))
+- [magics] Add `--api-base` and `--api-key-name` arguments [#1471](https://github.com/jupyterlab/jupyter-ai/pull/1471) ([@srdas](https://github.com/srdas))
+- Show the AI settings in the right area with Jupyter Notebook [#1470](https://github.com/jupyterlab/jupyter-ai/pull/1470) ([@jtpio](https://github.com/jtpio))
+
+### Bugs fixed
+
+- Fix empty directory for Jupyter AI config [#1472](https://github.com/jupyterlab/jupyter-ai/pull/1472) ([@andreyvelich](https://github.com/andreyvelich))
+
+### Maintenance and upkeep improvements
+
+- fixes directory of pr template [#1474](https://github.com/jupyterlab/jupyter-ai/pull/1474) ([@jonahjung22](https://github.com/jonahjung22))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2025-08-22&to=2025-09-10&type=c))
+
+[@andreyvelich](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aandreyvelich+updated%3A2025-08-22..2025-09-10&type=Issues) | [@brichet](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Abrichet+updated%3A2025-08-22..2025-09-10&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2025-08-22..2025-09-10&type=Issues) | [@ellisonbg](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aellisonbg+updated%3A2025-08-22..2025-09-10&type=Issues) | [@jonahjung22](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ajonahjung22+updated%3A2025-08-22..2025-09-10&type=Issues) | [@jtpio](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ajtpio+updated%3A2025-08-22..2025-09-10&type=Issues) | [@srdas](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2025-08-22..2025-09-10&type=Issues)
+
+## 3.0.0beta6
+
+This release includes several major upgrades to Jupyter AI v3, most notably migrating from Langchain to LiteLLM.
+
+- 🎉 **Jupyter AI now provides >1000 LLMs out-of-the-box, without requiring an optional dependency for most providers**. The only optional dependency that you may need is `boto3`, which is required for Amazon Bedrock models.
+
+- 🚀 **Jupyter AI is significantly faster to install and start.** The Jupyter AI server extension startup time has been reduced from ~10000ms to ~2500ms (-75 pp). The remaining startup latency mostly comes from the time it takes to import `jupyter_ai`. We plan to improve this further by iterating on #1115.
+
+- 💪 **We have completely overhauled the AI settings page & simplified the model configuration process.** The new AI settings page allows you to type in any LiteLLM model ID, without being restricted to the suggestions that appear as a popup. This will allow you to use the latest LLMs as soon as they are released, even if they have not yet been added to the model lists in our source code.
+
+  - By v3, users will also be able to define custom model parameters, which are passed directly as keyword arguments to `litellm.acompletion()`. Users will not have to request maintainers to add fields to models anymore.
+
+- 🔑 **Finally, we've greatly simplified the process of providing your API keys.** All API keys can now be defined as environment variables directly passed to `jupyter-lab`. You may also define API keys locally in the `.env` file at your workspace root, which is used throughout all of Jupyter AI. You can edit the `.env` file directly, use the UI we provide in the AI settings page.
+
+There are some minor breaking changes:
+
+- The path local personas are loaded from has been moved from `.jupyter/` to `.jupyter/personas`.
+
+- The new "model parameters" section has a couple of bugs that will be fixed in future pre-releases.
+
+- We have temporary hidden the "inline completion model" section until we refactor the backend to work with LiteLLM. That work is being tracked in #1431. Contributions welcome.
+
+- We have also hidden the "embedding model" section. We plan for Jupyternaut to automatically gather the context it needs entirely through agentic tool-calling, which may remove the need for a vector store & embedding model. This may change in the future depending on the results on this effort.
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@3.0.0-beta.5...230246328cbbade6254edf656c9bebef5b6b9757))
+
+### Enhancements made
+
+- PR Template [#1446](https://github.com/jupyterlab/jupyter-ai/pull/1446) ([@jonahjung22](https://github.com/jonahjung22))
+- Load local personas from `.jupyter/personas` instead of `.jupyter/` [#1443](https://github.com/jupyterlab/jupyter-ai/pull/1443) ([@andrii-i](https://github.com/andrii-i))
+- Migrate from LangChain to LiteLLM (major upgrade) [#1426](https://github.com/jupyterlab/jupyter-ai/pull/1426) ([@dlqqq](https://github.com/dlqqq))
+
+### Contributors to this release
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2025-07-25&to=2025-08-22&type=c))
+
+[@andrii-i](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aandrii-i+updated%3A2025-07-25..2025-08-22&type=Issues) | [@cszhbo](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Acszhbo+updated%3A2025-07-25..2025-08-22&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2025-07-25..2025-08-22&type=Issues) | [@jonahjung22](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ajonahjung22+updated%3A2025-07-25..2025-08-22&type=Issues) | [@srdas](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2025-07-25..2025-08-22&type=Issues)
+
 ## 3.0.0beta5
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/@jupyter-ai/core@3.0.0-beta.4...39352660e7040a5a6f7a1c016ab804ad4f658393))
@@ -21,8 +119,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2025-07-10&to=2025-07-25&type=c))
 
 [@anthonyhungnguyen](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aanthonyhungnguyen+updated%3A2025-07-10..2025-07-25&type=Issues) | [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2025-07-10..2025-07-25&type=Issues) | [@joadoumie](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ajoadoumie+updated%3A2025-07-10..2025-07-25&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 3.0.0beta4
 

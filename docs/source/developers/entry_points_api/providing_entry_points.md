@@ -12,9 +12,11 @@ template and add it to the end of your package's
 
 where:
 
-- `<entry-point-group>` takes the name of an entry point group used by Jupyter
-AI, e.g. `'jupyter_ai.personas'`. Make sure `<entry-point-group>` is surrounded
-by single or double quotes.
+- `<entry-point-group>` takes the name of an entry point group used by Jupyter AI, e.g. `'jupyter_ai.personas'`. Make sure `<entry-point-group>` is surrounded by single or double quotes. For example, the Claude Code persona set up is as follows:
+```
+    [project.entry-points."jupyter_ai.personas"]
+    claude_code = "jupyter_ai_claude_code.persona:ClaudeCodePersona"
+```
 
 - `<some-unique-name>` can be any string, as long as it is unique within each
 `[projects.entry-points.*]` table.
@@ -27,10 +29,7 @@ by single or double quotes.
 
 - `<class-name>` takes the name of the class defined in `<module-path>`.
 
-Finally, for Jupyter AI to read from your package's entry points, your package
-must be installed in the same Python environment. Entry points are only read by
-Jupyter AI when the server starts, so you should also restart JupyterLab after
-installing your custom package to see the new changes.
+Finally, for Jupyter AI to read from your package's entry points, your package must be installed in the same Python environment. Entry points are only read by Jupyter AI when the server starts, so you should also restart JupyterLab after installing your custom package to see the new changes.
 
 :::{note}
 After adding/removing an entry point, you will also need to re-install the

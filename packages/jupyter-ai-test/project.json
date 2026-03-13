@@ -1,4 +1,0 @@
-{
-  "name": "@jupyter-ai/test",
-  "implicitDependencies": ["@jupyter-ai/core"]
-}
