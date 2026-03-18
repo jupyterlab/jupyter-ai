@@ -30,15 +30,16 @@ dynamic = ["version"]
 dependencies = [
   "jupyterlab_chat>=0.19.0a0",
   "jupyter_server_documents>=0.1.0a8",
-  "jupyter_ai_router>=0.0.2",
-  "jupyter_ai_persona_manager>=0.0.4",
+  "jupyter_ai_router>=0.0.3",
+  "jupyter_ai_persona_manager>=0.0.7",
   "jupyter_ai_litellm>=0.0.1",
   "jupyter_ai_magic_commands>=0.0.2",
   "jupyter_ai_chat_commands>=0.0.4",
-  "jupyter_ai_jupyternaut>=0.0.5",
+  "jupyter_ai_acp_client>=0.0.7",
 ]
 
 [project.optional-dependencies]
+jupyternaut = ["jupyter_ai_jupyternaut>=0.0.10"]
 test = [
   # `jupyter_collaboration>=4` requires `jupyter_server_ydoc>=2.0.0`,
   # which requires `jupyter_server>=2.15.0`.
