@@ -40,20 +40,6 @@ dependencies = [
 
 [project.optional-dependencies]
 jupyternaut = ["jupyter_ai_jupyternaut>=0.0.10"]
-test = [
-  # `jupyter_collaboration>=4` requires `jupyter_server_ydoc>=2.0.0`,
-  # which requires `jupyter_server>=2.15.0`.
-  "jupyter_server[test]>=2.15.0,<3",
-  "coverage",
-  "pytest",
-  "pytest-asyncio",
-  "pytest-cov",
-  "pytest-tornasync",
-  "pytest-jupyter",
-  "syrupy~=4.0.8",
-  "types-jsonschema",
-  "mypy",
-]
 
 [project.urls]
 Documentation = "https://jupyter-ai.readthedocs.io/en/v3/"
