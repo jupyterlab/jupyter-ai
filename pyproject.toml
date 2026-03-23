@@ -36,6 +36,9 @@ dependencies = [
   "jupyter_ai_magic_commands>=0.0.2",
   "jupyter_ai_chat_commands>=0.0.4",
   "jupyter_ai_acp_client>=0.0.7",
+  "jupyter_server_mcp>=0.1.2",
+  "jupyter_ai_tools>=0.4.1",
+  "jupyterlab_notebook_awareness",
 ]
 
 [project.optional-dependencies]
