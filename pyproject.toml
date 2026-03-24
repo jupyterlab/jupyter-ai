@@ -29,7 +29,7 @@ dynamic = ["version"]
 
 dependencies = [
   "jupyterlab_chat>=0.20.0",
-  "jupyter_server_documents>=0.1.0",
+  "jupyter_server_documents>=0.1.1",
   "jupyter_ai_router>=0.0.3",
   "jupyter_ai_persona_manager>=0.0.7",
   "jupyter_ai_chat_commands>=0.0.4",
