@@ -40,8 +40,8 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-magics = ["jupyter_ai_litellm>=0.0.1", "jupyter_ai_magic_commands>=0.0.2"]
-jupyternaut = ["jupyter_ai_litellm>=0.0.1", "jupyter_ai_jupyternaut>=0.0.10"]
+magics = ["jupyter_ai_litellm>=0.0.2", "jupyter_ai_magic_commands>=0.0.3"]
+jupyternaut = ["jupyter_ai_litellm>=0.0.2", "jupyter_ai_jupyternaut>=0.0.11"]
 
 [project.urls]
 Documentation = "https://jupyter-ai.readthedocs.io/en/v3/"
