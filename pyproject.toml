@@ -32,8 +32,6 @@ dependencies = [
   "jupyter_server_documents>=0.1.0",
   "jupyter_ai_router>=0.0.3",
   "jupyter_ai_persona_manager>=0.0.7",
-  "jupyter_ai_litellm>=0.0.1",
-  "jupyter_ai_magic_commands>=0.0.2",
   "jupyter_ai_chat_commands>=0.0.4",
   "jupyter_ai_acp_client>=0.0.7",
   "jupyter_server_mcp>=0.1.2",
@@ -42,7 +40,8 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-jupyternaut = ["jupyter_ai_jupyternaut>=0.0.10"]
+magics = ["jupyter_ai_litellm>=0.0.1", "jupyter_ai_magic_commands>=0.0.2"]
+jupyternaut = ["jupyter_ai_litellm>=0.0.1", "jupyter_ai_jupyternaut>=0.0.10"]
 
 [project.urls]
 Documentation = "https://jupyter-ai.readthedocs.io/en/v3/"
