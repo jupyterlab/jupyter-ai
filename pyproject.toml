@@ -37,6 +37,7 @@ dependencies = [
   "jupyter_server_mcp>=0.1.2",
   "jupyter_ai_tools>=0.4.1",
   "jupyterlab_notebook_awareness",
+  "jupyterlab_commands_toolkit",
 ]
 
 [project.optional-dependencies]
