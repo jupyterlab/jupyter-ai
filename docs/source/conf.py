@@ -1,61 +1,46 @@
 # Configuration file for the Sphinx documentation builder.
-#
-# For the full list of built-in configuration values, see the documentation:
-# https://www.sphinx-doc.org/en/master/usage/configuration.html
-
-# -- Project information -----------------------------------------------------
-# https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 import time
 
 project = "Jupyter AI"
-copyright = f"2023–{time.localtime().tm_year}, Project Jupyter"
+copyright = f"© 2023–{time.localtime().tm_year}, Project Jupyter"
 author = "Project Jupyter"
+html_title = "Jupyter AI"
 
 # -- General configuration ---------------------------------------------------
-# https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = ["myst_parser", "nbsphinx", "nbsphinx_link"]
+extensions = ["myst_parser", "nbsphinx", "nbsphinx_link", "sphinx_design"]
 myst_enable_extensions = ["colon_fence"]
 
 templates_path = ["_templates"]
 exclude_patterns = []
 
 # -- Options for HTML output -------------------------------------------------
-# https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-html_theme = "pydata_sphinx_theme"
+html_theme = "shibuya"
 html_static_path = ["_static"]
 
 html_css_files = [
     "css/custom.css",
 ]
 
-# -- Jupyter theming -------------------------------------------------
 html_logo = "_static/jupyter_logo.png"
 
 html_theme_options = {
-    "logo": {
-        "text": "Jupyter AI",
-    },
-    "icon_links": [
+    "accent_color": "orange",
+    "github_url": "https://github.com/jupyterlab/jupyter-ai",
+    "nav_links": [
         {
-            # Label for this link
-            "name": "GitHub",
-            # URL where the link will redirect
-            "url": "https://github.com/jupyterlab/jupyter-ai",  # required
-            # Icon class (if "type": "fontawesome"), or path to local image (if "type": "local")
-            "icon": "fab fa-github-square",
-            # The type of image to be used (see below for details)
-            "type": "fontawesome",
+            "title": "Users",
+            "url": "users/index",
         },
         {
-            "name": "jupyter.org",
-            "url": "https://jupyter.org",
-            "icon": "_static/jupyter_logo.png",
-            "type": "local",
+            "title": "Contributors",
+            "url": "contributors/index",
+        },
+        {
+            "title": "Developers",
+            "url": "developers/index",
         },
     ],
 }
-
-html_sidebars = {"**": []}
