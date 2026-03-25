@@ -2,6 +2,25 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 3.0.0rc1
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/v3.0.0rc0...5c31139895341c9040dd65ea60f1539e4a99d3f0))
+
+### Bugs fixed
+
+- [Maintenance] Add jupyterlab_commands_toolkit as required dependency [#1541](https://github.com/jupyterlab/jupyter-ai/pull/1541) ([@Zsailer](https://github.com/Zsailer), [@dlqqq](https://github.com/dlqqq))
+
+### Contributors to this release
+
+The following people contributed discussions, new ideas, code and documentation contributions, and review.
+See [our definition of contributors](https://github-activity.readthedocs.io/en/latest/use/#how-does-this-tool-define-contributions-in-the-reports).
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2026-03-25&to=2026-03-25&type=c))
+
+@dlqqq ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2026-03-25..2026-03-25&type=Issues)) | @Zsailer ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AZsailer+updated%3A2026-03-25..2026-03-25&type=Issues))
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 # 3.0.0rc0
 
 We're excited to share the first release candidate for Jupyter AI v3.0. This release introduces support for:
@@ -76,8 +95,6 @@ See [our definition of contributors](https://github-activity.readthedocs.io/en/l
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2025-11-05&to=2026-03-25&type=c))
 
 @dlqqq ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2025-11-05..2026-03-25&type=Issues)) | @krassowski ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2025-11-05..2026-03-25&type=Issues)) | @srdas ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2025-11-05..2026-03-25&type=Issues)) | @Zsailer ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AZsailer+updated%3A2025-11-05..2026-03-25&type=Issues))
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 3.0.0b9
 
