@@ -1,4 +1,4 @@
-# Developers
+# Developer Guide
 
 This section describes the **developer API** in Jupyter AI that other Python packages can use to tailor Jupyter AI to their use-case. For example, developers can add new personas to Jupyter AI using the `jupyter-ai-jupyternaut` extension as a reference. 
 
