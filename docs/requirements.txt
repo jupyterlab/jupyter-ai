@@ -1,6 +1,7 @@
-docutils==0.20
+docutils
 myst_parser
 nbsphinx
 nbsphinx-link
 shibuya
 sphinx-design
+sphinx-tabs

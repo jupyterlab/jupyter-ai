@@ -15,7 +15,7 @@ A native chat UI with support for several agents — all in one extension.
 ```
 
 ```{container} buttons
-[Get Started](users/getting-started)
+[Get Started](getting-started)
 [{octicon}`mark-github;1.2em` GitHub](https://github.com/jupyterlab/jupyter-ai)
 ```
 
@@ -51,27 +51,13 @@ Use AI personas to write, debug, and run notebooks in JupyterLab.
 Build your own AI persona or share custom MCP servers with AI personas.
 :::
 
----
-
 ::::
 
-```{image} _static/jupyter-ai-screenshot.png
-:alt: A screenshot of Jupyter AI showing the chat interface and the magic commands
-:width: 95%
-:class: screenshot
-```
 
 ```{toctree}
 :hidden:
-:caption: Getting Started
 
-users/getting-started
-```
-
-```{toctree}
-:hidden:
-:caption: Documentation
-
+getting-started
 users/index
 contributors/index
 developers/index

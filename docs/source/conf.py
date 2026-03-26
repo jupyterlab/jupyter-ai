@@ -9,7 +9,7 @@ html_title = "Jupyter AI"
 
 # -- General configuration ---------------------------------------------------
 
-extensions = ["myst_parser", "nbsphinx", "nbsphinx_link", "sphinx_design"]
+extensions = ["myst_parser", "nbsphinx", "nbsphinx_link", "sphinx_design", "sphinx_tabs.tabs"]
 myst_enable_extensions = ["colon_fence"]
 
 templates_path = ["_templates"]
