@@ -1,0 +1,229 @@
+<!-- See HERO-ICON-README.md for full documentation on how this animation works. -->
+
+<style>
+.hero-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+/* The visible window: shows 3 icons (3 × 72px = 216px) */
+.icon-column {
+  width: 64px;
+  height: 216px;       /* 3 icons × 72px (56px icon + 16px margin) */
+  overflow: hidden;
+  position: relative;
+}
+
+.icon-strip {
+  display: flex;
+  flex-direction: column;
+  animation: tick-up 2s ease-in-out infinite;
+  will-change: transform; /* promotes to own compositing layer for smoother animation */
+}
+
+.icon-strip img {
+  width: 56px;
+  height: 56px;
+  margin: 8px 4px;       /* total height per icon slot = 56 + 8 + 8 = 72px */
+  object-fit: contain;
+  filter: brightness(0) saturate(100%); /* renders all icons as dark monochrome */
+  opacity: 0.7;
+  flex-shrink: 0;
+}
+
+/* Tick UP: hold, then slide up by one icon height */
+@keyframes tick-up {
+  0%, 60% { transform: translateY(var(--offset)); }
+  80%, 100% { transform: translateY(calc(var(--offset) - 72px)); }
+}
+
+/* Tick DOWN: hold, then slide down by one icon height */
+@keyframes tick-down {
+  0%, 60% { transform: translateY(var(--offset)); }
+  80%, 100% { transform: translateY(calc(var(--offset) + 72px)); }
+}
+
+.hero-logo img {
+  width: 180px;
+}
+
+.hero-logo .dark-logo {
+  display: none;
+}
+
+.dark .hero-logo .light-logo {
+  display: none;
+}
+
+.dark .hero-logo .dark-logo {
+  display: block;
+}
+
+.hero-pipes {
+  display: flex;
+  align-items: center;
+}
+
+/* SVG connector pipes between icon columns and the Jupyter logo */
+.hero-pipes svg.pipes {
+  width: 80px;
+  height: 216px;
+}
+
+.pipes path {
+  fill: none;
+  stroke: #ccc;
+  stroke-width: 2;
+}
+
+@media (prefers-color-scheme: dark) {
+  .pipes path {
+    stroke: #555;
+  }
+  .icon-strip img {
+    filter: brightness(0) saturate(100%) invert(1);
+  }
+}
+
+.dark .pipes path {
+  stroke: #555;
+}
+.dark .icon-strip img {
+  filter: brightness(0) saturate(100%) invert(1);
+}
+</style>
+
+<div class="hero-banner">
+
+  <!-- LEFT COLUMN: Programming language icons, scrolls UP -->
+  <div class="hero-pipes">
+    <div class="icon-column">
+      <!-- 2 copies: original + duplicate for seamless upward loop -->
+      <div class="icon-strip" id="left-strip">
+        <!-- Copy 1 (original) -->
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-plain.svg" alt="Python" loading="eager" />
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/r/r-plain.svg" alt="R" loading="eager" />
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/julia/julia-plain.svg" alt="Julia" loading="eager" />
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/scala/scala-plain.svg" alt="Scala" loading="eager" />
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/numpy/numpy-plain.svg" alt="NumPy" loading="eager" />
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/pandas/pandas-plain.svg" alt="Pandas" loading="eager" />
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/matplotlib/matplotlib-plain.svg" alt="Matplotlib" loading="eager" />
+        <img src="https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/scipy.svg" alt="SciPy" loading="eager" />
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/scikitlearn/scikitlearn-plain.svg" alt="Scikit-learn" loading="eager" />
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tensorflow/tensorflow-original.svg" alt="TensorFlow" loading="eager" />
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/pytorch/pytorch-original.svg" alt="PyTorch" loading="eager" />
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/sqlite/sqlite-plain.svg" alt="SQLite" loading="eager" />
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/haskell/haskell-plain.svg" alt="Haskell" loading="eager" />
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/apachespark/apachespark-original.svg" alt="Apache Spark" loading="eager" />
+        <!-- Copy 2 (duplicate for seamless loop) -->
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-plain.svg" alt="Python" loading="eager" />
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/r/r-plain.svg" alt="R" loading="eager" />
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/julia/julia-plain.svg" alt="Julia" loading="eager" />
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/scala/scala-plain.svg" alt="Scala" loading="eager" />
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/numpy/numpy-plain.svg" alt="NumPy" loading="eager" />
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/pandas/pandas-plain.svg" alt="Pandas" loading="eager" />
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/matplotlib/matplotlib-plain.svg" alt="Matplotlib" loading="eager" />
+        <img src="https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/scipy.svg" alt="SciPy" loading="eager" />
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/scikitlearn/scikitlearn-plain.svg" alt="Scikit-learn" loading="eager" />
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tensorflow/tensorflow-original.svg" alt="TensorFlow" loading="eager" />
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/pytorch/pytorch-original.svg" alt="PyTorch" loading="eager" />
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/sqlite/sqlite-plain.svg" alt="SQLite" loading="eager" />
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/haskell/haskell-plain.svg" alt="Haskell" loading="eager" />
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/apachespark/apachespark-original.svg" alt="Apache Spark" loading="eager" />
+      </div>
+    </div>
+
+    <!-- Pipes: 3 curves from left icon positions (y=36, 108, 180) to center (80, 108) -->
+    <svg class="pipes" viewBox="0 0 80 216" xmlns="http://www.w3.org/2000/svg">
+      <path d="M 0,36 C 40,36 40,108 80,108" />
+      <path d="M 0,108 L 80,108" />
+      <path d="M 0,180 C 40,180 40,108 80,108" />
+    </svg>
+  </div>
+
+  <!-- CENTER: Jupyter logo (static) -->
+  <div class="hero-logo">
+    <img class="light-logo" src="_static/jupyter_logo.svg" alt="Jupyter logo" loading="eager" />
+    <img class="dark-logo" src="_static/jupyter_logo_dark.svg" alt="Jupyter logo" loading="eager" />
+  </div>
+
+  <!-- RIGHT COLUMN: AI provider icons, scrolls DOWN -->
+  <div class="hero-pipes">
+    <!-- Pipes: mirrored curves from center (0, 108) to right icon positions -->
+    <svg class="pipes" viewBox="0 0 80 216" xmlns="http://www.w3.org/2000/svg">
+      <path d="M 80,36 C 40,36 40,108 0,108" />
+      <path d="M 80,108 L 0,108" />
+      <path d="M 80,180 C 40,180 40,108 0,108" />
+    </svg>
+
+    <div class="icon-column">
+      <!--
+        3 copies needed for downward scrolling. See "WHY ARE THE ICONS DUPLICATED?"
+        above. The strip starts positioned in the middle copy (copy 2). Copy 1 above
+        acts as a pre-rendered buffer so icons entering from the top don't flash.
+      -->
+      <div class="icon-strip" id="right-strip">
+        <!-- Copy 1 (buffer above viewport — prevents rendering glitch) -->
+        <img src="https://unpkg.com/@lobehub/icons-static-svg@latest/icons/openai.svg" alt="OpenAI" loading="eager" />
+        <img src="https://unpkg.com/@lobehub/icons-static-svg@latest/icons/anthropic.svg" alt="Anthropic" loading="eager" />
+        <img src="https://unpkg.com/@lobehub/icons-static-svg@latest/icons/gemini.svg" alt="Gemini" loading="eager" />
+        <img src="https://unpkg.com/@lobehub/icons-static-svg@latest/icons/goose.svg" alt="Goose" loading="eager" />
+        <img src="https://unpkg.com/@lobehub/icons-static-svg@latest/icons/opencode.svg" alt="OpenCode" loading="eager" />
+        <img src="_static/kiro-icon.svg" alt="Kiro" loading="eager" />
+        <!-- Copy 2 (middle — this is where the visible window starts) -->
+        <img src="https://unpkg.com/@lobehub/icons-static-svg@latest/icons/openai.svg" alt="OpenAI" loading="eager" />
+        <img src="https://unpkg.com/@lobehub/icons-static-svg@latest/icons/anthropic.svg" alt="Anthropic" loading="eager" />
+        <img src="https://unpkg.com/@lobehub/icons-static-svg@latest/icons/gemini.svg" alt="Gemini" loading="eager" />
+        <img src="https://unpkg.com/@lobehub/icons-static-svg@latest/icons/goose.svg" alt="Goose" loading="eager" />
+        <img src="https://unpkg.com/@lobehub/icons-static-svg@latest/icons/opencode.svg" alt="OpenCode" loading="eager" />
+        <img src="_static/kiro-icon.svg" alt="Kiro" loading="eager" />
+        <!-- Copy 3 (buffer below viewport — for seamless loop continuity) -->
+        <img src="https://unpkg.com/@lobehub/icons-static-svg@latest/icons/openai.svg" alt="OpenAI" loading="eager" />
+        <img src="https://unpkg.com/@lobehub/icons-static-svg@latest/icons/anthropic.svg" alt="Anthropic" loading="eager" />
+        <img src="https://unpkg.com/@lobehub/icons-static-svg@latest/icons/gemini.svg" alt="Gemini" loading="eager" />
+        <img src="https://unpkg.com/@lobehub/icons-static-svg@latest/icons/goose.svg" alt="Goose" loading="eager" />
+        <img src="https://unpkg.com/@lobehub/icons-static-svg@latest/icons/opencode.svg" alt="OpenCode" loading="eager" />
+        <img src="_static/kiro-icon.svg" alt="Kiro" loading="eager" />
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  var iconH = 72;  // height per icon slot: 56px icon + 8px margin top + 8px margin bottom
+  var leftCount = 14;  // number of unique language/library icons
+  var rightCount = 6;  // number of unique AI provider icons
+
+  // LEFT STRIP: ticks UP
+  // Starts at position 0 (top of copy 1). Each tick moves up by one icon.
+  // When it reaches the end of copy 1, JS resets to position 0 (start of copy 1).
+  // Copy 2 below ensures the last tick has an icon to show before the reset.
+  var left = document.getElementById('left-strip');
+  var lStep = 0;
+  left.style.setProperty('--offset', '0px');
+  left.addEventListener('animationiteration', function() {
+    lStep++;
+    if (lStep >= leftCount) lStep = 0;
+    left.style.setProperty('--offset', (-lStep * iconH) + 'px');
+  });
+
+  // RIGHT STRIP: ticks DOWN
+  // Starts at position `rightCount` (first icon of copy 2, the middle copy).
+  // Each tick slides down by +72px, then JS decrements rPos (moving the
+  // resting position one icon higher). When rPos reaches 0 (top of copy 1),
+  // JS jumps back to position `rightCount` (same visual position in copy 2).
+  // Copy 1 above is the pre-rendered buffer that prevents the rendering glitch.
+  var right = document.getElementById('right-strip');
+  var rPos = rightCount;
+  right.style.setProperty('--offset', (-rPos * iconH) + 'px');
+  right.style.animationName = 'tick-down';
+  right.addEventListener('animationiteration', function() {
+    rPos--;
+    if (rPos <= 0) rPos = rightCount;
+    right.style.setProperty('--offset', (-rPos * iconH) + 'px');
+  });
+})();
+</script>

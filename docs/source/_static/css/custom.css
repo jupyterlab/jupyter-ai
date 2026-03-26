@@ -34,3 +34,16 @@ article.yue > img.no-scaled-link {
     display: flex;
     justify-content: flex-end;
 }
+
+.dark .hero-logo img {
+    position: relative;
+}
+
+section#jupyter-ai {
+    text-align: center;
+}
+
+.container.buttons > p {
+    display: flex;
+    justify-content: center;
+}
