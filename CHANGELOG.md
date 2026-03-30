@@ -2,6 +2,100 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 3.0.0rc1
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/v3.0.0rc0...5c31139895341c9040dd65ea60f1539e4a99d3f0))
+
+### Bugs fixed
+
+- [Maintenance] Add jupyterlab_commands_toolkit as required dependency [#1541](https://github.com/jupyterlab/jupyter-ai/pull/1541) ([@Zsailer](https://github.com/Zsailer), [@dlqqq](https://github.com/dlqqq))
+
+### Contributors to this release
+
+The following people contributed discussions, new ideas, code and documentation contributions, and review.
+See [our definition of contributors](https://github-activity.readthedocs.io/en/latest/use/#how-does-this-tool-define-contributions-in-the-reports).
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2026-03-25&to=2026-03-25&type=c))
+
+@dlqqq ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2026-03-25..2026-03-25&type=Issues)) | @Zsailer ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AZsailer+updated%3A2026-03-25..2026-03-25&type=Issues))
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
+# 3.0.0rc0
+
+We're excited to share the first release candidate for Jupyter AI v3.0. This release introduces support for:
+
+- Claude, Gemini, Kiro, and Mistral Vibe in Jupyter AI via the [Agent Client Protocol (ACP)](https://agentclientprotocol.com),
+  - (Codex, OpenCode, Goose are WIP)
+- A default set of JupyterLab tools for ACP agents (via `jupyter_server_mcp` and `jupyter_ai_tools`), and
+- Support for custom MCP servers in `.jupyter/mcp_settings.json`, allowing you to infinitely extend the capabilities of your agents in JupyterLab.
+
+## Getting started
+
+Install the Jupyter AI RC pre-release via:
+
+```bash
+pip install jupyter-ai==3.0.0rc0
+```
+
+To add an agent, follow the [installation instructions](https://github.com/jupyter-ai-contrib/jupyter-ai-acp-client) for the ACP agent you wish to use with Jupyter AI. We're working on improving this process to be more well-documented and automatic.
+
+## New features
+
+- **Agent support via ACP**: By using ACP, we are able to provide access to every frontier agent. The v3.0 official release will support the following agents out of the box: Claude, Codex, Gemini, Goose, Kiro, and OpenCode. Agents are automatically enabled when their required dependencies are installed.
+- **[ACP] Real-time chat UI**: Live-streaming agent responses with tool call status, reasoning traces, execution plans, and inline diff views for file edits.
+- **[ACP] Tool call permissions**: Agents request permission before performing actions like writing files or running terminal commands, giving you guardrails over agent behavior.
+- **[ACP] File system and terminal access**: Agents can read and write files and run terminal commands through the ACP client, with all operations subject to the permission system.
+- **MCP server integration**: MCP servers can now be defined in `.jupyter/mcp_settings.json`. You can use this to add custom MCP servers for domain-specific tools, resources, and prompts. These will be picked up by ACP agents automatically.
+- **New Jupyter MCP server**: `jupyter_server_mcp` lets agents update files and execute notebooks directly in your JupyterLab session. ACP agents have access to these tools automatically (and request permission before using them, of course).
+
+## What happened to Jupyternaut?
+
+The `jupyter_ai_jupyternaut` package still exists but is no longer a required dependency. Its real-time notebook editing capabilities have been migrated into a new `jupyter_ai_tools` package, and are made available to all other ACP agents through `jupyter_server_mcp`.
+
+You can still install Jupyternaut by running `pip install 'jupyter-ai[jupyternaut]==3.0.0rc0'`.
+
+## What happened to AI magic commands?
+
+The magic commands now live in a new `jupyter-ai-magic-commands` package. Since AI agents are now capable of editing notebooks directly, we believe this is no longer necessary in the default experience. Keeping this package optional drastically reduces the number of dependencies required by Jupyter AI.
+
+You can still install Jupyternaut by running `pip install 'jupyter-ai[magics]==3.0.0rc0'`.
+
+## Why ACP?
+
+Rather than building and maintaining our own agent, Jupyter AI v3.0 focuses on integration. ACP is the open standard that connects coding agents to editors — the same way LSP standardized language server integration. By adopting it, JupyterLab joins Zed, JetBrains, VS Code, and neovim as a first-class ACP client, giving users access to the full ecosystem of ACP-compatible agents.
+
+For the full background, see [the v3.0 release plan](https://github.com/jupyterlab/jupyter-ai/issues/1531).
+
+## Future direction
+
+As we move towards the v3.0 official release, we will continue to iron out bugs we find during testing. We will also contribute substantial user, developer, and contributor documentation ahead of the v3.0 official release.
+
+## Changelog
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/v3.0.0b9...2916120fb00218eb3b3fdff94fe3d34abadcdaff))
+
+### Enhancements made
+
+- Introduce ACP and MCP support, finalize package list [#1537](https://github.com/jupyterlab/jupyter-ai/pull/1537) ([@dlqqq](https://github.com/dlqqq), [@Zsailer](https://github.com/Zsailer), [@krassowski](https://github.com/krassowski))
+
+### Maintenance and upkeep improvements
+
+- Update release workflows [#1540](https://github.com/jupyterlab/jupyter-ai/pull/1540) ([@dlqqq](https://github.com/dlqqq))
+
+### Documentation improvements
+
+- Add user and contributor docs for v3 [#1510](https://github.com/jupyterlab/jupyter-ai/pull/1510) ([@srdas](https://github.com/srdas), [@dlqqq](https://github.com/dlqqq))
+
+### Contributors to this release
+
+The following people contributed discussions, new ideas, code and documentation contributions, and review.
+See [our definition of contributors](https://github-activity.readthedocs.io/en/latest/use/#how-does-this-tool-define-contributions-in-the-reports).
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2025-11-05&to=2026-03-25&type=c))
+
+@dlqqq ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2025-11-05..2026-03-25&type=Issues)) | @krassowski ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2025-11-05..2026-03-25&type=Issues)) | @srdas ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2025-11-05..2026-03-25&type=Issues)) | @Zsailer ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AZsailer+updated%3A2025-11-05..2026-03-25&type=Issues))
+
 ## 3.0.0b9
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/v3.0.0b8...bc407706258e93f9a2ae3cd7bbb05ada9c31acc3))
@@ -15,8 +109,6 @@
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2025-11-03&to=2025-11-05&type=c))
 
 [@dlqqq](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2025-11-03..2025-11-05&type=Issues)
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 3.0.0b8
 

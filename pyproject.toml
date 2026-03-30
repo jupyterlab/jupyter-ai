@@ -28,31 +28,21 @@ classifiers = [
 dynamic = ["version"]
 
 dependencies = [
-  "jupyterlab_chat>=0.19.0a0",
-  "jupyter_server_documents>=0.1.0a8",
-  "jupyter_ai_router>=0.0.2",
-  "jupyter_ai_persona_manager>=0.0.4",
-  "jupyter_ai_litellm>=0.0.1",
-  "jupyter_ai_magic_commands>=0.0.2",
+  "jupyterlab_chat>=0.20.0",
+  "jupyter_server_documents>=0.1.1",
+  "jupyter_ai_router>=0.0.3",
+  "jupyter_ai_persona_manager>=0.0.8",
   "jupyter_ai_chat_commands>=0.0.4",
-  "jupyter_ai_jupyternaut>=0.0.5",
+  "jupyter_ai_acp_client>=0.0.8",
+  "jupyter_server_mcp>=0.1.2",
+  "jupyter_ai_tools>=0.4.1",
+  "jupyterlab_notebook_awareness",
+  "jupyterlab_commands_toolkit",
 ]
 
 [project.optional-dependencies]
-test = [
-  # `jupyter_collaboration>=4` requires `jupyter_server_ydoc>=2.0.0`,
-  # which requires `jupyter_server>=2.15.0`.
-  "jupyter_server[test]>=2.15.0,<3",
-  "coverage",
-  "pytest",
-  "pytest-asyncio",
-  "pytest-cov",
-  "pytest-tornasync",
-  "pytest-jupyter",
-  "syrupy~=4.0.8",
-  "types-jsonschema",
-  "mypy",
-]
+magics = ["jupyter_ai_litellm>=0.0.2", "jupyter_ai_magic_commands>=0.0.3"]
+jupyternaut = ["jupyter_ai_litellm>=0.0.2", "jupyter_ai_jupyternaut>=0.0.11"]
 
 [project.urls]
 Documentation = "https://jupyter-ai.readthedocs.io/en/v3/"
@@ -61,3 +51,6 @@ Tracker = "https://github.com/jupyterlab/jupyter-ai/issues"
 
 [tool.hatch.version]
 path = "jupyter_ai/__init__.py"
+
+[project.entry-points."jupyter_server_mcp.tools"]
+jupyter_ai = "jupyter_ai:DEFAULT_JUPYTER_SERVER_MCP_TOOLS"
