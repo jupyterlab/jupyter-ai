@@ -2,3 +2,4 @@ myst_parser
 shibuya
 sphinx-design
 sphinx-tabs
+sphinx-copybutton

@@ -149,21 +149,26 @@ The following repositories are stable, i.e., this means the repos are, or are qu
 - [jupyter-server-mcp](https://github.com/jupyter-ai-contrib/jupyter-server-mcp) - An MCP interface/extension for Jupyter Server
 - [jupyterlab-diff](https://github.com/jupyter-ai-contrib/jupyterlab-diff) - JupyterLab commands to show cell and file diffs
 - [jupyter-ai-magic-commands](https://github.com/jupyter-ai-contrib/jupyter-ai-chat-commands) - The code for handling the `%ai` and `%%ai` magic commands in Jupyter notebooks.
+- [jupyter-ai-acp-client]() - A client implementation of the Agent Client Protocol (ACP)as well as helper classes for other developers to use when custom AI personas wrapping ACP agents.
+- [jupyter-ai-claude-code](https://github.com/jupyter-ai-contrib/jupyter-ai-claude-code) - A Jupyter AI persona for Claude Code
+- [jupyterlab-commands-toolkit](https://github.com/jupyter-ai-contrib/jupyterlab-commands-toolkit) - JupyterLab commands as an AI Toolkit
+
 
 These repositories are experimental and under active development:
 
-- [jupyter-ai-claude-code](https://github.com/jupyter-ai-contrib/jupyter-ai-claude-code) - A Jupyter AI persona for Claude Code
 - [jupyter-ai-personas](https://github.com/jupyter-ai-contrib/jupyter-ai-personas) - AI Personas for Jupyter AI
 - [jupyter-ai-demos](https://github.com/jupyter-ai-contrib/jupyter-ai-demos) - A set of demos for new features of Jupyter AI
 - [jupyter-floating-chat](https://github.com/jupyter-ai-contrib/jupyter-floating-chat) - A jupyterlab extension to add a floating chat input
 - [jupyter-server-ai-tools](https://github.com/jupyter-ai-contrib/jupyter-server-ai-tools) - A Jupyter Server extension for discovering tools across extensions.
 - [jupyterlab-cell-input-footer](https://github.com/jupyter-ai-contrib/jupyterlab-cell-input-footer) - JupyterLab Plugin that provides a cell input footer
-- [jupyterlab-commands-toolkit](https://github.com/jupyter-ai-contrib/jupyterlab-commands-toolkit) - JupyterLab commands as an AI Toolkit
 - [jupyterlab-document-collaborators](https://github.com/jupyter-ai-contrib/jupyterlab-document-collaborators) - A JupyterLab extension for showing collaborators at the top of a document
-
 - [jupyterlab-magic-wand](https://github.com/jupyter-ai-contrib/jupyterlab-magic-wand) - An in-cell AI assistant for JupyterLab notebooks
 - [jupyterlab-notebook-awareness](https://github.com/jupyter-ai-contrib/jupyterlab-notebook-awareness) - Track current notebook and active cell in JupyterLab's awareness
 - [jupyterlab-ai-commands](https://github.com/jupyter-ai-contrib/jupyterlab-ai-commands) - A set of JupyterLab commands for use with AI agents
+- [jupyterlab-ai-commands](https://github.com/jupyter-ai-contrib/jupyterlab-ai-commands) - A set of commands for AI in JupyterLab.  
+
+New experimental submodules are added frequently (the list above is not exhaustive), and the current set may be accessed at: https://github.com/orgs/jupyter-ai-contrib/repositories. 
+
 
 ### Dev install using `just` and `uv`
 
@@ -172,7 +177,8 @@ These repositories are experimental and under active development:
 #### 0. Clone the repo
 
 ```
-git clone --recurse-submodules <url>
+git clone --recurse-submodules https://github.com/jupyter-ai-contrib/jupyter-ai-devrepo.git
+
 cd jupyter-ai-devrepo/
 ```
 
@@ -202,17 +208,29 @@ brew install uv just
 This command switches to the `main` branch on every submodule and pulls from it.
 
 ```
-just sync
+just pull-all
 ```
 
 If you do not have your RSA key set up to access GitHub from the CLI, you will be prompted to authenticate yourself on GitHub for each of the subpackages as they get cloned into the `jupyter-ai-devrepo` folder.
+
+While this is not usually necessary, you can also run here:
+
+```
+uv sync --refresh
+```
+
+Depending on your environment, sometimes it will clear errors and 
+- Refresh UV's cache to check for updated package versions                      
+- Synchronize your local Python environment with the updated lock file(s)       
+- Ensure all dependencies from the newly pulled submodules are installed        
+- Resolve any dependency conflicts.   
 
 #### 3. Install all packages
 
 This command automatically installs each of the packages in editable mode.
 
 ```
-just install
+just install-all
 ```
 
 #### 4. Start JupyterLab
@@ -226,21 +244,55 @@ just start
 This command will always run `uv run jupyter lab` from the root of this devrepo,
 even if your current directory is inside of a submodule.
 
+This is analogous to running
+
+```
+uv run jupyter lab --config={{justfile_directory()}}/jupyter_server_config.py
+```
+
+If you want the root directory to be different from the justfile directory, you can also run an extended command:
+
+```
+uv run jupyter lab --config=jupyter_server_config.py --notebook-dir=<start_directory>
+```
+
+
 #### Useful commands
 
-- `just start`: start JupyterLab
+**Global commands** (can be run from anywhere in the devrepo):
 
+- `just start`: start JupyterLab
   - `Ctrl + Z` + `kill -9 %1` stops JupyterLab in case `Ctrl + C` does not work
 
-- `just sync`: switch to `main` in all submodules and pull in all upstream changes
+- `just sync`: synchronize the Python environment with `uv.lock`
+
+- `just sync-refresh`: refresh UV's cache and sync (useful when encountering dependency resolution errors)
+
+- `just pull-all`: switch to `main` in all submodules and pull in all upstream changes
 
 - `just build-all`: build all frontend assets in every submodule
 
-- `just install`: perform an editable, developer installation of all packages
+- `just enable-extensions`: enable all server and lab extensions
 
-- `just uninstall`: uninstall everything (useful for testing the `just` commands)
+- `just install-all`: perform an editable, developer installation of all packages (includes `build-all` and `enable-extensions`)
 
-- `just uninstall && just install`: re-install everything (useful for fixing a broken venv)
+- `just uninstall-all`: uninstall everything (removes `.venv` and `uv.lock`)
+
+- `just reinstall-all`: re-install everything (useful for fixing a broken venv)
+
+- `just clean`: remove generated files (`*.chat`, `*.qasm`, `*.ipynb`)
+
+**Submodule-only commands** (must be run from within a submodule directory):
+
+- `just jlpm`: install JavaScript dependencies for the current submodule
+
+- `just build`: build frontend assets for the current submodule
+
+- `just lint`: run linting for the current submodule
+
+- `just pytest`: run pytest for the current submodule
+
+- `just reinstall`: reinstall the current submodule package
 
 ## Building documentation
 
@@ -279,7 +331,7 @@ conda env remove -n jupyter-ai
 
 ## Testing
 
-### Integration / E2E tests (**TO BE UPDATED**)
+### Integration / E2E tests 
 
 This extension uses Playwright for the integration / E2E tests (user-level tests).
 More precisely, the JupyterLab helper
