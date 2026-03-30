@@ -24,115 +24,6 @@ You should have the newest supported version of JupyterLab installed.
 
 You will need [a supported version of node.js](https://github.com/nodejs/release#release-schedule) to use Jupyter AI.
 
-<!-- ## Automatic development setup (recommended)
-
-To get a development setup automatically, you must first install a Python
-environment manager. The development setup script currently supports
-`micromamba`, `mamba`, or `conda`.
-
-We recommend
-[micromamba](https://micromamba.readthedocs.io/en/latest/installation.html) for
-its speed and minimal footprint. Alternatively, you can install
-[mamba](https://mamba.readthedocs.io/en/latest/installation.html) or
-[conda](https://conda.io/projects/conda/en/latest/user-guide/install/index.html).
-
-Then, clone the repository and run the development setup script:
-
-```
-# Clone the repository
-git clone https://github.com/jupyterlab/jupyter-ai.git
-cd jupyter-ai
-
-# Run the development setup script
-./scripts/dev-setup.sh
-```
-
-This script will automatically create and set up a Jupyter AI development
-environment named `jaidev` for you, using the environment manager available on
-your system. Specifically, this script will:
-
-- Detect your Python environment manager (micromamba, mamba, or conda),
-- Create a 'jaidev' Python environment with Python 3.11, Node.js 20, JupyterLab 4.4+, and `uv`,
-- Install all JavaScript dependencies,
-- Builds all frontend assets,
-- Perform editable installation of all Jupyter AI packages, and
-- Install documentation dependencies.
-
-After this is complete, you can start and launch JupyterLab in your default
-browser by running `jlpm dev` or simply `jupyter lab`.
-
-## Manual development setup
-
-To perform a minimal development setup in another Python environment without
-using `dev-setup.sh`, first verify that the below prerequisites are installed in
-your environment:
-
-- Python 3.9 - 3.11
-
-- JupyterLab >=4.4
-
-- Any [maintained](https://github.com/nodejs/release#release-schedule) version of `nodejs`
-
-- [`uv`](https://docs.astral.sh/uv/)
-
-Then, run these commands:
-
-```py
-# Install JS dependencies
-jlpm
-
-# Build frontend assets
-jlpm build
-
-# Perform editable installation of all Jupyter AI packages
-# This can also be done via the alias `jlpm di`
-jlpm dev:install
-```
-
-## Development builds
-
-You can open a new terminal and use that to build local changes to the
-repository. Make sure to activate the `jaidev` environment each time you begin
-development from a new terminal:
-
-```
-{micromamba,mamba,conda} activate jaidev
-
-# Build frontend assets
-jlpm build
-```
-
-`jlpm build` only needs to be run after modifying anything related to the
-frontend (e.g. `*.ts`, `*.tsx`, `*.css` files). The browser has to be refreshed
-to reflect new changes to the frontend.
-
-To only build a subset of Jupyter AI packages, use the `--scope` argument that
-gets forwarded to Lerna:
-
-```
-# Builds frontend assets only for `packages/jupyter-ai` and its dependencies
-jlpm build --scope "@jupyter-ai/core"
-```
-
-Note that after making changes to anything backend-related (e.g. `*.py` files),
-you must restart the server for those changes to take effect. You can restart
-the server by first typing `Ctrl + C` in the terminal running it, then running
-`jlpm dev` or `jupyter lab` to restart it.
-
-## Development reinstall
-
-To reinstall all Jupyter AI packages, run:
-
-```
-# reinstalls all Jupyter AI packages
-jlpm dev:reinstall
-
-# or, use the convenient alias:
-jlpm dr
-```
-
-This is generally necessary when updating `pyproject.toml` files. -->
-
 ## Development Setup
 
 In v3, Jupyter AI is no longer a monorepo. The various components of Jupyter AI are modularized as submodules in the [`jupyter-ai-contrib`](https://github.com/jupyter-ai-contrib) org under various repositories. These are Jupyter extensions that are desined to enable humans and AI to collaborate together. The `jupyter-ai` repository is installed with all the submodules.
@@ -171,7 +62,7 @@ New experimental submodules are added frequently (the list above is not exhausti
 
 ### Dev install using `just` and `uv`
 
-[jupyter-ai-devrepo](https://github.com/dlqqq/jupyter-ai-devrepo) is a "developer repo" intended for Jupyter AI contributors. This facilitates installing Jupyter AI along with all its submodules with a small number of steps. By cloning the repo and following the steps below, you can have an editable developer installation of all Jupyter AI subpackages.
+[jupyter-ai-devrepo](https://github.com/jupyter-ai-contrib/jupyter-ai-devrepo) is a "developer repo" intended for Jupyter AI contributors. This facilitates installing Jupyter AI along with all its submodules with a small number of steps. By cloning the repo and following the steps below, you can have an editable developer installation of all Jupyter AI subpackages.
 
 #### 0. Clone the repo
 
@@ -265,8 +156,6 @@ uv run jupyter lab --config=jupyter_server_config.py --notebook-dir=<start_direc
 
 - `just sync`: synchronize the Python environment with `uv.lock`
 
-- `just sync-refresh`: refresh UV's cache and sync (useful when encountering dependency resolution errors)
-
 - `just pull-all`: switch to `main` in all submodules and pull in all upstream changes
 
 - `just build-all`: build all frontend assets in every submodule
@@ -319,23 +208,14 @@ choice to easily view your local documentation build.
 After making any changes, make sure to rebuild the documentation locally via
 `make html`, and then refresh your browser to verify the changes visually.
 
-<!-- ## Development uninstall
-
-To uninstall your Jupyter AI development environment, deactivate and remove the Conda environment:
-
-```
-conda deactivate
-conda env remove -n jupyter-ai
-``` -->
 
 ## Testing
 
 ### Integration / E2E tests 
 
-This extension uses Playwright for the integration / E2E tests (user-level tests).
-More precisely, the JupyterLab helper
+Jupyter AI packages use Playwright for integration / E2E tests (user-level tests).
 [Galata](https://github.com/jupyterlab/jupyterlab/tree/master/galata) is used to
-test the extension in JupyterLab.
+test JupyterLab extensions.
 
 Install test dependencies (needed only once):
 
@@ -358,7 +238,3 @@ To execute tests, run:
 cd ./packages/jupyter-ai/ui-tests/
 jlpm test
 ```
-
-You can find more information in the
-[ui-tests](https://github.com/jupyterlab/jupyter-ai/tree/main/packages/jupyter-ai/ui-tests)
-README.
