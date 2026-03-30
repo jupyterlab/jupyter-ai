@@ -215,7 +215,7 @@ If you do not have your RSA key set up to access GitHub from the CLI, you will b
 While this is not usually necessary, you can also run here:
 
 ```
-uv sync --refresh
+just sync --refresh
 ```
 
 Depending on your environment, sometimes it will clear errors and 
