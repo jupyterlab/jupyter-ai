@@ -1,7 +1,4 @@
-docutils
 myst_parser
-nbsphinx
-nbsphinx-link
 shibuya
 sphinx-design
 sphinx-tabs
