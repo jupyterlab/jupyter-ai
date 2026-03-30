@@ -1,4 +1,4 @@
-# Using vLLM in Jupyter AI
+# Using vLLM in Jupyternaut
 
 [(Return to the Chat Interface page)](index.md#vllm-usage)
 

@@ -1,4 +1,4 @@
-# Contributors
+# Contributor Guide
 
 This page is intended for people interested in building new or modified functionality for Jupyter AI.
 

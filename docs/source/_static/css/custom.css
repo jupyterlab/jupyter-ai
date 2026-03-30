@@ -1,5 +1,52 @@
 img.screenshot {
-    /* Copied from div.admonition */
-    box-shadow: 0 .2rem .5rem var(--pst-color-shadow),0 0 .0625rem var(--pst-color-shadow);
-    border-color: var(--pst-color-info);
+    box-shadow: 0 .2rem .5rem rgba(0,0,0,.1), 0 0 .0625rem rgba(0,0,0,.1);
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+html[data-accent-color='orange'] {
+    --accent-9: #F37726;
+}
+
+.sy-head-brand img + strong {
+    display: inline !important;
+    margin-left: 0.4em;
+}
+
+article.yue > img.no-scaled-link {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.sy-foot-reserved {
+    display: flex;
+    align-items: center;
+}
+
+.sy-foot-reserved > * {
+    flex: 1;
+}
+
+.sy-foot-reserved > :nth-child(2) {
+    text-align: center;
+}
+
+.sy-foot-reserved > :last-child {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.dark .hero-logo img {
+    position: relative;
+}
+
+section#jupyter-ai {
+    text-align: center;
+}
+
+.container.buttons > p {
+    display: flex;
+    justify-content: center;
 }
