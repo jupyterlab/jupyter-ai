@@ -31,6 +31,10 @@ html_theme_options = {
     "github_url": "https://github.com/jupyterlab/jupyter-ai",
     "nav_links": [
         {
+            "title": "Quickstart",
+            "url": "getting-started",
+        },
+        {
             "title": "Users",
             "url": "users/index",
         },
