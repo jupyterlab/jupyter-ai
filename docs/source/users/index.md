@@ -146,7 +146,6 @@ the main area.
 
 ```{toctree}
 :hidden:
-:depth: 5
 
 magic_commands/index
 jupyternaut/index

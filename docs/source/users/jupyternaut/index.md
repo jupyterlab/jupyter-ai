@@ -298,3 +298,10 @@ data:
 runtime:
     /Users/3coins/Library/Jupyter/runtime
 ```
+
+```{toctree}
+:hidden:
+
+bedrock
+vllm
+```

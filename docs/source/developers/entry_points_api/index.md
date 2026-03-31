@@ -23,9 +23,9 @@ implementation in your package.
 :caption: Contents
 
 personas_group.md
-<!-- model_providers_group.md
-embeddings_providers_group.md -->
 providing_entry_points.md
 ```
+<!-- model_providers_group.md -->
+<!-- embeddings_providers_group.md -->
 
 [entry_points]: https://setuptools.pypa.io/en/latest/userguide/entry_point.html
