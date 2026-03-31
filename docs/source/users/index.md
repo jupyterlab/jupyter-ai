@@ -149,6 +149,7 @@ the main area.
 
 magic_commands/index
 jupyternaut/index
+troubleshooting
 ```
 
 ## Notebook tools
