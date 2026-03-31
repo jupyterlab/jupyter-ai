@@ -144,14 +144,6 @@ the main area.
     width="95%"
     class="screenshot" />
 
-```{toctree}
-:hidden:
-
-magic_commands/index
-jupyternaut/index
-troubleshooting
-```
-
 ## Notebook tools
 
 By default, AI personas have access to the MCP server provided by the
@@ -262,3 +254,11 @@ Here is a complete `.jupyter/mcp_settings.json` with both server types:
 
 After saving this file, restart JupyterLab for the changes to take effect. All
 configured MCP servers will be available to every ACP agent in your session.
+
+```{toctree}
+:hidden:
+
+troubleshooting
+magic_commands/index
+jupyternaut/index
+```
