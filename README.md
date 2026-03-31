@@ -10,9 +10,9 @@ To try it out:
 pip install jupyter-ai
 ```
 
-For other installation options (conda, mamba, uv, pixi) and instructions on adding agents, see the [Getting Started guide](https://jupyter-ai.readthedocs.io/en/latest/getting-started.html). Full documentation is available on [ReadTheDocs](https://jupyter-ai.readthedocs.io/en/latest/).
+For other installation options and instructions on adding agents, see the [Getting Started guide](https://jupyter-ai.readthedocs.io/en/latest/getting-started.html).
 
-![A screenshot of Jupyter AI showing the chat interface](docs/source/_static/jupyter-ai-screenshot.png)
+Full documentation is available on [ReadTheDocs](https://jupyter-ai.readthedocs.io/en/latest/).
 
 ## Contributing
 
