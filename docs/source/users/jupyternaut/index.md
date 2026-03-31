@@ -1,4 +1,4 @@
-# Jupyternaut
+# Jupyternaut (optional)
 
 Jupyternaut is a custom agent built for Jupyter AI.
 
