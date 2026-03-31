@@ -1,4 +1,4 @@
-# Using vLLM in Jupyternaut
+# Jupyternaut with vLLM
 
 [(Return to the Chat Interface page)](index.md#vllm-usage)
 
@@ -18,7 +18,7 @@ vllm serve <model_name>
 
 As an example, the deployment of the `Phi-3-mini-4k-instruct` model is shown below, with checks to make sure it is up and running:
 
-<img src="../_static/vllm-serve.png"
+<img src="../../_static/vllm-serve.png"
     alt="Screen shot of steps and checks in deploying a model using vllm."
         class="screenshot" />
 

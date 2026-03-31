@@ -1,4 +1,4 @@
-# Using Amazon Bedrock with Jupyter AI
+# Jupyternaut with Amazon Bedrock
 
 [(Return to the Chat Interface page)](index.md#amazon-bedrock-usage)
 
@@ -6,7 +6,7 @@ Bedrock supports many language model providers such as Amazon, Anthropic, Arcee 
 
 Go to Amazon Bedrock and select `Model Access` as shown here:
 
-<img src="../_static/bedrock-model-access.png"
+<img src="../../_static/bedrock-model-access.png"
     width="95%"
     alt='Screenshot of the left panel in the AWS console where Bedrock model access is provided.'
     class="screenshot" />
@@ -19,14 +19,14 @@ To get started, simply select a model from the Model catalog and open it in the 
 
 All Bedrock serverless foundation model EULAs can be accessed [here](https://aws.amazon.com/legal/bedrock/third-party-models/). EULAs can also be accessed from the model details page in the Model catalog.
 
-<img src="../_static/bedrock-model-select.png"
+<img src="../../_static/bedrock-model-select.png"
     width="95%"
     alt='Screenshot of the Bedrock console where models may be selected.'
     class="screenshot" />
 
 You may now select a chosen Bedrock model from the drop-down menu box titled `Chat model` in the Jupyternaut settings tab (via the `Settings` dropdown). An example of the bedrock provider models is shown:
 
-<img src="../_static/bedrock-chat-basemodel.png"
+<img src="../../_static/bedrock-chat-basemodel.png"
     width="75%"
     alt='Screenshot of the Jupyter AI chat panel where the base language model and embedding model is selected.'
     class="screenshot" />
