@@ -140,7 +140,7 @@ the main area.
 <!-- TODO: please update this to not use comic sans... -->
 
 <img src="../_static/chat-replace-selection-input.png"
-    alt='Screen shot of Jupyter AI with a Python function selected, the user having typed "Rewrite this function to be iterative, not recursive" as their prompt, and with the user having chosen to include the selection with their message and to replace the selection with the response.' 
+    alt='Screen shot of Jupyter AI with a Python function selected, the user having typed "Rewrite this function to be iterative, not recursive" as their prompt, and with the user having chosen to include the selection with their message and to replace the selection with the response.'
     width="95%"
     class="screenshot" />
 

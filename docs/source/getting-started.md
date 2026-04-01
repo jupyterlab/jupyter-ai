@@ -59,7 +59,7 @@ Jupyter AI does not ship with any agent by default. You will need to install at
 least one agent to get started:
 
 To install agents, follow the official documentation for the agents you wish to
-use. Mistral Vibe can be installed directly with the commands below:
+use:
 
 - [Claude Code](https://docs.anthropic.com/en/docs/claude-code/quickstart)
 - [Codex CLI](https://developers.openai.com/codex/cli)

@@ -10,15 +10,15 @@ AI personas are analogous to "bots" in other chat applications. Every available
 persona will be available in every chat by default. If a chat has any other
 users besides the current user and a single AI persona, then AI personas will
 only respond when `@`-mentioned. Jupyter AI provides a single AI persona by
-default: `Jupyternaut`. 
+default: `Jupyternaut`.
 
-See the repository 
+See the repository
 [`jupyter-ai-persona-manager`](https://github.com/jupyter-ai-contrib/jupyter-ai-persona-manager) which allows developers to add AI personas.
 
 For example, if your Jupyter AI instance has `Jupyternaut` and `MyCustomPersona`
 as 2 AI personas, then each persona will only respond when `@`-mentioned.
 
-- To call `Jupyternaut`, your message must include `@Jupyternaut`. 
+- To call `Jupyternaut`, your message must include `@Jupyternaut`.
 
 - To call `MyCustomPersona`, your message must include `@MyCustomPersona`.
 
