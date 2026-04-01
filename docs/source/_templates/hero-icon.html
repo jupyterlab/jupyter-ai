@@ -19,8 +19,11 @@
 .icon-strip {
   display: flex;
   flex-direction: column;
-  animation: tick-up 2s ease-in-out infinite;
   will-change: transform; /* promotes to own compositing layer for smoother animation */
+}
+
+.icon-strip.animating {
+  transition: transform 0.4s ease-in-out;
 }
 
 .icon-strip img {
@@ -31,18 +34,6 @@
   filter: brightness(0) saturate(100%); /* renders all icons as dark monochrome */
   opacity: 0.7;
   flex-shrink: 0;
-}
-
-/* Tick UP: hold, then slide up by one icon height */
-@keyframes tick-up {
-  0%, 60% { transform: translateY(var(--offset)); }
-  80%, 100% { transform: translateY(calc(var(--offset) - 72px)); }
-}
-
-/* Tick DOWN: hold, then slide down by one icon height */
-@keyframes tick-down {
-  0%, 60% { transform: translateY(var(--offset)); }
-  80%, 100% { transform: translateY(calc(var(--offset) + 72px)); }
 }
 
 .hero-logo img {
@@ -160,9 +151,9 @@
 
     <div class="icon-column">
       <!--
-        3 copies needed for downward scrolling. See "WHY ARE THE ICONS DUPLICATED?"
-        above. The strip starts positioned in the middle copy (copy 2). Copy 1 above
-        acts as a pre-rendered buffer so icons entering from the top don't flash.
+        3 copies needed for downward scrolling. See HERO-ICON-README.md.
+        The strip starts in the middle copy. Copy 1 above is a pre-rendered
+        buffer so icons entering from the top don't flash.
       -->
       <div class="icon-strip" id="right-strip">
         <!-- Copy 1 (buffer above viewport — prevents rendering glitch) -->
@@ -192,38 +183,58 @@
 </div>
 
 <script>
+// Animation driven entirely by JS + CSS transitions to avoid Safari's
+// keyframe flash bug (Safari briefly resets to 0% keyframe when
+// animationiteration fires and a CSS variable is updated).
 (function() {
-  var iconH = 72;  // height per icon slot: 56px icon + 8px margin top + 8px margin bottom
-  var leftCount = 14;  // number of unique language/library icons
-  var rightCount = 6;  // number of unique AI provider icons
+  var ICON_H = 72;
+  var HOLD_MS = 1200;  // time to hold each icon before sliding
+  var LEFT_COUNT = 14;
+  var RIGHT_COUNT = 6;
 
-  // LEFT STRIP: ticks UP
-  // Starts at position 0 (top of copy 1). Each tick moves up by one icon.
-  // When it reaches the end of copy 1, JS resets to position 0 (start of copy 1).
-  // Copy 2 below ensures the last tick has an icon to show before the reset.
-  var left = document.getElementById('left-strip');
-  var lStep = 0;
-  left.style.setProperty('--offset', '0px');
-  left.addEventListener('animationiteration', function() {
-    lStep++;
-    if (lStep >= leftCount) lStep = 0;
-    left.style.setProperty('--offset', (-lStep * iconH) + 'px');
-  });
+  function initStrip(id, count, direction) {
+    var strip = document.getElementById(id);
+    // direction: -1 = up, +1 = down
+    var pos = (direction === 1) ? count : 0; // down starts in middle copy
+    strip.style.transform = 'translateY(' + (-pos * ICON_H) + 'px)';
 
-  // RIGHT STRIP: ticks DOWN
-  // Starts at position `rightCount` (first icon of copy 2, the middle copy).
-  // Each tick slides down by +72px, then JS decrements rPos (moving the
-  // resting position one icon higher). When rPos reaches 0 (top of copy 1),
-  // JS jumps back to position `rightCount` (same visual position in copy 2).
-  // Copy 1 above is the pre-rendered buffer that prevents the rendering glitch.
-  var right = document.getElementById('right-strip');
-  var rPos = rightCount;
-  right.style.setProperty('--offset', (-rPos * iconH) + 'px');
-  right.style.animationName = 'tick-down';
-  right.addEventListener('animationiteration', function() {
-    rPos--;
-    if (rPos <= 0) rPos = rightCount;
-    right.style.setProperty('--offset', (-rPos * iconH) + 'px');
-  });
+    function tick() {
+      // Add transition, then move
+      strip.classList.add('animating');
+      var nextPos = pos + direction;
+      strip.style.transform = 'translateY(' + (-nextPos * ICON_H) + 'px)';
+
+      strip.addEventListener('transitionend', function onEnd() {
+        strip.removeEventListener('transitionend', onEnd);
+        strip.classList.remove('animating');
+
+        // Absorb the move
+        if (direction === -1) {
+          // ticking up
+          pos = nextPos;
+          if (pos >= count) {
+            pos = 0;
+            strip.style.transform = 'translateY(0px)';
+          }
+        } else {
+          // ticking down
+          pos = nextPos;
+          if (pos <= 0) {
+            pos = count;
+            strip.style.transform = 'translateY(' + (-pos * ICON_H) + 'px)';
+          }
+        }
+
+        // Schedule next tick
+        setTimeout(tick, HOLD_MS);
+      });
+    }
+
+    // Start after initial hold
+    setTimeout(tick, HOLD_MS);
+  }
+
+  initStrip('left-strip', LEFT_COUNT, -1);
+  initStrip('right-strip', RIGHT_COUNT, 1);
 })();
 </script>
