@@ -59,18 +59,19 @@ Jupyter AI does not ship with any agent by default. You will need to install at
 least one agent to get started:
 
 To install agents, follow the official documentation for the agents you wish to
-use:
+use. Mistral Vibe can be installed directly with the commands below:
 
 - [Claude Code](https://docs.anthropic.com/en/docs/claude-code/quickstart)
 - [Codex CLI](https://developers.openai.com/codex/cli)
 - [Gemini CLI](https://geminicli.com/docs/get-started/installation/)
 - [Goose](https://block.github.io/goose/docs/getting-started/installation)
 - [Kiro CLI](https://kiro.dev/docs/cli/installation/)
+- Mistral Vibe (`uv tool install mistral-vibe` or `pip install mistral-vibe`)
 - [OpenCode](https://opencode.ai/docs/#install)
 
-Some agents also require an additional ACP package to be installed to become
-available in Jupyter AI. If your agent is listed below, you will also need to
-install the corresponding ACP adapter package:
+Some agents also require an ACP adapter or ACP-capable package to be installed
+to become available in Jupyter AI. If your agent is listed below, you will also
+need to install the corresponding package:
 
 ````{tabs}
 
@@ -86,43 +87,64 @@ install the corresponding ACP adapter package:
 
 ```
 
+```{tab} Mistral Vibe
+
+    uv tool install mistral-vibe
+    # or
+    pip install mistral-vibe
+
+```
+
 ````
 
 :::{tip}
 If you use a Conda environment manager, we recommend installing the ACP agent
-adapter inside your environment:
+adapter inside your environment. Use the package manager required by the
+adapter:
 
 ````{tabs}
 
 ```{tab} conda
 
     conda activate <env-name>
-    conda install nodejs
-    npm install -g <package-name>
+    conda install nodejs  # for npm-based adapters such as Claude Code or Codex
+    npm install -g <npm-package-name>
+
+    # or, for Python-based adapters such as Mistral Vibe
+    pip install <python-package-name>
 
 ```
 
 ```{tab} mamba
 
     mamba activate <env-name>
-    mamba install nodejs
-    npm install -g <package-name>
+    mamba install nodejs  # for npm-based adapters such as Claude Code or Codex
+    npm install -g <npm-package-name>
+
+    # or, for Python-based adapters such as Mistral Vibe
+    pip install <python-package-name>
 
 ```
 
 ```{tab} micromamba
 
     micromamba activate <env-name>
-    micromamba install nodejs
-    npm install -g <package-name>
+    micromamba install nodejs  # for npm-based adapters such as Claude Code or Codex
+    npm install -g <npm-package-name>
+
+    # or, for Python-based adapters such as Mistral Vibe
+    pip install <python-package-name>
 
 ```
 
 ```{tab} pixi
 
     pixi shell
-    pixi add nodejs
-    npm install -g <package-name>
+    pixi add nodejs  # for npm-based adapters such as Claude Code or Codex
+    npm install -g <npm-package-name>
+
+    # or, for Python-based adapters such as Mistral Vibe
+    pip install <python-package-name>
 
 ```
 
@@ -178,7 +200,8 @@ to do in other chat applications. For example, to ask Claude a question, type
 If you're not logged in with an agent already, the agent will not respond to
 your request and instead prompt you to login. You may need to login via the
 command line. The agent will open the terminal for you automatically when
-possible.
+possible. For Mistral Vibe, run `vibe --setup` or set `MISTRAL_API_KEY` before
+starting JupyterLab.
 :::
 
 Agents can read files, write files, run shell commands, and interact with

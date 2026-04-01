@@ -8,7 +8,7 @@
 
 Jupyter AI v3.0.0 introduces:
 
-- **Agent support via ACP**: Use Claude, Codex, Gemini, Goose, Kiro, and OpenCode directly in JupyterLab
+- **Agent support via ACP**: Use Claude, Codex, Gemini, Goose, Kiro, Mistral Vibe, and OpenCode directly in JupyterLab
 - **Real-time chat UI**: Live-streaming responses with tool calls and diff views
 - **Tool call permissions**: Agents request approval before writing files or running commands
 - **Jupyter MCP server**: Agents can edit and execute notebooks in JupyterLab using `jupyter_server_mcp`
@@ -84,7 +84,7 @@ To add an agent, follow the [installation instructions](https://github.com/jupyt
 
 ## New features
 
-- **Agent support via ACP**: By using ACP, we are able to provide access to every frontier agent. The v3.0 official release will support the following agents out of the box: Claude, Codex, Gemini, Goose, Kiro, and OpenCode. Agents are automatically enabled when their required dependencies are installed.
+- **Agent support via ACP**: By using ACP, we are able to provide access to every frontier agent. The v3.0 official release will support the following agents out of the box: Claude, Codex, Gemini, Goose, Kiro, Mistral Vibe, and OpenCode. Agents are automatically enabled when their required dependencies are installed.
 - **[ACP] Real-time chat UI**: Live-streaming agent responses with tool call status, reasoning traces, execution plans, and inline diff views for file edits.
 - **[ACP] Tool call permissions**: Agents request permission before performing actions like writing files or running terminal commands, giving you guardrails over agent behavior.
 - **[ACP] File system and terminal access**: Agents can read and write files and run terminal commands through the ACP client, with all operations subject to the permission system.
