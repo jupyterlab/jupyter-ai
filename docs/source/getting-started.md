@@ -132,8 +132,8 @@ adapter:
     micromamba install nodejs  # for npm-based adapters such as Claude Code or Codex
     npm install -g <npm-package-name>
 
-    # or, for Python-based adapters such as Mistral Vibe
-    pip install <python-package-name>
+    # or, for Python-based adapters available on Conda Forge
+    micromamba install -c conda-forge <conda-package-name>
 
 ```
 
@@ -143,8 +143,8 @@ adapter:
     pixi add nodejs  # for npm-based adapters such as Claude Code or Codex
     npm install -g <npm-package-name>
 
-    # or, for Python-based adapters such as Mistral Vibe
-    pip install <python-package-name>
+    # or, for Python-based adapters available on Conda Forge, such as Mistral Vibe
+    pixi add <conda-package-name>
 
 ```
 
