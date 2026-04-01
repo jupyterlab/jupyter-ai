@@ -194,12 +194,11 @@
 
   function initStrip(id, count, direction) {
     var strip = document.getElementById(id);
-    // direction: -1 = up, +1 = down
-    var pos = (direction === 1) ? count : 0; // down starts in middle copy
+    // direction: 1 = scroll up (pos increases), -1 = scroll down (pos decreases)
+    var pos = (direction === -1) ? count : 0;
     strip.style.transform = 'translateY(' + (-pos * ICON_H) + 'px)';
 
     function tick() {
-      // Add transition, then move
       strip.classList.add('animating');
       var nextPos = pos + direction;
       strip.style.transform = 'translateY(' + (-nextPos * ICON_H) + 'px)';
@@ -208,33 +207,24 @@
         strip.removeEventListener('transitionend', onEnd);
         strip.classList.remove('animating');
 
-        // Absorb the move
-        if (direction === -1) {
-          // ticking up
-          pos = nextPos;
-          if (pos >= count) {
-            pos = 0;
-            strip.style.transform = 'translateY(0px)';
-          }
-        } else {
-          // ticking down
-          pos = nextPos;
-          if (pos <= 0) {
-            pos = count;
-            strip.style.transform = 'translateY(' + (-pos * ICON_H) + 'px)';
-          }
+        pos = nextPos;
+
+        if (direction === 1 && pos >= count) {
+          pos = 0;
+          strip.style.transform = 'translateY(0px)';
+        } else if (direction === -1 && pos <= 0) {
+          pos = count;
+          strip.style.transform = 'translateY(' + (-pos * ICON_H) + 'px)';
         }
 
-        // Schedule next tick
         setTimeout(tick, HOLD_MS);
       });
     }
 
-    // Start after initial hold
     setTimeout(tick, HOLD_MS);
   }
 
-  initStrip('left-strip', LEFT_COUNT, -1);
-  initStrip('right-strip', RIGHT_COUNT, 1);
+  initStrip('left-strip', LEFT_COUNT, 1);
+  initStrip('right-strip', RIGHT_COUNT, -1);
 })();
 </script>
