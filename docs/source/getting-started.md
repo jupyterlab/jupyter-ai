@@ -200,8 +200,7 @@ to do in other chat applications. For example, to ask Claude a question, type
 If you're not logged in with an agent already, the agent will not respond to
 your request and instead prompt you to login. You may need to login via the
 command line. The agent will open the terminal for you automatically when
-possible. For Mistral Vibe, run `vibe --setup` or set `MISTRAL_API_KEY` before
-starting JupyterLab.
+possible.
 :::
 
 Agents can read files, write files, run shell commands, and interact with
