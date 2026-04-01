@@ -66,7 +66,7 @@ use:
 - [Gemini CLI](https://geminicli.com/docs/get-started/installation/)
 - [Goose](https://block.github.io/goose/docs/getting-started/installation)
 - [Kiro CLI](https://kiro.dev/docs/cli/installation/)
-- Mistral Vibe (`uv tool install mistral-vibe` or `pip install mistral-vibe`)
+- [Mistral Vibe](https://docs.mistral.ai/mistral-vibe/introduction/install)
 - [OpenCode](https://opencode.ai/docs/#install)
 
 Some agents also require an ACP adapter or ACP-capable package to be installed
