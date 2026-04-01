@@ -66,11 +66,12 @@ use:
 - [Gemini CLI](https://geminicli.com/docs/get-started/installation/)
 - [Goose](https://block.github.io/goose/docs/getting-started/installation)
 - [Kiro CLI](https://kiro.dev/docs/cli/installation/)
+- [Mistral Vibe](https://docs.mistral.ai/mistral-vibe/introduction/install)
 - [OpenCode](https://opencode.ai/docs/#install)
 
-Some agents also require an additional ACP package to be installed to become
-available in Jupyter AI. If your agent is listed below, you will also need to
-install the corresponding ACP adapter package:
+Some agents also require an ACP adapter or ACP-capable package to be installed
+to become available in Jupyter AI. If your agent is listed below, you will also
+need to install the corresponding package:
 
 ````{tabs}
 
@@ -86,43 +87,64 @@ install the corresponding ACP adapter package:
 
 ```
 
+```{tab} Mistral Vibe
+
+    uv tool install mistral-vibe
+    # or
+    pip install mistral-vibe
+
+```
+
 ````
 
 :::{tip}
 If you use a Conda environment manager, we recommend installing the ACP agent
-adapter inside your environment:
+adapter inside your environment. Use the package manager required by the
+adapter:
 
 ````{tabs}
 
 ```{tab} conda
 
     conda activate <env-name>
-    conda install nodejs
-    npm install -g <package-name>
+    conda install nodejs  # for npm-based adapters such as Claude Code or Codex
+    npm install -g <npm-package-name>
+
+    # or, for Python-based adapters such as Mistral Vibe
+    pip install <python-package-name>
 
 ```
 
 ```{tab} mamba
 
     mamba activate <env-name>
-    mamba install nodejs
-    npm install -g <package-name>
+    mamba install nodejs  # for npm-based adapters such as Claude Code or Codex
+    npm install -g <npm-package-name>
+
+    # or, for Python-based adapters such as Mistral Vibe
+    pip install <python-package-name>
 
 ```
 
 ```{tab} micromamba
 
     micromamba activate <env-name>
-    micromamba install nodejs
-    npm install -g <package-name>
+    micromamba install nodejs  # for npm-based adapters such as Claude Code or Codex
+    npm install -g <npm-package-name>
+
+    # or, for Python-based adapters available on Conda Forge
+    micromamba install -c conda-forge <conda-package-name>
 
 ```
 
 ```{tab} pixi
 
     pixi shell
-    pixi add nodejs
-    npm install -g <package-name>
+    pixi add nodejs  # for npm-based adapters such as Claude Code or Codex
+    npm install -g <npm-package-name>
+
+    # or, for Python-based adapters available on Conda Forge, such as Mistral Vibe
+    pixi add <conda-package-name>
 
 ```
 

@@ -47,6 +47,12 @@ OpenCode, will also require you to select an LLM before usage.
 
 ```
 
+```{tab} Mistral Vibe
+
+    vibe --setup
+
+```
+
 ```{tab} OpenCode
 
     opencode auth login
@@ -54,6 +60,9 @@ OpenCode, will also require you to select an LLM before usage.
 ```
 
 ````
+
+For Mistral Vibe, you can also set `MISTRAL_API_KEY` before starting JupyterLab
+instead of running `vibe --setup`.
 
 If the error persists after logging in, check the server logs and
 [open an issue](https://github.com/jupyterlab/jupyter-ai/issues/new/choose) on

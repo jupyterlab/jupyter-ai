@@ -6,7 +6,7 @@
 
 <p align="center"><i>An open source extension that connects AI agents to computational notebooks in JupyterLab.</i></p>
 
-Jupyter AI brings agentic AI to JupyterLab. It provides a native chat UI where you can collaborate with frontier AI agents — including Claude, Codex, Gemini, Goose, Kiro, and OpenCode — all integrated through the [Agent Client Protocol (ACP)](https://agentclientprotocol.com). Agents are automatically detected when their dependencies are installed, so getting started is as simple as installing Jupyter AI and the agent of your choice.
+Jupyter AI brings agentic AI to JupyterLab. It provides a native chat UI where you can collaborate with frontier AI agents — including Claude, Codex, Gemini, Goose, Kiro, Mistral Vibe, and OpenCode — all integrated through the [Agent Client Protocol (ACP)](https://agentclientprotocol.com). Agents are automatically detected when their dependencies are installed, so getting started is as simple as installing Jupyter AI and the agent of your choice.
 
 Agents in Jupyter AI can read and write files, run terminal commands, and interact with notebooks through a built-in [Jupyter MCP server](https://github.com/jupyter-ai-contrib/jupyter-server-mcp). A permission system gives you guardrails over agent actions — agents request approval before writing files or executing commands. You can also create multiple concurrent chats, drag and drop files or notebook cells as context, and collaborate in real time with other users connected to the same server.
 

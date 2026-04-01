@@ -68,6 +68,9 @@ back to the same position in the middle copy (seamless).
   The original icon had a purple background rect; we removed it and set the
   ghost body to `currentColor` so it works with the `brightness(0)` filter.
 
+- **Mistral Vibe icon**: derived from the ACP client asset, stored locally at
+  `_static/mistral-vibe-icon.svg` as a grayscale variant for use in the hero.
+
 ## Styling Notes
 
 - All icons use `filter:brightness(0)` to render as dark monochrome silhouettes.

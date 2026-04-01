@@ -41,9 +41,9 @@ These repositories are experimental and under active development:
 - [jupyterlab-magic-wand](https://github.com/jupyter-ai-contrib/jupyterlab-magic-wand) - An in-cell AI assistant for JupyterLab notebooks
 - [jupyterlab-notebook-awareness](https://github.com/jupyter-ai-contrib/jupyterlab-notebook-awareness) - Track current notebook and active cell in JupyterLab's awareness
 - [jupyterlab-ai-commands](https://github.com/jupyter-ai-contrib/jupyterlab-ai-commands) - A set of JupyterLab commands for use with AI agents
-- [jupyterlab-ai-commands](https://github.com/jupyter-ai-contrib/jupyterlab-ai-commands) - A set of commands for AI in JupyterLab.  
+- [jupyterlab-ai-commands](https://github.com/jupyter-ai-contrib/jupyterlab-ai-commands) - A set of commands for AI in JupyterLab.
 
-New experimental submodules are added frequently (the list above is not exhaustive), and the current set may be accessed at: https://github.com/orgs/jupyter-ai-contrib/repositories. 
+New experimental submodules are added frequently (the list above is not exhaustive), and the current set may be accessed at: https://github.com/orgs/jupyter-ai-contrib/repositories.
 
 
 ### Using the devrepo
@@ -99,11 +99,11 @@ While this is not usually necessary, you can also run here:
 just sync --refresh
 ```
 
-Depending on your environment, sometimes it will clear errors and 
-- Refresh UV's cache to check for updated package versions                      
-- Synchronize your local Python environment with the updated lock file(s)       
-- Ensure all dependencies from the newly pulled submodules are installed        
-- Resolve any dependency conflicts.   
+Depending on your environment, sometimes it will clear errors and
+- Refresh UV's cache to check for updated package versions
+- Synchronize your local Python environment with the updated lock file(s)
+- Ensure all dependencies from the newly pulled submodules are installed
+- Resolve any dependency conflicts.
 
 #### 3. Install all packages
 
@@ -211,7 +211,7 @@ just pytest
 
 to run the unit tests for a submodule.
 
-### E2E tests 
+### E2E tests
 
 Jupyter AI packages use Playwright for E2E tests (user-level tests).
 [Galata](https://github.com/jupyterlab/jupyterlab/tree/master/galata) is used to
