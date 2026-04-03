@@ -77,7 +77,7 @@ need to install the corresponding package:
 
 ```{tab} Claude Code
 
-    npm install -g @zed-industries/claude-agent-acp
+    npm install -g @agentclientprotocol/claude-agent-acp
 
 ```
 
