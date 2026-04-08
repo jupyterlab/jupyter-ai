@@ -64,14 +64,16 @@ use:
 - [Claude Code](https://docs.anthropic.com/en/docs/claude-code/quickstart)
 - [Codex CLI](https://developers.openai.com/codex/cli)
 - [Gemini CLI](https://geminicli.com/docs/get-started/installation/)
+- [GitHub Copilot CLI](https://docs.github.com/en/copilot/how-tos/copilot-cli/set-up-copilot-cli/install-copilot-cli)
 - [Goose](https://block.github.io/goose/docs/getting-started/installation)
 - [Kiro CLI](https://kiro.dev/docs/cli/installation/)
 - [Mistral Vibe](https://docs.mistral.ai/mistral-vibe/introduction/install)
 - [OpenCode](https://opencode.ai/docs/#install)
 
 Some agents also require an ACP adapter or ACP-capable package to be installed
-to become available in Jupyter AI. If your agent is listed below, you will also
-need to install the corresponding package:
+to become available in Jupyter AI. GitHub Copilot CLI includes ACP support out
+of the box, so it does not need a separate adapter. If your agent is listed
+below, you will also need to install the corresponding package:
 
 ````{tabs}
 

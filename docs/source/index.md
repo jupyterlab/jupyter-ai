@@ -31,7 +31,7 @@ Collaborate with AI personas and other humans in shared chats. Drag-and-drop att
 :::
 
 :::{grid-item-card} 🤖 Frontier Agents
-Use Claude, Codex, Gemini, Goose, Kiro, Mistral Vibe, OpenCode, or other agents directly in JupyterLab.
+Use Claude, Codex, GitHub Copilot, Gemini, Goose, Kiro, Mistral Vibe, OpenCode, or other agents directly in JupyterLab.
 :::
 
 :::{grid-item-card} ⚡ Real-Time UI

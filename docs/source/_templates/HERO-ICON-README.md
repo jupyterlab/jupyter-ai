@@ -71,6 +71,11 @@ back to the same position in the middle copy (seamless).
 - **Mistral Vibe icon**: derived from the ACP client asset, stored locally at
   `_static/mistral-vibe-icon.svg` as a grayscale variant for use in the hero.
 
+- **GitHub Copilot icon**: sourced from GitHub's own docs as the official
+  `octicon-copilot` SVG and stored locally at `_static/copilot-icon.svg` for
+  use in the hero. GitHub's current brand guidance treats the Copilot icon as a
+  supporting mark rather than a standalone primary logo.
+
 ## Styling Notes
 
 - All icons use `filter:brightness(0)` to render as dark monochrome silhouettes.
