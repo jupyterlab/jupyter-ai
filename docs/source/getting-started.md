@@ -70,10 +70,9 @@ use:
 - [Mistral Vibe](https://docs.mistral.ai/mistral-vibe/introduction/install)
 - [OpenCode](https://opencode.ai/docs/#install)
 
-Some agents also require an ACP adapter or ACP-capable package to be installed
-to become available in Jupyter AI. GitHub Copilot CLI includes ACP support out
-of the box, so it does not need a separate adapter. If your agent is listed
-below, you will also need to install the corresponding package:
+Some agents also require an additional ACP adapter or package to become
+available in Jupyter AI. If your agent is listed below, you will also need to
+install the corresponding package:
 
 ````{tabs}
 
