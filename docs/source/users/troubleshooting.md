@@ -29,6 +29,12 @@ OpenCode, will also require you to select an LLM before usage.
 
 ```
 
+```{tab} GitHub Copilot
+
+    copilot login
+
+```
+
 ```{tab} Gemini
 
     gemini auth login
@@ -61,6 +67,8 @@ OpenCode, will also require you to select an LLM before usage.
 
 ````
 
+For GitHub Copilot, you can also set `COPILOT_GITHUB_TOKEN`, `GH_TOKEN`, or
+`GITHUB_TOKEN` before starting JupyterLab instead of running `copilot login`.
 For Mistral Vibe, you can also set `MISTRAL_API_KEY` before starting JupyterLab
 instead of running `vibe --setup`.
 
