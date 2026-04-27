@@ -2,6 +2,50 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+# v3.0.0
+
+🎉 **Jupyter AI v3.0.0 is finally here!** 🎉
+
+Jupyter AI v3.0.0 introduces:
+
+- **Agent support via ACP**: Use Claude, Codex, Gemini, Goose, Kiro, Mistral Vibe, and OpenCode directly in JupyterLab
+- **Real-time chat UI**: Live-streaming responses with tool calls and diff views
+- **Tool call permissions**: Agents request approval before writing files or running commands
+- **Jupyter MCP server**: Agents can edit and execute notebooks in JupyterLab using `jupyter_server_mcp`
+- **MCP server integration**: Add custom MCP servers via `.jupyter/mcp_settings.json`
+- **Multi-chat architecture**: Open unlimited chats, saved as `.chat` files
+
+We've also completely overhauled and updated the documentation for Jupyter AI v3.
+
+- **New documentation**: https://jupyter-ai.readthedocs.io/en/latest/
+
+Thank you to our users and everyone who contributed to Jupyter AI, be it through reporting issues, coding, reviewing, or organizing events. You are all truly wonderful.
+
+Stay tuned for more announcements and updates soon to come.
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/v3.0.0rc1...7d66a3a33c53e9fe764b51259f851331a15180e7))
+
+### Enhancements made
+
+- Prep v3.0 official release [#1545](https://github.com/jupyterlab/jupyter-ai/pull/1545) ([@dlqqq](https://github.com/dlqqq), [@srdas](https://github.com/srdas))
+
+### Documentation improvements
+
+- Update user guide for v3 [#1544](https://github.com/jupyterlab/jupyter-ai/pull/1544) ([@dlqqq](https://github.com/dlqqq), [@srdas](https://github.com/srdas))
+- Update contributor guide with latest setup instructions [#1543](https://github.com/jupyterlab/jupyter-ai/pull/1543) ([@srdas](https://github.com/srdas), [@dlqqq](https://github.com/dlqqq))
+- v3.0 documentation overhaul [#1542](https://github.com/jupyterlab/jupyter-ai/pull/1542) ([@dlqqq](https://github.com/dlqqq), [@srdas](https://github.com/srdas))
+
+### Contributors to this release
+
+The following people contributed discussions, new ideas, code and documentation contributions, and review.
+See [our definition of contributors](https://github-activity.readthedocs.io/en/latest/use/#how-does-this-tool-define-contributions-in-the-reports).
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2026-03-25&to=2026-03-31&type=c))
+
+@dlqqq ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2026-03-25..2026-03-31&type=Issues)) | @srdas ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2026-03-25..2026-03-31&type=Issues))
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 3.0.0rc1
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/v3.0.0rc0...5c31139895341c9040dd65ea60f1539e4a99d3f0))
@@ -18,8 +62,6 @@ See [our definition of contributors](https://github-activity.readthedocs.io/en/l
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2026-03-25&to=2026-03-25&type=c))
 
 @dlqqq ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2026-03-25..2026-03-25&type=Issues)) | @Zsailer ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AZsailer+updated%3A2026-03-25..2026-03-25&type=Issues))
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 # 3.0.0rc0
 
@@ -42,7 +84,7 @@ To add an agent, follow the [installation instructions](https://github.com/jupyt
 
 ## New features
 
-- **Agent support via ACP**: By using ACP, we are able to provide access to every frontier agent. The v3.0 official release will support the following agents out of the box: Claude, Codex, Gemini, Goose, Kiro, and OpenCode. Agents are automatically enabled when their required dependencies are installed.
+- **Agent support via ACP**: By using ACP, we are able to provide access to every frontier agent. The v3.0 official release will support the following agents out of the box: Claude, Codex, Gemini, Goose, Kiro, Mistral Vibe, and OpenCode. Agents are automatically enabled when their required dependencies are installed.
 - **[ACP] Real-time chat UI**: Live-streaming agent responses with tool call status, reasoning traces, execution plans, and inline diff views for file edits.
 - **[ACP] Tool call permissions**: Agents request permission before performing actions like writing files or running terminal commands, giving you guardrails over agent behavior.
 - **[ACP] File system and terminal access**: Agents can read and write files and run terminal commands through the ACP client, with all operations subject to the permission system.

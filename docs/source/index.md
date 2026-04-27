@@ -10,8 +10,7 @@ description: Jupyter AI brings generative AI to Jupyter notebooks and JupyterLab
 # Jupyter AI
 
 ```{rst-class} lead
-Agentic AI in JupyterLab.
-A native chat UI with support for several agents — all in one extension.
+An open source extension that connects AI agents to computational notebooks in JupyterLab.
 ```
 
 ```{container} buttons
@@ -32,7 +31,7 @@ Collaborate with AI personas and other humans in shared chats. Drag-and-drop att
 :::
 
 :::{grid-item-card} 🤖 Frontier Agents
-Use Claude, Codex, Gemini, Goose, Kiro, OpenCode, or other agents directly in JupyterLab.
+Use Claude, Codex, GitHub Copilot, Gemini, Goose, Kiro, Mistral Vibe, OpenCode, or other agents directly in JupyterLab.
 :::
 
 :::{grid-item-card} ⚡ Real-Time UI

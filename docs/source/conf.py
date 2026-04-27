@@ -9,7 +9,7 @@ html_title = "Jupyter AI"
 
 # -- General configuration ---------------------------------------------------
 
-extensions = ["myst_parser", "sphinx_design", "sphinx_tabs.tabs"]
+extensions = ["myst_parser", "sphinx_design", "sphinx_tabs.tabs", "sphinx_copybutton"]
 myst_enable_extensions = ["colon_fence"]
 
 templates_path = ["_templates"]
@@ -30,6 +30,10 @@ html_theme_options = {
     "accent_color": "orange",
     "github_url": "https://github.com/jupyterlab/jupyter-ai",
     "nav_links": [
+        {
+            "title": "Quickstart",
+            "url": "getting-started",
+        },
         {
             "title": "Users",
             "url": "users/index",
