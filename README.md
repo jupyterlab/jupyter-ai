@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/jupyterlab-jupyter-ai-badge.png)](https://mseep.ai/app/jupyterlab-jupyter-ai)
+
 <p align="center">
   <img src="docs/source/_static/jupyter_logo.png" alt="Jupyter logo" width="120">
 </p>
