@@ -25,7 +25,7 @@ The following repositories are stable, i.e., this means the repos are, or are qu
 - [jupyter-server-documents](https://github.com/jupyter-ai-contrib/jupyter-server-documents) - Server side document handling with improved output handling and kernel management/status.
 - [jupyter-server-mcp](https://github.com/jupyter-ai-contrib/jupyter-server-mcp) - An MCP interface/extension for Jupyter Server
 - [jupyterlab-diff](https://github.com/jupyter-ai-contrib/jupyterlab-diff) - JupyterLab commands to show cell and file diffs
-- [jupyter-ai-magic-commands](https://github.com/jupyter-ai-contrib/jupyter-ai-chat-commands) - The code for handling the `%ai` and `%%ai` magic commands in Jupyter notebooks.
+- [jupyter-ai-magic-commands](https://github.com/jupyter-ai-contrib/jupyter-ai-magic-commands) - The code for handling the `%ai` and `%%ai` magic commands in Jupyter notebooks.
 - [jupyter-ai-acp-client](https://github.com/jupyter-ai-contrib/jupyter-ai-acp-client) - A client implementation of the Agent Client Protocol (ACP) as well as helper classes for other developers to use when custom AI personas wrapping ACP agents.
 - [jupyterlab-commands-toolkit](https://github.com/jupyter-ai-contrib/jupyterlab-commands-toolkit) - JupyterLab commands as an AI Toolkit
 
