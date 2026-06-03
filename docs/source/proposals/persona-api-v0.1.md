@@ -334,7 +334,7 @@ portable and shareable.
 
 ## Related efforts
 
-- [PR opened](https://github.com/srdas/jupyter-ai-quickagent) by Jordi Adoumie (Bloomberg) at the 2026 Q1 Jupyter AI Workshop in Seattle, a key contribution and reference point that inspired us to think about zero-code ways of defining AI personas.
+- [jupyter-ai-persona-manager#32](https://github.com/jupyter-ai-contrib/jupyter-ai-persona-manager/pull/32) by Jordi Adoumie (Bloomberg) at the 2026 Q1 Jupyter AI Workshop in Seattle, a key contribution and reference point that inspired us to think about zero-code ways of defining AI personas.
 
 - [Jupyter AI Quickagents](https://github.com/srdas/jupyter-ai-quickagent) by Sanjiv Das (SCU), a project that helped establish and refine our vision of creating AI personas with AI personas.
 
