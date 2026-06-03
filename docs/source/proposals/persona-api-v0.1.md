@@ -1,5 +1,9 @@
 # Persona API v0.1
 
+:::{note}
+Join the discussion on [this GitHub issue](https://github.com/jupyterlab/jupyter-ai/issues/1571)!
+:::
+
 ## Context
 
 The existing `jupyter_ai_persona_manager` v0.0 API fulfills the original vision
@@ -341,4 +345,8 @@ portable and shareable.
 Thank you to everyone who attended the Jupyter AI community calls and events to
 drive deep discussion and collaboration on this topic, especially Matt, Carl,
 Sanjiv, Jordi, and Fernando!
+
+:::{note}
+Join the discussion on [this GitHub issue](https://github.com/jupyterlab/jupyter-ai/issues/1571)!
+:::
 
