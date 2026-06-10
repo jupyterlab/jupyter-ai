@@ -14,6 +14,30 @@ or:
 pip install jupyter-ai-jupyternaut
 ```
 
+## Optional features
+
+The core package enables Jupyternaut's chat and notebook tools, and keeps
+conversation memory in memory. Persistent conversation memory is available as an
+optional extra on the `jupyter-ai-jupyternaut` package:
+
+:::{note}
+These optional extras are new in `jupyter-ai-jupyternaut` 0.0.12. This is a
+behavior change from previous versions, where persistent conversation memory was
+enabled by default. It is now opt-in: enable it explicitly via the `persistence`
+extra described below.
+:::
+
+| Extra | Enables | Without it |
+| --- | --- | --- |
+| `persistence` | Conversation memory persisted to a local SQLite database so it survives server restarts (via `langgraph-checkpoint-sqlite`) | Conversation memory is kept only for the lifetime of the server process |
+| `all` | All optional runtime features. Currently this is the same as `persistence` | — |
+
+For example, to install Jupyternaut with persistent conversation memory:
+
+```sh
+pip install 'jupyter-ai-jupyternaut[persistence]'
+```
+
 ## Model selection
 
 Jupyternaut supports a wide range of model providers and models. Access to the
