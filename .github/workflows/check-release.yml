@@ -1,5 +1,7 @@
 name: Check Release
 
+permissions: {}
+
 on:
   push:
     branches: ["*"]
@@ -9,25 +11,41 @@ on:
     - cron: "0 0 * * *"
 
 jobs:
+  zizmor:
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      with:
+        persist-credentials: false
+
+    - name: Run zizmor 🌈
+      uses: zizmorcore/zizmor-action@5f14fd08f7cf1cb1609c1e344975f152c7ee938d # v0.5.6
+
   check_release:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          persist-credentials: false
 
       - name: Setup environment
-        uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
+        uses: jupyterlab/maintainer-tools/.github/actions/base-setup@95d85449e4f3f352e261221f6529f8ed307f5728 # v1
         with:
           python_version: "3.11.x"
 
       - name: Check Release
-        uses: jupyter-server/jupyter_releaser/.github/actions/check-release@v2
+        uses: jupyter-server/jupyter_releaser/.github/actions/check-release@634ac751f8a58d3d4a19b63f58aad138e6355cc8 # v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           version_spec: "12.34.56"
 
       - name: Upload Distributions
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: jupyter-ai-jupyter-releaser-dist-${{ github.run_number }}
           path: .jupyter_releaser_checkout/dist
