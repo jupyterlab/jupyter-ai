@@ -1,4 +1,4 @@
-# Jupyter AI 3.2 proposal
+# Jupyter AI 3.2
 
 ## Context
 
