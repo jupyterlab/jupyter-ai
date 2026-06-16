@@ -1,7 +1,7 @@
-# Persona API v0.1
+# Jupyter AI 3.1
 
 :::{note}
-Join the discussion on [this GitHub issue](https://github.com/jupyterlab/jupyter-ai/issues/1571)!
+This proposal was previously titled "Persona API v0.1". Join the discussion on [this GitHub issue](https://github.com/jupyterlab/jupyter-ai/issues/1571)!
 :::
 
 ## Context
