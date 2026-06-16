@@ -14,7 +14,7 @@ Users coming from other popular agentic editors and AI assistants expect a consi
 
 | Feature | Popular agentic editors | Jupyter AI |
 |---|---|---|
-| Model selector | Yes | No, buried in a settings panel |
+| Model selector | Yes | No, only in a settings panel |
 | Effort / reasoning level | Yes | No |
 | Context usage | Yes | No |
 | Session cost | Yes | No |
@@ -43,20 +43,20 @@ Two related gaps compound it:
 
 ## A single set of in-chat controls
 
-The design resolves the ambiguity with a single active persona: in a chat that holds several, the persona the input is currently addressed to. The model, effort, and usage controls live in the chat input and show information about the active persona, so there is always exactly one persona's model selector to show, one set of slash commands to autocomplete, and one context window to track.
+The design resolves the ambiguity with a single active persona: in a chat that holds several, the active persona is the one the input is currently addressed to. The model, effort, and usage controls live in the chat input and show information about the active persona, so there is always exactly one persona's model selector to show, one set of slash commands to autocomplete, and one context window to track.
 
 By default, the active persona is detected automatically:
 
 - In a chat with one persona, it is always that persona.
 - When you `@`-mention a persona, it becomes active and stays active for the messages that follow, so you do not retype the `@` every time. Carl Boettiger's feedback in #1558 notes that users repeatedly forget the `@`; because the active persona persists and is always shown, a forgotten `@` is visible rather than silent.
 
-The user can also switch the active persona directly from the selector. The input area always shows it next to the controls, so the user knows who the next message will go to and whose settings they are seeing. It changes only when the user mentions a persona or picks one, never on its own. Changing the model or effort takes effect on the next message and is saved with the chat, and the context-and-cost indicator reflects the active persona, not the whole chat.
+The user can also switch the active persona directly from the selector. The input area always shows it next to the controls, so the user knows who the next message will go to and whose settings they are seeing. It changes only when the user mentions a persona or picks one, never on its own. Changing the model or effort takes effect on the next message and is saved with the chat. Context usage is shown for the active persona, since each persona has its own model and its own context window, so a single window to track only makes sense for one persona at a time. Cost is reported both per message and as a running total for the whole chat, since cost is additive across personas and the chat total is what tells the user what a deliverable cost.
 
-In a chat with one persona, the input area looks and behaves like a normal single-assistant tool. There is no separate chat type: a single-persona chat is just the multi-persona chat with one persona in it.
+In a chat with one persona, the input area looks and behaves like a standard single-assistant tool. It is the same chat either way: every chat can hold more than one persona, and one with a single persona is just a chat that has one in it right now. Adding or removing personas changes who is in the room, not how the chat works.
 
 Persona information appears in two places:
 
-- In the input area, the controls for the active persona: the model and effort selectors and the context-and-cost indicator. This is the live state, what the next message will use.
+- In the input area, the controls for the active persona: the model and effort selectors and the context-usage indicator, alongside the chat's running cost total. This is the live state, what the next message will use.
 - In a footer on each message: which model answered, the tokens it used, and the cost. This is the record of what already happened.
 
 ```text
@@ -66,7 +66,7 @@ Persona information appears in two places:
 |  Claude   Opus . 1,240 tokens . $0.03   <- msg footer  |
 |  ...                                                   |
 +--------------------------------------------------------+
-| To: [Claude v]  [Opus v]  [high v]   ctx 64%           |
+| To: [Claude v] [Opus v] [high v]  ctx 64%  $0.41 total |
 | Type a message...                           [stop] [^] |
 +--------------------------------------------------------+
 ```
@@ -79,7 +79,7 @@ We considered two alternatives. Showing this only per message gives no live cont
 
 A chat's personas are the ones the user has added to it. The chat header shows them as a roster: avatars with an add control that lists installed personas and a remove control on each, like the member list in a group chat. A new chat starts empty; the user adds a persona by picking it from the roster or `@`-mentioning it.
 
-Today, who responds is invisible and surprises users. With one human in the chat, a message that mentions no one goes to the default persona; once a second human joins, personas stay silent unless mentioned, to avoid talking over a human conversation. Nothing signals that switch, so it reads as the assistant breaking. The roster and the active-persona selector fix this: the roster shows who can respond, the selector shows who the next message goes to, and the UI signals directly when routing becomes mention-only.
+Today, who will respond is not shown, which can catch users off guard. With one human in the chat, a message that mentions no one goes to the default persona; once a second human joins, personas stay silent unless mentioned, to avoid talking over a human conversation. Because nothing signals that change, the personas can appear to have gone quiet for no reason. The roster and the active-persona selector address this: the roster shows who can respond, the selector shows who the next message goes to, and the UI signals when routing becomes mention-only.
 
 ## Local and global configuration
 
@@ -87,7 +87,7 @@ Configuration is either local or global. A change the user makes in a chat, a pe
 
 ## Plan
 
-Phase one gives the 3.1 persona API its UI for a single persona: the controls Jupyter AI is missing today, model, effort, context-and-cost, thinking, and per-message cost, brought into the chat input on top of the active persona. This is the bulk of the value, with no dependency on the multi-persona work. Phase two extends it to several personas in one chat: the roster, lazy initialization, routing clarity, and the local-and-global split.
+Phase one gives the 3.1 persona API its UI for a single persona: the controls Jupyter AI is missing today, model, effort, context usage, thinking, and cost, brought into the chat input on top of the active persona. This is the bulk of the value, with no dependency on the multi-persona work. Phase two extends it to several personas in one chat: the roster, lazy initialization, routing clarity, and the local-and-global split.
 
 The work splits into four mostly-parallel tracks that can be owned independently.
 
@@ -97,14 +97,14 @@ Chat shell (`jupyter-chat`). The frontend scaffolding the other tracks plug into
 - Slots for the active-persona controls, the per-message footer, and the thinking block. These use extension points that already exist: the input toolbar registry, the message footer registry, and the message preamble registry (already used to render tool calls).
 - This track has no backend dependency and can start now.
 
-Persona configuration (ACP client and persona manager). Make the per-persona settings real on the backend. Of the ACP v1 schema's 11 session-update events and 13 RPCs, several that these features need are unhandled today:
+Persona configuration (ACP client and persona manager). Implement the per-persona settings on the backend. Of the ACP v1 schema's 11 session-update events and 13 RPCs, several that these features need are unhandled today:
 
 - Handle the `config_option_update` and `usage_update` events the client does not consume today, and read the config options already present on the new-session response.
 - Implement the `session/set_config_option` call so the model and effort selectors can write back.
 - Render the `agent_thought_chunk` events the client currently drops, for the thinking block.
 - Expose a persona's current model, effort, and usage to the frontend over a REST endpoint.
 
-Active-persona controls (frontend). The model, effort, and context-and-cost controls and the per-message footer, wired to the configuration track and to the active-persona field.
+Active-persona controls (frontend). The model, effort, and context-usage controls, the running cost total, and the per-message footer, wired to the configuration track and to the active-persona field.
 
 Multi-persona (persona manager and frontend).
 
