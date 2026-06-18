@@ -5,5 +5,6 @@ This section contains proposals for major API improvements and new features in J
 ```{toctree}
 :hidden:
 
-persona-api-v0.1
+jupyter-ai-3.1
+jupyter-ai-3.2
 ```
