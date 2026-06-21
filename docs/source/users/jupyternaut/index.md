@@ -72,10 +72,9 @@ To get started, follow the instructions on the [Ollama website](https://ollama.c
 
 For the Ollama models to be available to JupyterLab-AI, your Ollama server _must_ be running. You can check that this is the case by calling `ollama serve` at the terminal, and should see something like:
 
-```
 $ ollama serve
 Error: listen tcp 127.0.0.1:11434: bind: address already in use
-```
+
 
 This indicates that Ollama is running on its default port number, 11434.
 
@@ -92,17 +91,38 @@ To configure this in Jupyternaut settings, set the `api_base` paremeter field in
 
 To configure this in the magic commands, you should set the `OLLAMA_HOST` environment variable to the your Ollama server's custom IP address and port number (assuming you chose 10000) in a new code cell:
 
-```
 %load_ext jupyter_ai_magics
 os.environ["OLLAMA_HOST"] = "http://localhost:10000"
-```
+
 
 After running that cell, the AI magic command can then be used like so:
 
-```
 %%ai ollama:llama3.2
 What is a transformer?
-```
+
+
+Advanced Troubleshooting & Configurations:
+
+If you encounter connection issues or network blockages when hooking up local models to Jupyternaut, try the following configurations:
+
+Resolving Port-Binding Errors (11434):
+  If Jupyternaut cannot reach your local server, verify that port ``11434`` isn't being locked by another rogue background process. You can test if the server endpoint responds directly using:
+
+  .. code-block:: bash
+
+     curl http://localhost:11434
+
+Cross-Origin Permissions (Docker/Containerized Environments):
+  If you run JupyterLab inside a Docker container or separated network namespace, the local Ollama instance on your host machine will drop incoming requests due to CORS origin restrictions. To allow cross-origin traffic, you must specify the ``OLLAMA_ORIGINS`` variable before launching the Ollama daemon:
+
+  .. code-block:: bash
+
+     export OLLAMA_ORIGINS="*"
+     ollama serve
+
+Handling Local Context Window Limits:
+  Heavyweight local models might exhaust processing memory or trigger client-side disconnect loops if the context size is too vast. If you run into dropouts mid-stream, adjust your attention parameters directly within the Jupyternaut custom model arguments card or hardcode custom limits inside a dedicated local ``Modelfile``.
+
 
 ### vLLM usage
 
