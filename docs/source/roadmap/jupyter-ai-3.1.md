@@ -1,12 +1,18 @@
-# Jupyter AI 3.2
+# Jupyter AI 3.1
+
+:::{note}
+Please join the discussion at [this GitHub issue](https://github.com/jupyterlab/jupyter-ai/issues/1584)!
+:::
 
 ## Context
 
 In Jupyter AI 3.0, instead of building our own agent, we wrap existing agent harnesses through the Agent Client Protocol (ACP) and present them as personas. This integrated eight frontier agents (Claude, Kiro, Copilot, Gemini, Goose, Codex, OpenCode, Mistral Vibe) in under two months, each available in any chat and invokable by `@`-mention.
 
-[Jupyter AI 3.1](jupyter-ai-3.1), also known as Persona API v0.1, makes a persona configurable at runtime on the backend. It moves a persona's model, context, identity, and options out of the class definition into instance attributes, and adds `update_model`, `update_context`, `update_identity`, and `update_options` to change them while a chat is live. It covers the API, not the UI: a user still has no way to change those settings from the chat.
+The controls users expect from popular agentic editors, e.g. a model selector, an effort level, context usage, and per-message cost, are already exposed by the agents we wrap, over ACP. We do not need to wait for a new persona API to surface them: ACP's session-update events and RPCs carry this information today. Jupyter AI 3.1 brings these controls into the chat by consuming what ACP already provides.
 
-Jupyter AI 3.2 builds the UI on top of it: in-chat controls for model, effort, and usage that bring Jupyter AI to parity with popular agentic editors, while keeping what sets it apart, the ability to work with several personas, and several people, in one chat. The result is one kind of chat, as polished as those tools, that works the same whether you are talking to one persona or several.
+[Jupyter AI 3.2](jupyter-ai-3.2), the persona API cleanup, comes afterward. It moves a persona's model, context, identity, engine, and options out of the class definition into instance attributes, and adds runtime update methods. That work takes longer and benefits only users authoring custom personas, so it does not block the UI improvements described here. Where 3.1 reads and writes persona configuration directly over ACP, 3.2 will later unify that behind a standardized persona API.
+
+Jupyter AI 3.1 delivers the UI: in-chat controls for model, effort, and usage that bring Jupyter AI to parity with popular agentic editors, while keeping what sets it apart, the ability to work with several personas, and several people, in one chat. The result is one kind of chat, as polished as those tools, that works the same whether you are talking to one persona or several.
 
 ## Motivation
 
@@ -23,16 +29,16 @@ Users coming from other popular agentic editors and AI assistants expect a consi
 
 The multi-persona chat paradigm Jupyter AI works in makes them non-trivial to add. In other tools, a single conversation is built around one assistant, and the controls assume it; the ones that run several agents at once give each its own separate pane or thread. Jupyter AI brings them together: several AI personas and several people collaborating in a single chat, where any message can address any persona. If a chat holds `@Claude` and `@Kiro`, which one's model selector belongs in the input box, which one's slash commands should autocomplete, and which one's context window does the indicator track?
 
-This is the core problem 3.2 solves: how to show persona-specific data and options in a chat that can hold more than one persona, without splitting the product into two different kinds of chat.
+This is the core problem 3.1 solves: how to show persona-specific data and options in a chat that can hold more than one persona, without splitting the product into two different kinds of chat.
 
 Two related gaps compound it:
 
 - All installed personas are initialized eagerly in every chat, and therefore all personas participate in every chat by default. There is no way to remove or add a persona.
-- Persona configuration has no home in the chat. The settings that 3.1 makes changeable at runtime have nowhere to be changed from.
+- Persona configuration has no home in the chat. The settings exposed over ACP have nowhere to be changed from.
 
 ## Goals
 
-3.2 provides the 3.1 persona API with a UI: the state-of-the-art controls users expect from popular agentic editors, adapted to Jupyter AI's paradigm of several personas in one chat.
+3.1 gives Jupyter AI the state-of-the-art controls users expect from popular agentic editors, surfaced from what ACP exposes today and adapted to Jupyter AI's paradigm of several personas in one chat.
 
 ## User stories
 
@@ -83,11 +89,13 @@ Today, who will respond is not shown, which can catch users off guard. With one 
 
 ## Local and global configuration
 
-Configuration is either local or global. A change the user makes in a chat, a persona's model or effort, goes through the 3.1 runtime API (`update_model`, `update_options`) and is saved with the chat, so it travels with that chat and touches no other. The global defaults, the default persona and model and the allowed-model list, live in the persona definitions and the settings panel, and define what new chats start from. The two never cross: editing a chat's persona does not change the user's defaults, and changing defaults does not rewrite existing chats.
+Configuration is either local or global. A change the user makes in a chat, a persona's model or effort, is written back to the agent over ACP (`session/set_config_option`) and is saved with the chat, so it travels with that chat and touches no other. The global defaults, the default persona and model and the allowed-model list, live in the persona definitions and the settings panel, and define what new chats start from. The two never cross: editing a chat's persona does not change the user's defaults, and changing defaults does not rewrite existing chats.
+
+Once [Jupyter AI 3.2](jupyter-ai-3.2) lands the persona API, these per-chat writes will be unified behind the standardized runtime update methods (`update_model`, `update_options`) rather than going to ACP directly, but the user-facing behavior described here stays the same.
 
 ## Plan
 
-Phase one gives the 3.1 persona API its UI for a single persona: the controls Jupyter AI is missing today, model, effort, context usage, thinking, and cost, brought into the chat input on top of the active persona. This is the bulk of the value, with no dependency on the multi-persona work. Phase two extends it to several personas in one chat: the roster, lazy initialization, routing clarity, and the local-and-global split.
+Phase one gives a single persona its in-chat controls: model, effort, context usage, thinking, and cost, brought into the chat input on top of the active persona, read from and written to ACP. This is the bulk of the value, with no dependency on the multi-persona work or on the 3.2 persona API. Phase two extends it to several personas in one chat: the roster, lazy initialization, routing clarity, and the local-and-global split.
 
 The work splits into four mostly-parallel tracks that can be owned independently.
 
@@ -97,7 +105,7 @@ Chat shell (`jupyter-chat`). The frontend scaffolding the other tracks plug into
 - Slots for the active-persona controls, the per-message footer, and the thinking block. These use extension points that already exist: the input toolbar registry, the message footer registry, and the message preamble registry (already used to render tool calls).
 - This track has no backend dependency and can start now.
 
-Persona configuration (ACP client and persona manager). Implement the per-persona settings on the backend. Of the ACP v1 schema's 11 session-update events and 13 RPCs, several that these features need are unhandled today:
+Persona configuration (ACP client and persona manager). Surface the per-persona settings the agents already expose over ACP. Of the ACP v1 schema's 11 session-update events and 13 RPCs, several that these features need are unhandled today:
 
 - Handle the `config_option_update` and `usage_update` events the client does not consume today, and read the config options already present on the new-session response.
 - Implement the `session/set_config_option` call so the model and effort selectors can write back.
@@ -123,5 +131,5 @@ Later, smaller gaps:
 
 ## Related discussions
 
-- [Jupyter AI 3.1](jupyter-ai-3.1), the runtime-configuration persona API this UI is built on, and its discussion on [jupyter-ai#1571](https://github.com/jupyterlab/jupyter-ai/issues/1571).
+- [Jupyter AI 3.2](jupyter-ai-3.2), the persona API cleanup and persona engines that follow this UI work, and its discussion on [jupyter-ai#1571](https://github.com/jupyterlab/jupyter-ai/issues/1571).
 - [jupyter-ai#1558](https://github.com/jupyterlab/jupyter-ai/issues/1558) and the ACP-bridge prototype by Carl Boettiger, Matt Fisher, and others, which surfaced the per-thread harness-binding and model-selection patterns that informed the active-persona design.
