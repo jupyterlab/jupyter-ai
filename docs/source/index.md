@@ -60,5 +60,5 @@ getting-started
 users/index
 contributors/index
 developers/index
-proposals/index
+roadmap/index
 ```
