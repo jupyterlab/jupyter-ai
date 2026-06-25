@@ -11,7 +11,7 @@ change.
 
 ## Context
 
-The existing `jupyter_ai_persona_manager` v0.0 API fulfills the original vision
+The existing `jupyter_ai_persona_manager` 3.0 API fulfills the original vision
 of **AI personas** in Jupyter AI as generic, named entities available in each
 chat that process messages that `@`-mention them. AI personas are implemented
 via the `BasePersona` class, which is initialized once per chat, per persona.
@@ -38,7 +38,7 @@ Gemini, Goose, Codex, OpenCode, Mistral Vibe) in less than 2 months.
 ## Motivation
 
 In recent community calls and at the Q2 2026 Developer Summit, users and
-developers identified three key gaps in the current v0.0 API:
+developers identified three key gaps in the current 3.0 API:
 
 1. **Creating new personas requires writing Python code.**
 Defining a custom persona requires writing a Python file with a class that
@@ -65,7 +65,7 @@ During the discussion on [jupyter-ai#1571](https://github.com/jupyterlab/jupyter
 the community surfaced a fourth gap that this revision addresses:
 
 4. **The agent engine cannot be swapped like the other building blocks.** In
-   the v0.0 design, the agent engine is baked into the persona *class*: an AI
+   the 3.0 design, the agent engine is baked into the persona *class*: an AI
 persona built on OpenCode is an instance of `OpenCodeAcpPersona`. As Matt
 Fisher argued, this special-cases the engine: it is the one building block of a
 persona that you cannot swap at runtime the way you can swap a model or a
@@ -75,7 +75,7 @@ build a new instance of a different class.
 
 ## Proposal Summary
 
-In v0.1, we will deconstruct the persona into separate, well-defined building
+In 3.2, we will deconstruct the persona into separate, well-defined building
 blocks, and lift **everything**, including the agent engine, out of the class
 definition. An AI persona is composed of five swappable parts:
 
@@ -96,13 +96,13 @@ ID, accepted in the constructor.
 `BasePersona` becomes a standardized container that holds these building blocks
 and delegates message handling to its engine via `self.engine`. To enable
 future work on making model selection and persona configuration more intuitive,
-the new `BasePersona` interface in v0.1 will provide a complete API for updating
+the new `BasePersona` interface in 3.2 will provide a complete API for updating
 every one of these instance-level attributes at runtime, including a new
 `update_engine` method. Here is the new `BasePersona` interface being proposed
-for v0.1 compared to v0.0, with the less important methods hidden:
+for 3.2 compared to 3.0, with the less important methods hidden:
 
 `````{tabs}
-````{tab} v0.1
+````{tab} 3.2
 ```
 class BasePersona(LoggingConfigurable):
     # ─── Lifecycle methods ────────────────────────────────
@@ -131,7 +131,7 @@ class BasePersona(LoggingConfigurable):
 ```
 ````
 
-````{tab} v0.0
+````{tab} 3.0
 ```python
 class BasePersona(ABC, LoggingConfigurable):
     # ─── Lifecycle methods ────────────────────────────────
@@ -229,14 +229,14 @@ class PersonaEngine(ABC, LoggingConfigurable):
 ```
 
 In the next section, we will show examples that better convey why the new APIs
-proposed here close the gaps identified in v0.0 from a developer and user
+proposed here close the gaps identified in 3.0 from a developer and user
 perspective.
 
 ## Examples
 
 ### Example 1: Defining agentic AI personas powered by local models
 
-In v0.0, to define an AI persona that uses local models, you need to use an
+In 3.0, to define an AI persona that uses local models, you need to use an
 open-source agent engine (only OpenCode or Goose currently), then set the
 model ID and skills at some agent-specific settings path. Once you do all of
 that, Jupyter AI initializes your persona like this (shortened for brevity):
@@ -248,14 +248,14 @@ OpenCodeAcpPersona(ychat=ychat)
 # cannot add another instance of `OpenCodeAcpPersona`
 ```
 
-In v0.0, you can only invoke this persona as `@OpenCode` since the persona's
+In 3.0, you can only invoke this persona as `@OpenCode` since the persona's
 identity is defined by the class. Since each persona class maps to exactly one
 persona instance per chat, there's no way to create another AI persona built on
 OpenCode that uses a different model and skillset.
 
-The v0.1 API will allow developers to *reuse*
+The 3.2 API will allow developers to *reuse*
 an existing engine to create a new AI persona, with
-a different model, context, identity, and options. In v0.1, personas can be
+a different model, context, identity, and options. In 3.2, personas can be
 initialized like this:
 
 ```py
@@ -300,7 +300,7 @@ there is no need to create a Python module to define an AI persona. Since all of
 arguments are serializable, and the engine is referenced by ID, they can be
 represented in any no-code format that
 can express dictionaries / key-value pairs. Markdown files with YAML
-frontmatter are well-suited for this while being easily readable. The v0.1
+frontmatter are well-suited for this while being easily readable. The 3.2
 architecture enables a future where `.persona.md` files can be used to define
 AI personas by naming an existing engine.
 
@@ -470,7 +470,7 @@ this API cleanup later backs.
 
 - [Jupyter AI Quickagents](https://github.com/srdas/jupyter-ai-quickagent) by Sanjiv Das (SCU), a project that helped establish and refine our vision of creating AI personas with AI personas.
 
-- [jupyter-ai#1558](https://github.com/jupyterlab/jupyter-ai/issues/1558) by Carl Boettiger (UC Berkeley), Matt Fisher, and others, which helped identify the gaps in the v0.0 design that were confusing users and developers.
+- [jupyter-ai#1558](https://github.com/jupyterlab/jupyter-ai/issues/1558) by Carl Boettiger (UC Berkeley), Matt Fisher, and others, which helped identify the gaps in the 3.0 design that were confusing users and developers.
 
 ## Acknowledgements
 
