@@ -258,6 +258,7 @@ configured MCP servers will be available to every ACP agent in your session.
 ```{toctree}
 :hidden:
 
+versioning
 troubleshooting
 magic_commands/index
 jupyternaut/index
