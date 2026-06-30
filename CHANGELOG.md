@@ -2,6 +2,47 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 3.0.1
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/v3.0.0...b1119a713734fbb4fbf47ebe286176f2b9031ab7))
+
+### Enhancements made
+
+- Prep Jupyter AI v3.0.1 [#1587](https://github.com/jupyterlab/jupyter-ai/pull/1587) ([@dlqqq](https://github.com/dlqqq), [@andrii-i](https://github.com/andrii-i))
+
+### Bugs fixed
+
+- Fix hero animation flicker in Safari [#1547](https://github.com/jupyterlab/jupyter-ai/pull/1547) ([@dlqqq](https://github.com/dlqqq))
+
+### Maintenance and upkeep improvements
+
+- Harden the GH actions [#1577](https://github.com/jupyterlab/jupyter-ai/pull/1577) ([@peytondmurray](https://github.com/peytondmurray), [@Yann-P](https://github.com/Yann-P), [@dlqqq](https://github.com/dlqqq), [@krassowski](https://github.com/krassowski))
+
+### Documentation improvements
+
+- Establish roadmap for Jupyter AI v3.1 and v3.2 [#1585](https://github.com/jupyterlab/jupyter-ai/pull/1585) ([@dlqqq](https://github.com/dlqqq), [@andrii-i](https://github.com/andrii-i), [@mfisher87](https://github.com/mfisher87))
+- Add Jupyter AI 3.2 proposal [#1580](https://github.com/jupyterlab/jupyter-ai/pull/1580) ([@andrii-i](https://github.com/andrii-i), [@dlqqq](https://github.com/dlqqq), [@mfisher87](https://github.com/mfisher87), [@srdas](https://github.com/srdas))
+- Document persistence change in Jupyternaut [#1574](https://github.com/jupyterlab/jupyter-ai/pull/1574) ([@jtpio](https://github.com/jtpio), [@dlqqq](https://github.com/dlqqq))
+- Add Persona API v0.1 proposal [#1570](https://github.com/jupyterlab/jupyter-ai/pull/1570) ([@dlqqq](https://github.com/dlqqq))
+- Document GitHub Copilot [#1551](https://github.com/jupyterlab/jupyter-ai/pull/1551) ([@jtpio](https://github.com/jtpio), [@dlqqq](https://github.com/dlqqq))
+- Update upstream source of Claude ACP to reflect recent NPM org change. [#1550](https://github.com/jupyterlab/jupyter-ai/pull/1550) ([@fperez](https://github.com/fperez), [@dlqqq](https://github.com/dlqqq))
+- Document Mistral Vibe agent [#1548](https://github.com/jupyterlab/jupyter-ai/pull/1548) ([@jtpio](https://github.com/jtpio), [@Zsailer](https://github.com/Zsailer), [@dlqqq](https://github.com/dlqqq))
+
+### Other merged PRs
+
+- Fix Jordi's PR link in proposal [#1572](https://github.com/jupyterlab/jupyter-ai/pull/1572) ([@dlqqq](https://github.com/dlqqq))
+
+### Contributors to this release
+
+The following people contributed discussions, new ideas, code and documentation contributions, and review.
+See [our definition of contributors](https://github-activity.readthedocs.io/en/latest/use/#how-does-this-tool-define-contributions-in-the-reports).
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2026-04-01&to=2026-06-30&type=c))
+
+@andrii-i ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aandrii-i+updated%3A2026-04-01..2026-06-30&type=Issues)) | @dlqqq ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2026-04-01..2026-06-30&type=Issues)) | @fperez ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Afperez+updated%3A2026-04-01..2026-06-30&type=Issues)) | @jtpio ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ajtpio+updated%3A2026-04-01..2026-06-30&type=Issues)) | @krassowski ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2026-04-01..2026-06-30&type=Issues)) | @mfisher87 ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Amfisher87+updated%3A2026-04-01..2026-06-30&type=Issues)) | @peytondmurray ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Apeytondmurray+updated%3A2026-04-01..2026-06-30&type=Issues)) | @srdas ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2026-04-01..2026-06-30&type=Issues)) | @Yann-P ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AYann-P+updated%3A2026-04-01..2026-06-30&type=Issues)) | @Zsailer ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AZsailer+updated%3A2026-04-01..2026-06-30&type=Issues))
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 # v3.0.0
 
 🎉 **Jupyter AI v3.0.0 is finally here!** 🎉
@@ -43,8 +84,6 @@ See [our definition of contributors](https://github-activity.readthedocs.io/en/l
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2026-03-25&to=2026-03-31&type=c))
 
 @dlqqq ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2026-03-25..2026-03-31&type=Issues)) | @srdas ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2026-03-25..2026-03-31&type=Issues))
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 3.0.0rc1
 
