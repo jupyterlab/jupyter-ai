@@ -2,6 +2,25 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 3.1.0b0
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/v3.0.1...6b75ec7a4f5ab71568c21dbe54a0ede55d66e199))
+
+### Enhancements made
+
+- Prep v3.1.0b0 : new UI + JSD v0.3 beta [#1588](https://github.com/jupyterlab/jupyter-ai/pull/1588) ([@dlqqq](https://github.com/dlqqq))
+
+### Contributors to this release
+
+The following people contributed discussions, new ideas, code and documentation contributions, and review.
+See [our definition of contributors](https://github-activity.readthedocs.io/en/latest/use/#how-does-this-tool-define-contributions-in-the-reports).
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2026-06-30&to=2026-07-02&type=c))
+
+@dlqqq ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2026-06-30..2026-07-02&type=Issues))
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 3.0.1
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/v3.0.0...b1119a713734fbb4fbf47ebe286176f2b9031ab7))
@@ -40,8 +59,6 @@ See [our definition of contributors](https://github-activity.readthedocs.io/en/l
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2026-04-01&to=2026-06-30&type=c))
 
 @andrii-i ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aandrii-i+updated%3A2026-04-01..2026-06-30&type=Issues)) | @dlqqq ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2026-04-01..2026-06-30&type=Issues)) | @fperez ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Afperez+updated%3A2026-04-01..2026-06-30&type=Issues)) | @jtpio ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ajtpio+updated%3A2026-04-01..2026-06-30&type=Issues)) | @krassowski ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Akrassowski+updated%3A2026-04-01..2026-06-30&type=Issues)) | @mfisher87 ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Amfisher87+updated%3A2026-04-01..2026-06-30&type=Issues)) | @peytondmurray ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Apeytondmurray+updated%3A2026-04-01..2026-06-30&type=Issues)) | @srdas ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2026-04-01..2026-06-30&type=Issues)) | @Yann-P ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AYann-P+updated%3A2026-04-01..2026-06-30&type=Issues)) | @Zsailer ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3AZsailer+updated%3A2026-04-01..2026-06-30&type=Issues))
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 # v3.0.0
 
