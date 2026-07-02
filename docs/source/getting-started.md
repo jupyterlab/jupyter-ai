@@ -61,9 +61,9 @@ least one agent to get started:
 To install agents, follow the official documentation for the agents you wish to
 use:
 
+- [Antigravity CLI](https://antigravity.google/docs/cli-getting-started)
 - [Claude Code](https://docs.anthropic.com/en/docs/claude-code/quickstart)
 - [Codex CLI](https://developers.openai.com/codex/cli)
-- [Gemini CLI](https://geminicli.com/docs/get-started/installation/)
 - [GitHub Copilot CLI](https://docs.github.com/en/copilot/how-tos/copilot-cli/set-up-copilot-cli/install-copilot-cli)
 - [Goose](https://block.github.io/goose/docs/getting-started/installation)
 - [Kiro CLI](https://kiro.dev/docs/cli/installation/)

@@ -17,6 +17,12 @@ OpenCode, will also require you to select an LLM before usage.
 
 ````{tabs}
 
+```{tab} Antigravity
+
+    agy
+
+```
+
 ```{tab} Claude
 
     claude login
@@ -32,12 +38,6 @@ OpenCode, will also require you to select an LLM before usage.
 ```{tab} GitHub Copilot
 
     copilot login
-
-```
-
-```{tab} Gemini
-
-    gemini auth login
 
 ```
 
