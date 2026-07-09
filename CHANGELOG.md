@@ -2,6 +2,29 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 3.1.0b1
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/v3.1.0b0...a5f1d24bdfdf7128e040cbf1a27ae781300b74db))
+
+### Bugs fixed
+
+- Bump `jupyter-releaser` action pin to `1.11.2` [#1592](https://github.com/jupyterlab/jupyter-ai/pull/1592) ([@andrii-i](https://github.com/andrii-i))
+
+### Maintenance and upkeep improvements
+
+- Bump `jupyter_ai_tools` to `0.6.x` and `jupyter_server_documents` to `0.3.x` [#1591](https://github.com/jupyterlab/jupyter-ai/pull/1591) ([@andrii-i](https://github.com/andrii-i))
+
+### Contributors to this release
+
+The following people contributed discussions, new ideas, code and documentation contributions, and review.
+See [our definition of contributors](https://github-activity.readthedocs.io/en/latest/use/#how-does-this-tool-define-contributions-in-the-reports).
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2026-07-02&to=2026-07-09&type=c))
+
+@andrii-i ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aandrii-i+updated%3A2026-07-02..2026-07-09&type=Issues))
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 3.1.0b0
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/v3.0.1...6b75ec7a4f5ab71568c21dbe54a0ede55d66e199))
@@ -18,8 +41,6 @@ See [our definition of contributors](https://github-activity.readthedocs.io/en/l
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2026-06-30&to=2026-07-02&type=c))
 
 @dlqqq ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2026-06-30..2026-07-02&type=Issues))
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 3.0.1
 
