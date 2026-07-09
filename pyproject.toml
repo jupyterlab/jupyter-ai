@@ -29,13 +29,13 @@ dynamic = ["version"]
 
 dependencies = [
   "jupyterlab_chat>=0.22.1,<0.23.0",
-  "jupyter_server_documents>=0.3.0b0,<0.4.0",
+  "jupyter_server_documents>=0.3.0,<0.4.0",
   "jupyter_ai_router>=0.0.5,<0.1.0",
   "jupyter_ai_persona_manager>=0.1.0b0,<0.3.0",
   "jupyter_ai_chat_commands>=0.0.4,<0.1.0",
   "jupyter_ai_acp_client>=0.2.0b0,<0.3.0",
   "jupyter_server_mcp>=0.2.1,<0.3.0",
-  "jupyter_ai_tools>=0.5.2,<0.6.0",
+  "jupyter_ai_tools>=0.6.0,<0.7.0",
   "jupyterlab_notebook_awareness>=0.2.0,<0.3.0",
   "jupyterlab_commands_toolkit>=0.1.6,<0.2.0",
 ]
