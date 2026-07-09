@@ -39,7 +39,7 @@ jobs:
           python_version: "3.11.x"
 
       - name: Check Release
-        uses: jupyter-server/jupyter_releaser/.github/actions/check-release@634ac751f8a58d3d4a19b63f58aad138e6355cc8 # v2
+        uses: jupyter-server/jupyter_releaser/.github/actions/check-release@cf9c1ac90471e0978ef4d4f106b5d9b8917cb7af # v2 (1.11.2, pins fastcore<2)
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           version_spec: "12.34.56"
