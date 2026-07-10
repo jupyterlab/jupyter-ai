@@ -1,0 +1,14 @@
+{
+  "jupyter_server_documents": "jupyter-ai-contrib/jupyter-server-documents",
+  "jupyter_ai_router": "jupyter-ai-contrib/jupyter-ai-router",
+  "jupyter_ai_persona_manager": "jupyter-ai-contrib/jupyter-ai-persona-manager",
+  "jupyter_ai_chat_commands": "jupyter-ai-contrib/jupyter-ai-chat-commands",
+  "jupyter_ai_acp_client": "jupyter-ai-contrib/jupyter-ai-acp-client",
+  "jupyter_server_mcp": "jupyter-ai-contrib/jupyter-server-mcp",
+  "jupyter_ai_tools": "jupyter-ai-contrib/jupyter-ai-tools",
+  "jupyterlab_notebook_awareness": "jupyter-ai-contrib/jupyterlab-notebook-awareness",
+  "jupyterlab_commands_toolkit": "jupyter-ai-contrib/jupyterlab-commands-toolkit",
+  "jupyter_ai_litellm": "jupyter-ai-contrib/jupyter-ai-litellm",
+  "jupyter_ai_magic_commands": "jupyter-ai-contrib/jupyter-ai-magic-commands",
+  "jupyter_ai_jupyternaut": "jupyter-ai-contrib/jupyter-ai-jupyternaut"
+}

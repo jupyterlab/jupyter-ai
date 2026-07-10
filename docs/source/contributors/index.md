@@ -197,6 +197,68 @@ choice to easily view your local documentation build.
 After making any changes, make sure to rebuild the documentation locally via
 `make html`, and then refresh your browser to verify the changes visually.
 
+### Subpackage documentation
+
+Jupyter AI is composed of many subpackages under the
+[`jupyter-ai-contrib`](https://github.com/jupyter-ai-contrib) org. **Each
+subpackage can ship its own contributor and developer docs inside its own repo**,
+and this site pulls them in as versioned subpages so everything is readable in
+one place. User-facing docs stay solely in `jupyter-ai`.
+
+```{note}
+This is rolling out gradually — **not every subpackage has contributor or
+developer docs yet.** Subpages appear here automatically as subpackages add
+them. A subpackage with no docs simply contributes no pages.
+```
+
+#### What a subpackage should define
+
+Inside a subpackage repo, add either or both of:
+
+```
+docs/source/contributors/index.md   # → appears under Contributors on this site
+docs/source/developers/index.md     # → appears under Developers on this site
+```
+
+Notes:
+
+- The `index.md` **H1 heading becomes the subpage's title** in the navigation.
+  By convention, use the repo name (e.g. `# jupyter-ai-tools`).
+- Each section is **independent** — a subpackage may define one, both, or
+  neither.
+- You may ship a **full subtree**: nested pages and images under
+  `docs/source/{contributors,developers}/` are copied verbatim, and your
+  `index.md`'s own `{toctree}` structures them.
+- Only these two directories are aggregated. Everything else in the subpackage's
+  `docs/` is ignored by the main site.
+
+#### How it works (infrastructure in `jupyter-ai`)
+
+- Each subpackage repo is vendored into `jupyter-ai` as a **git submodule** under
+  `submodules/<repo>/`, [sparse-checked-out](https://git-scm.com/docs/git-sparse-checkout)
+  to `docs/` only. The registry of submodules lives in
+  `submodules/manifest.json` (a `"pypi_name": "org/repo"` map), which also serves
+  as a visible map of what Jupyter AI is composed of.
+- Submodules are pinned to the **latest release tag matching each package's
+  version range** in `jupyter-ai`'s `pyproject.toml`, following pip / PEP 440
+  semantics. Repinning is done by `scripts/update-doc-submodules.sh`, wrapped by
+  the **Update submodule documentation** GitHub workflow (`workflow_dispatch`),
+  which opens a PR with the updated pins. Maintainers run it when subpackages cut
+  releases with new docs.
+- On Read the Docs, `scripts/rtd-post-checkout.sh` (wired via
+  `build.jobs.post_checkout` in `.readthedocs.yaml`) initialises each submodule
+  sparsely to `docs/`. RTD's native `submodules:` support is intentionally not
+  used because it cannot do a sparse checkout.
+- A Sphinx extension, `docs/source/_ext/subpackage_docs.py`, runs on
+  `builder-inited`: it copies each submodule's
+  `docs/source/{contributors,developers}/` subtree into a **git-ignored** staging
+  dir under `docs/source/{contributors,developers}/<repo>/` and injects the
+  subpage into the matching aggregation page's `{toctree}`. Missing docs are
+  silently skipped.
+- Integration tests in `docs/tests/` run a real `sphinx-build` against
+  synthesized fixtures to verify the aggregation, and the **Docs build system**
+  CI workflow runs them on any change to the docs build system.
+
 
 ## Testing
 

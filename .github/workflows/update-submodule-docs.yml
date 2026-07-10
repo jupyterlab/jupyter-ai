@@ -1,0 +1,54 @@
+name: Update submodule documentation
+
+# Manually-triggered wrapper around scripts/update-doc-submodules.sh. It
+# re-pins every documentation submodule to the latest tag matching its version
+# range in pyproject.toml (PEP 440 semantics via the `packaging` library) and
+# opens a PR with the result. This is the same script that seeded the submodules
+# originally, so a manual run and the seed PR stay consistent.
+
+on:
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  update-submodules:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          # We need a full checkout with submodule config so the script can
+          # move the gitlinks. Keep credentials so create-pull-request can push.
+          submodules: true
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5
+        with:
+          python-version: "3.11"
+
+      - name: Install resolver dependencies
+        run: pip install packaging
+
+      - name: Re-pin documentation submodules
+        run: bash scripts/update-doc-submodules.sh
+
+      - name: Open pull request
+        uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # v7
+        with:
+          branch: update-submodule-docs
+          title: "docs: update submodule documentation pins"
+          commit-message: "docs: update submodule documentation pins"
+          body: |
+            Automated update of the documentation submodule pins by the
+            **Update submodule documentation** workflow.
+
+            Each submodule under `submodules/` has been re-pinned to the latest
+            git tag matching its version range in `pyproject.toml`
+            (see `scripts/update-doc-submodules.sh`).
+          labels: documentation
+          delete-branch: true

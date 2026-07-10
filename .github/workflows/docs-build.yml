@@ -1,0 +1,58 @@
+name: Docs build system
+
+# "You changed the docs build system, prove docs still build." Runs the
+# subpackage-docs aggregation integration tests (docs/tests/) and a full
+# sphinx-build. Scoped by paths: to changes that can affect the build system.
+
+on:
+  push:
+    branches: ["*"]
+    paths:
+      - "docs/**"
+      - ".readthedocs.yaml"
+      - "submodules/manifest.json"
+      - "scripts/update-doc-submodules.sh"
+      - "scripts/_resolve_doc_submodules.py"
+      - "scripts/rtd-post-checkout.sh"
+      - ".github/workflows/docs-build.yml"
+  pull_request:
+    branches: ["*"]
+    paths:
+      - "docs/**"
+      - ".readthedocs.yaml"
+      - "submodules/manifest.json"
+      - "scripts/update-doc-submodules.sh"
+      - "scripts/_resolve_doc_submodules.py"
+      - "scripts/rtd-post-checkout.sh"
+      - ".github/workflows/docs-build.yml"
+
+permissions: {}
+
+jobs:
+  docs-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          persist-credentials: false
+          # The aggregation integration tests synthesize their own fixtures, so
+          # we do NOT need the real submodule content here.
+          submodules: false
+
+      - name: Set up Python
+        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5
+        with:
+          python-version: "3.11"
+
+      - name: Install docs + test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r docs/requirements.txt
+          pip install sphinx pytest packaging
+
+      - name: Run aggregation integration tests
+        run: pytest docs/tests -v
+
+      - name: Full docs build (renders no subpackage pages until docs land)
+        run: sphinx-build -b html docs/source docs/_build/html
