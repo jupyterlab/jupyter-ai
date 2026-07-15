@@ -1,0 +1,7 @@
+# Generated staging dirs for subpackage developer docs, copied in by the
+# aggregation hook in docs/source/conf.py from submodules/<repo>/docs/. Build
+# output is never committed. See the "Subpackage documentation" section of the
+# contributor guide.
+*/
+# ...except the hand-authored entry points API docs, which are tracked.
+!entry_points_api/

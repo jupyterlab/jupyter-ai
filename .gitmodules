@@ -1,0 +1,36 @@
+[submodule "submodules/jupyter-server-documents"]
+	path = submodules/jupyter-server-documents
+	url = https://github.com/jupyter-ai-contrib/jupyter-server-documents.git
+[submodule "submodules/jupyter-ai-router"]
+	path = submodules/jupyter-ai-router
+	url = https://github.com/jupyter-ai-contrib/jupyter-ai-router.git
+[submodule "submodules/jupyter-ai-persona-manager"]
+	path = submodules/jupyter-ai-persona-manager
+	url = https://github.com/jupyter-ai-contrib/jupyter-ai-persona-manager.git
+[submodule "submodules/jupyter-ai-chat-commands"]
+	path = submodules/jupyter-ai-chat-commands
+	url = https://github.com/jupyter-ai-contrib/jupyter-ai-chat-commands.git
+[submodule "submodules/jupyter-ai-acp-client"]
+	path = submodules/jupyter-ai-acp-client
+	url = https://github.com/jupyter-ai-contrib/jupyter-ai-acp-client.git
+[submodule "submodules/jupyter-server-mcp"]
+	path = submodules/jupyter-server-mcp
+	url = https://github.com/jupyter-ai-contrib/jupyter-server-mcp.git
+[submodule "submodules/jupyter-ai-tools"]
+	path = submodules/jupyter-ai-tools
+	url = https://github.com/jupyter-ai-contrib/jupyter-ai-tools.git
+[submodule "submodules/jupyterlab-notebook-awareness"]
+	path = submodules/jupyterlab-notebook-awareness
+	url = https://github.com/jupyter-ai-contrib/jupyterlab-notebook-awareness.git
+[submodule "submodules/jupyterlab-commands-toolkit"]
+	path = submodules/jupyterlab-commands-toolkit
+	url = https://github.com/jupyter-ai-contrib/jupyterlab-commands-toolkit.git
+[submodule "submodules/jupyter-ai-litellm"]
+	path = submodules/jupyter-ai-litellm
+	url = https://github.com/jupyter-ai-contrib/jupyter-ai-litellm.git
+[submodule "submodules/jupyter-ai-magic-commands"]
+	path = submodules/jupyter-ai-magic-commands
+	url = https://github.com/jupyter-ai-contrib/jupyter-ai-magic-commands.git
+[submodule "submodules/jupyter-ai-jupyternaut"]
+	path = submodules/jupyter-ai-jupyternaut
+	url = https://github.com/jupyter-ai-contrib/jupyter-ai-jupyternaut.git

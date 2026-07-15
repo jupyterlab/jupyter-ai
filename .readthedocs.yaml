@@ -10,6 +10,13 @@ build:
     python: "3.11"
   apt_packages:
     - pandoc
+  jobs:
+    # Initialise the documentation submodules ourselves, sparse-checked-out to
+    # each subpackage's docs/ only. We intentionally do NOT set a `submodules:`
+    # key below, because RTD's native submodule support cannot do a sparse
+    # checkout. See scripts/rtd-post-checkout.sh for details.
+    post_checkout:
+      - bash scripts/rtd-post-checkout.sh
 
 sphinx:
   configuration: docs/source/conf.py

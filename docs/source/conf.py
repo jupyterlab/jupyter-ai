@@ -1,6 +1,11 @@
 # Configuration file for the Sphinx documentation builder.
 
+import os
+import sys
 import time
+
+# Make the local Sphinx extensions in docs/source/_ext importable.
+sys.path.insert(0, os.path.abspath("_ext"))
 
 project = "Jupyter AI"
 copyright = f"© 2023–{time.localtime().tm_year}, Project Jupyter"
@@ -9,7 +14,16 @@ html_title = "Jupyter AI"
 
 # -- General configuration ---------------------------------------------------
 
-extensions = ["myst_parser", "sphinx_design", "sphinx_tabs.tabs", "sphinx_copybutton"]
+extensions = [
+    "myst_parser",
+    "sphinx_design",
+    "sphinx_tabs.tabs",
+    "sphinx_copybutton",
+    # Aggregates each subpackage's docs/source/{contributors,developers}/ from
+    # its submodule under submodules/<repo>/ into this build. See
+    # docs/source/_ext/subpackage_docs.py.
+    "subpackage_docs",
+]
 myst_enable_extensions = ["colon_fence"]
 
 templates_path = ["_templates"]

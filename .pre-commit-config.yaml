@@ -13,7 +13,6 @@ repos:
       - id: check-yaml
         exclude: ^packages/jupyter-ai-module-cookiecutter
       - id: debug-statements
-      - id: forbid-new-submodules
       - id: check-builtin-literals
       - id: trailing-whitespace
 
