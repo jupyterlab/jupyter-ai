@@ -1,4 +1,4 @@
-__version__ = "3.1.0b1"
+__version__ = "3.1.0b2"
 
 DEFAULT_JUPYTER_SERVER_MCP_TOOLS = [
     # notebook toolkit
