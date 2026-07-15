@@ -23,4 +23,10 @@ sphinx:
 
 python:
   install:
-    - requirements: docs/requirements.txt
+    # Install jupyter-ai with its `docs` extra — the single source of truth for
+    # documentation build dependencies (see [project.optional-dependencies] in
+    # pyproject.toml).
+    - method: pip
+      path: .
+      extra_requirements:
+        - docs

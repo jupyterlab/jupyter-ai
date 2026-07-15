@@ -1,5 +1,0 @@
-myst_parser
-shibuya
-sphinx-copybutton
-sphinx-design
-sphinx-tabs
