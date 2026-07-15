@@ -43,6 +43,17 @@ dependencies = [
 [project.optional-dependencies]
 magics = ["jupyter_ai_litellm>=0.0.2,<0.1.0", "jupyter_ai_magic_commands>=0.0.3,<0.1.0"]
 jupyternaut = ["jupyter_ai_litellm>=0.0.2,<0.1.0", "jupyter_ai_jupyternaut>=0.0.11,<0.1.0"]
+# Everything needed to build the documentation (`sphinx-build docs/source`).
+# This is the single source of truth for docs dependencies, used by both Read
+# the Docs (see .readthedocs.yaml) and the docs CI workflow.
+docs = [
+  "sphinx",
+  "myst_parser",
+  "shibuya",
+  "sphinx-copybutton",
+  "sphinx-design",
+  "sphinx-tabs",
+]
 
 [project.urls]
 Documentation = "https://jupyter-ai.readthedocs.io/en/v3/"
