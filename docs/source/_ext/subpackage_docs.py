@@ -14,9 +14,10 @@ Sphinx build as versioned subpages::
     submodules/<repo>/docs/source/developers/    ->  developers/<repo>/
 
 The full subtree is copied (so a subpackage may ship nested pages + images),
-and each subpackage's own ``index`` H1 becomes its subpage title. A hidden
+and each subpackage's own ``index`` H1 becomes its subpage title. A
 ``{toctree}`` entry is then injected into the matching aggregation page
-(``contributors/index`` or ``developers/index``).
+(``contributors/index`` or ``developers/index``) so the subpage appears in that
+section's sidebar navigation.
 
 Rollout is gradual: most subpackages do not define these docs yet, so most
 submodules contribute nothing and the build renders no new pages. A subpackage
@@ -106,12 +107,13 @@ def _stage_subpackage_docs(app: Sphinx) -> None:
 
 
 def _inject_subpackage_toctrees(app: Sphinx, docname: str, source: list[str]) -> None:
-    """Append a hidden toctree of staged subpages to each aggregation index.
+    """Append a toctree of staged subpages to each aggregation index.
 
     Runs on ``source-read``. When Sphinx reads ``contributors/index`` or
-    ``developers/index``, append a hidden ``{toctree}`` listing the subpages
-    staged for that section. Each subpackage's own ``index`` H1 supplies the
-    nav title.
+    ``developers/index``, append a ``{toctree}`` listing the subpages staged for
+    that section. Each subpackage's own ``index`` H1 supplies the nav title. The
+    toctree is not ``:hidden:`` so the subpackages surface both in the section's
+    sidebar navigation and as a "Subpackages" list on the index page itself.
     """
     staged = getattr(app, "_subpackage_docs_staged", {})
     for section in AGGREGATION_SECTIONS:
@@ -122,7 +124,8 @@ def _inject_subpackage_toctrees(app: Sphinx, docname: str, source: list[str]) ->
             return
         entries = "\n".join(f"{repo}/index" for repo in repos)
         source[0] += (
-            "\n\n```{toctree}\n:hidden:\n:caption: Subpackages\n\n" f"{entries}\n```\n"
+            "\n\n```{toctree}\n:caption: Subpackages\n:maxdepth: 1\n\n"
+            f"{entries}\n```\n"
         )
 
 

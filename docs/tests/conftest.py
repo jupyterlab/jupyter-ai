@@ -19,6 +19,7 @@ extension locates ``submodules/`` exactly as it does in the real build
 from __future__ import annotations
 
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -30,8 +31,11 @@ _TESTS_DIR = Path(__file__).resolve().parent
 _REAL_SOURCE = _TESTS_DIR.parent / "source"
 _EXT_DIR = _REAL_SOURCE / "_ext"
 
-# A minimal conf.py that loads only what the aggregation needs: MyST (for the
-# Markdown fixtures) and the subpackage_docs extension under test.
+# A minimal conf.py for the fixtures. It uses the real site theme (shibuya) so
+# the tests exercise the actual sidebar-navigation rendering — a page-local
+# toctree can render in the page body while still failing to appear in the
+# global nav, so a body-only assertion (e.g. under the "basic" theme) would miss
+# that regression.
 _CONF_PY = """
 import os
 import sys
@@ -42,7 +46,7 @@ project = "Test Site"
 extensions = ["myst_parser", "subpackage_docs"]
 myst_enable_extensions = ["colon_fence"]
 exclude_patterns = []
-html_theme = "basic"
+html_theme = "shibuya"
 """
 
 # Root index tying the two aggregation pages into the doctree.
@@ -85,6 +89,18 @@ class Build:
 
     def exists(self, docpath: str) -> bool:
         return (self.outdir / f"{docpath}.html").is_file()
+
+    def nav_hrefs(self, docpath: str) -> list[str]:
+        """Return the sidebar navigation (toctree) hrefs on a rendered page.
+
+        These are the links the theme renders in its `toctree-l*` nav tree — i.e.
+        what a reader can actually click to navigate, as opposed to links that
+        merely appear in the page body or in `<head>` rel-links.
+        """
+        html = self.html(docpath)
+        return re.findall(
+            r'class="toctree-l\d[^"]*"[^>]*>\s*<a[^>]*href="([^"]+)"', html
+        )
 
 
 @pytest.fixture
