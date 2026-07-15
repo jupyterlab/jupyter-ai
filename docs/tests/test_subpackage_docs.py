@@ -41,14 +41,15 @@ def test_contributors_only(make_site):
     # Subpage rendered and its H1 present.
     assert build.exists("contributors/my-contrib/index")
     assert "My Contrib Guide" in build.html("contributors/my-contrib/index")
-    # Nav entry injected into the Contributing index (links to the subpage).
-    assert "my-contrib/index.html" in build.html("contributors/index")
+    # The subpage must be reachable from the Contributing index via the sidebar
+    # navigation (not merely present in the body / <head> rel-links) — this is
+    # what makes it clickable from contributors/index.
+    assert "my-contrib/index.html" in build.nav_hrefs("contributors/index")
 
-    # Not staged under Developers, and the Developers index has no toctree link
-    # to it. (The title may appear in the global nav sidebar on every page; we
-    # assert on the staged path, which is unambiguous.)
+    # It must not be staged under Developers. (The global sidebar shows every
+    # section on every page, so we check it was not aggregated into the
+    # developers/ tree, i.e. no developers/my-contrib page exists.)
     assert not build.exists("developers/my-contrib/index")
-    assert "developers/my-contrib" not in build.html("developers/index")
 
 
 def test_developers_only(make_site):
@@ -62,10 +63,9 @@ def test_developers_only(make_site):
 
     assert build.exists("developers/my-dev/index")
     assert "My Dev API" in build.html("developers/my-dev/index")
-    assert "my-dev/index.html" in build.html("developers/index")
+    assert "my-dev/index.html" in build.nav_hrefs("developers/index")
 
     assert not build.exists("contributors/my-dev/index")
-    assert "contributors/my-dev" not in build.html("contributors/index")
 
 
 def test_both_sections(make_site):
@@ -81,9 +81,9 @@ def test_both_sections(make_site):
     assert build.returncode == 0, build.stderr
 
     assert "Full Pkg Contributing" in build.html("contributors/full-pkg/index")
-    assert "full-pkg/index.html" in build.html("contributors/index")
+    assert "full-pkg/index.html" in build.nav_hrefs("contributors/index")
     assert "Full Pkg Developing" in build.html("developers/full-pkg/index")
-    assert "full-pkg/index.html" in build.html("developers/index")
+    assert "full-pkg/index.html" in build.nav_hrefs("developers/index")
 
 
 def test_neither_and_missing_index_skipped(make_site):
@@ -144,8 +144,10 @@ def test_full_subtree_with_nested_page_and_image(make_site):
     assert "Nested Page" in build.html("contributors/rich-pkg/subdir/nested")
     # The image was copied into the build output.
     assert (build.outdir / "_images").is_dir()
-    # Nav entry for the subpackage present on the aggregation index.
-    assert "rich-pkg/index.html" in build.html("contributors/index")
+    # Nav entry for the subpackage present in the aggregation index sidebar,
+    # and the nested page reachable from the subpackage's own index sidebar.
+    assert "rich-pkg/index.html" in build.nav_hrefs("contributors/index")
+    assert "subdir/nested.html" in build.nav_hrefs("contributors/rich-pkg/index")
 
 
 def test_baseline_no_submodules(make_site):
