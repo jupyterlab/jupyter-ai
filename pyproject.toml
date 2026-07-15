@@ -53,6 +53,10 @@ docs = [
   "sphinx-copybutton",
   "sphinx-design",
   "sphinx-tabs",
+  # Auto-generated subpackage API reference. autodoc/napoleon/linkcode are
+  # Sphinx core (no dep); autodoc_pydantic is third-party and renders the
+  # Pydantic model docs. See docs/source/_ext/autodoc_subpackages.py.
+  "autodoc_pydantic",
 ]
 
 [project.urls]
