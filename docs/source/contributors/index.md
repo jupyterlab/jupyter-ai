@@ -315,14 +315,6 @@ yet. See `jupyter-ai-persona-manager` for a complete example.
   synthesized fixtures to verify the aggregation, and the **Docs build system**
   CI workflow runs them on any change to the docs build system.
 
-```{note}
-Serving `stable` by default is a one-time setting in the Read the Docs project
-dashboard (not the repo): set **Admin → Settings → Default version** to `stable`,
-and add an **Admin → Automation Rules** rule matching *SemVer versions* with the
-*Activate version* action so each release tag builds on its own. Read the Docs
-computes `stable` from the tags automatically thereafter.
-```
-
 
 ## Testing
 
