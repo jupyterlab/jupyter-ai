@@ -232,6 +232,51 @@ Notes:
 - Only these two directories are aggregated. Everything else in the subpackage's
   `docs/` is ignored by the main site.
 
+#### Auto-generating an API reference
+
+Subpackage docs can pull a Python API reference **straight from source** instead
+of hand-writing it, using Sphinx autodoc directives inside an `{eval-rst}` block:
+
+````markdown
+```{eval-rst}
+.. autoclass:: my_package.MyClass
+   :members:
+
+.. autopydantic_model:: my_package.MyModel
+```
+````
+
+The docs build bundles `sphinx.ext.autodoc`, `napoleon`, `linkcode`, and
+`autodoc_pydantic` (see `docs/source/_ext/autodoc_subpackages.py`), so signatures,
+type hints, docstrings, and Pydantic model fields are generated automatically —
+and every documented object gets a **`[source]` link to the exact lines on
+GitHub**, with no per-object URL maintained by hand. (For this to work the
+subpackage must be importable in the docs build; `jupyter-ai` already installs
+its subpackages.)
+
+**Marking an API contract.** To classify a class's members — what a subclass
+*must* implement vs. what the base class provides — mark each public member with
+a **documentation marker** and render the grouped reference with the
+`contract-api` directive:
+
+````markdown
+```{eval-rst}
+.. contract-api:: my_package.MyClass
+```
+````
+
+The markers live in a small, dependency-free `doc_markers.py` module
+(`jupyter_ai_persona_manager` has the reference copy). They are
+**documentation-only** — each `mark_*` decorator (`mark_required`,
+`mark_recommended`, `mark_optional`, `mark_subclass_api`, `mark_consumer_api`)
+just stamps metadata and returns the function unchanged. The `contract-api`
+directive reads those markers to group members into Required / Recommended /
+Optional / Available-to-subclasses / Available-to-consumers sections, each with a
+badge and source link. Pair it with a CI test that fails if any public member is
+unmarked, so the classification can't drift from the code. **To use this in
+another package, copy `doc_markers.py` over** — there is no shared home for it
+yet. See `jupyter-ai-persona-manager` for a complete example.
+
 #### How it works (infrastructure in `jupyter-ai`)
 
 - Each subpackage repo is vendored into `jupyter-ai` as a **git submodule** under

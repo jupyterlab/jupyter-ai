@@ -23,6 +23,10 @@ extensions = [
     # its submodule under submodules/<repo>/ into this build. See
     # docs/source/_ext/subpackage_docs.py.
     "subpackage_docs",
+    # Enables auto-generated API reference in subpackage docs: bundles
+    # autodoc + napoleon + linkcode + autodoc_pydantic and wires up a
+    # manifest-driven GitHub linkcode_resolve. See _ext/autodoc_subpackages.py.
+    "autodoc_subpackages",
 ]
 myst_enable_extensions = ["colon_fence"]
 
