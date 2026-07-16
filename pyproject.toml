@@ -60,7 +60,7 @@ docs = [
 ]
 
 [project.urls]
-Documentation = "https://jupyter-ai.readthedocs.io/en/v3/"
+Documentation = "https://jupyter-ai.readthedocs.io/en/stable/"
 Source = "https://github.com/jupyterlab/jupyter-ai"
 Tracker = "https://github.com/jupyterlab/jupyter-ai/issues"
 
@@ -69,3 +69,12 @@ path = "jupyter_ai/__init__.py"
 
 [project.entry-points."jupyter_server_mcp.tools"]
 jupyter_ai = "jupyter_ai:DEFAULT_JUPYTER_SERVER_MCP_TOOLS"
+
+[tool.jupyter-releaser.hooks]
+# During "Step 1: Prep Release", after the version is bumped and before the
+# release is committed and tagged, freeze the documentation submodules to the
+# released tags matching this version's dependency ranges. Between releases the
+# submodules track each subpackage's `main` (freshest docs on the `latest`
+# site); the release tag captures a frozen snapshot for the `stable` site. See
+# scripts/freeze-doc-submodules.sh.
+after-bump-version = ["bash scripts/freeze-doc-submodules.sh"]

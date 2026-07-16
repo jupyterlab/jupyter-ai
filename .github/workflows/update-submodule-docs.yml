@@ -1,18 +1,24 @@
 name: Update submodule documentation
 
-# Manually-triggered wrapper around scripts/update-doc-submodules.sh. It
-# re-pins every documentation submodule to the latest tag matching its version
-# range in pyproject.toml (PEP 440 semantics via the `packaging` library) and
-# opens a PR with the result. This is the same script that seeded the submodules
-# originally, so a manual run and the seed PR stay consistent.
+# Refreshes the documentation submodules so the `latest` docs (built from this
+# repo's `main`) always track each subpackage's newest docs. It runs
+# scripts/update-doc-submodules.sh in its default `main` mode — pinning every
+# submodule to its default-branch HEAD — and commits the result directly to
+# `main`. No subpackage release is required for its docs to appear on `latest`.
 #
-# The branch push and PR are created with the built-in `gh` CLI using the
-# ephemeral GITHUB_TOKEN, so no third-party action ever holds write credentials.
+# (Release tags get a frozen snapshot instead, via the after-bump-version hook
+# in pyproject.toml; see scripts/freeze-doc-submodules.sh.)
+#
+# Runs on a daily schedule and on demand. The commit is pushed with the built-in
+# ephemeral GITHUB_TOKEN, so no third-party action holds write credentials.
 
 on:
   workflow_dispatch:
+  schedule:
+    # Daily at 06:00 UTC.
+    - cron: "0 6 * * *"
 
-# Only one repin run at a time; a newer dispatch supersedes an in-flight one.
+# Only one repin run at a time; a newer run supersedes an in-flight one.
 concurrency:
   group: update-submodule-docs
   cancel-in-progress: true
@@ -21,18 +27,17 @@ permissions: {}
 
 jobs:
   update-submodules:
-    name: Re-pin documentation submodules and open PR
+    name: Re-pin documentation submodules to subpackage main
     runs-on: ubuntu-latest
     permissions:
-      contents: write # push the update branch to this repo
-      pull-requests: write # open the PR with the updated pins
+      contents: write # commit the refreshed pins to main
     steps:
       - name: Checkout
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
-          # We need a full checkout with submodule config so the script can move
-          # the gitlinks. We do NOT persist the checkout credentials; the push
-          # below authenticates explicitly with the ephemeral GITHUB_TOKEN.
+          # Full checkout with submodule config so the script can move the
+          # gitlinks. Credentials are not persisted; the push below authenticates
+          # explicitly with the ephemeral GITHUB_TOKEN.
           persist-credentials: false
           submodules: true
           fetch-depth: 0
@@ -45,42 +50,24 @@ jobs:
       - name: Install resolver dependencies
         run: pip install packaging
 
-      - name: Re-pin documentation submodules
-        run: bash scripts/update-doc-submodules.sh
+      - name: Re-pin documentation submodules to subpackage main
+        run: bash scripts/update-doc-submodules.sh --mode main
 
-      - name: Open pull request
+      - name: Commit to main
         env:
           GH_TOKEN: ${{ github.token }}
-          BRANCH: update-submodule-docs
         run: |
           set -euo pipefail
 
-          # Nothing changed → nothing to open.
           if git diff --quiet && git diff --cached --quiet; then
-            echo "No submodule pin changes; skipping PR."
+            echo "No submodule pin changes; nothing to commit."
             exit 0
           fi
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "docs: refresh submodule documentation to subpackage main"
 
-          git checkout -B "$BRANCH"
-          git commit -am "docs: update submodule documentation pins"
-
-          # Authenticate the push with the ephemeral workflow token.
-          git push --force-with-lease \
+          git push \
             "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" \
-            "HEAD:refs/heads/${BRANCH}"
-
-          # Create the PR if one is not already open for this branch.
-          if [ -z "$(gh pr list --head "$BRANCH" --state open --json number --jq '.[].number')" ]; then
-            gh pr create \
-              --head "$BRANCH" \
-              --title "docs: update submodule documentation pins" \
-              --label documentation \
-              --body "Automated update of the documentation submodule pins by the **Update submodule documentation** workflow.
-
-          Each submodule under \`submodules/\` has been re-pinned to the latest git tag matching its version range in \`pyproject.toml\` (see \`scripts/update-doc-submodules.sh\`)."
-          else
-            echo "PR for $BRANCH already open; pushed updated pins to it."
-          fi
+            "HEAD:${GITHUB_REF_NAME}"

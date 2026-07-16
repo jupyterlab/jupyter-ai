@@ -1,33 +1,36 @@
 #!/usr/bin/env bash
 #
-# update-doc-submodules.sh
+# update-doc-submodules.sh [--mode main|release]
 #
-# Pins every documentation submodule listed in submodules/manifest.json to the
-# latest git tag that satisfies the corresponding package's version range in
-# jupyter-ai's pyproject.toml, and sparse-checks-out each submodule to docs/.
+# Pins every documentation submodule listed in submodules/manifest.json and
+# sparse-checks-out each to docs/. Has two modes (see
+# scripts/_resolve_doc_submodules.py for the full rationale):
 #
-# This is the single source of truth for submodule pinning. It is run:
-#   * once, to seed the submodules in the infrastructure PR, and
-#   * on demand via the "Update submodule documentation" GitHub workflow
-#     (workflow_dispatch), which runs it and opens a PR with the result.
+#   --mode main (default)
+#       Pin every submodule to its default-branch HEAD. Used by the routine
+#       "update submodule documentation" workflow so the `latest` docs (built
+#       from jupyter-ai's main) always show each subpackage's newest docs — no
+#       subpackage release required.
 #
-# Version resolution follows pip / PEP 440 semantics via the `packaging`
-# library (SpecifierSet.filter), so pre-releases are excluded for a stable
-# range like ">=0.6.0,<0.7.0" but included for a pre-release range like
-# ">=0.23.0a2,<0.24". Tags across the jupyter-ai-contrib repos are uniformly
-# "v"-prefixed PEP 440 versions (e.g. v0.6.0, v0.2.0b0); the leading "v" is
-# stripped before parsing.
+#   --mode release
+#       Pin each submodule to the latest tag matching that package's version
+#       range in pyproject.toml (pip / PEP 440 semantics). Used by the release
+#       hook (see scripts/freeze-doc-submodules.sh) so a jupyter-ai release tag
+#       captures a coherent, frozen snapshot of the subpackage docs.
 #
-# A submodule whose range matches no published tag (e.g. a package that has
-# not cut a release yet) is pinned to its default branch HEAD instead, and a
-# warning is emitted. The build still succeeds; docs simply track the tip until
-# a matching tag exists.
+# This is the single source of truth for submodule pinning; it also seeded the
+# submodules originally.
 #
 # Requirements: git, python3 with the `packaging` library (and `tomllib` on
 # Python 3.11+, or `tomli` on 3.10). All of these are available in the docs /
 # CI environment.
 
 set -euo pipefail
+
+MODE="main"
+if [[ "${1:-}" == "--mode" ]]; then
+  MODE="${2:-main}"
+fi
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
@@ -40,11 +43,10 @@ if [[ ! -f "$MANIFEST" ]]; then
   exit 1
 fi
 
-# Resolve the pin plan in Python: for each manifest entry, read the package's
-# range from pyproject.toml, list the remote's tags, and pick the winning ref.
-# Emits one tab-separated row per submodule: path <TAB> url <TAB> ref <TAB> kind
-# where kind is "tag" or "branch". Human-readable progress goes to stderr.
-PLAN="$(python3 scripts/_resolve_doc_submodules.py "$MANIFEST" "$PYPROJECT")"
+# Resolve the pin plan in Python. Emits one tab-separated row per submodule:
+# path <TAB> url <TAB> ref <TAB> kind  (kind is "tag" or "branch"). Human-
+# readable progress goes to stderr.
+PLAN="$(python3 scripts/_resolve_doc_submodules.py "$MANIFEST" "$PYPROJECT" --mode "$MODE")"
 
 if [[ -z "$PLAN" ]]; then
   echo "error: resolver produced no plan" >&2
