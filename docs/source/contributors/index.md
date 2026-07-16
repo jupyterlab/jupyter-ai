@@ -284,12 +284,23 @@ yet. See `jupyter-ai-persona-manager` for a complete example.
   to `docs/` only. The registry of submodules lives in
   `submodules/manifest.json` (a `"pypi_name": "org/repo"` map), which also serves
   as a visible map of what Jupyter AI is composed of.
-- Submodules are pinned to the **latest release tag matching each package's
-  version range** in `jupyter-ai`'s `pyproject.toml`, following pip / PEP 440
-  semantics. Repinning is done by `scripts/update-doc-submodules.sh`, wrapped by
-  the **Update submodule documentation** GitHub workflow (`workflow_dispatch`),
-  which opens a PR with the updated pins. Maintainers run it when subpackages cut
-  releases with new docs.
+- How submodules are pinned depends on which version of the site is building,
+  so the docs move the way you'd expect:
+  - On **`main`** (the `latest` docs), each submodule tracks its subpackage's
+    **`main`** branch. The **Update submodule documentation** workflow refreshes
+    these pins daily (and on demand) and commits straight to `main`, so a
+    subpackage's newest docs appear on `latest` without waiting for a release.
+  - On a **release tag** (the `stable` docs), each submodule is frozen to the
+    **released tag matching that package's version range** in `pyproject.toml`
+    (pip / PEP 440 semantics), so a release captures a coherent snapshot. This
+    freeze runs automatically during `jupyter-releaser`'s prep step, via the
+    `after-bump-version` hook (`scripts/freeze-doc-submodules.sh`), and lands in
+    the release commit.
+
+  Both paths share one script, `scripts/update-doc-submodules.sh` (`--mode main`
+  vs `--mode release`). Read the Docs is configured to serve **`stable`** — the
+  highest non-prerelease tag — by default, so users see the latest released docs
+  and pre-releases never become the default.
 - On Read the Docs, `scripts/rtd-post-checkout.sh` (wired via
   `build.jobs.post_checkout` in `.readthedocs.yaml`) initialises each submodule
   sparsely to `docs/`. RTD's native `submodules:` support is intentionally not
@@ -303,6 +314,14 @@ yet. See `jupyter-ai-persona-manager` for a complete example.
 - Integration tests in `docs/tests/` run a real `sphinx-build` against
   synthesized fixtures to verify the aggregation, and the **Docs build system**
   CI workflow runs them on any change to the docs build system.
+
+```{note}
+Serving `stable` by default is a one-time setting in the Read the Docs project
+dashboard (not the repo): set **Admin → Settings → Default version** to `stable`,
+and add an **Admin → Automation Rules** rule matching *SemVer versions* with the
+*Activate version* action so each release tag builds on its own. Read the Docs
+computes `stable` from the tags automatically thereafter.
+```
 
 
 ## Testing

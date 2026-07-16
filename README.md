@@ -14,11 +14,11 @@ Jupyter AI is designed to be flexible and extensible. You can add custom [MCP se
 
 ## Quick Links
 
-- [Getting Started](https://jupyter-ai.readthedocs.io/en/latest/getting-started.html) — installation, agent setup, and first chat
-- [User Guide](https://jupyter-ai.readthedocs.io/en/latest/users/index.html) — chat features, notebook tools, and custom MCP servers
-- [Contributor Guide](https://jupyter-ai.readthedocs.io/en/latest/contributors/index.html) — how to contribute to Jupyter AI
-- [Developer Guide](https://jupyter-ai.readthedocs.io/en/latest/developers/index.html) — building custom agents and MCP servers
-- [Troubleshooting](https://jupyter-ai.readthedocs.io/en/latest/users/troubleshooting.html) — common issues and solutions
+- [Getting Started](https://jupyter-ai.readthedocs.io/en/stable/getting-started.html) — installation, agent setup, and first chat
+- [User Guide](https://jupyter-ai.readthedocs.io/en/stable/users/index.html) — chat features, notebook tools, and custom MCP servers
+- [Contributor Guide](https://jupyter-ai.readthedocs.io/en/stable/contributors/index.html) — how to contribute to Jupyter AI
+- [Developer Guide](https://jupyter-ai.readthedocs.io/en/stable/developers/index.html) — building custom agents and MCP servers
+- [Troubleshooting](https://jupyter-ai.readthedocs.io/en/stable/users/troubleshooting.html) — common issues and solutions
 
 ## Governance
 

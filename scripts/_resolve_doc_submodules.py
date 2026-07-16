@@ -2,24 +2,34 @@
 """Resolve the pin target for each documentation submodule.
 
 Given the submodule manifest and jupyter-ai's ``pyproject.toml``, this script
-decides which git ref every submodule should be pinned to, following pip /
-PEP 440 semantics.
+decides which git ref every submodule should be pinned to. It has two modes,
+matching how the docs are meant to move:
 
-For each ``"pypi_name": "org/repo"`` entry in the manifest:
+``main`` (default)
+    Pin every submodule to its **default-branch HEAD**. This is what the routine
+    "update submodule documentation" job uses so the ``latest`` docs (built from
+    jupyter-ai's ``main``) always show each subpackage's newest, possibly
+    unreleased docs — no release required.
 
-* The submodule path is ``submodules/<repo>`` (the part after the ``/``).
-* The version range is looked up from ``pyproject.toml`` by ``pypi_name``,
-  searching both ``[project].dependencies`` and every
-  ``[project.optional-dependencies]`` group (so the ``magics`` / ``jupyternaut``
-  extras are covered).
-* The repo's tags are listed with ``git ls-remote`` over anonymous HTTPS.
-  Tags are uniformly ``v``-prefixed PEP 440 versions; the ``v`` is stripped
-  before parsing and non-PEP-440 tags are ignored.
-* ``SpecifierSet(range).filter(versions)`` selects the candidates (this is the
-  library pip itself uses, so pre-release handling matches pip exactly), and
-  the maximum is the winner.
-* If no tag matches (e.g. the package has not cut a matching release yet), the
-  submodule is pinned to its default-branch HEAD and a warning is emitted.
+``release``
+    Pin each submodule to the latest git tag satisfying that package's version
+    range in ``pyproject.toml``, following pip / PEP 440 semantics. This is what
+    the release hook uses so a release tag captures a **coherent, frozen**
+    snapshot of the subpackage docs that ship with that jupyter-ai version.
+
+    * The version range is looked up by ``pypi_name`` across
+      ``[project].dependencies`` and every ``[project.optional-dependencies]``
+      group (so the ``magics`` / ``jupyternaut`` extras are covered).
+    * Tags are listed with ``git ls-remote`` over anonymous HTTPS. They are
+      uniformly ``v``-prefixed PEP 440 versions; the ``v`` is stripped before
+      parsing and non-PEP-440 tags are ignored.
+    * ``SpecifierSet(range).filter(versions)`` selects the candidates (the same
+      library pip uses, so pre-release handling matches pip exactly); the max
+      wins. If nothing matches, that submodule falls back to its default-branch
+      HEAD with a warning.
+
+For each ``"pypi_name": "org/repo"`` entry the submodule path is
+``submodules/<repo>`` (the part after the ``/``).
 
 Output: one tab-separated row per submodule on stdout::
 
@@ -31,6 +41,7 @@ machine-parseable plan for the calling shell script.
 
 from __future__ import annotations
 
+import argparse
 import json
 import subprocess
 import sys
@@ -129,14 +140,25 @@ def resolve_tag(spec_string: str, tags: list[str]) -> str | None:
 
 
 def main() -> int:
-    if len(sys.argv) != 3:
-        log("usage: _resolve_doc_submodules.py <manifest.json> <pyproject.toml>")
-        return 2
-    manifest_path, pyproject_path = sys.argv[1], sys.argv[2]
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("manifest", help="path to submodules/manifest.json")
+    parser.add_argument("pyproject", help="path to pyproject.toml")
+    parser.add_argument(
+        "--mode",
+        choices=("main", "release"),
+        default="main",
+        help=(
+            "main: pin every submodule to its default-branch HEAD (freshest "
+            "docs, for the routine update job). release: pin to the latest tag "
+            "matching each package's pyproject range (frozen snapshot, for the "
+            "release hook). Default: main."
+        ),
+    )
+    args = parser.parse_args()
 
-    with open(manifest_path) as f:
+    with open(args.manifest) as f:
         manifest = json.load(f)
-    ranges = load_ranges(pyproject_path)
+    ranges = load_ranges(args.pyproject) if args.mode == "release" else {}
 
     rows: list[str] = []
     for pypi_name, org_repo in manifest.items():
@@ -144,11 +166,18 @@ def main() -> int:
         path = f"submodules/{repo}"
         url = f"https://github.com/{org_repo}.git"
 
+        if args.mode == "main":
+            branch = default_branch(url)
+            log(f"  {pypi_name}: main -> {branch} HEAD")
+            rows.append(f"{path}\t{url}\t{branch}\tbranch")
+            continue
+
+        # release mode: resolve the tag matching this package's version range.
         spec_string = ranges.get(_norm(pypi_name))
         if spec_string is None:
             log(
                 f"warning: {pypi_name} is in the manifest but not a dependency "
-                f"in {pyproject_path}; skipping"
+                f"in {args.pyproject}; skipping"
             )
             continue
 
