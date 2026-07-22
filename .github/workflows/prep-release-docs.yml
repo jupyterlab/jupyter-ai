@@ -136,12 +136,12 @@ jobs:
               "HEAD:${BRANCH}"
           fi
 
-          # Open a fresh draft PR only if one doesn't already exist for this
-          # branch. A re-run just adds a commit to the open PR. Guard so the job
-          # fails loudly if no PR ends up open — pushing the branch alone must
-          # never count as success.
-          if gh pr view "$BRANCH" --json state --jq .state >/dev/null 2>&1; then
-            PR_URL="$(gh pr view "$BRANCH" --json url --jq .url)"
+          # Reuse the PR for this branch only if one is currently OPEN; a re-run
+          # then just adds a commit to it. `gh pr view` matches closed/merged PRs
+          # too, so we must filter by state explicitly — otherwise a previously
+          # closed PR for this branch name would suppress opening a new one.
+          PR_URL="$(gh pr list --state open --head "$BRANCH" --json url --jq '.[0].url // ""')"
+          if [ -n "$PR_URL" ]; then
             echo "PR already open for ${BRANCH}: ${PR_URL}"
           else
             PR_URL="$(gh pr create \
@@ -154,11 +154,8 @@ jobs:
             echo "Opened draft PR: ${PR_URL}"
           fi
 
-          if [ -z "${PR_URL:-}" ]; then
-            echo "error: no pull request was opened for ${BRANCH}" >&2
-            exit 1
-          fi
-
+          # Fail loudly if no PR ended up open — pushing the branch alone must
+          # never count as success.
           if [ -z "${PR_URL:-}" ]; then
             echo "error: no pull request was opened for ${BRANCH}" >&2
             exit 1
