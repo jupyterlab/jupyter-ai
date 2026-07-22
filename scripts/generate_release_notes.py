@@ -40,6 +40,7 @@ the previous version's floors are read from ``git show <prev_tag>:pyproject.toml
 from __future__ import annotations
 
 import argparse
+import datetime
 import json
 import os
 import re
@@ -163,32 +164,76 @@ def window_start(org_repo: str, prev_tag: str, new_tag: str, auth: str | None) -
     return merge_base_sha
 
 
-def submodule_entry(
+def strip_to_pr_groups(entry: str) -> str:
+    """Keep only the label-grouped PR bullets from a ``get_version_entry`` block.
+
+    ``get_version_entry`` returns a ``## <heading>`` line, a
+    ``([Full Changelog](...))`` link, the ``### Enhancements made`` /
+    ``### Bugs fixed`` / ... groups, then a ``### Contributors to this release``
+    footer. We render our own heading + version-change line + changelog link, and
+    every PR bullet already credits its authors inline, so we drop the heading,
+    the Full Changelog link, and the whole contributors footer — keeping just the
+    grouped PR bullets.
+    """
+    # Cut the contributors footer (and everything after it).
+    entry = re.split(r"\n#{1,6}\s+Contributors to this release", entry, maxsplit=1)[0]
+
+    kept: list[str] = []
+    for line in entry.splitlines():
+        stripped = line.strip()
+        # Drop the top-level "## <heading>" line (### subsection headings, which
+        # don't match this prefix, are kept).
+        if stripped.startswith("## "):
+            continue
+        # Drop the "([Full Changelog](...))" link beneath it.
+        if stripped.lower().startswith("([full changelog]"):
+            continue
+        kept.append(line)
+    return "\n".join(kept).strip()
+
+
+def submodule_section(
     org_repo: str,
-    display: str,
-    since_ref: str | None,
+    repo: str,
+    prev_floor: str | None,
+    new_floor: str,
     new_floor_tag: str,
+    since_ref: str | None,
     branch: str,
     auth: str | None,
 ) -> str:
-    """Build one submodule's changelog block via Jupyter Releaser.
+    """Build one submodule's section.
 
-    Delegates to ``changelog.get_version_entry`` over the window
-    ``since_ref..new_floor_tag`` so the label grouping and contributors list are
-    identical to the releaser's own changelog. ``since_ref`` is the merge-base of
-    the two floors (see window_start), not necessarily the previous-floor tag.
-    The section heading is ``display`` (the submodule name), not a version.
+    The PR bullets come from Jupyter Releaser's ``get_version_entry`` over the
+    window ``since_ref..new_floor_tag`` (same label grouping the releaser uses;
+    ``since_ref`` is the merge-base — see ``window_start``). We wrap them in our
+    own heading — the package name in a code span — with a version-change line
+    and a link to the subpackage's GitHub release page for the new tag.
     """
     entry = changelog.get_version_entry(
         ref=new_floor_tag,
         branch=branch,
         repo=org_repo,
-        version=display,
+        version=new_floor_tag,
         since=since_ref,
         until=new_floor_tag,
         auth=auth,
     )
-    return entry.strip()
+    pr_groups = strip_to_pr_groups(entry.strip())
+
+    releases_url = f"https://github.com/{org_repo}/releases/tag/{new_floor_tag}"
+    changelog_link = f"([See full changelog]({releases_url}))"
+    if prev_floor:
+        summary = f"Upgraded from `v{prev_floor}` → `v{new_floor}`. {changelog_link}"
+    else:
+        summary = f"Added at `v{new_floor}`. {changelog_link}"
+
+    parts = [f"## `{repo}`", summary]
+    # An advanced floor with no user-facing PRs (e.g. only bot/pre-commit PRs,
+    # which get_version_entry filters out) leaves nothing to list.
+    if pr_groups and pr_groups != "No merged PRs":
+        parts.append(pr_groups)
+    return "\n\n".join(parts)
 
 
 def build_page(
@@ -198,8 +243,13 @@ def build_page(
     pyproject_path: str,
     target_branch: str,
     auth: str | None,
+    published_date: str,
 ) -> str:
-    """Assemble the full Markdown page for ``version``."""
+    """Assemble the full Markdown page for ``version``.
+
+    ``published_date`` is a pre-formatted human string (e.g. "July 22, 2026")
+    passed in by the caller so the page is deterministic and testable.
+    """
     version = normalize_version(version)
 
     with open(manifest_path, encoding="utf-8") as f:
@@ -283,22 +333,41 @@ def build_page(
         )
         log(f"  {pypi_name}: {window} (branch {branch})")
 
-        display = f"{repo} ({window})"
         sections.append(
-            submodule_entry(org_repo, display, since_ref, new_floor_tag, branch, auth)
+            submodule_section(
+                org_repo,
+                repo,
+                prev_floor,
+                new_floor,
+                new_floor_tag,
+                since_ref,
+                branch,
+                auth,
+            )
         )
 
+    blurb = (
+        f"These are the auto-generated release notes for Jupyter AI "
+        f"**{version}** from the `{target_branch}` branch, aggregated from the "
+        f"subpackages whose version floors advanced in this release."
+    )
+    if prev_tag is not None:
+        blurb += (
+            f" Each subpackage section covers the pull requests merged between "
+            f"its floor at the previous release ({prev_tag}) and its floor at "
+            f"{version}."
+        )
     header = [
         f"# {version}",
         "",
-        f"Release notes for Jupyter AI **{version}**, aggregated from the "
-        "subpackages whose version floors advanced in this release.",
+        f"*Published on {published_date}.*",
+        "",
+        blurb,
+        "",
+        "CONTRIBUTORS: **Please update this section to include a human-readable "
+        "summary of the changes. See `AGENTS.md` in the `jupyterlab/jupyter-ai` "
+        "repo for more information.**",
     ]
-    if prev_tag is not None:
-        header.append(
-            f"Each subpackage section covers the pull requests merged between its "
-            f"floor at the previous release ({prev_tag}) and its floor at {version}."
-        )
     body = ["\n".join(header)]
 
     if sections:
@@ -402,6 +471,13 @@ def main() -> int:
         "--output-dir", help="releases dir (default: <repo-root>/docs/source/releases)"
     )
     parser.add_argument(
+        "--date",
+        help=(
+            "publication date to stamp on the page, as YYYY-MM-DD "
+            "(default: today). Rendered as e.g. 'July 22, 2026'."
+        ),
+    )
+    parser.add_argument(
         "--stdout",
         action="store_true",
         help="print the page to stdout instead of writing files (preview)",
@@ -421,8 +497,23 @@ def main() -> int:
             "warning: no GITHUB_TOKEN/GH_TOKEN set; GitHub API calls may be rate-limited"
         )
 
+    if args.date:
+        published = datetime.date.fromisoformat(args.date)
+    else:
+        published = datetime.date.today()
+    # Cross-platform "July 22, 2026" (no %-d / %#d portability worries).
+    published_date = f"{published:%B} {published.day}, {published.year}"
+
     version = normalize_version(args.version)
-    page = build_page(version, repo_root, manifest, pyproject, args.target_branch, auth)
+    page = build_page(
+        version,
+        repo_root,
+        manifest,
+        pyproject,
+        args.target_branch,
+        auth,
+        published_date,
+    )
 
     if args.stdout:
         print(page)

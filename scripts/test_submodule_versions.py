@@ -129,6 +129,161 @@ def test_normalize_version_adds_v_prefix():
     assert gen.normalize_version("  3.0.4 ") == "v3.0.4"
 
 
+# A representative get_version_entry() block: heading, Full Changelog link,
+# grouped PR bullets, and the contributors footer we drop.
+_ENTRY = """## v0.3.0
+
+([Full Changelog](https://github.com/org/repo/compare/v0.2.5...v0.3.0))
+
+### Enhancements made
+
+- Add a thing [#10](https://github.com/org/repo/pull/10) ([@a](https://github.com/a))
+
+### Bugs fixed
+
+- Fix a thing [#11](https://github.com/org/repo/pull/11) ([@b](https://github.com/b))
+
+### Contributors to this release
+
+The following people contributed discussions, new ideas, code and documentation contributions, and review.
+See [our definition of contributors](https://github-activity.readthedocs.io/).
+
+([GitHub contributors page for this release](https://github.com/org/repo/graphs/contributors))
+
+@a ([activity](https://x)) | @b ([activity](https://y))"""
+
+
+def test_strip_to_pr_groups_drops_heading_link_and_contributors():
+    out = gen.strip_to_pr_groups(_ENTRY)
+    # PR groups kept
+    assert "### Enhancements made" in out
+    assert "- Add a thing [#10]" in out
+    assert "### Bugs fixed" in out
+    # Heading, Full Changelog link, and contributors footer removed
+    assert "## v0.3.0" not in out
+    assert "Full Changelog" not in out
+    assert "Contributors to this release" not in out
+    assert "@a (" not in out
+    assert "graphs/contributors" not in out
+
+
+def test_strip_to_pr_groups_keeps_subsection_headings():
+    # ### headings must survive; only the top-level ## heading is dropped.
+    out = gen.strip_to_pr_groups(_ENTRY)
+    assert out.count("###") == 2
+
+
+def test_submodule_section_format(monkeypatch):
+    monkeypatch.setattr(gen.changelog, "get_version_entry", lambda **k: _ENTRY)
+    section = gen.submodule_section(
+        org_repo="org/repo",
+        repo="repo",
+        prev_floor="0.2.5",
+        new_floor="0.3.0",
+        new_floor_tag="v0.3.0",
+        since_ref="v0.2.5",
+        branch="main",
+        auth="tok",
+    )
+    lines = section.splitlines()
+    assert lines[0] == "## `repo`"
+    assert (
+        "Upgraded from `v0.2.5` → `v0.3.0`. "
+        "([See full changelog](https://github.com/org/repo/releases/tag/v0.3.0))"
+    ) in section
+    # PR groups present; contributors footer gone.
+    assert "- Add a thing [#10]" in section
+    assert "Contributors to this release" not in section
+
+
+def test_submodule_section_added_when_no_prev_floor(monkeypatch):
+    monkeypatch.setattr(gen.changelog, "get_version_entry", lambda **k: _ENTRY)
+    section = gen.submodule_section(
+        org_repo="org/repo",
+        repo="repo",
+        prev_floor=None,
+        new_floor="0.3.0",
+        new_floor_tag="v0.3.0",
+        since_ref=None,
+        branch="main",
+        auth="tok",
+    )
+    assert "Added at `v0.3.0`." in section
+    assert "Upgraded from" not in section
+
+
+def test_submodule_section_omits_empty_pr_body(monkeypatch):
+    monkeypatch.setattr(
+        gen.changelog, "get_version_entry", lambda **k: "## v0.3.0\n\nNo merged PRs"
+    )
+    section = gen.submodule_section(
+        org_repo="org/repo",
+        repo="repo",
+        prev_floor="0.2.5",
+        new_floor="0.3.0",
+        new_floor_tag="v0.3.0",
+        since_ref="v0.2.5",
+        branch="main",
+        auth="tok",
+    )
+    # Heading + summary only; no dangling "No merged PRs".
+    assert "## `repo`" in section
+    assert "No merged PRs" not in section
+
+
+def test_build_page_header(monkeypatch, tmp_path):
+    # No network: stub the previous-release lookup, tag/branch resolution, and
+    # each submodule section.
+    monkeypatch.setattr(gen, "previous_release_tag", lambda *a, **k: "v3.0.1")
+    monkeypatch.setattr(gen, "show_file_at", lambda *a, **k: PREV_PYPROJECT)
+    monkeypatch.setattr(gen, "list_tags", lambda url: ["v0.0.5", "v0.0.6"])
+    monkeypatch.setattr(gen, "default_branch", lambda url: "main")
+    monkeypatch.setattr(gen, "window_start", lambda *a, **k: "v0.0.5")
+    monkeypatch.setattr(
+        gen,
+        "submodule_section",
+        lambda org_repo, repo, *a, **k: f"## `{repo}`\n\nUpgraded stub.",
+    )
+    manifest = tmp_path / "manifest.json"
+    manifest.write_text(
+        '{"jupyter_ai_router": "org/jupyter-ai-router"}', encoding="utf-8"
+    )
+    pyproject = tmp_path / "pyproject.toml"
+    pyproject.write_text(NEW_PYPROJECT, encoding="utf-8")
+
+    page = gen.build_page(
+        version="v3.1.0",
+        repo_root=str(tmp_path),
+        manifest_path=str(manifest),
+        pyproject_path=str(pyproject),
+        target_branch="main",
+        auth="tok",
+        published_date="July 22, 2026",
+    )
+    assert page.startswith("# v3.1.0\n")
+    assert "*Published on July 22, 2026.*" in page
+    assert (
+        "auto-generated release notes for Jupyter AI **v3.1.0** from the `main` branch"
+        in page
+    )
+    assert "floor at the previous release (v3.0.1)" in page
+    assert "CONTRIBUTORS: **Please update this section" in page
+    assert "`AGENTS.md`" in page
+
+
+# Floors: router advanced 0.0.5 -> 0.0.6, so it gets a section.
+PREV_PYPROJECT = """
+[project]
+name = "jupyter_ai"
+dependencies = ["jupyter_ai_router>=0.0.5,<0.1.0"]
+"""
+NEW_PYPROJECT = """
+[project]
+name = "jupyter_ai"
+dependencies = ["jupyter_ai_router>=0.0.6,<0.1.0"]
+"""
+
+
 def test_update_index_toctree_inserts_sorted_descending(tmp_path):
     index = tmp_path / "index.md"
     index.write_text(
