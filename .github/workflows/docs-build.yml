@@ -14,6 +14,8 @@ on:
       - "scripts/update-doc-submodules.sh"
       - "scripts/_resolve_doc_submodules.py"
       - "scripts/rtd-post-checkout.sh"
+      - "scripts/generate_release_notes.py"
+      - "scripts/_submodule_versions.py"
       - ".github/workflows/docs-build.yml"
   pull_request:
     branches: ["*"]
@@ -24,6 +26,8 @@ on:
       - "scripts/update-doc-submodules.sh"
       - "scripts/_resolve_doc_submodules.py"
       - "scripts/rtd-post-checkout.sh"
+      - "scripts/generate_release_notes.py"
+      - "scripts/_submodule_versions.py"
       - ".github/workflows/docs-build.yml"
 
 permissions: {}

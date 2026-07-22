@@ -5,7 +5,8 @@ range/floor -> tag resolution, pyproject parsing) and the release-notes page
 assembly in ``generate_release_notes.py`` that doesn't hit the network
 (toctree insertion, previous-release-tag selection). No git or GitHub calls.
 
-Run with: ``pytest scripts/test_submodule_versions.py``.
+Run with: ``pytest docs/tests/test_release_notes.py`` (or the whole
+``pytest docs/tests`` suite, as CI does).
 """
 
 from __future__ import annotations
@@ -13,7 +14,12 @@ from __future__ import annotations
 import os
 import sys
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+# The modules under test live in the repo's scripts/ dir (docs/tests/ -> repo
+# root -> scripts).
+_SCRIPTS_DIR = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "..", "..", "scripts"
+)
+sys.path.insert(0, _SCRIPTS_DIR)
 
 import _submodule_versions as sv  # noqa: E402
 import generate_release_notes as gen  # noqa: E402
