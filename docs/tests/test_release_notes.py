@@ -270,12 +270,7 @@ def test_build_page_header(monkeypatch, tmp_path):
     )
     assert "# v3.1.0" in page
     assert "*Published on July 22, 2026.*" in page
-    assert (
-        "auto-generated release notes for Jupyter AI **v3.1.0** from the `main` branch"
-        in page
-    )
-    assert "floor at the previous release (v3.0.1)" in page
-    assert gen.DEFAULT_SUMMARY in page
+    assert gen.CONTRIBUTORS_NOTE in page
     # Two AUTO regions (header + changelog) and one SUMMARY region.
     assert page.count(gen.AUTO_BEGIN) == 2
     assert page.count(gen.AUTO_END) == 2
@@ -283,6 +278,24 @@ def test_build_page_header(monkeypatch, tmp_path):
     assert page.count(gen.SUMMARY_END) == 1
     # The router section sits inside the second (changelog) auto region.
     assert "## `jupyter-ai-router`" in page
+
+    # The explanatory blurb lives inside the editable SUMMARY region (so a
+    # contributor can trim it), NOT in an auto region.
+    summary = page.split(gen.SUMMARY_BEGIN, 1)[1].split(gen.SUMMARY_END, 1)[0]
+    assert (
+        "auto-generated release notes for Jupyter AI **v3.1.0** from the `main` branch"
+        in summary
+    )
+    assert "floor at the previous release (v3.0.1)" in summary
+    assert gen.CONTRIBUTORS_NOTE in summary
+
+
+def test_default_summary_omits_window_line_without_prev_tag():
+    # No previous release ⇒ no "PRs between floors" sentence, but the note stays.
+    s = gen.default_summary("v3.1.0", "main", prev_tag=None)
+    assert "auto-generated release notes" in s
+    assert "floor at the previous release" not in s
+    assert gen.CONTRIBUTORS_NOTE in s
 
 
 # Floors: router advanced 0.0.5 -> 0.0.6, so it gets a section.
@@ -319,7 +332,7 @@ def test_regenerate_auto_regions_preserves_summary_and_out_of_band_edits():
         )
         + "\n\n> a note a contributor added outside the auto regions\n"
     )
-    fresh = _page("# v3.1.0\nnew date", gen.DEFAULT_SUMMARY, "new changelog")
+    fresh = _page("# v3.1.0\nnew date", gen.CONTRIBUTORS_NOTE, "new changelog")
 
     merged = gen.regenerate_auto_regions(existing, fresh)
 
@@ -332,13 +345,13 @@ def test_regenerate_auto_regions_preserves_summary_and_out_of_band_edits():
     assert "## Highlights\n\n- edited by a human" in merged
     assert "a note a contributor added outside the auto regions" in merged
     # Default summary is NOT reintroduced when a human already replaced it.
-    assert gen.DEFAULT_SUMMARY not in merged
+    assert gen.CONTRIBUTORS_NOTE not in merged
 
 
 def test_regenerate_auto_regions_aborts_on_region_count_mismatch():
     # Contributor removed one AUTO region's markers -> counts differ -> abort.
     existing = f"{gen.AUTO_BEGIN}\nonly one region\n{gen.AUTO_END}\n\nsummary text"
-    fresh = _page("h", gen.DEFAULT_SUMMARY, "c")
+    fresh = _page("h", gen.CONTRIBUTORS_NOTE, "c")
     with pytest.raises(gen.MarkerError):
         gen.regenerate_auto_regions(existing, fresh)
 
