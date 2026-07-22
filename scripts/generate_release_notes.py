@@ -40,6 +40,7 @@ the previous version's floors are read from ``git show <prev_tag>:pyproject.toml
 from __future__ import annotations
 
 import argparse
+import datetime
 import json
 import os
 import re
@@ -64,6 +65,71 @@ from _submodule_versions import (  # noqa: E402
 
 # Jupyter Releaser's changelog builder — reused wholesale for PR aggregation.
 from jupyter_releaser import changelog  # noqa: E402
+
+# The page is split into auto-generated regions and a contributor-owned region.
+# Each auto region is wrapped in AUTO markers; on a re-run only those regions are
+# regenerated, and *everything else* on the page — the summary block and any prose
+# a contributor added outside the auto regions — is preserved verbatim. This lets
+# a re-run pick up a newly-merged subpackage PR without clobbering hand edits.
+AUTO_BEGIN = "<!-- BEGIN AUTO-GENERATED (do not edit; regenerated on each run) -->"
+AUTO_END = "<!-- END AUTO-GENERATED -->"
+SUMMARY_BEGIN = (
+    "<!-- BEGIN SUMMARY (contributors: edit freely; preserved on re-run) -->"
+)
+SUMMARY_END = "<!-- END SUMMARY -->"
+
+DEFAULT_SUMMARY = (
+    "CONTRIBUTORS: **Please replace this text with a human-readable summary of "
+    "the changes. See `AGENTS.md` in the `jupyterlab/jupyter-ai` repo for more "
+    "information.**"
+)
+
+# One auto region: the begin/end markers and everything between them.
+_AUTO_RE = re.compile(
+    re.escape(AUTO_BEGIN) + r".*?" + re.escape(AUTO_END),
+    re.DOTALL,
+)
+
+
+class MarkerError(RuntimeError):
+    """Raised when an existing page's AUTO markers don't match what we expect."""
+
+
+def wrap_auto(inner: str) -> str:
+    """Wrap ``inner`` in the auto-generated-region markers."""
+    return f"{AUTO_BEGIN}\n{inner.strip()}\n{AUTO_END}"
+
+
+def regenerate_auto_regions(existing_text: str, fresh_text: str) -> str:
+    """Return ``existing_text`` with its auto regions swapped for ``fresh_text``'s.
+
+    Both pages carry the same number of AUTO regions (the header block and the
+    changelog block). We replace each auto region in the existing page, in
+    document order, with the corresponding freshly generated one — leaving every
+    byte outside the auto regions (the contributor-owned summary and any other
+    hand edits) untouched.
+
+    Raises ``MarkerError`` if the existing page's auto-region count doesn't match
+    the freshly generated page's, so a re-run aborts rather than silently
+    overwriting a page whose markers a contributor removed or duplicated.
+    """
+    fresh_regions = _AUTO_RE.findall(fresh_text)
+    existing_regions = list(_AUTO_RE.finditer(existing_text))
+    if len(existing_regions) != len(fresh_regions):
+        raise MarkerError(
+            f"existing page has {len(existing_regions)} AUTO-GENERATED region(s) "
+            f"but a fresh page has {len(fresh_regions)}; refusing to regenerate "
+            f"over a page whose auto markers were removed or altered"
+        )
+
+    out: list[str] = []
+    last = 0
+    for match, fresh_region in zip(existing_regions, fresh_regions):
+        out.append(existing_text[last : match.start()])
+        out.append(fresh_region)
+        last = match.end()
+    out.append(existing_text[last:])
+    return "".join(out)
 
 
 def normalize_version(version: str) -> str:
@@ -163,32 +229,76 @@ def window_start(org_repo: str, prev_tag: str, new_tag: str, auth: str | None) -
     return merge_base_sha
 
 
-def submodule_entry(
+def strip_to_pr_groups(entry: str) -> str:
+    """Keep only the label-grouped PR bullets from a ``get_version_entry`` block.
+
+    ``get_version_entry`` returns a ``## <heading>`` line, a
+    ``([Full Changelog](...))`` link, the ``### Enhancements made`` /
+    ``### Bugs fixed`` / ... groups, then a ``### Contributors to this release``
+    footer. We render our own heading + version-change line + changelog link, and
+    every PR bullet already credits its authors inline, so we drop the heading,
+    the Full Changelog link, and the whole contributors footer — keeping just the
+    grouped PR bullets.
+    """
+    # Cut the contributors footer (and everything after it).
+    entry = re.split(r"\n#{1,6}\s+Contributors to this release", entry, maxsplit=1)[0]
+
+    kept: list[str] = []
+    for line in entry.splitlines():
+        stripped = line.strip()
+        # Drop the top-level "## <heading>" line (### subsection headings, which
+        # don't match this prefix, are kept).
+        if stripped.startswith("## "):
+            continue
+        # Drop the "([Full Changelog](...))" link beneath it.
+        if stripped.lower().startswith("([full changelog]"):
+            continue
+        kept.append(line)
+    return "\n".join(kept).strip()
+
+
+def submodule_section(
     org_repo: str,
-    display: str,
-    since_ref: str | None,
+    repo: str,
+    prev_floor: str | None,
+    new_floor: str,
     new_floor_tag: str,
+    since_ref: str | None,
     branch: str,
     auth: str | None,
 ) -> str:
-    """Build one submodule's changelog block via Jupyter Releaser.
+    """Build one submodule's section.
 
-    Delegates to ``changelog.get_version_entry`` over the window
-    ``since_ref..new_floor_tag`` so the label grouping and contributors list are
-    identical to the releaser's own changelog. ``since_ref`` is the merge-base of
-    the two floors (see window_start), not necessarily the previous-floor tag.
-    The section heading is ``display`` (the submodule name), not a version.
+    The PR bullets come from Jupyter Releaser's ``get_version_entry`` over the
+    window ``since_ref..new_floor_tag`` (same label grouping the releaser uses;
+    ``since_ref`` is the merge-base — see ``window_start``). We wrap them in our
+    own heading — the package name in a code span — with a version-change line
+    and a link to the subpackage's GitHub release page for the new tag.
     """
     entry = changelog.get_version_entry(
         ref=new_floor_tag,
         branch=branch,
         repo=org_repo,
-        version=display,
+        version=new_floor_tag,
         since=since_ref,
         until=new_floor_tag,
         auth=auth,
     )
-    return entry.strip()
+    pr_groups = strip_to_pr_groups(entry.strip())
+
+    releases_url = f"https://github.com/{org_repo}/releases/tag/{new_floor_tag}"
+    changelog_link = f"([See full changelog]({releases_url}))"
+    if prev_floor:
+        summary = f"Upgraded from `v{prev_floor}` → `v{new_floor}`. {changelog_link}"
+    else:
+        summary = f"Added at `v{new_floor}`. {changelog_link}"
+
+    parts = [f"## `{repo}`", summary]
+    # An advanced floor with no user-facing PRs (e.g. only bot/pre-commit PRs,
+    # which get_version_entry filters out) leaves nothing to list.
+    if pr_groups and pr_groups != "No merged PRs":
+        parts.append(pr_groups)
+    return "\n\n".join(parts)
 
 
 def build_page(
@@ -198,8 +308,19 @@ def build_page(
     pyproject_path: str,
     target_branch: str,
     auth: str | None,
+    published_date: str,
 ) -> str:
-    """Assemble the full Markdown page for ``version``."""
+    """Assemble a fresh Markdown page for ``version``.
+
+    ``published_date`` is a pre-formatted human string (e.g. "July 22, 2026")
+    passed in by the caller so the page is deterministic and testable.
+
+    The page has two AUTO-GENERATED regions (a header block and the changelog
+    block) with a contributor-owned SUMMARY region between them. On a re-run the
+    caller regenerates only the AUTO regions (see ``regenerate_auto_regions``),
+    preserving the summary and any other hand edits; this function always emits
+    the default summary, used verbatim only on the first run.
+    """
     version = normalize_version(version)
 
     with open(manifest_path, encoding="utf-8") as f:
@@ -283,44 +404,61 @@ def build_page(
         )
         log(f"  {pypi_name}: {window} (branch {branch})")
 
-        display = f"{repo} ({window})"
         sections.append(
-            submodule_entry(org_repo, display, since_ref, new_floor_tag, branch, auth)
+            submodule_section(
+                org_repo,
+                repo,
+                prev_floor,
+                new_floor,
+                new_floor_tag,
+                since_ref,
+                branch,
+                auth,
+            )
         )
 
-    header = [
-        f"# {version}",
-        "",
-        f"Release notes for Jupyter AI **{version}**, aggregated from the "
-        "subpackages whose version floors advanced in this release.",
-    ]
+    blurb = (
+        f"These are the auto-generated release notes for Jupyter AI "
+        f"**{version}** from the `{target_branch}` branch, aggregated from the "
+        f"subpackages whose version floors advanced in this release."
+    )
     if prev_tag is not None:
-        header.append(
-            f"Each subpackage section covers the pull requests merged between its "
-            f"floor at the previous release ({prev_tag}) and its floor at {version}."
+        blurb += (
+            f" Each subpackage section covers the pull requests merged between "
+            f"its floor at the previous release ({prev_tag}) and its floor at "
+            f"{version}."
         )
-    body = ["\n".join(header)]
 
+    # AUTO region 1: title + publication date + blurb.
+    header_auto = wrap_auto(
+        "\n".join([f"# {version}", "", f"*Published on {published_date}.*", "", blurb])
+    )
+
+    # Contributor-owned region: the human summary, preserved across re-runs.
+    summary_region = f"{SUMMARY_BEGIN}\n{DEFAULT_SUMMARY}\n{SUMMARY_END}"
+
+    # AUTO region 2: the per-subpackage changelog.
+    changelog: list[str] = []
     if sections:
-        body.append("\n\n".join(sections))
+        changelog.append("\n\n".join(sections))
     else:
-        body.append("_No subpackage version floors advanced in this release._")
-
+        changelog.append("_No subpackage version floors advanced in this release._")
     if unchanged:
-        body.append(
+        changelog.append(
             "## Unchanged subpackages\n\n"
             "The following subpackages did not advance their version floor in "
             "this release:\n\n" + "\n".join(f"- {u}" for u in sorted(unchanged))
         )
     if skipped:
-        body.append(
+        changelog.append(
             "## Not resolved\n\n"
             "These subpackages could not be resolved to a release window "
             "(see the generation log):\n\n"
             + "\n".join(f"- `{s}`" for s in sorted(skipped))
         )
+    changelog_auto = wrap_auto("\n\n".join(changelog))
 
-    return "\n\n".join(body).strip() + "\n"
+    return "\n\n".join([header_auto, summary_region, changelog_auto]).strip() + "\n"
 
 
 TOCTREE_RE = re.compile(
@@ -402,6 +540,13 @@ def main() -> int:
         "--output-dir", help="releases dir (default: <repo-root>/docs/source/releases)"
     )
     parser.add_argument(
+        "--date",
+        help=(
+            "publication date to stamp on the page, as YYYY-MM-DD "
+            "(default: today). Rendered as e.g. 'July 22, 2026'."
+        ),
+    )
+    parser.add_argument(
         "--stdout",
         action="store_true",
         help="print the page to stdout instead of writing files (preview)",
@@ -421,15 +566,47 @@ def main() -> int:
             "warning: no GITHUB_TOKEN/GH_TOKEN set; GitHub API calls may be rate-limited"
         )
 
+    if args.date:
+        published = datetime.date.fromisoformat(args.date)
+    else:
+        published = datetime.date.today()
+    # Cross-platform "July 22, 2026" (no %-d / %#d portability worries).
+    published_date = f"{published:%B} {published.day}, {published.year}"
+
     version = normalize_version(args.version)
-    page = build_page(version, repo_root, manifest, pyproject, args.target_branch, auth)
+    page_path = os.path.join(output_dir, f"{version}.md")
+
+    fresh = build_page(
+        version,
+        repo_root,
+        manifest,
+        pyproject,
+        args.target_branch,
+        auth,
+        published_date,
+    )
+
+    # Re-run: regenerate only the AUTO regions of the existing page, preserving
+    # the contributor-owned summary and any other hand edits outside them. A
+    # mismatch in auto-region count aborts (regenerate_auto_regions raises)
+    # rather than overwriting a page whose markers were removed or altered.
+    if os.path.exists(page_path):
+        with open(page_path, encoding="utf-8") as f:
+            existing = f.read()
+        try:
+            page = regenerate_auto_regions(existing, fresh)
+        except MarkerError as e:
+            log(f"error: {e} ({page_path})")
+            return 1
+        log(f"Regenerated auto sections; preserved hand edits in {page_path}")
+    else:
+        page = fresh
 
     if args.stdout:
         print(page)
         return 0
 
     os.makedirs(output_dir, exist_ok=True)
-    page_path = os.path.join(output_dir, f"{version}.md")
     with open(page_path, "w", encoding="utf-8") as f:
         f.write(page)
     log(f"Wrote {page_path}")
