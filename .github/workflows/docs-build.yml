@@ -59,7 +59,9 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           # The `docs` extra is the single source of truth for docs build deps.
-          pip install ".[docs]" pytest packaging
+          # jupyter-releaser + github-activity are runtime deps of
+          # generate_release_notes.py, imported by docs/tests/test_release_notes.py.
+          pip install ".[docs]" pytest packaging jupyter-releaser github-activity
 
       - name: Run aggregation integration tests
         run: pytest docs/tests -v
