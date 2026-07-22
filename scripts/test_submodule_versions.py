@@ -86,6 +86,43 @@ def test_resolve_floor_tag_none_when_absent():
 # --- generate_release_notes pure logic ---
 
 
+class _FakeResponse:
+    def __init__(self, payload):
+        self._payload = payload
+
+    def raise_for_status(self):
+        pass
+
+    def json(self):
+        return self._payload
+
+
+def test_window_start_inline_returns_tag(monkeypatch):
+    # prev_tag is an ancestor of new_tag: base_commit == merge_base_commit.
+    payload = {
+        "base_commit": {"sha": "aaa"},
+        "merge_base_commit": {"sha": "aaa"},
+    }
+    monkeypatch.setattr(gen.requests, "get", lambda *a, **k: _FakeResponse(payload))
+    assert gen.window_start("org/repo", "v0.2.5", "v0.3.0", "tok") == "v0.2.5"
+
+
+def test_window_start_diverged_returns_merge_base(monkeypatch):
+    # Divergent branches: merge_base differs from prev_tag's own commit.
+    payload = {
+        "base_commit": {"sha": "aaa"},
+        "merge_base_commit": {"sha": "bbb"},
+    }
+    monkeypatch.setattr(gen.requests, "get", lambda *a, **k: _FakeResponse(payload))
+    assert gen.window_start("org/repo", "v0.2.6", "v0.3.1", "tok") == "bbb"
+
+
+def test_window_start_missing_merge_base_falls_back(monkeypatch):
+    payload = {"base_commit": {"sha": "aaa"}}
+    monkeypatch.setattr(gen.requests, "get", lambda *a, **k: _FakeResponse(payload))
+    assert gen.window_start("org/repo", "v0.2.5", "v0.3.0", "tok") == "v0.2.5"
+
+
 def test_normalize_version_adds_v_prefix():
     assert gen.normalize_version("3.1.0") == "v3.1.0"
     assert gen.normalize_version("v3.1.0") == "v3.1.0"

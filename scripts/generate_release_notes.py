@@ -24,11 +24,13 @@ reachable on the target branch and lower than ``version`` — so a ``3.1.0`` cut
 from ``main`` diffs against the last stable on ``main`` (e.g. ``v3.0.1``), never
 a ``3.0.x`` patch that only exists on a maintenance branch.
 
-Each floor maps to that subpackage's ``v``-prefixed git tag; the window
-``prev_floor_tag..new_floor_tag`` is handed to Jupyter Releaser's own
-``get_version_entry`` (the same ``github_activity``-based PR aggregation the
-releaser uses for its changelog), so grouping-by-label and the contributors list
-match the releaser exactly — no hand-rolled variant.
+Each floor maps to that subpackage's ``v``-prefixed git tag. The window handed
+to Jupyter Releaser's own ``get_version_entry`` starts at the *merge-base* of the
+two floor tags (see ``window_start``) — not the raw previous-floor tag — so a
+subpackage patch cut from a maintenance branch doesn't skew the date boundary and
+drop PRs that shipped on the main line. In the common in-line case the merge-base
+*is* the previous-floor tag. Reusing ``get_version_entry`` means grouping-by-label
+and the contributors list match the releaser exactly — no hand-rolled variant.
 
 The new version's floors are read from the **working-tree** ``pyproject.toml``
 (Step 0 runs before the release is tagged, once the floors have been bumped);
@@ -44,6 +46,7 @@ import re
 import subprocess
 import sys
 
+import requests  # github_activity depends on requests; always available here
 from packaging.version import InvalidVersion, Version
 
 # Shared version/tag resolution (see _submodule_versions.py) — the single
@@ -120,10 +123,50 @@ def show_file_at(repo_root: str, ref: str, path: str) -> str:
     return git(repo_root, "show", f"{ref}:{path}")
 
 
+def window_start(org_repo: str, prev_tag: str, new_tag: str, auth: str | None) -> str:
+    """Return the ref to start a submodule's PR window at: the merge-base.
+
+    A subpackage's previous floor and new floor don't always sit on one line.
+    A patch (e.g. ``v0.2.6``) is cut from a maintenance branch *after* ``main``
+    has moved on, so ``v0.2.6`` can be dated later than PRs that shipped in
+    ``v0.3.0`` on ``main``. Since github_activity filters PRs by the *date* of
+    the ``since`` ref, starting at the raw previous-floor tag would skip that
+    intervening batch.
+
+    The correct start is where the two floors last shared history — their
+    merge-base. When a fix is backported, it exists on both branches, so the
+    merge-base excludes the shared past and keeps exactly the new commits on the
+    release line. GitHub's compare API returns this as ``merge_base_commit``;
+    ``base_commit`` is ``prev_tag``'s own commit. When they're equal, ``prev_tag``
+    is already an ancestor of ``new_tag`` (the common in-line case), so we return
+    the tag itself to keep the pretty "Full Changelog" link; otherwise we return
+    the merge-base SHA.
+    """
+    url = f"https://api.github.com/repos/{org_repo}/compare/{prev_tag}...{new_tag}"
+    headers = {"Authorization": f"token {auth}"} if auth else {}
+    resp = requests.get(url, headers=headers)
+    resp.raise_for_status()
+    data = resp.json()
+
+    base_sha = data.get("base_commit", {}).get("sha")
+    merge_base_sha = data.get("merge_base_commit", {}).get("sha")
+    if not merge_base_sha:
+        # Defensive: fall back to the tag if the API shape is unexpected.
+        return prev_tag
+    if merge_base_sha == base_sha:
+        # prev_tag is an ancestor of new_tag; keep the tag for a clean link.
+        return prev_tag
+    log(
+        f"    note: {prev_tag} and {new_tag} diverged; starting window at "
+        f"merge-base {merge_base_sha[:12]}"
+    )
+    return merge_base_sha
+
+
 def submodule_entry(
     org_repo: str,
     display: str,
-    prev_floor_tag: str | None,
+    since_ref: str | None,
     new_floor_tag: str,
     branch: str,
     auth: str | None,
@@ -131,16 +174,17 @@ def submodule_entry(
     """Build one submodule's changelog block via Jupyter Releaser.
 
     Delegates to ``changelog.get_version_entry`` over the window
-    ``prev_floor_tag..new_floor_tag`` so the label grouping and contributors
-    list are identical to the releaser's own changelog. The section heading is
-    ``display`` (the submodule name), not a version.
+    ``since_ref..new_floor_tag`` so the label grouping and contributors list are
+    identical to the releaser's own changelog. ``since_ref`` is the merge-base of
+    the two floors (see window_start), not necessarily the previous-floor tag.
+    The section heading is ``display`` (the submodule name), not a version.
     """
     entry = changelog.get_version_entry(
         ref=new_floor_tag,
         branch=branch,
         repo=org_repo,
         version=display,
-        since=prev_floor_tag,
+        since=since_ref,
         until=new_floor_tag,
         auth=auth,
     )
@@ -222,6 +266,15 @@ def build_page(
                 f"tag in {org_repo}; starting window from first release"
             )
 
+        # Start the PR window at where the two floors last shared history (their
+        # merge-base), not the raw previous-floor tag — see window_start. In the
+        # common in-line case this is just prev_floor_tag.
+        since_ref = (
+            window_start(org_repo, prev_floor_tag, new_floor_tag, auth)
+            if prev_floor_tag
+            else None
+        )
+
         branch = default_branch(url)
         window = (
             f"{prev_floor_tag}..{new_floor_tag}"
@@ -232,9 +285,7 @@ def build_page(
 
         display = f"{repo} ({window})"
         sections.append(
-            submodule_entry(
-                org_repo, display, prev_floor_tag, new_floor_tag, branch, auth
-            )
+            submodule_entry(org_repo, display, since_ref, new_floor_tag, branch, auth)
         )
 
     header = [
