@@ -71,8 +71,36 @@ interface and press <kbd>ENTER</kbd> to send it. You can press
     width="600"
     height="auto" />
 
-You can also see the `Delete` button shown alongside the prompt if you need to
-clear up the chat; there is a similar button in the response area as well.
+You can also see the `Delete` button shown alongside the prompt if you need to clear up the chat; there is a similar button in the response area as well.
+
+As another example, see how Claude can be used via ACP in the following screens, with the various selection options for models, attributes, mode, and token counts, cost, etc. 
+
+#### Model picker
+<img src="../_static/chat-acp-claude-model-picker.png"
+    class="screenshot"
+    width="500"
+    height="auto" />
+
+#### Model attributes
+<img src="../_static/chat-acp-claude-attribute.png"
+    class="screenshot"
+    width="500"
+    height="auto" />
+
+#### Selecting Mode
+<img src="../_static/chat-acp-claude-mode.png"
+    class="screenshot"
+    width="500"
+    height="auto" />
+
+#### Token counts, cost
+<img src="../_static/chat-acp-claude-tokencount.png"
+    class="screenshot"
+    width="500"
+    height="auto" />
+
+
+
 
 ## Chat features
 
