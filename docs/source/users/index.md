@@ -8,15 +8,22 @@ installation and setup.
 
 ### Create a new chat
 
-Once you have started JupyterLab, click the new "chat" icon in the left side
-panel to open the chat interface. You can right-click on the panel icon and move
-it to the other side, if you prefer.
+Once you have started JupyterLab, click the new "chat" icon in the left side panel to open the chat interface. You can right-click on the panel icon and move it to the other side, if you prefer.
 
 <img src="../_static/chat-interface.png"
     alt="Screen shot of the chat interface"
     class="screenshot"
     width="400"
     height="auto" />
+
+After clicking `New Chat`, you will see a new chat created in your side panel:
+
+<img src="../_static/chat-newchat.png"
+    alt="Screen shot of the new chat"
+    class="screenshot"
+    width="400"
+    height="auto" />
+
 
 This will open a prompt to name the chat. Give it a reasonable name:
 
@@ -26,21 +33,29 @@ This will open a prompt to name the chat. Give it a reasonable name:
     width="400"
     height="auto" />
 
-After clicking "OK", you will see a new chat created in your side panel:
+You can create new chats as you go and these will persist after you close JupyterLab. When re-opening JupyterLab you can see existing chats in the chat panel as shown here: 
 
-<img src="../_static/chat-newchat.png"
+<img src="../_static/chat-multiple.png"
     alt="Screen shot of the new chat"
     class="screenshot"
     width="400"
     height="auto" />
 
-### Mention an AI persona
 
-**AI personas** always respond to user messages in the chat panel when `@`-mentioned.
+### Use an AI persona
 
-You can now `@`-mention the Persona in a new message and issue a request as shown below.
+An AI Persona is an agent or harness that responds to prompts in the chat panel. You can address more than one persona in any chat session. **AI personas** always respond to user messages in the chat panel when selected.
 
-<img src="../_static/chat-at-mention.png"
+You can use the persona picker in the chat as shown below. 
+<img src="../_static/chat-persona-picker.png"
+    alt="Screen shot of the chat persona"
+    class="screenshot"
+    width="400"
+    height="auto" />
+
+A persona can allow access to different models and each one comes with a model picker as well, allowing you to select which model to use for that persona, and also switch models for the same persona in the same chat session. The model picker is shown below: 
+
+<img src="../_static/chat-model-picker.png"
     alt="Screen shot of the chat persona"
     class="screenshot"
     width="400"
@@ -48,13 +63,12 @@ You can now `@`-mention the Persona in a new message and issue a request as show
 
 To compose a message, type it in the text box at the bottom of the chat
 interface and press <kbd>ENTER</kbd> to send it. You can press
-<kbd>SHIFT</kbd>+<kbd>ENTER</kbd> to add a new line. Once you have sent a
-message, you should see a response from the AI persona you `@`-mentioned.
+<kbd>SHIFT</kbd>+<kbd>ENTER</kbd> to add a new line. Once you have sent a message, you should see a response from the AI persona.
 
-<img src="../_static/chat-response.png"
+<img src="../_static/chat-jupyternaut.png"
     alt="Screen shot of the new chat response"
     class="screenshot"
-    width="400"
+    width="600"
     height="auto" />
 
 You can also see the `Delete` button shown alongside the prompt if you need to
@@ -79,7 +93,7 @@ You can also delete a chat simply by deleting the corresponding `.chat` file.
 ### Chats are threads
 
 You can create multiple chats to manage different threads of conversation. From
-the chat side panel, you can click `+ Chat` to open a new chat to start a
+the chat side panel, you can click `+ New chat` to open a new chat to start a
 different thread.
 
 <img src="../_static/chat-second.png"
@@ -117,25 +131,17 @@ find the right file to add.
 
 ### Personas reply intelligently
 
-Personas reply intelligently based on the number of other connected users and
-other AI personas. If you are the only user connected to your JupyterLab server,
-the last mentioned persona will always reply. You will only need to `@`-mention
-the persona in the first message of a chat or when you switch personas in
-subsequent messages.
+Personas reply intelligently based on the number of other connected users and other AI personas. If you are the only user connected to your JupyterLab server, the current active persona will always reply. 
 
-When you send a message that does not `@`-mention an AI persona, the following
-rules are used to determine whether an AI persona will reply automatically.
+<!-- When you send a message that does not `@`-mention an AI persona, the following rules are used to determine whether an AI persona will reply automatically.
 
 - 1 user, 1 persona: The one AI persona always replies to new messages
 - 1 user, >1 personas: The *last mentioned* AI persona always replies to new messages
-- \>1 users, >=1 personas: Personas never reply automatically to new messages, they must be `@`-mentioned
+- \>1 users, >=1 personas: Personas never reply automatically to new messages, they must be `@`-mentioned -->
 
 ### Code toolbar shortcuts
 
-Jupyter AI provides some quick shortcuts for code blocks returned by an agent.
-You can use these to copy the code to your clipboard, insert it as a notebook
-cell above/below the active cell, or replace the active cell of a notebook in
-the main area.
+Jupyter AI provides some quick shortcuts for code blocks returned by an agent. You can use these to copy the code to your clipboard, insert it as a notebook cell above/below the active cell, or replace the active cell of a notebook in the main area.
 
 <!-- TODO: please update this to not use comic sans... -->
 
