@@ -14,6 +14,8 @@ from __future__ import annotations
 import os
 import sys
 
+import pytest
+
 # The modules under test live in the repo's scripts/ dir (docs/tests/ -> repo
 # root -> scripts).
 _SCRIPTS_DIR = os.path.join(
@@ -266,15 +268,21 @@ def test_build_page_header(monkeypatch, tmp_path):
         auth="tok",
         published_date="July 22, 2026",
     )
-    assert page.startswith("# v3.1.0\n")
+    assert "# v3.1.0" in page
     assert "*Published on July 22, 2026.*" in page
     assert (
         "auto-generated release notes for Jupyter AI **v3.1.0** from the `main` branch"
         in page
     )
     assert "floor at the previous release (v3.0.1)" in page
-    assert "CONTRIBUTORS: **Please update this section" in page
-    assert "`AGENTS.md`" in page
+    assert gen.DEFAULT_SUMMARY in page
+    # Two AUTO regions (header + changelog) and one SUMMARY region.
+    assert page.count(gen.AUTO_BEGIN) == 2
+    assert page.count(gen.AUTO_END) == 2
+    assert page.count(gen.SUMMARY_BEGIN) == 1
+    assert page.count(gen.SUMMARY_END) == 1
+    # The router section sits inside the second (changelog) auto region.
+    assert "## `jupyter-ai-router`" in page
 
 
 # Floors: router advanced 0.0.5 -> 0.0.6, so it gets a section.
@@ -288,6 +296,51 @@ NEW_PYPROJECT = """
 name = "jupyter_ai"
 dependencies = ["jupyter_ai_router>=0.0.6,<0.1.0"]
 """
+
+
+# A minimal page shaped like build_page output: two AUTO regions around a
+# contributor-owned SUMMARY region.
+def _page(header_body, summary_body, changelog_body):
+    return "\n\n".join(
+        [
+            gen.wrap_auto(header_body),
+            f"{gen.SUMMARY_BEGIN}\n{summary_body}\n{gen.SUMMARY_END}",
+            gen.wrap_auto(changelog_body),
+        ]
+    )
+
+
+def test_regenerate_auto_regions_preserves_summary_and_out_of_band_edits():
+    existing = (
+        _page(
+            "# v3.1.0\nold date",
+            "## Highlights\n\n- edited by a human",
+            "old changelog",
+        )
+        + "\n\n> a note a contributor added outside the auto regions\n"
+    )
+    fresh = _page("# v3.1.0\nnew date", gen.DEFAULT_SUMMARY, "new changelog")
+
+    merged = gen.regenerate_auto_regions(existing, fresh)
+
+    # Auto regions took the fresh content...
+    assert "new date" in merged
+    assert "new changelog" in merged
+    assert "old date" not in merged
+    assert "old changelog" not in merged
+    # ...but the human summary and the out-of-band note survived.
+    assert "## Highlights\n\n- edited by a human" in merged
+    assert "a note a contributor added outside the auto regions" in merged
+    # Default summary is NOT reintroduced when a human already replaced it.
+    assert gen.DEFAULT_SUMMARY not in merged
+
+
+def test_regenerate_auto_regions_aborts_on_region_count_mismatch():
+    # Contributor removed one AUTO region's markers -> counts differ -> abort.
+    existing = f"{gen.AUTO_BEGIN}\nonly one region\n{gen.AUTO_END}\n\nsummary text"
+    fresh = _page("h", gen.DEFAULT_SUMMARY, "c")
+    with pytest.raises(gen.MarkerError):
+        gen.regenerate_auto_regions(existing, fresh)
 
 
 def test_update_index_toctree_inserts_sorted_descending(tmp_path):
