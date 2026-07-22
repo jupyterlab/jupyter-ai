@@ -43,100 +43,20 @@ from __future__ import annotations
 
 import argparse
 import json
-import subprocess
+import os
 import sys
 
-from packaging.requirements import Requirement
-from packaging.specifiers import SpecifierSet
-from packaging.version import InvalidVersion, Version
-
-try:  # Python 3.11+
-    import tomllib
-except ModuleNotFoundError:  # Python 3.10 and earlier
-    import tomli as tomllib  # type: ignore[no-redef]
-
-
-def log(msg: str) -> None:
-    print(msg, file=sys.stderr)
-
-
-def load_ranges(pyproject_path: str) -> dict[str, str]:
-    """Map normalized package name -> version specifier string.
-
-    Names are normalized to lowercase with ``-``/``_`` unified so manifest keys
-    (which use ``_``) match pyproject entries (which may use either).
-    """
-    with open(pyproject_path, "rb") as f:
-        data = tomllib.load(f)
-
-    project = data.get("project", {})
-    req_strings: list[str] = list(project.get("dependencies", []))
-    for group in project.get("optional-dependencies", {}).values():
-        req_strings.extend(group)
-
-    ranges: dict[str, str] = {}
-    for req_string in req_strings:
-        try:
-            req = Requirement(req_string)
-        except Exception:  # pragma: no cover - defensive
-            continue
-        ranges[_norm(req.name)] = str(req.specifier)
-    return ranges
-
-
-def _norm(name: str) -> str:
-    return name.strip().lower().replace("-", "_")
-
-
-def list_tags(url: str) -> list[str]:
-    """Return the repo's tag names (``refs/tags/*``, deref peels stripped)."""
-    out = subprocess.run(
-        ["git", "ls-remote", "--tags", "--refs", url],
-        capture_output=True,
-        text=True,
-        check=True,
-    ).stdout
-    tags = []
-    for line in out.splitlines():
-        parts = line.split("\t")
-        if len(parts) == 2 and parts[1].startswith("refs/tags/"):
-            tags.append(parts[1][len("refs/tags/") :])
-    return tags
-
-
-def default_branch(url: str) -> str:
-    """Return the remote's default branch name (from its HEAD symref)."""
-    out = subprocess.run(
-        ["git", "ls-remote", "--symref", url, "HEAD"],
-        capture_output=True,
-        text=True,
-        check=True,
-    ).stdout
-    for line in out.splitlines():
-        # e.g. "ref: refs/heads/main\tHEAD"
-        if line.startswith("ref:"):
-            ref = line[len("ref:") :].strip().split("\t")[0].strip()
-            if ref.startswith("refs/heads/"):
-                return ref[len("refs/heads/") :]
-    return "main"
-
-
-def resolve_tag(spec_string: str, tags: list[str]) -> str | None:
-    """Return the winning tag name for a spec, or None if nothing matches."""
-    spec = SpecifierSet(spec_string)
-    # Map parsed Version -> original (v-prefixed) tag name.
-    by_version: dict[Version, str] = {}
-    for tag in tags:
-        try:
-            version = Version(tag.lstrip("v"))
-        except InvalidVersion:
-            continue
-        # Keep the tag whose spelling matches this version.
-        by_version[version] = tag
-    matching = list(spec.filter(by_version.keys()))
-    if not matching:
-        return None
-    return by_version[max(matching)]
+# Shared version/tag resolution, kept in one place so this tool and the
+# release-notes generator can't drift on how a floor maps to a git tag.
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _submodule_versions import (  # noqa: E402
+    _norm,
+    default_branch,
+    list_tags,
+    load_ranges,
+    log,
+    resolve_tag,
+)
 
 
 def main() -> int:

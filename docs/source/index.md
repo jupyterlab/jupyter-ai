@@ -61,4 +61,5 @@ users/index
 contributors/index
 developers/index
 roadmap/index
+releases/index
 ```
