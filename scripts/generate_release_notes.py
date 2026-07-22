@@ -78,11 +78,34 @@ SUMMARY_BEGIN = (
 )
 SUMMARY_END = "<!-- END SUMMARY -->"
 
-DEFAULT_SUMMARY = (
+CONTRIBUTORS_NOTE = (
     "CONTRIBUTORS: **Please replace this text with a human-readable summary of "
     "the changes. See `AGENTS.md` in the `jupyterlab/jupyter-ai` repo for more "
     "information.**"
 )
+
+
+def default_summary(version: str, target_branch: str, prev_tag: str | None) -> str:
+    """Seed text for the contributor-owned SUMMARY region on a first run.
+
+    This is written verbatim only when the page doesn't exist yet; on re-runs the
+    whole region is preserved, so a contributor can edit or delete any of it —
+    including the "auto-generated notes" explanation, which is boilerplate they
+    may not want once they've written a real summary.
+    """
+    blurb = (
+        f"These are the auto-generated release notes for Jupyter AI "
+        f"**{version}** from the `{target_branch}` branch, aggregated from the "
+        f"subpackages whose version floors advanced in this release."
+    )
+    if prev_tag is not None:
+        blurb += (
+            f" Each subpackage section covers the pull requests merged between "
+            f"its floor at the previous release ({prev_tag}) and its floor at "
+            f"{version}."
+        )
+    return f"{blurb}\n\n{CONTRIBUTORS_NOTE}"
+
 
 # One auto region: the begin/end markers and everything between them.
 _AUTO_RE = re.compile(
@@ -417,25 +440,17 @@ def build_page(
             )
         )
 
-    blurb = (
-        f"These are the auto-generated release notes for Jupyter AI "
-        f"**{version}** from the `{target_branch}` branch, aggregated from the "
-        f"subpackages whose version floors advanced in this release."
-    )
-    if prev_tag is not None:
-        blurb += (
-            f" Each subpackage section covers the pull requests merged between "
-            f"its floor at the previous release ({prev_tag}) and its floor at "
-            f"{version}."
-        )
-
-    # AUTO region 1: title + publication date + blurb.
+    # AUTO region 1: title + publication date. These are always accurate, so
+    # they stay auto-generated. The explanatory blurb lives in the editable
+    # summary below, not here, so contributors can trim it.
     header_auto = wrap_auto(
-        "\n".join([f"# {version}", "", f"*Published on {published_date}.*", "", blurb])
+        "\n".join([f"# {version}", "", f"*Published on {published_date}.*"])
     )
 
-    # Contributor-owned region: the human summary, preserved across re-runs.
-    summary_region = f"{SUMMARY_BEGIN}\n{DEFAULT_SUMMARY}\n{SUMMARY_END}"
+    # Contributor-owned region: seeded with the blurb + call-to-action on a first
+    # run, then preserved (and freely editable) across re-runs.
+    summary_seed = default_summary(version, target_branch, prev_tag)
+    summary_region = f"{SUMMARY_BEGIN}\n{summary_seed}\n{SUMMARY_END}"
 
     # AUTO region 2: the per-subpackage changelog.
     changelog: list[str] = []
