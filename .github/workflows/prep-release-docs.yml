@@ -71,10 +71,14 @@ jobs:
           # The generator uses the token for the GitHub search/PR API. The
           # built-in token is sufficient for public read + label lookups.
           GITHUB_TOKEN: ${{ github.token }}
+          # Pass workflow inputs via env (not inline ${{ }} in run:) so an
+          # attacker-controllable value can't be expanded into the shell.
+          VERSION: ${{ github.event.inputs.version }}
+          TARGET_BRANCH: ${{ github.event.inputs.target-branch }}
         run: |
           python scripts/generate_release_notes.py \
-            --version "${{ github.event.inputs.version }}" \
-            --target-branch "${{ github.event.inputs.target-branch }}"
+            --version "$VERSION" \
+            --target-branch "$TARGET_BRANCH"
 
       - name: Open draft PR
         env:
