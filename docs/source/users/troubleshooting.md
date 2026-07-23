@@ -35,15 +35,15 @@ OpenCode, will also require you to select an LLM before usage.
 
 ```
 
-```{tab} Gemini
-
-    gemini auth login
-
-```
-
 ```{tab} Goose
 
     goose configure
+
+```
+
+```{tab} Kilo
+
+    kilo auth login
 
 ```
 

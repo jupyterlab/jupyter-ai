@@ -133,18 +133,27 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
+          # Commit the regenerated page if it changed. This is separate from the
+          # push decision below: even with no page change, the branch may still
+          # be ahead of its remote because of the target-branch merge made during
+          # checkout (e.g. picking up unrelated docs that landed on the target).
           git add docs/source/releases
-
-          # Nothing new since the branch's last state ⇒ don't push an empty
-          # commit. A first run always has changes; a re-run only commits if the
-          # regenerated page actually differs.
           if git diff --cached --quiet; then
-            echo "No release-notes changes since the last run; nothing to commit."
+            echo "No release-notes changes since the last run."
           else
             git commit -m "docs: add release notes for ${V}"
-            # Plain push (no force): on an existing branch this appends a commit,
-            # preserving run-to-run history. We only ever push to the dedicated
-            # release-docs branch, never to $TARGET_BRANCH.
+          fi
+
+          # Push whenever the local branch is ahead of the remote — which covers
+          # both a new release-notes commit and the merge commit from checkout.
+          # Gating the push on the page diff alone would strip the merge, leaving
+          # the branch missing changes that landed on the target branch. Plain
+          # push (no force) appends to the branch; we only ever push to the
+          # dedicated release-docs branch, never to $TARGET_BRANCH.
+          if git ls-remote --exit-code --heads origin "$BRANCH" >/dev/null 2>&1 \
+            && [ -z "$(git rev-list "origin/${BRANCH}..HEAD")" ]; then
+            echo "Branch ${BRANCH} is already up to date on the remote; nothing to push."
+          else
             git push \
               "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" \
               "HEAD:${BRANCH}"
