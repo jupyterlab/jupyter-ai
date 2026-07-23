@@ -68,6 +68,11 @@ back to the same position in the middle copy (seamless).
   The original icon had a purple background rect; we removed it and set the
   ghost body to `currentColor` so it works with the `brightness(0)` filter.
 
+- **Kilo icon**: from kilo.ai, stored locally at `_static/kilo-icon.svg`. The
+  path is set to `currentColor` and the SVG given explicit `100x100` dimensions
+  (the source used `width/height="100%"`) so it sizes correctly as an `<img>`
+  under the `brightness(0)` filter.
+
 - **Mistral Vibe icon**: derived from the ACP client asset, stored locally at
   `_static/mistral-vibe-icon.svg` as a grayscale variant for use in the hero.
 
