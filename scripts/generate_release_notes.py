@@ -60,6 +60,7 @@ from _submodule_versions import (  # noqa: E402
     list_tags,
     load_floors_from_text,
     log,
+    optional_only_names,
     resolve_floor_tag,
 )
 
@@ -78,11 +79,34 @@ SUMMARY_BEGIN = (
 )
 SUMMARY_END = "<!-- END SUMMARY -->"
 
-DEFAULT_SUMMARY = (
+CONTRIBUTORS_NOTE = (
     "CONTRIBUTORS: **Please replace this text with a human-readable summary of "
     "the changes. See `AGENTS.md` in the `jupyterlab/jupyter-ai` repo for more "
     "information.**"
 )
+
+
+def default_summary(version: str, target_branch: str, prev_tag: str | None) -> str:
+    """Seed text for the contributor-owned SUMMARY region on a first run.
+
+    This is written verbatim only when the page doesn't exist yet; on re-runs the
+    whole region is preserved, so a contributor can edit or delete any of it —
+    including the "auto-generated notes" explanation, which is boilerplate they
+    may not want once they've written a real summary.
+    """
+    blurb = (
+        f"These are the auto-generated release notes for Jupyter AI "
+        f"**{version}** from the `{target_branch}` branch, aggregated from the "
+        f"subpackages whose version floors advanced in this release."
+    )
+    if prev_tag is not None:
+        blurb += (
+            f" Each subpackage section covers the pull requests merged between "
+            f"its floor at the previous release ({prev_tag}) and its floor at "
+            f"{version}."
+        )
+    return f"{blurb}\n\n{CONTRIBUTORS_NOTE}"
+
 
 # One auto region: the begin/end markers and everything between them.
 _AUTO_RE = re.compile(
@@ -266,6 +290,7 @@ def submodule_section(
     since_ref: str | None,
     branch: str,
     auth: str | None,
+    is_optional: bool = False,
 ) -> str:
     """Build one submodule's section.
 
@@ -274,6 +299,9 @@ def submodule_section(
     ``since_ref`` is the merge-base — see ``window_start``). We wrap them in our
     own heading — the package name in a code span — with a version-change line
     and a link to the subpackage's GitHub release page for the new tag.
+
+    ``is_optional`` marks packages that ship only under an extra (see
+    ``optional_only_names``); their section carries a note saying so.
     """
     entry = changelog.get_version_entry(
         ref=new_floor_tag,
@@ -294,6 +322,15 @@ def submodule_section(
         summary = f"Added at `v{new_floor}`. {changelog_link}"
 
     parts = [f"## `{repo}`", summary]
+    if is_optional:
+        # Colon-fence (not ```) so Sphinx renders an admonition while plain
+        # Markdown renderers (GitHub, previews) show the text, not a code block.
+        parts.append(
+            ":::{note}\n"
+            "This is an optional package, installed only with the corresponding "
+            "`jupyter-ai` extra.\n"
+            ":::"
+        )
     # An advanced floor with no user-facing PRs (e.g. only bot/pre-commit PRs,
     # which get_version_entry filters out) leaves nothing to list.
     if pr_groups and pr_groups != "No merged PRs":
@@ -327,7 +364,9 @@ def build_page(
         manifest: dict[str, str] = json.load(f)
 
     with open(pyproject_path, encoding="utf-8") as f:
-        new_floors = load_floors_from_text(f.read())
+        pyproject_text = f.read()
+    new_floors = load_floors_from_text(pyproject_text)
+    optional = optional_only_names(pyproject_text)
 
     prev_tag = previous_release_tag(repo_root, version, target_branch)
     if prev_tag is None:
@@ -414,28 +453,21 @@ def build_page(
                 since_ref,
                 branch,
                 auth,
+                is_optional=key in optional,
             )
         )
 
-    blurb = (
-        f"These are the auto-generated release notes for Jupyter AI "
-        f"**{version}** from the `{target_branch}` branch, aggregated from the "
-        f"subpackages whose version floors advanced in this release."
-    )
-    if prev_tag is not None:
-        blurb += (
-            f" Each subpackage section covers the pull requests merged between "
-            f"its floor at the previous release ({prev_tag}) and its floor at "
-            f"{version}."
-        )
-
-    # AUTO region 1: title + publication date + blurb.
+    # AUTO region 1: title + publication date. These are always accurate, so
+    # they stay auto-generated. The explanatory blurb lives in the editable
+    # summary below, not here, so contributors can trim it.
     header_auto = wrap_auto(
-        "\n".join([f"# {version}", "", f"*Published on {published_date}.*", "", blurb])
+        "\n".join([f"# {version}", "", f"*Published on {published_date}.*"])
     )
 
-    # Contributor-owned region: the human summary, preserved across re-runs.
-    summary_region = f"{SUMMARY_BEGIN}\n{DEFAULT_SUMMARY}\n{SUMMARY_END}"
+    # Contributor-owned region: seeded with the blurb + call-to-action on a first
+    # run, then preserved (and freely editable) across re-runs.
+    summary_seed = default_summary(version, target_branch, prev_tag)
+    summary_region = f"{SUMMARY_BEGIN}\n{summary_seed}\n{SUMMARY_END}"
 
     # AUTO region 2: the per-subpackage changelog.
     changelog: list[str] = []

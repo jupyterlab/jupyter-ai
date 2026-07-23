@@ -220,6 +220,60 @@ def test_submodule_section_added_when_no_prev_floor(monkeypatch):
     assert "Upgraded from" not in section
 
 
+def test_submodule_section_optional_note(monkeypatch):
+    monkeypatch.setattr(gen.changelog, "get_version_entry", lambda **k: _ENTRY)
+    section = gen.submodule_section(
+        org_repo="org/repo",
+        repo="repo",
+        prev_floor="0.2.5",
+        new_floor="0.3.0",
+        new_floor_tag="v0.3.0",
+        since_ref="v0.2.5",
+        branch="main",
+        auth="tok",
+        is_optional=True,
+    )
+    # Colon-fenced admonition (renders in Sphinx, reads as prose elsewhere) —
+    # NOT a ```-fenced block, which plain Markdown shows as code.
+    assert ":::{note}" in section
+    assert "```{note}" not in section
+    assert "optional package" in section
+
+
+def test_submodule_section_no_optional_note_by_default(monkeypatch):
+    monkeypatch.setattr(gen.changelog, "get_version_entry", lambda **k: _ENTRY)
+    section = gen.submodule_section(
+        org_repo="org/repo",
+        repo="repo",
+        prev_floor="0.2.5",
+        new_floor="0.3.0",
+        new_floor_tag="v0.3.0",
+        since_ref="v0.2.5",
+        branch="main",
+        auth="tok",
+    )
+    assert "optional package" not in section
+
+
+def test_optional_only_names_excludes_core_deps():
+    text = """
+[project]
+name = "jupyter_ai"
+dependencies = ["core_pkg>=1.0", "shared_pkg>=1.0"]
+
+[project.optional-dependencies]
+magics = ["opt_pkg>=0.1", "shared_pkg>=1.0"]
+jupyternaut = ["jupyter_ai_jupyternaut>=0.1.0b0,<0.2.0"]
+"""
+    result = sv.optional_only_names(text)
+    # Optional-only packages are reported...
+    assert "opt_pkg" in result
+    assert "jupyter_ai_jupyternaut" in result
+    # ...but a package that is also a core dep is NOT (it's effectively required).
+    assert "shared_pkg" not in result
+    assert "core_pkg" not in result
+
+
 def test_submodule_section_omits_empty_pr_body(monkeypatch):
     monkeypatch.setattr(
         gen.changelog, "get_version_entry", lambda **k: "## v0.3.0\n\nNo merged PRs"
@@ -270,12 +324,7 @@ def test_build_page_header(monkeypatch, tmp_path):
     )
     assert "# v3.1.0" in page
     assert "*Published on July 22, 2026.*" in page
-    assert (
-        "auto-generated release notes for Jupyter AI **v3.1.0** from the `main` branch"
-        in page
-    )
-    assert "floor at the previous release (v3.0.1)" in page
-    assert gen.DEFAULT_SUMMARY in page
+    assert gen.CONTRIBUTORS_NOTE in page
     # Two AUTO regions (header + changelog) and one SUMMARY region.
     assert page.count(gen.AUTO_BEGIN) == 2
     assert page.count(gen.AUTO_END) == 2
@@ -283,6 +332,24 @@ def test_build_page_header(monkeypatch, tmp_path):
     assert page.count(gen.SUMMARY_END) == 1
     # The router section sits inside the second (changelog) auto region.
     assert "## `jupyter-ai-router`" in page
+
+    # The explanatory blurb lives inside the editable SUMMARY region (so a
+    # contributor can trim it), NOT in an auto region.
+    summary = page.split(gen.SUMMARY_BEGIN, 1)[1].split(gen.SUMMARY_END, 1)[0]
+    assert (
+        "auto-generated release notes for Jupyter AI **v3.1.0** from the `main` branch"
+        in summary
+    )
+    assert "floor at the previous release (v3.0.1)" in summary
+    assert gen.CONTRIBUTORS_NOTE in summary
+
+
+def test_default_summary_omits_window_line_without_prev_tag():
+    # No previous release ⇒ no "PRs between floors" sentence, but the note stays.
+    s = gen.default_summary("v3.1.0", "main", prev_tag=None)
+    assert "auto-generated release notes" in s
+    assert "floor at the previous release" not in s
+    assert gen.CONTRIBUTORS_NOTE in s
 
 
 # Floors: router advanced 0.0.5 -> 0.0.6, so it gets a section.
@@ -319,7 +386,7 @@ def test_regenerate_auto_regions_preserves_summary_and_out_of_band_edits():
         )
         + "\n\n> a note a contributor added outside the auto regions\n"
     )
-    fresh = _page("# v3.1.0\nnew date", gen.DEFAULT_SUMMARY, "new changelog")
+    fresh = _page("# v3.1.0\nnew date", gen.CONTRIBUTORS_NOTE, "new changelog")
 
     merged = gen.regenerate_auto_regions(existing, fresh)
 
@@ -332,13 +399,13 @@ def test_regenerate_auto_regions_preserves_summary_and_out_of_band_edits():
     assert "## Highlights\n\n- edited by a human" in merged
     assert "a note a contributor added outside the auto regions" in merged
     # Default summary is NOT reintroduced when a human already replaced it.
-    assert gen.DEFAULT_SUMMARY not in merged
+    assert gen.CONTRIBUTORS_NOTE not in merged
 
 
 def test_regenerate_auto_regions_aborts_on_region_count_mismatch():
     # Contributor removed one AUTO region's markers -> counts differ -> abort.
     existing = f"{gen.AUTO_BEGIN}\nonly one region\n{gen.AUTO_END}\n\nsummary text"
-    fresh = _page("h", gen.DEFAULT_SUMMARY, "c")
+    fresh = _page("h", gen.CONTRIBUTORS_NOTE, "c")
     with pytest.raises(gen.MarkerError):
         gen.regenerate_auto_regions(existing, fresh)
 
