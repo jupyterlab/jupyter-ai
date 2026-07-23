@@ -183,7 +183,7 @@ in every chat. You can pick an AI persona to chat with by clicking the menu in
 the input toolbar and selecting an AI persona.
 
 <img src="_static/persona-menu.png"
-    alt="Screenshot showing the @-mention menu with available AI personas"
+    alt="Screenshot showing the persona picker menu with available AI personas"
     width="50%"
     class="screenshot" />
 
