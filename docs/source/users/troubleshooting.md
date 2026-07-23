@@ -41,6 +41,12 @@ OpenCode, will also require you to select an LLM before usage.
 
 ```
 
+```{tab} Kilo
+
+    kilo auth login
+
+```
+
 ```{tab} Kiro
 
     kiro-cli login
