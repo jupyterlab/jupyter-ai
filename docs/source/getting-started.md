@@ -63,9 +63,9 @@ use:
 
 - [Claude Code](https://docs.anthropic.com/en/docs/claude-code/quickstart)
 - [Codex CLI](https://developers.openai.com/codex/cli)
-- [Gemini CLI](https://geminicli.com/docs/get-started/installation/)
 - [GitHub Copilot CLI](https://docs.github.com/en/copilot/how-tos/copilot-cli/set-up-copilot-cli/install-copilot-cli)
 - [Goose](https://block.github.io/goose/docs/getting-started/installation)
+- [Kilo](https://kilo.ai)
 - [Kiro CLI](https://kiro.dev/docs/cli/installation/)
 - [Mistral Vibe](https://docs.mistral.ai/mistral-vibe/introduction/install)
 - [OpenCode](https://opencode.ai/docs/#install)
