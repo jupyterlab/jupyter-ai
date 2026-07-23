@@ -161,6 +161,20 @@ See [our definition of contributors](https://github-activity.readthedocs.io/).
 @a ([activity](https://x)) | @b ([activity](https://y))"""
 
 
+def test_demote_headings_shifts_all_levels():
+    text = "## `repo`\n\nsome prose\n\n### Enhancements made\n\n- a bullet"
+    out = gen.demote_headings(text)
+    assert "### `repo`" in out
+    assert "#### Enhancements made" in out
+    # Non-heading lines untouched.
+    assert "some prose" in out
+    assert "- a bullet" in out
+
+
+def test_demote_headings_caps_at_h6():
+    assert gen.demote_headings("###### deep") == "###### deep"
+
+
 def test_strip_to_pr_groups_drops_heading_link_and_contributors():
     out = gen.strip_to_pr_groups(_ENTRY)
     # PR groups kept
@@ -197,7 +211,7 @@ def test_submodule_section_format(monkeypatch):
     assert lines[0] == "## `repo`"
     assert (
         "Upgraded from `v0.2.5` → `v0.3.0`. "
-        "([See full changelog](https://github.com/org/repo/releases/tag/v0.3.0))"
+        "([See full changelog](https://github.com/org/repo/releases))"
     ) in section
     # PR groups present; contributors footer gone.
     assert "- Add a thing [#10]" in section
@@ -330,8 +344,14 @@ def test_build_page_header(monkeypatch, tmp_path):
     assert page.count(gen.AUTO_END) == 2
     assert page.count(gen.SUMMARY_BEGIN) == 1
     assert page.count(gen.SUMMARY_END) == 1
-    # The router section sits inside the second (changelog) auto region.
-    assert "## `jupyter-ai-router`" in page
+    # The changelog sits inside the second auto region under a "## Full
+    # changelog" heading, after the summary. Subpackage headings are demoted one
+    # level (## -> ###) so they nest under it.
+    assert "## Full changelog" in page
+    assert "### `jupyter-ai-router`" in page
+    assert page.index("## Full changelog") > page.index(gen.SUMMARY_END)
+    # Only one H1 (the version title); Full changelog is H2, not a second H1.
+    assert page.count("\n# ") + page.startswith("# ") == 1
 
     # The explanatory blurb lives inside the editable SUMMARY region (so a
     # contributor can trim it), NOT in an auto region.

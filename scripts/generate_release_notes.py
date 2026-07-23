@@ -253,6 +253,26 @@ def window_start(org_repo: str, prev_tag: str, new_tag: str, auth: str | None) -
     return merge_base_sha
 
 
+def demote_headings(text: str, by: int = 1) -> str:
+    """Add ``by`` levels to every ATX heading in ``text`` (capped at H6).
+
+    Used so the whole changelog can sit under a single ``## Full changelog``
+    heading: each subpackage's ``## `repo` `` becomes ``###``, its ``###`` PR
+    groups become ``####``, and so on. Only lines that start with ``#`` markers
+    are touched; fenced code and prose are left alone (release-notes bodies have
+    no indented code blocks that could be mistaken for headings).
+    """
+    out: list[str] = []
+    for line in text.splitlines():
+        m = re.match(r"^(#{1,6}) (.*)$", line)
+        if m:
+            level = min(len(m.group(1)) + by, 6)
+            out.append(f"{'#' * level} {m.group(2)}")
+        else:
+            out.append(line)
+    return "\n".join(out)
+
+
 def strip_to_pr_groups(entry: str) -> str:
     """Keep only the label-grouped PR bullets from a ``get_version_entry`` block.
 
@@ -298,7 +318,7 @@ def submodule_section(
     window ``since_ref..new_floor_tag`` (same label grouping the releaser uses;
     ``since_ref`` is the merge-base — see ``window_start``). We wrap them in our
     own heading — the package name in a code span — with a version-change line
-    and a link to the subpackage's GitHub release page for the new tag.
+    and a link to the subpackage's GitHub releases page.
 
     ``is_optional`` marks packages that ship only under an extra (see
     ``optional_only_names``); their section carries a note saying so.
@@ -314,7 +334,7 @@ def submodule_section(
     )
     pr_groups = strip_to_pr_groups(entry.strip())
 
-    releases_url = f"https://github.com/{org_repo}/releases/tag/{new_floor_tag}"
+    releases_url = f"https://github.com/{org_repo}/releases"
     changelog_link = f"([See full changelog]({releases_url}))"
     if prev_floor:
         summary = f"Upgraded from `v{prev_floor}` → `v{new_floor}`. {changelog_link}"
@@ -469,26 +489,30 @@ def build_page(
     summary_seed = default_summary(version, target_branch, prev_tag)
     summary_region = f"{SUMMARY_BEGIN}\n{summary_seed}\n{SUMMARY_END}"
 
-    # AUTO region 2: the per-subpackage changelog.
-    changelog: list[str] = []
+    # AUTO region 2: the per-subpackage changelog. Assemble the body with its
+    # natural heading levels (## per subpackage), then demote everything one
+    # level so it can nest under a single "## Full changelog" heading.
+    body: list[str] = []
     if sections:
-        changelog.append("\n\n".join(sections))
+        body.append("\n\n".join(sections))
     else:
-        changelog.append("_No subpackage version floors advanced in this release._")
+        body.append("_No subpackage version floors advanced in this release._")
     if unchanged:
-        changelog.append(
+        body.append(
             "## Unchanged subpackages\n\n"
             "The following subpackages did not advance their version floor in "
             "this release:\n\n" + "\n".join(f"- {u}" for u in sorted(unchanged))
         )
     if skipped:
-        changelog.append(
+        body.append(
             "## Not resolved\n\n"
             "These subpackages could not be resolved to a release window "
             "(see the generation log):\n\n"
             + "\n".join(f"- `{s}`" for s in sorted(skipped))
         )
-    changelog_auto = wrap_auto("\n\n".join(changelog))
+    changelog_auto = wrap_auto(
+        "## Full changelog\n\n" + demote_headings("\n\n".join(body))
+    )
 
     return "\n\n".join([header_auto, summary_region, changelog_auto]).strip() + "\n"
 
