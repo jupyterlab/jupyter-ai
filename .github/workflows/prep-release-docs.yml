@@ -70,6 +70,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ github.event.inputs.version }}
+          TARGET_BRANCH: ${{ github.event.inputs.target-branch }}
         run: |
           set -euo pipefail
 
@@ -86,10 +87,23 @@ jobs:
           # top of it and committing (not force-pushing) below, so each run adds
           # a commit and the diff between runs is visible. Otherwise start a new
           # branch from the target checkout.
+          # A merge (below) records a commit, so identify the committer up front.
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
           if git ls-remote --exit-code --heads origin "$BRANCH" >/dev/null 2>&1; then
             echo "Branch ${BRANCH} exists; adding a commit on top of it."
-            git fetch --quiet origin "$BRANCH"
+            git fetch --quiet origin "$BRANCH" "$TARGET_BRANCH"
             git checkout -B "$BRANCH" "origin/${BRANCH}"
+            # Bring the branch up to date with the target branch before
+            # generating, so the run reads the CURRENT pyproject floors (which
+            # may have advanced since this branch was first cut) rather than the
+            # stale ones frozen on the branch. -X theirs resolves any conflict in
+            # the generated page toward the target branch; the page is
+            # regenerated next anyway, and the contributor-owned summary lives
+            # only on this branch, outside the target's files, so it is preserved.
+            git merge --no-edit -X theirs "origin/${TARGET_BRANCH}" \
+              || { echo "error: could not merge ${TARGET_BRANCH} into ${BRANCH}" >&2; exit 1; }
           else
             echo "Branch ${BRANCH} does not exist; creating it."
             git checkout -b "$BRANCH"
