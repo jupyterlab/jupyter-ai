@@ -28,21 +28,21 @@ classifiers = [
 dynamic = ["version"]
 
 dependencies = [
-  "jupyterlab_chat>=0.23.0a3,<0.24.0",
-  "jupyter_server_documents>=0.3.0,<0.4.0",
+  "jupyterlab_chat>=0.23.0,<0.24.0",
+  "jupyter_server_documents>=0.3.1,<0.4.0",
   "jupyter_ai_router>=0.0.5,<0.1.0",
-  "jupyter_ai_persona_manager>=0.1.0b1,<0.3.0",
+  "jupyter_ai_persona_manager>=0.1.1,<0.2.0",
   "jupyter_ai_chat_commands>=0.0.4,<0.1.0",
-  "jupyter_ai_acp_client>=0.2.0b1,<0.3.0",
-  "jupyter_server_mcp>=0.2.1,<0.3.0",
-  "jupyter_ai_tools>=0.6.0,<0.7.0",
+  "jupyter_ai_acp_client>=0.2.0,<0.3.0",
+  "jupyter_server_mcp>=0.2.1,<0.4.0",
+  "jupyter_ai_tools>=0.6.1,<0.7.0",
   "jupyterlab_notebook_awareness>=0.2.0,<0.3.0",
   "jupyterlab_commands_toolkit>=0.1.6,<0.2.0",
 ]
 
 [project.optional-dependencies]
 magics = ["jupyter_ai_litellm>=0.0.2,<0.1.0", "jupyter_ai_magic_commands>=0.0.3,<0.1.0"]
-jupyternaut = ["jupyter_ai_litellm>=0.0.2,<0.1.0", "jupyter_ai_jupyternaut>=0.0.11,<0.1.0"]
+jupyternaut = ["jupyter_ai_litellm>=0.0.2,<0.1.0", "jupyter_ai_jupyternaut>=0.1.0b0,<0.2.0"]
 # Everything needed to build the documentation (`sphinx-build docs/source`).
 # This is the single source of truth for docs dependencies, used by both Read
 # the Docs (see .readthedocs.yaml) and the docs CI workflow.
