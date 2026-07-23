@@ -1,4 +1,4 @@
-# Jupyter AI 3.2
+# Jupyter AI v3.2.0
 
 :::{note}
 Please join the discussion at [this GitHub issue](https://github.com/jupyterlab/jupyter-ai/issues/1571)!
@@ -451,7 +451,7 @@ the `opencode-acp` engine, but does not want `@OpenCode` as a persona.
 
 - To take advantage of the new APIs introduced in `BasePersona`, we need to
   provide some way in the UI to update the engine, model, context, identity, and
-options. [Jupyter AI 3.1](jupyter-ai-3.1) delivers the first cut of that UI on
+options. [Jupyter AI 3.1](completed/jupyter-ai-3.1) delivers the first cut of that UI on
 top of ACP directly; this proposal focuses on making the right API so that UI
 can eventually be backed by the unified persona API.
 
@@ -463,7 +463,7 @@ portable and shareable.
 
 ## Related efforts
 
-- [Jupyter AI 3.1](jupyter-ai-3.1), the in-chat UI that ships first and that
+- [Jupyter AI 3.1](completed/jupyter-ai-3.1), the in-chat UI that ships first and that
 this API cleanup later backs.
 
 - [jupyter-ai-persona-manager#32](https://github.com/jupyter-ai-contrib/jupyter-ai-persona-manager/pull/32) by Jordi Adoumie (Bloomberg) at the 2026 Q1 Jupyter AI Workshop in Seattle, a key contribution and reference point that inspired us to think about zero-code ways of defining AI personas.
