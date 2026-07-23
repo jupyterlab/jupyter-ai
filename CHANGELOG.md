@@ -2,6 +2,58 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 3.1.0
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/v3.0.1...efd1f8bfc698c111696669251b0e42a9d468ee67))
+
+### Enhancements made
+
+- Prep v3.1.0b0 : new UI + JSD v0.3 beta [#1588](https://github.com/jupyterlab/jupyter-ai/pull/1588) ([@dlqqq](https://github.com/dlqqq))
+
+### Bugs fixed
+
+- Fix: show subpackage docs in sidebar [#1599](https://github.com/jupyterlab/jupyter-ai/pull/1599) ([@dlqqq](https://github.com/dlqqq))
+- Bump `jupyter-releaser` action pin to `1.11.2` [#1592](https://github.com/jupyterlab/jupyter-ai/pull/1592) ([@andrii-i](https://github.com/andrii-i))
+
+### Maintenance and upkeep improvements
+
+- Bump jupyter-ai-persona-manager floor to >=0.1.2 [#1621](https://github.com/jupyterlab/jupyter-ai/pull/1621) ([@dlqqq](https://github.com/dlqqq))
+- fix: push the target-branch merge on release-docs re-run even when the page is unchanged [#1620](https://github.com/jupyterlab/jupyter-ai/pull/1620) ([@dlqqq](https://github.com/dlqqq))
+- fix: refresh floors on release-docs re-run by merging the target branch [#1614](https://github.com/jupyterlab/jupyter-ai/pull/1614) ([@dlqqq](https://github.com/dlqqq))
+- Finalize Jupyter AI v3.1.0 version ranges [#1613](https://github.com/jupyterlab/jupyter-ai/pull/1613) ([@dlqqq](https://github.com/dlqqq))
+- Limit submodule updates to upstream repository [#1611](https://github.com/jupyterlab/jupyter-ai/pull/1611) ([@jtpio](https://github.com/jtpio), [@dlqqq](https://github.com/dlqqq))
+- fix: only reuse an open PR when re-running the release-docs workflow [#1607](https://github.com/jupyterlab/jupyter-ai/pull/1607) ([@dlqqq](https://github.com/dlqqq))
+- Prep Jupyter AI v3.1.0b2 [#1596](https://github.com/jupyterlab/jupyter-ai/pull/1596) ([@dlqqq](https://github.com/dlqqq))
+- Bump `jupyter_ai_tools` to `0.6.x` and `jupyter_server_documents` to `0.3.x` [#1591](https://github.com/jupyterlab/jupyter-ai/pull/1591) ([@andrii-i](https://github.com/andrii-i))
+
+### Documentation improvements
+
+- docs: replace Gemini with Kilo across current docs [#1619](https://github.com/jupyterlab/jupyter-ai/pull/1619) ([@dlqqq](https://github.com/dlqqq))
+- docs: restructure roadmap and add a Completed section [#1617](https://github.com/jupyterlab/jupyter-ai/pull/1617) ([@dlqqq](https://github.com/dlqqq))
+- docs: add a "Full changelog" section and link to the releases page [#1616](https://github.com/jupyterlab/jupyter-ai/pull/1616) ([@dlqqq](https://github.com/dlqqq))
+- docs: Update getting started guide [#1615](https://github.com/jupyterlab/jupyter-ai/pull/1615) ([@dlqqq](https://github.com/dlqqq))
+- docs: mark optional subpackages in the release notes [#1612](https://github.com/jupyterlab/jupyter-ai/pull/1612) ([@dlqqq](https://github.com/dlqqq))
+- docs: move the release-notes blurb into the editable summary region [#1610](https://github.com/jupyterlab/jupyter-ai/pull/1610) ([@dlqqq](https://github.com/dlqqq))
+- docs: add release notes for v3.1.0 [#1609](https://github.com/jupyterlab/jupyter-ai/pull/1609) ([@andrii-i](https://github.com/andrii-i), [@dlqqq](https://github.com/dlqqq))
+- Refine release notes generation workflow [#1606](https://github.com/jupyterlab/jupyter-ai/pull/1606) ([@dlqqq](https://github.com/dlqqq))
+- Generate comprehensive release notes in docs [#1604](https://github.com/jupyterlab/jupyter-ai/pull/1604) ([@dlqqq](https://github.com/dlqqq))
+- User docs updated to reflect v3.1 [#1603](https://github.com/jupyterlab/jupyter-ai/pull/1603) ([@srdas](https://github.com/srdas), [@dlqqq](https://github.com/dlqqq))
+- Distinguish `latest` v.s. `stable` docs [#1601](https://github.com/jupyterlab/jupyter-ai/pull/1601) ([@dlqqq](https://github.com/dlqqq), [@jtpio](https://github.com/jtpio))
+- Auto-generate subpackage APIs in docs [#1600](https://github.com/jupyterlab/jupyter-ai/pull/1600) ([@dlqqq](https://github.com/dlqqq))
+- Declare doc requirements as optional dependency group [#1598](https://github.com/jupyterlab/jupyter-ai/pull/1598) ([@dlqqq](https://github.com/dlqqq))
+- Add submodule docs infrastructure [#1595](https://github.com/jupyterlab/jupyter-ai/pull/1595) ([@dlqqq](https://github.com/dlqqq))
+
+### Contributors to this release
+
+The following people contributed discussions, new ideas, code and documentation contributions, and review.
+See [our definition of contributors](https://github-activity.readthedocs.io/en/latest/use/#how-does-this-tool-define-contributions-in-the-reports).
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2026-06-30&to=2026-07-23&type=c))
+
+@andrii-i ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aandrii-i+updated%3A2026-06-30..2026-07-23&type=Issues)) | @dlqqq ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2026-06-30..2026-07-23&type=Issues)) | @jtpio ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ajtpio+updated%3A2026-06-30..2026-07-23&type=Issues)) | @srdas ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2026-06-30..2026-07-23&type=Issues))
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 3.1.0b2
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/v3.1.0b1...948ad8b16e6e0d0225f8e6422c338c26c46df557))
@@ -18,8 +70,6 @@ See [our definition of contributors](https://github-activity.readthedocs.io/en/l
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2026-07-09&to=2026-07-15&type=c))
 
 @dlqqq ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2026-07-09..2026-07-15&type=Issues))
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 3.1.0b1
 
