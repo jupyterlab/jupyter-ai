@@ -28,6 +28,8 @@ permissions: {}
 jobs:
   update-submodules:
     name: Re-pin documentation submodules to subpackage main
+    # Forks inherit this workflow, but must not update their default branches.
+    if: github.repository == 'jupyterlab/jupyter-ai'
     runs-on: ubuntu-latest
     permissions:
       contents: write # commit the refreshed pins to main
