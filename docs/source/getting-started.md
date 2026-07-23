@@ -178,35 +178,47 @@ work.
 
 ## Collaborate with an agent
 
-You should now see a chat open in JupyterLab. In Jupyter AI, each agent appears
-as an **AI persona** in each chat. Typing the `@` symbol will raise a menu
-showing you all of the available agents you can `@`-mention (as well as other
-humans connected to your server):
+You should now see a chat open in JupyterLab. Agents appear as **AI personas**
+in every chat. You can pick an AI persona to chat with by clicking the menu in
+the input toolbar and selecting an AI persona.
 
-<img src="_static/mention-menu.png"
+<img src="_static/persona-menu.png"
     alt="Screenshot showing the @-mention menu with available AI personas"
     width="50%"
     class="screenshot" />
 
-AI personas reply when `@`-mentioned, exactly like how you expect a human user
-to do in other chat applications. For example, to ask Claude a question, type
-`@Claude How do I ...?` into the input and send the message.
+:::{tip}
+If you're not logged in with an agent already, the agent will not respond to
+your request and instead prompt you to login.
 
-<img src="_static/claude-reply.png"
-    alt="Screenshot showing Claude replying to a message in Jupyter AI"
+The agent installation and authentication process will be simplified and
+improved in future versions. For now, you may need to log in via the agent's
+dedicated CLI in a separate terminal (opened automatically when possible), or
+pass additional environment variables and restart the server. 
+:::
+
+Whichever persona is selected is the one that will respond to your message.
+Simply type a prompt and send a message.
+
+<img src="_static/persona-reply.png"
+    alt="Screenshot showing an AI persona replying to a message in Jupyter AI"
     width="75%"
     class="screenshot" />
 
-:::{tip}
-If you're not logged in with an agent already, the agent will not respond to
-your request and instead prompt you to login. You may need to login via the
-command line. The agent will open the terminal for you automatically when
-possible.
-:::
+After a brief delay, additional menus will appear after the AI persona has fully
+initialized and reported its available settings. Each agent provides different
+available settings, but generally these will allow you to control the model,
+permission mode, effort level, and various other settings.
 
-Agents can read files, write files, run shell commands, and interact with
-notebooks through the Jupyter MCP Server. Agents will request permission before
-doing anything besides reading files under the current workspace.
+<img src="_static/model-menu.png"
+    alt="Screenshot showing the model selection menu provided by an AI persona"
+    width="75%"
+    class="screenshot" />
+
+Of course, agents can read files, write files, run shell commands, and even
+interact with notebooks through the Jupyter MCP Server. Agents will also request
+permission when invoking tools, unless explicitly allowed by the controls in the
+input toolbar.
 
 <img src="_static/tool-call-permission-request.png"
     alt="Screenshot showing a tool call permission request from an agent"
