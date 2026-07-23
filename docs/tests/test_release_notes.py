@@ -220,6 +220,60 @@ def test_submodule_section_added_when_no_prev_floor(monkeypatch):
     assert "Upgraded from" not in section
 
 
+def test_submodule_section_optional_note(monkeypatch):
+    monkeypatch.setattr(gen.changelog, "get_version_entry", lambda **k: _ENTRY)
+    section = gen.submodule_section(
+        org_repo="org/repo",
+        repo="repo",
+        prev_floor="0.2.5",
+        new_floor="0.3.0",
+        new_floor_tag="v0.3.0",
+        since_ref="v0.2.5",
+        branch="main",
+        auth="tok",
+        is_optional=True,
+    )
+    # Colon-fenced admonition (renders in Sphinx, reads as prose elsewhere) —
+    # NOT a ```-fenced block, which plain Markdown shows as code.
+    assert ":::{note}" in section
+    assert "```{note}" not in section
+    assert "optional package" in section
+
+
+def test_submodule_section_no_optional_note_by_default(monkeypatch):
+    monkeypatch.setattr(gen.changelog, "get_version_entry", lambda **k: _ENTRY)
+    section = gen.submodule_section(
+        org_repo="org/repo",
+        repo="repo",
+        prev_floor="0.2.5",
+        new_floor="0.3.0",
+        new_floor_tag="v0.3.0",
+        since_ref="v0.2.5",
+        branch="main",
+        auth="tok",
+    )
+    assert "optional package" not in section
+
+
+def test_optional_only_names_excludes_core_deps():
+    text = """
+[project]
+name = "jupyter_ai"
+dependencies = ["core_pkg>=1.0", "shared_pkg>=1.0"]
+
+[project.optional-dependencies]
+magics = ["opt_pkg>=0.1", "shared_pkg>=1.0"]
+jupyternaut = ["jupyter_ai_jupyternaut>=0.1.0b0,<0.2.0"]
+"""
+    result = sv.optional_only_names(text)
+    # Optional-only packages are reported...
+    assert "opt_pkg" in result
+    assert "jupyter_ai_jupyternaut" in result
+    # ...but a package that is also a core dep is NOT (it's effectively required).
+    assert "shared_pkg" not in result
+    assert "core_pkg" not in result
+
+
 def test_submodule_section_omits_empty_pr_body(monkeypatch):
     monkeypatch.setattr(
         gen.changelog, "get_version_entry", lambda **k: "## v0.3.0\n\nNo merged PRs"

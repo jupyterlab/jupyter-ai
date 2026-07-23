@@ -111,6 +111,35 @@ def load_floors_from_text(pyproject_text: str) -> dict[str, str]:
     return floors
 
 
+def optional_only_names(pyproject_text: str) -> set[str]:
+    """Return the normalized names of packages that are optional-only.
+
+    A package is "optional" if it appears in ``[project.optional-dependencies]``
+    but NOT in the core ``[project.dependencies]`` — i.e. installing jupyter-ai
+    without extras does not pull it in. A package listed in both is effectively
+    required, so it is not reported as optional.
+    """
+    data = tomllib.loads(pyproject_text)
+    project = data.get("project", {})
+
+    core: set[str] = set()
+    for req_string in project.get("dependencies", []):
+        try:
+            core.add(_norm(Requirement(req_string).name))
+        except Exception:  # pragma: no cover - defensive
+            continue
+
+    optional: set[str] = set()
+    for group in project.get("optional-dependencies", {}).values():
+        for req_string in group:
+            try:
+                optional.add(_norm(Requirement(req_string).name))
+            except Exception:  # pragma: no cover - defensive
+                continue
+
+    return optional - core
+
+
 def list_tags(url: str) -> list[str]:
     """Return the repo's tag names (``refs/tags/*``, deref peels stripped)."""
     out = subprocess.run(
