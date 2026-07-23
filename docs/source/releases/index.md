@@ -11,4 +11,5 @@ from the version floors declared in `pyproject.toml`.
 
 ```{toctree}
 :maxdepth: 1
+v3.1.0
 ```

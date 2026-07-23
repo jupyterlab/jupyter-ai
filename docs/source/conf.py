@@ -47,6 +47,15 @@ html_logo = "_static/jupyter_logo.png"
 html_theme_options = {
     "accent_color": "orange",
     "github_url": "https://github.com/jupyterlab/jupyter-ai",
+    # The announcement is injected on every page as raw HTML (not run through
+    # Sphinx's link resolver), so a relative path can't work — it would resolve
+    # differently per page depth. Use an absolute URL, pinned to /en/stable so it
+    # tracks the latest released docs rather than /en/latest (unreleased main).
+    "announcement": (
+        "Jupyter AI v3.1.0 is now released! 🎉 "
+        '<a href="https://jupyter-ai.readthedocs.io/en/stable/releases/v3.1.0.html">'
+        "See the release notes</a>."
+    ),
     "nav_links": [
         {
             "title": "Quickstart",

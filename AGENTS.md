@@ -66,6 +66,116 @@ The submodule-docs aggregation infrastructure lives here:
 When you add a new subpackage dependency that should contribute docs, add it to
 `submodules/manifest.json` and run `scripts/update-doc-submodules.sh`.
 
+## Writing release notes
+
+Each release has a page under `docs/source/releases/<version>.md`. The title,
+date, and per-subpackage changelog are auto-generated (wrapped in
+`AUTO-GENERATED` markers — don't edit those). Your job as a contributor is the
+**summary** in the `SUMMARY` markers: a human-readable overview that a reader
+sees before the raw changelog. Edit only between the SUMMARY markers; a re-run of
+the release-notes workflow regenerates everything else and preserves your
+summary.
+
+### Generating the page (Step 0 workflow)
+
+The page is produced by the **"Step 0: Prep release documentation"** workflow
+(`.github/workflows/prep-release-docs.yml`), a manual `workflow_dispatch`. Run it
+with the GitHub CLI:
+
+```
+gh workflow run "Step 0: Prep release documentation" \
+  --ref main \
+  -f version=v3.1.0 \
+  -f target-branch=main
+```
+
+- `version` — the release being prepped (e.g. `v3.1.0`).
+- `target-branch` — the branch the release is cut from; patch releases of an
+  older minor use that minor's maintenance branch (e.g. `3.0.x`) instead of `main`.
+
+The workflow generates the page from the version floors in `pyproject.toml`,
+commits it to a `release-docs/<version>` branch, and opens a draft PR against the
+target branch. It is **safe to re-run**: it reuses the same branch and open PR,
+merges the target branch in to pick up the latest floors and docs, regenerates
+the auto sections, and preserves your hand-edited summary. Watch a run with:
+
+```
+gh run watch "$(gh run list --workflow 'Step 0: Prep release documentation' \
+  -L1 --json databaseId --jq '.[0].databaseId')" --exit-status
+```
+
+Write the summary for **users first**, developers second. Use these sections, in
+order (drop any that don't apply):
+
+- `## Highlights` — the handful of changes users will care about most.
+- `## Major bugs fixed` — notable fixes, in plain "what was broken, now works"
+  terms.
+- `## API changes` — for extension developers: what they can now build, and the
+  methods they'd implement.
+- Optional `:::{note}` admonitions for caveats or forward-looking context.
+- The auto-generated per-subpackage changelog follows as the full changelog.
+
+### Style, learned from real edits
+
+**Lead with what a change *does*, not how it's built.** Implementation details
+(transport, internal wiring) are noise in a summary.
+
+> Before: "Persona session state now flows over a Yjs awareness channel instead
+> of REST, and message routing is driven by per-message metadata rather than
+> `@`-mentions. The old active-persona REST endpoints are removed."
+>
+> After: "The APIs powering the new in-chat controls are all built into the
+> Persona API, so any persona can advertise its models, settings, and session
+> usage and reuse the built-in chat UI — no custom REST API required."
+
+**Be precise about what's actually new vs. moved.** Don't call something
+"upstreamed" if it never existed before; reserve that for APIs genuinely moved
+out of a specific package. (E.g. the `report_*`/`update_*` methods are new this
+release; only `cancel_response()` was moved out of the ACP client into the base
+Persona API.)
+
+**In `## API changes`, list the methods a developer implements** — real method
+name, empty-argument-shape signature, one sentence each. Skip methods that are
+only *called* for you (plumbing/implementation details).
+
+> Before: "`BasePersona` gains `get_*` accessors, `report_*` publishers, and
+> `apply_model_spec` / `apply_settings_spec` appliers."
+>
+> After:
+> - `report_model_configuration(model)` — advertise the current model and its
+>   options, populating the model picker.
+> - `report_usage(usage)` — publish context-window, token, and cost usage for
+>   the live gauge.
+> - `update_model(model_id)` — switch the persona to the selected model.
+>
+> (Dropped `get_*` readers and `apply_*_spec` — those are read by/called for the
+> persona, not implemented by it.)
+
+**Drop parentheticals in Highlights.** They read as hedging; fold the detail
+into the sentence or cut it.
+
+> Before: "works with JupyterLab 4.6+ (Jupyter YDoc v4)" ·
+> "switch its model, mode, and options (reasoning effort, permissions, and more)"
+>
+> After: "works with JupyterLab 4.6+" ·
+> "switch the active agent's model, permission mode, effort, and other settings"
+
+**Use user-facing product language.** Name things as a user sees them, not as
+the code does.
+
+> Before: "A new control row lets you pick which persona replies"
+>
+> After: "A new input toolbar lets you pick which persona replies"
+
+**Admonitions use colon-fences, not backtick-fences**, so Sphinx renders a note
+while plain-Markdown previews (GitHub, etc.) show prose instead of a code block:
+
+````
+:::{note}
+The permission-requests API remains the only API specific to ACP agents.
+:::
+````
+
 ## Building and testing docs locally
 
 ```
