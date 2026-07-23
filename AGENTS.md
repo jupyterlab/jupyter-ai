@@ -76,6 +76,34 @@ sees before the raw changelog. Edit only between the SUMMARY markers; a re-run o
 the release-notes workflow regenerates everything else and preserves your
 summary.
 
+### Generating the page (Step 0 workflow)
+
+The page is produced by the **"Step 0: Prep release documentation"** workflow
+(`.github/workflows/prep-release-docs.yml`), a manual `workflow_dispatch`. Run it
+with the GitHub CLI:
+
+```
+gh workflow run "Step 0: Prep release documentation" \
+  --ref main \
+  -f version=v3.1.0 \
+  -f target-branch=main
+```
+
+- `version` — the release being prepped (e.g. `v3.1.0`).
+- `target-branch` — the branch the release is cut from; patch releases of an
+  older minor use that minor's maintenance branch (e.g. `3.0.x`) instead of `main`.
+
+The workflow generates the page from the version floors in `pyproject.toml`,
+commits it to a `release-docs/<version>` branch, and opens a draft PR against the
+target branch. It is **safe to re-run**: it reuses the same branch and open PR,
+merges the target branch in to pick up the latest floors and docs, regenerates
+the auto sections, and preserves your hand-edited summary. Watch a run with:
+
+```
+gh run watch "$(gh run list --workflow 'Step 0: Prep release documentation' \
+  -L1 --json databaseId --jq '.[0].databaseId')" --exit-status
+```
+
 Write the summary for **users first**, developers second. Use these sections, in
 order (drop any that don't apply):
 
