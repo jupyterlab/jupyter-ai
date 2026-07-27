@@ -2,6 +2,30 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 3.1.1
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/v3.1.0...477467298b22d9fe518666ff76315ef557f03085))
+
+### Maintenance and upkeep improvements
+
+- Prep v3.1.1: bump jupyter-ai-acp-client floor to >=0.2.1 [#1626](https://github.com/jupyterlab/jupyter-ai/pull/1626) ([@dlqqq](https://github.com/dlqqq))
+
+### Documentation improvements
+
+- docs: add release notes for v3.1.1 [#1627](https://github.com/jupyterlab/jupyter-ai/pull/1627) ([@dlqqq](https://github.com/dlqqq))
+- Updated documentation and visuals for Jupyternaut UI after the v3.1 release [#1625](https://github.com/jupyterlab/jupyter-ai/pull/1625) ([@srdas](https://github.com/srdas), [@dlqqq](https://github.com/dlqqq))
+
+### Contributors to this release
+
+The following people contributed discussions, new ideas, code and documentation contributions, and review.
+See [our definition of contributors](https://github-activity.readthedocs.io/en/latest/use/#how-does-this-tool-define-contributions-in-the-reports).
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2026-07-23&to=2026-07-27&type=c))
+
+@dlqqq ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2026-07-23..2026-07-27&type=Issues)) | @srdas ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2026-07-23..2026-07-27&type=Issues))
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 3.1.0
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/v3.0.1...efd1f8bfc698c111696669251b0e42a9d468ee67))
@@ -51,8 +75,6 @@ See [our definition of contributors](https://github-activity.readthedocs.io/en/l
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2026-06-30&to=2026-07-23&type=c))
 
 @andrii-i ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Aandrii-i+updated%3A2026-06-30..2026-07-23&type=Issues)) | @dlqqq ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2026-06-30..2026-07-23&type=Issues)) | @jtpio ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ajtpio+updated%3A2026-06-30..2026-07-23&type=Issues)) | @srdas ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2026-06-30..2026-07-23&type=Issues))
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 3.1.0b2
 
