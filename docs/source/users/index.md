@@ -81,13 +81,13 @@ As another example, see how Claude can be used via ACP in the following screens,
     width="500"
     height="auto" />
 
-#### Model attributes
+#### Model Mode
 <img src="../_static/chat-acp-claude-attribute.png"
     class="screenshot"
     width="500"
     height="auto" />
 
-#### Selecting Mode
+#### Selecting Effort
 <img src="../_static/chat-acp-claude-mode.png"
     class="screenshot"
     width="500"
