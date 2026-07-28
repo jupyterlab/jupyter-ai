@@ -65,17 +65,20 @@ list of models, for example. To get help:
 Optionally, you can specify a provider ID as a positional argument to `%ai list`
 to get all models provided by one provider. For example, `%ai list openai` will
 display only models provided by the `openai` provider.
-To see all the available providers run (the top of the list is shown):
 
-### Choosing a provider and model
-
-The `%%ai` cell magic allows you to invoke a language model of your choice with
-a given prompt. The model is identified with a **global model ID**, which is a string with the syntax `<provider-id>:<local-model-id>`, where `<provider-id>` is the ID of the provider and `<local-model-id>` is the ID of the model scoped to that provider.
+To see all the available providers run `%ai list` (the top of the list is shown):
 
 <img src="../../_static/magics-list.png"
     alt='Screenshot of magics list of all providers.'
     width="75%"
     class="screenshot" />
+
+
+### Choosing a provider and model
+
+The `%%ai` cell magic allows you to invoke a language model of your choice with
+a given prompt. The model is identified with a **global model ID**, which is a string with the syntax `<provider-id>/<local-model-id>`, where `<provider-id>` is the ID of the provider and `<local-model-id>` is the ID of the model scoped to that provider.
+
 
 To see all the models for a given provider:
 
@@ -112,6 +115,18 @@ Another example using a different provider:
     alt='Screenshot of magics example.'
     width="75%"
     class="screenshot" />
+
+
+### Using a persona with magics
+
+The magics extend to using a persona instead of a model. To use a persona (i.e., agent), specify the persona name instead of the model ID. This is shown below for the Claude and OpenCode personas. 
+
+<img src="../../_static/magics-example-personas.png"
+    alt='Screenshot of magics example.'
+    width="75%"
+    class="screenshot" />
+
+Make sure that the persona is installed and active before using it with magics.
 
 ### Configuring a default model
 
