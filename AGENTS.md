@@ -76,6 +76,14 @@ sees before the raw changelog. Edit only between the SUMMARY markers; a re-run o
 the release-notes workflow regenerates everything else and preserves your
 summary.
 
+The changelog covers every repo in `submodules/manifest.json` plus
+`EXTRA_CHANGELOG_REPOS` in `scripts/generate_release_notes.py`. The manifest is
+the doc-submodule registry, so a dependency whose docs we don't aggregate
+(`jupyterlab_chat`, whose developer docs live on its own site) goes in
+`EXTRA_CHANGELOG_REPOS` instead — its PRs then reach the release notes without
+pulling its docs into this site. A dependency whose changelog is missing from a
+generated page is registered in neither.
+
 ### Generating the page (Step 0 workflow)
 
 The page is produced by the **"Step 0: Prep release documentation"** workflow
