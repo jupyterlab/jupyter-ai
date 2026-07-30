@@ -11,6 +11,7 @@ Run with: ``pytest docs/tests/test_release_notes.py`` (or the whole
 
 from __future__ import annotations
 
+import json
 import os
 import sys
 
@@ -362,6 +363,75 @@ def test_build_page_header(monkeypatch, tmp_path):
     )
     assert "floor at the previous release (v3.0.1)" in summary
     assert gen.CONTRIBUTORS_NOTE in summary
+
+
+def test_build_page_covers_extra_changelog_repos(monkeypatch, tmp_path):
+    # A changelog-only repo (not a doc submodule, so absent from the manifest)
+    # still gets a section, so its PRs aren't dropped from the release notes.
+    monkeypatch.setattr(gen, "previous_release_tag", lambda *a, **k: "v3.0.1")
+    monkeypatch.setattr(
+        gen,
+        "show_file_at",
+        lambda *a, **k: (
+            '[project]\nname = "jupyter_ai"\ndependencies = ['
+            '"jupyter_ai_router>=0.0.5,<0.1.0", "extra_pkg>=0.1.0,<0.2.0"]\n'
+        ),
+    )
+    monkeypatch.setattr(
+        gen, "list_tags", lambda url: ["v0.0.5", "v0.0.6", "v0.1.0", "v0.2.0"]
+    )
+    monkeypatch.setattr(gen, "default_branch", lambda url: "main")
+    monkeypatch.setattr(gen, "window_start", lambda *a, **k: "v0.1.0")
+    monkeypatch.setattr(
+        gen,
+        "submodule_section",
+        lambda org_repo, repo, *a, **k: f"## `{repo}`\n\nUpgraded stub.",
+    )
+    monkeypatch.setattr(
+        gen, "EXTRA_CHANGELOG_REPOS", {"extra_pkg": "some-org/extra-pkg"}
+    )
+
+    manifest = tmp_path / "manifest.json"
+    manifest.write_text(
+        '{"jupyter_ai_router": "org/jupyter-ai-router"}', encoding="utf-8"
+    )
+    pyproject = tmp_path / "pyproject.toml"
+    pyproject.write_text(
+        '[project]\nname = "jupyter_ai"\ndependencies = ['
+        '"jupyter_ai_router>=0.0.6,<0.1.0", "extra_pkg>=0.2.0,<0.3.0"]\n',
+        encoding="utf-8",
+    )
+
+    page = gen.build_page(
+        version="v3.1.0",
+        repo_root=str(tmp_path),
+        manifest_path=str(manifest),
+        pyproject_path=str(pyproject),
+        target_branch="main",
+        auth="tok",
+        published_date="July 22, 2026",
+    )
+    # Both the manifest repo and the changelog-only repo are covered.
+    assert "### `extra-pkg`" in page
+    assert "### `jupyter-ai-router`" in page
+    # Extras lead, so the most user-facing package heads the changelog.
+    assert page.index("### `extra-pkg`") < page.index("### `jupyter-ai-router`")
+
+
+def test_extra_changelog_repos_disjoint_from_manifest():
+    # A repo in both places would be pinned as a doc submodule AND listed here;
+    # the manifest is the right home for that, so the two must not overlap.
+    manifest_path = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)),
+        "..",
+        "..",
+        "submodules",
+        "manifest.json",
+    )
+    with open(manifest_path, encoding="utf-8") as f:
+        manifest = json.load(f)
+    overlap = set(manifest) & set(gen.EXTRA_CHANGELOG_REPOS)
+    assert not overlap, f"registered as both doc submodule and extra: {overlap}"
 
 
 def test_default_summary_omits_window_line_without_prev_tag():

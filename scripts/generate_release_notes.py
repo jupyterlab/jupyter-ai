@@ -35,6 +35,14 @@ and the contributors list match the releaser exactly — no hand-rolled variant.
 The new version's floors are read from the **working-tree** ``pyproject.toml``
 (Step 0 runs before the release is tagged, once the floors have been bumped);
 the previous version's floors are read from ``git show <prev_tag>:pyproject.toml``.
+
+Which repos are covered
+-----------------------
+The repo list is ``submodules/manifest.json`` plus ``EXTRA_CHANGELOG_REPOS``
+below. The manifest exists to register **doc submodules**, so a dependency whose
+docs we don't aggregate has no reason to be in it — but its PRs still belong in
+the release notes. ``EXTRA_CHANGELOG_REPOS`` covers exactly that case, keeping
+changelog coverage independent of doc aggregation.
 """
 
 from __future__ import annotations
@@ -72,6 +80,20 @@ from jupyter_releaser import changelog  # noqa: E402
 # regenerated, and *everything else* on the page — the summary block and any prose
 # a contributor added outside the auto regions — is preserved verbatim. This lets
 # a re-run pick up a newly-merged subpackage PR without clobbering hand edits.
+# Dependencies to include in the changelog that are NOT doc submodules.
+#
+# ``submodules/manifest.json`` drives doc aggregation: every entry is checked out
+# as a submodule and its ``docs/source/{contributors,developers}/`` are copied
+# into this site. Adding a repo there purely to get its changelog would also pull
+# its docs in, which is a separate editorial decision — so changelog-only repos
+# live here instead. Same ``"pypi_name": "org/repo"`` shape as the manifest; the
+# repo must use ``v``-prefixed release tags like every other subpackage.
+EXTRA_CHANGELOG_REPOS = {
+    # Lives under jupyterlab/, not jupyter-ai-contrib/, and its developer docs
+    # are published on its own site rather than aggregated here.
+    "jupyterlab_chat": "jupyterlab/jupyter-chat",
+}
+
 AUTO_BEGIN = "<!-- BEGIN AUTO-GENERATED (do not edit; regenerated on each run) -->"
 AUTO_END = "<!-- END AUTO-GENERATED -->"
 SUMMARY_BEGIN = (
@@ -383,6 +405,11 @@ def build_page(
     with open(manifest_path, encoding="utf-8") as f:
         manifest: dict[str, str] = json.load(f)
 
+    # Changelog coverage is the doc submodules plus the changelog-only repos.
+    # Manifest entries win on conflict, so promoting a repo to a real doc
+    # submodule later needs no change here.
+    repos: dict[str, str] = {**EXTRA_CHANGELOG_REPOS, **manifest}
+
     with open(pyproject_path, encoding="utf-8") as f:
         pyproject_text = f.read()
     new_floors = load_floors_from_text(pyproject_text)
@@ -406,7 +433,7 @@ def build_page(
     unchanged: list[str] = []
     skipped: list[str] = []
 
-    for pypi_name, org_repo in manifest.items():
+    for pypi_name, org_repo in repos.items():
         key = _norm(pypi_name)
         repo = org_repo.split("/", 1)[1]
         url = f"https://github.com/{org_repo}.git"
