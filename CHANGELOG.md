@@ -2,6 +2,29 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 3.1.2
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/v3.1.1...add456fd8c986d652fec3f85506a7115f3d89b0e))
+
+### Maintenance and upkeep improvements
+
+- Prep v3.1.2: bump version floors, add release notes [#1631](https://github.com/jupyterlab/jupyter-ai/pull/1631) ([@dlqqq](https://github.com/dlqqq))
+
+### Documentation improvements
+
+- Updated the docs for magic commands to call personas from magics [#1628](https://github.com/jupyterlab/jupyter-ai/pull/1628) ([@srdas](https://github.com/srdas), [@dlqqq](https://github.com/dlqqq))
+
+### Contributors to this release
+
+The following people contributed discussions, new ideas, code and documentation contributions, and review.
+See [our definition of contributors](https://github-activity.readthedocs.io/en/latest/use/#how-does-this-tool-define-contributions-in-the-reports).
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2026-07-27&to=2026-07-30&type=c))
+
+@dlqqq ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2026-07-27..2026-07-30&type=Issues)) | @srdas ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2026-07-27..2026-07-30&type=Issues))
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 3.1.1
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/v3.1.0...477467298b22d9fe518666ff76315ef557f03085))
@@ -23,8 +46,6 @@ See [our definition of contributors](https://github-activity.readthedocs.io/en/l
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2026-07-23&to=2026-07-27&type=c))
 
 @dlqqq ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2026-07-23..2026-07-27&type=Issues)) | @srdas ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2026-07-23..2026-07-27&type=Issues))
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 3.1.0
 
