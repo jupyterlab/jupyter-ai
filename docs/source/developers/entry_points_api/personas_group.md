@@ -198,3 +198,6 @@ To make a custom AI persona available to Jupyter AI, you must provide it as an
 entry point in your package. See the documentation on
 <project:providing_entry_points.md> to learn more.
 :::
+
+## Ollama Persona Tutorial
+<project:personas_tutorial_example.md>
