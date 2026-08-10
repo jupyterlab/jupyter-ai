@@ -217,7 +217,7 @@ This means Jupyter AI can participate in several protocol roles in one session:
   arrangement, the agent is the MCP client and Jupyter AI supplies the
   configuration.
 
-For a direct model-backed persona, there is no ACP hop: the persona calls its
+For some direct model-backed personas, there is no ACP hop: the persona calls its
 configured model provider itself. For example, Jupyternaut can use the
 provider and model selected in its settings while still using the same
 Jupyter MCP tools. For a custom persona, the main application hook is
