@@ -167,25 +167,25 @@ the selections they make in the settings panel will take precedence over these v
 Specify default language model
 
 ```bash
-jupyter lab --AiExtension.initial_language_model=bedrock/anthropic.claude-3-5-haiku-20241022-v1:0
+jupyter lab --JupyternautExtension.initial_language_model=bedrock/anthropic.claude-3-5-haiku-20241022-v1:0
 ```
 
 <!-- Specify default embedding model
 
 ```bash
-jupyter lab --AiExtension.default_embeddings_model=bedrock:amazon.titan-embed-text-v1
+jupyter lab --JupyternautExtension.default_embeddings_model=bedrock:amazon.titan-embed-text-v1
 ```
 
 Specify default completions model
 
 ```bash
-jupyter lab --AiExtension.default_completions_model=bedrock-chat:anthropic.claude-v2
+jupyter lab --JupyternautExtension.default_completions_model=bedrock-chat:anthropic.claude-v2
 ``` -->
 
 Specify default API keys
 
 ```bash
-jupyter lab --AiExtension.default_api_keys={'OPENAI_API_KEY': 'sk-abcd'}
+jupyter lab --JupyternautExtension.default_api_keys={'OPENAI_API_KEY': 'sk-abcd'}
 ```
 
 ### Blocklisting providers
@@ -194,14 +194,14 @@ This configuration allows for blocking specific providers in the settings panel.
 This list takes precedence over the allowlist in the next section.
 
 ```
-jupyter lab --AiExtension.blocked_providers=openai
+jupyter lab --JupyternautExtension.blocked_providers=openai
 ```
 
 To block more than one provider in the block-list, repeat the runtime
 configuration.
 
 ```
-jupyter lab --AiExtension.blocked_providers=openai --AiExtension.blocked_providers=ai21
+jupyter lab --JupyternautExtension.blocked_providers=openai --JupyternautExtension.blocked_providers=ai21
 ```
 
 ### Allowlisting providers
@@ -210,29 +210,14 @@ This configuration allows for filtering the list of providers in the settings
 panel to only an allowlisted set of providers.
 
 ```
-jupyter lab --AiExtension.allowed_providers=openai
+jupyter lab --JupyternautExtension.allowed_providers=openai
 ```
 
 To allow more than one provider in the allowlist, repeat the runtime
 configuration.
 
 ```
-jupyter lab --AiExtension.allowed_providers=openai --AiExtension.allowed_providers=ai21
-```
-
-### Chat memory size
-
-This configuration allows for setting the number of chat exchanges the model
-uses as context when generating a response.
-
-One chat exchange corresponds to a user query message and its AI response, which counts as two messages.
-k denotes one chat exchange, i.e., two messages.
-The default value of k is 2, which corresponds to 4 messages.
-
-For example, if we want the default memory to be 4 exchanges, then use the following command line invocation when starting Jupyter Lab:
-
-```
-jupyter lab --AiExtension.default_max_chat_history=4
+jupyter lab --JupyternautExtension.allowed_providers=openai --JupyternautExtension.allowed_providers=ai21
 ```
 
 ### Model parameters
@@ -253,7 +238,7 @@ In this sample, the `bedrock` provider will be created with the value for
 `model_kwargs` when `bedrock/anthropic.claude-3-5-haiku-20241022-v1:0` model is selected.
 
 ```bash
-jupyter lab --AiExtension.model_parameters bedrock/anthropic.claude-3-5-haiku-20241022-v1:0='{"model_kwargs":{"maxTokens":200}}'
+jupyter lab --JupyternautExtension.model_parameters bedrock/anthropic.claude-3-5-haiku-20241022-v1:0='{"model_kwargs":{"maxTokens":200}}'
 ```
 
 Note the usage of single quotes surrounding the dictionary to escape the double
@@ -268,7 +253,7 @@ Here is another example, where `anthropic` provider will be created with the
 values for `max_tokens` and `temperature`, when `bedrock/anthropic.claude-3-5-haiku-20241022-v1:0` model is selected.
 
 ```bash
-jupyter lab --AiExtension.model_parameters bedrock/anthropic.claude-3-5-haiku-20241022-v1:0='{"max_tokens":1024,"temperature":0.9}'
+jupyter lab --JupyternautExtension.model_parameters bedrock/anthropic.claude-3-5-haiku-20241022-v1:0='{"max_tokens":1024,"temperature":0.9}'
 ```
 
 The above will result in the following LLM class to be generated.
@@ -279,12 +264,12 @@ AnthropicProvider(max_tokens=1024, temperature=0.9, ...)
 
 To pass multiple sets of model parameters for multiple models in the
 command-line, you can append them as additional arguments to
-`--AiExtension.model_parameters`, as shown below.
+`--JupyternautExtension.model_parameters`, as shown below.
 
 ```bash
 jupyter lab \
---AiExtension.model_parameters bedrock/anthropic.claude-3-5-haiku-20241022-v1:0='{"model_kwargs":{"maxTokens":200}}' \
---AiExtension.model_parameters openai/gpt-4.1='{"max_tokens":1024,"temperature":0.9}'
+--JupyternautExtension.model_parameters bedrock/anthropic.claude-3-5-haiku-20241022-v1:0='{"model_kwargs":{"maxTokens":200}}' \
+--JupyternautExtension.model_parameters openai/gpt-4.1='{"max_tokens":1024,"temperature":0.9}'
 ```
 
 However, for more complex configuration, we highly recommend that you specify
@@ -300,7 +285,7 @@ model.
 
 ```json
 {
-  "AiExtension": {
+  "JupyternautExtension": {
     "model_parameters": {
       "bedrock/anthropic.claude-3-5-haiku-20241022-v1:0": {
         "model_kwargs": {
