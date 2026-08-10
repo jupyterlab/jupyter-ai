@@ -4,54 +4,6 @@ Welcome to the user guide for Jupyter AI. Make sure to see our guide on
 {doc}`Getting Started </getting-started>` if you haven't already, which covers
 installation and setup.
 
-## How Jupyter AI interacts with agents
-
-Jupyter AI is the chat host inside JupyterLab. It provides the chat interface,
-keeps track of the conversation, and routes each message to an AI persona. A
-persona is the integration point for an agent or model; it is not the model
-itself. This distinction is useful when deciding where a setting or a tool
-belongs.
-
-| Component | Role in a Jupyter AI session |
-| --- | --- |
-| Chat panel | Collects messages, attachments, and tool permission decisions, then displays streamed replies. |
-| AI persona | Receives a message and produces a reply. The persona may call a model directly or hand the message to an external agent. |
-| ACP integration | Connects Jupyter AI to an external agent through the Agent Client Protocol. The agent reports its available models, modes, and permissions back to the chat. |
-| Model provider | Supplies model completions to a persona. OpenAI-compatible endpoints and providers such as Ollama, OpenRouter, and Bedrock are model backends, not separate personas. |
-| Jupyter MCP server | Exposes notebook and JupyterLab operations as MCP tools, so an agent can inspect or change the workspace with the user's permission. |
-| Custom MCP server | Adds another tool source through the workspace's `.jupyter/mcp_settings.json` configuration. |
-
-The usual message flow is:
-
-1. You send a message in a chat and optionally select a persona or attach a
-   notebook cell or file.
-2. Jupyter AI routes the message to the selected persona. If the persona wraps
-   an ACP agent, the persona forwards the request to that agent and streams the
-   agent's events back to the chat.
-3. The agent or persona decides whether it needs a model, a notebook tool, or a
-   custom MCP tool. Tool calls can require approval before they run.
-4. The result is streamed back through the persona to the chat panel. Any files,
-   notebook edits, or other workspace changes are made by the tool that was
-   called, not by the chat panel itself.
-
-This means Jupyter AI can participate in several protocol roles in one session:
-
-- Jupyter AI acts as an ACP client when it connects an external ACP agent to the
-  chat.
-- The Jupyter server acts as an MCP server when it exposes notebook tools to an
-  agent.
-- An external MCP server can be configured as another tool source. In that
-  arrangement, the agent is the MCP client and Jupyter AI supplies the
-  configuration.
-
-For a direct model-backed persona, there is no ACP hop: the persona calls its
-configured model provider itself. For example, Jupyternaut can use the
-provider and model selected in its settings while still using the same
-Jupyter MCP tools. For a custom persona, the main application hook is
-`process_message()`. See the
-{doc}`developer guide </developers/entry_points_api/personas_group>` for the
-persona API and entry-point setup.
-
 ## Using the chat interface
 
 ### Create a new chat
@@ -225,6 +177,53 @@ Jupyter AI provides some quick shortcuts for code blocks returned by an agent. Y
     alt='Screen shot of Jupyter AI with a Python function selected, the user having typed "Rewrite this function to be iterative, not recursive" as their prompt, and with the user having chosen to include the selection with their message and to replace the selection with the response.'
     width="95%"
     class="screenshot" />
+
+## How Jupyter AI interacts with agents
+
+Jupyter AI is the chat host inside JupyterLab. It provides the chat interface,
+keeps track of the conversation, and routes each message to an AI persona. A
+persona is the integration point for an agent or model; it is not the model
+itself. This distinction is useful when deciding where a setting or a tool
+belongs.
+
+| Component | Role in a Jupyter AI session |
+| --- | --- |
+| Chat panel | Collects messages, attachments, and tool permission decisions, then displays streamed replies. |
+| AI persona | Receives a message and produces a reply. The persona may call a model directly or hand the message to an external agent. |
+| ACP integration | Connects Jupyter AI to an external agent through the Agent Client Protocol. The agent reports its available models, modes, and permissions back to the chat. |
+| Jupyter MCP server | Exposes notebook and JupyterLab operations as MCP tools, so an agent can inspect or change the workspace with the user's permission. |
+| Custom MCP server | Adds another tool source through the workspace's `.jupyter/mcp_settings.json` configuration. |
+
+The usual message flow is:
+
+1. You send a message in a chat and optionally select a persona or attach a
+   notebook cell or file.
+2. Jupyter AI routes the message to the selected persona. If the persona wraps
+   an ACP agent, the persona forwards the request to that agent and streams the
+   agent's events back to the chat.
+3. The agent or persona decides whether it needs a model, a notebook tool, or a
+   custom MCP tool. Tool calls can require approval before they run.
+4. The result is streamed back through the persona to the chat panel. Any files,
+   notebook edits, or other workspace changes are made by the tool that was
+   called, not by the chat panel itself.
+
+This means Jupyter AI can participate in several protocol roles in one session:
+
+- Jupyter AI acts as an ACP client when it connects an external ACP agent to the
+  chat.
+- The Jupyter server acts as an MCP server when it exposes notebook tools to an
+  agent.
+- An external MCP server can be configured as another tool source. In that
+  arrangement, the agent is the MCP client and Jupyter AI supplies the
+  configuration.
+
+For a direct model-backed persona, there is no ACP hop: the persona calls its
+configured model provider itself. For example, Jupyternaut can use the
+provider and model selected in its settings while still using the same
+Jupyter MCP tools. For a custom persona, the main application hook is
+`process_message()`. See the
+{doc}`developer guide </developers/entry_points_api/personas_group>` for the
+persona API and entry-point setup.
 
 ## Notebook tools
 
