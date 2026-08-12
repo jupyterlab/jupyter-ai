@@ -1,4 +1,4 @@
-# Jupyter AI v3.2.0
+# New Persona API
 
 :::{note}
 Please join the discussion at [this GitHub issue](https://github.com/jupyterlab/jupyter-ai/issues/1571)!
