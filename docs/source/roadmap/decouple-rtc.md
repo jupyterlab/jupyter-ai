@@ -405,3 +405,10 @@ We hope to ship this by 2026-09-01.
 
 - Explicit request for this on the Jupyter Community Forum: https://discourse.jupyter.org/t/using-jupyter-ai-without-real-time-collaboration-rtc/38782
 - Upstream issue in JupyterLab by `@ctcjab`: https://github.com/jupyterlab/jupyterlab/issues/18699
+
+**Prior art at decoupling RTC from the file-sync UI**
+
+While prior art is known to us, we believe a dedicated package is still warranted: these efforts are early-stage and not yet available as a released, maintained solution, and the upstream PR is paused pending a larger redesign. A focused package lets us deliver a working RTC-free experience now while aligning with the upstream direction (contents-manager-level detection via `watchfiles`), so it can converge with — or be upstreamed into — JupyterLab later.
+
+- JupyterLab PR by `@xicoo22`: https://github.com/jupyterlab/jupyterlab/pull/18944 — adds OS-level external change detection; currently unmerged, with maintainers favoring a contents-manager-level design built on `watchfiles`.
+- Unofficial extension by `@kolibril13`: https://github.com/kolibril13/hot-notebook-patching — an experimental approach to patching open notebooks from external changes.
