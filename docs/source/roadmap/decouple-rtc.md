@@ -398,3 +398,10 @@ Development will be tackled in 4 key phases:
    4. Update documentation and add Jupyter AI release notes for next minor release
 
 We hope to ship this by 2026-09-01.
+
+## References
+
+**Existing requests to provide these features without RTC**
+
+- Explicit request for this on the Jupyter Community Forum: https://discourse.jupyter.org/t/using-jupyter-ai-without-real-time-collaboration-rtc/38782
+- Upstream issue in JupyterLab by `@ctcjab`: https://github.com/jupyterlab/jupyterlab/issues/18699
