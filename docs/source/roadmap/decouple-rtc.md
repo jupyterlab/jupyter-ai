@@ -104,7 +104,7 @@ rtc-jsd = ["jupyter_server_documents", "jupyterlab_chat"]
 
 The goal of this component is to make server-side file changes appear in the browser UI in real time without RTC. We propose creating a new extension package named `jupyterlab_live_content`, which ships a lab (frontend) and server extension connected by a single WebSocket endpoint.
 
-While [prior art](#references) is known to us, we believe a dedicated package is still warranted. These efforts are early-stage and not yet available as a released, maintained solution. A focused package lets us ship a working RTC-free experience now, synthesizing ideas from other contributors as it matures. This package will live under the `jupyter-ai-contrib/` org for now. This allows us to ship a fix to affected users as quickly as possible, while maintaining an easy path to move this into an official Project Jupyter org in the future.
+While [prior art](#references) is known to us, we believe a dedicated package is still warranted. Existing efforts are early-stage and not yet available as a released, maintained solution. A focused package lets us ship a working RTC-free experience now, and synthesize ideas from other contributors as it matures. To accommodate this, this package will live under the `jupyter-ai-contrib/` org in the short-term. Plans are underway to move this package into an official Project Jupyter org once it is ready.
 
 #### Frontend
 
@@ -409,8 +409,6 @@ We hope to ship this by 2026-09-01.
 - Upstream issue in JupyterLab by `@ctcjab`: https://github.com/jupyterlab/jupyterlab/issues/18699
 
 **Prior art at decoupling RTC from the file-sync UI**
-
-While prior art is known to us, we believe a dedicated package is still warranted: these efforts are early-stage and not yet available as a released, maintained solution, and the upstream PR is paused pending a larger redesign. A focused package lets us deliver a working RTC-free experience now while aligning with the upstream direction (contents-manager-level detection via `watchfiles`), so it can converge with — or be upstreamed into — JupyterLab later.
 
 - JupyterLab PR by `@xicoo22`: https://github.com/jupyterlab/jupyterlab/pull/18944 — adds OS-level external change detection; currently unmerged, with maintainers favoring a contents-manager-level design built on `watchfiles`.
 - Unofficial extension by `@kolibril13`: https://github.com/kolibril13/hot-notebook-patching — an experimental approach to patching open notebooks from external changes.
