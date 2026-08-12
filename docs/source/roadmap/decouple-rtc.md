@@ -181,7 +181,7 @@ The most important new pieces of this are:
   - `get_chat_provider(serverapp: ServerApp)` - a unified way to determine which chat implementation wins if both are available, based on whether an RTC provider is available
 - `extension.py` - a minimal server extension that advertises this to frontend plugins via `PageConfig`
 
-### **Clever extension configurations that enable seamless transition to RTC**
+### Clever extension configurations that enable seamless transition to RTC
 
 In the previous section, we proposed a design to create a shared package that allows the chat implementation to be modularized. But if both are installed, how do we pick the right implementation? In other words, how is `get_chat_provider()` implemented?
 
