@@ -102,7 +102,9 @@ rtc-jsd = ["jupyter_server_documents", "jupyterlab_chat"]
 
 ### New RTC-free 'live content provider'
 
-The goal of this component is to make server-side file changes appear in the browser UI in real time without RTC. As no prior art is known to us, we propose creating a new extension package named `jupyterlab_live_content`, which ships a lab (frontend) and server extension connected by a single WebSocket endpoint.
+The goal of this component is to make server-side file changes appear in the browser UI in real time without RTC. We propose creating a new extension package named `jupyterlab_live_content`, which ships a lab (frontend) and server extension connected by a single WebSocket endpoint.
+
+While [this prior art](#references) is known to us, we believe a dedicated package is still warranted. These efforts are early-stage and not yet available as a released, maintained solution. A focused package lets us ship a working RTC-free experience now, synthesizing ideas from other contributors as it matures. This gets a fix to affected users as quickly as possible while keeping a clear path forward: the package can be donated as an official Jupyter package, and potentially upstreamed into JupyterLab and/or Jupyter Notebook directly.
 
 #### Frontend
 
