@@ -1,9 +1,5 @@
 # Decoupling RTC from Jupyter AI
 
-2026-08-10
-
-dlq@
-
 ## Context
 
 Jupyter AI brings AI agents into JupyterLab: a chat interface for talking to agents, and the ability for those agents to read and edit notebooks and files directly. For agent edits to feel live, Jupyter AI currently relies on real-time collaboration (RTC). RTC is the same technology that lets multiple humans co-edit a document. RTC models documents as conflict-free replicated data types (CRDT) replicated between the server and each web client over WebSockets. RTC in Jupyter uses YATA CRDTs powered by `yjs` and `yrs` libraries. Today Jupyter AI depends on RTC for two reason: the chat itself is modeled as a shared document powered by RTC (`YChat`), and RTC allows agent edits to update the UI in real-time for every file or notebook you have open. Because of this, RTC has been a required dependency since Jupyter AI v3.0.
