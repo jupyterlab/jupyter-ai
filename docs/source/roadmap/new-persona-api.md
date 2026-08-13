@@ -1,12 +1,7 @@
 # New Persona API
 
 :::{note}
-Please join the discussion at [this GitHub issue](https://github.com/jupyterlab/jupyter-ai/issues/1571)!
-:::
-
-:::{note}
-The exact interface proposed here is still being ironed out and is subject to
-change.
+This proposal has been accepted but is not yet scheduled for release. `3.x` indicates the minor release it will ship in once scheduled. Please join the discussion on [this GitHub issue](https://github.com/jupyterlab/jupyter-ai/issues/1571)!
 :::
 
 ## Context
@@ -75,7 +70,7 @@ build a new instance of a different class.
 
 ## Proposal Summary
 
-In 3.2, we will deconstruct the persona into separate, well-defined building
+In 3.x, we will deconstruct the persona into separate, well-defined building
 blocks, and lift **everything**, including the agent engine, out of the class
 definition. An AI persona is composed of five swappable parts:
 
@@ -96,13 +91,13 @@ ID, accepted in the constructor.
 `BasePersona` becomes a standardized container that holds these building blocks
 and delegates message handling to its engine via `self.engine`. To enable
 future work on making model selection and persona configuration more intuitive,
-the new `BasePersona` interface in 3.2 will provide a complete API for updating
+the new `BasePersona` interface in 3.x will provide a complete API for updating
 every one of these instance-level attributes at runtime, including a new
 `update_engine` method. Here is the new `BasePersona` interface being proposed
-for 3.2 compared to 3.0, with the less important methods hidden:
+for 3.x compared to 3.0, with the less important methods hidden:
 
 `````{tabs}
-````{tab} 3.2
+````{tab} 3.x
 ```
 class BasePersona(LoggingConfigurable):
     # ─── Lifecycle methods ────────────────────────────────
@@ -253,9 +248,9 @@ identity is defined by the class. Since each persona class maps to exactly one
 persona instance per chat, there's no way to create another AI persona built on
 OpenCode that uses a different model and skillset.
 
-The 3.2 API will allow developers to *reuse*
+The 3.x API will allow developers to *reuse*
 an existing engine to create a new AI persona, with
-a different model, context, identity, and options. In 3.2, personas can be
+a different model, context, identity, and options. In 3.x, personas can be
 initialized like this:
 
 ```py
@@ -300,7 +295,7 @@ there is no need to create a Python module to define an AI persona. Since all of
 arguments are serializable, and the engine is referenced by ID, they can be
 represented in any no-code format that
 can express dictionaries / key-value pairs. Markdown files with YAML
-frontmatter are well-suited for this while being easily readable. The 3.2
+frontmatter are well-suited for this while being easily readable. The 3.x
 architecture enables a future where `.persona.md` files can be used to define
 AI personas by naming an existing engine.
 
