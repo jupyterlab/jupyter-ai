@@ -5,6 +5,7 @@ This section contains the roadmap for major API improvements and new features in
 ```{toctree}
 :hidden:
 
-jupyter-ai-3.2
+decouple-rtc
+new-persona-api
 completed/index
 ```
