@@ -357,3 +357,7 @@ We hope to ship this by 2026-09-01.
 
 - JupyterLab PR by `@xicoo22`: [jupyterlab#18944](https://github.com/jupyterlab/jupyterlab/pull/18944). Adds OS-level external change detection; currently unmerged, with maintainers favoring a contents-manager-level design built on `watchfiles`.
 - Unofficial extension by `@kolibril13`: [kolibril13/hot-notebook-patching](https://github.com/kolibril13/hot-notebook-patching). An experimental approach to patching open notebooks from external changes.
+
+## Acknowledgements
+
+Thank you to Adam Thornton at the Vera Rubin Observatory, Tasha Snow at NASA, and all of the other users and organizations who took the time to report these stability issues. Thank you to Zach Sailer, Michał Krassowski, Sylvain Corlay, Nicolas Brichet, Jeremy Tuloup, and David Brochart for the review and feedback which helped shape this proposal.
