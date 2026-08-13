@@ -1,4 +1,10 @@
-# Decoupling RTC from Jupyter AI
+# Decouple RTC
+
+:::{note}
+This will be released as part of Jupyter AI v3.2.0 as it addresses a major bug, and both maintainers and users have reached a general consensus on accepting this.
+
+Please join the discussion on [this GitHub issue](https://github.com/jupyterlab/jupyter-ai/issues/1644), or the [Zulip thread](https://jupyter.zulipchat.com/#narrow/channel/475130-jupyter-ai/topic/Decoupling.20RTC.20from.20Jupyter.20AI/with/615991875)!
+:::
 
 ## Context
 
@@ -37,10 +43,10 @@ We propose the following changes to Jupyter AI's architecture:
 - **A new RTC-free 'live content provider':** A new extension, tentatively named `jupyterlab_live_content`, will update the UI to respond to file changes on disk in real-time, without requiring RTC. This will leverage the existing plugin interfaces introduced in JupyterLab.
 
   - This addresses requirement 1.
-- **Jupyter Chat powered by simple WebSockets**: This already exists in `jupyterlab-ws-chat` thanks to Nicolas Brichet. It needs to be updated to restore compatibility with `jupyterlab-chat`.
+- **Decouple RTC from Jupyter Chat**: We make `jupyter_collaboration` optional *within* `jupyterlab-chat` itself. When collaboration is unavailable, the frontend uses a WebSocket-backed `WsChatModel` and the backend propagates messages over a simple WebSocket handler, so chat works without RTC using the same package. This is prototyped in [`jupyterlab/jupyter-chat#489`](https://github.com/jupyterlab/jupyter-chat/pull/489) by Nicolas Brichet.
 
   - This addresses requirement 2.
-- **An abstract chat model on the backend**: We need some shared package like `jupyter_chat_core` that defines the Python-side API contracts and schemas which `jupyterlab-chat` and `jupyterlab-ws-chat` must follow. The Jupyter AI subpackages need to be refactored to use the interfaces provided in this new shared package to remove their dependencies on RTC.
+- **An abstract chat model on the backend**: `jupyterlab-chat` gains a backend chat-model abstraction (`AbstractBaseChat`) that both the collaborative (`YChat`/`_ChatRoom`) and WebSocket implementations inherit from, plus a shared way to detect whether an RTC provider is active. The Jupyter AI subpackages depend only on that stable interface instead of on RTC.
 
   - This addresses requirement 3 and some of requirement 4.
 
@@ -72,15 +78,14 @@ dependencies = [
 ... # existing optional groups
 ```
 
-The proposal would split off RTC-only packages into optional dependency groups, refactoring almost all of our packages to work RTC-free. A new extension package, `jupyterlab_live_content`, will be introduced to update the UI in real-time when AI agents make file edits without requiring RTC. `jupyterlab_ws_chat`, an existing chat implementation that just uses simple WebSockets to provide the chat, will replace `jupyterlab_chat` as a required dependency.
+The proposal would split off RTC-only packages into optional dependency groups, refactoring almost all of our packages to work RTC-free. A new extension package, `jupyterlab_live_content`, will be introduced to update the UI in real-time when AI agents make file edits without requiring RTC. On the chat side, `jupyterlab_chat` remains a required dependency and is made to work without RTC by making `jupyter_collaboration` optional (see the Jupyter Chat section below).
 
 The new package structure will look like this:
 
 ```yaml
 dependencies = [
-  "jupyterlab_ws_chat",             # new, provides chat without RTC
+  "jupyterlab_chat",                # refactored
   "jupyterlab_live_content",        # new, provides simple FS <=> UI sync without RTC
-#  "jupyterlab_chat",               # made optional (RTC-only)
 #  "jupyter_server_documents",      # made optional (RTC)
   "jupyter_ai_router",              # refactored
   "jupyter_ai_persona_manager",     # refactored
@@ -94,8 +99,8 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-rtc = ["jupyter_collaboration", "jupyterlab_chat"]
-rtc-jsd = ["jupyter_server_documents", "jupyterlab_chat"]
+rtc = ["jupyter_collaboration"]
+rtc-jsd = ["jupyter_server_documents"]
 ```
 
 ## Proposal details
@@ -149,60 +154,45 @@ The ideal end state is to always have the UI update intelligently, even for out-
 
 Therefore, these improvements are left out of the initial scope of the proposal. We will make a best-effort to ensure AI edits work well by the minor release date, but will not delay the minor release if the feature cannot be made extremely stable and robust within a few days.
 
-### Jupyter Chat powered by simple WebSockets
+### Decouple RTC from Jupyter Chat
 
-This work has already been done in `jupyterlab-ws-chat` by Nicolas Brichet and others. This package only needs to be updated to support the latest Jupyter Chat library and APIs, and implement the new interfaces as described in the next section. There are two potential futures for this repo:
+We make `jupyter_collaboration` optional within `jupyterlab-chat` itself. This is prototyped in [`jupyterlab/jupyter-chat#489`](https://github.com/jupyterlab/jupyter-chat/pull/489) by Nicolas Brichet.
 
-1. Move this into the `jupyterlab/jupyter-chat` repo, or
-2. Move the repo under the `jupyter-ai-contrib/` GitHub org.
+On the frontend, the chat model is chosen at runtime. When a collaborative content provider is available (i.e. `jupyter_collaboration` is installed), the existing `LabChatModel` backed by a Yjs shared document is used; otherwise a new `WsChatModel` backed by a plain WebSocket is used instead. On the backend, a lightweight WebSocket handler propagates messages between clients when collaboration is not enabled. Because both paths already share the same `@jupyter/chat` frontend library, the WebSocket model reuses the existing chat UI unchanged.
 
-As both `jupyterlab-chat` and `jupyterlab-ws-chat` are both powered by the same `@jupyter/chat` NPM library package, restoring compatibility between the two implementations is not expected to be difficult (relative to the other sections of this proposal).
+This keeps everything in one package: `jupyterlab-chat` provides the full RTC experience when an RTC provider is present, and transparently falls back to WebSocket-based chat when it is not.
 
 ### Abstract chat model on the backend
 
-Currently, Jupyter Chat consumers on the server-side directly use the `YChat` interface to perform operations on a chat, which has to be generalized to support both RTC-free and RTC-based implementations. There is currently no server-side analogue of the  `@jupyter/chat` NPM package, which defines a standard interface and library that frontend consumers may use to provide other implementations.
+Currently, Jupyter Chat consumers on the server side directly use the `YChat` interface to perform operations on a chat, which has to be generalized to support both RTC-free and RTC-based implementations. There is currently no server-side analogue of the `@jupyter/chat` NPM package, which defines a standard interface that frontend consumers use to provide alternative implementations.
 
-To allow RTC-free and RTC-based chat implementations to be swappable, there needs to be a Python library that defines the API contract that providers may implement, while being separate from any specific implementation. For this, we propose a new Python package in the `jupyterlab/jupyter-chat` repo: `jupyter_chat_core`.
+We add the abstraction inside `jupyterlab-chat`'s Python package. A new `AbstractBaseChat` base class defines the API contract, and both the collaborative chat (`YChat`/`_ChatRoom`) and the WebSocket chat implement it. `jupyterlab-chat` also exposes a shared helper to detect which RTC provider is active for a server session, if any; the chat mode follows directly from that (collaborative when a provider is present, WebSocket otherwise), advertised to frontend plugins via `PageConfig`. The Jupyter AI subpackages then depend only on this stable interface rather than on any concrete RTC implementation.
 
-This new package may have a structure like this:
+Concretely, this adds the following within `jupyterlab-chat`:
 
-```
-jupyter_chat_core/
-|- interfaces/  # abstract classes, dataclass definitions, etc.
-|- lib/         # things that are useful to both implementations
-|- extension.py # the server extension
-```
-
-The most important new pieces of this are:
-
-- `interfaces/abstract_chat.py` - defines the `AbstractBaseChat` class that `YChat` and `WsChat` may implement.
-- `interfaces/message.py` - definition of the `Message` interface (currently as a dataclass)
-- `lib/__init__.py` - defines shared library functions.
-
-  - `get_rtc_provider(serverapp: ServerApp)` - a unified way to determine which RTC provider is available, if any.
-  - `get_chat_provider(serverapp: ServerApp)` - a unified way to determine which chat implementation wins if both are available, based on whether an RTC provider is available
-- `extension.py` - a minimal server extension that advertises this to frontend plugins via `PageConfig`
+- an `AbstractBaseChat` class that both `YChat` and the WebSocket chat implement;
+- a `Message` schema shared by both implementations;
+- a `get_rtc_provider(serverapp)` helper that determines which RTC provider is available (if any); `jupyterlab-chat` uses its collaborative model when one is present and its WebSocket model otherwise, publishing this decision to the frontend via `PageConfig`.
 
 ### Clever extension configurations that enable seamless transition to RTC
 
-In the previous section, we proposed a design to create a shared package that allows the chat implementation to be modularized. But if both are installed, how do we pick the right implementation? In other words, how is `get_chat_provider()` implemented?
+In the previous section, we added a backend chat-model abstraction to `jupyterlab-chat` along with helpers that decide which chat mode to use. But how do we know whether RTC is available for this session? In other words, how is `get_rtc_provider()` implemented?
 
 We need a way to control extension behavior based on the environment. A naive way to approach this is to just detect if RTC packages are installed to determine whether to use RTC:
 
 ```
 # naive way
-def get_chat_provider():
-    """Picks the right server extension to provide the chat feature based on env"""
-    HAS_RTC = 0
+def rtc_available() -> bool:
+    """Detect whether an RTC backend is installed."""
     try:
-      import jupyter_collaboration
-    except:
-      try:
-        import jupyter_server_documents
-      except:
-        HAS_RTC = 1
-
-    return 'jupyterlab_chat' if HAS_RTC else 'jupyterlab_ws_chat'
+        import jupyter_collaboration  # noqa: F401
+        return True
+    except ImportError:
+        try:
+            import jupyter_server_documents  # noqa: F401
+            return True
+        except ImportError:
+            return False
 ```
 
 However, it's not enough to just check whether an RTC extension is installed. An RTC extension must be both installed and enabled for this server session for RTC to support to exist. If the above code were used as-is, admins would have no way to configure a space to not use RTC when `jupyter_collaboration` or `jupyter_server_documents` is installed. This is a valid concern for admins who may deploy both private and RTC instances from a single image or Dockerfile. For these users, Jupyter AI cannot break when RTC is installed but disabled.
@@ -222,27 +212,9 @@ if TYPE_CHECKING:
 RTCProvider = Literal["jupyter_server_documents", "jupyter_server_ydoc"]
 
 # RTC providers are the backend server extensions that supply the shared-document
-# (YCRDT) transport `jupyterlab_chat` relies on. jupyter_chat_core only needs
+# (YCRDT) transport the collaborative chat relies on. jupyterlab_chat only needs
 # their *names* -- it never imports them or touches their internals.
 RTC_PROVIDERS: set[RTCProvider] = {"jupyter_server_documents", "jupyter_server_ydoc"}
-
-# --- Chat providers ----------------------------------------------------------
-
-ChatProvider = Literal["jupyterlab_chat", "jupyterlab_ws_chat"]
-
-# A "chat provider" is the server extension that owns the chat feature for a
-# given session: it ships the chat UI plugin and the server side that backs it.
-# Exactly one is active at a time. The two implementations differ only in how
-# chat state is stored and transported to the browser:
-#   - CHAT_RTC_YCRDT: chat lives in a shared YDoc/CRDT that an RTC provider
-#     replicates to clients. Requires an RTC provider to actually serve it (its
-#     own server side is just a doc-type registration).
-#   - CHAT_WS: a standalone websocket chat that owns its own state and transport
-#     -- no RTC, no CRDT. The universal fallback.
-CHAT_RTC_YCRDT: ChatProvider = "jupyterlab_chat"
-CHAT_WS: ChatProvider = "jupyterlab_ws_chat"
-
-CHAT_PROVIDERS: set[ChatProvider] = {CHAT_RTC_YCRDT, CHAT_WS}
 
 # --- Detection ---------------------------------------------------------------
 
@@ -272,52 +244,28 @@ def get_rtc_provider(serverapp: "ServerApp") -> Optional[RTCProvider]:
     if "jupyter_server_ydoc" in enabled:
         return "jupyter_server_ydoc"
     return None
-
-def get_chat_provider(serverapp: "ServerApp") -> Optional[ChatProvider]:
-    """Pick the chat server extension that should be active this session.
-
-    Every extension that calls this reads the same serverapp state, so each one
-    independently reaches the SAME verdict -- no handshake needed.
-
-      1. RTC provider enabled AND jupyterlab_chat enabled -> CHAT_RTC_YCRDT
-      2. else jupyterlab_ws_chat enabled                  -> CHAT_WS
-      3. else (nothing viable)                            -> None  # caller fails loud
-
-    `jupyterlab_chat` is only viable with an RTC provider (its server side is a
-    hollow shell; transport comes from the RTC backend), so it's never chosen
-    when RTC is off -- ws-chat is the universal fallback.
-    """
-    if get_rtc_provider(serverapp) and _is_enabled(serverapp, CHAT_RTC_YCRDT):
-        return CHAT_RTC_YCRDT
-    if _is_enabled(serverapp, CHAT_WS):
-        return CHAT_WS
-    return None
 ```
 
-`jupyter_chat_core`, in addition to providing library functions, will also be a server extension. For now, it will just serve to publish this information to the frontend via `PageConfig` under the `chatServerSessionInfo` key. The frontend will query it using the `getChatServerSessionInfo()` function (which gets added to `@jupyter/chat` NPM package):
+`jupyterlab_chat` uses its collaborative model when `get_rtc_provider()` returns a provider, and its WebSocket model otherwise. Its server extension publishes this decision to the frontend via `PageConfig` under the `chatServerSessionInfo` key. The frontend queries it using the `getChatServerSessionInfo()` function (added to the `@jupyter/chat` NPM package):
 
 ```typescript
 import { PageConfig } from '@jupyterlab/coreutils';
 
-// Mirror of the Python Literals in jupyter_chat_core (server module names).
+// Mirror of the Python Literal in jupyterlab_chat (server module names).
 export type RTCProvider = 'jupyter_server_documents' | 'jupyter_server_ydoc';
-export type ChatProvider = 'jupyterlab_chat' | 'jupyterlab_ws_chat';
 
 export interface IChatServerSessionInfo {
-  /** Winning chat provider, or null if none is viable. */
-  activeChatProvider: ChatProvider | null;
   /** True iff an RTC provider is enabled this session. */
   rtcEnabled: boolean;
   /** Which RTC backend is active (informational), or null. */
   rtcProvider: RTCProvider | null;
 }
 
-export const CHAT_CORE_PAGE_CONFIG_KEY = 'chatServerSessionInfo';
+export const CHAT_SERVER_SESSION_INFO_KEY = 'chatServerSessionInfo';
 
-
-/** Read the chat-core config the server published into page config. */
+/** Read the chat session info the server published into page config. */
 export function getChatServerSessionInfo(): IChatServerSessionInfo {
-  const raw = PageConfig.getOption(CHAT_CORE_PAGE_CONFIG_KEY);
+  const raw = PageConfig.getOption(CHAT_SERVER_SESSION_INFO_KEY);
   // getOption always returns a string ('' if unset); raise error if unset
   if (!raw) { throw new Error("'chatServerSessionInfo' not found in PageConfig."); }
   return JSON.parse(raw);
@@ -326,20 +274,18 @@ export function getChatServerSessionInfo(): IChatServerSessionInfo {
 
 For every extension that either requires RTC to be enabled or requires RTC to be disabled:
 
-- Every labextension plugin should only be disabled if the `PageConfig` indicates the corresponding server extension is not the one being used for this session.
-- The server extension should import `get_chat_provider()` from `jupyter_chat_core.lib`, run the function to determine whether they will be used in this session, and do nothing if not being used in this session.
+- Every labextension plugin should only be disabled if the `PageConfig` indicates it is not needed this session (for example, an RTC-only plugin when RTC is off, or `jupyterlab_live_content` when RTC is on).
+- Server extensions should import `get_rtc_provider()` from `jupyterlab_chat`, run it to determine whether they are needed this session, and do nothing if not.
 
-The following packages get disabled when RTC is *not* enabled:
-
-- `jupyterlab_chat` (if installed)
+`jupyterlab_chat` is always enabled and selects its transport at runtime: it uses the collaborative (RTC) chat model when an RTC provider is available, and the WebSocket chat model otherwise.
 
 The following packages get disabled when RTC *is* enabled:
 
-- `jupyterlab_live_content`
-- `jupyterlab_ws_chat`
+- `jupyterlab_live_content` (RTC already keeps the UI in sync)
 
 The following packages remain enabled regardless, but have different behavior based on whether RTC is enabled in the server session:
 
+- `jupyterlab_chat`
 - `jupyter-ai-router`
 - `jupyter-ai-tools`
 - `jupyterlab-notebook-awareness`
@@ -365,7 +311,7 @@ To turn RTC off, either:
 
 ### Jupyter AI refactoring
 
-Almost all of the Jupyter AI subpackages need to be refactored to consume any implementation of `AbstractBaseChat` instead of just `YChat`. They will depend on `jupyter_chat_core` to provide the expected interfaces and APIs, and none should explicitly require `jupyterlab_chat` or `jupyterlab_ws_chat`. As described before, any packages that either require or conflict with RTC should automatically disable themselves by using `jupyter_chat_core` to query their environment.
+Almost all of the Jupyter AI subpackages need to be refactored to consume any implementation of `AbstractBaseChat` instead of just `YChat`. They will depend on `jupyterlab_chat` only for this abstract interface, not on any concrete RTC implementation. As described before, any packages that either require or conflict with RTC should automatically disable themselves by using `get_rtc_provider()` to query their environment.
 
 This should get us 80% of the way there. To limit its length, this proposal doesn't go into detail on how these packages will be implemented:
 
@@ -380,9 +326,8 @@ Development will be tackled in 4 key phases:
 
 1. Initial setup
 
-   1. Set up `jupyter_chat_core`
+   1. Make `jupyter_collaboration` optional in `jupyterlab-chat` (add `WsChatModel` + backend WebSocket handler + `AbstractBaseChat`)
    2. Set up `jupyterlab_live_content`
-   3. Update `jupyterlab_ws_chat`
 2. Jupyter AI proof-of-concept
 
    1. Update `jupyter-ai-router`
@@ -405,10 +350,10 @@ We hope to ship this by 2026-09-01.
 
 **Existing requests to provide these features without RTC**
 
-- Explicit request for this on the Jupyter Community Forum: https://discourse.jupyter.org/t/using-jupyter-ai-without-real-time-collaboration-rtc/38782
-- Upstream issue in JupyterLab by `@ctcjab`: https://github.com/jupyterlab/jupyterlab/issues/18699
+- Explicit request for this on the [Jupyter Community Forum](https://discourse.jupyter.org/t/using-jupyter-ai-without-real-time-collaboration-rtc/38782).
+- Upstream issue in JupyterLab by `@ctcjab`: [jupyterlab#18699](https://github.com/jupyterlab/jupyterlab/issues/18699).
 
 **Prior art at decoupling RTC from the file-sync UI**
 
-- JupyterLab PR by `@xicoo22`: https://github.com/jupyterlab/jupyterlab/pull/18944 — adds OS-level external change detection; currently unmerged, with maintainers favoring a contents-manager-level design built on `watchfiles`.
-- Unofficial extension by `@kolibril13`: https://github.com/kolibril13/hot-notebook-patching — an experimental approach to patching open notebooks from external changes.
+- JupyterLab PR by `@xicoo22`: [jupyterlab#18944](https://github.com/jupyterlab/jupyterlab/pull/18944). Adds OS-level external change detection; currently unmerged, with maintainers favoring a contents-manager-level design built on `watchfiles`.
+- Unofficial extension by `@kolibril13`: [kolibril13/hot-notebook-patching](https://github.com/kolibril13/hot-notebook-patching). An experimental approach to patching open notebooks from external changes.
