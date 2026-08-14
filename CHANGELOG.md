@@ -2,6 +2,35 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+**[Click here](https://jupyter-ai.readthedocs.io/en/stable/releases/v3.1.3.html) for the complete v3.1.3 release notes, now published on our official documentation site.**
+
+The changelog that follows is specific to the `jupyterlab/jupyter-ai repo` - they mostly include updates to documentation, version ranges, and GitHub workflows. All source code now lives in Jupyter AI's various subpackages, whose changes are reported in the official documentation linked above.
+
+______________________________________________________________________
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/v3.1.2...cc3a32c6ae31c7c00cc3ae9f0e3238d91723d738))
+
+### Enhancements made
+
+- Bump versions for Jupyter AI v3.1.3 release [#1646](https://github.com/jupyterlab/jupyter-ai/pull/1646) ([@dlqqq](https://github.com/dlqqq))
+
+### Documentation improvements
+
+- Add Jupyter AI v3.1.3 release notes [#1645](https://github.com/jupyterlab/jupyter-ai/pull/1645) ([@dlqqq](https://github.com/dlqqq))
+- Add proposal to decouple RTC [#1642](https://github.com/jupyterlab/jupyter-ai/pull/1642) ([@dlqqq](https://github.com/dlqqq), [@brichet](https://github.com/brichet))
+- docs: explain how Jupyter AI interacts with agents [#1639](https://github.com/jupyterlab/jupyter-ai/pull/1639) ([@uuzzrm](https://github.com/uuzzrm), [@srdas](https://github.com/srdas))
+
+### Contributors to this release
+
+The following people contributed discussions, new ideas, code and documentation contributions, and review.
+See [our definition of contributors](https://github-activity.readthedocs.io/en/latest/use/#how-does-this-tool-define-contributions-in-the-reports).
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2026-07-30&to=2026-08-14&type=c))
+
+@brichet ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Abrichet+updated%3A2026-07-30..2026-08-14&type=Issues)) | @dlqqq ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2026-07-30..2026-08-14&type=Issues)) | @srdas ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2026-07-30..2026-08-14&type=Issues)) | @uuzzrm ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Auuzzrm+updated%3A2026-07-30..2026-08-14&type=Issues))
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 3.1.2
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/v3.1.1...add456fd8c986d652fec3f85506a7115f3d89b0e))
@@ -22,8 +51,6 @@ See [our definition of contributors](https://github-activity.readthedocs.io/en/l
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2026-07-27&to=2026-07-30&type=c))
 
 @dlqqq ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2026-07-27..2026-07-30&type=Issues)) | @srdas ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2026-07-27..2026-07-30&type=Issues))
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 3.1.1
 
