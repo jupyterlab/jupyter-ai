@@ -84,7 +84,7 @@ install the corresponding package:
 
 ```{tab} Codex
 
-    npm install -g @zed-industries/codex-acp
+    npm install -g @agentclientprotocol/codex-acp
 
 ```
 
