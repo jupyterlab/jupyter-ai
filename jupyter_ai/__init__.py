@@ -13,7 +13,6 @@ DEFAULT_JUPYTER_SERVER_MCP_TOOLS = [
     "jupyter_ai_tools.toolkits.notebook:get_cell_id_from_index",
     "jupyter_ai_tools.toolkits.notebook:get_active_notebook",
     "jupyter_ai_tools.toolkits.notebook:get_active_cell_id",
-    "jupyter_ai_tools.toolkits.notebook:get_open_documents",
     "jupyter_ai_tools.toolkits.notebook:create_notebook",
     # jupyterlab toolkit
     "jupyter_ai_tools.toolkits.jupyterlab:open_file",
