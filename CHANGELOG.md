@@ -2,6 +2,25 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 3.2.0a1
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/v3.2.0a0...11717ccbc91fa1ec37e7e00923bd440e252d0e9a))
+
+### Enhancements made
+
+- Prep Jupyter AI v3.2.0a1 release [#1651](https://github.com/jupyterlab/jupyter-ai/pull/1651) ([@dlqqq](https://github.com/dlqqq))
+
+### Contributors to this release
+
+The following people contributed discussions, new ideas, code and documentation contributions, and review.
+See [our definition of contributors](https://github-activity.readthedocs.io/en/latest/use/#how-does-this-tool-define-contributions-in-the-reports).
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2026-08-24&to=2026-08-25&type=c))
+
+@dlqqq ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2026-08-24..2026-08-25&type=Issues))
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 3.2.0a0
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/v3.1.3...145720a0b0e974843d940c67b411a35f15dd50e4))
@@ -23,8 +42,6 @@ See [our definition of contributors](https://github-activity.readthedocs.io/en/l
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2026-08-14&to=2026-08-24&type=c))
 
 @dlqqq ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2026-08-14..2026-08-24&type=Issues)) | @jasongrout ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ajasongrout+updated%3A2026-08-14..2026-08-24&type=Issues)) | @srdas ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2026-08-14..2026-08-24&type=Issues)) | @vangberg ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Avangberg+updated%3A2026-08-14..2026-08-24&type=Issues))
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 **[Click here](https://jupyter-ai.readthedocs.io/en/stable/releases/v3.1.3.html) for the complete v3.1.3 release notes, now published on our official documentation site.**
 
