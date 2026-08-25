@@ -29,20 +29,23 @@ dynamic = ["version"]
 
 dependencies = [
   "jupyterlab_chat>=0.25.0a5,<0.26.0",
-  "jupyter_server_documents>=0.3.3,<0.4.0",
   "jupyter_ai_router>=0.1.0a1,<0.2.0",
   "jupyter_ai_persona_manager>=0.2.0a3,<0.3.0",
   "jupyter_ai_chat_commands>=0.0.4,<0.1.0",
   "jupyter_ai_acp_client>=0.3.0a1,<0.4.0",
   "jupyter_server_mcp>=0.3.0a0,<0.4.0",
   "jupyter_ai_tools>=0.7.0a0,<0.8.0",
-  "jupyterlab_notebook_awareness>=0.2.0,<0.3.0",
   "jupyterlab_commands_toolkit>=0.1.6,<0.2.0",
 ]
 
 [project.optional-dependencies]
 magics = ["jupyter_ai_litellm>=0.0.3,<0.1.0", "jupyter_ai_magic_commands>=0.0.4,<0.1.0"]
 jupyternaut = ["jupyter_ai_litellm>=0.0.3,<0.1.0", "jupyter_ai_jupyternaut>=0.1.0b1,<0.2.0"]
+# Real-time collaboration (RTC) support. RTC is optional; install one of these
+# groups to enable it. `rtc` uses jupyter-collaboration; `rtc-jsd` uses
+# jupyter-server-documents. Both provide notebook awareness for the AI tools.
+rtc = ["jupyter-collaboration>=3,<5", "jupyterlab_notebook_awareness>=0.2.0,<0.3.0"]
+rtc-jsd = ["jupyter_server_documents>=0.3.3,<0.4.0", "jupyterlab_notebook_awareness>=0.2.0,<0.3.0"]
 # Everything needed to build the documentation (`sphinx-build docs/source`).
 # This is the single source of truth for docs dependencies, used by both Read
 # the Docs (see .readthedocs.yaml) and the docs CI workflow.
