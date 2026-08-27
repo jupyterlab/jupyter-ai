@@ -19,6 +19,13 @@ const PORT = Number(process.env.JAI_TEST_PORT);
 module.exports = {
   ...baseConfig,
   testDir: 'mcp',
+  // Retry to capture a trace of any transient failure, but still fail the run
+  // if a test only passes on retry: flakiness must surface as a red build, not
+  // be masked by the retry. A genuinely-broken test fails all attempts either
+  // way. All three matrix legs are required (fail-fast: false), so no leg can
+  // silently pass.
+  retries: 2,
+  failOnFlakyTests: true,
   use: { ...(baseConfig.use || {}), baseURL: `http://localhost:${PORT}` },
   webServer: {
     // The MCP port is offset from the HTTP port so it doesn't collide with the
