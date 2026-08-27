@@ -101,9 +101,10 @@ async function registerBuildCommand(
           content
         });
         await app.commands.execute('docmanager:open', { path: nbPath });
-        // Run the notebook, but don't block the command on kernel execution —
-        // the routing + cell contents are what the test asserts.
-        void app.commands.execute('notebook:run-all-cells').catch(() => {});
+        // Intentionally do not run the notebook: the test asserts routing and
+        // the notebook's cell contents, not execution. Running all cells starts
+        // a kernel session whose async lifecycle races test teardown under the
+        // JSD provider ("Request context disposed").
       }
     });
   });
