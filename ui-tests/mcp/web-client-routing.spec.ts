@@ -128,7 +128,15 @@ async function sendMessage(
   text: string
 ): Promise<void> {
   const before = await page.locator(MESSAGE).count();
-  await page.locator(INPUT).getByRole('combobox').pressSequentially(text);
+  const input = page.locator(INPUT).getByRole('combobox');
+  // Focus the chat input before typing: a notebook opened by an earlier routed
+  // command can hold focus, so the keystrokes would otherwise miss the input
+  // and leave the send button disabled.
+  await input.click();
+  await input.pressSequentially(text);
+  // The send button enables once the input has content and the model is ready;
+  // wait for it rather than racing the click.
+  await expect(page.locator(SEND)).toBeEnabled({ timeout: TIMEOUT });
   await page.locator(SEND).click();
   // Human echo + persona reply.
   await expect
@@ -186,7 +194,7 @@ test.describe('mcp web-client routing', () => {
     browser,
     baseURL
   }) => {
-    test.setTimeout(90_000);
+    test.setTimeout(120_000);
 
     // Client 1 is the galata page fixture; client 2 is a second galata page in
     // its own browser context (each fixture resets its own workspace).
@@ -195,6 +203,16 @@ test.describe('mcp web-client routing', () => {
       browser,
       waitForApplication
     });
+
+    // Give each client a fresh workspace. JupyterLab persists open-document
+    // layout server-side, so a notebook opened by one client's routed command
+    // can be restored into the other client on load and steal focus from its
+    // chat input (leaving the send button disabled). Reset before registering
+    // the command — a reload clears commands added via app.commands.addCommand.
+    await page.goto(`${baseURL}/lab?reset`);
+    await waitForApplication(page);
+    await page2.goto(`${baseURL}/lab?reset`);
+    await waitForApplication(page2);
 
     await registerBuildCommand(page);
     await registerBuildCommand(page2);
