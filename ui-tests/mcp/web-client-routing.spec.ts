@@ -7,12 +7,23 @@ import {
   expect,
   galata,
   IJupyterLabPageFixture,
-  test
+  test as galataTest
 } from '@jupyterlab/galata';
 import { APIRequestContext, Page } from '@playwright/test';
 import { UUID } from '@lumino/coreutils';
 import * as fs from 'fs';
 import * as path from 'path';
+
+// Disable galata's kernel/session mocking. The routed command opens a real
+// notebook, which starts a kernel session; galata's mock intercepts
+// `/api/sessions` through its APIRequestContext, and that proxy is disposed at
+// test teardown while the session request is still in flight — surfacing as
+// "apiRequestContext.fetch: Request context disposed" under the RTC/JSD
+// providers. Talking to the real server directly avoids the racing proxy.
+const test = galataTest.extend({
+  kernels: null,
+  sessions: null
+});
 
 /**
  * End-to-end test for web-client command routing (jupyterlab/jupyter-ai#1650).
