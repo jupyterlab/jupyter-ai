@@ -1,0 +1,74 @@
+name: E2E tests
+
+on:
+  push:
+    branches: main
+  pull_request:
+    branches: '*'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  mcp:
+    # Renders as "E2E tests / MCP integration / default", ".../rtc", ".../rtc-jsd".
+    name: MCP integration / ${{ matrix.variant }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        variant: [default, rtc, rtc-jsd]
+
+    env:
+      PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/pw-browsers
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Base Setup
+        uses: jupyterlab/maintainer-tools/.github/actions/base-setup@v1
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Install nox
+        run: uv tool install nox
+
+      - name: Restore browser cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ github.workspace }}/pw-browsers
+          key: ${{ runner.os }}-${{ hashFiles('ui-tests/yarn.lock') }}
+
+      # jlpm needs a bootstrap jupyterlab, and `playwright install-deps` needs
+      # sudo (unavailable inside a nox venv). nox reuses this node_modules +
+      # browser cache; the per-transport server deps are installed by nox.
+      - name: Set up ui-tests deps + browser
+        working-directory: ui-tests
+        env:
+          YARN_ENABLE_IMMUTABLE_INSTALLS: 0
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+        run: |
+          set -eux
+          python -m pip install "jupyterlab>=4.4,<5"
+          jlpm install
+          jlpm playwright install-deps
+          jlpm playwright install chromium
+
+      - name: Run E2E tests (${{ matrix.variant }})
+        run: |
+          set -eux
+          nox -s "e2e(env='${{ matrix.variant }}')"
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jupyter-ai-e2e-${{ matrix.variant }}
+          path: |
+            ui-tests/test-results
+            ui-tests/playwright-report
