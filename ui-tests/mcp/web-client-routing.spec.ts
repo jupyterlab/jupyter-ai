@@ -210,10 +210,18 @@ test.describe('mcp web-client routing', () => {
 
     // Client 1 is the galata page fixture; client 2 is a second galata page in
     // its own browser context (each fixture resets its own workspace).
+    // mockKernels/mockSessions are disabled to match the fixture (kernels/
+    // sessions: null): the routed command opens a real notebook that starts a
+    // kernel session, and galata's in-memory session mock proxies /api/sessions
+    // through an APIRequestContext that is disposed at teardown while the
+    // request is in flight ("apiRequestContext.fetch: Request context
+    // disposed"). Talking to the real server directly avoids that race.
     const { page: page2 } = await galata.newPage({
       baseURL: baseURL as string,
       browser,
-      waitForApplication
+      waitForApplication,
+      mockKernels: false,
+      mockSessions: false
     });
 
     // Give each client a fresh workspace. JupyterLab persists open-document
