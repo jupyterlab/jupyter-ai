@@ -34,11 +34,9 @@ import * as path from 'path';
  */
 
 const TEST_DIR = 'mcp-routing';
-const PERSONA_NAME = 'MCP Notebook Persona';
 const PERSONA_FILE = 'mcp-notebook_persona.py';
 const PERSONAS_SRC = path.resolve(__dirname, '..', 'fixtures', 'personas');
 
-const PICKER = '.jp-jai-personaControls-persona-btn';
 const INPUT = '.jp-chat-input-container';
 const SEND = `${INPUT} .jp-chat-send-button`;
 const MESSAGE = '.jp-chat-rendered-message';
@@ -111,8 +109,8 @@ async function registerBuildCommand(
   });
 }
 
-/** Open a fresh chat under TEST_DIR and select the fixture persona. */
-async function openChatAndSelect(page: IJupyterLabPageFixture): Promise<void> {
+/** Open a fresh chat under TEST_DIR (the fixture persona is the default). */
+async function openChat(page: IJupyterLabPageFixture): Promise<void> {
   const filepath = `${TEST_DIR}/chat-${UUID.uuid4()}.chat`;
   await page.filebrowser.contents.uploadContent('{}', 'text', filepath);
   await page.evaluate(async (name: string) => {
@@ -120,13 +118,8 @@ async function openChatAndSelect(page: IJupyterLabPageFixture): Promise<void> {
       filepath: name
     });
   }, filepath);
-  // Only one chat is open per page, so page-scoped locators are unambiguous
-  // (and avoid the activity helper across a second galata page).
-  const picker = page.locator(PICKER);
-  await expect(picker).toBeVisible({ timeout: TIMEOUT });
-  await picker.click();
-  await page.getByRole('menuitem', { name: PERSONA_NAME }).click();
-  await expect(picker).toContainText(PERSONA_NAME);
+  // Only one chat is open per page, so page-scoped locators are unambiguous.
+  await expect(page.locator(INPUT)).toBeVisible({ timeout: TIMEOUT });
 }
 
 /** Send a message and wait for the persona's reply to render. */
@@ -206,8 +199,8 @@ test.describe('mcp web-client routing', () => {
     await registerBuildCommand(page);
     await registerBuildCommand(page2);
 
-    await openChatAndSelect(page);
-    await openChatAndSelect(page2);
+    await openChat(page);
+    await openChat(page2);
 
     // Each client asks its own persona (in its own chat) to build its notebook.
     await sendMessage(page, JSON.stringify(CLIENT1));

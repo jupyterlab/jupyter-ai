@@ -17,9 +17,13 @@ configure_jupyter_server(c)  # noqa: F821
 c.ContentsManager.allow_hidden = True  # noqa: F821
 c.FileContentsManager.allow_hidden = True  # noqa: F821
 
-# No default persona: the only persona is the fixture the suite installs, so the
-# picker starts at "No one" and the test selects the fixture explicitly.
-c.PersonaManager.default_persona_id = ""  # noqa: F821
+# The fixture persona is the default, so a message routes to it without any
+# persona-picker interaction (which is flaky to drive across two clients). The
+# web_client_id is stamped on the message by the toolkit regardless of the
+# picker, so routing is still exercised.
+c.PersonaManager.default_persona_id = (  # noqa: F821
+    "jupyter-ai-personas::mcp-notebook_persona::McpNotebookPersona"
+)
 
 # The vendored ACP personas (Kiro/Claude) that jupyter-ai-acp-client registers as
 # entry points would otherwise load in every chat and pollute the deterministic
