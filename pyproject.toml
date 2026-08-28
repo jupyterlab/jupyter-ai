@@ -36,6 +36,7 @@ dependencies = [
   "jupyter_server_mcp>=0.3.0a1,<0.4.0",
   "jupyter_ai_tools>=0.7.0rc0,<0.8.0",
   "jupyterlab_commands_toolkit>=0.2.0rc0,<0.3.0",
+  "jupyter_live_content>=0.1.1,<0.2.0",
 ]
 
 [project.optional-dependencies]

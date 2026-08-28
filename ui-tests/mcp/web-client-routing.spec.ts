@@ -255,9 +255,16 @@ test.describe('mcp web-client routing', () => {
       .toContain(CLIENT2.notebook);
     expect(await openDocPaths(page2)).not.toContain(CLIENT1.notebook);
 
-    // Each got exactly the cells it asked for.
-    expect(await notebookCells(page, CLIENT1.notebook)).toEqual(CLIENT1.cells);
-    expect(await notebookCells(page2, CLIENT2.notebook)).toEqual(CLIENT2.cells);
+    // Each got exactly the cells it asked for. Poll rather than assert once:
+    // under RTC the notebook content arrives asynchronously from the Yjs room
+    // (the doc is open with its path before the room has synced its cells), so
+    // a bare read can observe the initial single empty cell before sync.
+    await expect
+      .poll(() => notebookCells(page, CLIENT1.notebook), { timeout: TIMEOUT })
+      .toEqual(CLIENT1.cells);
+    await expect
+      .poll(() => notebookCells(page2, CLIENT2.notebook), { timeout: TIMEOUT })
+      .toEqual(CLIENT2.cells);
 
     await page2.context().close();
   });

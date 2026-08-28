@@ -19,6 +19,7 @@ Usage::
     nox -l                          # list sessions
     nox -s e2e                      # all three transports
     nox -s "e2e(env='rtc')"         # one transport
+    nox -s e2e_live_content         # live-content suite, all three transports
 """
 
 import os
@@ -48,3 +49,29 @@ def e2e(session: nox.Session, env: str) -> None:
         session.run("jlpm", "install", external=True)
         session.run("jlpm", "playwright", "install", "chromium", external=True)
         session.run("jlpm", "playwright", "test", external=True)
+
+
+@nox.session(python="3.11")
+@nox.parametrize("env", list(_ENVS))
+def e2e_live_content(session: nox.Session, env: str) -> None:
+    """Run the live-content ui-tests suite against one transport.
+
+    Exercises jupyter-live-content (pulled in as a jupyter-ai dependency): a
+    plain-text file edited out-of-band updates the open editor. Under the rtc
+    and rtc-jsd transports jupyter-live-content disables itself (the RTC provider
+    owns live sync); the suite asserts both the live update and that disabling.
+    """
+    target = os.environ.get("E2E_WHEEL") or "."
+    session.install("jupyterlab>=4.4,<5", target, *_ENVS[env])
+    session.env["E2E_RTC"] = "1" if env in ("rtc", "rtc-jsd") else "0"
+    with session.chdir("ui-tests"):
+        session.run("jlpm", "install", external=True)
+        session.run("jlpm", "playwright", "install", "chromium", external=True)
+        session.run(
+            "jlpm",
+            "playwright",
+            "test",
+            "--config",
+            "playwright-live-content.config.js",
+            external=True,
+        )

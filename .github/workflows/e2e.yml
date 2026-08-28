@@ -79,3 +79,70 @@ jobs:
           path: |
             ui-tests/test-results
             ui-tests/playwright-report
+
+  live_content:
+    # Renders as "E2E tests / live-content / default", ".../rtc", ".../rtc-jsd".
+    name: live-content / ${{ matrix.variant }}
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    strategy:
+      fail-fast: false
+      matrix:
+        variant: [default, rtc, rtc-jsd]
+
+    env:
+      PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/pw-browsers
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          persist-credentials: false
+
+      - name: Base Setup
+        uses: jupyterlab/maintainer-tools/.github/actions/base-setup@95d85449e4f3f352e261221f6529f8ed307f5728 # v0.34.1
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5
+
+      - name: Install nox
+        run: uv tool install nox
+
+      - name: Restore browser cache
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: |
+            ${{ github.workspace }}/pw-browsers
+          key: ${{ runner.os }}-${{ hashFiles('ui-tests/yarn.lock') }}
+
+      # jlpm needs a bootstrap jupyterlab, and `playwright install-deps` needs
+      # sudo (unavailable inside a nox venv). nox reuses this node_modules +
+      # browser cache; the per-transport server deps are installed by nox.
+      - name: Set up ui-tests deps + browser
+        working-directory: ui-tests
+        env:
+          YARN_ENABLE_IMMUTABLE_INSTALLS: 0
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+        run: |
+          set -eux
+          python -m pip install "jupyterlab>=4.4,<5"
+          jlpm install
+          jlpm playwright install-deps
+          jlpm playwright install chromium
+
+      - name: Run E2E tests (${{ matrix.variant }})
+        run: |
+          set -eux
+          nox -s "e2e_live_content(env='${{ matrix.variant }}')"
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: jupyter-ai-e2e-live-content-${{ matrix.variant }}
+          path: |
+            ui-tests/test-results
+            ui-tests/playwright-report
