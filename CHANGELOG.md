@@ -2,6 +2,29 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 3.2.0rc0
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/v3.2.0a1...a962d70690acff7de530206bd5b5bfd753449907))
+
+### Enhancements made
+
+- Prep Jupyter AI v3.2.0rc0 release [#1654](https://github.com/jupyterlab/jupyter-ai/pull/1654) ([@dlqqq](https://github.com/dlqqq))
+
+### Maintenance and upkeep improvements
+
+- Route AI frontend commands to specific web clients [#1653](https://github.com/jupyterlab/jupyter-ai/pull/1653) ([@dlqqq](https://github.com/dlqqq))
+
+### Contributors to this release
+
+The following people contributed discussions, new ideas, code and documentation contributions, and review.
+See [our definition of contributors](https://github-activity.readthedocs.io/en/latest/use/#how-does-this-tool-define-contributions-in-the-reports).
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2026-08-25&to=2026-08-28&type=c))
+
+@dlqqq ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2026-08-25..2026-08-28&type=Issues))
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 3.2.0a1
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/v3.2.0a0...11717ccbc91fa1ec37e7e00923bd440e252d0e9a))
@@ -18,8 +41,6 @@ See [our definition of contributors](https://github-activity.readthedocs.io/en/l
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2026-08-24&to=2026-08-25&type=c))
 
 @dlqqq ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2026-08-24..2026-08-25&type=Issues))
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 3.2.0a0
 
