@@ -23,3 +23,42 @@ Jupyter AI is designed to be flexible and extensible. You can add custom [MCP se
 ## Governance
 
 Jupyter AI is currently under incubation as part of the JupyterLab organization.
+
+
+## ❓ FAQ
+
+### What is Jupyter AI?
+
+**Jupyter AI** brings agentic AI to JupyterLab. It provides a native chat UI where you can collaborate with frontier AI agents — including Claude, Codex, GitHub Copilot, Gemini, Goose, Kiro, Mistral Vibe, and OpenCode.
+
+| Feature | Description |
+|---------|-------------|
+| 🤖 **Multi-Agent Support** | Claude, Codex, Copilot, Gemini, Goose, Kiro, Mistral, OpenCode |
+| 📝 **Notebook Integration** | Read/write files, run commands, interact with notebooks |
+| 🔧 **MCP Server** | Built-in Jupyter MCP server for agent tools |
+| 🛡️ **Permission System** | Guardrails over agent actions |
+| 🌐 **Real-time Collaboration** | Multiple concurrent chats, drag & drop context |
+| 🔌 **Extensible** | Add custom MCP servers, build AI personas |
+
+### Installation
+
+```bash
+pip install jupyter_ai
+```
+
+### Requirements
+
+- JupyterLab 4.0+
+- Python 3.10+
+- One of the supported AI agents
+
+### License
+
+BSD-3-Clause License
+
+### Help & Resources
+
+- [Documentation](https://jupyter-ai.readthedocs.io)
+- [Issues](https://github.com/jupyterlab/jupyter-ai/issues)
+
+---
