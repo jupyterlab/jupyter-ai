@@ -84,6 +84,33 @@ since the last stable release rather than since the last pre-release. Leave it
   `jupyter-ai-persona-manager`'s floor on it and release that, and so on up the
   dependency chain.
 
+The current required-dependency graph of the working set is below (arrows point
+from a package to the packages it depends on). Release from the bottom up:
+
+```{mermaid}
+flowchart TD
+    ja[jupyter-ai]
+
+    ja --> router[jupyter-ai-router]
+    ja --> pm[jupyter-ai-persona-manager]
+    ja --> cc[jupyter-ai-chat-commands]
+    ja --> acp[jupyter-ai-acp-client]
+    ja --> tools[jupyter-ai-tools]
+    ja --> mcp[jupyter-server-mcp]
+    ja --> toolkit[jupyterlab-commands-toolkit]
+    ja --> lc[jupyter-live-content]
+
+    acp --> pm
+    cc --> pm
+    pm --> router
+    router --> chat[jupyterlab-chat]
+```
+
+`jupyter-ai` is the metapackage and pins every package shown. `jupyterlab-chat`
+(from `jupyterlab/jupyter-chat`) is the foundation; `jupyter-ai-tools`,
+`jupyter-server-mcp`, `jupyterlab-commands-toolkit`, and `jupyter-live-content`
+have no required dependencies on the others.
+
 ```{note}
 When bumping one subpackage's dependency on another, update **both**
 `pyproject.toml` and `package.json` (if the subpackage ships a JavaScript
