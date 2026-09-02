@@ -19,6 +19,9 @@ extensions = [
     "sphinx_design",
     "sphinx_tabs.tabs",
     "sphinx_copybutton",
+    # Renders {mermaid} directives (e.g. the subpackage dependency graph in the
+    # contributor release docs).
+    "sphinxcontrib.mermaid",
     # Aggregates each subpackage's docs/source/{contributors,developers}/ from
     # its submodule under submodules/<repo>/ into this build. See
     # docs/source/_ext/subpackage_docs.py.

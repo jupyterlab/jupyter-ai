@@ -4,6 +4,13 @@ This page is intended for people interested in building new or modified function
 
 If you would like to build applications that enhance Jupyter AI, please see the {doc}`developer's guide </developers/index>`.
 
+```{toctree}
+:hidden:
+:maxdepth: 1
+
+release-process
+```
+
 ## Development Setup
 
 ### Overview
