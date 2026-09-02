@@ -8,13 +8,12 @@
  * persona reaches the real jupyter-server-mcp.
  */
 const baseConfig = require('@jupyterlab/galata/lib/playwright-config');
+const { resolveTestPort } = require('./resolve-test-port');
 
-// Random HTTP port so a run doesn't collide with a dev server. Playwright
-// re-`require`s this config in each worker, so pin it once into the env.
-if (!process.env.JAI_TEST_PORT) {
-  process.env.JAI_TEST_PORT = String(8989 + Math.floor(Math.random() * 900));
-}
-const PORT = Number(process.env.JAI_TEST_PORT);
+// Random HTTP port so a run doesn't collide with a dev server, skipping the
+// ports Chromium refuses to navigate to (net::ERR_UNSAFE_PORT). The resolver
+// pins the choice into the env so every Playwright worker reuses it.
+const PORT = resolveTestPort('JAI_TEST_PORT', 8989, 900);
 
 module.exports = {
   ...baseConfig,
