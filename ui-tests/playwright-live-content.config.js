@@ -8,15 +8,13 @@
  * themselves, so no extra server flags are needed.
  */
 const baseConfig = require('@jupyterlab/galata/lib/playwright-config');
+const { resolveTestPort } = require('./resolve-test-port');
 
-// Random HTTP port so a run doesn't collide with a dev server. Playwright
-// re-`require`s this config in each worker, so pin it once into the env.
-if (!process.env.JAI_LIVE_CONTENT_TEST_PORT) {
-  process.env.JAI_LIVE_CONTENT_TEST_PORT = String(
-    9889 + Math.floor(Math.random() * 900)
-  );
-}
-const PORT = Number(process.env.JAI_LIVE_CONTENT_TEST_PORT);
+// Random HTTP port so a run doesn't collide with a dev server, skipping the
+// ports Chromium refuses to navigate to (net::ERR_UNSAFE_PORT) -- notably
+// 10080, which sits inside this suite's range. The resolver pins the choice
+// into the env so every Playwright worker reuses it.
+const PORT = resolveTestPort('JAI_LIVE_CONTENT_TEST_PORT', 9889, 900);
 
 module.exports = {
   ...baseConfig,
