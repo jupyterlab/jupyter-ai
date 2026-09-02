@@ -42,8 +42,18 @@ def e2e(session: nox.Session, env: str) -> None:
     """Run the ui-tests suite against one transport."""
     # The prebuilt wheel from CI; from source for local runs.
     target = os.environ.get("E2E_WHEEL") or "."
-    # `fastmcp`/`mcp` back the fixture persona's MCP client.
-    session.install("jupyterlab>=4.4,<5", "fastmcp", "mcp", target, *_ENVS[env])
+    # `fastmcp`/`mcp` back the fixture persona's MCP client. Ceiling both to the
+    # 3.x/1.x MCP stack:
+    #   * mcp 2.0 (2026-07-28) removed the deprecated `streamablehttp_client`
+    #     the fixture imports (renamed to `streamable_http_client`, httpx2-based).
+    #   * fastmcp 4.0 (2026-08-31) raised its own mcp floor to >=2.0 (via
+    #     fastmcp-slim); fastmcp 3.4.x capped it at <2.0.
+    # With both unpinned, CI auto-upgraded to fastmcp 4.x + mcp 2.x and the
+    # fixture import broke. `mcp<2` alone already forces fastmcp back to 3.x
+    # (4.x requires mcp>=2); `fastmcp<4` states that coupling explicitly. Hold
+    # here until the fixture is migrated to the mcp v2 client API. fastmcp<4
+    # still satisfies jupyter-server-mcp's `fastmcp>=3.4.4`.
+    session.install("jupyterlab>=4.4,<5", "fastmcp<4", "mcp<2", target, *_ENVS[env])
     session.env["E2E_RTC"] = "1" if env in ("rtc", "rtc-jsd") else "0"
     with session.chdir("ui-tests"):
         session.run("jlpm", "install", external=True)
