@@ -91,6 +91,7 @@ from a package to the packages it depends on). Release from the bottom up:
 flowchart TD
     ja[jupyter-ai]
 
+    ja --> chat[jupyterlab-chat]
     ja --> router[jupyter-ai-router]
     ja --> pm[jupyter-ai-persona-manager]
     ja --> cc[jupyter-ai-chat-commands]
@@ -103,7 +104,7 @@ flowchart TD
     acp --> pm
     cc --> pm
     pm --> router
-    router --> chat[jupyterlab-chat]
+    router --> chat
 ```
 
 `jupyter-ai` is the metapackage and pins every package shown. `jupyterlab-chat`
