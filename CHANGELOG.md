@@ -2,6 +2,33 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 3.2.0rc1
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/v3.2.0rc0...af349004eda3e5e8e1d7a4c3ca0b364173085a78))
+
+### Bugs fixed
+
+- Fix E2E CI for Jupyter AI v3.2.0 [#1659](https://github.com/jupyterlab/jupyter-ai/pull/1659) ([@dlqqq](https://github.com/dlqqq))
+
+### Maintenance and upkeep improvements
+
+- Bump dependencies for v3.2.0rc1 [#1661](https://github.com/jupyterlab/jupyter-ai/pull/1661) ([@dlqqq](https://github.com/dlqqq))
+
+### Documentation improvements
+
+- Add release process documentation [#1658](https://github.com/jupyterlab/jupyter-ai/pull/1658) ([@dlqqq](https://github.com/dlqqq))
+
+### Contributors to this release
+
+The following people contributed discussions, new ideas, code and documentation contributions, and review.
+See [our definition of contributors](https://github-activity.readthedocs.io/en/latest/use/#how-does-this-tool-define-contributions-in-the-reports).
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2026-08-28&to=2026-09-03&type=c))
+
+@dlqqq ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2026-08-28..2026-09-03&type=Issues))
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 3.2.0rc0
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/v3.2.0a1...a962d70690acff7de530206bd5b5bfd753449907))
@@ -22,8 +49,6 @@ See [our definition of contributors](https://github-activity.readthedocs.io/en/l
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2026-08-25&to=2026-08-28&type=c))
 
 @dlqqq ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2026-08-25..2026-08-28&type=Issues))
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 3.2.0a1
 
