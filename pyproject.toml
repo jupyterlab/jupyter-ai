@@ -34,14 +34,14 @@ dependencies = [
   "jupyter_ai_chat_commands>=0.0.4,<0.1.0",
   "jupyter_ai_acp_client>=0.3.0rc0,<0.4.0",
   "jupyter_server_mcp>=0.3.0,<0.4.0",
-  "jupyter_ai_tools>=0.7.0rc0,<0.8.0",
-  "jupyterlab_commands_toolkit>=0.2.0rc0,<0.3.0",
+  "jupyter_ai_tools>=0.7.0,<0.8.0",
+  "jupyterlab_commands_toolkit>=0.2.0,<0.3.0",
   "jupyter_live_content>=0.1.1,<0.2.0",
 ]
 
 [project.optional-dependencies]
-magics = ["jupyter_ai_litellm>=0.0.3,<0.1.0", "jupyter_ai_magic_commands>=0.0.4,<0.1.0"]
-jupyternaut = ["jupyter_ai_litellm>=0.0.3,<0.1.0", "jupyter_ai_jupyternaut>=0.1.0b1,<0.2.0"]
+magics = ["jupyter_ai_litellm>=0.1.0,<0.2.0", "jupyter_ai_magic_commands>=0.0.4,<0.1.0"]
+jupyternaut = ["jupyter_ai_litellm>=0.1.0,<0.2.0", "jupyter_ai_jupyternaut>=0.1.0rc0,<0.2.0"]
 # Real-time collaboration (RTC) support. RTC is optional; install one of these
 # groups to enable it. `rtc` uses jupyter-collaboration; `rtc-jsd` uses
 # jupyter-server-documents. Both provide notebook awareness for the AI tools.
