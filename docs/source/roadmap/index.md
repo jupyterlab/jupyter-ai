@@ -5,7 +5,6 @@ This section contains the roadmap for major API improvements and new features in
 ```{toctree}
 :hidden:
 
-decouple-rtc
 new-persona-api
 completed/index
 ```
