@@ -2,6 +2,51 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 3.2.0
+
+**[Click here](https://jupyter-ai.readthedocs.io/en/stable/releases/v3.2.0.html) for the complete v3.2.0 release notes, now published on our official documentation site.**
+
+The changelog that follows is specific to the `jupyterlab/jupyter-ai` repo - they mostly include updates to documentation, version ranges, and GitHub workflows. All source code now lives in Jupyter AI's various subpackages, whose changes are reported in the official documentation linked above.
+
+______________________________________________________________________
+
+([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/v3.1.3...1bf6bb4b7dc89cca498bc5c0a563ac9bbb520df7))
+
+### Enhancements made
+
+- Prep v3.2.0 release [#1665](https://github.com/jupyterlab/jupyter-ai/pull/1665) ([@dlqqq](https://github.com/dlqqq))
+- Prep Jupyter AI v3.2.0rc0 release [#1654](https://github.com/jupyterlab/jupyter-ai/pull/1654) ([@dlqqq](https://github.com/dlqqq))
+- Prep Jupyter AI v3.2.0a1 release [#1651](https://github.com/jupyterlab/jupyter-ai/pull/1651) ([@dlqqq](https://github.com/dlqqq))
+- Bump versions for v3.2.0a0 pre-release [#1649](https://github.com/jupyterlab/jupyter-ai/pull/1649) ([@dlqqq](https://github.com/dlqqq))
+
+### Bugs fixed
+
+- Fix E2E CI for Jupyter AI v3.2.0 [#1659](https://github.com/jupyterlab/jupyter-ai/pull/1659) ([@dlqqq](https://github.com/dlqqq))
+
+### Maintenance and upkeep improvements
+
+- Bump dependencies for v3.2.0rc1 [#1661](https://github.com/jupyterlab/jupyter-ai/pull/1661) ([@dlqqq](https://github.com/dlqqq), [@brichet](https://github.com/brichet))
+- Route AI frontend commands to specific web clients [#1653](https://github.com/jupyterlab/jupyter-ai/pull/1653) ([@dlqqq](https://github.com/dlqqq))
+
+### Documentation improvements
+
+- Update banner and roadmap to reflect v3.2.0 release [#1663](https://github.com/jupyterlab/jupyter-ai/pull/1663) ([@dlqqq](https://github.com/dlqqq))
+- Add Jupyter AI v3.2.0 release notes [#1662](https://github.com/jupyterlab/jupyter-ai/pull/1662) ([@dlqqq](https://github.com/dlqqq))
+- Add release process documentation [#1658](https://github.com/jupyterlab/jupyter-ai/pull/1658) ([@dlqqq](https://github.com/dlqqq))
+- docs: update Codex ACP package name [#1648](https://github.com/jupyterlab/jupyter-ai/pull/1648) ([@vangberg](https://github.com/vangberg), [@dlqqq](https://github.com/dlqqq), [@srdas](https://github.com/srdas))
+- Add plausible stats [#1647](https://github.com/jupyterlab/jupyter-ai/pull/1647) ([@jasongrout](https://github.com/jasongrout), [@dlqqq](https://github.com/dlqqq))
+
+### Contributors to this release
+
+The following people contributed discussions, new ideas, code and documentation contributions, and review.
+See [our definition of contributors](https://github-activity.readthedocs.io/en/latest/use/#how-does-this-tool-define-contributions-in-the-reports).
+
+([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2026-08-14&to=2026-09-03&type=c))
+
+@brichet ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Abrichet+updated%3A2026-08-14..2026-09-03&type=Issues)) | @dlqqq ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2026-08-14..2026-09-03&type=Issues)) | @jasongrout ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Ajasongrout+updated%3A2026-08-14..2026-09-03&type=Issues)) | @srdas ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Asrdas+updated%3A2026-08-14..2026-09-03&type=Issues)) | @vangberg ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Avangberg+updated%3A2026-08-14..2026-09-03&type=Issues))
+
+<!-- <END NEW CHANGELOG ENTRY> -->
+
 ## 3.2.0rc1
 
 ([Full Changelog](https://github.com/jupyterlab/jupyter-ai/compare/v3.2.0rc0...af349004eda3e5e8e1d7a4c3ca0b364173085a78))
@@ -26,8 +71,6 @@ See [our definition of contributors](https://github-activity.readthedocs.io/en/l
 ([GitHub contributors page for this release](https://github.com/jupyterlab/jupyter-ai/graphs/contributors?from=2026-08-28&to=2026-09-03&type=c))
 
 @dlqqq ([activity](https://github.com/search?q=repo%3Ajupyterlab%2Fjupyter-ai+involves%3Adlqqq+updated%3A2026-08-28..2026-09-03&type=Issues))
-
-<!-- <END NEW CHANGELOG ENTRY> -->
 
 ## 3.2.0rc0
 
