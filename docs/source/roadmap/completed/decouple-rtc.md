@@ -1,11 +1,5 @@
 # Decouple RTC
 
-:::{note}
-This will be released as part of Jupyter AI v3.2.0 as it addresses a major bug, and both maintainers and users have reached a general consensus on accepting this.
-
-Please join the discussion on [this GitHub issue](https://github.com/jupyterlab/jupyter-ai/issues/1644), or the [Zulip thread](https://jupyter.zulipchat.com/#narrow/channel/475130-jupyter-ai/topic/Decoupling.20RTC.20from.20Jupyter.20AI/with/615991875)!
-:::
-
 ## Context
 
 Jupyter AI brings AI agents into JupyterLab: a chat interface for talking to agents, and the ability for those agents to read and edit notebooks and files directly. For agent edits to feel live, Jupyter AI currently relies on real-time collaboration (RTC). RTC is the same technology that lets multiple humans co-edit a document. RTC models documents as conflict-free replicated data types (CRDT) replicated between the server and each web client over WebSockets. RTC in Jupyter uses YATA CRDTs powered by `yjs` and `yrs` libraries. Today Jupyter AI depends on RTC for two reasons: the chat itself is modeled as a shared document powered by RTC (`YChat`), and RTC allows agent edits to update the UI in real-time for every file or notebook you have open. Because of this, RTC has been a required dependency since Jupyter AI v3.0.

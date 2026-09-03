@@ -35,7 +35,7 @@ Use Claude, Codex, GitHub Copilot, Goose, Kilo, Kiro, Mistral Vibe, OpenCode, or
 :::
 
 :::{grid-item-card} ⚡ Real-Time UI
-Watch other humans or agents edit files in real-time, powered by a new RTC backend.
+Watch agents edit files, run notebooks, and fix cell errors in real-time.
 :::
 
 :::{grid-item-card} 🛡️ Guardrails By Default

@@ -5,5 +5,6 @@ Roadmap proposals that have shipped. See the [Releases](../../releases/index) se
 ```{toctree}
 :hidden:
 
+decouple-rtc
 jupyter-ai-3.1
 ```

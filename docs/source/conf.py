@@ -55,8 +55,8 @@ html_theme_options = {
     # differently per page depth. Use an absolute URL, pinned to /en/stable so it
     # tracks the latest released docs rather than /en/latest (unreleased main).
     "announcement": (
-        "Jupyter AI v3.1.0 is now released! 🎉 "
-        '<a href="https://jupyter-ai.readthedocs.io/en/stable/releases/v3.1.0.html">'
+        "Jupyter AI v3.2.0 is now released! 🎉 "
+        '<a href="https://jupyter-ai.readthedocs.io/en/stable/releases/v3.2.0.html">'
         "See the release notes</a>."
     ),
     "nav_links": [
