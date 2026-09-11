@@ -19,8 +19,8 @@ c.FileContentsManager.allow_hidden = True  # noqa: F821
 
 # The fixture persona is the default, so a message routes to it without any
 # persona-picker interaction (which is flaky to drive across two clients). The
-# web_client_id is stamped on the message by the toolkit regardless of the
-# picker, so routing is still exercised.
+# web_client_id is stamped on the message by the persona controls regardless of
+# the picker, so routing is still exercised.
 c.PersonaManager.default_persona_id = (  # noqa: F821
     "jupyter-ai-personas::mcp-notebook_persona::McpNotebookPersona"
 )
