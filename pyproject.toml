@@ -84,3 +84,8 @@ jupyter_ai = "jupyter_ai:DEFAULT_JUPYTER_SERVER_MCP_TOOLS"
 # site); the release tag captures a frozen snapshot for the `stable` site. See
 # scripts/freeze-doc-submodules.sh.
 after-bump-version = ["bash scripts/freeze-doc-submodules.sh"]
+
+# After "Step 1: Prep Release" builds the changelog entry, insert the standard
+# release-notes preamble under the version heading, pointing readers to the
+# full notes on the docs site. See scripts/after_build_changelog.py.
+after-build-changelog = ["python scripts/after_build_changelog.py"]
