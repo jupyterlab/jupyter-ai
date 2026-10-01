@@ -1,4 +1,4 @@
-# Magic commands (optional)
+# Magic commands
 
 Jupyter AI can also provide IPython magic commands for invoking a language model
 directly in a notebook.

@@ -4,7 +4,8 @@
 These docs are out of date and may not reflect the current behavior of Jupyternaut. See [jupyter-ai#1618](https://github.com/jupyterlab/jupyter-ai/issues/1618) for details and progress.
 :::
 
-Jupyternaut is a custom agent built for Jupyter AI.
+Jupyternaut is a custom agent built for Jupyter AI. It runs on the Jupyter
+server, as a persona in the {doc}`agent chat </users/chat/index>`.
 
 It should be considered *experimental*. It can be installed optionally via:
 
@@ -17,6 +18,12 @@ or:
 ```sh
 pip install jupyter-ai-jupyternaut
 ```
+
+:::{note}
+This page covers the Jupyternaut persona of the agent chat, from the
+`jupyter-ai-jupyternaut` package. For the Jupyternaut that runs in the
+browser, see {doc}`/users/browser/index`.
+:::
 
 ## Optional features
 
