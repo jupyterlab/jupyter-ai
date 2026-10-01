@@ -33,6 +33,9 @@ extensions = [
 ]
 myst_enable_extensions = ["colon_fence"]
 
+# Size diagrams to their content instead of a fixed 500px height.
+mermaid_height = "auto"
+
 templates_path = ["_templates"]
 exclude_patterns = []
 
@@ -61,12 +64,34 @@ html_theme_options = {
     ),
     "nav_links": [
         {
-            "title": "Quickstart",
+            "title": "Get Started",
             "url": "getting-started",
         },
         {
-            "title": "Users",
+            "title": "User Guide",
             "url": "users/index",
+            "children": [
+                {
+                    "title": "Terminal coding agents",
+                    "url": "users/terminal-agents/index",
+                    "summary": "Use Claude Code, Codex, and other agents with JupyterLab",
+                },
+                {
+                    "title": "Agent chat",
+                    "url": "users/chat/index",
+                    "summary": "Chat with agents in a JupyterLab side panel",
+                },
+                {
+                    "title": "In the browser",
+                    "url": "users/browser/index",
+                    "summary": "Jupyternaut in your browser tab, also in JupyterLite",
+                },
+                {
+                    "title": "Magic commands",
+                    "url": "users/magic_commands/index",
+                    "summary": "Prompt a model from a notebook cell",
+                },
+            ],
         },
         {
             "title": "Contributors",
