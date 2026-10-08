@@ -1,0 +1,225 @@
+# Use the chat
+
+This page covers the chat interface in detail. If you have not installed
+Jupyter AI yet, start with {doc}`index`.
+
+## Using the chat interface
+
+### Create a new chat
+
+Once you have started JupyterLab, click the new "chat" icon in the left side panel to open the chat interface. You can right-click on the panel icon and move it to the other side, if you prefer.
+
+<img src="../../_static/chat-interface.png"
+    alt="Screen shot of the chat interface"
+    class="screenshot"
+    width="400"
+    height="auto" />
+
+After clicking `New Chat`, you will see a new chat created in your side panel:
+
+<img src="../../_static/chat-newchat.png"
+    alt="Screen shot of the new chat"
+    class="screenshot"
+    width="400"
+    height="auto" />
+
+
+This will open a prompt to name the chat. Give it a reasonable name:
+
+<img src="../../_static/chat-new.png"
+    alt="Screen shot of the new chat"
+    class="screenshot"
+    width="400"
+    height="auto" />
+
+You can create new chats as you go and these will persist after you close JupyterLab. When re-opening JupyterLab you can see existing chats in the chat panel as shown here: 
+
+<img src="../../_static/chat-multiple.png"
+    alt="Screen shot of the new chat"
+    class="screenshot"
+    width="400"
+    height="auto" />
+
+
+### Use an AI persona
+
+An AI Persona is an agent or harness that responds to prompts in the chat panel. You can address more than one persona in any chat session. **AI personas** always respond to user messages in the chat panel when selected.
+
+You can use the persona picker in the chat as shown below. 
+<img src="../../_static/chat-persona-picker.png"
+    alt="Screen shot of the chat persona"
+    class="screenshot"
+    width="400"
+    height="auto" />
+
+A persona can allow access to different models and each one comes with a model picker as well, allowing you to select which model to use for that persona, and also switch models for the same persona in the same chat session. The model picker is shown below: 
+
+<img src="../../_static/chat-model-picker.png"
+    alt="Screen shot of the chat persona"
+    class="screenshot"
+    width="400"
+    height="auto" />
+
+To compose a message, type it in the text box at the bottom of the chat
+interface and press <kbd>ENTER</kbd> to send it. You can press
+<kbd>SHIFT</kbd>+<kbd>ENTER</kbd> to add a new line. Once you have sent a message, you should see a response from the AI persona.
+
+<img src="../../_static/chat-jupyternaut.png"
+    alt="Screen shot of the new chat response"
+    class="screenshot"
+    width="600"
+    height="auto" />
+
+You can also see the `Delete` button shown alongside the prompt if you need to clear up the chat; there is a similar button in the response area as well.
+
+As another example, see how Claude can be used via ACP in the following screens, with the various selection options for models, attributes, mode, and token counts, cost, etc. 
+
+#### Model picker
+<img src="../../_static/chat-acp-claude-model-picker.png"
+    class="screenshot"
+    width="500"
+    height="auto" />
+
+#### Model Mode
+<img src="../../_static/chat-acp-claude-attribute.png"
+    class="screenshot"
+    width="500"
+    height="auto" />
+
+#### Selecting Effort
+<img src="../../_static/chat-acp-claude-mode.png"
+    class="screenshot"
+    width="500"
+    height="auto" />
+
+#### Token counts, cost
+<img src="../../_static/chat-acp-claude-tokencount.png"
+    class="screenshot"
+    width="500"
+    height="auto" />
+
+
+
+
+## Chat features
+
+### Chats are files
+
+Chats are appear as files named `<chat_name>.chat`. Each `.chat` file contains
+the entire history of the chat. These files are saved to disk, so you can
+resume any chat by re-opening the `.chat` file.
+
+<img src="../../_static/chat-ydoc.png"
+    alt="Screen shot of the chat doc"
+    class="screenshot"
+    width="600"
+    height="auto" />
+
+You can also delete a chat simply by deleting the corresponding `.chat` file.
+
+### Chats are threads
+
+You can create multiple chats to manage different threads of conversation. From
+the chat side panel, you can click `+ New chat` to open a new chat to start a
+different thread.
+
+<img src="../../_static/chat-second.png"
+    alt="Screen shot of the second chat"
+    class="screenshot"
+    width="400"
+    height="auto" />
+
+### Add attachments
+
+The chat panel supports message attachments, which allow you to share additional
+context with an AI persona without copying and pasting.
+
+The easiest way to do this is to simply drag and drop a file into the chat input. This
+will add the file as an attachment. You may also drag and drop notebook cells
+into the chat input. You may also use the file picker UI by clicking the
+paperclip icon in the chatbox.
+
+AI personas will read message attachments and use them to assist with your
+request.
+
+<!-- TODO: add video -->
+
+#### The `@file` command
+
+Another way of adding attachments is offered through the `@file:<file-path>`
+command, which allows you to quickly attach a file given its path. This will
+open an auto-complete menu that helps navigate your workspace's file tree to
+find the right file to add.
+
+<video controls width="800">
+    <source src="../../_static/chat-attach-file.mov" type="video/mp4">
+</video>
+
+
+### Personas reply intelligently
+
+Personas reply intelligently based on the number of other connected users and other AI personas. If you are the only user connected to your JupyterLab server, the current active persona will always reply. 
+
+<!-- When you send a message that does not `@`-mention an AI persona, the following rules are used to determine whether an AI persona will reply automatically.
+
+- 1 user, 1 persona: The one AI persona always replies to new messages
+- 1 user, >1 personas: The *last mentioned* AI persona always replies to new messages
+- \>1 users, >=1 personas: Personas never reply automatically to new messages, they must be `@`-mentioned -->
+
+### Code toolbar shortcuts
+
+Jupyter AI provides some quick shortcuts for code blocks returned by an agent. You can use these to copy the code to your clipboard, insert it as a notebook cell above/below the active cell, or replace the active cell of a notebook in the main area.
+
+<!-- TODO: please update this to not use comic sans... -->
+
+<img src="../../_static/chat-replace-selection-input.png"
+    alt='Screen shot of Jupyter AI with a Python function selected, the user having typed "Rewrite this function to be iterative, not recursive" as their prompt, and with the user having chosen to include the selection with their message and to replace the selection with the response.'
+    width="95%"
+    class="screenshot" />
+
+## How the chat works with agents
+
+Jupyter AI is the chat host inside JupyterLab. It provides the chat interface,
+keeps track of the conversation, and routes each message to an AI persona. A
+persona is the integration point for an agent or model; it is not the model
+itself. This distinction is useful when deciding where a setting or a tool
+belongs.
+
+| Component | Role in a Jupyter AI session |
+| --- | --- |
+| Chat panel | Collects messages, attachments, and tool permission decisions, then displays streamed replies. |
+| AI persona | Receives a message and produces a reply. The persona may call a model directly or hand the message to an external agent. |
+| ACP integration | Connects Jupyter AI to an external agent through the Agent Client Protocol. The agent reports its available models, modes, and permissions back to the chat. |
+| Jupyter MCP server | Exposes notebook and JupyterLab operations as MCP tools, so an agent can inspect or change the workspace with the user's permission. |
+| Custom MCP server | Adds another tool source through the workspace's `.jupyter/mcp_settings.json` configuration. |
+
+The usual message flow is:
+
+1. You send a message in a chat and optionally select a persona or attach a
+   notebook cell or file.
+2. Jupyter AI routes the message to the selected persona. If the persona wraps
+   an ACP agent, the persona forwards the request to that agent and streams the
+   agent's events back to the chat.
+3. The agent or persona decides whether it needs a model, a notebook tool, or a
+   custom MCP tool. Tool calls can require approval before they run.
+4. The result is streamed back through the persona to the chat panel. Any files,
+   notebook edits, or other workspace changes are made by the tool that was
+   called, not by the chat panel itself.
+
+This means Jupyter AI can participate in several protocol roles in one session:
+
+- Jupyter AI acts as an ACP client when it connects an external ACP agent to the
+  chat.
+- The Jupyter server acts as an MCP server when it exposes notebook tools to an
+  agent.
+- An external MCP server can be configured as another tool source. In that
+  arrangement, the agent is the MCP client and Jupyter AI supplies the
+  configuration.
+
+For some direct model-backed personas, there is no ACP hop: the persona calls its
+configured model provider itself. For example, Jupyternaut can use the
+provider and model selected in its settings while still using the same
+Jupyter MCP tools. For a custom persona, the main application hook is
+`process_message()`. See the
+{doc}`developer guide </developers/entry_points_api/personas_group>` for the
+persona API and entry-point setup.

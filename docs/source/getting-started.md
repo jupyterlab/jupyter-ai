@@ -1,232 +1,115 @@
-# Getting Started
+# Get started
 
-To help you get started with Jupyter AI, we'll walk through:
+Jupyter AI offers several ways to work with AI agents in Jupyter. Pick the
+one that matches how you work. Each one takes a few minutes to set up, and
+the {doc}`user guide </users/index>` compares them in detail.
 
-- Installing Jupyter AI
-- Installing agents
-- Creating a chat in JupyterLab
-- Collaborating with agents in JupyterLab
+## Use your coding agent with JupyterLab
 
-## Install Jupyter AI
+For people who already use Claude Code, Codex, GitHub Copilot CLI, Gemini CLI,
+OpenCode, or another coding agent. The agent runs in a terminal, and connects
+to JupyterLab to open files, run notebook cells, and drive the interface.
 
-Install Jupyter AI in your Python environment using `pip` or your favorite
-environment manager. Jupyter AI is distributed on PyPI and Conda Forge.
+1. Install JupyterLab with the extensions for agents, and start it in your
+   project folder:
 
-````{tabs}
+   ```bash
+   pip install ajlab
+   jupyter lab
+   ```
 
-```{tab} pip
+2. Open a terminal in JupyterLab (**File → New → Terminal**), and register the
+   Jupyter MCP server with your agent:
 
-    pip install jupyter-ai
+   ::::{tab-set}
 
+   :::{tab-item} Claude Code
+   :sync: claude
+
+   ```bash
+   claude mcp add --scope user jupyter -- jupyter-server-mcp-proxy
+   ```
+   :::
+
+   :::{tab-item} Codex
+   :sync: codex
+
+   ```bash
+   codex mcp add jupyter -- jupyter-server-mcp-proxy
+   ```
+   :::
+
+   :::{tab-item} Other agents
+   :sync: other
+
+   Add a stdio MCP server named `jupyter`, with the command
+   `jupyter-server-mcp-proxy`. See {doc}`/users/terminal-agents/connect`.
+   :::
+
+   ::::
+
+3. Start the agent in the same terminal, and ask it to work in JupyterLab:
+
+   > Create a notebook that loads `data.csv` and plots it, then run all its cells.
+
+Continue with {doc}`/users/terminal-agents/index`.
+
+## Chat with agents in JupyterLab
+
+For people who want a chat panel in JupyterLab, where they can use several
+agents, approve their actions, and share chats with others.
+
+1. Install Jupyter AI:
+
+   ```bash
+   pip install jupyter-ai
+   ```
+
+2. Install at least one agent, such as
+   [Claude Code](https://docs.anthropic.com/en/docs/claude-code/quickstart) or
+   [Codex CLI](https://developers.openai.com/codex/cli), and its ACP adapter if
+   it needs one. The {doc}`agent chat guide </users/chat/index>` lists them.
+
+3. Start JupyterLab, and open a chat from the **Chat** card in the launcher:
+
+   ```bash
+   jupyter lab
+   ```
+
+Continue with {doc}`/users/chat/index`.
+
+## Run an assistant in the browser
+
+For JupyterLite deployments, Jupyter Notebook users, and anyone who wants a
+setup with only an API key. Jupyternaut runs in the browser tab and calls the
+model provider directly.
+
+1. Install the extension:
+
+   ```bash
+   pip install jupyterlite-ai
+   ```
+
+2. Start JupyterLab or Jupyter Notebook, open **Jupyternaut Settings** from the
+   command palette, and add a model provider with your API key.
+
+3. Open the chat panel and start a conversation.
+
+You can also try it in the [online demo](https://jupyterlite.github.io/ai/lab/index.html).
+Continue with {doc}`/users/browser/index`.
+
+## Prompt a model from a notebook cell
+
+For people who want to call a model from code cells with `%%ai`.
+
+```bash
+pip install jupyter-ai-magic-commands
 ```
 
-```{tab} uv
+Then, in a notebook:
 
-    uv pip install jupyter-ai
-
+```python
+%load_ext jupyter_ai_magic_commands
 ```
 
-```{tab} conda
-
-    conda install -c conda-forge jupyter-ai
-
-```
-
-```{tab} mamba
-
-    mamba install -c conda-forge jupyter-ai
-
-```
-
-```{tab} micromamba
-
-    micromamba install -c conda-forge jupyter-ai
-
-```
-
-```{tab} pixi
-
-    pixi add jupyter-ai
-
-```
-
-````
-
-## Install agents
-
-To allow users to freely choose which agents they want inside of JupyterLab,
-Jupyter AI does not ship with any agent by default. You will need to install at
-least one agent to get started:
-
-To install agents, follow the official documentation for the agents you wish to
-use:
-
-- [Claude Code](https://docs.anthropic.com/en/docs/claude-code/quickstart)
-- [Codex CLI](https://developers.openai.com/codex/cli)
-- [GitHub Copilot CLI](https://docs.github.com/en/copilot/how-tos/copilot-cli/set-up-copilot-cli/install-copilot-cli)
-- [Goose](https://block.github.io/goose/docs/getting-started/installation)
-- [Kilo CLI](https://kilo.ai/cli)
-- [Kiro CLI](https://kiro.dev/docs/cli/installation/)
-- [Mistral Vibe](https://docs.mistral.ai/mistral-vibe/introduction/install)
-- [OpenCode](https://opencode.ai/docs/#install)
-
-Some agents also require an additional ACP adapter or package to become
-available in Jupyter AI. If your agent is listed below, you will also need to
-install the corresponding package:
-
-````{tabs}
-
-```{tab} Claude Code
-
-    npm install -g @agentclientprotocol/claude-agent-acp
-
-```
-
-```{tab} Codex
-
-    npm install -g @agentclientprotocol/codex-acp
-
-```
-
-```{tab} Mistral Vibe
-
-    uv tool install mistral-vibe
-    # or
-    pip install mistral-vibe
-
-```
-
-````
-
-:::{tip}
-If you use a Conda environment manager, we recommend installing the ACP agent
-adapter inside your environment. Use the package manager required by the
-adapter:
-
-````{tabs}
-
-```{tab} conda
-
-    conda activate <env-name>
-    conda install nodejs  # for npm-based adapters such as Claude Code or Codex
-    npm install -g <npm-package-name>
-
-    # or, for Python-based adapters such as Mistral Vibe
-    pip install <python-package-name>
-
-```
-
-```{tab} mamba
-
-    mamba activate <env-name>
-    mamba install nodejs  # for npm-based adapters such as Claude Code or Codex
-    npm install -g <npm-package-name>
-
-    # or, for Python-based adapters such as Mistral Vibe
-    pip install <python-package-name>
-
-```
-
-```{tab} micromamba
-
-    micromamba activate <env-name>
-    micromamba install nodejs  # for npm-based adapters such as Claude Code or Codex
-    npm install -g <npm-package-name>
-
-    # or, for Python-based adapters available on Conda Forge
-    micromamba install -c conda-forge <conda-package-name>
-
-```
-
-```{tab} pixi
-
-    pixi shell
-    pixi add nodejs  # for npm-based adapters such as Claude Code or Codex
-    npm install -g <npm-package-name>
-
-    # or, for Python-based adapters available on Conda Forge, such as Mistral Vibe
-    pixi add <conda-package-name>
-
-```
-
-````
-:::
-
-## Create a chat
-
-Jupyter AI will automatically detect which agents are available from the
-environment. You can now use Jupyter AI just by starting JupyterLab:
-
-```
-jupyter lab
-```
-
-Next, create a chat by clicking the **Chat** card in the launcher page, or the
-**+** button in the chat sidebar panel:
-
-<img src="_static/open-chat.png"
-    alt="Screenshot showing how to open a new chat in Jupyter AI"
-    width="100%"
-    class="screenshot" />
-
-:::{tip}
-In Jupyter AI, chats are simply files that live in your workspace. You can
-resume a chat by re-opening it as you would for any other document. You can also
-create and use multiple chats simultaneously to manage different threads of
-work.
-:::
-
-## Collaborate with an agent
-
-You should now see a chat open in JupyterLab. Agents appear as **AI personas**
-in every chat. You can pick an AI persona to chat with by clicking the menu in
-the input toolbar and selecting an AI persona.
-
-<img src="_static/persona-menu.png"
-    alt="Screenshot showing the persona picker menu with available AI personas"
-    width="50%"
-    class="screenshot" />
-
-:::{tip}
-If you're not logged in with an agent already, the agent will not respond to
-your request and instead prompt you to login.
-
-The agent installation and authentication process will be simplified and
-improved in future versions. For now, you may need to log in via the agent's
-dedicated CLI in a separate terminal (opened automatically when possible), or
-pass additional environment variables and restart the server. 
-:::
-
-Whichever persona is selected is the one that will respond to your message.
-Simply type a prompt and send a message.
-
-<img src="_static/persona-reply.png"
-    alt="Screenshot showing an AI persona replying to a message in Jupyter AI"
-    width="75%"
-    class="screenshot" />
-
-After a brief delay, additional menus will appear after the AI persona has fully
-initialized and reported its available settings. Each agent provides different
-available settings, but generally these will allow you to control the model,
-permission mode, effort level, and various other settings.
-
-<img src="_static/model-menu.png"
-    alt="Screenshot showing the model selection menu provided by an AI persona"
-    width="75%"
-    class="screenshot" />
-
-Of course, agents can read files, write files, run shell commands, and even
-interact with notebooks through the Jupyter MCP Server. Agents will also request
-permission when invoking tools, unless explicitly allowed by the controls in the
-input toolbar.
-
-<img src="_static/tool-call-permission-request.png"
-    alt="Screenshot showing a tool call permission request from an agent"
-    width="100%"
-    class="screenshot" />
-
-## Next Steps
-
-- See the full {doc}`User Guide </users/index>` for detailed documentation on all features.
-- See the {doc}`Contributor Guide </contributors/index>` if you want to help build Jupyter AI.
-- See the {doc}`Developer Guide </developers/index>` if you want to extend Jupyter AI with custom agents or MCP servers.
+Continue with {doc}`/users/magic_commands/index`.
