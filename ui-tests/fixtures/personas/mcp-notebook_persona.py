@@ -19,9 +19,10 @@ Why this is a real end-to-end test
 The persona is the MCP client (standing in for an ACP agent). It builds the MCP
 connection from ``get_mcp_settings()`` — the exact config the ACP client hands a
 real agent — which carries the identity headers persona-manager stamps
-(``X-Jupyter-Chat-Id``, ``X-JupyterAI-Persona-Id``). ``jupyter-server-mcp``'s
-middleware reads those headers, looks this persona up, reads the
-``web_client_id`` off the message it is currently processing, and publishes it so
+(``X-Jupyter-Chat-Id``, ``X-JupyterAI-Persona-Id``). The persona-manager routing
+middleware, added to ``jupyter-server-mcp`` through its middleware entrypoint,
+reads those headers, looks this persona up, reads the ``web_client_id`` off the
+message it is currently processing, and publishes it so
 ``jupyterlab-commands-toolkit`` stamps the emitted ``lab_command`` event. Only
 the browser tab whose ``web_client_id`` matches runs the command. So a command
 triggered by one web client's message builds a notebook only in that client's
