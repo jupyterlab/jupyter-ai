@@ -111,6 +111,21 @@ Jupyternaut enables use of language models accessible through [OpenRouter](https
 
 Likewise, for many models, you may directly choose the OpenAI provider in Jupyter AI instead of OpenRouter in the same way. In the `Chat model` area in `Jupyternaut settings` choose `openai/` to see all the models from this provider.
 
+### OrcaRouter usage
+
+Jupyternaut can also route language models through [OrcaRouter](https://www.orcarouter.ai)'s unified interface. OrcaRouter is an OpenAI-compatible AI gateway built for both models and agents: like OpenRouter, it exposes a single `https://api.orcarouter.ai/v1` endpoint that fronts models from many providers (e.g. Anthropic, Google, Mistral, and OpenAI-compatible open models), so you can pick the best model per task without managing separate accounts. It also adds adaptive routing, automatic failover, zero-markup inference, observability, guardrails, and agent-tool governance behind the same endpoint. It runs gateway-level, zero-trust security for AI agents on the same endpoint — screening every prompt/response and governing every tool call on a default-deny basis, with no application code changes.
+
+To use OrcaRouter in Jupyternaut:
+
+1. Create an account and API key at [https://www.orcarouter.ai](https://www.orcarouter.ai). Keys start with `sk-orca-`.
+2. Add a custom model in the `Jupyternaut settings` panel with:
+   - **Model ID**: `openai/orcarouter/auto` (the `auto` route sends each prompt to the best model automatically) or a concrete model such as `openai/orcarouter/fusion-mini`.
+   - **API key**: your OrcaRouter key (the `OPENAI_API_KEY` field or the `OPENAI_API_KEY` environment variable, since OrcaRouter speaks the OpenAI protocol).
+   - **`api_base` model parameter**: `https://api.orcarouter.ai/v1`.
+3. Select the custom model from the model picker and start chatting.
+
+The `openai/` prefix tells LiteLLM to treat OrcaRouter as an OpenAI-compatible endpoint, and the `api_base` parameter points it at OrcaRouter's gateway. Because OrcaRouter is OpenAI-compatible, every model it exposes is available through this single custom-model entry.
+
 ### Ollama usage
 
 To get started, follow the instructions on the [Ollama website](https://ollama.com/) to set up `ollama` and download the models locally. To select a model, enter the model name in the settings panel, for example `deepseek-coder-v2`. You can see all locally available models with `ollama list` in any terminal.
