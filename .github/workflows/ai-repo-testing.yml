@@ -1,0 +1,92 @@
+name: AI Repo Testing
+
+on:
+  schedule:
+    # Run daily at 06:00 UTC
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+    inputs:
+      target_user:
+        description: "GitHub username whose repos to test"
+        required: false
+        default: "rpreslar4765"
+      max_prs:
+        description: "Maximum number of fix PRs to open per run (0 to disable)"
+        required: false
+        default: "3"
+      dry_run:
+        description: "Dry run – report only, do not open PRs"
+        required: false
+        default: "true"
+        type: choice
+        options:
+          - "true"
+          - "false"
+
+# Restrict permissions to the minimum required.
+# PR creation requires `pull-requests: write` and `contents: write`.
+permissions:
+  contents: write
+  pull-requests: write
+  issues: read
+
+jobs:
+  ai-repo-test:
+    name: AI Repo Testing for ${{ github.event.inputs.target_user || 'rpreslar4765' }}
+    runs-on: ubuntu-latest
+    # Soft-fail: failures produce a report artifact but do not block other work.
+    continue-on-error: true
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-ai-tester-${{ hashFiles('scripts/ai_repo_tester.py') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-ai-tester-
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests PyGithub
+
+      - name: Run AI repo tester
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TARGET_USER: ${{ github.event.inputs.target_user || 'rpreslar4765' }}
+          MAX_PRS: ${{ github.event.inputs.max_prs || '3' }}
+          DRY_RUN: ${{ github.event.inputs.dry_run || 'true' }}
+        run: |
+          python scripts/ai_repo_tester.py \
+            --user "$TARGET_USER" \
+            --max-prs "$MAX_PRS" \
+            $( [ "$DRY_RUN" = "true" ] && echo "--dry-run" || true ) \
+            --output-dir reports/ \
+            --allowlist scripts/ai_testing_allowlist.txt
+
+      - name: Upload report artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-repo-test-report-${{ github.run_number }}
+          path: reports/
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Print Markdown summary
+        if: always()
+        run: |
+          if [ -f reports/summary.md ]; then
+            cat reports/summary.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "No summary report generated." >> "$GITHUB_STEP_SUMMARY"
+          fi

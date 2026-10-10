@@ -1,0 +1,19 @@
+# AI Testing Allowlist
+#
+# This file controls which repositories the AI Repo Tester is allowed to open
+# automated fix pull requests on.
+#
+# Format: one "owner/repo" entry per line.
+# Lines starting with "#" are ignored.
+# An empty file means PRs will be reported but never opened.
+#
+# ─── Safety constraints ──────────────────────────────────────────────────────
+# • Only repositories listed here can receive automated PRs.
+# • The workflow also enforces a per-run maximum (--max-prs / MAX_PRS input).
+# • PRs are NEVER auto-merged.
+# • Use --dry-run to test without writing anything.
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Add your repositories below, one per line, e.g.:
+# rpreslar4765/jupyter-ai
+rpreslar4765/jupyter-ai
