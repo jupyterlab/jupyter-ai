@@ -2,7 +2,9 @@
 
 Jupyter AI offers several ways to work with AI agents in Jupyter. Pick the
 one that matches how you work. Each one takes a few minutes to set up, and
-the {doc}`user guide </users/index>` compares them in detail.
+the {doc}`user guide </users/index>` compares them in detail. If you are not
+sure where to start, begin with {ref}`what you want to accomplish
+<user-guide-goals>`.
 
 ## Use your coding agent with JupyterLab
 

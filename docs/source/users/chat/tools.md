@@ -4,6 +4,7 @@ Agents in the chat act on your workspace through tools. Jupyter AI gives
 every agent a set of notebook tools, and you can add tools from other MCP
 servers.
 
+(chat-notebook-tools)=
 ## Notebook tools
 
 By default, AI personas have access to the MCP server provided by the
@@ -23,6 +24,7 @@ connections from coding agents running in a terminal. See
 {doc}`/users/terminal-agents/index`.
 :::
 
+(chat-custom-mcp-servers)=
 ## Custom MCP servers
 
 You can share custom MCP servers to extend the capabilities of your AI personas

@@ -42,6 +42,7 @@ By default, a command runs in **every** open JupyterLab tab of the server.
 Keep a single JupyterLab tab open per server to avoid running cells twice.
 :::
 
+(terminal-agents-notebooks)=
 ## Notebooks
 
 An agent can change a notebook in two ways, and each has its strengths.

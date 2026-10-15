@@ -1,8 +1,22 @@
 # User guide
 
-There is more than one way to work with AI agents in Jupyter. They differ in
-where the agent runs and how you talk to it, and they share the same building
-blocks, so you can combine them.
+Jupyter AI connects models, agents, and workflows to notebooks. Start from
+what you want to accomplish, then choose the way of working that fits your
+setup. All of them share the same building blocks, so you can combine them.
+
+(user-guide-goals)=
+## What do you want to accomplish?
+
+| Goal | Where to start |
+| --- | --- |
+| **Debug a notebook** | Ask an agent to run the notebook, read the errors, and fix the code: a {ref}`terminal agent <terminal-agents-notebooks>`, the {ref}`agent chat <chat-notebook-tools>`, or {ref}`Jupyternaut in the browser <browser-features>`. In the agent chat, you can also {ref}`attach the failing cells <chat-attachments>` to your message. |
+| **Edit and run notebooks with an agent** | {ref}`Terminal agents <terminal-agents-notebooks>` edit notebook files and run cells through JupyterLab. Agents in the {ref}`agent chat <chat-notebook-tools>` and {ref}`Jupyternaut in the browser <browser-features>` work in the open notebook. |
+| **Create a domain workflow** | Write {ref}`instructions and skills <concepts-instructions-skills>` for your field, give agents {ref}`your own tools <chat-custom-mcp-servers>`, or build a {doc}`custom AI persona </developers/entry_points_api/index>`. |
+| **Use a local or private model** | Point {ref}`Jupyternaut in the browser <browser-models>` or the {ref}`Jupyternaut persona <jupyternaut-ollama>` at Ollama, vLLM, or another OpenAI-compatible server. Agents such as OpenCode and Goose can also use local models through their own configuration. |
+| **Connect an existing agent** | Register the Jupyter MCP server with {doc}`your terminal agent <terminal-agents/connect>`, or {ref}`install the agent <chat-install-agents>` for the agent chat. |
+| **Add specialized tools** | Add {ref}`MCP servers <chat-custom-mcp-servers>` to the agent chat, or {doc}`write tools </developers/agent-tools>` that every agent can call. |
+
+## Ways to use Jupyter AI
 
 ::::{grid} 1 1 3 3
 :gutter: 2

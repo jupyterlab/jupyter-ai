@@ -118,6 +118,7 @@ Jupyternaut enables use of language models accessible through [OpenRouter](https
 
 Likewise, for many models, you may directly choose the OpenAI provider in Jupyter AI instead of OpenRouter in the same way. In the `Chat model` area in `Jupyternaut settings` choose `openai/` to see all the models from this provider.
 
+(jupyternaut-ollama)=
 ### Ollama usage
 
 To get started, follow the instructions on the [Ollama website](https://ollama.com/) to set up `ollama` and download the models locally. To select a model, enter the model name in the settings panel, for example `deepseek-coder-v2`. You can see all locally available models with `ollama list` in any terminal.

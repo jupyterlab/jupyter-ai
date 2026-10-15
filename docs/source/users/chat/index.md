@@ -64,6 +64,7 @@ environment manager. Jupyter AI is distributed on PyPI and Conda Forge.
 
 ````
 
+(chat-install-agents)=
 ## Install agents
 
 To allow users to freely choose which agents they want inside of JupyterLab,
