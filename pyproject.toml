@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 name = "jupyter_ai"
 readme = "README.md"
 license = { file = "LICENSE" }
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 description = "A set of extensions providing agentic AI in JupyterLab"
 authors = [{ name = "Project Jupyter", email = "jupyter@googlegroups.com" }]
 keywords = ["jupyter", "jupyterlab", "jupyterlab-extension", "jupyter-ai"]
@@ -19,7 +19,6 @@ classifiers = [
   "License :: OSI Approved :: BSD License",
   "Programming Language :: Python",
   "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
