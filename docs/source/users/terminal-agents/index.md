@@ -12,15 +12,6 @@ It can open a file for you, run notebook cells in your kernel, read their
 outputs, and show you the result, while edits it makes on disk appear live in
 the documents you have open.
 
-```{figure} https://raw.githubusercontent.com/jtpio/xtralab/main/images/hero.webp
-:alt: JupyterLab with a file browser, a side-by-side diff, and Claude Code running in a terminal
-:width: 100%
-:class: screenshot
-
-Claude Code in a JupyterLab terminal, next to a diff of its changes. This
-screenshot shows xtralab, one of the {doc}`ready-made setups <examples>`.
-```
-
 ## What you need
 
 A productive setup has three parts:
