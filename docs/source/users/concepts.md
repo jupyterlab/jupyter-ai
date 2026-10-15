@@ -98,6 +98,7 @@ When an agent changes a notebook through JupyterLab commands or through the
 notebook tools of the `jupyter-ai` package, the change happens in the open
 notebook, so you see it with or without these packages.
 
+(concepts-instructions-skills)=
 ## Instructions and skills
 
 Agents read project instructions from a file at the root of the project,

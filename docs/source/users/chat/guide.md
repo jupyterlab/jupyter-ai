@@ -129,6 +129,7 @@ different thread.
     width="400"
     height="auto" />
 
+(chat-attachments)=
 ### Add attachments
 
 The chat panel supports message attachments, which allow you to share additional

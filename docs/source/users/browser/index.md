@@ -56,6 +56,7 @@ Notebook as well as in JupyterLite.
 
 It needs JupyterLab 4.4 or Jupyter Notebook 7.4, or later.
 
+(browser-models)=
 ## Choose a model
 
 1. Open **Jupyternaut Settings**, from the settings button of the chat panel
@@ -77,6 +78,7 @@ instead, but they are then saved as plain text: on the server with JupyterLab,
 or in the browser with JupyterLite.
 :::
 
+(browser-features)=
 ## What it can do
 
 - **Chat** in a side panel, with files and notebook cells as attachments.
