@@ -1,9 +1,7 @@
 # Ready-made setups
 
 You can assemble a setup for terminal agents from the packages in
-{doc}`setup`, or start from one of these distributions. They show different
-points on the same line: from the minimum that works, to an environment
-reshaped around coding agents.
+{doc}`setup`, or start from one of these.
 
 ## ajlab: the minimal setup
 
@@ -19,40 +17,12 @@ pip install ajlab
 
 Use it as a starting point, or as a dependency of your own distribution.
 
-## xtralab: an environment built around agents
-
-[xtralab](https://github.com/jtpio/xtralab) builds on `ajlab` and shows how far
-the integration between JupyterLab and terminal agents can go. You do not need
-it to use a terminal agent with JupyterLab, but it is a good source of ideas.
-It adds:
-
-- **An agent launcher**, with one button for each coding agent installed on
-  the machine, an optional first prompt, and the list of files the agent
-  changed.
-- **Side-by-side git diffs** for text files and notebooks, editable in place.
-- **Ask an agent**: select code, type an instruction, and send it with the
-  file path and line numbers to a new or running agent.
-- **A terminals panel** that shows the agent running in each terminal and its
-  latest output.
-- **Agent Skills** for JupyterLab: `customize-jupyterlab` teaches an agent
-  where each JupyterLab setting lives, and `guided-code-walkthrough` lets it
-  give you a tour of the code in the running app, through the Jupyter MCP
-  server.
-- **A desktop app** for macOS and Linux, with its own Python runtime.
-
-```bash
-pip install xtralab
-```
-
-See the [xtralab documentation](https://jtpio.github.io/xtralab/) for the
-details.
-
 ## The Jupyter AI package
 
 The `jupyter-ai` package provides the {doc}`agent chat </users/chat/index>`.
 It also runs the Jupyter MCP server with the commands toolkit and a set of
-notebook tools, so a terminal agent can connect to it with the same
-registration as above. Use it when you want both: a chat panel in JupyterLab,
+notebook tools, so a terminal agent can connect to it as described in
+{doc}`connect`. Use it when you want both: a chat panel in JupyterLab,
 and your coding agent in a terminal.
 
 (terminal-agents-own-distribution)=

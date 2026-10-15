@@ -4,6 +4,19 @@ Once the agent is connected, you work with it as usual, in its own interface.
 This page covers what it can do in JupyterLab, and the habits that make the
 collaboration smooth.
 
+## Set up your workspace
+
+JupyterLab already has what you need to work next to an agent, without any
+other extension:
+
+- Open a terminal with **File → New → Terminal**, and start the agent in it.
+- Drag the terminal's tab to the right edge of the main area, so that the
+  agent and your notebook are side by side.
+- Open one terminal for each agent you run. The **Running Terminals and
+  Kernels** panel in the left sidebar lists them.
+- JupyterLab remembers the layout. When you reload the page, the terminals
+  reconnect to the agents, which keep running on the server.
+
 ## What the agent can do in JupyterLab
 
 With the setup from {doc}`setup`, the Jupyter MCP server offers these tools:
@@ -91,8 +104,8 @@ JupyterLab is open for this project. Use the `jupyter` MCP server to work with i
 
 [Agent Skills](https://agentskills.io) go further: they package
 instructions, scripts, and references that the agent loads when a task needs
-them. Most coding agents support them. See {doc}`examples` for skills written
-for JupyterLab.
+them. Most coding agents support them. A skill can teach an agent the
+JupyterLab commands and the notebook conventions of your project.
 
 ## Review the changes
 
