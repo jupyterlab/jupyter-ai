@@ -2,6 +2,12 @@ name: CI
 
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - '.github/workflows/ci.yml'
+      - 'pyproject.toml'
+      - 'scripts/**'
+      - 'tests/**'
 
 jobs:
   test:
@@ -23,17 +29,18 @@ jobs:
       uses: actions/cache@v4
       with:
         path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        key: ${{ runner.os }}-pip-${{ hashFiles('pyproject.toml') }}
         restore-keys: |
           ${{ runner.os }}-pip-
 
     - name: Install dependencies
       run: |
-        pip install -r requirements.txt
+        python -m pip install -e .
+        python -m pip check
 
     - name: Run Tests
       run: |
-        pytest
+        python -m unittest discover -s tests -v
 
   lint:
     runs-on: ubuntu-latest
