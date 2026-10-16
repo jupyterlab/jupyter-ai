@@ -16,7 +16,7 @@ to JupyterLab to open files, run notebook cells, and drive the interface.
    project folder:
 
    ```bash
-   pip install ajlab
+   pip install jupyter-ai-core
    jupyter lab
    ```
 

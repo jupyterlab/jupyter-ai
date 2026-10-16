@@ -92,7 +92,8 @@ save. Two packages make open documents follow the file instead:
   outputs or the kernel.
 - [`jupyter-live-content`](https://github.com/jupyter-ai-contrib/jupyter-live-content)
   reloads open text files, Markdown previews, and images, without RTC. It does
-  not reload notebooks. The `jupyter-ai` package installs it.
+  not reload notebooks. The `jupyter-ai` and `jupyter-ai-core` packages
+  install it.
 
 When an agent changes a notebook through JupyterLab commands or through the
 notebook tools of the `jupyter-ai` package, the change happens in the open

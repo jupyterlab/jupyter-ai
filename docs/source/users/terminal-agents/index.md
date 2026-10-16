@@ -10,7 +10,7 @@ you see, run, and review the work.
 With a few extensions installed, the agent can also act on JupyterLab itself.
 It can open a file for you, run notebook cells in your kernel, read their
 outputs, and show you the result, while edits it makes on disk appear live in
-the documents you have open.
+the files you have open.
 
 ## What you need
 
@@ -18,7 +18,7 @@ A productive setup has three parts:
 
 1. **JupyterLab with a few extensions.** A Model Context Protocol (MCP) server
    that runs inside Jupyter, a toolkit that lets agents run JupyterLab
-   commands, and live updates for open documents. One package, `ajlab`,
+   commands, and live updates for open files. One package, `jupyter-ai-core`,
    installs all of them. See {doc}`setup`.
 2. **The Jupyter MCP server registered with your agent.** You do this once
    per agent, with one command. See {doc}`connect`.
@@ -26,7 +26,7 @@ A productive setup has three parts:
    terminal or anywhere else on the same machine.
 
 ```bash
-pip install ajlab
+pip install jupyter-ai-core
 jupyter lab
 # then, in a terminal (for example File → New → Terminal in JupyterLab):
 claude mcp add jupyter -- jupyter-server-mcp-proxy
@@ -53,8 +53,9 @@ flowchart LR
 ```
 
 - The agent edits files on disk with its own tools, as it does in any project.
-  JupyterLab picks up the changes and updates the open documents, including
-  notebooks.
+  JupyterLab picks up the changes and updates the open files. Open notebooks
+  update too when real-time collaboration is installed (see
+  {ref}`terminal-agents-live-notebooks`).
 - When the agent needs JupyterLab itself, it calls tools on the Jupyter MCP
   server. The server forwards the call to your JupyterLab tab as a
   [JupyterLab command](https://jupyterlab.readthedocs.io/en/latest/user/commands.html),

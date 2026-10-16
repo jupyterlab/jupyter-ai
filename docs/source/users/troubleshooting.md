@@ -65,7 +65,7 @@ tabs, so that only one remains.
 ### An open notebook does not show the agent's changes
 
 When an agent edits a notebook file on disk, the open notebook only updates
-with real-time collaboration installed (see {doc}`/users/terminal-agents/setup`).
+with real-time collaboration installed (see {ref}`terminal-agents-live-notebooks`).
 Without it, reload the notebook with **File → Reload Notebook from Disk**.
 
 JupyterLab also does not reload documents with unsaved changes. Save your work
