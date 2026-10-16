@@ -50,3 +50,16 @@ section#jupyter-ai {
     display: flex;
     justify-content: center;
 }
+
+/* Give the footers of the goal cards on the landing page the same height, so
+   that their top borders line up across a row whether the links wrap or not. */
+section#what-do-you-want-to-accomplish .sd-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(2lh + 1rem + 1px);
+}
+
+section#what-do-you-want-to-accomplish .sd-card-footer > p {
+    margin: 0;
+}
