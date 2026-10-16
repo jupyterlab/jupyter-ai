@@ -4,7 +4,8 @@
 These docs are out of date and may not reflect the current behavior of Jupyternaut. See [jupyter-ai#1618](https://github.com/jupyterlab/jupyter-ai/issues/1618) for details and progress.
 :::
 
-Jupyternaut is a custom agent built for Jupyter AI.
+Jupyternaut is a custom agent built for Jupyter AI. It runs on the Jupyter
+server, as a persona in the {doc}`agent chat </users/chat/index>`.
 
 It should be considered *experimental*. It can be installed optionally via:
 
@@ -17,6 +18,12 @@ or:
 ```sh
 pip install jupyter-ai-jupyternaut
 ```
+
+:::{note}
+This page covers the Jupyternaut persona of the agent chat, from the
+`jupyter-ai-jupyternaut` package. For the Jupyternaut that runs in the
+browser, see {doc}`/users/browser/index`.
+:::
 
 ## Optional features
 
@@ -111,6 +118,7 @@ Jupyternaut enables use of language models accessible through [OpenRouter](https
 
 Likewise, for many models, you may directly choose the OpenAI provider in Jupyter AI instead of OpenRouter in the same way. In the `Chat model` area in `Jupyternaut settings` choose `openai/` to see all the models from this provider.
 
+(jupyternaut-ollama)=
 ### Ollama usage
 
 To get started, follow the instructions on the [Ollama website](https://ollama.com/) to set up `ollama` and download the models locally. To select a model, enter the model name in the settings panel, for example `deepseek-coder-v2`. You can see all locally available models with `ollama list` in any terminal.
