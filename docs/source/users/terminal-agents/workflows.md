@@ -63,7 +63,7 @@ An agent can change a notebook in two ways, and each has its strengths.
 **Edit the file on disk.** The agent edits the `.ipynb` file with its own
 tools, as it does for any other file. This is fast, and the changes show up
 in your version control like any other edit. With RTC installed (see
-{doc}`setup`), the open notebook updates in place, and keeps its outputs and
+{ref}`terminal-agents-live-notebooks`), the open notebook updates in place, and keeps its outputs and
 its kernel. The agent cannot run the cells this way, and only sees the
 outputs that were saved to the file.
 

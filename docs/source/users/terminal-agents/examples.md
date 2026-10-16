@@ -3,16 +3,15 @@
 You can assemble a setup for terminal agents from the packages in
 {doc}`setup`, or start from one of these.
 
-## ajlab: the minimal setup
+## jupyter-ai-core: the minimal setup
 
-[`ajlab`](https://github.com/jtpio/ajlab) ("agent-ready JupyterLab") is a
-meta-package. It installs JupyterLab, `jupyter-server-mcp`,
-`jupyterlab-commands-toolkit`, and the RTC packages for live updates, and it
-shows hidden files by default. It adds nothing else: what you get is the
-standard JupyterLab, ready for an agent.
+`jupyter-ai-core` is a meta-package. It installs JupyterLab,
+`jupyter-server-mcp`, `jupyterlab-commands-toolkit`, and
+`jupyter-live-content`, and it shows hidden files by default. It adds nothing
+else: what you get is the standard JupyterLab, ready for an agent.
 
 ```bash
-pip install ajlab
+pip install jupyter-ai-core
 ```
 
 Use it as a starting point, or as a dependency of your own distribution.
@@ -28,9 +27,11 @@ and your coding agent in a terminal.
 (terminal-agents-own-distribution)=
 ## Make your own distribution
 
-A team or a course often wants the same setup for everyone. Like `ajlab`, you
-can publish a small Python package that depends on the extensions and ships
-default settings.
+A team or a course often wants the same setup for everyone. Like
+`jupyter-ai-core`, you can publish a small Python package that depends on the
+extensions and ships default settings. It can build on `jupyter-ai-core`, and
+add what your team needs, such as real-time collaboration for live notebook
+updates and the Git extension.
 
 The dependencies go in `pyproject.toml`, and the default settings are data
 files that the package installs in the environment's Jupyter configuration
@@ -40,9 +41,7 @@ directories. With [Hatch](https://hatch.pypa.io):
 [project]
 name = "my-lab"
 dependencies = [
-  "jupyterlab>=4.6",
-  "jupyter-server-mcp",
-  "jupyterlab-commands-toolkit",
+  "jupyter-ai-core",
   "jupyter-server-ydoc",
   "jupyter-docprovider",
   "jupyterlab-git",
