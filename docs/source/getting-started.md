@@ -89,15 +89,16 @@ model provider directly.
 1. Install the extension:
 
    ```bash
-   pip install jupyterlite-ai
+   pip install jupyter-ai-lite
    ```
 
-2. Start JupyterLab or Jupyter Notebook, open **Jupyternaut Settings** from the
-   command palette, and add a model provider with your API key.
+2. Start JupyterLab or Jupyter Notebook, open **Settings → Jupyternaut
+   Settings**, and add a model provider with your API key.
 
-3. Open the chat panel and start a conversation.
+3. Create a chat, select Jupyternaut in its input toolbar, and start a
+   conversation.
 
-You can also try it in the [online demo](https://jupyterlite.github.io/ai/lab/index.html).
+You can also try it in the [online demo](https://jupyterlab.github.io/jupyter-ai-lite/lab/index.html).
 Continue with {doc}`/users/browser/index`.
 
 ## Prompt a model from a notebook cell
