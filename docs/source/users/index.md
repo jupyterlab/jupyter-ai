@@ -57,7 +57,7 @@ JupyterLite.
 | **Model access** | The agent's own sign-in or API key | The agent's own sign-in or API key | An API key, or a local model server |
 | **Acts on JupyterLab through** | The Jupyter MCP server | The Jupyter MCP server | JupyterLab commands, directly |
 | **Needs a Jupyter server** | Yes | Yes | No: also runs in JupyterLite |
-| **Install** | `pip install jupyter-ai-core` | `pip install jupyter-ai` | `pip install jupyterlite-ai` |
+| **Install** | `pip install jupyter-ai-core` | `pip install jupyter-ai` | `pip install jupyter-ai-lite` |
 
 ## Which one should I use?
 

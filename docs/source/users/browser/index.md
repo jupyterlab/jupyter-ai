@@ -1,9 +1,10 @@
 # Jupyternaut in the browser
 
 Jupyternaut is an AI assistant that runs entirely in your browser tab. It
-chats with you in a side panel, suggests code completions as you type, and
-works with your notebooks through JupyterLab commands: it can create
-notebooks, add and edit cells, run them, and read their outputs.
+answers in Jupyter chats, suggests code completions as you type, and works
+with your notebooks through JupyterLab commands: it can create notebooks, add
+and edit cells, run them, and read their outputs. It comes from
+[Jupyter AI Lite](https://github.com/jupyterlab/jupyter-ai-lite).
 
 Jupyternaut calls the model provider directly from the browser, with your own
 API key, or a model server running on your machine. There is no agent to
@@ -11,9 +12,13 @@ install on the server, which makes it work where other setups cannot: in
 [JupyterLite](https://jupyterlite.readthedocs.io), which has no server at all,
 and on shared deployments where you cannot install agent programs.
 
+The chat works like the {doc}`agent chat </users/chat/index>`: chats are
+`.chat` files, and you pick Jupyternaut and its model in the input toolbar of
+the chat.
+
 :::{tip}
 Try it now, without installing anything, in the
-[online demo](https://jupyterlite.github.io/ai/lab/index.html). The demo runs
+[online demo](https://jupyterlab.github.io/jupyter-ai-lite/lab/index.html). The demo runs
 in JupyterLite: you only need an API key from a model provider.
 :::
 
@@ -32,38 +37,39 @@ the {doc}`agent chat </users/chat/index>` instead.
 
 ## Install
 
-Jupyternaut in the browser and its chat panel are installed with the
-`jupyterlite-ai` package. Despite its name, it works in JupyterLab and Jupyter
-Notebook as well as in JupyterLite.
+Jupyternaut in the browser is installed with the `jupyter-ai-lite` package.
+It works in JupyterLab and Jupyter Notebook as well as in JupyterLite.
 
 ````{tabs}
 
 ```{tab} JupyterLab and Notebook
 
-    pip install jupyterlite-ai
+    pip install jupyter-ai-lite
 
 ```
 
 ```{tab} JupyterLite
 
     # in the environment where you build the site
-    pip install jupyterlite-core jupyterlite-ai
+    pip install jupyterlite-core jupyter-ai-lite
     jupyter lite build
 
 ```
 
 ````
 
-It needs JupyterLab 4.4 or Jupyter Notebook 7.4, or later.
+It needs JupyterLab 4.5 or Jupyter Notebook 7.5, or later.
 
 (browser-models)=
 ## Choose a model
 
-1. Open **Jupyternaut Settings**, from the settings button of the chat panel
-   or from the command palette.
+1. Open **Settings → Jupyternaut Settings**, or run **Jupyternaut Settings**
+   from the command palette.
 2. In the **Providers** section, click **Add a new provider**.
 3. Choose a provider, a model, and enter your API key.
-4. Select the provider in the chat.
+4. Create a chat, for example from the **Chat** card of the JupyterLab
+   launcher, and select Jupyternaut and the model in the input toolbar of the
+   chat.
 
 | Provider | Notes |
 | --- | --- |
@@ -81,7 +87,8 @@ or in the browser with JupyterLite.
 (browser-features)=
 ## What it can do
 
-- **Chat** in a side panel, with files and notebook cells as attachments.
+- **Chat** in `.chat` files, with files and notebook cells as attachments.
+  The input toolbar of the chat shows the token and context usage.
 - **Code completions** in notebooks and editors, with the same or a different
   model.
 - **Work with notebooks and files** through JupyterLab commands. You choose
@@ -97,6 +104,6 @@ or in the browser with JupyterLite.
 
 ## Learn more
 
-The [full documentation](https://jupyterlite-ai.readthedocs.io) covers each
+The [full documentation](https://jupyter-ai-lite.readthedocs.io) covers each
 provider, MCP servers, skills, web retrieval, and how to add your own
 providers.
