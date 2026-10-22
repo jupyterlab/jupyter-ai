@@ -38,7 +38,7 @@ import os
 from jupyter_ai_persona_manager import BasePersona, McpServerHttp, PersonaDefaults
 from jupyterlab_chat.models import Message
 from mcp import ClientSession
-from mcp.client.streamable_http import streamablehttp_client
+from mcp.client.streamable_http import create_mcp_http_client, streamable_http_client
 
 _AVATAR_PATH = os.path.join(os.environ["JAI_TEST_ASSETS_DIR"], "persona.svg")
 
@@ -67,8 +67,10 @@ class McpNotebookPersona(BasePersona):
         headers = {header.name: header.value for header in server.headers}
 
         async with (
-            streamablehttp_client(server.url, headers=headers) as (read, write, _),
-            ClientSession(read, write) as session,
+            streamable_http_client(
+                server.url, http_client=create_mcp_http_client(headers=headers)
+            ) as streams,
+            ClientSession(streams[0], streams[1]) as session,
         ):
             await session.initialize()
             await session.call_tool(
