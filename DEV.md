@@ -24,7 +24,7 @@ repository.
 
 | Tool | Minimum version | Notes |
 |------|----------------|-------|
-| Python | 3.9 | 3.11 recommended |
+| Python | 3.10 | 3.11 recommended |
 | pip | 23+ | bundled with Python ≥ 3.12 |
 | git | 2.30+ | |
 
@@ -48,33 +48,26 @@ cd jupyter-ai
 python -m venv .venv
 source .venv/bin/activate   # Windows: .venv\Scripts\activate
 
-# 3. Install the package with development / test extras
-pip install -e ".[test]"
+# 3. Install the package
+pip install -e .
+python -m pip check
 
 # 4. (Optional) Install pre-commit hooks
 pip install pre-commit
 pre-commit install
 ```
 
-> **Conda / Micromamba users:** You can use `scripts/dev-setup.sh` which
-> creates a `jaidev` conda environment automatically.
-
 ---
 
 ## Running tests
 
 ```bash
-# Run all unit tests
-pytest
-
-# Run with coverage
-pytest --cov=jupyter_ai --cov-report=term-missing
-
-# Run a specific test file
-pytest path/to/test_something.py -v
+# Run the repository tester regression checks
+python -m unittest discover -s tests -v
 ```
 
-Tests are discovered automatically via `conftest.py` in the repository root.
+This checkout is a Python meta-package. Its repository tester checks live in
+`tests/`; component test suites live in their respective extension repositories.
 
 ---
 
@@ -177,7 +170,7 @@ report, but no PR will be opened on them.
 | Constraint | Value |
 |-----------|-------|
 | Allowlist required | Yes – PRs only on listed repos |
-| Max PRs per run | Configurable (`--max-prs`, default 3) |
+| Max PRs per run | Configurable (`--max-prs`, default 3; 0 disables PR creation) |
 | Auto-merge | **Never** |
 | Write token scope | `GITHUB_TOKEN` (scoped to the workflow run) |
 | Fork safety | Workflow uses `pull_request` trigger, not `pull_request_target` |

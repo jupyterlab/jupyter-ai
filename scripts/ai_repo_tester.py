@@ -566,7 +566,7 @@ def main() -> int:
             and not result.skipped
             and result.failed_checks
             and repo.full_name in allowlist
-            and (args.max_prs == 0 or prs_opened < args.max_prs)
+            and (0 <= prs_opened < args.max_prs)
         )
         if should_open_pr:
             pr_url = open_fix_pr(gh, result, dry_run=args.dry_run)
