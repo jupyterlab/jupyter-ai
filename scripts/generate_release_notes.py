@@ -92,6 +92,8 @@ EXTRA_CHANGELOG_REPOS = {
     # Lives under jupyterlab/, not jupyter-ai-contrib/, and its developer docs
     # are published on its own site rather than aggregated here.
     "jupyterlab_chat": "jupyterlab/jupyter-chat",
+    # Lives under jupyter-ai-contrib/, but does not aggregate docs into this site.
+    "jupyter_live_content": "jupyter-ai-contrib/jupyter-live-content",
 }
 
 AUTO_BEGIN = "<!-- BEGIN AUTO-GENERATED (do not edit; regenerated on each run) -->"
