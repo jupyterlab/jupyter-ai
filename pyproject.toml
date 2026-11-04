@@ -28,3 +28,11 @@ version_cmd = "python \"$(git rev-parse --show-toplevel)/scripts/bump_version.py
 # site); the release tag captures a frozen snapshot for the `stable` site. See
 # scripts/freeze-doc-submodules.sh.
 after-bump-version = ["bash scripts/freeze-doc-submodules.sh"]
+
+[tool.ruff.lint]
+ignore = [
+  "BLE001",  # Do not catch blind exception: `Exception`
+  "PLW1510", # `subprocess.run` without explicit `check` argument
+  "S110",    # `try`-`except`-`pass` detected, consider logging the exception
+  "S112",    # `try`-`except`-`continue` detected, consider logging the exception
+]
