@@ -9,8 +9,6 @@ Run with: ``pytest docs/tests/test_release_notes.py`` (or the whole
 ``pytest docs/tests`` suite, as CI does).
 """
 
-from __future__ import annotations
-
 import json
 import os
 import sys

@@ -394,13 +394,12 @@ in practice.
 
 ```python
 from pydantic import BaseModel
-from typing import Optional
 
 
 class PersonaModel(BaseModel):
     """Defines which LLM a persona uses."""
     model_id: str
-    model_url: Optional[str] = None
+    model_url: str | None = None
 
 
 class PersonaContext(BaseModel):

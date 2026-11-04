@@ -22,19 +22,13 @@ and non-PEP-440 tags are ignored. ``git ls-remote`` is used over anonymous
 HTTPS, so no checkout or auth is required.
 """
 
-from __future__ import annotations
-
 import subprocess
 import sys
+import tomllib
 
 from packaging.requirements import Requirement
 from packaging.specifiers import SpecifierSet
 from packaging.version import InvalidVersion, Version
-
-try:  # Python 3.11+
-    import tomllib
-except ModuleNotFoundError:  # Python 3.10 and earlier
-    import tomli as tomllib  # type: ignore[no-redef]
 
 
 def log(msg: str) -> None:

@@ -45,8 +45,6 @@ the release notes. ``EXTRA_CHANGELOG_REPOS`` covers exactly that case, keeping
 changelog coverage independent of doc aggregation.
 """
 
-from __future__ import annotations
-
 import argparse
 import datetime
 import json

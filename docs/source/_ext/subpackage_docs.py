@@ -35,8 +35,6 @@ are git-ignored (see ``docs/source/{contributors,developers}/.gitignore``);
 build output is never committed.
 """
 
-from __future__ import annotations
-
 import json
 import shutil
 from pathlib import Path

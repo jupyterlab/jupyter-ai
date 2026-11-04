@@ -39,8 +39,6 @@ All human-readable progress and warnings go to stderr so stdout stays a clean,
 machine-parseable plan for the calling shell script.
 """
 
-from __future__ import annotations
-
 import argparse
 import json
 import os

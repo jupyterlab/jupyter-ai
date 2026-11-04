@@ -16,8 +16,6 @@ extension locates ``submodules/`` exactly as it does in the real build
         manifest.json
 """
 
-from __future__ import annotations
-
 import json
 import re
 import subprocess

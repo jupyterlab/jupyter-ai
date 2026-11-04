@@ -62,9 +62,8 @@ jobs:
 
       - name: Install generator dependencies
         # packaging: floor/tag resolution. jupyter-releaser + github-activity:
-        # the reused PR aggregation. tomli: TOML parsing (tomllib is stdlib on
-        # 3.11 but tomli keeps the script portable to 3.10).
-        run: pip install packaging jupyter-releaser github-activity tomli
+        # the reused PR aggregation.
+        run: pip install packaging jupyter-releaser github-activity
 
       - name: Check out the release-docs branch
         env:
