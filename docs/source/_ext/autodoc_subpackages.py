@@ -32,14 +32,12 @@ On Read the Docs that means installing the subpackages; locally the workbench
 dev-installs them.
 """
 
-from __future__ import annotations
-
 import importlib
 import inspect
 import json
 import os
 import subprocess
-from functools import lru_cache
+from functools import cache, lru_cache
 from pathlib import Path
 
 from docutils import nodes
@@ -93,7 +91,7 @@ def _module_to_repo(submodules_root_str: str) -> dict[str, str]:
     return {pypi_name: org_repo for pypi_name, org_repo in manifest.items()}
 
 
-@lru_cache(maxsize=None)
+@cache
 def _revision_for(repo_dir: str, top_module: str) -> str:
     """Resolve a stable git ref to pin source links to, for ``top_module``.
 

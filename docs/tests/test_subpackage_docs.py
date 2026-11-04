@@ -15,8 +15,6 @@ Cases (from the design):
   * baseline: no fixtures -> build succeeds unchanged
 """
 
-from __future__ import annotations
-
 import base64
 
 # A 1x1 transparent PNG — a real, valid image so Sphinx's image handling is

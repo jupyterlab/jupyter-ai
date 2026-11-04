@@ -88,7 +88,7 @@ custom parameters using an auth strategy and fields as shown in the example
 below.
 
 ```python
-from typing import ClassVar, List
+from typing import ClassVar
 from jupyter_ai_magics import BaseProvider
 from jupyter_ai_magics.providers import EnvAuthStrategy, Field, TextField, MultilineTextField
 from langchain_community.llms import FakeListLLM
@@ -107,7 +107,7 @@ class MyProvider(BaseProvider, FakeListLLM):
         name="MY_API_KEY", keyword_param="my_api_key_param"
     )
 
-    fields: ClassVar[List[Field]] = [
+    fields: ClassVar[list[Field]] = [
         TextField(key="my_llm_parameter", label="The name for my_llm_parameter to show in the UI"),
         MultilineTextField(key="custom_config", label="Custom Json Config", format="json"),
     ]

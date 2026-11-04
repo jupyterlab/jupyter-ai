@@ -21,9 +21,8 @@
 # This is the single source of truth for submodule pinning; it also seeded the
 # submodules originally.
 #
-# Requirements: git, python3 with the `packaging` library (and `tomllib` on
-# Python 3.11+, or `tomli` on 3.10). All of these are available in the docs /
-# CI environment.
+# Requirements: git, Python 3.11+ (for `tomllib`) with the `packaging` library.
+# All of these are available in the docs / CI environment.
 
 set -euo pipefail
 
