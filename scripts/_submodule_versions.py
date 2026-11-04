@@ -6,8 +6,8 @@ Both the docs-submodule pinning tooling (``_resolve_doc_submodules.py`` /
 (``generate_release_notes.py``) need to answer the same questions about a
 subpackage:
 
-* What version range / floor does ``jupyter-ai``'s ``pyproject.toml`` declare
-  for it? (``load_ranges`` / ``load_floors``)
+* What version range / floor do the ``pyproject.toml`` files of the
+  ``jupyter-ai`` packages declare for it? (``load_ranges`` / ``load_floors``)
 * Which ``v``-prefixed git tags does its repo publish? (``list_tags``)
 * Which tag satisfies a range, or exactly matches a floor? (``resolve_tag`` /
   ``resolve_floor_tag``)
@@ -30,6 +30,17 @@ from packaging.requirements import Requirement
 from packaging.specifiers import SpecifierSet
 from packaging.version import InvalidVersion, Version
 
+# The packages whose dependency ranges select the subpackage versions, relative
+# to the repository root. jupyter-ai depends on jupyter-ai-core, so a subpackage
+# can be a dependency of either one.
+PYPROJECT_PATHS = (
+    "python/jupyter-ai-core/pyproject.toml",
+    "python/jupyter-ai/pyproject.toml",
+)
+# Where jupyter-ai's pyproject.toml was before the packages moved to python/.
+# Release tags from before that move only have this file.
+LEGACY_PYPROJECT_PATH = "pyproject.toml"
+
 
 def log(msg: str) -> None:
     print(msg, file=sys.stderr)
@@ -44,35 +55,55 @@ def _norm(name: str) -> str:
     return name.strip().lower().replace("-", "_")
 
 
-def load_ranges_from_text(pyproject_text: str) -> dict[str, str]:
+def _parse(req_strings: list[str]) -> list[Requirement]:
+    reqs = []
+    for req_string in req_strings:
+        try:
+            reqs.append(Requirement(req_string))
+        except Exception:  # pragma: no cover - defensive
+            continue
+    return reqs
+
+
+def _requirements(
+    pyproject_texts: tuple[str, ...],
+) -> tuple[list[Requirement], list[Requirement]]:
+    """Return the core and optional requirements of one or more pyproject.toml texts."""
+    core: list[Requirement] = []
+    optional: list[Requirement] = []
+    for text in pyproject_texts:
+        project = tomllib.loads(text).get("project", {})
+        core.extend(_parse(project.get("dependencies", [])))
+        for group in project.get("optional-dependencies", {}).values():
+            optional.extend(_parse(group))
+    return core, optional
+
+
+def load_ranges_from_text(*pyproject_texts: str) -> dict[str, str]:
     """Map normalized package name -> version specifier string, from TOML text.
 
     Reads ``[project].dependencies`` plus every
     ``[project.optional-dependencies]`` group (so the ``magics`` / ``jupyternaut``
-    extras are covered). Accepting text (not just a path) lets callers resolve
-    ranges from ``git show <tag>:pyproject.toml`` without a checkout.
+    extras are covered) of each given ``pyproject.toml`` text. A package listed
+    more than once gets the intersection of its ranges. Accepting text (not just
+    a path) lets callers resolve ranges from ``git show <tag>:pyproject.toml``
+    without a checkout.
     """
-    data = tomllib.loads(pyproject_text)
-
-    project = data.get("project", {})
-    req_strings: list[str] = list(project.get("dependencies", []))
-    for group in project.get("optional-dependencies", {}).values():
-        req_strings.extend(group)
-
+    core, optional = _requirements(pyproject_texts)
     ranges: dict[str, str] = {}
-    for req_string in req_strings:
-        try:
-            req = Requirement(req_string)
-        except Exception:  # pragma: no cover - defensive
-            continue
-        ranges[_norm(req.name)] = str(req.specifier)
+    for req in core + optional:
+        name = _norm(req.name)
+        ranges[name] = str(SpecifierSet(ranges.get(name, "")) & req.specifier)
     return ranges
 
 
-def load_ranges(pyproject_path: str) -> dict[str, str]:
-    """Map normalized package name -> version specifier string, from a file."""
-    with open(pyproject_path, encoding="utf-8") as f:
-        return load_ranges_from_text(f.read())
+def load_ranges(*pyproject_paths: str) -> dict[str, str]:
+    """Map normalized package name -> version specifier string, from files."""
+    texts = []
+    for path in pyproject_paths:
+        with open(path, encoding="utf-8") as f:
+            texts.append(f.read())
+    return load_ranges_from_text(*texts)
 
 
 def spec_floor(spec_string: str) -> str | None:
@@ -95,43 +126,26 @@ def spec_floor(spec_string: str) -> str | None:
     return str(max(floors))
 
 
-def load_floors_from_text(pyproject_text: str) -> dict[str, str]:
+def load_floors_from_text(*pyproject_texts: str) -> dict[str, str]:
     """Map normalized package name -> floor version string, from TOML text."""
     floors: dict[str, str] = {}
-    for name, spec_string in load_ranges_from_text(pyproject_text).items():
+    for name, spec_string in load_ranges_from_text(*pyproject_texts).items():
         floor = spec_floor(spec_string)
         if floor is not None:
             floors[name] = floor
     return floors
 
 
-def optional_only_names(pyproject_text: str) -> set[str]:
+def optional_only_names(*pyproject_texts: str) -> set[str]:
     """Return the normalized names of packages that are optional-only.
 
     A package is "optional" if it appears in ``[project.optional-dependencies]``
-    but NOT in the core ``[project.dependencies]`` — i.e. installing jupyter-ai
+    but NOT in any core ``[project.dependencies]`` — i.e. installing jupyter-ai
     without extras does not pull it in. A package listed in both is effectively
     required, so it is not reported as optional.
     """
-    data = tomllib.loads(pyproject_text)
-    project = data.get("project", {})
-
-    core: set[str] = set()
-    for req_string in project.get("dependencies", []):
-        try:
-            core.add(_norm(Requirement(req_string).name))
-        except Exception:  # pragma: no cover - defensive
-            continue
-
-    optional: set[str] = set()
-    for group in project.get("optional-dependencies", {}).values():
-        for req_string in group:
-            try:
-                optional.add(_norm(Requirement(req_string).name))
-            except Exception:  # pragma: no cover - defensive
-                continue
-
-    return optional - core
+    core, optional = _requirements(pyproject_texts)
+    return {_norm(req.name) for req in optional} - {_norm(req.name) for req in core}
 
 
 def list_tags(url: str) -> list[str]:

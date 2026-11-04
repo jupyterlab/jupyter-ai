@@ -10,9 +10,10 @@ mode:
     - rtc       -- RTC via ``jupyter_collaboration``
     - rtc-jsd   -- RTC via ``jupyter_server_documents``
 
-Each session builds an isolated venv (uv) and installs jupyter-ai -- the
-prebuilt wheel via ``E2E_WHEEL`` in CI, or from source locally -- plus the
-transport's packages and the MCP client deps the fixture persona uses.
+Each session builds an isolated venv (uv) and installs jupyter-ai and
+jupyter-ai-core -- prebuilt wheels via ``E2E_WHEELS`` (space-separated paths),
+or from source -- plus the transport's packages and the MCP client deps the
+fixture persona uses.
 
 Usage::
 
@@ -28,6 +29,9 @@ import nox
 
 nox.options.default_venv_backend = "uv|virtualenv"
 
+# jupyter-ai pins jupyter-ai-core to its own version, so both install together.
+_PACKAGES = ["python/jupyter-ai-core", "python/jupyter-ai"]
+
 # env name -> extra packages that provide the transport.
 _ENVS = {
     "default": [],
@@ -40,10 +44,9 @@ _ENVS = {
 @nox.parametrize("env", list(_ENVS))
 def e2e(session: nox.Session, env: str) -> None:
     """Run the ui-tests suite against one transport."""
-    # The prebuilt wheel from CI; from source for local runs.
-    target = os.environ.get("E2E_WHEEL") or "."
+    targets = os.environ.get("E2E_WHEELS", "").split() or _PACKAGES
     # `fastmcp`/`mcp` back the fixture persona's MCP client.
-    session.install("jupyterlab>=4.4,<5", "fastmcp", "mcp", target, *_ENVS[env])
+    session.install("jupyterlab>=4.4,<5", "fastmcp", "mcp", *targets, *_ENVS[env])
     session.env["E2E_RTC"] = "1" if env in ("rtc", "rtc-jsd") else "0"
     with session.chdir("ui-tests"):
         session.run("jlpm", "install", external=True)
@@ -61,8 +64,8 @@ def e2e_live_content(session: nox.Session, env: str) -> None:
     and rtc-jsd transports jupyter-live-content disables itself (the RTC provider
     owns live sync); the suite asserts both the live update and that disabling.
     """
-    target = os.environ.get("E2E_WHEEL") or "."
-    session.install("jupyterlab>=4.4,<5", target, *_ENVS[env])
+    targets = os.environ.get("E2E_WHEELS", "").split() or _PACKAGES
+    session.install("jupyterlab>=4.4,<5", *targets, *_ENVS[env])
     session.env["E2E_RTC"] = "1" if env in ("rtc", "rtc-jsd") else "0"
     with session.chdir("ui-tests"):
         session.run("jlpm", "install", external=True)

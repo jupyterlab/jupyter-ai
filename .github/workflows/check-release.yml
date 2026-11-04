@@ -44,6 +44,9 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           version_spec: "12.34.56"
 
+      - name: Check that the package versions are in lockstep
+        run: python scripts/bump_version.py --check
+
       - name: Upload Distributions
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:

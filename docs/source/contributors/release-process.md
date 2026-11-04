@@ -18,9 +18,11 @@ subpackage repos under the
 ## Overview
 
 In v3, Jupyter AI is a metapackage that pins a working set of independently
-released subpackages. A full release therefore happens in two layers: first the
-subpackages are released, then `jupyter-ai` itself is released once its version
-ranges point at those new subpackage versions.
+released subpackages. It builds on `jupyter-ai-core`, a smaller metapackage in
+the same repository with the subpackages that terminal coding agents need. A
+full release therefore happens in two layers: first the subpackages are
+released, then `jupyter-ai` and `jupyter-ai-core` are released together once
+their version ranges point at those new subpackage versions.
 
 The version-range model is what keeps this manageable, and it is worth reading
 {doc}`Versioning and upgrading </users/versioning>` before a release:
@@ -29,10 +31,10 @@ The version-range model is what keeps this manageable, and it is worth reading
   can require `>=` a floor of another subpackage, but never caps it. This is why
   publishing an official patch of a subpackage automatically reaches existing
   installs.
-- **Only the `jupyter-ai` metapackage enforces version ceilings** on its
-  subpackage dependencies (for example `jupyter_ai_tools>=0.5.2,<0.6.0`). These
-  ceilings are bumped each minor release, which is how a subpackage's breaking
-  changes reach users.
+- **Only the `jupyter-ai` and `jupyter-ai-core` metapackages enforce version
+  ceilings** on their subpackage dependencies (for example
+  `jupyter_ai_tools>=0.5.2,<0.6.0`). These ceilings are bumped each minor
+  release, which is how a subpackage's breaking changes reach users.
 
 ```{note}
 Because subpackages have no ceilings on each other, an official **patch** of a
@@ -90,16 +92,18 @@ from a package to the packages it depends on). Release from the bottom up:
 ```{mermaid}
 flowchart TD
     ja[jupyter-ai]
+    core[jupyter-ai-core]
 
+    ja --> core
     ja --> chat[jupyterlab-chat]
     ja --> router[jupyter-ai-router]
     ja --> pm[jupyter-ai-persona-manager]
     ja --> cc[jupyter-ai-chat-commands]
     ja --> acp[jupyter-ai-acp-client]
     ja --> tools[jupyter-ai-tools]
-    ja --> mcp[jupyter-server-mcp]
-    ja --> toolkit[jupyterlab-commands-toolkit]
-    ja --> lc[jupyter-live-content]
+    core --> mcp[jupyter-server-mcp]
+    core --> toolkit[jupyterlab-commands-toolkit]
+    core --> lc[jupyter-live-content]
 
     acp --> pm
     cc --> pm
@@ -107,7 +111,8 @@ flowchart TD
     router --> chat
 ```
 
-`jupyter-ai` is the metapackage and pins every package shown. `jupyterlab-chat`
+`jupyter-ai` and `jupyter-ai-core` are the metapackages and pin every package
+shown. `jupyterlab-chat`
 (from `jupyterlab/jupyter-chat`) is the foundation; `jupyter-ai-tools`,
 `jupyter-server-mcp`, `jupyterlab-commands-toolkit`, and `jupyter-live-content`
 have no required dependencies on the others.
@@ -123,9 +128,12 @@ inconsistent dependency set.
 ## 2. Bump subpackage version ranges
 
 Once the subpackages are published, bump their version ranges in the
-`jupyter-ai` metapackage so it points at the newly released versions.
+metapackages so they point at the newly released versions.
 
-- Update the subpackage dependency ranges in `pyproject.toml`.
+- Update the subpackage dependency ranges in `python/jupyter-ai/pyproject.toml`
+  and `python/jupyter-ai-core/pyproject.toml`. The ranges for
+  `jupyter-server-mcp`, `jupyterlab-commands-toolkit`, and
+  `jupyter-live-content` are in `jupyter-ai-core`.
 - Open a PR with the range bumps and merge it into the target branch.
 
 Which end of the range you bump depends on the release type (see
@@ -138,7 +146,7 @@ Which end of the range you bump depends on the release type (see
 
 ```{note}
 The ranges must be bumped in the target branch **before** Step 0 runs. The
-release-notes generator reads each subpackage's floor from `pyproject.toml` to
+release-notes generator reads each subpackage's floor from these files to
 compute the PR window for that subpackage.
 ```
 
@@ -180,8 +188,11 @@ grouping, what to trim from the auto-generated list).
 (step-5-publish-jupyter-ai-steps-1-and-2)=
 ## 5. Publish `jupyter-ai` (Steps 1 and 2)
 
-With the ranges bumped and the changelog merged, release `jupyter-ai` itself
-using the same Jupyter Releaser workflows the subpackages use:
+With the ranges bumped and the changelog merged, release `jupyter-ai` and
+`jupyter-ai-core` using the same Jupyter Releaser workflows the subpackages use.
+One release publishes both packages, with the same version and the same tag:
+`scripts/bump_version.py` sets the version of both packages, and the exact
+`jupyter-ai-core` pin in `jupyter-ai`.
 
 - **Step 1: Prep Release** (`prep-release.yml`)
 - **Step 2: Publish Release** (`publish-release.yml`)
@@ -210,7 +221,7 @@ At a high level:
 
 1. Each Jupyter AI package has its own feedstock under the
    [conda-forge](https://github.com/conda-forge) org (for example
-   `jupyter-ai-feedstock`).
+   `jupyter-ai-feedstock` and `jupyter-ai-core-feedstock`).
 2. For each package, open a version-bump PR on its feedstock that updates the
    version and sha256, resets the build number, and rerenders with the latest
    `conda-smithy`.

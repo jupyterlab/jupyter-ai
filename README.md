@@ -12,6 +12,13 @@ Agents in Jupyter AI can read and write files, run terminal commands, and intera
 
 Jupyter AI is designed to be flexible and extensible. You can add custom [MCP servers](https://modelcontextprotocol.io) to give agents access to domain-specific tools, resources, and prompts. Developers can build and register their own AI personas using the entry points API. By building on open standards like ACP and MCP, Jupyter AI avoids vendor lock-in and gives you access to the full ecosystem of compatible agents and tools.
 
+## Packages
+
+This repository contains two packages, released together:
+
+- [`jupyter-ai`](python/jupyter-ai): the agent chat for JupyterLab. It includes `jupyter-ai-core`.
+- [`jupyter-ai-core`](python/jupyter-ai-core): JupyterLab with the extensions that let a coding agent in your terminal work in it.
+
 ## Quick Links
 
 - [Getting Started](https://jupyter-ai.readthedocs.io/en/stable/getting-started.html) — installation, agent setup, and first chat

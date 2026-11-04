@@ -1,0 +1,45 @@
+[build-system]
+requires = ["hatchling>=1.5.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "jupyter-ai-core"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.11"
+description = "JupyterLab with the extensions that let AI agents work in it"
+authors = [{ name = "Project Jupyter", email = "jupyter@googlegroups.com" }]
+keywords = ["jupyter", "jupyterlab", "jupyter-ai", "mcp", "agents"]
+classifiers = [
+  "Framework :: Jupyter",
+  "Framework :: Jupyter :: JupyterLab",
+  "Framework :: Jupyter :: JupyterLab :: 4",
+  "License :: OSI Approved :: BSD License",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Programming Language :: Python :: 3.15",
+]
+dynamic = ["version"]
+
+dependencies = [
+  "jupyterlab>=4.0.0,<5",
+  "jupyter_server_mcp>=0.3.0,<0.4.0",
+  "jupyterlab_commands_toolkit>=0.2.0,<0.3.0",
+  "jupyter_live_content>=0.1.1,<0.2.0",
+]
+
+[project.urls]
+Documentation = "https://jupyter-ai.readthedocs.io/en/stable/"
+Source = "https://github.com/jupyterlab/jupyter-ai"
+Tracker = "https://github.com/jupyterlab/jupyter-ai/issues"
+
+[tool.hatch.version]
+path = "jupyter_ai_core/__init__.py"
+
+[tool.hatch.build.targets.wheel.shared-data]
+"jupyter-config/jupyter_server_config.d" = "etc/jupyter/jupyter_server_config.d"
+"jupyter-config/labconfig" = "etc/jupyter/labconfig"

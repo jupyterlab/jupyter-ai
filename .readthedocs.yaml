@@ -25,8 +25,11 @@ python:
   install:
     # Install jupyter-ai with its `docs` extra — the single source of truth for
     # documentation build dependencies (see [project.optional-dependencies] in
-    # pyproject.toml).
+    # python/jupyter-ai/pyproject.toml). jupyter-ai pins jupyter-ai-core to its
+    # own version, so install that one from source first.
     - method: pip
-      path: .
+      path: python/jupyter-ai-core
+    - method: pip
+      path: python/jupyter-ai
       extra_requirements:
         - docs

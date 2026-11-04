@@ -3,7 +3,8 @@
 # freeze-doc-submodules.sh
 #
 # Release-time hook: pin every documentation submodule to the released tag that
-# matches its version range in pyproject.toml, and stage the moved gitlinks.
+# matches its version range in the packages' pyproject.toml files, and stage the
+# moved gitlinks.
 #
 # Between releases the doc submodules track each subpackage's `main` (so the
 # `latest` docs show the freshest, possibly-unreleased subpackage docs). At

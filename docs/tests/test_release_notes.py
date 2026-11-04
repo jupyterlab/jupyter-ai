@@ -11,6 +11,7 @@ Run with: ``pytest docs/tests/test_release_notes.py`` (or the whole
 
 import json
 import os
+import subprocess
 import sys
 
 import pytest
@@ -287,6 +288,81 @@ jupyternaut = ["jupyter_ai_jupyternaut>=0.1.0b0,<0.2.0"]
     assert "core_pkg" not in result
 
 
+CORE_PYPROJECT = """
+[project]
+name = "jupyter-ai-core"
+dependencies = [
+  "jupyterlab>=4.0.0,<5",
+  "jupyter_server_mcp>=0.3.0,<0.4.0",
+]
+"""
+
+AI_PYPROJECT = """
+[project]
+name = "jupyter_ai"
+dependencies = [
+  "jupyter_ai_core==3.2.0",
+  "jupyter_ai_router>=0.1.1,<0.2.0",
+]
+
+[project.optional-dependencies]
+rtc = ["jupyter_server_mcp>=0.3.1"]
+magics = ["jupyter_ai_litellm>=0.1.0,<0.2.0"]
+"""
+
+
+def test_load_floors_merges_several_pyprojects():
+    floors = sv.load_floors_from_text(CORE_PYPROJECT, AI_PYPROJECT)
+    assert floors["jupyter_ai_router"] == "0.1.1"
+    assert floors["jupyter_ai_litellm"] == "0.1.0"
+    # Listed by both packages: the ranges intersect, so the higher floor wins.
+    assert floors["jupyter_server_mcp"] == "0.3.1"
+
+
+def test_optional_only_names_across_pyprojects():
+    result = sv.optional_only_names(CORE_PYPROJECT, AI_PYPROJECT)
+    assert result == {"jupyter_ai_litellm"}
+
+
+def _commit_all(repo, message):
+    subprocess.run(["git", "-C", str(repo), "add", "-A"], check=True)
+    subprocess.run(
+        [
+            "git",
+            "-C",
+            str(repo),
+            "-c",
+            "user.name=test",
+            "-c",
+            "user.email=test@example.com",
+            "commit",
+            "--no-gpg-sign",
+            "-qm",
+            message,
+        ],
+        check=True,
+    )
+
+
+def test_pyproject_texts_at_reads_packages_and_legacy_root(tmp_path):
+    subprocess.run(["git", "init", "-q", str(tmp_path)], check=True)
+    (tmp_path / "pyproject.toml").write_text(AI_PYPROJECT, encoding="utf-8")
+    _commit_all(tmp_path, "single package at the root")
+    subprocess.run(["git", "-C", str(tmp_path), "tag", "v3.2.0"], check=True)
+
+    (tmp_path / "pyproject.toml").write_text('[project]\nname = "root"\n')
+    for path, text in zip(sv.PYPROJECT_PATHS, (CORE_PYPROJECT, AI_PYPROJECT)):
+        (tmp_path / path).parent.mkdir(parents=True)
+        (tmp_path / path).write_text(text, encoding="utf-8")
+    _commit_all(tmp_path, "packages under python/")
+
+    assert gen.pyproject_texts_at(str(tmp_path), "v3.2.0") == [AI_PYPROJECT.strip()]
+    assert gen.pyproject_texts_at(str(tmp_path), "HEAD") == [
+        CORE_PYPROJECT.strip(),
+        AI_PYPROJECT.strip(),
+    ]
+
+
 def test_submodule_section_omits_empty_pr_body(monkeypatch):
     monkeypatch.setattr(
         gen.changelog, "get_version_entry", lambda **k: "## v0.3.0\n\nNo merged PRs"
@@ -330,7 +406,7 @@ def test_build_page_header(monkeypatch, tmp_path):
         version="v3.1.0",
         repo_root=str(tmp_path),
         manifest_path=str(manifest),
-        pyproject_path=str(pyproject),
+        pyproject_paths=[str(pyproject)],
         target_branch="main",
         auth="tok",
         published_date="July 22, 2026",
@@ -404,7 +480,7 @@ def test_build_page_covers_extra_changelog_repos(monkeypatch, tmp_path):
         version="v3.1.0",
         repo_root=str(tmp_path),
         manifest_path=str(manifest),
-        pyproject_path=str(pyproject),
+        pyproject_paths=[str(pyproject)],
         target_branch="main",
         auth="tok",
         published_date="July 22, 2026",
