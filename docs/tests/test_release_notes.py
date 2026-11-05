@@ -430,6 +430,7 @@ def test_extra_changelog_repos_disjoint_from_manifest():
         manifest = json.load(f)
     overlap = set(manifest) & set(gen.EXTRA_CHANGELOG_REPOS)
     assert not overlap, f"registered as both doc submodule and extra: {overlap}"
+    assert "jupyter_live_content" in gen.EXTRA_CHANGELOG_REPOS
 
 
 def test_default_summary_omits_window_line_without_prev_tag():
