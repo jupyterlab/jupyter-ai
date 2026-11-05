@@ -32,7 +32,7 @@ The following repositories are stable, i.e., this means the repos are, or are qu
 - [jupyter-server-documents](https://github.com/jupyter-ai-contrib/jupyter-server-documents) - Server side document handling with improved output handling and kernel management/status.
 - [jupyter-server-mcp](https://github.com/jupyter-ai-contrib/jupyter-server-mcp) - An MCP interface/extension for Jupyter Server
 - [jupyterlab-diff](https://github.com/jupyter-ai-contrib/jupyterlab-diff) - JupyterLab commands to show cell and file diffs
-- [jupyter-ai-magic-commands](https://github.com/jupyter-ai-contrib/jupyter-ai-chat-commands) - The code for handling the `%ai` and `%%ai` magic commands in Jupyter notebooks.
+- [jupyter-ai-magic-commands](https://github.com/jupyter-ai-contrib/jupyter-ai-magic-commands) - The code for handling the `%ai` and `%%ai` magic commands in Jupyter notebooks.
 - [jupyter-ai-acp-client](https://github.com/jupyter-ai-contrib/jupyter-ai-acp-client) - A client implementation of the Agent Client Protocol (ACP) as well as helper classes for other developers to use when custom AI personas wrapping ACP agents.
 - [jupyterlab-commands-toolkit](https://github.com/jupyter-ai-contrib/jupyterlab-commands-toolkit) - JupyterLab commands as an AI Toolkit
 
@@ -48,7 +48,6 @@ These repositories are experimental and under active development:
 - [jupyterlab-magic-wand](https://github.com/jupyter-ai-contrib/jupyterlab-magic-wand) - An in-cell AI assistant for JupyterLab notebooks
 - [jupyterlab-notebook-awareness](https://github.com/jupyter-ai-contrib/jupyterlab-notebook-awareness) - Track current notebook and active cell in JupyterLab's awareness
 - [jupyterlab-ai-commands](https://github.com/jupyter-ai-contrib/jupyterlab-ai-commands) - A set of JupyterLab commands for use with AI agents
-- [jupyterlab-ai-commands](https://github.com/jupyter-ai-contrib/jupyterlab-ai-commands) - A set of commands for AI in JupyterLab.
 
 New experimental submodules are added frequently (the list above is not exhaustive), and the current set may be accessed at: https://github.com/orgs/jupyter-ai-contrib/repositories.
 
