@@ -1,0 +1,38 @@
+name: "Verify changelog build"
+
+# Fast, self-contained tests for scripts/after_build_changelog.py — the
+# jupyter-releaser "after-build-changelog" hook that inserts the release-notes
+# preamble during "Step 1: Prep Release". Runs only when the hook script (or
+# its test, or this workflow) changes, so it stays out of the way of unrelated
+# PRs.
+
+on:
+  push:
+    paths:
+      - "scripts/*changelog*.py"
+      - ".github/workflows/verify-changelog-build.yml"
+  pull_request:
+    paths:
+      - "scripts/*changelog*.py"
+      - ".github/workflows/verify-changelog-build.yml"
+
+permissions: {}
+
+jobs:
+  verify:
+    name: Run changelog-hook tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.11"
+
+      - name: Install pytest
+        run: pip install pytest
+
+      - name: Run tests
+        run: pytest scripts/test_after_build_changelog.py -v
