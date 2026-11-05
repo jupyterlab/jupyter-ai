@@ -14,9 +14,10 @@
 #
 #   --mode release
 #       Pin each submodule to the latest tag matching that package's version
-#       range in pyproject.toml (pip / PEP 440 semantics). Used by the release
-#       hook (see scripts/freeze-doc-submodules.sh) so a jupyter-ai release tag
-#       captures a coherent, frozen snapshot of the subpackage docs.
+#       range in the python/*/pyproject.toml files (pip / PEP 440 semantics).
+#       Used by the release hook (see scripts/freeze-doc-submodules.sh) so a
+#       jupyter-ai release tag captures a coherent, frozen snapshot of the
+#       subpackage docs.
 #
 # This is the single source of truth for submodule pinning; it also seeded the
 # submodules originally.
@@ -35,7 +36,6 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
 
 MANIFEST="submodules/manifest.json"
-PYPROJECT="pyproject.toml"
 
 if [[ ! -f "$MANIFEST" ]]; then
   echo "error: $MANIFEST not found (run from a jupyter-ai checkout)" >&2
@@ -45,7 +45,7 @@ fi
 # Resolve the pin plan in Python. Emits one tab-separated row per submodule:
 # path <TAB> url <TAB> ref <TAB> kind  (kind is "tag" or "branch"). Human-
 # readable progress goes to stderr.
-PLAN="$(python3 scripts/_resolve_doc_submodules.py "$MANIFEST" "$PYPROJECT" --mode "$MODE")"
+PLAN="$(python3 scripts/_resolve_doc_submodules.py "$MANIFEST" --mode "$MODE")"
 
 if [[ -z "$PLAN" ]]; then
   echo "error: resolver produced no plan" >&2

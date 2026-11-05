@@ -10,9 +10,10 @@ that submodule.
 
 Why floors, per submodule
 -------------------------
-``jupyter-ai``'s ``pyproject.toml`` declares a minimum version *floor*
-(``>=X``) for each subpackage. Bumping a floor between releases is exactly what
-"ships new subpackage code in this jupyter-ai release" means, so the release
+The ``pyproject.toml`` files of ``jupyter-ai`` and ``jupyter-ai-core`` declare a
+minimum version *floor* (``>=X``) for each subpackage. Bumping a floor between
+releases is exactly what "ships new subpackage code in this jupyter-ai release"
+means, so the release
 notes for a subpackage are the PRs between its floor at the previous release and
 its floor at this release:
 
@@ -33,8 +34,10 @@ drop PRs that shipped on the main line. In the common in-line case the merge-bas
 and the contributors list match the releaser exactly — no hand-rolled variant.
 
 The new version's floors are read from the **working-tree** ``pyproject.toml``
-(Step 0 runs before the release is tagged, once the floors have been bumped);
-the previous version's floors are read from ``git show <prev_tag>:pyproject.toml``.
+files (Step 0 runs before the release is tagged, once the floors have been
+bumped); the previous version's floors are read from the same files with
+``git show <prev_tag>:<path>``, or from the root ``pyproject.toml`` for tags from
+before the packages moved to ``python/``.
 
 Which repos are covered
 -----------------------
@@ -61,6 +64,8 @@ from packaging.version import InvalidVersion, Version
 # docs-submodule pinning tooling so the two can't drift.
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from _submodule_versions import (  # noqa: E402
+    LEGACY_PYPROJECT_PATH,
+    PYPROJECT_PATHS,
     _norm,
     default_branch,
     list_tags,
@@ -235,6 +240,21 @@ def show_file_at(repo_root: str, ref: str, path: str) -> str:
     return git(repo_root, "show", f"{ref}:{path}")
 
 
+def pyproject_texts_at(repo_root: str, ref: str) -> list[str]:
+    """Return the packages' ``pyproject.toml`` texts as of git ``ref``.
+
+    Falls back to the root ``pyproject.toml`` for refs from before the packages
+    moved to ``python/``.
+    """
+    texts = []
+    for path in PYPROJECT_PATHS:
+        try:
+            texts.append(show_file_at(repo_root, ref, path))
+        except subprocess.CalledProcessError:
+            continue
+    return texts or [show_file_at(repo_root, ref, LEGACY_PYPROJECT_PATH)]
+
+
 def window_start(org_repo: str, prev_tag: str, new_tag: str, auth: str | None) -> str:
     """Return the ref to start a submodule's PR window at: the merge-base.
 
@@ -384,7 +404,7 @@ def build_page(
     version: str,
     repo_root: str,
     manifest_path: str,
-    pyproject_path: str,
+    pyproject_paths: list[str],
     target_branch: str,
     auth: str | None,
     published_date: str,
@@ -410,10 +430,12 @@ def build_page(
     # submodule later needs no change here.
     repos: dict[str, str] = {**EXTRA_CHANGELOG_REPOS, **manifest}
 
-    with open(pyproject_path, encoding="utf-8") as f:
-        pyproject_text = f.read()
-    new_floors = load_floors_from_text(pyproject_text)
-    optional = optional_only_names(pyproject_text)
+    pyproject_texts = []
+    for path in pyproject_paths:
+        with open(path, encoding="utf-8") as f:
+            pyproject_texts.append(f.read())
+    new_floors = load_floors_from_text(*pyproject_texts)
+    optional = optional_only_names(*pyproject_texts)
 
     prev_tag = previous_release_tag(repo_root, version, target_branch)
     if prev_tag is None:
@@ -425,9 +447,7 @@ def build_page(
         prev_floors: dict[str, str] = {}
     else:
         log(f"Previous release on '{target_branch}': {prev_tag}")
-        prev_floors = load_floors_from_text(
-            show_file_at(repo_root, prev_tag, "pyproject.toml")
-        )
+        prev_floors = load_floors_from_text(*pyproject_texts_at(repo_root, prev_tag))
 
     sections: list[str] = []
     unchanged: list[str] = []
@@ -441,7 +461,8 @@ def build_page(
         new_floor = new_floors.get(key)
         if new_floor is None:
             log(
-                f"warning: {pypi_name} not a dependency floor in {pyproject_path}; skipping"
+                f"warning: {pypi_name} not a dependency floor in "
+                f"{', '.join(pyproject_paths)}; skipping"
             )
             skipped.append(repo)
             continue
@@ -617,7 +638,11 @@ def main() -> int:
     )
     parser.add_argument(
         "--pyproject",
-        help="path to pyproject.toml (default: <repo-root>/pyproject.toml)",
+        action="append",
+        help=(
+            "path to a package's pyproject.toml; repeat for several "
+            f"(default: {', '.join(PYPROJECT_PATHS)} under <repo-root>)"
+        ),
     )
     parser.add_argument(
         "--output-dir", help="releases dir (default: <repo-root>/docs/source/releases)"
@@ -638,7 +663,9 @@ def main() -> int:
 
     repo_root = os.path.abspath(args.repo_root)
     manifest = args.manifest or os.path.join(repo_root, "submodules", "manifest.json")
-    pyproject = args.pyproject or os.path.join(repo_root, "pyproject.toml")
+    pyprojects = args.pyproject or [
+        os.path.join(repo_root, path) for path in PYPROJECT_PATHS
+    ]
     output_dir = args.output_dir or os.path.join(
         repo_root, "docs", "source", "releases"
     )
@@ -663,7 +690,7 @@ def main() -> int:
         version,
         repo_root,
         manifest,
-        pyproject,
+        pyprojects,
         args.target_branch,
         auth,
         published_date,

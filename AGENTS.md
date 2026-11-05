@@ -4,12 +4,33 @@ Guidance for AI agents working in `jupyter-ai` and its subpackages.
 
 ## What Jupyter AI is
 
-As of v3, `jupyter-ai` is **not a monorepo**. It is a metapackage that
-distributes a working set of subpackages, each living in its own repo under the
-[`jupyter-ai-contrib`](https://github.com/jupyter-ai-contrib) org. The
-`jupyter-ai` repo itself is mostly empty; the composition is recorded in
-`submodules/manifest.json` (a `"pypi_name": "org/repo"` map) and in the
-[Contributor Guide](https://jupyter-ai.readthedocs.io/en/latest/contributors/index.html).
+As of v3, Jupyter AI is a set of subpackages, each living in its own repo under
+the [`jupyter-ai-contrib`](https://github.com/jupyter-ai-contrib) org. This repo
+holds the two metapackages that distribute a working set of them, under
+`python/`:
+
+- `jupyter-ai-core` (`python/jupyter-ai-core/`): JupyterLab with the extensions
+  that terminal coding agents need (`jupyter-server-mcp`,
+  `jupyterlab-commands-toolkit`, `jupyter-live-content`), and default settings.
+- `jupyter-ai` (`python/jupyter-ai/`): the agent chat. It depends on
+  `jupyter-ai-core` and adds the chat subpackages.
+
+Both are mostly empty; the composition is recorded in their `pyproject.toml`
+files, in `submodules/manifest.json` (a `"pypi_name": "org/repo"` map), and in
+the [Contributor Guide](https://jupyter-ai.readthedocs.io/en/latest/contributors/index.html).
+
+### Packages and versions
+
+- Add a dependency to the package that needs it: `jupyter-ai-core` for what a
+  terminal agent uses, `jupyter-ai` for the chat. A dependency of
+  `jupyter-ai-core` reaches `jupyter-ai` users too.
+- Both packages share one version and are released together: Jupyter Releaser
+  builds every package listed in `python_packages` in the root `pyproject.toml`.
+  `jupyter-ai` pins `jupyter-ai-core` to that exact version.
+- Do not edit the versions by hand. `scripts/bump_version.py <spec>` sets the
+  version of both packages and the pin; Jupyter Releaser runs it during a
+  release. `python scripts/bump_version.py --check` verifies that they agree,
+  and runs in CI.
 
 ## Documentation lives with the code
 
@@ -50,9 +71,9 @@ The submodule-docs aggregation infrastructure lives here:
 - `submodules/manifest.json` — registry of doc submodules.
 - `submodules/<repo>/` — git submodules, sparse-checked-out to `docs/` only.
 - `scripts/update-doc-submodules.sh` — re-pins each submodule to the latest tag
-  matching its `pyproject.toml` version range (PEP 440 via `packaging`). Run by
-  the **Update submodule documentation** workflow (`workflow_dispatch`), which
-  opens a PR with the new pins.
+  matching its version range in `python/*/pyproject.toml` (PEP 440 via
+  `packaging`). Run by the **Update submodule documentation** workflow
+  (`workflow_dispatch`), which opens a PR with the new pins.
 - `scripts/rtd-post-checkout.sh` — Read the Docs `post_checkout` hook that
   sparse-initialises the submodules.
 - `docs/source/_ext/subpackage_docs.py` — Sphinx extension that copies each
@@ -101,11 +122,12 @@ gh workflow run "Step 0: Prep release documentation" \
 - `target-branch` — the branch the release is cut from; patch releases of an
   older minor use that minor's maintenance branch (e.g. `3.0.x`) instead of `main`.
 
-The workflow generates the page from the version floors in `pyproject.toml`,
-commits it to a `release-docs/<version>` branch, and opens a draft PR against the
-target branch. It is **safe to re-run**: it reuses the same branch and open PR,
-merges the target branch in to pick up the latest floors and docs, regenerates
-the auto sections, and preserves your hand-edited summary. Watch a run with:
+The workflow generates the page from the version floors in
+`python/*/pyproject.toml`, commits it to a `release-docs/<version>` branch, and
+opens a draft PR against the target branch. It is **safe to re-run**: it reuses
+the same branch and open PR, merges the target branch in to pick up the latest
+floors and docs, regenerates the auto sections, and preserves your hand-edited
+summary. Watch a run with:
 
 ```
 gh run watch "$(gh run list --workflow 'Step 0: Prep release documentation' \
@@ -187,7 +209,7 @@ The permission-requests API remains the only API specific to ACP agents.
 ## Building and testing docs locally
 
 ```
-pip install -r docs/requirements.txt
+pip install ./python/jupyter-ai-core "./python/jupyter-ai[docs]"
 sphinx-build -b html docs/source docs/_build/html
 pytest docs/tests          # aggregation integration tests
 ```

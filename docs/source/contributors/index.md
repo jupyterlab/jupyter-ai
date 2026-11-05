@@ -19,7 +19,10 @@ In v3, Jupyter AI is no longer a monorepo. The various components of Jupyter AI
 now live as separate repos under the
 [`jupyter-ai-contrib`](https://github.com/jupyter-ai-contrib) GitHub org.
 `jupyter-ai` is now a metapackage that distributes a stable working set of these
-components with some default configuration, and is mostly empty on its own.
+components with some default configuration, and is mostly empty on its own. It
+builds on `jupyter-ai-core`, a smaller metapackage with JupyterLab and the
+components that terminal coding agents need. Both packages live in the
+`jupyter-ai` repository, under `python/`, and are released together.
 
 The following repositories are stable, i.e., this means the repos are, or are quickly becoming, stable and ready for production use.
 
@@ -298,11 +301,11 @@ yet. See `jupyter-ai-persona-manager` for a complete example.
     these pins daily (and on demand) and commits straight to `main`, so a
     subpackage's newest docs appear on `latest` without waiting for a release.
   - On a **release tag** (the `stable` docs), each submodule is frozen to the
-    **released tag matching that package's version range** in `pyproject.toml`
-    (pip / PEP 440 semantics), so a release captures a coherent snapshot. This
-    freeze runs automatically during `jupyter-releaser`'s prep step, via the
-    `after-bump-version` hook (`scripts/freeze-doc-submodules.sh`), and lands in
-    the release commit.
+    **released tag matching that package's version range** in
+    `python/*/pyproject.toml` (pip / PEP 440 semantics), so a release captures a
+    coherent snapshot. This freeze runs automatically during
+    `jupyter-releaser`'s prep step, via the `after-bump-version` hook
+    (`scripts/freeze-doc-submodules.sh`), and lands in the release commit.
 
   Both paths share one script, `scripts/update-doc-submodules.sh` (`--mode main`
   vs `--mode release`). Read the Docs is configured to serve **`stable`** — the

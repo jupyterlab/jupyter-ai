@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Resolve the pin target for each documentation submodule.
 
-Given the submodule manifest and jupyter-ai's ``pyproject.toml``, this script
+Given the submodule manifest and the ``pyproject.toml`` files of the
+jupyter-ai packages (``python/*``), this script
 decides which git ref every submodule should be pinned to. It has two modes,
 matching how the docs are meant to move:
 
@@ -13,9 +14,10 @@ matching how the docs are meant to move:
 
 ``release``
     Pin each submodule to the latest git tag satisfying that package's version
-    range in ``pyproject.toml``, following pip / PEP 440 semantics. This is what
-    the release hook uses so a release tag captures a **coherent, frozen**
-    snapshot of the subpackage docs that ship with that jupyter-ai version.
+    range in the ``pyproject.toml`` files, following pip / PEP 440 semantics.
+    This is what the release hook uses so a release tag captures a **coherent,
+    frozen** snapshot of the subpackage docs that ship with that jupyter-ai
+    version.
 
     * The version range is looked up by ``pypi_name`` across
       ``[project].dependencies`` and every ``[project.optional-dependencies]``
@@ -48,6 +50,7 @@ import sys
 # release-notes generator can't drift on how a floor maps to a git tag.
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from _submodule_versions import (  # noqa: E402
+    PYPROJECT_PATHS,
     _norm,
     default_branch,
     list_tags,
@@ -60,7 +63,12 @@ from _submodule_versions import (  # noqa: E402
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("manifest", help="path to submodules/manifest.json")
-    parser.add_argument("pyproject", help="path to pyproject.toml")
+    parser.add_argument(
+        "pyprojects",
+        nargs="*",
+        default=list(PYPROJECT_PATHS),
+        help="paths to the packages' pyproject.toml (default: %(default)s)",
+    )
     parser.add_argument(
         "--mode",
         choices=("main", "release"),
@@ -76,7 +84,7 @@ def main() -> int:
 
     with open(args.manifest) as f:
         manifest = json.load(f)
-    ranges = load_ranges(args.pyproject) if args.mode == "release" else {}
+    ranges = load_ranges(*args.pyprojects) if args.mode == "release" else {}
 
     rows: list[str] = []
     for pypi_name, org_repo in manifest.items():
@@ -95,7 +103,7 @@ def main() -> int:
         if spec_string is None:
             log(
                 f"warning: {pypi_name} is in the manifest but not a dependency "
-                f"in {args.pyproject}; skipping"
+                f"in {', '.join(args.pyprojects)}; skipping"
             )
             continue
 
