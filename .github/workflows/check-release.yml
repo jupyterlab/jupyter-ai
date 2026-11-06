@@ -18,28 +18,28 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
       with:
         persist-credentials: false
 
     - name: Run zizmor 🌈
-      uses: zizmorcore/zizmor-action@5f14fd08f7cf1cb1609c1e344975f152c7ee938d # v0.5.6
+      uses: zizmorcore/zizmor-action@45d7276c9ca790aabd705e31ca99c6185c3e76dd  # v0.8.1
 
   check_release:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           persist-credentials: false
 
       - name: Setup environment
-        uses: jupyterlab/maintainer-tools/.github/actions/base-setup@95d85449e4f3f352e261221f6529f8ed307f5728 # v1
+        uses: jupyterlab/maintainer-tools/.github/actions/base-setup@b9d5c28489f8b460cef48868f303b97c20f8fe1b  # v1.1.2
         with:
           python_version: "3.11.x"
 
       - name: Check Release
-        uses: jupyter-server/jupyter_releaser/.github/actions/check-release@fb873e098a95b1c510af2481e7cbeccb21d81d7c # v2
+        uses: jupyter-server/jupyter_releaser/.github/actions/check-release@22aa25e85d4813f996f30ba5ba8a9a82be495a94  # v1.12.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           version_spec: "12.34.56"
@@ -48,7 +48,7 @@ jobs:
         run: python scripts/bump_version.py --check
 
       - name: Upload Distributions
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
         with:
           name: jupyter-ai-jupyter-releaser-dist-${{ github.run_number }}
           path: .jupyter_releaser_checkout/dist
