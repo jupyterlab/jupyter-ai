@@ -114,9 +114,7 @@ def test_full_subtree_with_nested_page_and_image(make_site):
     reference or missing image would fail the build.
     """
     index_md = (
-        "# Rich Pkg\n\n"
-        "Root page.\n\n"
-        "```{toctree}\n:maxdepth: 1\n\nsubdir/nested\n```\n"
+        "# Rich Pkg\n\nRoot page.\n\n```{toctree}\n:maxdepth: 1\n\nsubdir/nested\n```\n"
     )
     nested_md = (
         "# Nested Page\n\n"

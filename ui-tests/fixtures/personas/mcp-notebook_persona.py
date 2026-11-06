@@ -61,9 +61,7 @@ class McpNotebookPersona(BasePersona):
         # Build the MCP connection exactly as the ACP client would for an agent:
         # the built-in Jupyter MCP server, carrying our identity headers.
         settings = self.get_mcp_settings()
-        server = next(
-            s for s in settings.mcp_servers if isinstance(s, McpServerHttp)
-        )
+        server = next(s for s in settings.mcp_servers if isinstance(s, McpServerHttp))
         headers = {header.name: header.value for header in server.headers}
 
         async with (

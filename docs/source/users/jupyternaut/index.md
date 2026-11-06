@@ -56,13 +56,13 @@ Settings`, where you can see the models by typing in a search string.
 
 The LiteLLM interface does not show _all_ available models and you can see the [full list of providers and models](https://docs.litellm.ai/docs/providers) online.
 
-Each model that is added to the Custom models list will appear at the top of the model picker as shown here: 
+Each model that is added to the Custom models list will appear at the top of the model picker as shown here:
 
 <img src="../../_static/jupyternaut-model-picker.png"
     alt="Chat model picker"
     class="screenshot" />
 
-This ability to pick a custom model in Jupyternaut from a set of custom models instantiated by the user makes Jupyternaut multi-model. This means you can use multiple different AI models simultaneously within the  Jupyternaut persona in the same chat thread.  
+This ability to pick a custom model in Jupyternaut from a set of custom models instantiated by the user makes Jupyternaut multi-model. This means you can use multiple different AI models simultaneously within the  Jupyternaut persona in the same chat thread.
 
 To use Jupyter AI with a particular provider, you must set its API key (or other credentials) in the Jupyternaut settings, as needed. The names of the API keys are available from the LiteLLM documentation for each provider.
 
@@ -77,13 +77,13 @@ After saving the key, the model will be available for use in the chat interface.
     class="screenshot" />
 
 
-In the same interface it is also possible to set model parameters. This is a new feature in v3. See the `+ Add Parameter` button in the screenshots above. 
+In the same interface it is also possible to set model parameters. This is a new feature in v3. See the `+ Add Parameter` button in the screenshots above.
 
 <img src="../../_static/jupyternaut-settings-model-parameters.png"
     alt="Chat settings interface with Juptyter Lab"
     class="screenshot" />
 
-Thus each Jupyternaut custom model will be able to be parameterized as needed. Users can name these custom models in any way they wish to conform to their internal naming conventions, as needed. 
+Thus each Jupyternaut custom model will be able to be parameterized as needed. Users can name these custom models in any way they wish to conform to their internal naming conventions, as needed.
 
 Here are some examples of additional packages that may be installed as needed:
 

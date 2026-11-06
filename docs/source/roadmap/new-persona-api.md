@@ -202,6 +202,7 @@ possible: a persona definition simply names the engine it wants.
 ```python
 from pydantic import BaseModel
 
+
 class PersonaEngine(ABC, LoggingConfigurable):
     """The swappable implementation layer behind a persona."""
 
@@ -398,12 +399,14 @@ from pydantic import BaseModel
 
 class PersonaModel(BaseModel):
     """Defines which LLM a persona uses."""
+
     model_id: str
     model_url: str | None = None
 
 
 class PersonaContext(BaseModel):
     """Defines the context available to a persona."""
+
     system_prompt: str | None
     mcp_servers: list[McpServerStdio | McpServerHttp] = []
     skills_paths: list[str] = []
@@ -411,6 +414,7 @@ class PersonaContext(BaseModel):
 
 class PersonaIdentity(BaseModel):
     """Defines how a persona appears in the chat."""
+
     name: str
     avatar: str | None = None
     description: str | None = None

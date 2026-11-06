@@ -215,10 +215,22 @@ def _inject_contract_badge(app, what, name, obj, options, lines):
 # keys are the ``.label`` values a subpackage's contract levels expose.
 _CONTRACT_GROUPS = [
     ("Required", "**MUST** be implemented — the class is abstract without these."),
-    ("Recommended", "**SHOULD** be implemented — a default exists, but most personas override these."),
-    ("Optional", "**MAY** be implemented — a safe default covers personas that don't need these."),
-    ("Available to subclasses", "Provided by the base class for a persona to **call** from inside itself; may be overridden."),
-    ("Available to consumers", "Provided by the base class for **consumers** (e.g. the ``PersonaManager``) to call on a persona; generally not overridden."),
+    (
+        "Recommended",
+        "**SHOULD** be implemented — a default exists, but most personas override these.",
+    ),
+    (
+        "Optional",
+        "**MAY** be implemented — a safe default covers personas that don't need these.",
+    ),
+    (
+        "Available to subclasses",
+        "Provided by the base class for a persona to **call** from inside itself; may be overridden.",
+    ),
+    (
+        "Available to consumers",
+        "Provided by the base class for **consumers** (e.g. the ``PersonaManager``) to call on a persona; generally not overridden.",
+    ),
 ]
 
 

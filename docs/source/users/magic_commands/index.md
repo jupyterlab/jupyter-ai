@@ -119,7 +119,7 @@ Another example using a different provider:
 
 ### Using a persona with magics
 
-The magics extend to using a persona instead of a model. To use a persona (i.e., agent), specify the persona name instead of the model ID. This is shown below for the Claude and OpenCode personas. 
+The magics extend to using a persona instead of a model. To use a persona (i.e., agent), specify the persona name instead of the model ID. This is shown below for the Claude and OpenCode personas.
 
 <img src="../../_static/magics-example-personas.png"
     alt='Screenshot of magics example.'
@@ -259,7 +259,7 @@ a cell, and its input is assigned to `In[11]`:
 
 ```python
 for i in range(0, 5):
-  print(i)
+    print(i)
 ```
 
 You can then refer to `In[11]` in an `%%ai` magic command, and it will be replaced
@@ -371,9 +371,7 @@ Aliases must refer to models or `LLMChain` objects; they cannot refer to other a
 To customize the aliases on startup you can set the `c.AiMagics.aliases` tratilet in `ipython_config.py`, for example:
 
 ```python
-c.AiMagics.aliases = {
-  "my_custom_alias": "my_provider:my_model"
-}
+c.AiMagics.aliases = {"my_custom_alias": "my_provider:my_model"}
 ```
 
 The location of `ipython_config.py` file is documented in [IPython configuration reference](https://ipython.readthedocs.io/en/stable/config/intro.html).

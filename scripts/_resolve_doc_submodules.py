@@ -49,7 +49,7 @@ import sys
 # Shared version/tag resolution, kept in one place so this tool and the
 # release-notes generator can't drift on how a floor maps to a git tag.
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from _submodule_versions import (  # noqa: E402
+from _submodule_versions import (
     PYPROJECT_PATHS,
     _norm,
     default_branch,
