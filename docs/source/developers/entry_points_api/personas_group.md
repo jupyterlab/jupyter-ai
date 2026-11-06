@@ -95,15 +95,15 @@ If your persona wants to call chat models in the same way as Jupyternaut, then y
 
 ```python
 async def get_agent(self, model_id: str, model_args, system_prompt: str):
-        model = ChatLiteLLM(**model_args, model=model_id, streaming=True)
-        memory_store = await self.get_memory_store()
+    model = ChatLiteLLM(**model_args, model=model_id, streaming=True)
+    memory_store = await self.get_memory_store()
 
-        return create_agent(
-            model,
-            system_prompt=system_prompt,
-            checkpointer=memory_store,
-            tools=self.get_tools(),
-        )
+    return create_agent(
+        model,
+        system_prompt=system_prompt,
+        checkpointer=memory_store,
+        tools=self.get_tools(),
+    )
 ```
 
 <!-- Add and call this method on a persona to access the LangChain runnable used by

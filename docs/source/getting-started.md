@@ -194,7 +194,7 @@ your request and instead prompt you to login.
 The agent installation and authentication process will be simplified and
 improved in future versions. For now, you may need to log in via the agent's
 dedicated CLI in a separate terminal (opened automatically when possible), or
-pass additional environment variables and restart the server. 
+pass additional environment variables and restart the server.
 :::
 
 Whichever persona is selected is the one that will respond to your message.

@@ -63,7 +63,7 @@ from packaging.version import InvalidVersion, Version
 # definition of how a package floor maps to a git tag, shared with the
 # docs-submodule pinning tooling so the two can't drift.
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from _submodule_versions import (  # noqa: E402
+from _submodule_versions import (
     LEGACY_PYPROJECT_PATH,
     PYPROJECT_PATHS,
     _norm,
@@ -76,7 +76,7 @@ from _submodule_versions import (  # noqa: E402
 )
 
 # Jupyter Releaser's changelog builder — reused wholesale for PR aggregation.
-from jupyter_releaser import changelog  # noqa: E402
+from jupyter_releaser import changelog
 
 # The page is split into auto-generated regions and a contributor-owned region.
 # Each auto region is wrapped in AUTO markers; on a re-run only those regions are
@@ -562,7 +562,7 @@ def build_page(
         "## Full changelog\n\n" + demote_headings("\n\n".join(body))
     )
 
-    return "\n\n".join([header_auto, summary_region, changelog_auto]).strip() + "\n"
+    return f"{header_auto}\n\n{summary_region}\n\n{changelog_auto}".strip() + "\n"
 
 
 TOCTREE_RE = re.compile(
@@ -591,11 +591,7 @@ def update_index_toctree(index_path: str, stem: str) -> None:
     entries: list[str] = []
     for line in lines:
         stripped = line.strip()
-        if (
-            not stripped
-            or stripped.startswith("```{toctree}")
-            or stripped.startswith(":")
-        ):
+        if not stripped or stripped.startswith(("```{toctree}", ":")):
             head.append(line)
         else:
             entries.append(stripped)

@@ -36,16 +36,14 @@ class MyProvider(BaseProvider, FakeListLLM):
     id = "my_provider"
     name = "My Provider"
     model_id_key = "model"
-    models = [
-        "model_a",
-        "model_b"
-    ]
+    models = ["model_a", "model_b"]
+
     def __init__(self, **kwargs):
         model = kwargs.get("model_id")
         kwargs["responses"] = (
             ["This is a response from model 'a'"]
-            if model == "model_a" else
-            ["This is a response from model 'b'"]
+            if model == "model_a"
+            else ["This is a response from model 'b'"]
         )
         super().__init__(**kwargs)
 ```
@@ -90,7 +88,12 @@ below.
 ```python
 from typing import ClassVar
 from jupyter_ai_magics import BaseProvider
-from jupyter_ai_magics.providers import EnvAuthStrategy, Field, TextField, MultilineTextField
+from jupyter_ai_magics.providers import (
+    EnvAuthStrategy,
+    Field,
+    TextField,
+    MultilineTextField,
+)
 from langchain_community.llms import FakeListLLM
 
 
@@ -98,26 +101,26 @@ class MyProvider(BaseProvider, FakeListLLM):
     id = "my_provider"
     name = "My Provider"
     model_id_key = "model"
-    models = [
-        "model_a",
-        "model_b"
-    ]
+    models = ["model_a", "model_b"]
 
-    auth_strategy = EnvAuthStrategy(
-        name="MY_API_KEY", keyword_param="my_api_key_param"
-    )
+    auth_strategy = EnvAuthStrategy(name="MY_API_KEY", keyword_param="my_api_key_param")
 
     fields: ClassVar[list[Field]] = [
-        TextField(key="my_llm_parameter", label="The name for my_llm_parameter to show in the UI"),
-        MultilineTextField(key="custom_config", label="Custom Json Config", format="json"),
+        TextField(
+            key="my_llm_parameter",
+            label="The name for my_llm_parameter to show in the UI",
+        ),
+        MultilineTextField(
+            key="custom_config", label="Custom Json Config", format="json"
+        ),
     ]
 
     def __init__(self, **kwargs):
         model = kwargs.get("model_id")
         kwargs["responses"] = (
             ["This is a response from model 'a'"]
-            if model == "model_a" else
-            ["This is a response from model 'b'"]
+            if model == "model_a"
+            else ["This is a response from model 'b'"]
         )
         super().__init__(**kwargs)
 ```
@@ -174,10 +177,12 @@ class MyCompletionProvider(BaseProvider, FakeListLLM):
 
     async def generate_inline_completions(self, request: InlineCompletionRequest):
         return InlineCompletionReply(
-            list=InlineCompletionList(items=[
-                {"insertText": "An ant minding its own business"},
-                {"insertText": "A bug searching for a snack"}
-            ]),
+            list=InlineCompletionList(
+                items=[
+                    {"insertText": "An ant minding its own business"},
+                    {"insertText": "A bug searching for a snack"},
+                ]
+            ),
             reply_to=request.number,
         )
 
@@ -189,20 +194,29 @@ class MyCompletionProvider(BaseProvider, FakeListLLM):
             list=InlineCompletionList(
                 items=[
                     {"insertText": "An ", "isIncomplete": True, "token": token_1},
-                    {"insertText": "", "isIncomplete": True, "token": token_2}
+                    {"insertText": "", "isIncomplete": True, "token": token_2},
                 ]
             ),
             reply_to=request.number,
         )
 
         # where merge_iterators
-        async for reply in merge_iterators([
-            self._stream("elephant dancing in the rain", request.number, token_1, start_with="An"),
-            self._stream("A flock of birds flying around a mountain", request.number, token_2)
-        ]):
+        async for reply in merge_iterators(
+            [
+                self._stream(
+                    "elephant dancing in the rain",
+                    request.number,
+                    token_1,
+                    start_with="An",
+                ),
+                self._stream(
+                    "A flock of birds flying around a mountain", request.number, token_2
+                ),
+            ]
+        ):
             yield reply
 
-    async def _stream(self, sentence, request_number, token, start_with = ""):
+    async def _stream(self, sentence, request_number, token, start_with=""):
         suggestion = start_with
 
         for fragment in sentence.split():
@@ -212,7 +226,7 @@ class MyCompletionProvider(BaseProvider, FakeListLLM):
                 type="stream",
                 response={"insertText": suggestion, "token": token},
                 reply_to=request_number,
-                done=False
+                done=False,
             )
 
         # finally, send a message confirming that we are done
@@ -271,7 +285,7 @@ class MyCompletionProvider(BaseProvider, FakeListLLM):
         document = await server_ydoc.get_document(
             path=request.path,
             content_type="notebook" if is_notebook else "file",
-            file_format="json" if is_notebook else "text"
+            file_format="json" if is_notebook else "text",
         )
         if not document or not isinstance(document, YNotebook):
             return prefix, suffix
@@ -303,9 +317,9 @@ class MyCompletionProvider(BaseProvider, FakeListLLM):
         prefix, suffix = await self._get_prefix_and_suffix(request)
 
         return InlineCompletionReply(
-            list=InlineCompletionList(items=[
-                {"insertText": your_llm_function(prefix, suffix)}
-            ]),
+            list=InlineCompletionList(
+                items=[{"insertText": your_llm_function(prefix, suffix)}]
+            ),
             reply_to=request.number,
         )
 ```

@@ -212,6 +212,7 @@ RTC_PROVIDERS: set[RTCProvider] = {"jupyter_server_documents", "jupyter_server_y
 
 # --- Detection ---------------------------------------------------------------
 
+
 def _is_enabled(serverapp: "ServerApp", name: str) -> bool:
     """True iff `name` is a server extension that is *configured AND enabled* for
     THIS session.
@@ -223,6 +224,7 @@ def _is_enabled(serverapp: "ServerApp", name: str) -> bool:
     """
     ext = serverapp.extension_manager.extensions.get(name)
     return bool(ext and ext.enabled)
+
 
 def get_rtc_provider(serverapp: "ServerApp") -> Optional[RTCProvider]:
     """Name of the enabled RTC provider, or None if RTC is off.

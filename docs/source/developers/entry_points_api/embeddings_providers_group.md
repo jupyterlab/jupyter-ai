@@ -24,6 +24,7 @@ updating the model API to make it easier for developers to add custom models.
 from jupyter_ai_magics import BaseEmbeddingsProvider
 from langchain.embeddings import FakeEmbeddings
 
+
 class MyEmbeddingsProvider(BaseEmbeddingsProvider, FakeEmbeddings):
     id = "my_embeddings_provider"
     name = "My Embeddings Provider"

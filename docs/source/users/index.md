@@ -33,7 +33,7 @@ This will open a prompt to name the chat. Give it a reasonable name:
     width="400"
     height="auto" />
 
-You can create new chats as you go and these will persist after you close JupyterLab. When re-opening JupyterLab you can see existing chats in the chat panel as shown here: 
+You can create new chats as you go and these will persist after you close JupyterLab. When re-opening JupyterLab you can see existing chats in the chat panel as shown here:
 
 <img src="../_static/chat-multiple.png"
     alt="Screen shot of the new chat"
@@ -46,14 +46,14 @@ You can create new chats as you go and these will persist after you close Jupyte
 
 An AI Persona is an agent or harness that responds to prompts in the chat panel. You can address more than one persona in any chat session. **AI personas** always respond to user messages in the chat panel when selected.
 
-You can use the persona picker in the chat as shown below. 
+You can use the persona picker in the chat as shown below.
 <img src="../_static/chat-persona-picker.png"
     alt="Screen shot of the chat persona"
     class="screenshot"
     width="400"
     height="auto" />
 
-A persona can allow access to different models and each one comes with a model picker as well, allowing you to select which model to use for that persona, and also switch models for the same persona in the same chat session. The model picker is shown below: 
+A persona can allow access to different models and each one comes with a model picker as well, allowing you to select which model to use for that persona, and also switch models for the same persona in the same chat session. The model picker is shown below:
 
 <img src="../_static/chat-model-picker.png"
     alt="Screen shot of the chat persona"
@@ -73,7 +73,7 @@ interface and press <kbd>ENTER</kbd> to send it. You can press
 
 You can also see the `Delete` button shown alongside the prompt if you need to clear up the chat; there is a similar button in the response area as well.
 
-As another example, see how Claude can be used via ACP in the following screens, with the various selection options for models, attributes, mode, and token counts, cost, etc. 
+As another example, see how Claude can be used via ACP in the following screens, with the various selection options for models, attributes, mode, and token counts, cost, etc.
 
 #### Model picker
 <img src="../_static/chat-acp-claude-model-picker.png"
@@ -159,7 +159,7 @@ find the right file to add.
 
 ### Personas reply intelligently
 
-Personas reply intelligently based on the number of other connected users and other AI personas. If you are the only user connected to your JupyterLab server, the current active persona will always reply. 
+Personas reply intelligently based on the number of other connected users and other AI personas. If you are the only user connected to your JupyterLab server, the current active persona will always reply.
 
 <!-- When you send a message that does not `@`-mention an AI persona, the following rules are used to determine whether an AI persona will reply automatically.
 

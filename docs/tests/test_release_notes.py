@@ -23,8 +23,8 @@ _SCRIPTS_DIR = os.path.join(
 )
 sys.path.insert(0, _SCRIPTS_DIR)
 
-import _submodule_versions as sv  # noqa: E402
-import generate_release_notes as gen  # noqa: E402
+import _submodule_versions as sv
+import generate_release_notes as gen
 
 PYPROJECT = """
 [project]
