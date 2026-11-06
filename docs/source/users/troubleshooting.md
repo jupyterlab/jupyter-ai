@@ -28,10 +28,8 @@ The proxy looks for running servers in the Jupyter runtime directory. Check
 that:
 
 - JupyterLab is running, and its log shows that the MCP server started.
-- The agent was started in a folder that JupyterLab serves, when several
-  servers are running. Otherwise the proxy stops with
-  `Multiple Jupyter MCP servers are running and none contains the current
-  working directory`, followed by the list of servers.
+- The agent was started in a folder that JupyterLab serves. Otherwise the
+  proxy can stop with an error that lists the running servers.
 - JupyterLab and the proxy use the same runtime directory. If you set
   `JUPYTER_RUNTIME_DIR` for JupyterLab, pass the same directory to the proxy
   with `--runtime-dir`.

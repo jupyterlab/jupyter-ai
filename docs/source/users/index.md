@@ -72,9 +72,9 @@ JupyterLite.
 - **You want to prompt a model from a notebook cell**: use the
   {doc}`magic commands <magic_commands/index>`.
 
-The options are not exclusive. The `jupyter-ai` package runs the same
-Jupyter MCP server that terminal agents use, so you can keep a coding agent in
-a terminal next to the chat panel. See {doc}`concepts` for the building
+The options are not exclusive. The `jupyter-ai` package includes
+`jupyter-ai-core`, so it runs the same Jupyter MCP server that terminal agents
+use, and you can keep a coding agent in a terminal next to the chat panel. See {doc}`concepts` for the building
 blocks they share.
 
 ## More projects

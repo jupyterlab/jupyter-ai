@@ -88,7 +88,7 @@ JupyterLab instead. Choose terminal agents when you:
 
 Choose the agent chat when you want a chat panel in JupyterLab, shared chats
 with other people, or a single interface for many different agents. The two
-work together: the `jupyter-ai` package includes the Jupyter MCP server, so a
+work together: the `jupyter-ai` package includes `jupyter-ai-core`, so a
 terminal agent can connect to it as well.
 
 ```{toctree}

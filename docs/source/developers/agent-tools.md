@@ -51,8 +51,7 @@ c.MCPExtensionApp.mcp_tools = [
 ]
 ```
 
-The `jupyter-server-mcp` documentation also covers MCP middleware, which runs
-around every request, and the other configuration options.
+The `jupyter-server-mcp` documentation covers the other configuration options.
 
 ## Add a JupyterLab command
 

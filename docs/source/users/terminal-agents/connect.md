@@ -146,8 +146,8 @@ You can run the agent in any terminal on the same machine: a terminal app,
 tmux, or the terminal of your editor. Two things to keep in mind:
 
 - **Start the agent in a folder that JupyterLab serves**, such as the folder
-  where you ran `jupyter lab` or one of its subfolders. When several Jupyter
-  servers run, the proxy uses this folder to pick the right one.
+  where you ran `jupyter lab` or one of its subfolders. The proxy uses this
+  folder to find the right Jupyter server.
 - **The proxy may not be on the `PATH`** outside the Jupyter environment. Run
   it with [`uvx`](https://docs.astral.sh/uv/) instead, which works from any
   environment:
@@ -264,8 +264,6 @@ same folder, the proxy stops with an error rather than guess, and lists the
 running servers. In that case, give it the server's URL with the `--url`
 option, for example `--url http://localhost:3001/mcp`. The JupyterLab log
 shows the port when the MCP server starts: `MCP server started on port 3001`.
-With a single Jupyter server, the proxy always connects to it, wherever the
-agent runs.
 
 (terminal-agents-http)=
 ## Connect over HTTP

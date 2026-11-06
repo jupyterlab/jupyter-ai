@@ -106,8 +106,9 @@ There are two ways to see an agent's notebook changes live:
 
 ## Recommended settings
 
-`jupyter-ai-core` changes two defaults. If you install the packages yourself,
-you can apply the same settings.
+`jupyter-ai-core` shows hidden files by default, on the server and in the
+file browser. If you install the packages yourself, you can apply the same
+settings.
 
 ### Show hidden files
 

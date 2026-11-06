@@ -27,9 +27,9 @@ browser, see {doc}`/users/browser/index`.
 
 ## Optional features
 
-The core package enables Jupyternaut's chat and notebook tools, and keeps
-conversation memory in memory. Persistent conversation memory is available as an
-optional extra on the `jupyter-ai-jupyternaut` package:
+Without extras, the `jupyter-ai-jupyternaut` package enables Jupyternaut's
+chat and notebook tools, and keeps conversation memory in memory. Persistent
+conversation memory is available as an optional extra:
 
 :::{note}
 These optional extras are new in `jupyter-ai-jupyternaut` 0.0.12. This is a
