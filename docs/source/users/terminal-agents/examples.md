@@ -19,8 +19,8 @@ Use it as a starting point, or as a dependency of your own distribution.
 ## The Jupyter AI package
 
 The `jupyter-ai` package provides the {doc}`agent chat </users/chat/index>`.
-It also runs the Jupyter MCP server with the commands toolkit and a set of
-notebook tools, so a terminal agent can connect to it as described in
+It includes `jupyter-ai-core`, and adds a set of notebook tools to the Jupyter
+MCP server, so a terminal agent can connect to it as described in
 {doc}`connect`. Use it when you want both: a chat panel in JupyterLab,
 and your coding agent in a terminal.
 
@@ -48,17 +48,19 @@ dependencies = [
 ]
 
 [tool.hatch.build.targets.wheel.shared-data]
-"jupyter-config/jupyter_server_config.d" = "etc/jupyter/jupyter_server_config.d"
 "jupyter-config/labconfig" = "etc/jupyter/labconfig"
 ```
 
-With this layout:
-
-- `jupyter-config/jupyter_server_config.d/my-lab.json` holds server settings,
-  such as `{"ContentsManager": {"allow_hidden": true}}`.
-- `jupyter-config/labconfig/default_setting_overrides.d/00-my-lab.json` holds
-  default JupyterLab settings, keyed by plugin ID, such as
-  `{"@jupyterlab/filebrowser-extension:browser": {"showHiddenFiles": true}}`.
-
+With this layout,
+`jupyter-config/labconfig/default_setting_overrides.d/00-my-lab.json` holds
+default JupyterLab settings, keyed by plugin ID, such as
+`{"@jupyterlab/filebrowser-extension:browser": {"showHiddenFiles": true}}`.
 Users can still change these settings: their own settings take precedence
 over the defaults.
+
+Server settings are different: Jupyter Server reads only the list of enabled
+server extensions from `jupyter_server_config.d`, and ignores other settings
+there, such as `ContentsManager.allow_hidden`. To change a server default,
+ship a small server extension that sets it, as
+[`jupyter-ai-core`](https://github.com/jupyterlab/jupyter-ai/tree/main/python/jupyter-ai-core)
+does to show hidden files.

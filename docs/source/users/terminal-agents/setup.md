@@ -57,8 +57,8 @@ environment to use its packages in notebooks.
 
 ## What gets installed
 
-`jupyter-ai-core` is a meta-package: it has no code of its own. You can install
-the same packages yourself, or add them to an existing environment.
+`jupyter-ai-core` is a meta-package. You can install the same packages
+yourself, or add them to an existing environment.
 
 | Package | What it does |
 | --- | --- |
@@ -158,9 +158,9 @@ c.MCPExtensionApp.mcp_port = 0
 ## Already using the Jupyter AI package?
 
 The `jupyter-ai` package (see {doc}`/users/chat/index`) already includes
-`jupyter-server-mcp`, `jupyterlab-commands-toolkit`, and
-`jupyter-live-content`, and adds notebook tools to the same MCP server. A terminal agent can connect to it as described
-in {doc}`connect`, and use the same tools as the agents in the chat.
+`jupyter-ai-core`, and adds notebook tools to the same MCP server. A terminal
+agent can connect to it as described in {doc}`connect`, and use the same
+tools as the agents in the chat.
 
 For live updates of notebooks edited on disk, install one of the RTC options
 of `jupyter-ai`, for example `pip install "jupyter-ai[rtc]"`. Without RTC, the
