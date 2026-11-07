@@ -35,7 +35,7 @@ _PACKAGES = ["python/jupyter-ai-core", "python/jupyter-ai"]
 # env name -> extra packages that provide the transport.
 _ENVS = {
     "default": [],
-    "rtc": ["jupyter_collaboration>=4,<5"],
+    "rtc": ["jupyter_collaboration>=4,<6"],
     "rtc-jsd": ["jupyter_server_documents"],
 }
 
