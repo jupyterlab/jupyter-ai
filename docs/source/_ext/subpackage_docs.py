@@ -21,9 +21,15 @@ section's sidebar navigation.
 
 Rollout is gradual: most subpackages do not define these docs yet, so most
 submodules contribute nothing and the build renders no new pages. A subpackage
-with neither section — or a missing/empty ``docs/`` (e.g. a repo not yet checked
-out, or one without a matching release tag) — is silently skipped, and the build
-still succeeds.
+with neither section — or a missing/empty ``docs/`` (e.g. one without a matching
+release tag) — is silently skipped, and the build still succeeds.
+
+A registered submodule whose directory is missing or empty has not been checked
+out at all (a sparse checkout of a repo with no ``docs/`` still leaves ``.git``
+behind). That is indistinguishable from "no docs yet" by the result alone, so
+it is reported as a Sphinx warning (``subpackage-docs.unchecked``) instead of
+being skipped silently; builds that intentionally run without submodules can
+list that subtype in ``suppress_warnings``.
 
 The submodules root is located relative to ``conf.py`` (``app.confdir``):
 ``<confdir>/../../submodules``. Tests exercise this extension by building a
@@ -74,6 +80,17 @@ def _manifest_repo_slugs(submodules_root: Path) -> list[str]:
     return []
 
 
+def _is_checked_out(submodule_dir: Path) -> bool:
+    """Return whether a registered submodule has any content on disk.
+
+    git materialises an uninitialised submodule as an empty directory (or none
+    at all). Once checked out — even sparse to ``docs/`` in a repo that ships no
+    ``docs/`` — the directory holds at least the ``.git`` link, so "non-empty"
+    is the cheapest reliable sign that a checkout happened.
+    """
+    return submodule_dir.is_dir() and any(submodule_dir.iterdir())
+
+
 def _stage_subpackage_docs(app: Sphinx) -> None:
     """Copy each subpackage's contributor/developer docs into staging dirs.
 
@@ -87,6 +104,17 @@ def _stage_subpackage_docs(app: Sphinx) -> None:
     staged: dict[str, list[str]] = {section: [] for section in AGGREGATION_SECTIONS}
 
     for repo in _manifest_repo_slugs(submodules_root):
+        if not _is_checked_out(submodules_root / repo):
+            logger.warning(
+                "[subpackage-docs] '%s' is registered in manifest.json but %s is "
+                "missing or empty: the submodule was not checked out, so none of "
+                "its docs can be aggregated",
+                repo,
+                submodules_root / repo,
+                type="subpackage-docs",
+                subtype="unchecked",
+            )
+            continue
         for section in AGGREGATION_SECTIONS:
             src = submodules_root / repo / "docs" / "source" / section
             # Require an index page; a section dir without one has nothing to

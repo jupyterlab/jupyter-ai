@@ -136,6 +136,18 @@ def load_floors_from_text(*pyproject_texts: str) -> dict[str, str]:
     return floors
 
 
+def core_names(*pyproject_texts: str) -> set[str]:
+    """Return the normalized names of every core ``[project].dependencies`` entry.
+
+    Optional extras are deliberately excluded: installing jupyter-ai without
+    extras never pulls them in, so they are not held to the same registration
+    requirements as the core dependencies (see
+    ``generate_release_notes.unregistered_core_dependencies``).
+    """
+    core, _ = _requirements(pyproject_texts)
+    return {_norm(req.name) for req in core}
+
+
 def optional_only_names(*pyproject_texts: str) -> set[str]:
     """Return the normalized names of packages that are optional-only.
 
