@@ -75,7 +75,7 @@ Make a command easy for an agent to use:
 ```typescript
 app.commands.addCommand('my-extension:count-cells', {
   label: 'Count Notebook Cells',
-  caption: 'Count the code and Markdown cells of the active notebook',
+  caption: 'Count the cells of the active notebook',
   describedBy: {
     args: {
       type: 'object',

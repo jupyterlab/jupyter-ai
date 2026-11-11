@@ -50,8 +50,9 @@ It works in JupyterLab and Jupyter Notebook as well as in JupyterLite.
 
 ```{tab} JupyterLite
 
-    # in the environment where you build the site, with a Python kernel
-    pip install jupyterlite-core jupyterlite-pyodide-kernel jupyter-ai-lite
+    # in the environment where you build the site;
+    # the kernel package also installs jupyterlite-core
+    pip install jupyterlite-pyodide-kernel jupyter-ai-lite
     jupyter lite build
 
 ```

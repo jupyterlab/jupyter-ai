@@ -28,7 +28,7 @@ A productive setup has three parts:
 ```bash
 pip install jupyter-ai-core
 jupyter lab
-# then, in a terminal (for example File → New → Terminal in JupyterLab):
+# then, in a JupyterLab terminal (File → New → Terminal):
 claude mcp add --scope user jupyter -- jupyter-server-mcp-proxy
 claude
 ```

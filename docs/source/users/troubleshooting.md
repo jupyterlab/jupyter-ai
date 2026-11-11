@@ -20,8 +20,9 @@ form instead (see {ref}`terminal-agents-where`).
 The proxy stops with this error:
 
 ```text
-No running Jupyter MCP servers were discovered. Start Jupyter Server with the
-jupyter-server-mcp extension, or pass --url / set $JUPYTER_SERVER_MCP_URL.
+No running Jupyter MCP servers were discovered. Start Jupyter Server
+with the jupyter-server-mcp extension, or pass --url / set
+$JUPYTER_SERVER_MCP_URL.
 ```
 
 The proxy looks for running servers in the Jupyter runtime directory. Check

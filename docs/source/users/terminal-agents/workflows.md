@@ -93,7 +93,8 @@ For example:
 ```markdown
 ## JupyterLab
 
-JupyterLab is open for this project. Use the `jupyter` MCP server to work with it.
+JupyterLab is open for this project. Use the `jupyter` MCP server to
+work with it.
 
 - When you create or change a file I should look at, open it in JupyterLab
   with the `docmanager:open` command.
