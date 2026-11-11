@@ -1,7 +1,7 @@
 # New Persona API
 
 :::{note}
-This proposal has been accepted but is not yet scheduled for release. `3.x` indicates the minor release it will ship in once scheduled. Please join the discussion on [this GitHub issue](https://github.com/jupyterlab/jupyter-ai/issues/1571)!
+This proposal has been deferred. For history, see [this GitHub issue](https://github.com/jupyterlab/jupyter-ai/issues/1571).
 :::
 
 ## Context
