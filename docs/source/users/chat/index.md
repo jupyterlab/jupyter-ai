@@ -229,7 +229,7 @@ permission mode, effort level, and various other settings.
     class="screenshot" />
 
 Of course, agents can read files, write files, run shell commands, and even
-interact with notebooks through the Jupyter MCP Server. Agents will also request
+interact with notebooks through the Jupyter MCP server. Agents will also request
 permission when invoking tools, unless explicitly allowed by the controls in the
 input toolbar.
 

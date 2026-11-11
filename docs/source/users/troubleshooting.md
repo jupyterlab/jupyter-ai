@@ -28,8 +28,9 @@ The proxy looks for running servers in the Jupyter runtime directory. Check
 that:
 
 - JupyterLab is running, and its log shows that the MCP server started.
-- The agent was started in a folder that JupyterLab serves. Otherwise the
-  proxy can stop with an error that lists the running servers.
+- When several Jupyter servers are running, the agent was started in a folder
+  that one of them serves. Otherwise the proxy stops with a different error,
+  which lists the running servers.
 - JupyterLab and the proxy use the same runtime directory. If you set
   `JUPYTER_RUNTIME_DIR` for JupyterLab, pass the same directory to the proxy
   with `--runtime-dir`.
@@ -45,9 +46,10 @@ See {ref}`terminal-agents-several-servers`.
 
 ### The `jupyter` server is connected but has no tools
 
-The proxy connects to a Jupyter server when the agent session starts. If
-JupyterLab restarted since then, the proxy still points to the old server.
-Reconnect the server from the agent, or start a new session.
+The proxy finds the Jupyter server when the agent session starts. If
+JupyterLab stopped or restarted since then, the agent can keep an empty list
+of tools, and the proxy still points to the old address when the MCP port
+changed. Reconnect the server from the agent, or start a new session.
 
 ### Tools wait and then fail
 
@@ -70,7 +72,6 @@ JupyterLab also does not reload documents with unsaved changes. Save your work
 before asking the agent to edit an open file.
 
 ## Agent chat
-
 
 ### Persona does not appear in chat
 

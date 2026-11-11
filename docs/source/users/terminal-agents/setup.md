@@ -34,7 +34,7 @@ workflows.
 ```{tab} uvx
 
     # runs JupyterLab without installing anything permanently
-    uvx --from jupyter-ai-core jupyter-lab
+    uvx --from jupyterlab --with jupyter-ai-core jupyter-lab
 
 ```
 
@@ -95,8 +95,8 @@ There are two ways to see an agent's notebook changes live:
   These two packages are the parts of
   [Jupyter Collaboration](https://jupyterlab-realtime-collaboration.readthedocs.io)
   that provide live updates. Install `jupyter-collaboration` instead to also
-  get the collaboration interface: shared cursors, the list of collaborators,
-  and the document timeline.
+  get the collaboration interface, such as shared cursors and the list of
+  collaborators.
 
 | | Text files | Notebooks | Notes |
 | --- | --- | --- | --- |

@@ -1,4 +1,4 @@
-# Get started
+# Get Started
 
 Jupyter AI offers several ways to work with AI agents in Jupyter. Pick the
 one that matches how you work. Each one takes a few minutes to set up, and

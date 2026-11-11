@@ -47,7 +47,7 @@ tools that work on notebook cells:
 | --- | --- |
 | Read | `read_notebook`, `read_notebook_cells`, `read_cell`, `get_active_notebook`, `get_active_cell_id`, `get_cell_id_from_index` |
 | Edit | `create_notebook`, `add_cell`, `insert_cell`, `edit_cell`, `delete_cell`, `select_cell` |
-| Run | `open_file`, `run_cell`, `run_all_cells` |
+| Open and run | `open_file`, `run_cell`, `run_all_cells` |
 
 :::{note}
 Most tools run in your JupyterLab browser tab, so they need one to be open.
@@ -63,9 +63,9 @@ An agent can change a notebook in two ways, and each has its strengths.
 **Edit the file on disk.** The agent edits the `.ipynb` file with its own
 tools, as it does for any other file. This is fast, and the changes show up
 in your version control like any other edit. With RTC installed (see
-{ref}`terminal-agents-live-notebooks`), the open notebook updates in place, and keeps its outputs and
-its kernel. The agent cannot run the cells this way, and only sees the
-outputs that were saved to the file.
+{ref}`terminal-agents-live-notebooks`), the open notebook updates in place,
+and keeps its outputs and its kernel. The agent cannot run the cells this
+way, and only sees the outputs that were saved to the file.
 
 **Drive JupyterLab.** The agent opens the notebook and runs its cells through
 JupyterLab commands. The code runs in the notebook's kernel, so it shares its

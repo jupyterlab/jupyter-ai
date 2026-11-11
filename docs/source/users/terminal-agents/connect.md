@@ -147,7 +147,7 @@ tmux, or the terminal of your editor. Two things to keep in mind:
 
 - **Start the agent in a folder that JupyterLab serves**, such as the folder
   where you ran `jupyter lab` or one of its subfolders. The proxy uses this
-  folder to find the right Jupyter server.
+  folder to find the right Jupyter server when several are running.
 - **The proxy may not be on the `PATH`** outside the Jupyter environment. Run
   it with [`uvx`](https://docs.astral.sh/uv/) instead, which works from any
   environment:

@@ -105,7 +105,7 @@ As another example, see how Claude can be used via ACP in the following screens,
 
 ### Chats are files
 
-Chats are appear as files named `<chat_name>.chat`. Each `.chat` file contains
+Chats appear as files named `<chat_name>.chat`. Each `.chat` file contains
 the entire history of the chat. These files are saved to disk, so you can
 resume any chat by re-opening the `.chat` file.
 
