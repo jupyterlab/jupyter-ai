@@ -1,3 +1,5 @@
+import re
+
 from .models.completion import InlineCompletionRequest
 
 
@@ -35,17 +37,24 @@ def post_process_suggestion(suggestion: str, request: InlineCompletionRequest) -
         f"```{identifier}"
         for identifier in markdown_identifiers.get(language, [language])
     ] + ["```"]
+    had_bad_opening = False
     for opening in bad_openings:
         # ollama models tend to add spurious whitespace
         if suggestion.lstrip().startswith(opening):
+            had_bad_opening = True
             suggestion = suggestion.lstrip()[len(opening) :].lstrip()
             # check for the prefix inclusion (only if there was a bad opening)
             if suggestion.startswith(request.prefix):
                 suggestion = suggestion[len(request.prefix) :]
             break
 
-    # check if the suggestion ends with a closing markdown identifier and remove it
-    if suggestion.rstrip().endswith("```"):
-        suggestion = suggestion.rstrip()[:-3].rstrip()
+    # If the response opened with a markdown block, remove closing fence and any subsequent text
+    if had_bad_opening:
+        match = re.search(r"\n```+", suggestion)
+        if match:
+            suggestion = suggestion[: match.start()]
+
+    # check if the suggestion ends with a closing markdown identifier (3 or more backticks) and remove it
+    suggestion = re.sub(r"\s*```+\s*$", "", suggestion)
 
     return suggestion
