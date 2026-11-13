@@ -107,6 +107,15 @@ expected_suggestions_cases = [
     ("```hello```world```", "hello```world"),
     (" ```\nprint(test)\n```", "print(test)"),
     ("``` \nprint(test)\n```", "print(test)"),
+    (
+        "```python\ndef add(a, b):\n    return a + b\n````",
+        "def add(a, b):\n    return a + b",
+    ),
+    (
+        "```python\ndef add(a, b):\n    return a + b\n```\nHere is how to use this function.",
+        "def add(a, b):\n    return a + b",
+    ),
+    ("def add(a, b):\n    return a + b\n```", "def add(a, b):\n    return a + b"),
 ]
 
 
