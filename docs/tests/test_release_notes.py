@@ -509,6 +509,114 @@ def test_extra_changelog_repos_disjoint_from_manifest():
     assert "jupyter_live_content" in gen.EXTRA_CHANGELOG_REPOS
 
 
+def test_core_names_reads_core_deps_only():
+    names = sv.core_names(CORE_PYPROJECT, AI_PYPROJECT)
+    assert names == {
+        "jupyterlab",
+        "jupyter_server_mcp",
+        "jupyter_ai_core",
+        "jupyter_ai_router",
+    }
+    # Extras are not core, even when they re-list a core package.
+    assert "jupyter_ai_litellm" not in names
+
+
+def test_unregistered_core_dependencies_normalizes_and_exempts(monkeypatch):
+    monkeypatch.setattr(gen, "EXTRA_CHANGELOG_REPOS", {"Extra-Pkg": "o/extra-pkg"})
+    monkeypatch.setattr(gen, "CHANGELOG_EXEMPT_DEPENDENCIES", {"skipped-pkg"})
+    text = """
+[project]
+name = "jupyter_ai"
+dependencies = [
+  "jupyter-ai-router>=0.1.0",
+  "extra_pkg>=0.1.0",
+  "Skipped_Pkg>=1.0",
+  "forgotten_pkg>=0.0.1",
+]
+
+[project.optional-dependencies]
+magics = ["opt_pkg>=0.1"]
+"""
+    manifest = {"jupyter_ai_router": "o/jupyter-ai-router"}
+    # Spelling differences (-/_ and case) between the sources do not count as
+    # unregistered; exempt names are skipped; optional extras are not checked.
+    assert gen.unregistered_core_dependencies(manifest, text) == {"forgotten_pkg"}
+
+
+def test_unregistered_core_dependencies_across_pyprojects():
+    manifest = {"jupyter_ai_router": "o/jupyter-ai-router"}
+    # jupyterlab and jupyter_ai_core are exempt by default; jupyter_server_mcp
+    # (a jupyter-ai-core dependency) is the one that is really missing.
+    assert gen.unregistered_core_dependencies(
+        manifest, CORE_PYPROJECT, AI_PYPROJECT
+    ) == {"jupyter_server_mcp"}
+
+
+def test_build_page_warns_about_unregistered_core_dependency(monkeypatch, tmp_path):
+    monkeypatch.setattr(gen, "previous_release_tag", lambda *a, **k: None)
+    monkeypatch.setattr(gen, "list_tags", lambda url: ["v0.0.6"])
+    monkeypatch.setattr(gen, "default_branch", lambda url: "main")
+    monkeypatch.setattr(
+        gen,
+        "submodule_section",
+        lambda org_repo, repo, *a, **k: f"## `{repo}`\n\nstub.",
+    )
+    logged: list[str] = []
+    monkeypatch.setattr(gen, "log", logged.append)
+
+    manifest = tmp_path / "manifest.json"
+    manifest.write_text(
+        '{"jupyter_ai_router": "org/jupyter-ai-router"}', encoding="utf-8"
+    )
+    pyproject = tmp_path / "pyproject.toml"
+    pyproject.write_text(
+        '[project]\nname = "jupyter_ai"\ndependencies = ['
+        '"jupyter_ai_router>=0.0.6,<0.1.0", "forgotten_pkg>=0.2.0,<0.3.0"]\n',
+        encoding="utf-8",
+    )
+    gen.build_page(
+        version="v3.1.0",
+        repo_root=str(tmp_path),
+        manifest_path=str(manifest),
+        pyproject_paths=[str(pyproject)],
+        target_branch="main",
+        auth="tok",
+        published_date="July 22, 2026",
+    )
+    warnings = [m for m in logged if "no changelog coverage" in m]
+    assert len(warnings) == 1
+    assert "forgotten_pkg" in warnings[0]
+    assert "jupyter_ai_router" not in warnings[0]
+
+
+def test_every_core_dependency_is_registered_for_changelog():
+    # The guard the generator's warning backs up: every non-optional dependency
+    # of the real packages must be a doc submodule, a changelog-only repo or an
+    # explicit exemption — otherwise its PRs silently vanish from the release
+    # notes (the way jupyter_live_content's did in v3.2.0).
+    repo_root = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..")
+    with open(
+        os.path.join(repo_root, "submodules", "manifest.json"), encoding="utf-8"
+    ) as f:
+        manifest = json.load(f)
+    texts = []
+    for path in sv.PYPROJECT_PATHS:
+        with open(os.path.join(repo_root, path), encoding="utf-8") as f:
+            texts.append(f.read())
+    missing = gen.unregistered_core_dependencies(manifest, *texts)
+    assert not missing, (
+        f"core dependencies with no changelog coverage: {sorted(missing)}; add "
+        "each to submodules/manifest.json, EXTRA_CHANGELOG_REPOS or "
+        "CHANGELOG_EXEMPT_DEPENDENCIES in scripts/generate_release_notes.py"
+    )
+
+
+def test_changelog_exemptions_are_not_also_registered():
+    registered = {sv._norm(n) for n in gen.EXTRA_CHANGELOG_REPOS}
+    exempt = {sv._norm(n) for n in gen.CHANGELOG_EXEMPT_DEPENDENCIES}
+    assert not registered & exempt
+
+
 def test_default_summary_omits_window_line_without_prev_tag():
     # No previous release ⇒ no "PRs between floors" sentence, but the note stays.
     s = gen.default_summary("v3.1.0", "main", prev_tag=None)

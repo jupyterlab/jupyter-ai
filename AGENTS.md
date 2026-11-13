@@ -103,7 +103,12 @@ the doc-submodule registry, so a dependency whose docs we don't aggregate
 (`jupyterlab_chat`, whose developer docs live on its own site) goes in
 `EXTRA_CHANGELOG_REPOS` instead — its PRs then reach the release notes without
 pulling its docs into this site. A dependency whose changelog is missing from a
-generated page is registered in neither.
+generated page is registered in neither. This is enforced: `build_page` warns
+about every core dependency registered in neither place, and
+`docs/tests/test_release_notes.py` fails on it. A core dependency that truly has
+no place in the release notes (currently `jupyterlab` and `jupyter_ai_core`) is
+listed, with a reason, in `CHANGELOG_EXEMPT_DEPENDENCIES` in
+`scripts/generate_release_notes.py`.
 
 ### Generating the page (Step 0 workflow)
 

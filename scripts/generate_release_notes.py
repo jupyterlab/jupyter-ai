@@ -46,6 +46,11 @@ below. The manifest exists to register **doc submodules**, so a dependency whose
 docs we don't aggregate has no reason to be in it — but its PRs still belong in
 the release notes. ``EXTRA_CHANGELOG_REPOS`` covers exactly that case, keeping
 changelog coverage independent of doc aggregation.
+
+Every core dependency of the ``python/*/pyproject.toml`` files must be in one of
+the two (or in ``CHANGELOG_EXEMPT_DEPENDENCIES``, with a reason). ``build_page``
+warns about any that is not, and ``docs/tests/test_release_notes.py`` fails on
+it, so a new dependency cannot quietly ship with no changelog section.
 """
 
 import argparse
@@ -67,6 +72,7 @@ from _submodule_versions import (
     LEGACY_PYPROJECT_PATH,
     PYPROJECT_PATHS,
     _norm,
+    core_names,
     default_branch,
     list_tags,
     load_floors_from_text,
@@ -98,6 +104,40 @@ EXTRA_CHANGELOG_REPOS = {
     # Lives under jupyter-ai-contrib/, but does not aggregate docs into this site.
     "jupyter_live_content": "jupyter-ai-contrib/jupyter-live-content",
 }
+
+# Core dependencies that are intentionally NOT covered by the changelog.
+#
+# Every other ``[project].dependencies`` entry of the ``python/*/pyproject.toml``
+# files must be registered in ``submodules/manifest.json`` or
+# ``EXTRA_CHANGELOG_REPOS``, otherwise its PRs silently vanish from the release
+# notes (``unregistered_core_dependencies`` warns, and
+# ``docs/tests/test_release_notes.py`` fails). List a dependency here only when
+# it genuinely has no place in Jupyter AI's release notes, and say why.
+CHANGELOG_EXEMPT_DEPENDENCIES = {
+    # Upstream JupyterLab: its releases are not part of a Jupyter AI release.
+    "jupyterlab",
+    # This repo's own core package; it IS the release being documented.
+    "jupyter_ai_core",
+}
+
+
+def unregistered_core_dependencies(
+    manifest: dict[str, str], *pyproject_texts: str
+) -> set[str]:
+    """Return the core dependencies that would get no changelog section.
+
+    A core dependency (``[project].dependencies`` of any given pyproject text)
+    is covered when it is registered in ``manifest`` (a doc submodule) or
+    ``EXTRA_CHANGELOG_REPOS`` (changelog-only), or exempted via
+    ``CHANGELOG_EXEMPT_DEPENDENCIES``. Names are normalized (case, ``-`` vs
+    ``_``) before comparison. Optional extras are not considered: a package
+    only reachable through an extra is not required to be registered.
+    """
+    registered = {_norm(name) for name in manifest}
+    registered |= {_norm(name) for name in EXTRA_CHANGELOG_REPOS}
+    exempt = {_norm(name) for name in CHANGELOG_EXEMPT_DEPENDENCIES}
+    return core_names(*pyproject_texts) - registered - exempt
+
 
 AUTO_BEGIN = "<!-- BEGIN AUTO-GENERATED (do not edit; regenerated on each run) -->"
 AUTO_END = "<!-- END AUTO-GENERATED -->"
@@ -436,6 +476,16 @@ def build_page(
             pyproject_texts.append(f.read())
     new_floors = load_floors_from_text(*pyproject_texts)
     optional = optional_only_names(*pyproject_texts)
+
+    # A core dependency registered nowhere gets no section at all, and nothing
+    # downstream would notice: say so loudly here, where the page is assembled.
+    unregistered = unregistered_core_dependencies(manifest, *pyproject_texts)
+    if unregistered:
+        log(
+            "warning: core dependencies with no changelog coverage (add each to "
+            "submodules/manifest.json, EXTRA_CHANGELOG_REPOS or "
+            f"CHANGELOG_EXEMPT_DEPENDENCIES): {', '.join(sorted(unregistered))}"
+        )
 
     prev_tag = previous_release_tag(repo_root, version, target_branch)
     if prev_tag is None:

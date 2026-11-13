@@ -114,11 +114,20 @@ def make_site(tmp_path: Path):
 
     Each submodule spec maps ``repo-slug`` -> ``{section: {relpath: content}}``.
     A ``manifest.json`` is generated listing every provided repo (in the order
-    given) so aggregation order is deterministic.
+    given) so aggregation order is deterministic. ``unchecked`` names extra repos
+    to register in the manifest *without* creating anything under
+    ``submodules/`` — the on-disk shape of a submodule that was never checked out.
+    ``suppress_warnings`` is passed straight through to Sphinx's setting of the
+    same name.
     """
 
-    def _build(submodules: dict[str, dict[str, dict[str, str]]] | None = None) -> Build:
+    def _build(
+        submodules: dict[str, dict[str, dict[str, str]]] | None = None,
+        unchecked: list[str] | None = None,
+        suppress_warnings: list[str] | None = None,
+    ) -> Build:
         submodules = submodules or {}
+        unchecked = unchecked or []
 
         root = tmp_path
         source = root / "docs" / "source"
@@ -151,9 +160,14 @@ def make_site(tmp_path: Path):
                         target.write_bytes(content)
                     else:
                         target.write_text(content)
+        for repo in unchecked:
+            manifest[repo.replace("-", "_")] = f"fixture-org/{repo}"
         (subroot / "manifest.json").write_text(json.dumps(manifest, indent=2))
 
         outdir = root / "build"
+        overrides: list[str] = []
+        if suppress_warnings:
+            overrides += ["-D", "suppress_warnings=" + ",".join(suppress_warnings)]
         proc = subprocess.run(
             [
                 sys.executable,
@@ -163,6 +177,7 @@ def make_site(tmp_path: Path):
                 "html",
                 "-W",  # warnings become errors: the build must be clean
                 "-q",
+                *overrides,
                 str(source),
                 str(outdir),
             ],
