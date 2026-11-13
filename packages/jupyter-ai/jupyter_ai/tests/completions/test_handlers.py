@@ -162,6 +162,85 @@ async def test_handle_request_with_spurious_fragments_stream(
     assert inline_handler.messages[2].response.insertText == expected_suggestion
 
 
+newline_preservation_cases = [
+    # Model does not repeat the comment prefix
+    (
+        "# load json file",
+        "```python\nimport json\nwith open('path-to-file', 'r') as f:\n    content = json.load(f)\n```",
+        "\nimport json\nwith open('path-to-file', 'r') as f:\n    content = json.load(f)",
+    ),
+    # Model repeats the comment prefix
+    (
+        "# load json file",
+        "```python\n# load json file\nimport json\nwith open('path-to-file', 'r') as f:\n    content = json.load(f)\n```",
+        "\nimport json\nwith open('path-to-file', 'r') as f:\n    content = json.load(f)",
+    ),
+    # Generic code block without language
+    (
+        "# load json file",
+        "```\nimport json\n```",
+        "\nimport json",
+    ),
+    (
+        "# load json file",
+        "```\n# load json file\nimport json\n```",
+        "\nimport json",
+    ),
+]
+
+
+@pytest.mark.parametrize(
+    "prefix,response,expected_suggestion",
+    newline_preservation_cases,
+)
+async def test_handle_request_preserves_newline_after_prefix(
+    prefix, response, expected_suggestion
+):
+    inline_handler = MockCompletionHandler(
+        lm_provider=MockProvider,
+        lm_provider_params={
+            "model_id": "model",
+            "responses": [response],
+        },
+    )
+    dummy_request = InlineCompletionRequest(
+        number=1, prefix=prefix, suffix="", mime="", stream=False
+    )
+
+    await inline_handler.handle_request(dummy_request)
+    # should write a single reply
+    assert len(inline_handler.messages) == 1
+    # reply should contain a single suggestion
+    suggestions = inline_handler.messages[0].list.items
+    assert len(suggestions) == 1
+    # the suggestion should preserve the leading newline and exclude the prefix
+    assert suggestions[0].insertText == expected_suggestion
+
+
+@pytest.mark.parametrize(
+    "prefix,response,expected_suggestion",
+    newline_preservation_cases,
+)
+async def test_handle_request_preserves_newline_after_prefix_stream(
+    prefix, response, expected_suggestion
+):
+    inline_handler = MockCompletionHandler(
+        lm_provider=MockProvider,
+        lm_provider_params={
+            "model_id": "model",
+            "responses": [response],
+        },
+    )
+    dummy_request = InlineCompletionRequest(
+        number=1, prefix=prefix, suffix="", mime="", stream=True
+    )
+
+    await inline_handler.handle_stream_request(dummy_request)
+    assert len(inline_handler.messages) == 3
+    # the final state should preserve the leading newline and exclude the prefix
+    assert inline_handler.messages[2].response.insertText == expected_suggestion
+
+
 async def test_handle_stream_request():
     inline_handler = MockCompletionHandler(
         lm_provider=MockProvider,
