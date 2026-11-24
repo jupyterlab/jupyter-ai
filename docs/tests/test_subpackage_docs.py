@@ -11,6 +11,7 @@ Cases (from the design):
   * developers-only    -> mirror
   * both               -> appears under both
   * neither / missing index.md -> silently skipped, build still green
+  * registered but never checked out -> warned about (an error under ``-W``)
   * full subtree with a nested page + an image -> all renders, links resolve
   * baseline: no fixtures -> build succeeds unchanged
 """
@@ -156,3 +157,39 @@ def test_baseline_no_submodules(make_site):
     # No injected "Subpackages" caption when nothing was staged.
     assert "Subpackages" not in build.html("contributors/index")
     assert "Subpackages" not in build.html("developers/index")
+
+
+def test_unchecked_submodule_warns(make_site):
+    """A manifest entry with no checkout on disk is a warning, not a silent skip.
+
+    A sparse checkout of a subpackage that ships no docs still leaves ``.git``
+    in the submodule directory, so an empty (or missing) directory means the
+    checkout itself never happened — the one case the build must not pass over
+    quietly. Under ``-W`` the warning fails the build.
+    """
+    build = make_site(
+        submodules={"real-pkg": {"contributors": {"index.md": "# Real\n"}}},
+        unchecked=["ghost-pkg"],
+    )
+    assert build.returncode != 0
+    assert "[subpackage-docs] 'ghost-pkg' is registered in manifest.json" in (
+        build.stderr
+    )
+    assert "ghost-pkg is missing or empty" in build.stderr
+    # The checked-out subpackage is not blamed.
+    assert "'real-pkg' is registered" not in build.stderr
+
+
+def test_unchecked_submodule_warning_is_suppressible(make_site):
+    """The warning carries its own type/subtype so builds that intentionally run
+    without submodules (e.g. CI) can silence exactly it and nothing else."""
+    build = make_site(
+        submodules={"real-pkg": {"contributors": {"index.md": "# Real\n"}}},
+        unchecked=["ghost-pkg"],
+        suppress_warnings=["subpackage-docs.unchecked"],
+    )
+    assert build.returncode == 0, build.stderr
+    assert "ghost-pkg" not in build.stderr
+    # Staging still happens for everything that *is* checked out.
+    assert build.exists("contributors/real-pkg/index")
+    assert "contributors/ghost-pkg/index" not in build.html("contributors/index")

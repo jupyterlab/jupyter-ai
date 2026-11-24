@@ -71,13 +71,23 @@ while IFS=$'\t' read -r path url ref kind; do
   git -C "$path" sparse-checkout init --no-cone >/dev/null 2>&1 || true
   git -C "$path" sparse-checkout set --no-cone docs >/dev/null 2>&1 || true
 
-  # Fetch tags and the resolved ref, then detach onto it.
-  git -C "$path" fetch --quiet --tags origin || true
+  # Fetch tags and the resolved ref, then detach onto it. A failed fetch is
+  # fatal: FETCH_HEAD would otherwise still point at whatever an earlier fetch
+  # left behind, and the checkout below would silently pin that instead.
+  if ! git -C "$path" fetch --quiet --tags origin; then
+    echo "error: failed to fetch tags for $path from $url" >&2
+    exit 1
+  fi
   if [[ "$kind" == "tag" ]]; then
     checkout_ref="refs/tags/$ref"
   else
-    git -C "$path" fetch --quiet origin "$ref" || true
-    checkout_ref="FETCH_HEAD"
+    if ! git -C "$path" fetch --quiet origin "$ref"; then
+      echo "error: failed to fetch '$ref' for $path from $url" >&2
+      exit 1
+    fi
+    # The fetch we just ran is the only thing allowed to decide what gets
+    # pinned, so resolve FETCH_HEAD now rather than trusting the symbolic name.
+    checkout_ref="$(git -C "$path" rev-parse --verify FETCH_HEAD^{commit})"
   fi
   git -C "$path" checkout --quiet --detach "$checkout_ref"
 
