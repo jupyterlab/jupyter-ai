@@ -32,10 +32,10 @@ claude mcp add jupyter -- jupyter-server-mcp-proxy
 - [`jupyter-live-content`](https://github.com/jupyter-ai-contrib/jupyter-live-content):
   reloads open files when the agent changes them on disk.
 
-It also shows hidden files by default, so that you can see and edit agent
-files such as `.mcp.json`, `.claude/`, and `.agents/`. It sets
-`ContentsManager.allow_hidden` on the server, and `showHiddenFiles` in the
-file browser. Your own settings take precedence.
+It does not change the settings of JupyterLab or of the Jupyter server. For
+example, JupyterLab hides agent files such as `.mcp.json`, `.claude/`, and
+`.agents/` by default. To see and edit them in JupyterLab, see
+[Show hidden files](https://jupyter-ai.readthedocs.io/en/latest/users/terminal-agents/setup.html#show-hidden-files).
 
 For the agent chat in JupyterLab, install
 [`jupyter-ai`](https://pypi.org/project/jupyter-ai/). It includes
