@@ -6,8 +6,7 @@ needs, and the settings that make day-to-day work smoother.
 ## Install
 
 The quickest way is `jupyter-ai-core`, a small package that installs
-JupyterLab with the extensions listed below and a few defaults for agent
-workflows.
+JupyterLab with the extensions listed below.
 
 ````{tabs}
 
@@ -104,18 +103,19 @@ There are two ways to see an agent's notebook changes live:
 | RTC (`jupyter-server-ydoc` and `jupyter-docprovider`) | Live | Live | Outputs and the kernel are kept. |
 | Neither | Not updated | Not updated | JupyterLab warns about the conflict when you save. |
 
-## Recommended settings
+## Optional settings
 
-`jupyter-ai-core` shows hidden files by default, on the server and in the
-file browser. If you install the packages yourself, you can apply the same
-settings.
+`jupyter-ai-core` does not change the settings of JupyterLab or of the
+Jupyter server. The settings below are optional.
 
 ### Show hidden files
 
 Agents keep their configuration and instructions in files and folders whose
 names start with a dot: `.mcp.json`, `.claude/`, `.codex/`, and
-`.agents/skills/`. To see and edit them in JupyterLab, allow the server to
-serve hidden files and show them in the file browser.
+`.agents/skills/`. JupyterLab hides them by default. The agent reads and
+writes them directly, so it does not need them to be visible. To see and edit
+them in JupyterLab, allow the server to serve hidden files and show them in
+the file browser.
 
 Allow hidden files on the server, in `jupyter_server_config.json` in one of
 the `config` directories listed by `jupyter --paths`:
@@ -128,9 +128,16 @@ the `config` directories listed by `jupyter --paths`:
 }
 ```
 
-Then show them in the file browser: select **View → Show Hidden Files**, or
-set `showHiddenFiles` to `true` for the **File Browser** in the Settings
-Editor.
+:::{note}
+This setting applies to all hidden files in the folder where you start
+JupyterLab, not only to agent files. If you start JupyterLab from your home
+folder, this includes folders such as `.ssh/`.
+:::
+
+Restart JupyterLab, then show them in the file browser: select
+**View → Show Hidden Files**, or set `showHiddenFiles` to `true` for the
+**File Browser** in the Settings Editor. The menu entry is available only when
+the server allows hidden files.
 
 To ship both settings as defaults for everyone using an environment, see
 {ref}`terminal-agents-own-distribution`.

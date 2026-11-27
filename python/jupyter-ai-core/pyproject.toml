@@ -39,7 +39,3 @@ Tracker = "https://github.com/jupyterlab/jupyter-ai/issues"
 
 [tool.hatch.version]
 path = "jupyter_ai_core/__init__.py"
-
-[tool.hatch.build.targets.wheel.shared-data]
-"jupyter-config/jupyter_server_config.d" = "etc/jupyter/jupyter_server_config.d"
-"jupyter-config/labconfig" = "etc/jupyter/labconfig"

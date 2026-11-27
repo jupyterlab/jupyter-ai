@@ -1,5 +1,0 @@
-{
-  "@jupyterlab/filebrowser-extension:browser": {
-    "showHiddenFiles": true
-  }
-}

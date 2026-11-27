@@ -11,7 +11,7 @@ holds the two metapackages that distribute a working set of them, under
 
 - `jupyter-ai-core` (`python/jupyter-ai-core/`): JupyterLab with the extensions
   that terminal coding agents need (`jupyter-server-mcp`,
-  `jupyterlab-commands-toolkit`, `jupyter-live-content`), and default settings.
+  `jupyterlab-commands-toolkit`, `jupyter-live-content`).
 - `jupyter-ai` (`python/jupyter-ai/`): the agent chat. It depends on
   `jupyter-ai-core` and adds the chat subpackages.
 
