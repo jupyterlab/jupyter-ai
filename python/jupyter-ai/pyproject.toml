@@ -31,7 +31,7 @@ dependencies = [
   # Released in lockstep with jupyter_ai; scripts/bump_version.py keeps this
   # pin in sync during a release.
   "jupyter_ai_core==3.2.0",
-  "jupyterlab_chat>=0.26.1,<0.27.0",
+  "jupyterlab_chat>=0.26.2,<0.27.0",
   "jupyter_ai_router>=0.1.2,<0.2.0",
   "jupyter_ai_persona_manager>=0.4.0,<0.5.0",
   "jupyter_ai_chat_commands>=0.0.4,<0.1.0",
